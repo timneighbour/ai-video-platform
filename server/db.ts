@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys } from "../drizzle/schema";
+import type { InsertSubscription, InsertProject, InsertApiKey } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +90,142 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Subscription queries
+ */
+export async function getUserSubscription(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createSubscription(data: InsertSubscription) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(subscriptions).values(data);
+}
+
+export async function updateSubscription(id: number, data: Partial<InsertSubscription>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(subscriptions).set(data).where(eq(subscriptions.id, id));
+}
+
+/**
+ * Credit queries
+ */
+export async function getUserCredits(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(credits).where(eq(credits.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUserCredits(userId: number, initialBalance: number = 0) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(credits).values({
+    userId,
+    balance: initialBalance,
+    totalEarned: initialBalance,
+    totalSpent: 0,
+  });
+}
+
+export async function addCredits(userId: number, amount: number, type: string, description?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const userCredits = await getUserCredits(userId);
+  if (!userCredits) {
+    await createUserCredits(userId, amount);
+  } else {
+    await db
+      .update(credits)
+      .set({
+        balance: userCredits.balance + amount,
+        totalEarned: userCredits.totalEarned + amount,
+      })
+      .where(eq(credits.userId, userId));
+  }
+  
+  await db.insert(creditTransactions).values({
+    userId,
+    amount,
+    type: type as any,
+    description,
+  });
+}
+
+export async function deductCredits(userId: number, amount: number, description?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const userCredits = await getUserCredits(userId);
+  if (!userCredits || userCredits.balance < amount) {
+    throw new Error("Insufficient credits");
+  }
+  
+  await db
+    .update(credits)
+    .set({
+      balance: userCredits.balance - amount,
+      totalSpent: userCredits.totalSpent + amount,
+    })
+    .where(eq(credits.userId, userId));
+  
+  await db.insert(creditTransactions).values({
+    userId,
+    amount: -amount,
+    type: "usage",
+    description,
+  });
+}
+
+/**
+ * Project queries
+ */
+export async function getUserProjects(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(projects).where(eq(projects.userId, userId));
+}
+
+export async function createProject(data: InsertProject) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(projects).values(data);
+  return result;
+}
+
+export async function updateProject(id: number, data: Partial<InsertProject>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(projects).set(data).where(eq(projects.id, id));
+}
+
+/**
+ * API Key queries
+ */
+export async function getUserApiKeys(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(apiKeys).where(eq(apiKeys.userId, userId));
+}
+
+export async function createApiKey(data: InsertApiKey) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(apiKeys).values(data);
+}
+
+export async function deleteApiKey(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(apiKeys).where(eq(apiKeys.id, id));
+}

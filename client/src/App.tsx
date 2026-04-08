@@ -5,12 +5,30 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Subscribe from "./pages/Subscribe";
+import Credits from "./pages/Credits";
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import Account from "./pages/Account";
+import TextToVideo from "./pages/tools/TextToVideo";
+import LipSync from "./pages/tools/LipSync";
+import VideoToVideo from "./pages/tools/VideoToVideo";
+import Voiceover from "./pages/tools/Voiceover";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/subscribe"} component={Subscribe} />
+      <Route path={"/credits"} component={Credits} />
+      <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/projects"} component={Projects} />
+      <Route path={"/account"} component={Account} />
+      <Route path={"/tools/text-to-video"} component={TextToVideo} />
+      <Route path={"/tools/lip-sync"} component={LipSync} />
+      <Route path={"/tools/video-to-video"} component={VideoToVideo} />
+      <Route path={"/tools/voiceover"} component={Voiceover} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
