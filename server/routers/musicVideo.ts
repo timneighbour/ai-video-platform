@@ -261,19 +261,21 @@ export const musicVideoRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Job must have a storyboard before rendering" });
       }
 
-      // Check credits
-      const creditBalance = await getUserCredits(ctx.user.id);
-      if (creditBalance < job.creditCost) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: `Insufficient credits. Need ${job.creditCost}, have ${creditBalance}`,
-        });
+      // Check credits — admins bypass credit checks for testing
+      const isAdmin = ctx.user.role === "admin";
+      if (!isAdmin) {
+        const creditBalance = await getUserCredits(ctx.user.id);
+        if (creditBalance < job.creditCost) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Insufficient credits. Need ${job.creditCost}, have ${creditBalance}`,
+          });
+        }
+        await deductCredits(ctx.user.id, job.creditCost, `Music video: ${job.title}`);
+      } else {
+        console.log(`[MusicVideo] Admin ${ctx.user.id} bypassing credit check (cost: ${job.creditCost})`);
       }
-
-      // Deduct credits
-      await deductCredits(ctx.user.id, job.creditCost, `Music video: ${job.title}`);
-
-      // Update job status
+       // Update job statuss
       await db.update(musicVideoJobs)
         .set({ status: "rendering", completedScenes: 0, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
