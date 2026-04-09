@@ -147,6 +147,8 @@ export default function MusicVideoAutopilot() {
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Ref guard to prevent double-click / React re-render duplicate render submissions
+  const isRenderingRef = useRef(false);
 
   const transcribeAudioDirect = trpc.musicVideo.transcribeAudioDirect.useMutation();
   const createJob = trpc.musicVideo.createJob.useMutation();
@@ -503,15 +505,34 @@ export default function MusicVideoAutopilot() {
 
   const handleStartRender = async () => {
     if (!jobId) return;
+    // Prevent duplicate submissions from double-click or React re-renders
+    if (isRenderingRef.current) {
+      console.warn("[MusicVideo] Render already in progress, ignoring duplicate click");
+      return;
+    }
+    isRenderingRef.current = true;
+
     try {
-      await startRender.mutateAsync({ jobId });
-      setStep("render");
-      setRenderStatus("rendering");
-      setCompletedScenes(0);
+      const result = await startRender.mutateAsync({ jobId });
+      // If server returned duplicate guard (already rendering), just switch to render step
+      if ((result as any).duplicate) {
+        setStep("render");
+        setRenderStatus("rendering");
+      } else {
+        setStep("render");
+        setRenderStatus("rendering");
+        setCompletedScenes(0);
+      }
 
       // Start polling with adaptive backoff on 429
-      let pollBackoffMs = 20000; // Start at 20s (scenes take 30-120s each)
+      // Minimum 15s between polls (scenes take 30-120s each, no need to hammer the API)
+      let pollBackoffMs = 15000;
+      const MAX_POLL_BACKOFF_MS = 120000;
+
       const schedulePoll = () => {
+        // Clear any existing timer before scheduling a new one
+        if (pollIntervalRef.current) clearTimeout(pollIntervalRef.current);
+
         pollIntervalRef.current = setTimeout(async () => {
           try {
             const progress = await pollProgress.mutateAsync({ jobId });
@@ -521,33 +542,57 @@ export default function MusicVideoAutopilot() {
 
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
+              isRenderingRef.current = false;
               toast.success("Your music video is ready!", { description: "Click Download to save it." });
               return; // stop polling
             }
 
             if (progress.status === "failed") {
-              toast.error("Render failed", { description: "Some scenes could not be generated." });
+              isRenderingRef.current = false;
+              toast.error("Render failed", { description: "Some scenes could not be generated. Please try regenerating failed scenes." });
               return; // stop polling
             }
 
-            // Reset backoff on success and schedule next
-            pollBackoffMs = 20000;
+            // Good response — reset backoff and schedule next poll
+            pollBackoffMs = 15000;
             schedulePoll();
           } catch (err: any) {
-            console.error("Poll error:", err);
-            // On 429, back off exponentially (max 120s)
-            if (err?.data?.httpStatus === 429 || String(err?.message).includes("429")) {
-              pollBackoffMs = Math.min(pollBackoffMs * 2, 120000);
-              console.warn(`[MusicVideo] Rate limited, backing off to ${pollBackoffMs}ms`);
+            const is429 =
+              err?.data?.httpStatus === 429 ||
+              String(err?.message).includes("429") ||
+              String(err?.message).toLowerCase().includes("rate limit");
+
+            if (is429) {
+              pollBackoffMs = Math.min(pollBackoffMs * 2, MAX_POLL_BACKOFF_MS);
+              console.warn(`[MusicVideo] ${new Date().toISOString()} Rate limited during polling. Backing off to ${pollBackoffMs}ms`);
+              toast.warning("Rendering is busy right now.", {
+                description: "Please wait — we'll check again shortly.",
+                id: "render-rate-limit", // deduplicate toasts
+              });
+            } else {
+              console.error("[MusicVideo] Poll error:", err);
             }
-            schedulePoll(); // keep trying
+            schedulePoll(); // keep trying regardless
           }
         }, pollBackoffMs) as unknown as ReturnType<typeof setInterval>;
       };
-      schedulePoll(); // Poll with adaptive backoff
+
+      schedulePoll();
 
     } catch (err: any) {
-      toast.error("Error", { description: err.message });
+      isRenderingRef.current = false;
+      const is429 =
+        err?.data?.httpStatus === 429 ||
+        String(err?.message).includes("429") ||
+        String(err?.message).toLowerCase().includes("rate limit");
+
+      if (is429) {
+        toast.error("Rendering is busy right now.", {
+          description: "The AI rendering service is at capacity. Please wait a moment and try again.",
+        });
+      } else {
+        toast.error("Failed to start render", { description: err.message });
+      }
     }
   };
 

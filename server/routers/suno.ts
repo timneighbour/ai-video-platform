@@ -24,6 +24,8 @@ export const sunoRouter = router({
         title: z.string().max(80).optional(),
         instrumental: z.boolean().default(false),
         model: z.enum(["V3_5", "V4"]).default("V4"),
+        /** Frontend must pass window.location.origin so we can build the callback URL */
+        origin: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -40,6 +42,11 @@ export const sunoRouter = router({
         });
       }
 
+      // Build callback URL from origin (required by Suno API)
+      const callBackUrl = input.origin
+        ? `${input.origin}/api/suno/callback`
+        : `${process.env.VITE_FRONTEND_FORGE_API_URL ?? "https://api.manus.im"}/api/suno/callback`;
+
       // Submit to Suno API
       const externalTaskId = await suno.generate({
         prompt: input.prompt,
@@ -47,6 +54,7 @@ export const sunoRouter = router({
         title: input.title,
         instrumental: input.instrumental,
         model: input.model,
+        callBackUrl,
       });
 
       // Save to DB

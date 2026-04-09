@@ -9,6 +9,9 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
+import { getDb } from "../db";
+import { sunoMusicTasks } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -50,6 +53,73 @@ async function startServer() {
     } catch (err) {
       console.error("[Upload] Error:", err);
       res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
+  // Suno music generation callback endpoint
+  // Suno POSTs here when a music generation task completes
+  app.post("/api/suno/callback", async (req, res) => {
+    try {
+      const { code, msg, data } = req.body;
+      const taskId = data?.task_id;
+      const callbackType = data?.callbackType;
+
+      console.log(`[Suno Callback] taskId=${taskId} type=${callbackType} code=${code} msg=${msg}`);
+
+      if (!taskId) {
+        res.status(400).json({ error: "Missing task_id" });
+        return;
+      }
+
+      // Only process final completion events
+      if (callbackType !== "complete" && callbackType !== "error") {
+        res.status(200).json({ received: true });
+        return;
+      }
+
+      const db = await getDb();
+      if (!db) {
+        res.status(500).json({ error: "DB unavailable" });
+        return;
+      }
+
+      if (code === 200 && callbackType === "complete") {
+        const musicData: Array<{
+          id?: string;
+          audio_url?: string;
+          image_url?: string;
+          title?: string;
+          tags?: string;
+          duration?: number;
+        }> = data?.data ?? [];
+
+        const tracks = musicData.map((m) => ({
+          id: m.id,
+          audioUrl: m.audio_url ?? "",
+          imageUrl: m.image_url,
+          title: m.title ?? "Generated Track",
+          tags: m.tags,
+          duration: m.duration,
+        }));
+
+        await db.update(sunoMusicTasks)
+          .set({ status: "complete", tracks: JSON.stringify(tracks), updatedAt: new Date() })
+          .where(eq(sunoMusicTasks.taskId, taskId));
+
+        console.log(`[Suno Callback] Task ${taskId} completed with ${tracks.length} tracks`);
+      } else {
+        // Failed
+        await db.update(sunoMusicTasks)
+          .set({ status: "failed", errorMessage: msg ?? "Unknown error", updatedAt: new Date() })
+          .where(eq(sunoMusicTasks.taskId, taskId));
+
+        console.error(`[Suno Callback] Task ${taskId} failed: ${msg}`);
+      }
+
+      res.status(200).json({ received: true });
+    } catch (err) {
+      console.error("[Suno Callback] Error processing callback:", err);
+      res.status(500).json({ error: "Internal error" });
     }
   });
 

@@ -770,3 +770,33 @@
 - [x] Preserve all other scenes when regenerating one scene
 - [x] Optimistic UI updates for lip sync toggle (instant feedback, rollback on error)
 - [x] Write vitest tests for updateSceneLipSync, updateAllScenesLipSync, regenerateScene procedures
+
+## Bug: Suno API callBackUrl Error
+- [ ] Add callBackUrl parameter to all Suno API generation calls
+- [ ] Implement /api/suno/callback endpoint to receive Suno webhook results
+- [ ] Update suno router to poll for results OR handle webhook callback
+- [ ] Test Suno music generation end-to-end after fix
+
+## Bug Fix: HTTP 429 Rate Limit on Video Rendering (Priority)
+- [ ] Audit Kling AI client for missing/weak retry logic
+- [ ] Fix rateLimitRetry utility: add Retry-After header parsing, true exponential backoff with jitter
+- [ ] Add server-side per-user render throttle (max 1 concurrent render job per user)
+- [ ] Fix render button: disable immediately on click, prevent duplicate submissions
+- [ ] Reduce polling frequency from current interval to 15s minimum with adaptive backoff
+- [ ] Add 429-specific user-facing error message ("Rendering is busy right now...")
+- [ ] Add structured logging: timestamp, route, userId, provider response on every 429
+- [ ] Fix Suno API: add callBackUrl to generate requests + implement /api/suno/callback endpoint
+- [ ] Add server-side Suno callback handler that updates DB on completion
+
+## Pipeline Hardening: End-to-End Video Generation (Priority)
+- [x] Wrap Kling createTextToVideo in withRetry (currently unguarded)
+- [x] Add 429-specific error message in Kling client with Retry-After logging
+- [x] Add staggered 3s delay between scene render starts to avoid burst 429s
+- [x] Add server-side duplicate render guard (if job already rendering, return gracefully)
+- [x] Fix render button: add isRendering ref guard to prevent double-click submissions
+- [x] Improve polling: increase minimum interval to 15s, add adaptive backoff on 429
+- [x] Show user-friendly 429 message: "Rendering is busy right now. Please wait a moment."
+- [x] Add structured server logs: timestamp, userId, sceneId, HTTP status on every render event
+- [x] Fix Suno callBackUrl: add /api/suno/callback endpoint + pass origin from MusicCreator
+- [x] Update Suno router to build callBackUrl from input.origin
+- [x] Run full TypeScript check and all 36 tests after changes

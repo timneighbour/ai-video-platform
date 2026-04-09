@@ -22,6 +22,8 @@ export interface SunoGenerateRequest {
   instrumental?: boolean;
   /** Model version: "V3_5" or "V4" */
   model?: "V3_5" | "V4";
+  /** Webhook URL for completion notification (required by Suno API) */
+  callBackUrl?: string;
 }
 
 export interface SunoTrack {
@@ -66,6 +68,10 @@ export class SunoClient {
       instrumental: req.instrumental ?? false,
       model: req.model ?? "V4",
     };
+
+    if (req.callBackUrl) {
+      body.callBackUrl = req.callBackUrl;
+    }
 
     if (useCustomMode) {
       body.customMode = true;

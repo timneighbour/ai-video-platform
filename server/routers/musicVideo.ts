@@ -273,6 +273,11 @@ export const musicVideoRouter = router({
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
       if (job.status !== "storyboard_ready") {
+        // Guard against duplicate render submissions — if already rendering, return gracefully
+        if (job.status === "rendering" || job.status === "assembling") {
+          console.warn(`[MusicVideo] Duplicate render request for job ${input.jobId} (status: ${job.status}). Ignoring.`);
+          return { success: true, creditCost: 0, duplicate: true };
+        }
         throw new TRPCError({ code: "BAD_REQUEST", message: "Job must have a storyboard before rendering" });
       }
 
@@ -299,16 +304,21 @@ export const musicVideoRouter = router({
       const scenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
-      // Fire-and-forget: start each scene render
+      // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
+      const SCENE_STAGGER_MS = 3000;
       (async () => {
-        for (const scene of scenes) {
+        for (let i = 0; i < scenes.length; i++) {
+          const scene = scenes[i];
+          if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           try {
             const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration);
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
-          } catch (err) {
-            console.error(`[MusicVideo] Failed to start scene ${scene.id}:`, err);
+            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued: ${taskId}`);
+          } catch (err: unknown) {
+            const httpStatus = (err as any)?.response?.status;
+            console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"})`, err);
             await db!.update(musicVideoScenes)
               .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
@@ -334,7 +344,7 @@ export const musicVideoRouter = router({
       const scenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
-      // Poll each generating scene
+      // Poll each generating scene — isolate errors per-scene so one failure doesn't block others
       let completedCount = 0;
       let failedCount = 0;
 
@@ -348,9 +358,25 @@ export const musicVideoRouter = router({
           continue;
         }
         if (scene.status === "generating" && scene.taskId) {
-          const result = await pollSceneStatus(scene.id, scene.taskId);
-          if (result.status === "completed") completedCount++;
-          if (result.status === "failed") failedCount++;
+          try {
+            const result = await pollSceneStatus(scene.id, scene.taskId);
+            if (result.status === "completed") completedCount++;
+            if (result.status === "failed") failedCount++;
+          } catch (pollErr: unknown) {
+            const httpStatus = (pollErr as any)?.response?.status;
+            if (httpStatus === 429) {
+              // Rate limited during polling — skip this scene this round, will retry next poll
+              console.warn(
+                `[MusicVideo] ${new Date().toISOString()} 429 rate limit polling scene ${scene.id} (taskId=${scene.taskId}). Skipping this round.`
+              );
+            } else {
+              console.error(
+                `[MusicVideo] ${new Date().toISOString()} Error polling scene ${scene.id} (HTTP ${httpStatus ?? "?"})`,
+                pollErr
+              );
+            }
+            // Don't count as failed — let it retry on next poll cycle
+          }
         }
       }
 

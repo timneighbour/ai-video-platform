@@ -223,6 +223,7 @@ export default function MusicCreator() {
       title: title.trim() || undefined,
       instrumental: isInstrumental,
       model,
+      origin: window.location.origin,
     });
   };
 
