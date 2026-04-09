@@ -6,9 +6,10 @@
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { getUserCredits, addCredits, getCreditHistory } from "../credit-service";
-import { getUserSubscription } from "../db";
+import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
 import { generateVideo, checkVideoStatus, getUserProjects } from "../video-service";
-// import { notifyOwner } from "../\_core/notification";
+import { SUBSCRIPTION_PLANS } from "../products";
+// import { notifyOwner } from "../_core/notification";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
@@ -33,6 +34,21 @@ export const billingRouter = router({
       isActive: sub?.status === "active",
       isPro: sub?.plan === "pro" || sub?.plan === "business",
       isStarter: sub?.plan === "starter",
+    };
+  }),
+
+  /**
+   * Get user's plan limits (maxVideoSeconds, maxVideosPerMonth, maxPremiumScenesPerVideo)
+   */
+  getPlanLimits: protectedProcedure.query(async ({ ctx }) => {
+    const sub = await getUserSubscription(ctx.user.id);
+    const productPlan = mapDbPlanToProductPlan(sub?.plan ?? "free");
+    const limits = SUBSCRIPTION_PLANS[productPlan];
+    return {
+      plan: productPlan,
+      maxVideoSeconds: limits.maxVideoSeconds,
+      maxVideosPerMonth: limits.maxVideosPerMonth,
+      maxPremiumScenesPerVideo: limits.maxPremiumScenesPerVideo,
     };
   }),
 

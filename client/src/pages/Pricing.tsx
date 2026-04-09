@@ -15,20 +15,21 @@ const PLANS = [
     id: "starter",
     name: "Starter",
     icon: <Zap className="w-4 h-4" />,
-    monthlyPrice: 19,
-    annualPrice: 13,
-    annualTotal: 152,
-    desc: "Perfect for getting started with AI video creation.",
+    monthlyPrice: 29,
+    annualPrice: 19,
+    annualTotal: 228,
+    label: "Perfect for trying ideas",
+    desc: "Up to 10 videos/month, max 60 seconds each. Standard rendering.",
     popular: false,
     features: [
-      { text: "Up to 20 videos per month", included: true },
+      { text: "Up to 10 videos per month", included: true },
+      { text: "Max 60 seconds per video", included: true },
       { text: "All 6 AI video styles", included: true },
       { text: "WizBeat music video maker", included: true },
       { text: "WizPilot AI video creator", included: true },
-      { text: "Standard generation speed", included: true },
-      { text: "Watermark on videos", included: true },
+      { text: "Standard rendering", included: true },
       { text: "No watermark", included: false },
-      { text: "4K export", included: false },
+      { text: "Cinematic scene upgrades", included: false },
       { text: "Priority rendering", included: false },
       { text: "API access", included: false },
     ],
@@ -37,39 +38,43 @@ const PLANS = [
     id: "pro",
     name: "Pro",
     icon: <Star className="w-4 h-4" />,
-    monthlyPrice: 49,
-    annualPrice: 33,
-    annualTotal: 392,
-    desc: "Unlimited videos, no watermark, and 4K export for serious creators.",
+    monthlyPrice: 69,
+    annualPrice: 46,
+    annualTotal: 552,
+    label: "Best for regular creators",
+    desc: "Up to 25 videos/month, max 2 minutes each. Includes enhanced cinematic scenes.",
     popular: true,
     features: [
-      { text: "Unlimited videos per month", included: true },
+      { text: "Up to 25 videos per month", included: true },
+      { text: "Max 2 minutes per video", included: true },
       { text: "All 6 AI video styles", included: true },
       { text: "WizBeat music video maker", included: true },
       { text: "WizPilot AI video creator", included: true },
-      { text: "Faster generation speed", included: true },
       { text: "No watermark", included: true },
       { text: "4K quality export", included: true },
+      { text: "3–5 cinematic scenes per video", included: true },
       { text: "MuseTalk lip-sync for characters", included: true },
       { text: "Priority support", included: true },
-      { text: "API access", included: false },
     ],
   },
   {
     id: "creator_plus",
     name: "Creator+",
     icon: <Crown className="w-4 h-4" />,
-    monthlyPrice: 99,
-    annualPrice: 66,
-    annualTotal: 792,
-    desc: "Maximum speed, premium styles, and API access for power creators.",
+    monthlyPrice: 149,
+    annualPrice: 99,
+    annualTotal: 1188,
+    label: "For serious video production",
+    desc: "Up to 50 videos/month, max 3 minutes each. Priority rendering and more cinematic scenes.",
     popular: false,
     features: [
+      { text: "Up to 50 videos per month", included: true },
+      { text: "Max 3 minutes per video", included: true },
       { text: "Everything in Pro", included: true },
+      { text: "6–10 cinematic scenes per video", included: true },
       { text: "Priority rendering (2× faster)", included: true },
       { text: "Premium exclusive styles", included: true },
       { text: "Early access to new features", included: true },
-      { text: "Highest quality output", included: true },
       { text: "API access for automation", included: true },
       { text: "Dedicated account support", included: true },
       { text: "Cancel anytime", included: true },
@@ -84,9 +89,11 @@ const ADD_ONS = [
 ];
 
 const COMPARISON_FEATURES = [
-  { feature: "Videos per month", starter: "20", pro: "Unlimited", creator: "Unlimited" },
+  { feature: "Videos per month", starter: "10", pro: "25", creator: "50" },
+  { feature: "Max video length", starter: "60 seconds", pro: "2 minutes", creator: "3 minutes" },
   { feature: "Watermark", starter: "Yes", pro: "No", creator: "No" },
   { feature: "Video quality", starter: "HD 1080p", pro: "4K", creator: "4K (Max)" },
+  { feature: "Cinematic scenes", starter: "—", pro: "3–5 per video", creator: "6–10 per video" },
   { feature: "Generation speed", starter: "Standard", pro: "Fast", creator: "Priority (2×)" },
   { feature: "WizBeat music videos", starter: "✓", pro: "✓", creator: "✓" },
   { feature: "WizPilot AI creator", starter: "✓", pro: "✓", creator: "✓" },
@@ -219,9 +226,9 @@ export default function Pricing() {
         {/* Outcome framing */}
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-4 mb-10">
           {[
-            { icon: "🎬", title: "20 videos/month", sub: "Starter — try it free" },
-            { icon: "⚡", title: "Unlimited videos", sub: "Pro — most popular" },
-            { icon: "🚀", title: "API + priority", sub: "Creator+ — for agencies" },
+            { icon: "🎬", title: "10 videos/month", sub: "Starter — try ideas" },
+            { icon: "⚡", title: "25 videos/month", sub: "Pro — most popular" },
+            { icon: "🚀", title: "50 videos/month", sub: "Creator+ — serious production" },
           ].map((item) => (
             <div key={item.title} className="p-4 rounded-xl bg-white/3 border border-white/8 text-center">
               <div className="text-2xl mb-2">{item.icon}</div>
@@ -244,15 +251,18 @@ export default function Pricing() {
             >
               {plan.popular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full tracking-wide whitespace-nowrap">
-                  Most Popular — Unlimited video creation
+                  Most Popular — Best for creators
                 </div>
               )}
 
-              <div className="flex items-center gap-2.5 mb-5">
+              <div className="flex items-center gap-2.5 mb-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${plan.popular ? "bg-violet-500/20 text-violet-400" : "bg-white/8 text-[#a1a1aa]"}`}>
                   {plan.icon}
                 </div>
-                <h3 className="text-base font-semibold text-white">{plan.name}</h3>
+                <div>
+                  <h3 className="text-base font-semibold text-white leading-tight">{plan.name}</h3>
+                  <p className="text-xs text-[#a1a1aa] leading-tight">{plan.label}</p>
+                </div>
               </div>
 
               <div className="mb-4">

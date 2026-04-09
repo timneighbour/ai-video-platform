@@ -1015,3 +1015,42 @@
 - [x] Show re-render progress inline in modal (scene-by-scene status)
 - [x] Write vitest tests for cinematicUpgrade procedure (17 tests)
 - [x] TypeScript check: 0 errors, 81/81 tests passing
+
+## Conversion Optimisation System (Apr 2026)
+- [x] Hero: new headline "Your song deserves a music video — create it in minutes"
+- [x] Hero: new subheadline about AI storyboards, scene previews, cinematic moments
+- [x] Hero: CTA primary "Create My First Video", secondary "See How It Works"
+- [x] Hero: supporting line "No editing. No experience. Just your idea."
+- [x] Add Immediate Value section below hero: "See your full video before you render a single frame"
+- [x] Add Differentiation section: "Why WizVid is different" (3 bullet points)
+- [x] Pricing: Starter label "Perfect for trying ideas"
+- [x] Pricing: Pro label "Best for regular creators" + "MOST POPULAR" badge
+- [x] Pricing: Creator+ label "For serious video production"
+- [x] Pricing: add line "Start creating for less than £1 per video"
+- [x] Add speed microcopy: "Create your first video in under 2 minutes", "Instant storyboard generation"
+- [x] In-product: per-scene cinematic prompt — handled via CinematicUpsellModal
+- [x] In-product: longer video credit warning with upgrade link to /pricing
+- [x] In-product: post-render upgrade CTA label "Upgrade Key Scenes" (CinematicUpsellModal)
+- [x] Credit system: helper text "No credit card required · First video free · Under 2 minutes"
+- [x] Credit system: standard vs cinematic credit difference clearly shown in breakdown block
+
+## Master System Implementation (Apr 2026)
+- [x] Hero: headline updated with conversion-optimised copy
+- [x] Hero: subheadline about AI storyboards/scene previews/cinematic moments
+- [x] Hero: CTAs "Create Your First Video" + "Try WizVid Free"
+- [x] Hero: supporting line "No editing. No experience. Just your idea."
+- [x] Add ImmediateValue section: "See your full video before you render a single frame" + 3 bullets + "Create your first video" CTA
+- [x] Update WhyWizVid to "Why WizVid is different" with 3 spec points
+- [x] Pricing: Starter £29 "Perfect for trying ideas"
+- [x] Pricing: Pro £69 "Best for regular creators" + MOST POPULAR badge
+- [x] Pricing: Creator+ £149 "For serious video production"
+- [x] Pricing: add "Start creating for less than £1 per video" above cards
+- [x] Pricing: add "Plans designed for generous creative use. Fair use applies." small text
+- [x] Video length limit warning: amber banner when audio exceeds plan limit, with upgrade link
+- [x] In-product: post-render "Upgrade Key Scenes" via CinematicUpsellModal
+- [x] In-product: low credits — useCreditGuard toast "You're running low on Credits (N left)"
+- [x] In-product: insufficient credits — InsufficientCreditsModal "You need more credits"
+- [x] Speed microcopy: "under 30 seconds", "under 2 minutes", "no waiting, no setup"
+- [x] Credit helper text: "No credit card required · First video free · Under 2 minutes"
+- [x] Fix WizPilot page: content is left-aligned, needs to be centred (global @utility container override + mx-auto on all container divs)
+- [x] Fix WizPilot back button: use history.back() with 300ms fallback to setLocation("/")

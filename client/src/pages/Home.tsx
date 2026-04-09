@@ -234,34 +234,36 @@ function Hero() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
-              Your song. Your story.<br />
+              Your song deserves<br />
               <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                A full video in minutes.
+                a music video.
               </span>
             </h1>
 
-            <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-              Type a prompt or upload your song — WizVid generates the music, builds the storyboard, renders every scene, and delivers a complete video. No editing, no animators, no delays.
+            <p className="text-lg text-[#a1a1aa] leading-relaxed mb-3 max-w-lg">
+              Turn lyrics, ideas, or audio into fully visualised music videos — with AI storyboards, scene previews, and cinematic moments built in.
             </p>
+
+            <p className="text-sm font-medium text-violet-400/90 mb-7">Create it in minutes.</p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <Button
                 className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
                 asChild
               >
-                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
+                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create My First Video</a>
               </Button>
               <Button
                 variant="outline"
                 className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
                 asChild
               >
-                <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />See Pricing</a>
+                <a href="#how-it-works"><ChevronRight className="w-4 h-4 mr-1" />See How It Works</a>
               </Button>
             </div>
 
-            <p className="text-sm text-[#a1a1aa] mb-3">Free to start · No credit card · 2 free videos included</p>
-            <p className="text-xs text-[#a1a1aa]/70 mb-8">Used by creators to grow YouTube channels and content pages</p>
+            <p className="text-sm text-[#a1a1aa] mb-1">No editing. No experience. Just your idea.</p>
+            <p className="text-xs text-[#a1a1aa]/60 mb-8">Free to start · No credit card · 2 free videos included</p>
           </div>
 
           {/* Right: logo video — large cinematic */}
@@ -332,6 +334,78 @@ function Hero() {
               <div className="text-sm text-[#a1a1aa] mt-0.5">{stat.label}</div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Immediate Value Section ─────────────────────────────────────────────────
+function ImmediateValue() {
+  return (
+    <section className="py-20 px-6 bg-gradient-to-b from-[#0f0f0f] to-[#111] border-t border-white/6">
+      <div className="max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: copy */}
+          <div className="reveal">
+            <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">From upload to storyboard in seconds</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+              See your full video before you render a single frame
+            </h2>
+            <ul className="space-y-4 mb-8">
+              {[
+                { icon: "⚡", text: "AI builds your full storyboard in under 30 seconds" },
+                { icon: "👁️", text: "Preview every scene — edit any prompt before rendering" },
+                { icon: "🎛️", text: "Full creative control, zero technical skill required" },
+              ].map((item) => (
+                <li key={item.text} className="flex items-start gap-3">
+                  <span className="text-xl flex-shrink-0 mt-0.5">{item.icon}</span>
+                  <span className="text-[#a1a1aa] text-lg leading-snug">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="/onboarding"
+              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create your first video
+            </a>
+            <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · First video free · Under 2 minutes</p>
+          </div>
+          {/* Right: visual storyboard mockup */}
+          <div className="reveal">
+            <div className="bg-[#171717] border border-white/8 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+                <span className="ml-2 text-xs text-[#a1a1aa] font-mono">AI Storyboard Preview</span>
+              </div>
+              {[
+                { time: "0:00", desc: "Opening scene — city skyline at night", status: "preview" },
+                { time: "0:08", desc: "Artist silhouette under streetlight", status: "preview" },
+                { time: "0:16", desc: "Rain in slow motion, neon reflections", status: "preview" },
+                { time: "0:24", desc: "Chorus — wide cinematic shot", status: "cinematic" },
+              ].map((scene) => (
+                <div key={scene.time} className="flex items-center gap-3 p-3 rounded-xl bg-[#0f0f0f] border border-white/5">
+                  <div className="w-12 h-8 rounded-lg bg-gradient-to-br from-violet-900/60 to-blue-900/40 border border-white/8 flex items-center justify-center text-xs text-[#a1a1aa] font-mono flex-shrink-0">
+                    {scene.time}
+                  </div>
+                  <p className="text-sm text-white/80 flex-1 leading-snug">{scene.desc}</p>
+                  {scene.status === "cinematic" ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-300 flex-shrink-0">✨ Cinematic</span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/15 text-green-400 flex-shrink-0">Preview ready</span>
+                  )}
+                </div>
+              ))}
+              <div className="pt-2 flex items-center justify-between">
+                <span className="text-xs text-[#a1a1aa]">4 scenes generated</span>
+                <span className="text-xs text-violet-400 font-medium">Edit any scene before rendering →</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -465,30 +539,42 @@ function ProductDemo() {
 // ── Why WizVid ────────────────────────────────────────────────────────────────
 function WhyWizVid() {
   const reasons = [
-    { icon: "🚫", title: "No editing required", desc: "WizVid handles everything from storyboard to final cut. You never touch a timeline." },
-    { icon: "🎬", title: "Create full videos, not clips", desc: "Most AI tools generate 10-second clips. WizVid creates complete, ready-to-publish videos." },
-    { icon: "🤖", title: "AI does everything for you", desc: "Upload your audio or idea. AI writes the storyboard, renders every scene, and delivers your video." },
-    { icon: "📺", title: "Built for YouTube, music & kids content", desc: "Optimised for the formats that matter — music videos, YouTube intros, and animated kids content." },
+    {
+      icon: "👁️",
+      title: "See your video before rendering",
+      desc: "WizVid generates a full AI storyboard instantly. Preview every scene, edit any prompt, and approve your video before a single frame is rendered.",
+    },
+    {
+      icon: "🧑‍🎤",
+      title: "Keep characters consistent across every scene",
+      desc: "Your characters stay identical from scene to scene — same look, same style, same energy. No jarring changes between cuts.",
+    },
+    {
+      icon: "✨",
+      title: "Smart cinematic rendering where it matters most",
+      desc: "WizVid uses premium rendering only on your key moments — chorus, climax, hero scenes — keeping quality high and costs controlled.",
+    },
   ];
 
   return (
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Why WizVid</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">What makes us different</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            Why creators use WizVid
+            Why WizVid is different
           </h2>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">Most AI tools give you clips. WizVid gives you a complete, consistent, cinematic music video.</p>
         </div>
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid md:grid-cols-3 gap-5">
           {reasons.map((r, i) => (
             <div
               key={r.title}
-              className={`flex gap-5 p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+              className={`flex flex-col gap-4 p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-violet-500/30 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
             >
-              <div className="text-3xl flex-shrink-0">{r.icon}</div>
+              <div className="text-3xl">{r.icon}</div>
               <div>
-                <h3 className="font-semibold text-white mb-2">{r.title}</h3>
+                <h3 className="font-semibold text-white mb-2 text-lg">{r.title}</h3>
                 <p className="text-[#a1a1aa] text-sm leading-relaxed">{r.desc}</p>
               </div>
             </div>
@@ -1378,6 +1464,7 @@ export default function Home() {
       <Nav />
       <main id="main-content">
         <Hero />
+        <ImmediateValue />
         <ProductDemo />
         <WhyWizVid />
         <Features />

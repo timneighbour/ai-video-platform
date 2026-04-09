@@ -146,17 +146,20 @@ export default function Autopilot() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-white/10">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container mx-auto flex h-16 items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
               if (step === "storyboard") {
                 setStep("input");
-              } else if (window.history.length > 1) {
-                window.history.back();
               } else {
-                setLocation("/");
+                // Try history.back(); if we're still on the same page after 300ms, navigate home
+                const before = window.location.href;
+                window.history.back();
+                setTimeout(() => {
+                  if (window.location.href === before) setLocation("/");
+                }, 300);
               }
             }}
             className="gap-2 text-muted-foreground hover:text-white"
@@ -174,7 +177,7 @@ export default function Autopilot() {
 
       {/* Progress Steps */}
       <div className="border-b border-white/10 bg-white/5">
-        <div className="container py-3">
+        <div className="container mx-auto py-3">
           <div className="flex items-center justify-center gap-2 text-sm">
             {[
               { key: "input", label: "1. Describe" },
@@ -200,7 +203,7 @@ export default function Autopilot() {
         </div>
       </div>
 
-      <div className="container py-12 max-w-4xl">
+      <div className="container py-12 max-w-4xl mx-auto">
 
         {/* ── STEP 1: INPUT ── */}
         {step === "input" && (

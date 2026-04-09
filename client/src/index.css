@@ -284,3 +284,13 @@ h1, h2, h3, h4 {
 }
 .light ::-webkit-scrollbar-track { background: oklch(0.93 0.01 260); }
 .light ::-webkit-scrollbar-thumb { background: oklch(0.55 0.25 280); }
+
+/* ── Global container centering ─────────────────────────────────────────────────
+   Tailwind v4 does not auto-centre .container by default.
+   This override ensures every page using the container utility is centred. */
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  @media (width >= 640px)  { padding-inline: 2rem; }
+  @media (width >= 1280px) { padding-inline: 3rem; }
+}

@@ -168,6 +168,14 @@ export default function MusicVideoAutopilot() {
   // Ref guard to prevent double-click / React re-render duplicate render submissions
   const isRenderingRef = useRef(false);
 
+  // Plan limits query — used to show length limit warning
+  const { data: planLimits } = trpc.billing.getPlanLimits.useQuery(undefined, {
+    enabled: isAuthenticated,
+    staleTime: 5 * 60 * 1000,
+  });
+  const maxVideoSeconds = planLimits?.maxVideoSeconds ?? 60;
+  const audioExceedsLimit = audioDuration > 0 && audioDuration > maxVideoSeconds;
+
   const transcribeAudioDirect = trpc.musicVideo.transcribeAudioDirect.useMutation();
   const createJob = trpc.musicVideo.createJob.useMutation();
   const generateStoryboardMutation = trpc.musicVideo.generateStoryboard.useMutation();
@@ -820,7 +828,10 @@ export default function MusicVideoAutopilot() {
                       <div>
                         <Check className="w-10 h-10 text-green-400 mx-auto mb-2" />
                         <p className="text-green-400 font-medium">{audioFile.name}</p>
-                        <p className="text-zinc-400 text-sm mt-1">Duration: {formatDuration(audioDuration)}</p>
+                        <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-amber-400 font-medium" : "text-zinc-400"}`}>
+                          Duration: {formatDuration(audioDuration)}
+                          {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
+                        </p>
                         <p className="text-zinc-500 text-xs mt-1">Click to change</p>
                       </div>
                     ) : (
@@ -831,6 +842,29 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
                   </div>
+
+                  {/* Audio length limit warning + upgrade prompt */}
+                  {audioExceedsLimit && (
+                    <div className="rounded-xl border border-amber-800/60 bg-amber-950/30 px-4 py-3 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-amber-300 font-medium text-sm">
+                          Your song is {formatDuration(audioDuration)} — your plan allows up to {formatDuration(maxVideoSeconds)}
+                        </p>
+                        <p className="text-amber-200/70 text-xs mt-1">
+                          WizVid will use the first {formatDuration(maxVideoSeconds)} of your track.
+                          {planLimits?.plan === "starter" && " Upgrade to Pro for 2-minute videos, or Creator+ for 3-minute videos."}
+                          {planLimits?.plan === "pro" && " Upgrade to Creator+ for 3-minute videos."}
+                        </p>
+                        <a
+                          href="/pricing"
+                          className="inline-block mt-2 text-xs font-semibold text-amber-300 hover:text-amber-100 underline underline-offset-2 transition-colors"
+                        >
+                          View upgrade options →
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <Label className="text-zinc-300">Song Title *</Label>
