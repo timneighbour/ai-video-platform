@@ -3,6 +3,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { WizVidLoader } from "./components/WizVidLoader";
+import { useEffect, useState } from "react";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Subscribe from "./pages/Subscribe";
@@ -58,6 +60,16 @@ function Router() {
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
+  // Show branded preloader on initial app mount, then fade out
+  const [appReady, setAppReady] = useState(false);
+  useEffect(() => {
+    // Mark ready after first paint + a short settle delay
+    const t = requestAnimationFrame(() => {
+      setTimeout(() => setAppReady(true), 300);
+    });
+    return () => cancelAnimationFrame(t);
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider
@@ -65,6 +77,8 @@ function App() {
         switchable
       >
         <TooltipProvider>
+          {/* Branded preloader — fades out once app has mounted */}
+          <WizVidLoader done={appReady} minDuration={600} />
           <Toaster />
           <CrispChat />
           <Router />

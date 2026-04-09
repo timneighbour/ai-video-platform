@@ -569,3 +569,9 @@
 - [x] Add SEO metadata (og:image, twitter:image) to index.html
 - [x] Verify logo sizing and spacing on desktop and mobile
 - [x] Verify no distortion or stretching of logo
+
+## Preloader Animation (Apr 2026)
+- [x] Create WizVidLoader component with W icon pulse/glow animation
+- [x] Add smooth fade-out transition when loading completes
+- [x] Replace DashboardLayoutSkeleton with WizVidLoader
+- [x] Add app-level preloader for initial page load
