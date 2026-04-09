@@ -4,6 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import rateLimit from "express-rate-limit";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -32,15 +33,52 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+// ── Rate limiters ────────────────────────────────────────────────────────────
+// General API limiter: 300 requests per 15 minutes per IP
+const generalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests. Please try again later." },
+});
+
+// AI generation limiter: 20 generation requests per 15 minutes per IP
+// Prevents abuse of expensive AI calls
+const aiGenerationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many generation requests. Please wait a few minutes before trying again." },
+  skip: (req) => {
+    // Skip rate limiting in test environments
+    return process.env.NODE_ENV === "test";
+  },
+});
+
+// Upload limiter: 30 uploads per 15 minutes per IP
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many upload requests. Please try again later." },
+});
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Trust the first proxy hop (required for accurate IP detection behind load balancers / CDNs)
+  app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // Apply general rate limiting to all /api routes
+  app.use("/api", generalApiLimiter);
   // File upload endpoint for video generation tools
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 200 * 1024 * 1024 } });
-  app.post("/api/video/upload", upload.single("file"), async (req, res) => {
+  app.post("/api/video/upload", uploadLimiter, upload.single("file"), async (req, res) => {
     try {
       if (!req.file) {
         res.status(400).json({ error: "No file provided" });
@@ -125,7 +163,13 @@ async function startServer() {
 
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
-  // tRPC API
+  // tRPC API — apply AI generation limiter to generation-heavy procedures
+  // The tRPC path includes the procedure name, e.g. /api/trpc/musicVideo.generate
+  app.use("/api/trpc/musicVideo.generate", aiGenerationLimiter);
+  app.use("/api/trpc/wizpilot.generate", aiGenerationLimiter);
+  app.use("/api/trpc/suno.generate", aiGenerationLimiter);
+  app.use("/api/trpc/suno.generateCustom", aiGenerationLimiter);
+  app.use("/api/trpc/autopilot.start", aiGenerationLimiter);
   app.use(
     "/api/trpc",
     createExpressMiddleware({

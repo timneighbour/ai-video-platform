@@ -1083,3 +1083,11 @@
 
 ## Feature: Nav Link Hover Animation (Apr 2026)
 - [x] Add subtle hover animation (scale-105 + -translate-y-0.5, 200ms) to all header nav links across all pages (Home, Pricing, Help, MusicVideosLanding)
+
+## Audit Recommendations Implementation (Apr 2026)
+- [x] SEO: sitemap.xml and robots.txt already in place and verified
+- [x] SEO: robots.txt already correct — allows public routes, blocks auth routes, references sitemap
+- [x] SEO: JSON-LD SoftwareApplication schema already present in index.html
+- [x] Security: Added express-rate-limit — general (300/15min), AI generation (20/15min), upload (30/15min); trust proxy set
+- [x] UX: Seeded 6 showcase demo items (Cinematic, Anime, Pixar 3D, Hip-Hop, Indie Band, Documentary) into DB
+- [x] Produced audit action plan document covering all 6 areas with prioritised external actions
