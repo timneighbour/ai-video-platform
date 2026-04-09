@@ -648,3 +648,15 @@
 - [ ] Positioning: replace "AI video generator" with "Create daily content without editing"
 - [ ] Music video landing page: new headline, video preview, flow explanation, CTA before login
 - [ ] QA: verify all routes, links, no console errors
+- [ ] Fix LCP (18.7s): preload hero video/image, add fetchpriority=high to hero img
+- [ ] Fix TBT (510ms): defer non-critical JS, split large bundles
+- [ ] Add font-display:swap to Google Fonts to eliminate render-blocking
+- [ ] Add loading=lazy and explicit width/height to all below-fold images
+- [ ] Add preconnect hints for CDN and API domains
+- [ ] Remove or defer render-blocking requests (440ms savings)
+
+## Lighthouse Accessibility & SEO Fixes (Apr 2026)
+- [x] Remove maximum-scale=1 from viewport meta in index.html (blocks screen magnification)
+- [x] Fix heading order in Pricing.tsx (h1→h3 skip fixed with sr-only h2) and MusicVideoAutopilot.tsx (h2 before h1 fixed)
+- [x] Add <track kind="captions"> to hero video element
+- [x] Fix canonical URL: changed to https://www.wizvid.ai/ (www), updated OG/Twitter/JSON-LD and sitemap.xml

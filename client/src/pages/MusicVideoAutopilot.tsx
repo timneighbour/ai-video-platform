@@ -451,7 +451,7 @@ export default function MusicVideoAutopilot() {
         <Card className="bg-zinc-900 border-zinc-800 max-w-md w-full mx-4">
           <CardContent className="pt-8 pb-8 text-center">
             <Music className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Music Video WizPilot</h2>
+            <h1 className="text-2xl font-bold text-white mb-2">Music Video WizPilot</h1>
             <p className="text-zinc-400 mb-6">Sign in to create your AI music video</p>
             <Button
               className="bg-purple-600 hover:bg-purple-700 text-white w-full"

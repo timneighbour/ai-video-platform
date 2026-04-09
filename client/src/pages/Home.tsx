@@ -167,7 +167,7 @@ function Hero() {
     <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0f0f0f]">
       {/* Background videos */}
       {HERO_VIDEOS.map((src, i) => (
-        <video key={src} src={src} autoPlay loop muted playsInline
+        <video key={src} src={src} autoPlay loop muted playsInline preload="none"
           aria-hidden="true"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-20" : "opacity-0"}`}
         />
@@ -235,9 +235,12 @@ function Hero() {
                   loop
                   muted
                   playsInline
+                  preload="metadata"
                   className="absolute inset-0 w-full h-full object-cover bg-black"
                   aria-label="WizVid animated logo"
-                />
+                >
+                  <track kind="captions" srcLang="en" label="English" default />
+                </video>
               </div>
               {/* Mute toggle */}
               <button
@@ -485,7 +488,7 @@ function Features() {
           <div className="grid grid-cols-2 gap-3 reveal">
             {STYLE_IMAGES.map((style) => (
               <div key={style.label} className="relative rounded-2xl overflow-hidden aspect-video group cursor-pointer card-hover">
-                <img src={style.img} alt={style.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={style.img} alt={style.label} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <span className="absolute bottom-2.5 left-3 text-white text-xs font-semibold">{style.label}</span>
               </div>
@@ -595,6 +598,8 @@ function WizBeatSection() {
                   key={img.src}
                   src={img.src}
                   alt={img.label}
+                  loading="lazy"
+                  decoding="async"
                   className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === activeImg ? "opacity-100" : "opacity-0"}`}
                 />
               ))}
