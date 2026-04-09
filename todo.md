@@ -670,3 +670,6 @@
 - [x] Fix Google Fonts render-blocking: verified media=print onload pattern is in place; updated preload to WebP logo
 - [x] Add Vite manual chunks for code splitting (react, trpc, radix, motion, charts, i18n, forms, router)
 - [x] Lazy-load all non-Home routes with React.lazy + Suspense in App.tsx
+
+## Bug Fixes
+- [x] Live chat (Crisp) "Start Chat" button on Help page does nothing — fixed by setting VITE_CRISP_WEBSITE_ID=28782af1-abc3-4b3c-8da7-e438a4cb7016
