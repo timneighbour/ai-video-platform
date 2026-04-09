@@ -12,7 +12,7 @@ import {
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png";
 const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
-const WIZVID_LOGO_VIDEO = `${CDN}/wizvid-logo-intro_184d3e7d.mp4`;
+const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-intro-v2_1e882c04.mp4";
 const HERO_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
   `${CDN}/hero-abstract-web_ed099aea.mp4`,

@@ -575,3 +575,10 @@
 - [x] Add smooth fade-out transition when loading completes
 - [x] Replace DashboardLayoutSkeleton with WizVidLoader
 - [x] Add app-level preloader for initial page load
+
+## New Logo Animation Replacement (Apr 2026)
+- [x] Upload new logo animation MP4 to CDN
+- [x] Find all references to old wizvid-logo-intro video
+- [x] Replace old animation URL with new CDN URL in Home.tsx
+- [x] Replace old animation URL with new CDN URL in any other pages
+- [x] Remove old animation from webdev-static-assets
