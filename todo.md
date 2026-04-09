@@ -483,3 +483,24 @@
 - [ ] Add upgrade trigger modals when user hits video limit
 - [ ] Add upgrade prompt on video download for free/starter users
 - [ ] Update Stripe products to match GBP pricing tiers
+
+## Optimisation Task (Apr 2026)
+- [x] Language selector (EN/ES/PT-BR/FR) added to nav
+- [x] Theme toggle (dark/light) added to nav
+- [x] Light mode CSS variables added to index.css
+- [x] ThemeProvider set to switchable=true
+- [x] Onboarding flow rebuilt with 3-step guided flow
+- [x] UpgradeModal component created (limit/download/milestone/watermark triggers)
+- [x] UpgradeBanner component created for inline upgrade prompts
+- [x] getSubscription procedure added to billing router
+- [x] CrispChat component created (VITE_CRISP_WEBSITE_ID env var)
+- [x] GA4 analytics helper created (VITE_GA4_MEASUREMENT_ID env var)
+- [x] initGA4 called on app startup in main.tsx
+- [x] CrispChat added to App.tsx
+- [x] Skip-to-content link added to Home.tsx
+- [x] Main landmark added to Home.tsx
+- [x] aria-hidden added to decorative background videos
+- [x] aria-label added to WizBeat image slider buttons
+- [x] aria-pressed added to WizBeat image slider buttons
+- [x] role=switch + aria-checked added to Pricing billing toggle
+- [x] aria-label added to mobile menu button

@@ -202,7 +202,10 @@ export default function Pricing() {
           <span className={`text-sm font-medium ${!annual ? "text-white" : "text-white/40"}`}>Monthly</span>
           <button
             onClick={() => setAnnual(!annual)}
-            className={`relative w-14 h-7 rounded-full transition-all ${annual ? "bg-green-500" : "bg-white/20"}`}
+            role="switch"
+            aria-checked={annual}
+            aria-label={annual ? "Switch to monthly billing" : "Switch to annual billing (save 33%)"}
+            className={`relative w-14 h-7 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${annual ? "bg-green-500" : "bg-white/20"}`}
           >
             <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all ${annual ? "left-8" : "left-1"}`} />
           </button>

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import LanguageSelector from "@/components/LanguageSelector";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   Sparkles, Music, Zap, Star, Play, Check, ArrowRight,
   Menu, X, Volume2, VolumeX, Film, Wand2, Users
@@ -80,7 +82,9 @@ function Nav() {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+          <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-sm px-5 rounded-xl font-semibold" asChild>
               <a href="/dashboard"><Sparkles className="w-4 h-4 mr-1.5" />Dashboard</a>
@@ -95,7 +99,7 @@ function Nav() {
               </Button>
             </>
           )}
-          <button className="md:hidden p-2 text-white/70 hover:text-white" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="md:hidden p-2 text-white/70 hover:text-white" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle mobile menu">
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
@@ -142,6 +146,7 @@ function Hero() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {HERO_VIDEOS.map((src, i) => (
         <video key={src} src={src} autoPlay loop muted playsInline
+          aria-hidden="true"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-40" : "opacity-0"}`}
         />
       ))}
@@ -383,8 +388,10 @@ function WizBeatSection() {
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-                {WIZBEAT_IMAGES.map((_, i) => (
+                {WIZBEAT_IMAGES.map((img, i) => (
                   <button key={i} onClick={() => setActiveImg(i)}
+                    aria-label={`Show ${img.label} style`}
+                    aria-pressed={i === activeImg}
                     className={`h-1 flex-1 rounded-full transition-all ${i === activeImg ? "bg-pink-400" : "bg-white/30"}`}
                   />
                 ))}
@@ -575,7 +582,9 @@ function Footer() {
 export default function Home() {
   return (
     <div className="bg-[#080810] text-white min-h-screen overflow-x-hidden">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-purple-600 focus:text-white focus:rounded-lg focus:font-semibold">Skip to main content</a>
       <Nav />
+      <main id="main-content">
       <Hero />
       <FullVideosSection />
       <WhoItsFor />
@@ -585,6 +594,7 @@ export default function Home() {
       <SocialProof />
       <CTAPush />
       <BrandAngle />
+      </main>
       <Footer />
     </div>
   );

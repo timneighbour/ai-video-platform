@@ -1,6 +1,7 @@
 import { trpc } from "@/lib/trpc";
 import "@/lib/i18n"; // initialise i18n before app renders
-import { UNAUTHED_ERR_MSG } from '@shared/const';
+import { initGA4 } from "@/lib/analytics";
+import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -8,6 +9,9 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
+
+// Initialise GA4 analytics
+initGA4();
 
 const queryClient = new QueryClient();
 

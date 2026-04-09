@@ -6,6 +6,7 @@
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { getUserCredits, addCredits, getCreditHistory } from "../credit-service";
+import { getUserSubscription } from "../db";
 import { generateVideo, checkVideoStatus, getUserProjects } from "../video-service";
 // import { notifyOwner } from "../\_core/notification";
 import Stripe from "stripe";
@@ -19,6 +20,20 @@ export const billingRouter = router({
   getCredits: protectedProcedure.query(async ({ ctx }) => {
     const balance = await getUserCredits(ctx.user.id);
     return { balance };
+  }),
+
+  /**
+   * Get user's current subscription plan
+   */
+  getSubscription: protectedProcedure.query(async ({ ctx }) => {
+    const sub = await getUserSubscription(ctx.user.id);
+    return {
+      plan: sub?.plan ?? "free",
+      status: sub?.status ?? "inactive",
+      isActive: sub?.status === "active",
+      isPro: sub?.plan === "pro" || sub?.plan === "business",
+      isStarter: sub?.plan === "starter",
+    };
   }),
 
   /**

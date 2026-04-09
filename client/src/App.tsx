@@ -20,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import Onboarding from "./pages/Onboarding";
 import Help from "./pages/Help";
 import SeoLandingPage from "./pages/SeoLandingPage";
+import CrispChat from "./components/CrispChat";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -59,10 +60,11 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider
         defaultTheme="dark"
-        // switchable
+        switchable
       >
         <TooltipProvider>
           <Toaster />
+          <CrispChat />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
