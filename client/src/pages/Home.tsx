@@ -4,6 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import LanguageSelector from "@/components/LanguageSelector";
 import ThemeToggle from "@/components/ThemeToggle";
+import { trpc } from "@/lib/trpc";
 import {
   Sparkles, Music, Zap, Star, Play, Check, ArrowRight,
   Menu, X, Volume2, VolumeX, Film, Wand2, Users, ChevronRight
@@ -715,16 +716,114 @@ function SocialProof() {
   );
 }
 
-// ── Made with WizVid ─────────────────────────────────────────────────────────
+// ── Category colour map ───────────────────────────────────────────────────────
+const CATEGORY_COLOURS: Record<string, { badge: string; glow: string }> = {
+  "Kids YouTube":       { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20" },
+  "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20" },
+  "Story Animation":    { badge: "bg-pink-500/20 text-pink-300 border border-pink-500/30",       glow: "group-hover:shadow-pink-500/20" },
+  "Faceless Content":   { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",       glow: "group-hover:shadow-cyan-500/20" },
+  "Social Short":       { badge: "bg-green-500/20 text-green-300 border border-green-500/30",   glow: "group-hover:shadow-green-500/20" },
+  "Cinematic AI Video": { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20" },
+};
+
+// ── Individual showcase card ───────────────────────────────────────────────────
+function ShowcaseCard({ item }: { item: { id: number; category: string; title: string; description: string; posterUrl: string; videoUrl: string | null } }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const colours = CATEGORY_COLOURS[item.category] ?? { badge: "bg-white/10 text-white/70 border border-white/20", glow: "group-hover:shadow-white/10" };
+
+  const handleMouseEnter = () => {
+    if (videoRef.current && item.videoUrl) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+  const handleMouseLeave = () => {
+    if (videoRef.current && item.videoUrl) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  return (
+    <div
+      className={`group relative rounded-2xl overflow-hidden bg-[#171717] border border-white/8 hover:border-white/20 transition-all duration-300 shadow-lg ${colours.glow} hover:shadow-xl cursor-pointer`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Thumbnail / video preview */}
+      <div className="relative aspect-video overflow-hidden">
+        <img
+          src={item.posterUrl}
+          alt={item.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          width={640}
+          height={360}
+        />
+        {item.videoUrl && (
+          <video
+            ref={videoRef}
+            src={item.videoUrl}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          />
+        )}
+        {/* Play icon overlay */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+            <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+          </div>
+        </div>
+        {/* Made with WizVid badge */}
+        <div className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-semibold text-white/70 border border-white/10">
+          Made with WizVid
+        </div>
+      </div>
+
+      {/* Card body */}
+      <div className="p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${colours.badge}`}>{item.category}</span>
+        </div>
+        <h3 className="font-semibold text-white text-base mb-1 leading-snug">{item.title}</h3>
+        <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">{item.description}</p>
+        <a
+          href="/onboarding"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/60 hover:text-white transition-colors group/cta"
+        >
+          Create your first video
+          <ArrowRight className="w-3 h-3 transition-transform group-hover/cta:translate-x-0.5" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ── Showcase gallery skeleton ─────────────────────────────────────────────────
+function ShowcaseSkeleton() {
+  return (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="rounded-2xl overflow-hidden bg-[#171717] border border-white/8 animate-pulse">
+          <div className="aspect-video bg-white/5" />
+          <div className="p-5 space-y-3">
+            <div className="h-4 w-24 bg-white/10 rounded-full" />
+            <div className="h-4 w-3/4 bg-white/10 rounded" />
+            <div className="h-3 w-full bg-white/5 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Made with WizVid (showcase gallery) ──────────────────────────────────────
 function MadeWithWizVid() {
-  const examples = [
-    { type: "YouTube Video", label: "Kids Channel", result: "Posts 3 videos/week using AI", icon: "🎥", color: "border-blue-500/30 bg-blue-500/5", badge: "bg-blue-500/20 text-blue-300" },
-    { type: "Music Video", label: "Indie Artist", result: "4,200 views on first AI video", icon: "🎵", color: "border-violet-500/30 bg-violet-500/5", badge: "bg-violet-500/20 text-violet-300" },
-    { type: "Story Video", label: "Animated Content", result: "800 new subscribers in 30 days", icon: "✨", color: "border-pink-500/30 bg-pink-500/5", badge: "bg-pink-500/20 text-pink-300" },
-    { type: "YouTube Video", label: "Daily Creator", result: "Posts daily without editing", icon: "📺", color: "border-green-500/30 bg-green-500/5", badge: "bg-green-500/20 text-green-300" },
-    { type: "Music Video", label: "Band Showcase", result: "Cinematic style, zero editing", icon: "🎸", color: "border-orange-500/30 bg-orange-500/5", badge: "bg-orange-500/20 text-orange-300" },
-    { type: "Kids Video", label: "Nursery Rhymes", result: "Pixar-style animation, 2 min creation", icon: "🧸", color: "border-yellow-500/30 bg-yellow-500/5", badge: "bg-yellow-500/20 text-yellow-300" },
-  ];
+  const { data: items, isLoading } = trpc.showcase.list.useQuery();
+
   return (
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-6xl mx-auto">
@@ -737,24 +836,28 @@ function MadeWithWizVid() {
             Used by creators to grow YouTube channels and content pages — without editing, animators, or delays.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
-          {examples.map((ex, i) => (
-            <div
-              key={ex.label}
-              className={`p-6 rounded-2xl border ${ex.color} hover:border-white/20 transition-all card-hover animate-delay-${(i + 1) * 100}`}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">{ex.icon}</span>
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${ex.badge}`}>{ex.type}</span>
-              </div>
-              <h3 className="font-semibold text-white mb-1">{ex.label}</h3>
-              <p className="text-[#a1a1aa] text-sm leading-relaxed">{ex.result}</p>
+
+        <div className="reveal">
+          {isLoading ? (
+            <ShowcaseSkeleton />
+          ) : items && items.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {items.map((item) => (
+                <ShowcaseCard key={item.id} item={item} />
+              ))}
             </div>
-          ))}
+          ) : (
+            <ShowcaseSkeleton />
+          )}
         </div>
-        <div className="text-center mt-10 reveal">
-          <a href="/onboarding" className="inline-flex items-center gap-2 text-[#a1a1aa] hover:text-white text-sm font-medium transition-colors">
-            Start creating for free <span>→</span>
+
+        <div className="text-center mt-12 reveal">
+          <a
+            href="/onboarding"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
+          >
+            <Sparkles className="w-4 h-4" />
+            Create Your First Video — Free
           </a>
         </div>
       </div>

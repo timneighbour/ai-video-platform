@@ -673,3 +673,14 @@
 
 ## Bug Fixes
 - [x] Live chat (Crisp) "Start Chat" button on Help page does nothing — fixed by setting VITE_CRISP_WEBSITE_ID=28782af1-abc3-4b3c-8da7-e438a4cb7016
+
+## Showcase Video System
+- [x] Generate 6 showcase poster/thumbnail images (Kids YouTube, Music Video, Story Animation, Faceless Content, Social Short, Cinematic AI Video)
+- [x] Build ShowcaseGallery section component with video cards, category labels, lazy loading
+- [x] Add conversion CTAs under each showcase card ("Create Your First Video")
+- [x] Build DB table `showcase_items` for showcase library management
+- [x] Add tRPC procedures: showcase.list (public), showcase.upsert + showcase.delete (admin)
+- [x] Wire frontend gallery to backend showcase library
+- [x] Ensure autoplay/loop/muted on all showcase videos, poster images for LCP (hover-to-play on desktop)
+- [x] Add "Made with WizVid" badge on each card
+- [x] Insert showcase section into Home.tsx (replaced text-only MadeWithWizVid section)

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys } from "../drizzle/schema";
-import type { InsertSubscription, InsertProject, InsertApiKey } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems } from "../drizzle/schema";
+import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -228,4 +228,34 @@ export async function deleteApiKey(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(apiKeys).where(eq(apiKeys.id, id));
+}
+
+/**
+ * Showcase Item queries
+ */
+export async function listShowcaseItems() {
+  const db = await getDb();
+  if (!db) return [];
+  const { asc } = await import("drizzle-orm");
+  return await db
+    .select()
+    .from(showcaseItems)
+    .where(eq(showcaseItems.isActive, true))
+    .orderBy(asc(showcaseItems.sortOrder));
+}
+
+export async function upsertShowcaseItem(data: InsertShowcaseItem & { id?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  if (data.id) {
+    await db.update(showcaseItems).set(data).where(eq(showcaseItems.id, data.id));
+  } else {
+    await db.insert(showcaseItems).values(data);
+  }
+}
+
+export async function deleteShowcaseItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(showcaseItems).where(eq(showcaseItems.id, id));
 }

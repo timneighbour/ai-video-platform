@@ -186,3 +186,21 @@ export const videoCharacterPhotos = mysqlTable("videoCharacterPhotos", {
 
 export type VideoCharacterPhoto = typeof videoCharacterPhotos.$inferSelect;
 export type InsertVideoCharacterPhoto = typeof videoCharacterPhotos.$inferInsert;
+
+// ── Showcase Items ─────────────────────────────────────────────────────────────
+// Pre-generated demo videos shown in the "See what creators are making" gallery.
+// Managed by admins; served publicly on the homepage.
+export const showcaseItems = mysqlTable("showcaseItems", {
+  id: int("id").autoincrement().primaryKey(),
+  category: varchar("category", { length: 64 }).notNull(), // e.g. "Kids YouTube"
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  posterUrl: varchar("posterUrl", { length: 1024 }).notNull(), // CDN URL for thumbnail
+  videoUrl: varchar("videoUrl", { length: 1024 }), // CDN URL for MP4 (optional — poster shown if null)
+  sortOrder: int("sortOrder").default(0).notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ShowcaseItem = typeof showcaseItems.$inferSelect;
+export type InsertShowcaseItem = typeof showcaseItems.$inferInsert;

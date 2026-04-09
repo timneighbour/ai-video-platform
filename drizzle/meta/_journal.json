@@ -57,6 +57,13 @@
       "when": 1775740228648,
       "tag": "0007_red_randall_flagg",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1775749007240,
+      "tag": "0008_dapper_stature",
+      "breakpoints": true
     }
   ]
 }
