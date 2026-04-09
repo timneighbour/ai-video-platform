@@ -1,6 +1,7 @@
 /**
  * Music Video Autopilot Service
- * Handles storyboard generation, per-scene video rendering, and final assembly.
+ * Handles audio transcription, lyrics-driven storyboard generation,
+ * per-scene video rendering, and final assembly.
  */
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -12,6 +13,7 @@ import { musicVideoJobs, musicVideoScenes } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
+import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
 
 const klingClient = initKlingAI();
@@ -32,26 +34,116 @@ export function calculateCreditCost(sceneCount: number): number {
 }
 
 /**
- * Generate a storyboard using LLM based on theme and song duration.
- * Returns an array of scene objects with prompts and timestamps.
+ * Transcribe audio from a URL using Whisper, returning full text + timestamped segments.
+ * Saves the transcription to the job record in the database.
+ */
+export async function transcribeJobAudio(
+  jobId: number,
+  audioUrl: string
+): Promise<{ text: string; segments: Array<{ start: number; end: number; text: string }> }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+
+  // Mark as processing
+  await db.update(musicVideoJobs)
+    .set({ transcriptionStatus: "processing", updatedAt: new Date() })
+    .where(eq(musicVideoJobs.id, jobId));
+
+  try {
+    const result = await transcribeAudio({ audioUrl });
+
+    // Type-narrow: check for error response
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+
+    const segments = (result.segments || []).map((s) => ({
+      start: s.start,
+      end: s.end,
+      text: s.text.trim(),
+    }));
+
+    // Save transcription to DB
+    await db.update(musicVideoJobs)
+      .set({
+        transcription: result.text,
+        transcriptionStatus: "done",
+        updatedAt: new Date(),
+      })
+      .where(eq(musicVideoJobs.id, jobId));
+
+    return { text: result.text, segments };
+  } catch (err) {
+    await db.update(musicVideoJobs)
+      .set({ transcriptionStatus: "failed", updatedAt: new Date() })
+      .where(eq(musicVideoJobs.id, jobId));
+    // Return empty transcription — storyboard will use theme only
+    return { text: "", segments: [] };
+  }
+}
+
+/**
+ * Extract lyrics for a specific time window from Whisper segments.
+ */
+function extractLyricsForWindow(
+  segments: Array<{ start: number; end: number; text: string }>,
+  windowStart: number,
+  windowEnd: number
+): string {
+  const relevant = segments.filter(
+    (s) => s.end > windowStart && s.start < windowEnd
+  );
+  return relevant.map((s) => s.text).join(" ").trim();
+}
+
+/**
+ * Generate a storyboard using LLM based on theme, lyrics, and song duration.
+ * Returns an array of scene objects with prompts, timestamps, and lyrics.
  */
 export async function generateStoryboard(
   themePrompt: string,
   genre: string | null | undefined,
   mood: string | null | undefined,
   audioDurationSeconds: number,
-  title: string
-): Promise<Array<{ sceneIndex: number; startTime: number; duration: number; prompt: string; visualStyle: string }>> {
+  title: string,
+  lyricsSegments?: Array<{ start: number; end: number; text: string }>
+): Promise<Array<{
+  sceneIndex: number;
+  startTime: number;
+  duration: number;
+  prompt: string;
+  visualStyle: string;
+  lyrics: string;
+}>> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
   const minutes = Math.floor(audioDurationSeconds / 60);
   const seconds = audioDurationSeconds % 60;
   const durationStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+  // Build scene windows and extract lyrics for each
+  const sceneWindows = Array.from({ length: sceneCount }, (_, i) => {
+    const startTime = i * SCENE_DURATION_SECONDS;
+    const endTime = Math.min(startTime + SCENE_DURATION_SECONDS, audioDurationSeconds);
+    const duration = endTime - startTime;
+    const lyrics = lyricsSegments
+      ? extractLyricsForWindow(lyricsSegments, startTime, endTime)
+      : "";
+    return { sceneIndex: i, startTime, duration, lyrics };
+  });
+
+  // Build a lyrics-aware scene list for the LLM prompt
+  const sceneList = sceneWindows.map((w) =>
+    `Scene ${w.sceneIndex + 1} (${w.startTime}s–${w.startTime + w.duration}s)${w.lyrics ? `: "${w.lyrics}"` : ""}`
+  ).join("\n");
+
+  const hasLyrics = lyricsSegments && lyricsSegments.length > 0;
 
   const systemPrompt = `You are a professional music video director and creative director. 
 Your job is to create detailed, cinematic scene descriptions for AI video generation.
 Each scene description must be:
 - Highly visual and specific (describe lighting, camera angle, movement, subjects, atmosphere)
 - Consistent with the overall theme and mood
+${hasLyrics ? "- Visually inspired by the lyrics being sung in that scene — the imagery should reflect the words and emotions" : ""}
 - Optimised for AI video generation (clear, vivid, no abstract concepts)
 - Varied enough to create an interesting visual journey
 - Between 50-100 words each
@@ -65,13 +157,19 @@ Song details:
 - Theme/Concept: ${themePrompt}
 - Genre: ${genre || "not specified"}
 - Mood: ${mood || "not specified"}
-- Number of scenes needed: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)
+- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)
 
-Return a JSON array of exactly ${sceneCount} scene objects. Each object must have:
-- sceneIndex: number (0-based)
-- startTime: number (seconds from start, evenly spaced every ${SCENE_DURATION_SECONDS} seconds)
-- duration: number (always ${SCENE_DURATION_SECONDS})
-- prompt: string (detailed AI video generation prompt, 50-100 words)
+${hasLyrics ? `Lyrics by scene (use these to inspire each scene's visuals — make the imagery match what is being sung):
+${sceneList}
+
+` : `Scene timeline:
+${sceneList}
+
+`}Return a JSON array of exactly ${sceneCount} scene objects. Each object must have:
+- sceneIndex: number (0-based, matching the scene numbers above)
+- startTime: number (seconds from start, as listed above)
+- duration: number (as listed above)
+- prompt: string (detailed AI video generation prompt, 50-100 words${hasLyrics ? ", visually reflecting the lyrics for that scene" : ""})
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime", "oil painting")
 
 Make the scenes tell a visual story that matches the theme. Vary the camera angles, settings, and visual styles to keep it dynamic.`;
@@ -112,11 +210,16 @@ Make the scenes tell a visual story that matches the theme. Vary the camera angl
     },
   });
 
-   const rawContent = response.choices[0]?.message?.content;
+  const rawContent = response.choices[0]?.message?.content;
   if (!rawContent) throw new Error("LLM returned empty response");
   const content = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
   const parsed = JSON.parse(content);
-  return parsed.scenes;
+
+  // Merge the lyrics back into each scene result
+  return parsed.scenes.map((scene: any) => ({
+    ...scene,
+    lyrics: sceneWindows[scene.sceneIndex]?.lyrics ?? "",
+  }));
 }
 
 /**
@@ -128,7 +231,6 @@ export async function startSceneRender(
   prompt: string,
   duration: number
 ): Promise<string> {
-  // Use Kling AI for video generation
   const taskId = await klingClient.createTextToVideo({
     prompt,
     duration: duration <= 5 ? "5" : "10",
@@ -161,7 +263,6 @@ export async function pollSceneStatus(
     const videoUrl = (result as any).task_result?.videos?.[0]?.url;
     if (!videoUrl) return { status: "failed" };
 
-    // Download and re-upload to our S3 for permanent storage
     const response = await fetch(videoUrl);
     const buffer = Buffer.from(await response.arrayBuffer());
     const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
@@ -195,7 +296,6 @@ export async function pollSceneStatus(
  * Returns the S3 URL of the final video.
  */
 export async function assembleMusicVideo(jobId: number): Promise<string> {
-  // Get job and all completed scenes
   const dbConn = await getDb();
   if (!dbConn) throw new Error("Database not available");
 
@@ -208,13 +308,11 @@ export async function assembleMusicVideo(jobId: number): Promise<string> {
 
   if (scenes.length === 0) throw new Error("No completed scenes to assemble");
 
-  // Sort by scene index
-  scenes.sort((a: typeof scenes[0], b: typeof scenes[0]) => a.sceneIndex - b.sceneIndex);
+  scenes.sort((a, b) => a.sceneIndex - b.sceneIndex);
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `wizvid-job-${jobId}-`));
 
   try {
-    // Download all scene videos
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
       if (!scene.videoUrl) continue;
@@ -225,44 +323,39 @@ export async function assembleMusicVideo(jobId: number): Promise<string> {
       sceneFiles.push(sceneFile);
     }
 
-    // Download audio
     const audioFile = path.join(tmpDir, "audio.mp3");
     const audioResp = await fetch(job.audioUrl);
     const audioBuf = Buffer.from(await audioResp.arrayBuffer());
     fs.writeFileSync(audioFile, audioBuf);
 
-    // Create ffmpeg concat list
     const concatFile = path.join(tmpDir, "concat.txt");
     const concatContent = sceneFiles.map(f => `file '${f}'`).join("\n");
     fs.writeFileSync(concatFile, concatContent);
 
-    // Step 1: Concatenate all video clips
+    // Concatenate all video clips
     const concatenatedVideo = path.join(tmpDir, "concatenated.mp4");
     await execAsync(
       `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
       { timeout: 300000 }
     );
 
-    // Step 2: Mix video with audio (trim to audio duration)
+    // Mix video with audio — trim to exact audio duration
     const finalVideo = path.join(tmpDir, "final.mp4");
     await execAsync(
       `ffmpeg -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest "${finalVideo}"`,
       { timeout: 300000 }
     );
 
-    // Upload final video to S3
     const finalBuffer = fs.readFileSync(finalVideo);
     const finalKey = `music-videos/job-${jobId}-final-${Date.now()}.mp4`;
     const { url } = await storagePut(finalKey, finalBuffer, "video/mp4");
 
-    // Update job record
     await dbConn.update(musicVideoJobs)
       .set({ status: "completed", finalVideoUrl: url, finalVideoKey: finalKey, updatedAt: new Date() })
       .where(eq(musicVideoJobs.id, jobId));
 
     return url;
   } finally {
-    // Cleanup temp files
     try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
   }
 }

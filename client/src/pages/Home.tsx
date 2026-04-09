@@ -18,6 +18,9 @@ import {
   Users,
   Award,
   Clock,
+  Music,
+  FileText,
+  Layers,
 } from "lucide-react";
 
 const WIZVID_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Wizvidlogowithneonmagicflair(1)_03506e50.png";
@@ -540,6 +543,137 @@ export default function Home() {
               Try WizPilot Free
             </a>
           </Button>
+        </div>
+      </section>
+
+      {/* ── Make a Music Video ── */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-black">
+        {/* Background glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-pink-600/8 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[300px] bg-purple-600/8 rounded-full blur-3xl" />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-sm text-pink-300 mb-6">
+              <Music className="h-3.5 w-3.5" />
+              Music Video Autopilot
+            </div>
+            <h2 className="text-4xl sm:text-6xl font-black text-white mb-6 leading-tight">
+              Make a{" "}
+              <span style={{ background: "linear-gradient(135deg, #ec4899, #a855f7, #6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                Music Video
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              Upload your song. Our AI reads your lyrics and auto-generates a full cinematic video — scene by scene — perfectly timed to every word.
+            </p>
+          </div>
+
+          {/* Two-column: how it works + style preview */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+
+            {/* Left: Steps */}
+            <div className="space-y-6">
+              {[
+                {
+                  icon: Music,
+                  step: "01",
+                  title: "Upload Your Song",
+                  desc: "Drop in any MP3, WAV, or M4A — up to 6 minutes. We support full-length tracks, not just clips.",
+                  color: "text-pink-400",
+                  bg: "bg-pink-500/10 border-pink-500/20",
+                },
+                {
+                  icon: FileText,
+                  step: "02",
+                  title: "Lyrics Drive the Visuals",
+                  desc: "Our AI transcribes your lyrics and maps each line to a scene. \"Burning city lights\" becomes exactly that — no guesswork.",
+                  color: "text-purple-400",
+                  bg: "bg-purple-500/10 border-purple-500/20",
+                  highlight: true,
+                },
+                {
+                  icon: Layers,
+                  step: "03",
+                  title: "Or Use a Prompt Instead",
+                  desc: "No lyrics? No problem. Describe your visual concept — a theme, mood, or story — and the AI builds the storyboard from that.",
+                  color: "text-blue-400",
+                  bg: "bg-blue-500/10 border-blue-500/20",
+                },
+                {
+                  icon: Sparkles,
+                  step: "04",
+                  title: "Free Storyboard. Render When Ready.",
+                  desc: "Review every scene before spending a single credit. Edit any prompt you want — then render the full video with audio sync.",
+                  color: "text-emerald-400",
+                  bg: "bg-emerald-500/10 border-emerald-500/20",
+                },
+              ].map(({ icon: Icon, step, title, desc, color, bg, highlight }) => (
+                <div key={step} className={`relative flex gap-4 rounded-2xl border p-5 ${bg} ${highlight ? "ring-1 ring-purple-500/30" : ""}`}>
+                  {highlight && (
+                    <div className="absolute -top-2.5 left-4">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-0.5 text-xs font-bold text-white">
+                        <Sparkles className="h-2.5 w-2.5" /> AI-Powered
+                      </span>
+                    </div>
+                  )}
+                  <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${bg} border`}>
+                    <Icon className={`h-5 w-5 ${color}`} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs font-bold ${color} opacity-60`}>{step}</span>
+                      <h4 className="font-bold text-white text-sm">{title}</h4>
+                    </div>
+                    <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Right: Style grid preview */}
+            <div>
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-widest mb-4">Choose your visual style</p>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: "Cinematic", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp" },
+                  { label: "Anime", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-bCLhyWeYo6mek5pWMnEUV7.webp" },
+                  { label: "Pixar 3D", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV.webp" },
+                  { label: "Documentary", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-nyjoHJnTHZU2hdjABnnjBm.webp" },
+                  { label: "Abstract", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-E9NdxWuFeAHfGRiGpsbW9Y.webp" },
+                  { label: "Vintage", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-iCZFjq9buUWkDWVxu3J7Qy.webp" },
+                ].map(({ label, img }) => (
+                  <div key={label} className="relative rounded-xl overflow-hidden group cursor-pointer" style={{ aspectRatio: "3/2" }}>
+                    <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-xs font-semibold text-white">{label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-600 mt-3 text-center">6 visual styles · More coming soon</p>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <Button
+              size="lg"
+              className="h-14 px-12 font-bold border-0 text-white text-base"
+              style={{ background: "linear-gradient(135deg, #ec4899, #a855f7)", boxShadow: "0 0 40px rgba(236,72,153,0.35)" }}
+              asChild
+            >
+              <a href="/music-video">
+                <Music className="h-5 w-5 mr-2" />
+                Make Your Music Video
+              </a>
+            </Button>
+            <p className="text-sm text-gray-600 mt-3">Free storyboard · Credits only on final render</p>
+          </div>
         </div>
       </section>
 

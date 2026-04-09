@@ -103,6 +103,8 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   themePrompt: text("themePrompt").notNull(),
   genre: varchar("genre", { length: 128 }),
   mood: varchar("mood", { length: 128 }),
+  transcription: text("transcription"), // Full Whisper transcription text
+  transcriptionStatus: varchar("transcriptionStatus", { length: 32 }).default("pending"), // pending | processing | done | failed
   status: mysqlEnum("mvJobStatus", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
@@ -124,6 +126,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   startTime: int("startTime").notNull(),
   duration: int("duration").notNull(),
   prompt: text("prompt").notNull(),
+  lyrics: text("lyrics"), // Transcribed lyrics for this scene's time window
   visualStyle: varchar("visualStyle", { length: 255 }),
   status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed"]).default("pending").notNull(),
   taskId: varchar("taskId", { length: 255 }),

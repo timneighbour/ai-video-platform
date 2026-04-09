@@ -22,6 +22,13 @@
       "when": 1775708906099,
       "tag": "0002_faulty_shape",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1775710430144,
+      "tag": "0003_daffy_loa",
+      "breakpoints": true
     }
   ]
 }

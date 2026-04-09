@@ -65,6 +65,46 @@ export default function MusicVideoAutopilot() {
   const [themePrompt, setThemePrompt] = useState("");
   const [genre, setGenre] = useState("");
   const [mood, setMood] = useState("");
+  const [selectedStyle, setSelectedStyle] = useState("cinematic");
+
+  const VIDEO_STYLES = [
+    {
+      id: "cinematic",
+      label: "Cinematic",
+      desc: "Hollywood-quality realism",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp",
+    },
+    {
+      id: "anime",
+      label: "Anime",
+      desc: "Japanese animation style",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-bCLhyWeYo6mek5pWMnEUV7.webp",
+    },
+    {
+      id: "pixar3d",
+      label: "Pixar 3D",
+      desc: "Vibrant 3D animation",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV.webp",
+    },
+    {
+      id: "documentary",
+      label: "Documentary",
+      desc: "Authentic & raw footage",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-nyjoHJnTHZU2hdjABnnjBm.webp",
+    },
+    {
+      id: "abstract",
+      label: "Abstract",
+      desc: "Artistic visual journey",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-E9NdxWuFeAHfGRiGpsbW9Y.webp",
+    },
+    {
+      id: "vintage",
+      label: "Vintage",
+      desc: "Retro film aesthetic",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-iCZFjq9buUWkDWVxu3J7Qy.webp",
+    },
+  ];
   const [isDragging, setIsDragging] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -102,8 +142,8 @@ export default function MusicVideoAutopilot() {
       toast.error("Invalid file type", { description: "Please upload an MP3, WAV, or M4A file." });
       return;
     }
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("File too large", { description: "Maximum file size is 50MB." });
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error("File too large", { description: "Maximum file size is 100MB." });
       return;
     }
     setAudioFile(file);
@@ -154,12 +194,16 @@ export default function MusicVideoAutopilot() {
 
       toast.loading("Uploading song...", { description: "This may take a moment." });
 
+      // Append the selected visual style to the theme prompt so the LLM uses it
+      const styleLabel = VIDEO_STYLES.find(s => s.id === selectedStyle)?.label ?? selectedStyle;
+      const enrichedThemePrompt = `${themePrompt}\n\nVisual Style: ${styleLabel}`;
+
       const result = await createJob.mutateAsync({
         title,
         audioBase64: base64,
         audioMimeType: mimeType as any,
         audioDuration,
-        themePrompt,
+        themePrompt: enrichedThemePrompt,
         genre: genre || undefined,
         mood: mood || undefined,
       });
@@ -360,7 +404,7 @@ export default function MusicVideoAutopilot() {
                       <div>
                         <Music className="w-10 h-10 text-zinc-500 mx-auto mb-2" />
                         <p className="text-zinc-300 font-medium">Drop your song here</p>
-                        <p className="text-zinc-500 text-sm mt-1">MP3, WAV, M4A · Max 50MB · Max 6 minutes</p>
+                        <p className="text-zinc-500 text-sm mt-1">MP3, WAV, M4A · Max 100MB · Max 6 minutes</p>
                       </div>
                     )}
                   </div>
@@ -413,6 +457,55 @@ export default function MusicVideoAutopilot() {
                         placeholder="e.g. Dark, Euphoric, Melancholic"
                         className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                       />
+                    </div>
+                  </div>
+
+                  {/* Video Style Picker */}
+                  <div>
+                    <Label className="text-zinc-300 mb-3 block">Video Style</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {VIDEO_STYLES.map((style) => (
+                        <button
+                          key={style.id}
+                          type="button"
+                          onClick={() => setSelectedStyle(style.id)}
+                          className={`relative rounded-xl overflow-hidden text-left transition-all focus:outline-none group ${
+                            selectedStyle === style.id
+                              ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-900"
+                              : "ring-1 ring-zinc-700 hover:ring-zinc-500"
+                          }`}
+                        >
+                          {/* Thumbnail */}
+                          <div className="relative" style={{ aspectRatio: "3/2" }}>
+                            <img
+                              src={style.image}
+                              alt={style.label}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                            {/* Dark overlay */}
+                            <div className={`absolute inset-0 transition-opacity ${
+                              selectedStyle === style.id
+                                ? "bg-purple-900/40"
+                                : "bg-black/40 group-hover:bg-black/20"
+                            }`} />
+                            {/* Selected checkmark */}
+                            {selectedStyle === style.id && (
+                              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                            )}
+                          </div>
+                          {/* Label */}
+                          <div className={`px-3 py-2 ${
+                            selectedStyle === style.id ? "bg-purple-900/60" : "bg-zinc-800"
+                          }`}>
+                            <p className={`text-sm font-semibold ${
+                              selectedStyle === style.id ? "text-purple-200" : "text-white"
+                            }`}>{style.label}</p>
+                            <p className="text-xs text-zinc-400">{style.desc}</p>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </CardContent>

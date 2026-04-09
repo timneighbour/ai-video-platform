@@ -15,6 +15,7 @@ import {
   startSceneRender,
   pollSceneStatus,
   assembleMusicVideo,
+  transcribeJobAudio,
 } from "../music-video-service";
 import { deductCredits, getUserCredits } from "../credit-service";
 
@@ -61,6 +62,13 @@ export const musicVideoRouter = router({
       });
 
       const jobId = (result as any).insertId as number;
+
+      // Kick off transcription asynchronously (non-blocking)
+      // This runs in the background so the user can see the storyboard step immediately
+      transcribeJobAudio(jobId, audioUrl).catch((err) => {
+        console.error(`[MusicVideo] Transcription failed for job ${jobId}:`, err);
+      });
+
       return { jobId, sceneCount, creditCost };
     }),
 
@@ -76,13 +84,41 @@ export const musicVideoRouter = router({
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
 
-      // Generate scenes via LLM
+      // If transcription is done, use lyrics to drive the storyboard
+      // Otherwise generate based on theme alone (transcription may still be processing)
+      let lyricsSegments: Array<{ start: number; end: number; text: string }> | undefined;
+      if (job.transcriptionStatus === "done" && job.transcription) {
+        // Re-run transcription to get segments (or use stored transcription text as fallback)
+        // We use the audio URL to get fresh segments with timestamps
+        try {
+          const freshTranscription = await transcribeJobAudio(job.id, job.audioUrl);
+          lyricsSegments = freshTranscription.segments;
+        } catch {
+          // Fall back to theme-only storyboard
+        }
+      } else if (job.transcriptionStatus === "processing") {
+        // Wait briefly for transcription to complete (up to 30s)
+        for (let attempt = 0; attempt < 6; attempt++) {
+          await new Promise((r) => setTimeout(r, 5000));
+          const [refreshed] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
+          if (refreshed?.transcriptionStatus === "done" && refreshed.transcription) {
+            try {
+              const freshTranscription = await transcribeJobAudio(job.id, job.audioUrl);
+              lyricsSegments = freshTranscription.segments;
+            } catch {}
+            break;
+          }
+        }
+      }
+
+      // Generate scenes via LLM — lyrics-driven if available, theme-only otherwise
       const scenes = await generateStoryboard(
         job.themePrompt,
         job.genre,
         job.mood,
         job.audioDuration,
-        job.title
+        job.title,
+        lyricsSegments
       );
 
       // Delete existing scenes if regenerating
@@ -96,6 +132,7 @@ export const musicVideoRouter = router({
           startTime: scene.startTime,
           duration: scene.duration,
           prompt: scene.prompt,
+          lyrics: scene.lyrics || null,
           visualStyle: scene.visualStyle,
           status: "pending",
         });

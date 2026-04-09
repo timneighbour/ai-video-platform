@@ -283,3 +283,14 @@
 - [x] Update credit costs for longer durations (proportional: 300/600/900/1200 credits)
 - [x] Backend already accepts any string duration via options — no validation change needed
 - [x] Duration selector changed from flex row to 4-column grid to accommodate 7 options cleanly
+
+## Lyrics-Driven Music Video Autopilot
+- [ ] Backend: Whisper transcription of uploaded audio — extract lyrics with word/segment timestamps
+- [ ] Backend: Map lyrics segments to scenes (each scene gets the lyrics being sung during that time window)
+- [ ] Backend: Update storyboard LLM prompt to include lyrics context per scene so visuals match the words
+- [ ] Backend: Scene count and duration auto-calculated from actual audio duration (no manual input needed)
+- [ ] Backend: Store transcribed lyrics per scene in musicVideoScenes table (new `lyrics` column)
+- [ ] Frontend: Show transcribed lyrics snippet on each scene card in storyboard review
+- [ ] Frontend: Remove manual duration input — duration is auto-detected from uploaded audio
+- [ ] Frontend: Show "Transcribing lyrics..." loading state after upload
+- [ ] DB migration: add `lyrics` text column to music_video_scenes table
