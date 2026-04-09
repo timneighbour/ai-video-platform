@@ -615,3 +615,12 @@
 - [x] Add transcribeAudioDirect tRPC procedure: accepts base64 audio, uploads to S3, calls Whisper, returns text immediately
 - [x] Trigger transcription immediately on audio file select (not after storyboard generation)
 - [x] Show lyrics panel as soon as audio is selected with live status indicator
+
+## Multi-Character System (Apr 2026)
+- [ ] Add videoCharacters DB table: id, jobId, name, role, lipSync, createdAt
+- [ ] Add videoCharacterPhotos DB table: id, characterId, photoUrl, photoKey, isPrimary
+- [ ] Add tRPC procedures: saveCharacters (upsert up to 4), getCharacters, deleteCharacter
+- [ ] Build CharacterManager UI component: up to 4 character slots, each with name field + multiple photo upload + lip sync toggle per character
+- [ ] Replace single character upload in MusicVideoAutopilot with CharacterManager component
+- [ ] Pass character descriptions (name + photo URLs) into storyboard LLM prompt
+- [ ] Add CharacterManager to Animation Video page if it exists

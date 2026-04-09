@@ -5,6 +5,7 @@ import { publicProcedure, router } from "./_core/trpc";
 import { billingRouter } from "./routers/billing";
 import { musicVideoRouter } from "./routers/musicVideo";
 import { videoRouter } from "./routers/video";
+import { charactersRouter } from "./routers/characters";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -12,6 +13,7 @@ export const appRouter = router({
   billing: billingRouter,
   musicVideo: musicVideoRouter,
   video: videoRouter,
+  characters: charactersRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

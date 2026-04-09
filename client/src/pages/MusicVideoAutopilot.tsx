@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { CharacterManager, type Character } from "@/components/CharacterManager";
 import {
   Music,
   Upload,
@@ -74,13 +75,8 @@ export default function MusicVideoAutopilot() {
   const [mood, setMood] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("cinematic");
 
-  // Character photo state
-  const [characterFile, setCharacterFile] = useState<File | null>(null);
-  const [characterPreview, setCharacterPreview] = useState<string | null>(null);
-  const characterInputRef = useRef<HTMLInputElement>(null);
-
-  // Lip sync state
-  const [enableLipSync, setEnableLipSync] = useState(false);
+  // Multi-character state (replaces single character + lip sync)
+  const [characters, setCharacters] = useState<Character[]>([]);
 
   // Transcription / lyrics state — starts immediately on audio file select
   const [transcriptionStatus, setTranscriptionStatus] = useState<string>("idle"); // idle | transcribing | done | failed
@@ -221,20 +217,7 @@ export default function MusicVideoAutopilot() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCharacterFileDrop = useCallback((file: File) => {
-    const validTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!validTypes.includes(file.type)) {
-      toast.error("Invalid image type", { description: "Please upload a JPG, PNG, or WebP image." });
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image too large", { description: "Maximum image size is 10MB." });
-      return;
-    }
-    setCharacterFile(file);
-    const url = URL.createObjectURL(file);
-    setCharacterPreview(url);
-  }, []);
+  // handleCharacterFileDrop removed — replaced by CharacterManager component
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = () => setIsDragging(false);
@@ -279,13 +262,11 @@ export default function MusicVideoAutopilot() {
       const mimeType = audioFile.type.includes("wav") ? "audio/wav" :
                        audioFile.type.includes("mp4") || audioFile.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
 
-      // Convert character image to base64 if provided
-      let characterImageBase64: string | undefined;
-      let characterImageMimeType: string | undefined;
-      if (characterFile) {
-        characterImageBase64 = await fileToBase64(characterFile);
-        characterImageMimeType = characterFile.type;
-      }
+      // Build character data for the job (primary photo per character)
+      const firstCharWithPhoto = characters.find(c => c.photos.length > 0);
+      const characterImageBase64 = firstCharWithPhoto?.photos.find(p => p.isPrimary)?.base64 ?? firstCharWithPhoto?.photos[0]?.base64;
+      const characterImageMimeType = firstCharWithPhoto?.photos.find(p => p.isPrimary)?.mimeType ?? firstCharWithPhoto?.photos[0]?.mimeType;
+      const enableLipSync = characters.some(c => c.enableLipSync);
 
       toast.loading("Uploading song...", { description: "This may take a moment." });
 
@@ -302,7 +283,7 @@ export default function MusicVideoAutopilot() {
         genre: genre || undefined,
         mood: mood || undefined,
         characterImageBase64,
-        characterImageMimeType,
+        characterImageMimeType: characterImageMimeType as any,
         enableLipSync,
       });
 
@@ -663,106 +644,24 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
-              {/* Character & Lip Sync */}
+              {/* Characters & Lip Sync — multi-character */}
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <User className="w-5 h-5 text-blue-400" />
-                    Character & Lip Sync
-                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional</Badge>
+                    <User className="w-5 h-5 text-purple-400" />
+                    Characters & Lip Sync
+                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional · Up to 4</Badge>
                   </CardTitle>
+                  <p className="text-zinc-500 text-xs mt-1">
+                    Add up to 4 characters with reference photos. The AI will use their appearance consistently across all scenes.
+                  </p>
                 </CardHeader>
-                <CardContent className="space-y-5">
-                  {/* Character photo upload */}
-                  <div>
-                    <Label className="text-zinc-300 mb-2 block">Character Photo</Label>
-                    <p className="text-zinc-500 text-xs mb-3">
-                      Upload a photo of a person or character. The AI will use their appearance consistently throughout your video.
-                    </p>
-                    <div
-                      className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
-                        characterFile ? "border-blue-500 bg-blue-500/10" : "border-zinc-700 hover:border-zinc-500"
-                      }`}
-                      onClick={() => characterInputRef.current?.click()}
-                    >
-                      <input
-                        ref={characterInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        className="hidden"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCharacterFileDrop(f); }}
-                      />
-                      {characterFile && characterPreview ? (
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={characterPreview}
-                            alt="Character preview"
-                            className="w-16 h-16 rounded-lg object-cover border border-blue-500/50"
-                          />
-                          <div className="text-left flex-1">
-                            <p className="text-blue-400 font-medium text-sm">{characterFile.name}</p>
-                            <p className="text-zinc-500 text-xs mt-0.5">Click to change</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); setCharacterFile(null); setCharacterPreview(null); }}
-                            className="text-zinc-500 hover:text-zinc-300 p-1"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <User className="w-8 h-8 text-zinc-500 mx-auto mb-2" />
-                          <p className="text-zinc-300 text-sm font-medium">Upload character photo</p>
-                          <p className="text-zinc-500 text-xs mt-1">JPG, PNG, WebP · Max 10MB</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Lip sync toggle */}
-                  <div className={`rounded-xl border p-4 transition-all ${
-                    enableLipSync ? "border-pink-700 bg-pink-900/20" : "border-zinc-700 bg-zinc-800/50"
-                  }`}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          enableLipSync ? "bg-pink-600" : "bg-zinc-700"
-                        }`}>
-                          <Mic className="w-4 h-4 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-white font-medium text-sm">Enable Lip Sync</p>
-                          <p className="text-zinc-400 text-xs mt-0.5">
-                            AI will generate close-up face shots in scenes with lyrics, then apply lip sync to match your audio.
-                            {!characterFile && (
-                              <span className="text-yellow-400 ml-1">Upload a character photo above to use this feature.</span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={enableLipSync}
-                        onCheckedChange={(v) => {
-                          if (v && !characterFile) {
-                            toast.warning("Character photo required", { description: "Please upload a character photo to use lip sync." });
-                            return;
-                          }
-                          setEnableLipSync(v);
-                        }}
-                        className="flex-shrink-0"
-                      />
-                    </div>
-                    {enableLipSync && (
-                      <div className="mt-3 pt-3 border-t border-pink-800/50">
-                        <p className="text-pink-300 text-xs flex items-center gap-1.5">
-                          <Sparkles className="w-3 h-3" />
-                          Lip sync scenes will be processed using HeyGen AI after rendering. Additional credits may apply.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                <CardContent>
+                  <CharacterManager
+                    characters={characters}
+                    onChange={setCharacters}
+                    maxCharacters={4}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -786,13 +685,13 @@ export default function MusicVideoAutopilot() {
                     <span className="text-zinc-400 flex items-center gap-1.5"><Coins className="w-4 h-4" /> Credits</span>
                     <span className="text-white">{creditCost > 0 ? creditCost : "—"}</span>
                   </div>
-                  {characterFile && (
+                  {characters.length > 0 && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-zinc-400 flex items-center gap-1.5"><User className="w-4 h-4" /> Character</span>
-                      <span className="text-blue-400">✓ Added</span>
+                      <span className="text-zinc-400 flex items-center gap-1.5"><User className="w-4 h-4" /> Characters</span>
+                      <span className="text-blue-400">{characters.length} added</span>
                     </div>
                   )}
-                  {enableLipSync && (
+                  {characters.some(c => c.enableLipSync) && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-zinc-400 flex items-center gap-1.5"><Mic className="w-4 h-4" /> Lip Sync</span>
                       <span className="text-pink-400">✓ Enabled</span>
@@ -973,7 +872,7 @@ export default function MusicVideoAutopilot() {
                       <Button
                         variant="outline"
                         className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
-                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacterFile(null); setCharacterPreview(null); setEnableLipSync(false); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); }}
+                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); }}
                       >
                         Create Another
                       </Button>

@@ -154,3 +154,33 @@ export const apiKeys = mysqlTable("apiKeys", {
 
 export type ApiKey = typeof apiKeys.$inferSelect;
 export type InsertApiKey = typeof apiKeys.$inferInsert;
+// Video Characters table — up to 4 characters per job, each with a name and lip sync option
+export const videoCharacters = mysqlTable("videoCharacters", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(), // references musicVideoJobs.id
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull().default("Character"),
+  role: varchar("role", { length: 255 }), // e.g. "Lead Singer", "Dancer"
+  enableLipSync: boolean("enableLipSync").default(false),
+  slotIndex: int("slotIndex").notNull().default(0), // 0-3 for up to 4 characters
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type VideoCharacter = typeof videoCharacters.$inferSelect;
+export type InsertVideoCharacter = typeof videoCharacters.$inferInsert;
+
+// Video Character Photos table — multiple reference photos per character
+export const videoCharacterPhotos = mysqlTable("videoCharacterPhotos", {
+  id: int("id").autoincrement().primaryKey(),
+  characterId: int("characterId").notNull(), // references videoCharacters.id
+  jobId: int("jobId").notNull(), // denormalised for easier queries
+  userId: int("userId").notNull(),
+  photoUrl: varchar("photoUrl", { length: 1024 }).notNull(),
+  photoKey: varchar("photoKey", { length: 512 }).notNull(),
+  isPrimary: boolean("isPrimary").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type VideoCharacterPhoto = typeof videoCharacterPhotos.$inferSelect;
+export type InsertVideoCharacterPhoto = typeof videoCharacterPhotos.$inferInsert;
