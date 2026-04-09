@@ -190,15 +190,14 @@ function Hero() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
-              Create full AI videos<br />
+              Your song. Your story.<br />
               <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                in minutes
-              </span><br />
-              — not just clips
+                A full video in minutes.
+              </span>
             </h1>
 
             <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-              Turn your audio, lyrics, or ideas into fully animated videos instantly.
+              Upload your audio, describe your vision, and WizVid generates a complete scene-by-scene video — synced to your lyrics, no editing required.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
