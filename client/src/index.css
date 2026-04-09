@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&.dark, .dark &);
 
 @theme inline {
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -212,6 +212,45 @@ h1, h2, h3, h4 {
   0% { transform: translateX(-50%); }
   100% { transform: translateX(0); }
 }
+
+/* ── Dark mode theme (explicit class override) ── */
+.dark {
+  --primary: oklch(0.7 0.25 280);
+  --primary-foreground: oklch(0.05 0 0);
+  --sidebar-primary: oklch(0.7 0.25 280);
+  --sidebar-primary-foreground: oklch(0.05 0 0);
+  --chart-1: oklch(0.75 0.28 280);
+  --chart-2: oklch(0.65 0.3 300);
+  --chart-3: oklch(0.7 0.25 200);
+  --chart-4: oklch(0.75 0.28 50);
+  --chart-5: oklch(0.6 0.25 280);
+  --radius: 0.75rem;
+  --background: oklch(0.0588 0 0);
+  --foreground: oklch(0.95 0.01 0);
+  --card: oklch(0.0902 0.005 260);
+  --card-foreground: oklch(0.95 0.01 0);
+  --popover: oklch(0.0902 0.005 260);
+  --popover-foreground: oklch(0.95 0.01 0);
+  --secondary: oklch(0.12 0.01 260);
+  --secondary-foreground: oklch(0.75 0.05 280);
+  --muted: oklch(0.15 0.01 260);
+  --muted-foreground: oklch(0.63 0.02 260);
+  --accent: oklch(0.7 0.25 280);
+  --accent-foreground: oklch(0.05 0 0);
+  --destructive: oklch(0.65 0.28 30);
+  --destructive-foreground: oklch(0.95 0.01 0);
+  --border: oklch(0.18 0.01 260);
+  --input: oklch(0.12 0.01 260);
+  --ring: oklch(0.7 0.25 280);
+  --sidebar: oklch(0.0588 0 0);
+  --sidebar-foreground: oklch(0.95 0.01 0);
+  --sidebar-accent: oklch(0.7 0.25 280);
+  --sidebar-accent-foreground: oklch(0.05 0 0);
+  --sidebar-border: oklch(0.2 0.01 260);
+  --sidebar-ring: oklch(0.7 0.25 280);
+}
+.dark ::-webkit-scrollbar-track { background: oklch(0.1 0.01 260); }
+.dark ::-webkit-scrollbar-thumb { background: oklch(0.7 0.25 280); border-radius: 4px; }
 
 /* ── Light mode theme ── */
 .light {

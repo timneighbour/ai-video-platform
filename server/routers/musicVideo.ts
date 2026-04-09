@@ -794,7 +794,7 @@ export const musicVideoRouter = router({
       return { success: true, sceneId: input.sceneId, prompt: input.prompt.trim() };
     }),
 
-  // List all jobs for the current user
+  // List all jobs for the current user (with per-job scene stats)
   listJobs: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) return [];
@@ -803,6 +803,56 @@ export const musicVideoRouter = router({
       .where(eq(musicVideoJobs.userId, ctx.user.id))
       .orderBy(desc(musicVideoJobs.createdAt));
 
-    return jobs;
+    // Attach scene stats to each job
+    const jobsWithStats = await Promise.all(jobs.map(async (job) => {
+      const scenes = await db.select({
+        id: musicVideoScenes.id,
+        status: musicVideoScenes.status,
+        errorMessage: musicVideoScenes.errorMessage,
+      }).from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
+
+      const totalScenes = scenes.length;
+      const completedScenes = scenes.filter((s) => s.status === "completed").length;
+      const failedScenes = scenes.filter((s) => s.status === "failed").length;
+      const renderingScenes = scenes.filter((s) => s.status === "generating").length;
+
+      return { ...job, totalScenes, completedScenes, failedScenes, renderingScenes };
+    }));
+
+    return jobsWithStats;
   }),
+
+  // Get full job details including all scenes with status and error logs
+  getJobDetails: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const scenes = await db.select({
+        id: musicVideoScenes.id,
+        sceneIndex: musicVideoScenes.sceneIndex,
+        status: musicVideoScenes.status,
+        prompt: musicVideoScenes.prompt,
+        lyrics: musicVideoScenes.lyrics,
+        errorMessage: musicVideoScenes.errorMessage,
+        videoUrl: musicVideoScenes.videoUrl,
+        startTime: musicVideoScenes.startTime,
+        duration: musicVideoScenes.duration,
+        lipSync: musicVideoScenes.lipSync,
+        updatedAt: musicVideoScenes.updatedAt,
+      }).from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex);
+
+      const totalScenes = scenes.length;
+      const completedScenes = scenes.filter((s) => s.status === "completed").length;
+      const failedScenes = scenes.filter((s) => s.status === "failed").length;
+
+      return { job, scenes, totalScenes, completedScenes, failedScenes };
+    }),
 });

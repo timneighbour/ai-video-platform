@@ -135,10 +135,16 @@ export default function Dashboard() {
               <CardDescription>See all your generated videos and their status</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="gap-2" onClick={() => setLocation("/projects")}>
-                <History className="h-4 w-4" />
-                Projects
-              </Button>
+              <div className="flex gap-2 flex-wrap">
+                <Button variant="outline" className="gap-2" onClick={() => setLocation("/projects")}>
+                  <History className="h-4 w-4" />
+                  Projects
+                </Button>
+                <Button variant="outline" className="gap-2" onClick={() => setLocation("/render-history")}>
+                  <History className="h-4 w-4" />
+                  Render History
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

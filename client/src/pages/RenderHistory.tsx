@@ -1,0 +1,436 @@
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Film,
+  Download,
+  RefreshCw,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  AlertCircle,
+  Play,
+  Sparkles,
+  FileVideo,
+  History,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Link } from "wouter";
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatDate(date: Date | string | null) {
+  if (!date) return "—";
+  return new Date(date).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatDuration(seconds: number | null) {
+  if (!seconds) return "—";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
+type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "completed" | "failed";
+
+function StatusBadge({ status }: { status: JobStatus | string }) {
+  const map: Record<string, { label: string; className: string }> = {
+    draft: { label: "Draft", className: "bg-zinc-700 text-zinc-300 border-zinc-600" },
+    storyboard_ready: { label: "Ready", className: "bg-blue-500/20 text-blue-300 border-blue-500/40" },
+    rendering: { label: "Rendering", className: "bg-purple-500/20 text-purple-300 border-purple-500/40" },
+    assembling: { label: "Assembling", className: "bg-yellow-500/20 text-yellow-300 border-yellow-500/40" },
+    completed: { label: "Completed", className: "bg-green-500/20 text-green-300 border-green-500/40" },
+    failed: { label: "Failed", className: "bg-red-500/20 text-red-300 border-red-500/40" },
+  };
+  const cfg = map[status] ?? { label: status, className: "bg-zinc-700 text-zinc-300 border-zinc-600" };
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${cfg.className}`}>
+      {cfg.label}
+    </span>
+  );
+}
+
+function SceneStatusIcon({ status }: { status: string }) {
+  if (status === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />;
+  if (status === "failed") return <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />;
+  if (status === "generating") return <Loader2 className="w-3.5 h-3.5 text-purple-400 animate-spin shrink-0" />;
+  return <Clock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />;
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
+
+export default function RenderHistory() {
+  const { isAuthenticated } = useAuth();
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [retryingJobId, setRetryingJobId] = useState<number | null>(null);
+
+  const jobsQuery = trpc.musicVideo.listJobs.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: (query) => {
+      // Poll every 15s if any job is actively rendering
+      const data = query.state.data as any[] | undefined;
+      if (!data) return false;
+      const hasActive = data.some((j) => j.status === "rendering" || j.status === "assembling");
+      return hasActive ? 15000 : false;
+    },
+  });
+
+  const detailsQuery = trpc.musicVideo.getJobDetails.useQuery(
+    { jobId: selectedJobId! },
+    { enabled: selectedJobId !== null }
+  );
+
+  const retryAllMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
+  const utils = trpc.useUtils();
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <History className="w-12 h-12 text-zinc-600 mx-auto" />
+          <p className="text-zinc-400">Sign in to view your render history</p>
+          <Button asChild>
+            <a href={getLoginUrl()}>Sign in</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const jobs = jobsQuery.data ?? [];
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Page header */}
+      <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center">
+              <History className="w-4 h-4 text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-base font-semibold text-foreground">Render History</h1>
+              <p className="text-xs text-muted-foreground">{jobs.length} video{jobs.length !== 1 ? "s" : ""}</p>
+            </div>
+          </div>
+          <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-500 text-white">
+            <Link href="/wizvid-autopilot"><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
+          </Button>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        {/* Loading */}
+        {jobsQuery.isLoading && (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+          </div>
+        )}
+
+        {/* Error */}
+        {jobsQuery.isError && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <AlertCircle className="w-8 h-8 text-red-400" />
+            <p className="text-zinc-400 text-sm">Failed to load render history</p>
+            <Button size="sm" variant="outline" onClick={() => jobsQuery.refetch()}>
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />Retry
+            </Button>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!jobsQuery.isLoading && !jobsQuery.isError && jobs.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center">
+              <FileVideo className="w-8 h-8 text-zinc-600" />
+            </div>
+            <div className="text-center">
+              <p className="text-zinc-300 font-medium mb-1">No videos yet</p>
+              <p className="text-zinc-500 text-sm">Create your first AI music video to see it here</p>
+            </div>
+            <Button asChild className="bg-purple-600 hover:bg-purple-500 text-white">
+              <Link href="/wizvid-autopilot"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
+            </Button>
+          </div>
+        )}
+
+        {/* Job list */}
+        {jobs.length > 0 && (
+          <div className="space-y-3">
+            {jobs.map((job: any) => {
+              const progressPct = job.totalScenes > 0
+                ? Math.round((job.completedScenes / job.totalScenes) * 100)
+                : 0;
+              const isActive = job.status === "rendering" || job.status === "assembling";
+              const hasFailures = job.failedScenes > 0;
+
+              return (
+                <div
+                  key={job.id}
+                  className="bg-card border border-border rounded-xl overflow-hidden hover:border-purple-500/30 transition-colors"
+                >
+                  <div className="p-4">
+                    <div className="flex items-start gap-4">
+                      {/* Thumbnail / icon */}
+                      <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
+                        {job.thumbnailUrl ? (
+                          <img src={job.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Film className="w-5 h-5 text-zinc-600" />
+                        )}
+                      </div>
+
+                      {/* Main info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {job.title || `Video #${job.id}`}
+                          </p>
+                          <StatusBadge status={job.status} />
+                          {hasFailures && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                              <AlertCircle className="w-3 h-3" />{job.failedScenes} failed
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2 flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />{formatDate(job.createdAt)}
+                          </span>
+                          {job.audioDuration && (
+                            <span className="flex items-center gap-1">
+                              <Play className="w-3 h-3" />{formatDuration(job.audioDuration)}
+                            </span>
+                          )}
+                          {job.totalScenes > 0 && (
+                            <span>{job.completedScenes}/{job.totalScenes} scenes</span>
+                          )}
+                        </div>
+
+                        {/* Progress bar for active / partial renders */}
+                        {(isActive || (job.totalScenes > 0 && job.status !== "draft" && job.status !== "storyboard_ready")) && (
+                          <div className="space-y-1">
+                            <Progress value={progressPct} className="h-1.5 bg-zinc-800" />
+                            <p className="text-xs text-muted-foreground">{progressPct}% complete</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex flex-col gap-1.5 shrink-0">
+                        {/* View details */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-xs border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
+                          onClick={() => setSelectedJobId(job.id)}
+                        >
+                          <ChevronRight className="w-3.5 h-3.5 mr-1" />Details
+                        </Button>
+
+                        {/* Download if completed */}
+                        {job.status === "completed" && job.finalVideoUrl && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs border-green-500/40 text-green-400 bg-transparent hover:bg-green-500/10"
+                            asChild
+                          >
+                            <a href={job.finalVideoUrl} download target="_blank" rel="noreferrer">
+                              <Download className="w-3.5 h-3.5 mr-1" />Download
+                            </a>
+                          </Button>
+                        )}
+
+                        {/* Resume in WizPilot */}
+                        {(job.status === "draft" || job.status === "storyboard_ready" || job.status === "rendering") && (
+                          <Button
+                            size="sm"
+                            className="h-7 px-2 text-xs bg-purple-600 hover:bg-purple-500 text-white"
+                            asChild
+                          >
+                            <Link href={`/wizvid-autopilot?jobId=${job.id}`}>
+                              <Play className="w-3 h-3 mr-1" />Resume
+                            </Link>
+                          </Button>
+                        )}
+
+                        {/* Retry all failed */}
+                        {hasFailures && job.status !== "rendering" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/10"
+                            disabled={retryingJobId === job.id}
+                            onClick={async () => {
+                              setRetryingJobId(job.id);
+                              try {
+                                const result = await retryAllMutation.mutateAsync({ jobId: job.id });
+                                toast.success(`${result.retriedCount} scene${result.retriedCount !== 1 ? "s" : ""} re-queued`);
+                                utils.musicVideo.listJobs.invalidate();
+                              } catch (err: any) {
+                                toast.error("Retry failed", { description: err.message });
+                              } finally {
+                                setRetryingJobId(null);
+                              }
+                            }}
+                          >
+                            {retryingJobId === job.id
+                              ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Retrying</>
+                              : <><RefreshCw className="w-3 h-3 mr-1" />Retry Failed</>}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Scene details drawer */}
+      <Dialog open={selectedJobId !== null} onOpenChange={(open) => { if (!open) setSelectedJobId(null); }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-foreground">
+              <Film className="w-4 h-4 text-purple-400" />
+              {detailsQuery.data?.job?.title || `Video #${selectedJobId}`}
+              {detailsQuery.data?.job?.status && (
+                <StatusBadge status={detailsQuery.data.job.status} />
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {detailsQuery.isLoading && (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+            </div>
+          )}
+
+          {detailsQuery.data && (
+            <div className="space-y-4">
+              {/* Summary stats */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Total Scenes", value: detailsQuery.data.totalScenes, color: "text-foreground" },
+                  { label: "Completed", value: detailsQuery.data.completedScenes, color: "text-green-400" },
+                  { label: "Failed", value: detailsQuery.data.failedScenes, color: detailsQuery.data.failedScenes > 0 ? "text-red-400" : "text-muted-foreground" },
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-zinc-800/60 rounded-lg p-3 text-center">
+                    <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Job metadata */}
+              <div className="bg-zinc-800/40 rounded-lg p-3 space-y-1.5 text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>Created</span>
+                  <span className="text-foreground">{formatDate(detailsQuery.data.job.createdAt)}</span>
+                </div>
+                {detailsQuery.data.job.audioDuration && (
+                  <div className="flex justify-between">
+                    <span>Audio Duration</span>
+                    <span className="text-foreground">{formatDuration(detailsQuery.data.job.audioDuration)}</span>
+                  </div>
+                )}
+                {detailsQuery.data.job.finalVideoUrl && (
+                  <div className="flex justify-between items-center">
+                    <span>Final Video</span>
+                    <a
+                      href={detailsQuery.data.job.finalVideoUrl}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-green-400 hover:text-green-300"
+                    >
+                      <Download className="w-3 h-3" />Download
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Scene-by-scene log */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Scene Log</p>
+                <div className="space-y-1.5">
+                  {detailsQuery.data.scenes.map((scene: any) => {
+                    const rawErr = scene.errorMessage ?? "";
+                    const friendlyErr = rawErr.includes("429") || rawErr.toLowerCase().includes("rate limit")
+                      ? "Rate limit reached — the AI rendering service was busy."
+                      : rawErr.includes("timeout") || rawErr.toLowerCase().includes("timed out")
+                      ? "Request timed out. The scene took too long to generate."
+                      : rawErr.length > 300 ? rawErr.slice(0, 300) + "…" : rawErr;
+
+                    return (
+                      <div
+                        key={scene.id}
+                        className={`flex items-start gap-2.5 rounded-lg p-2.5 text-xs ${
+                          scene.status === "failed"
+                            ? "bg-red-500/5 border border-red-500/20"
+                            : scene.status === "completed"
+                            ? "bg-green-500/5 border border-green-500/10"
+                            : "bg-zinc-800/40 border border-border"
+                        }`}
+                      >
+                        <SceneStatusIcon status={scene.status} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-medium text-foreground">Scene {scene.sceneIndex + 1}</span>
+                            <span className="text-muted-foreground capitalize">{scene.status}</span>
+                            {scene.lipSync && (
+                              <span className="text-purple-400 text-xs">Lip sync</span>
+                            )}
+                          </div>
+                          {scene.prompt && (
+                            <p className="text-muted-foreground truncate">{scene.prompt}</p>
+                          )}
+                          {scene.status === "failed" && friendlyErr && (
+                            <p className="text-red-400 mt-1 leading-relaxed break-words">{friendlyErr}</p>
+                          )}
+                        </div>
+                        {scene.status === "completed" && scene.videoUrl && (
+                          <a
+                            href={scene.videoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-green-400 hover:text-green-300 shrink-0"
+                            title="View scene video"
+                          >
+                            <Play className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -840,3 +840,32 @@
 - [x] Optimistic UI: scene chip moves to pending after Save & Retry
 - [x] Prompt/lyrics preserved in perSceneStatuses across poll updates
 - [x] Write vitest tests for retryFailedScene, retryAllFailedScenes, updateScenePrompt, pollProgress
+
+## Feature: Rendering History Dashboard
+- [x] Extend listJobs to include scene stats (total, completed, failed counts) per job
+- [x] Add getJobDetails tRPC procedure (returns job + all scenes with status/errorMessage)
+- [x] Create /render-history page (RenderHistory.tsx) with job list cards
+- [x] Job card: title, created date, status badge, scene progress bar, duration
+- [x] Status badges: draft, storyboard_ready, rendering, assembling, completed, failed
+- [x] Scene stats per job: X/Y scenes completed, Z failed
+- [x] Error log drawer/modal: click job to see all scenes with status + error messages
+- [x] Quick actions per job: Resume (go to WizPilot), Download (if completed), Retry All Failed
+- [x] Empty state when no jobs exist with CTA to create first video
+- [x] Register /render-history route in App.tsx
+- [x] Add "Render History" button in Dashboard quick actions card
+- [x] Auto-refresh every 15s when any job is actively rendering
+
+## Bug Fix: Privacy Policy & Terms of Service Pages Not Functioning
+- [x] Identified issue: Privacy.tsx was missing the WIZVID_LOGO_FULL constant (caused render crash)
+- [x] Fixed Privacy.tsx by adding the missing logo constant
+- [x] Privacy Policy content is complete (9 sections)
+- [x] Terms of Service content is complete (12 sections)
+- [x] Both pages routed in App.tsx at /privacy and /terms
+- [x] Footer links in both pages point to correct routes
+- [x] Both pages publicly accessible (no auth required)
+
+## Bug Fix: Light/Dark Toggle & Language Selector
+- [x] Fix light/dark theme toggle: added explicit .dark CSS block in index.css
+- [x] Fixed @custom-variant dark to match both root and child elements
+- [x] ThemeProvider has switchable=true and defaultTheme="dark" in App.tsx
+- [x] Remove language selector (EN flag dropdown) from the top navigation bar

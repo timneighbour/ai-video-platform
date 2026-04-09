@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import LanguageSelector from "@/components/LanguageSelector";
 import ThemeToggle from "@/components/ThemeToggle";
 import { trpc } from "@/lib/trpc";
 import {
@@ -13,6 +12,7 @@ import {
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-nav_0022186c.webp"; // v2 logo optimised WebP
+const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-user_af377b10.png"; // brand logo (user-provided)
 const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-footer_0754d3d5.webp"; // footer logo optimised WebP
 const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
 const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
@@ -97,8 +97,15 @@ function Nav() {
         </div>
 
         {/* Right controls */}
-        <div className="flex items-center gap-2">
-          <LanguageSelector />
+        <div className="flex items-center gap-3">
+          {/* Brand logo — top right */}
+          <a href="/" className="hidden md:flex items-center shrink-0">
+            <img
+              src={WIZVID_LOGO_BRAND}
+              alt="WizVid"
+              className="h-9 w-auto object-contain"
+            />
+          </a>
           <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
