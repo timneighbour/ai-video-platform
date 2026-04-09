@@ -157,12 +157,9 @@ export default function Subscribe() {
           </Button>
           <div className="flex items-center gap-2">
             <img
-              src="https://storage.googleapis.com/wizvid-assets/Wizvidlogowithneonmagicflair(1).png"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png"
               alt="WizVid"
-              className="h-8 w-auto"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
+              className="h-8 w-auto object-contain"
             />
           </div>
           <div className="w-24" />

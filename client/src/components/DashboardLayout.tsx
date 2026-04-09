@@ -177,11 +177,19 @@ function DashboardLayoutContent({
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    WizVid
-                  </span>
+                  <img
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png"
+                    alt="WizVid"
+                    className="h-6 w-auto object-contain"
+                  />
                 </div>
-              ) : null}
+              ) : (
+                <img
+                  src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png"
+                  alt="WizVid"
+                  className="h-6 w-6 object-contain rounded"
+                />
+              )}
             </div>
           </SidebarHeader>
 

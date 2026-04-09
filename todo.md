@@ -560,3 +560,12 @@
 - [x] Verify PRO plan badge says "Most Popular — Unlimited video creation"
 - [x] Final spacing/clutter check on homepage
 - [x] Final mobile responsiveness check
+
+## Logo Consistency Audit (Apr 2026)
+- [x] Audit all logo references across every page and component
+- [x] Replace any old/placeholder logos in all pages
+- [x] Update favicon.ico with official W icon
+- [x] Add Open Graph / social preview image to index.html
+- [x] Add SEO metadata (og:image, twitter:image) to index.html
+- [x] Verify logo sizing and spacing on desktop and mobile
+- [x] Verify no distortion or stretching of logo
