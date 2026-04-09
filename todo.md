@@ -509,3 +509,16 @@
 - [x] Increase hero logo box size so video and text fit without clipping
 - [x] Ensure logo video fills the box correctly (no cropping)
 - [x] Make logo visually prominent in the hero section
+
+## Premium SaaS Redesign (Apr 2026)
+- [x] Update index.css: new dark bg #0f0f0f, secondary #171717, subtext #a1a1aa, Inter font
+- [x] Add Inter font via Google Fonts CDN in index.html
+- [x] Update light mode CSS variables to white bg / #111 text
+- [x] Rebuild Home.tsx: split hero (left text, right logo video), clean nav, premium sections
+- [x] Apply scroll fade-in animations (IntersectionObserver) to all sections
+- [x] Update Pricing.tsx: premium card design, PRO glow border, clean CTA buttons
+- [x] Update Onboarding.tsx: clean minimal step flow with new design tokens
+- [x] Update Help.tsx: clean FAQ layout with new typography
+- [x] Consistent button styles: white primary, outline secondary, hover lift
+- [x] Consistent card styles: rounded-2xl, #171717 bg, hover border + lift
+- [x] Mobile responsive check across all updated pages

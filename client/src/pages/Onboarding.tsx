@@ -1,42 +1,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check, Play, Download } from "lucide-react";
+import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { useLocation } from "wouter";
+
+const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const WIZVID_LOGO = `${CDN}/wizvid-logo_9bec645c.jpg`;
 
 type CreatorType = "music" | "youtube" | "kids" | "other";
 
-const CREATOR_TYPES: { id: CreatorType; icon: React.ReactNode; title: string; desc: string; color: string }[] = [
-  {
-    id: "music",
-    icon: <Music className="w-7 h-7" />,
-    title: "Music Video",
-    desc: "Turn your songs into cinematic music videos",
-    color: "from-pink-500 to-purple-600",
-  },
-  {
-    id: "youtube",
-    icon: <Youtube className="w-7 h-7" />,
-    title: "YouTube Video",
-    desc: "Create engaging content that stands out in the feed",
-    color: "from-red-500 to-orange-500",
-  },
-  {
-    id: "kids",
-    icon: <Baby className="w-7 h-7" />,
-    title: "Kids Video",
-    desc: "Animated characters, nursery rhymes, and family content",
-    color: "from-yellow-400 to-green-500",
-  },
-  {
-    id: "other",
-    icon: <Cpu className="w-7 h-7" />,
-    title: "Something Else",
-    desc: "Explore all AI video creation tools",
-    color: "from-cyan-500 to-blue-600",
-  },
+const CREATOR_TYPES: { id: CreatorType; icon: React.ReactNode; title: string; desc: string }[] = [
+  { id: "music",   icon: <Music className="w-5 h-5" />,   title: "Music Video",    desc: "Turn your songs into cinematic music videos" },
+  { id: "youtube", icon: <Youtube className="w-5 h-5" />, title: "YouTube Video",  desc: "Create engaging content that stands out in the feed" },
+  { id: "kids",    icon: <Baby className="w-5 h-5" />,    title: "Kids Video",     desc: "Animated characters, nursery rhymes, and family content" },
+  { id: "other",   icon: <Cpu className="w-5 h-5" />,     title: "Something Else", desc: "Explore all AI video creation tools" },
 ];
 
 const FREE_BENEFITS = [
@@ -64,10 +42,6 @@ export default function Onboarding() {
     setStep(2);
   };
 
-  const handleContinue = () => {
-    if (step === 2) setStep(3);
-  };
-
   const handleStart = () => {
     if (isAuthenticated) {
       navigate(creatorType ? DESTINATION[creatorType] : "/dashboard");
@@ -77,57 +51,62 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#080810] via-[#0d0d1a] to-[#080810] flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center px-6 py-16 font-sans">
       {/* Logo */}
-      <a href="/" className="mb-10 flex items-center gap-2">
-        <span className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">WizVid</span>
+      <a href="/" className="mb-12 flex items-center gap-2.5">
+        <img src={WIZVID_LOGO} alt="WizVid" className="w-8 h-8 rounded-lg object-cover" />
+        <span className="font-bold text-white text-lg">WizVid</span>
       </a>
 
-      {/* Progress */}
-      <div className="flex items-center gap-2 mb-10">
+      {/* Progress indicator */}
+      <div className="flex items-center gap-3 mb-12">
         {[1, 2, 3].map((s) => (
-          <div key={s} className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-              s < step ? "bg-green-500 text-white" : s === step ? "bg-purple-600 text-white ring-4 ring-purple-500/30" : "bg-white/10 text-white/40"
+          <div key={s} className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
+              s < step
+                ? "bg-white text-black"
+                : s === step
+                ? "bg-white text-black ring-4 ring-white/15"
+                : "bg-white/8 text-[#a1a1aa] border border-white/10"
             }`}>
-              {s < step ? <Check className="w-4 h-4" /> : s}
+              {s < step ? <Check className="w-3.5 h-3.5" /> : s}
             </div>
-            {s < 3 && <div className={`w-12 h-0.5 transition-all ${s < step ? "bg-green-500" : "bg-white/10"}`} />}
+            {s < 3 && (
+              <div className={`w-10 h-px transition-all ${s < step ? "bg-white/40" : "bg-white/10"}`} />
+            )}
           </div>
         ))}
       </div>
 
       {/* Step 1: Creator Type */}
       {step === 1 && (
-        <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="w-full max-w-xl">
           <div className="text-center mb-10">
-            <Badge className="mb-4 bg-purple-500/20 text-purple-300 border-purple-500/30">
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" />Step 1 of 3
-            </Badge>
-            <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 1 of 3</p>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
               What do you want to create?
             </h1>
-            <p className="text-white/60 text-lg">We'll personalise your experience based on your goals.</p>
+            <p className="text-[#a1a1aa] text-base">We'll personalise your experience based on your goals.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {CREATOR_TYPES.map((ct) => (
               <button
                 key={ct.id}
                 onClick={() => handleCreatorSelect(ct.id)}
-                className={`group relative p-6 rounded-2xl border text-left transition-all hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
+                className={`group relative p-5 rounded-xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 ${
                   creatorType === ct.id
-                    ? "border-purple-500 bg-purple-500/10"
-                    : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10"
+                    ? "border-white/30 bg-white/8"
+                    : "border-white/8 bg-[#171717] hover:border-white/15 hover:bg-white/5"
                 }`}
                 aria-pressed={creatorType === ct.id}
               >
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${ct.color} mb-4 text-white`}>
+                <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center text-[#a1a1aa] mb-3">
                   {ct.icon}
                 </div>
-                <h3 className="text-white font-bold text-lg mb-1">{ct.title}</h3>
-                <p className="text-white/50 text-sm leading-relaxed">{ct.desc}</p>
-                <ArrowRight className="absolute top-6 right-6 w-5 h-5 text-white/20 group-hover:text-white/60 transition-all group-hover:translate-x-1" />
+                <h3 className="text-white font-semibold text-sm mb-1">{ct.title}</h3>
+                <p className="text-[#a1a1aa] text-xs leading-relaxed">{ct.desc}</p>
+                <ArrowRight className="absolute top-5 right-5 w-4 h-4 text-white/15 group-hover:text-white/40 transition-all group-hover:translate-x-0.5" />
               </button>
             ))}
           </div>
@@ -136,34 +115,32 @@ export default function Onboarding() {
 
       {/* Step 2: Free Trial Preview */}
       {step === 2 && (
-        <div className="w-full max-w-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <Badge className="mb-4 bg-green-500/20 text-green-300 border-green-500/30">
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" />Step 2 of 3
-            </Badge>
-            <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 2 of 3</p>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
               Start creating for free
             </h1>
-            <p className="text-white/60 text-lg">No credit card required. Create your first video today.</p>
+            <p className="text-[#a1a1aa] text-base">No credit card required. Create your first video today.</p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="bg-[#171717] border border-white/8 rounded-2xl p-6 mb-4">
+            <div className="grid grid-cols-2 gap-5">
               {FREE_BENEFITS.map((b) => (
                 <div key={b.title} className="flex items-start gap-3">
-                  <span className="text-2xl" aria-hidden="true">{b.icon}</span>
+                  <span className="text-xl" aria-hidden="true">{b.icon}</span>
                   <div>
                     <div className="text-white font-semibold text-sm">{b.title}</div>
-                    <div className="text-white/40 text-xs">{b.desc}</div>
+                    <div className="text-[#a1a1aa] text-xs mt-0.5">{b.desc}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-pink-500/10 to-purple-600/10 border border-purple-500/20 rounded-2xl p-5 mb-8 text-center">
-            <p className="text-white/80 font-semibold">
-              🎁 Your free trial includes <span className="text-pink-300">2 videos</span> — no card needed
+          <div className="bg-white/4 border border-white/8 rounded-xl p-4 mb-8 text-center">
+            <p className="text-[#a1a1aa] text-sm">
+              🎁 Your free trial includes <span className="text-white font-semibold">2 videos</span> — no card needed
             </p>
           </div>
 
@@ -171,13 +148,13 @@ export default function Onboarding() {
             <Button
               variant="outline"
               onClick={() => setStep(1)}
-              className="border-white/20 text-white/60 hover:text-white bg-transparent hover:bg-white/10 rounded-xl"
+              className="border-white/12 text-[#a1a1aa] hover:text-white bg-transparent hover:bg-white/5 rounded-xl h-11 px-5"
             >
               <ArrowLeft className="w-4 h-4 mr-1.5" />Back
             </Button>
             <Button
-              onClick={handleContinue}
-              className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl font-bold py-3"
+              onClick={() => setStep(3)}
+              className="flex-1 bg-white text-black hover:bg-white/90 rounded-xl font-semibold h-11"
             >
               Looks great! <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
@@ -187,52 +164,51 @@ export default function Onboarding() {
 
       {/* Step 3: Sign Up / Start */}
       {step === 3 && (
-        <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-300 text-center">
-          <Badge className="mb-4 bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
-            <Sparkles className="w-3.5 h-3.5 mr-1.5" />Step 3 of 3
-          </Badge>
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
+        <div className="w-full max-w-sm text-center">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 3 of 3</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
             You're ready to create!
           </h1>
-          <p className="text-white/60 text-lg mb-8">
+          <p className="text-[#a1a1aa] text-base mb-8">
             {isAuthenticated
               ? "You're signed in. Let's make your first video."
               : "Sign in to activate your free trial and start creating AI videos."}
           </p>
 
-          <div className="space-y-4 mb-8">
+          <div className="bg-[#171717] border border-white/8 rounded-2xl p-5 mb-8">
             {[
-              "✓ 2 free videos — no credit card",
-              "✓ AI generates everything for you",
-              "✓ Done in minutes",
+              "2 free videos — no card required",
+              "AI handles the full creation process",
+              "Download and share anywhere",
             ].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-white/70 text-sm">
-                <span className="text-green-400 font-bold">{item.split(" ")[0]}</span>
-                <span>{item.slice(2)}</span>
+              <div key={item} className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
+                <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                <span className="text-[#a1a1aa] text-sm">{item}</span>
               </div>
             ))}
           </div>
 
           <Button
             onClick={handleStart}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-lg px-8 py-4 rounded-2xl font-bold shadow-2xl shadow-pink-500/30 hover:scale-105 transition-all h-auto"
+            className="w-full bg-white text-black hover:bg-white/90 rounded-xl font-semibold h-12 text-base shadow-lg hover:shadow-xl transition-all mb-4"
           >
-            <Sparkles className="w-5 h-5 mr-2" />
-            {isAuthenticated ? "Create My First Video" : "Sign Up Free — No Card Needed"}
+            <Sparkles className="w-4 h-4 mr-2" />
+            {isAuthenticated ? "Start creating" : "Sign in & start free"}
           </Button>
-
-          <p className="mt-4 text-white/30 text-xs">
-            ✓ No credit card required · ✓ Cancel anytime · ✓ Create videos in minutes
-          </p>
 
           <button
             onClick={() => setStep(2)}
-            className="mt-4 text-white/40 hover:text-white/60 text-sm transition-colors"
+            className="text-[#a1a1aa] hover:text-white text-sm transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5 inline mr-1" />Back
+            ← Back
           </button>
         </div>
       )}
+
+      {/* Footer note */}
+      <p className="mt-16 text-[#a1a1aa] text-xs text-center max-w-xs">
+        By continuing, you agree to WizVid's Terms of Service and Privacy Policy.
+      </p>
     </div>
   );
 }
