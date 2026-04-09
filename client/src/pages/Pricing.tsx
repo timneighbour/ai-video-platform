@@ -101,7 +101,7 @@ const FAQS = [
   { q: "Is there a free trial?", a: "New accounts receive 50 free trial credits — enough to create your first video. No credit card required." },
   { q: "What's the difference between Starter and Pro?", a: "Starter gives you 20 videos/month with a watermark. Pro is unlimited videos, no watermark, 4K export, and faster generation. Most creators upgrade to Pro within the first month." },
   { q: "Do you offer annual billing?", a: "Yes! Annual billing saves you 33%. You pay for 8 months and get 12. Toggle the billing switch above to see annual prices." },
-  { q: "What payment methods do you accept?", a: "Visa, Mastercard, American Express, Apple Pay, and Google Pay — all via Stripe." },
+  { q: "What payment methods do you accept?", a: "Visa, Mastercard, American Express, Apple Pay, Google Pay, and PayPal — all processed securely via Stripe." },
   { q: "Can I upgrade or downgrade?", a: "Yes. Upgrades take effect immediately. Downgrades apply at the end of your billing cycle." },
 ];
 
@@ -278,7 +278,7 @@ export default function Pricing() {
         </div>
 
         <p className="text-[#a1a1aa] text-sm">
-          All plans include: ✓ Free storyboard generation &nbsp;·&nbsp; ✓ Cancel anytime &nbsp;·&nbsp; ✓ Secure Stripe payments
+          All plans include: ✓ Free storyboard generation &nbsp;·&nbsp; ✓ Cancel anytime &nbsp;·&nbsp; ✓ Pay by card or PayPal
         </p>
       </div>
 

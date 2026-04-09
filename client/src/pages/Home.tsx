@@ -779,11 +779,25 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="border-t border-white/8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-          <p>© 2025 WizVid. All rights reserved.</p>
-          <div className="flex gap-6">
-            <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
+        <div className="border-t border-white/8 pt-8 flex flex-col gap-5">
+          {/* Payment methods */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs text-[#a1a1aa] mr-1">Secure payments via</span>
+            {["Visa", "Mastercard", "Amex", "Apple Pay", "Google Pay", "PayPal"].map((method) => (
+              <span
+                key={method}
+                className="inline-flex items-center px-2.5 py-1 rounded-md border border-white/10 bg-white/5 text-xs text-[#a1a1aa] font-medium"
+              >
+                {method}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
+            <p>© 2025 WizVid. All rights reserved.</p>
+            <div className="flex gap-6">
+              <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
+              <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
+            </div>
           </div>
         </div>
       </div>

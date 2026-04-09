@@ -582,3 +582,12 @@
 - [x] Replace old animation URL with new CDN URL in Home.tsx
 - [x] Replace old animation URL with new CDN URL in any other pages
 - [x] Remove old animation from webdev-static-assets
+
+## PayPal Payment Integration (Apr 2026)
+- [x] Enable PayPal payment method in Stripe checkout sessions (billing router)
+- [x] Enable PayPal in credit pack checkout sessions
+- [x] Update Pricing page to show PayPal badge under plan CTAs
+- [x] Update Subscribe page to show PayPal badge
+- [x] Update Home.tsx footer / trust section to include PayPal
+- [x] Update FAQ to mention PayPal as accepted payment method
+- [x] Update JSON-LD structured data to mention PayPal

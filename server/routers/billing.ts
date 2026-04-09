@@ -157,6 +157,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
+          payment_method_types: ["card", "paypal"],
           line_items: [
             {
               price: priceId,
@@ -221,6 +222,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
+          payment_method_types: ["card", "paypal"],
           line_items: [
             {
               price: packInfo.priceId,
