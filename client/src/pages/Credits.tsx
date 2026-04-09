@@ -11,7 +11,7 @@ const CREDIT_PACKS = [
     name: "Small",
     price: 10,
     credits: 500,
-    costPerCredit: "$0.020",
+    costPerCredit: "£0.020",
     description: "Great for trying out",
   },
   {
@@ -19,7 +19,7 @@ const CREDIT_PACKS = [
     name: "Medium",
     price: 25,
     credits: 1500,
-    costPerCredit: "$0.017",
+    costPerCredit: "£0.017",
     description: "Best value",
     popular: true,
   },
@@ -28,7 +28,7 @@ const CREDIT_PACKS = [
     name: "Large",
     price: 60,
     credits: 4000,
-    costPerCredit: "$0.015",
+    costPerCredit: "£0.015",
     description: "Maximum savings",
   },
 ];
@@ -114,7 +114,7 @@ export default function Credits() {
                     <CardTitle className="text-2xl">{pack.name} Pack</CardTitle>
                     <CardDescription>{pack.description}</CardDescription>
                     <div className="mt-4">
-                      <span className="text-4xl font-bold text-foreground">${pack.price}</span>
+                      <span className="text-4xl font-bold text-foreground">£{pack.price}</span>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">
                       {pack.credits.toLocaleString()} credits

@@ -91,7 +91,7 @@ export default function Dashboard() {
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-foreground">Pro</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">$49/month • 3,000 credits</p>
+              <p className="text-xs text-muted-foreground mt-2">£49/month • 3,000 credits</p>
             </CardContent>
           </Card>
 

@@ -21,7 +21,7 @@ export const SUBSCRIPTION_PLANS = {
   starter: {
     name: "Starter",
     pricePerMonth: 19,
-    pricePerYear: 153, // 19 * 12 * 0.67 = ~$153/yr (33% off)
+    pricePerYear: 153, // 19 * 12 * 0.67 = ~£153/yr (33% off)
     credits: 1000,
     has4K: false,
     hasApiAccess: false,
@@ -32,7 +32,7 @@ export const SUBSCRIPTION_PLANS = {
   pro: {
     name: "Pro",
     pricePerMonth: 49,
-    pricePerYear: 394, // 49 * 12 * 0.67 = ~$394/yr (33% off)
+    pricePerYear: 394, // 49 * 12 * 0.67 = ~£394/yr (33% off)
     credits: 3000,
     has4K: true,
     hasApiAccess: false,
@@ -43,7 +43,7 @@ export const SUBSCRIPTION_PLANS = {
   business: {
     name: "Business",
     pricePerMonth: 149,
-    pricePerYear: 1198, // 149 * 12 * 0.67 = ~$1198/yr (33% off)
+    pricePerYear: 1198, // 149 * 12 * 0.67 = ~£1198/yr (33% off)
     credits: 10000,
     has4K: true,
     hasApiAccess: true,

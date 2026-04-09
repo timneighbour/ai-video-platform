@@ -200,3 +200,11 @@
 - [x] Fix nav bar - ensure it has visible background and proper styling
 - [x] Test full page at multiple viewport widths
 - [x] ROOT CAUSE FIXED: Added missing @import "tailwindcss" to index.css (Tailwind v4 requires explicit import)
+
+## Currency Conversion (USD → GBP)
+- [x] Update Home.tsx pricing section: $ → £ on all plan prices and credit packs
+- [x] Update Credits.tsx: $ → £ on all credit pack prices
+- [x] Update Subscribe.tsx: $ → £ on all plan prices
+- [x] Update products.ts (Stripe): currency comments updated to £
+- [x] Update Dashboard.tsx and Account.tsx: $ → £ on plan price display
+- [x] Verified no remaining $[0-9] references in codebase (excluding ComponentShowcase demo data)

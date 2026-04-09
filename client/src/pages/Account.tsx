@@ -79,7 +79,7 @@ export default function Account() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Billing Cycle</p>
-                  <p className="text-lg font-semibold text-foreground">$49/month</p>
+                  <p className="text-lg font-semibold text-foreground">£49/month</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Next Renewal</p>

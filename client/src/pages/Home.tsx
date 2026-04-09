@@ -376,7 +376,7 @@ export default function Home() {
               {
                 icon: "💰",
                 title: "Best Value",
-                desc: "Starting at $19/mo — 33% cheaper than competitors. Save even more with annual billing.",
+                desc: "Starting at £19/mo — 33% cheaper than competitors. Save even more with annual billing.",
                 color: "from-yellow-500/20 to-yellow-900/20",
                 border: "border-yellow-500/20",
               },
@@ -587,12 +587,12 @@ export default function Home() {
                     <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
                     <p className="text-sm text-gray-500 mb-5">{plan.description}</p>
                     <div className="flex items-end gap-1 mb-1">
-                      <span className="text-5xl font-bold text-white">${price}</span>
+                      <span className="text-5xl font-bold text-white">£{price}</span>
                       <span className="text-gray-400 mb-2">/mo</span>
                     </div>
                     {billingAnnual && (
                       <p className="text-xs text-emerald-400">
-                        Billed annually (${price * 12}/yr) — save ${(plan.monthlyPrice - price) * 12}/yr
+                        Billed annually (£{price * 12}/yr) — save £{(plan.monthlyPrice - price) * 12}/yr
                       </p>
                     )}
                     <p className="text-sm font-medium mt-2" style={{ color: plan.accentColor }}>
@@ -650,7 +650,7 @@ export default function Home() {
                     </span>
                   )}
                   <p className="text-gray-400 text-sm mb-2">{pack.name}</p>
-                  <p className="text-3xl font-bold text-white mb-1">${pack.price}</p>
+                  <p className="text-3xl font-bold text-white mb-1">£{pack.price}</p>
                   <p className="text-purple-400 text-sm font-medium mb-4">
                     {pack.credits.toLocaleString()} credits
                   </p>

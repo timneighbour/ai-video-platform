@@ -259,7 +259,7 @@ export default function Subscribe() {
 
                     <div className="flex items-end gap-1">
                       <span className="text-4xl font-bold text-white">
-                        {price === 0 ? "Free" : `$${price}`}
+                        {price === 0 ? "Free" : `£${price}`}
                       </span>
                       {price > 0 && (
                         <span className="text-muted-foreground mb-1.5">/mo</span>
@@ -268,7 +268,7 @@ export default function Subscribe() {
 
                     {billing === "annual" && savings > 0 && (
                       <p className="mt-1 text-xs text-green-400">
-                        Save {savings}% · billed ${plan.annualPrice * 12}/year
+                        Save {savings}% · billed £{plan.annualPrice * 12}/year
                       </p>
                     )}
 
