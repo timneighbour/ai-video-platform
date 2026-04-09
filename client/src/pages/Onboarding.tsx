@@ -6,7 +6,7 @@ import BackButton from "@/components/BackButton";
 import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check, Home } from "lucide-react";
 import { useLocation } from "wouter";
 
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png";
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
 
 const CARD_IMAGES = {
   music:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-music-video-Lti8pizeJFuSUTkuX2SUfY.webp",
@@ -68,7 +68,7 @@ export default function Onboarding() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-10 w-auto object-contain"
+            className="h-8 w-auto object-contain"
             style={{ minWidth: "120px" }}
           />
         </a>

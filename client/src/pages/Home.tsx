@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-nav_0022186c.webp"; // v2 logo optimised WebP
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png"; // cropped logo — no excess black padding
 const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-user_af377b10.png"; // brand logo (user-provided)
 const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-footer_0754d3d5.webp"; // footer logo optimised WebP
 const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
@@ -80,7 +80,7 @@ function Nav() {
             alt="WizVid"
             width={230}
             height={129}
-            className="h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            className="h-8 w-auto object-contain group-hover:opacity-90 transition-opacity"
           />
         </a>
 

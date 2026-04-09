@@ -14,23 +14,19 @@ interface BackButtonProps {
  * A consistent back-navigation button for all internal pages.
  *
  * Behaviour:
- * - If the user arrived via browser history (history.length > 1), uses history.back()
- * - Otherwise falls back to the provided `fallback` path (default: "/")
+ * - Navigates to the `fallback` path (default: "/")
+ * - Uses the wouter router so it stays within the SPA without a full reload
  *
- * UX:
- * - Clearly visible at the top-left of the page
- * - Works on mobile and desktop
- * - Does not conflict with main navigation
+ * Note: We intentionally do NOT use window.history.back() because
+ * `history.length` is unreliable in SPAs — it counts all browser history
+ * entries, not just in-app navigation, so users who land directly on a page
+ * would be sent to an external site rather than the WizVid homepage.
  */
 export default function BackButton({ fallback = "/", label = "Back", className = "" }: BackButtonProps) {
   const [, navigate] = useLocation();
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      navigate(fallback);
-    }
+    navigate(fallback);
   };
 
   return (

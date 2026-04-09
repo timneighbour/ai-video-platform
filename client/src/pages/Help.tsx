@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png";
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
 
 const FAQS = [
   {
@@ -120,7 +120,7 @@ export default function Help() {
             <BackButton fallback="/" label="Back to Home" />
             <Link href="/">
               <div className="hidden md:flex items-center gap-2.5 cursor-pointer">
-                <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
+                <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
               </div>
             </Link>
           </div>

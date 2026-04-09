@@ -1068,3 +1068,12 @@
 - [x] Wire QuickTopUpModal into sidebar banner (DashboardLayout)
 - [x] Wire QuickTopUpModal into inline banners (MusicVideoAutopilot, WizPilot)
 - [x] TypeScript check: 0 errors, 81/81 tests passing, checkpoint saved
+
+## Fix: Nav Logo Too Small (Apr 2026)
+- [ ] Increase WizVid logo size in nav header — visible next to Back button on all pages
+
+## Fix: Nav Logo Too Small + Back Button (Apr 2026)
+- [x] Crop WizVid logo (remove excess black padding) and upload cropped version to CDN
+- [x] Update all nav instances to use cropped logo at h-8 (Pricing, Help, Home, MusicVideosLanding, Onboarding, Subscribe, SeoLandingPage, DashboardLayout, Privacy, Terms, Refunds)
+- [x] Fix BackButton: replace unreliable history.back() with direct navigate(fallback) so "Back to Home" always goes to /
+- [x] TypeScript check: 0 errors, 81/81 tests passing
