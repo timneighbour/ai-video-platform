@@ -941,3 +941,18 @@
 - [x] Fix Suno 400: in custom mode, pass lyrics as the prompt field (not the description)
 - [x] Show clear error if lyrics are empty when custom mode is active
 - [x] 41/41 tests passing, 0 TypeScript errors
+
+## Homepage & Nav Optimisation (Apr 2026)
+- [x] Replace hero label "AI-Powered Video Creation" with "From idea to full video with AI"
+- [x] Ensure hero headline is outcome-focused, subheadline explains input→output
+- [x] Add USP flow under hero: Idea/Prompt → Generate Song (AI) → Create Video → Final Output (ContentEngine animated flow, heading updated)
+- [x] Add "See it in action" label above demo section (already present in ProductDemo)
+- [x] Add "Everything you need in one place" 3-column section (AI Music, Music Video, WizPilot)
+- [x] Ensure music video creation appears early in homepage narrative (not buried)
+- [x] Fix testimonials: add specificity (timeframe, niche, result)
+- [x] Fix footer: Privacy Policy, Terms of Service, Refund Policy all clickable + 200 OK
+- [x] Create Refund Policy page at /refund-policy (already exists at /refunds)
+- [x] Add back navigation component to all internal pages (/pricing, /music-video, /wizpilot, /help, /onboarding)
+- [x] Fix nav consistency: Home, Pricing, WizPilot, Music Video, Help, Get Started/Login
+- [x] Remove duplicate/conflicting nav labels (removed duplicate brand logo from nav top-right)
+- [x] QA: homepage flows logically top→bottom, USP clear in 3s, footer links work, back buttons work

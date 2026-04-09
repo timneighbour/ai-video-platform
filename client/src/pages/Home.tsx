@@ -61,6 +61,7 @@ function Nav() {
   }, []);
 
   const navLinks = [
+    { label: "Home", href: "/" },
     { label: "Music Video", href: "/music-video" },
     { label: "WizPilot", href: "/wizpilot" },
     { label: "Pricing", href: "/pricing" },
@@ -98,14 +99,6 @@ function Nav() {
 
         {/* Right controls */}
         <div className="flex items-center gap-3">
-          {/* Brand logo — top right */}
-          <a href="/" className="hidden md:flex items-center shrink-0">
-            <img
-              src={WIZVID_LOGO_BRAND}
-              alt="WizVid"
-              className="h-9 w-auto object-contain"
-            />
-          </a>
           <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
@@ -117,7 +110,7 @@ function Nav() {
                 Sign in
               </a>
               <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 shadow-sm" asChild>
-                <a href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create video</a>
+                <a href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Get Started</a>
               </Button>
             </>
           )}
@@ -147,7 +140,7 @@ function Nav() {
           <div className="pt-5 flex gap-3">
             <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
             <a href="/onboarding" className="flex-1">
-              <Button className="w-full bg-white text-black rounded-xl text-sm font-semibold h-10">Create video</Button>
+              <Button className="w-full bg-white text-black rounded-xl text-sm font-semibold h-10">Get Started</Button>
             </a>
           </div>
         </div>
@@ -237,7 +230,7 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-[#a1a1aa] mb-8 font-medium">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              Create daily content without editing, animators, or delays
+              From idea to full video with AI
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
@@ -248,7 +241,7 @@ function Hero() {
             </h1>
 
             <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-              Upload your audio, describe your vision, and WizVid generates a complete scene-by-scene video — synced to your lyrics, no editing required.
+              Type a prompt or upload your song — WizVid generates the music, builds the storyboard, renders every scene, and delivers a complete video. No editing, no animators, no delays.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -263,7 +256,7 @@ function Hero() {
                 className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
                 asChild
               >
-                <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />Try WizVid Free</a>
+                <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />See Pricing</a>
               </Button>
             </div>
 
@@ -649,8 +642,8 @@ function ContentEngine() {
       iconColor: "text-blue-400",
       iconBg: "bg-blue-500/10 border-blue-500/20",
       title: "AI Music Generation",
-      desc: "Generate complete songs from a text prompt — vocals, instruments, and full production. Choose from any style, genre, or mood.",
-      bullets: ["Full songs from text", "Any style or genre", "Vocals & instrumentals"],
+      desc: "Type what your song should sound like and get a complete track back in seconds — vocals, instruments, and full production included. No music knowledge needed.",
+      bullets: ["Full songs from a single prompt", "Any style, genre, or mood", "Vocals & instrumentals included"],
       cta: "Generate a Song",
       href: "/music-creator",
     },
@@ -661,8 +654,8 @@ function ContentEngine() {
       iconColor: "text-violet-400",
       iconBg: "bg-violet-500/10 border-violet-500/20",
       title: "Music Video Creation",
-      desc: "Upload your song and WizVid generates a complete scene-by-scene music video — synced to your lyrics, with characters and animation.",
-      bullets: ["Synced to lyrics", "Characters & scenes", "YouTube & socials ready"],
+      desc: "Upload your song and WizVid builds a complete music video for you — every scene synced to your lyrics, with animated characters and cinematic visuals.",
+      bullets: ["Every scene synced to lyrics", "Animated characters & styles", "YouTube & socials ready"],
       cta: "Create Music Video",
       href: "/music-video",
     },
@@ -673,8 +666,8 @@ function ContentEngine() {
       iconColor: "text-green-400",
       iconBg: "bg-green-500/10 border-green-500/20",
       title: "WizPilot Automation",
-      desc: "Create full videos from prompts or images. WizPilot generates the storyboard, renders every scene, and delivers a finished video — no editing.",
-      bullets: ["Prompt to full video", "Free storyboard", "No editing required"],
+      desc: "Describe any idea and WizPilot handles everything — storyboard, scenes, and final video. Perfect for YouTube, social content, and faceless channels.",
+      bullets: ["Any idea to full video", "Auto-generated storyboard", "No editing, ever"],
       cta: "Start WizPilot",
       href: "/wizpilot",
     },
@@ -686,14 +679,14 @@ function ContentEngine() {
       <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12 reveal">
-            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Complete AI Content Engine</p>
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">How it works</p>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
               From idea to finished video
               <br />
-              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-green-400 bg-clip-text text-transparent">in one platform</span>
+              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-green-400 bg-clip-text text-transparent">in four simple steps</span>
             </h2>
             <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
-              Create complete AI content — music, video, and storytelling — without switching tools.
+              Type a prompt. WizVid generates your song, builds the storyboard, renders every scene, and delivers a complete video — no tools to juggle, no editing required.
             </p>
           </div>
 
@@ -746,10 +739,10 @@ function ContentEngine() {
       <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14 reveal">
-            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Everything in one place</p>
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Everything you need in one place</p>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-              Replace multiple tools<br />
-              <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">with one platform</span>
+              Three tools. One platform.<br />
+              <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Zero complexity.</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -1039,10 +1032,10 @@ function WizBeatSection() {
 // ── Social proof ──────────────────────────────────────────────────────────────
 function SocialProof() {
   const testimonials = [
-    { text: "I posted my first AI music video on a Friday. By Sunday it had 4,200 views. WizBeat nailed the cinematic style I described — I didn't touch a single edit.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers" },
+    { text: "I posted my first AI music video on a Friday. By Sunday it had 4,200 views on my indie music channel. WizBeat nailed the cinematic style I described — I didn't touch a single edit.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers" },
     { text: "I run a kids channel and was spending £300/month on animators. Now I create 3 videos a week with WizVid for a fraction of the cost. My CTR doubled in 7 days on my kids YouTube channel.", author: "James K.", role: "Kids Content Creator · 28K subscribers" },
-    { text: "Finally an AI that creates full videos, not just 10-second clips. I described a pirate adventure story and got a complete animated video back in under 3 minutes.", author: "Priya R.", role: "YouTube Creator · Posts daily using AI" },
-    { text: "I went from zero content to posting daily in one week. WizVid handles the storyboard, the scenes, everything. My audience grew by 800 subscribers in the first month.", author: "Tom B.", role: "AI Content Creator · 5K new subscribers in 30 days" },
+    { text: "Finally an AI that creates full videos, not just 10-second clips. I described a pirate adventure story for my kids channel and got a complete animated video back in under 3 minutes — ready to post.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI" },
+    { text: "I went from zero content to posting daily in one week on my faceless YouTube channel. WizVid handles the storyboard, the scenes, everything. My audience grew by 800 subscribers in the first month.", author: "Tom B.", role: "AI Content Creator · 5K new subscribers in 30 days" },
   ];
 
   return (
@@ -1354,8 +1347,9 @@ function Footer() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
             <p>© 2025 WizVid. All rights reserved.</p>
             <div className="flex gap-6">
-              <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
-              <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="/refunds" className="hover:text-white transition-colors">Refund Policy</a>
             </div>
           </div>
         </div>

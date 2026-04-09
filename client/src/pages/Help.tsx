@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import BackButton from "@/components/BackButton";
 import {
   ChevronDown, ChevronUp, MessageCircle, Mail,
   Zap, Music, Video, Baby, Bot, Search
@@ -115,14 +116,17 @@ export default function Help() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <div className="flex items-center gap-2.5 cursor-pointer">
-              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
-            </div>
-          </Link>
+          <div className="flex items-center gap-4">
+            <BackButton fallback="/" label="Back to Home" />
+            <Link href="/">
+              <div className="hidden md:flex items-center gap-2.5 cursor-pointer">
+                <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
+              </div>
+            </Link>
+          </div>
           <div className="hidden md:flex items-center gap-1">
             {[
-              { label: "WizBeat", href: "/music-video" },
+              { label: "Music Video", href: "/music-video" },
               { label: "WizPilot", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },

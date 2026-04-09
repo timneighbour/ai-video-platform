@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import BackButton from "@/components/BackButton";
 import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check, Home } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -61,10 +62,7 @@ export default function Onboarding() {
 
       {/* Header: Logo + Back to Home */}
       <div className="w-full max-w-2xl flex items-center justify-between mb-12">
-        <a href="/" className="flex items-center gap-2 text-[#a1a1aa] hover:text-white text-sm transition-colors group">
-          <Home className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          <span>Back to home</span>
-        </a>
+        <BackButton fallback="/" label="Back to Home" />
 
         <a href="/" className="flex items-center">
           <img

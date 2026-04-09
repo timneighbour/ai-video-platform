@@ -150,7 +150,15 @@ export default function Autopilot() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => (step === "storyboard" ? setStep("input") : setLocation("/"))}
+            onClick={() => {
+              if (step === "storyboard") {
+                setStep("input");
+              } else if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                setLocation("/");
+              }
+            }}
             className="gap-2 text-muted-foreground hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />

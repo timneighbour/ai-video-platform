@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import BackButton from "@/components/BackButton";
 import {
   Check, Sparkles, Zap, Crown, Star, ChevronDown, ChevronUp, X, ArrowRight
 } from "lucide-react";
@@ -150,9 +151,12 @@ export default function Pricing() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
-          </a>
+          <div className="flex items-center gap-4">
+            <BackButton fallback="/" label="Back to Home" />
+            <a href="/" className="hidden md:flex items-center gap-3">
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
+            </a>
+          </div>
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Music Video", href: "/music-video" },
