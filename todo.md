@@ -273,10 +273,10 @@
 - [x] 24 tests passing
 
 ## Audio Upload Limit Increase (6 minutes)
-- [ ] Update backend: increase max file size from 50MB to 100MB for audio uploads
-- [ ] Update backend: increase max duration validation from current limit to 360 seconds (6 min)
-- [ ] Update frontend: update upload hint text to show "up to 6 minutes"
-- [ ] Update frontend: update file size validation message
+- [x] Update backend: increase max file size from 50MB to 100MB for audio uploads
+- [x] Update backend: increase max duration validation from current limit to 360 seconds (6 min)
+- [x] Update frontend: update upload hint text to show "up to 6 minutes"
+- [x] Update frontend: update file size validation message
 
 ## WizPilot Duration Options
 - [x] Add longer duration options to WizPilot (30s, 60s, 90s, 120s) alongside existing 5s/10s/15s
@@ -285,15 +285,15 @@
 - [x] Duration selector changed from flex row to 4-column grid to accommodate 7 options cleanly
 
 ## Lyrics-Driven Music Video Autopilot
-- [ ] Backend: Whisper transcription of uploaded audio — extract lyrics with word/segment timestamps
-- [ ] Backend: Map lyrics segments to scenes (each scene gets the lyrics being sung during that time window)
-- [ ] Backend: Update storyboard LLM prompt to include lyrics context per scene so visuals match the words
-- [ ] Backend: Scene count and duration auto-calculated from actual audio duration (no manual input needed)
-- [ ] Backend: Store transcribed lyrics per scene in musicVideoScenes table (new `lyrics` column)
-- [ ] Frontend: Show transcribed lyrics snippet on each scene card in storyboard review
-- [ ] Frontend: Remove manual duration input — duration is auto-detected from uploaded audio
-- [ ] Frontend: Show "Transcribing lyrics..." loading state after upload
-- [ ] DB migration: add `lyrics` text column to music_video_scenes table
+- [x] Backend: Whisper transcription of uploaded audio — extract lyrics with word/segment timestamps
+- [x] Backend: Map lyrics segments to scenes (each scene gets the lyrics being sung during that time window)
+- [x] Backend: Update storyboard LLM prompt to include lyrics context per scene so visuals match the words
+- [x] Backend: Scene count and duration auto-calculated from actual audio duration (no manual input needed)
+- [x] Backend: Store transcribed lyrics per scene in musicVideoScenes table (new `lyrics` column)
+- [x] Frontend: Show transcribed lyrics snippet on each scene card in storyboard review
+- [x] Frontend: Remove manual duration input — duration is auto-detected from uploaded audio
+- [x] Frontend: Show "Transcribing lyrics..." loading state after upload
+- [x] DB migration: add `lyrics` text column to music_video_scenes table
 
 ## Logo & Video Integration
 - [ ] Replace old logo with new WizVid wizard hat logo image in navbar, hero, footer, and CTA section
@@ -314,12 +314,12 @@
 - [ ] Add MuseTalk to AI API tests
 
 ## Character-Driven Music Video Feature
-- [ ] Character reference pack UI: up to 4 characters per music video
-- [ ] Per-character: name, type (real/animated), gender, role (lead/backing/featured/non-singing), singing flag
-- [ ] Per-character: up to 8 reference images (different angles, outfits, costumes)
+- [x] Character reference pack UI: up to 4 characters per music video
+- [x] Per-character: name, type (real/animated), gender, role (lead/backing/featured/non-singing), singing flag
+- [x] Per-character: up to 8 reference images (different angles, outfits, costumes)
 - [ ] Image upload for each character reference pack via /api/video/upload
 - [ ] Store characters in musicVideoJobs.charactersJson field (DB migration)
-- [ ] Pass character data to storyboard AI prompt for scene assignment
+- [x] Pass character data to storyboard AI prompt for scene assignment
 - [ ] AI assigns characters to scenes in storyboard generation
 - [ ] Singing characters get MuseTalk lip-sync applied during render phase
 - [ ] Non-singing characters get image-to-video motion via Kling/Seedance
@@ -410,42 +410,42 @@
 - [ ] /ai-animation-video-maker — "AI animation video maker"
 - [ ] /turn-audio-into-video-ai — "turn audio into video AI"
 - [ ] Each page: H1, intro, H2 steps, H2 why, H2 best tool, CTA, demo video embed, internal links
-- [ ] sitemap.xml with all pages
-- [ ] robots.txt
+- [x] sitemap.xml with all pages
+- [x] robots.txt
 
 ## Programmatic SEO (50 Pages)
-- [ ] Dynamic SEO route /seo/:slug rendering master template
+- [x] Dynamic SEO route /seo/:slug rendering master template
 - [ ] All 50 keyword pages from the master list
 - [ ] Internal links between all pages
 - [ ] Demo video embed on every page
 - [ ] sitemap.xml listing all 50 URLs + main pages
-- [ ] robots.txt with sitemap reference
+- [x] robots.txt with sitemap reference
 
 
 ## Multilingual Support (i18n)
-- [ ] Install i18next + react-i18next + i18next-browser-languagedetector
+- [x] Install i18next + react-i18next + i18next-browser-languagedetector
 - [ ] Create translation files for EN, ES, PT-BR, FR (all key UI strings)
-- [ ] Add LanguageSelector component to nav (flags + language names dropdown)
+- [x] Add LanguageSelector component to nav (flags + language names dropdown)
 - [ ] Auto-detect browser language on first visit
-- [ ] Persist language choice in localStorage
+- [x] Persist language choice in localStorage
 - [ ] Integrate i18n into Home.tsx nav, hero, and key sections
 
 ## Customer Support System
 - [ ] Add Crisp live chat widget to all pages (bottom right)
-- [ ] Build /help page with FAQ help centre
-- [ ] Add support email support@wizvid.ai reference in help page
-- [ ] Add help link in nav and footer
+- [x] Build /help page with FAQ help centre
+- [x] Add support email support@wizvid.ai reference in help page
+- [x] Add help link in nav and footer
 
 ## Onboarding Flow
-- [ ] Build /onboarding page: goal selection screen
-- [ ] Step 1-3 guided creation flow
-- [ ] First success moment with download + create another
-- [ ] Redirect new users to /onboarding after first login
-- [ ] Mobile responsive, minimal, one action per screen
+- [x] Build /onboarding page: goal selection screen
+- [x] Step 1-3 guided creation flow
+- [x] First success moment with download + create another
+- [x] Redirect new users to /onboarding after first login
+- [x] Mobile responsive, minimal, one action per screen
 
 ## WizBeat Character Reference Packs
-- [ ] Add character panel to MusicVideoAutopilot (up to 4 characters)
-- [ ] Per character: name, type, gender, role, singing flag, up to 8 images
+- [x] Add character panel to MusicVideoAutopilot (up to 4 characters)
+- [x] Per character: name, type, gender, role, singing flag, up to 8 images
 - [ ] Pass character data to storyboard AI prompt
 - [ ] Apply MuseTalk lip-sync to singing characters
 
@@ -455,15 +455,15 @@
 - [ ] Add Generate Song with AI option to WizBeat
 
 ## Homepage Cinematic Rebuild
-- [ ] Rebuild Home.tsx with full-screen cinematic hero
-- [ ] Sticky frosted-glass nav with language selector
-- [ ] All 9 sections (hero, what it does, who its for, USP, how it works, WizBeat, WizPilot, social proof, pricing)
-- [ ] GBP pricing tiers (Starter 19, Pro 49, Creator+ 99)
+- [x] Rebuild Home.tsx with full-screen cinematic hero
+- [x] Sticky frosted-glass nav with language selector
+- [x] All 9 sections (hero, what it does, who its for, USP, how it works, WizBeat, WizPilot, social proof, pricing)
+- [x] GBP pricing tiers (Starter 19, Pro 49, Creator+ 99)
 - [ ] SEO meta tags throughout
 
 ## Programmatic SEO (50 Pages)
-- [ ] Register /seo/:slug route in App.tsx
-- [ ] sitemap.xml and robots.txt created
+- [x] Register /seo/:slug route in App.tsx
+- [x] sitemap.xml and robots.txt created
 
 ## Pricing & Monetisation System (Task: Apr 9 2026)
 - [x] Create /pricing page with 3 GBP tiers (Starter £19, Pro £49, Creator+ £99)
@@ -593,10 +593,10 @@
 - [x] Update JSON-LD structured data to mention PayPal
 
 ## Onboarding Visual Upgrade (Apr 2026)
-- [ ] Add background images to Music Video card on Onboarding step 1
-- [ ] Add background images to YouTube Video card on Onboarding step 1
-- [ ] Add background images to Kids Video card on Onboarding step 1
-- [ ] Add background images to Something Else card on Onboarding step 1
+- [x] Add background images to Music Video card on Onboarding step 1
+- [x] Add background images to YouTube Video card on Onboarding step 1
+- [x] Add background images to Kids Video card on Onboarding step 1
+- [x] Add background images to Something Else card on Onboarding step 1
 
 ## Onboarding Page Visual Upgrade (Apr 2026)
 - [x] Add "Back to Home" button on Onboarding page header
@@ -617,12 +617,12 @@
 - [x] Show lyrics panel as soon as audio is selected with live status indicator
 
 ## Multi-Character System (Apr 2026)
-- [ ] Add videoCharacters DB table: id, jobId, name, role, lipSync, createdAt
-- [ ] Add videoCharacterPhotos DB table: id, characterId, photoUrl, photoKey, isPrimary
-- [ ] Add tRPC procedures: saveCharacters (upsert up to 4), getCharacters, deleteCharacter
-- [ ] Build CharacterManager UI component: up to 4 character slots, each with name field + multiple photo upload + lip sync toggle per character
-- [ ] Replace single character upload in MusicVideoAutopilot with CharacterManager component
-- [ ] Pass character descriptions (name + photo URLs) into storyboard LLM prompt
+- [x] Add videoCharacters DB table: id, jobId, name, role, lipSync, createdAt
+- [x] Add videoCharacterPhotos DB table: id, characterId, photoUrl, photoKey, isPrimary
+- [x] Add tRPC procedures: saveCharacters (upsert up to 4), getCharacters, deleteCharacter
+- [x] Build CharacterManager UI component: up to 4 character slots, each with name field + multiple photo upload + lip sync toggle per character
+- [x] Replace single character upload in MusicVideoAutopilot with CharacterManager component
+- [x] Pass character descriptions (name + photo URLs) into storyboard LLM prompt
 - [ ] Add CharacterManager to Animation Video page if it exists
 - [x] Add /privacy, /terms, /refunds legal pages
 - [x] Update robots.txt with proper disallow rules
@@ -633,3 +633,18 @@
 - [x] Soften testimonial claims (remove "CTR doubled", "0 to 5K subs")
 - [x] Add legal footer links to Pricing, MusicVideosLanding pages
 - [x] Fix CTA on Pricing and MusicVideosLanding to go to /onboarding for unauthenticated users
+
+## Conversion Optimisation Pass (Apr 2026)
+- [ ] Hero: new headline "Create viral YouTube videos in minutes"
+- [ ] Hero: new subheadline about prompt to video
+- [ ] Hero: add prompt→video transformation block below hero copy
+- [ ] Instant proof section: "See what creators are making with WizVid" with 3-6 example outputs
+- [ ] Pricing: add "What you can create each month" outcome framing above cards
+- [ ] Pricing: add clear ✔/✖ inclusions/exclusions to each plan
+- [ ] Pricing: add "Best for YouTubers, creators, agencies" badge to Pro plan
+- [ ] Testimonials: replace vague claims with specific believable ones
+- [ ] Trust section: "Made with WizVid" with real outputs and use cases
+- [ ] CTA standardisation: "Create Your First Video" primary, "Try WizVid Free" secondary
+- [ ] Positioning: replace "AI video generator" with "Create daily content without editing"
+- [ ] Music video landing page: new headline, video preview, flow explanation, CTA before login
+- [ ] QA: verify all routes, links, no console errors

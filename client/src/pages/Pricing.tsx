@@ -181,13 +181,13 @@ export default function Pricing() {
       <div className="py-24 px-6 text-center reveal">
         <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">Pricing</p>
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-5 leading-tight">
-          Create unlimited AI videos<br />
+          Simple pricing for creators<br />
           <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-            no editing required
+            who want to grow faster
           </span>
         </h1>
         <p className="text-[#a1a1aa] text-lg mb-6 max-w-lg mx-auto">
-          Music videos, YouTube content, animations — all created by AI in minutes.
+          Start free with 2 videos. Upgrade when you're ready to post daily.
         </p>
         <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-5 py-2 text-sm text-green-400 font-medium mb-10">
           <span className="w-2 h-2 rounded-full bg-green-400" />
@@ -212,6 +212,20 @@ export default function Pricing() {
           </span>
         </div>
 
+        {/* Outcome framing */}
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-4 mb-10">
+          {[
+            { icon: "🎬", title: "20 videos/month", sub: "Starter — try it free" },
+            { icon: "⚡", title: "Unlimited videos", sub: "Pro — most popular" },
+            { icon: "🚀", title: "API + priority", sub: "Creator+ — for agencies" },
+          ].map((item) => (
+            <div key={item.title} className="p-4 rounded-xl bg-white/3 border border-white/8 text-center">
+              <div className="text-2xl mb-2">{item.icon}</div>
+              <p className="text-white font-semibold text-sm">{item.title}</p>
+              <p className="text-[#a1a1aa] text-xs mt-1">{item.sub}</p>
+            </div>
+          ))}
+        </div>
         {/* Plan cards */}
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-5 mb-8">
           {PLANS.map((plan) => (
@@ -255,7 +269,7 @@ export default function Pricing() {
                 }`}
                 asChild
               >
-                <a href={isAuthenticated ? "/subscribe" : getLoginUrl()}>
+                <a href={isAuthenticated ? "/subscribe" : "/onboarding"}>
                   {plan.popular ? <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create Your First Video</> : (plan.name === "Creator+" ? "Go Creator+" : "Get started free")}
                 </a>
               </Button>

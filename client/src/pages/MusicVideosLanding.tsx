@@ -64,7 +64,7 @@ export default function MusicVideosLanding() {
                   className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9"
                   onClick={handleCTA}
                 >
-                  Get started free
+                  Start Creating Free
                 </Button>
               </>
             )}
@@ -83,20 +83,20 @@ export default function MusicVideosLanding() {
                 AI Music Video Maker
               </div>
               <h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
-                Turn your music<br />
+                Your song deserves<br />
                 <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  into a full video
+                  a real music video
                 </span>
               </h1>
               <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-                Upload your song, pick a visual style, and WizBeat creates a complete music video — synced to your lyrics, no editing required.
+                Upload your track. Describe your vision. WizBeat writes the storyboard, generates every scene, and delivers a complete music video — synced to your lyrics.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <Button
                   className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
                   onClick={handleCTA}
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />Create Your First Video
+                  <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
                 </Button>
                 <Button
                   variant="outline"
@@ -106,7 +106,7 @@ export default function MusicVideosLanding() {
                   <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />View pricing</a>
                 </Button>
               </div>
-              <p className="text-sm text-[#a1a1aa]">No editing needed · Takes minutes · Start free</p>
+              <p className="text-sm text-[#a1a1aa]">Free to start · No credit card · 2 free videos included</p>
             </div>
 
             {/* Right: image grid */}
@@ -183,14 +183,22 @@ export default function MusicVideosLanding() {
             </div>
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-br from-purple-600/15 to-blue-600/10 rounded-3xl blur-2xl" aria-hidden="true" />
-              <div className="relative rounded-2xl overflow-hidden aspect-video border border-white/10 shadow-2xl bg-[#171717] flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-blue-900/20 to-black" />
-                <div className="relative z-10 flex flex-col items-center gap-4 text-center px-8">
-                  <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <Play className="w-7 h-7 text-white ml-1" />
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#171717]">
+                <div className="aspect-video bg-gradient-to-br from-violet-900/40 via-blue-900/30 to-black flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-4 text-center px-8">
+                    <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                      <Play className="w-7 h-7 text-white ml-1" />
+                    </div>
+                    <p className="text-white font-semibold">Your video, rendered here</p>
+                    <p className="text-[#a1a1aa] text-sm">Full music video · Synced to lyrics · 1080p</p>
                   </div>
-                  <p className="text-white font-semibold">Example output</p>
-                  <p className="text-[#a1a1aa] text-sm">Full music video · Synced to lyrics · 1080p</p>
+                </div>
+                <div className="p-4 border-t border-white/8 flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Lyrics synced</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-300">✓ No watermark on Pro</span>
+                  </div>
+                  <span className="text-xs text-[#a1a1aa]">Ready in ~4 min</span>
                 </div>
               </div>
             </div>
@@ -202,18 +210,18 @@ export default function MusicVideosLanding() {
       <section className="py-24 px-6 border-t border-white/6">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-            Ready to make your music video?
+            Upload your song. Get a full video.
           </h2>
           <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-            Creators are already generating full music videos with WizBeat. Join them — no editing needed.
+            Storyboard generation is always free. You only pay when you render. Start with 2 free videos — no card required.
           </p>
           <Button
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             onClick={handleCTA}
           >
-            <Sparkles className="w-4 h-4 mr-2" />Create Your First Video
+            <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
           </Button>
-          <p className="text-[#a1a1aa] text-sm mt-4">No editing needed · Takes minutes · Start free</p>
+          <p className="text-[#a1a1aa] text-sm mt-4">Free to start · No credit card · 2 free videos included</p>
         </div>
       </section>
 

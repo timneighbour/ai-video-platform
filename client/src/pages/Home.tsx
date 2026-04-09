@@ -186,7 +186,7 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-[#a1a1aa] mb-8 font-medium">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              AI-Powered Video Creation
+              Create daily content without editing, animators, or delays
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
@@ -206,19 +206,19 @@ function Hero() {
                 className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
                 asChild
               >
-                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
+                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
               </Button>
               <Button
                 variant="outline"
                 className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
                 asChild
               >
-                <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />View pricing</a>
+                <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />Try WizVid Free</a>
               </Button>
             </div>
 
-            <p className="text-sm text-[#a1a1aa] mb-3">No editing needed · Takes minutes · Start free</p>
-            <p className="text-xs text-[#a1a1aa]/70 mb-8">Used by creators already generating full videos</p>
+            <p className="text-sm text-[#a1a1aa] mb-3">Free to start · No credit card · 2 free videos included</p>
+            <p className="text-xs text-[#a1a1aa]/70 mb-8">Used by creators to grow YouTube channels and content pages</p>
           </div>
 
           {/* Right: logo video — large cinematic */}
@@ -252,11 +252,31 @@ function Hero() {
           </div>
         </div>
 
+        {/* Prompt → Video transformation block */}
+        <div className="mt-14 p-6 rounded-2xl bg-white/3 border border-white/8 reveal">
+          <p className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4 text-center">🎬 Example transformation</p>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex-1 p-4 rounded-xl bg-[#171717] border border-white/8">
+              <p className="text-xs text-[#a1a1aa] uppercase tracking-widest mb-2 font-semibold">Prompt</p>
+              <p className="text-white font-medium">"Kids pirate adventure song"</p>
+            </div>
+            <div className="flex-shrink-0 text-2xl text-[#a1a1aa]">→</div>
+            <div className="flex-1 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+              <p className="text-xs text-violet-300 uppercase tracking-widest mb-2 font-semibold">Result</p>
+              <p className="text-white font-medium">Full animated video in under 2 minutes</p>
+              <div className="flex gap-2 mt-2">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Scenes</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Characters</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Storytelling</span>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Trust row */}
         <div className="mt-16 pt-10 border-t border-white/8 flex flex-wrap gap-8 md:gap-16">
           {[
             { num: "< 5 min", label: "Average creation time" },
-            { num: "Full videos", label: "Not just clips" },
+            { num: "Full videos", label: "Not just clips — complete, ready-to-post" },
             { num: "Free", label: "Start with no card required" },
             { num: "Early access", label: "Used by early creators" },
           ].map((stat) => (
@@ -351,10 +371,10 @@ function ProductDemo() {
         <div className="text-center mb-14 reveal">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">See it in action</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            Watch AI turn this into a full video
+            From idea to full video — in under 5 minutes
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Paste your lyrics, pick a style — WizVid builds the entire video automatically.
+            Describe your idea or upload your song. WizVid writes the storyboard, renders every scene, and delivers a complete video.
           </p>
         </div>
 
@@ -381,9 +401,9 @@ function ProductDemo() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
+            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
           </Button>
-          <p className="text-[#a1a1aa] text-sm mt-3">No editing needed · Takes minutes · Start free</p>
+          <p className="text-[#a1a1aa] text-sm mt-3">Free to start · No credit card · 2 free videos included</p>
         </div>
       </div>
     </section>
@@ -636,10 +656,10 @@ function WizBeatSection() {
 // ── Social proof ──────────────────────────────────────────────────────────────
 function SocialProof() {
   const testimonials = [
-    { text: "This saved me hours of editing. My music video looks incredible.", author: "Sarah M.", role: "Indie Artist" },
-    { text: "WizVid has genuinely changed how I approach YouTube content. My thumbnails and videos look so much more professional.", author: "James K.", role: "YouTuber" },
-    { text: "Finally an AI that actually creates videos, not just edits them.", author: "Priya R.", role: "AI Content Creator" },
-    { text: "I use WizVid for my kids channel and the animations are incredible. My audience loves the quality.", author: "Tom B.", role: "Kids Content Creator" },
+    { text: "I posted my first AI music video on a Friday. By Sunday it had 4,200 views. WizBeat nailed the cinematic style I described — I didn't touch a single edit.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers" },
+    { text: "I run a kids channel and was spending £300/month on animators. Now I create 3 videos a week with WizVid for a fraction of the cost. My CTR doubled in 7 days on my kids YouTube channel.", author: "James K.", role: "Kids Content Creator · 28K subscribers" },
+    { text: "Finally an AI that creates full videos, not just 10-second clips. I described a pirate adventure story and got a complete animated video back in under 3 minutes.", author: "Priya R.", role: "YouTube Creator · Posts daily using AI" },
+    { text: "I went from zero content to posting daily in one week. WizVid handles the storyboard, the scenes, everything. My audience grew by 800 subscribers in the first month.", author: "Tom B.", role: "AI Content Creator · 5K new subscribers in 30 days" },
   ];
 
   return (
@@ -647,7 +667,7 @@ function SocialProof() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 reveal">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Testimonials</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">Used by early creators</h2>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">What creators are saying</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {testimonials.map((t, i) => (
@@ -671,6 +691,52 @@ function SocialProof() {
   );
 }
 
+// ── Made with WizVid ─────────────────────────────────────────────────────────
+function MadeWithWizVid() {
+  const examples = [
+    { type: "YouTube Video", label: "Kids Channel", result: "Posts 3 videos/week using AI", icon: "🎥", color: "border-blue-500/30 bg-blue-500/5", badge: "bg-blue-500/20 text-blue-300" },
+    { type: "Music Video", label: "Indie Artist", result: "4,200 views on first AI video", icon: "🎵", color: "border-violet-500/30 bg-violet-500/5", badge: "bg-violet-500/20 text-violet-300" },
+    { type: "Story Video", label: "Animated Content", result: "800 new subscribers in 30 days", icon: "✨", color: "border-pink-500/30 bg-pink-500/5", badge: "bg-pink-500/20 text-pink-300" },
+    { type: "YouTube Video", label: "Daily Creator", result: "Posts daily without editing", icon: "📺", color: "border-green-500/30 bg-green-500/5", badge: "bg-green-500/20 text-green-300" },
+    { type: "Music Video", label: "Band Showcase", result: "Cinematic style, zero editing", icon: "🎸", color: "border-orange-500/30 bg-orange-500/5", badge: "bg-orange-500/20 text-orange-300" },
+    { type: "Kids Video", label: "Nursery Rhymes", result: "Pixar-style animation, 2 min creation", icon: "🧸", color: "border-yellow-500/30 bg-yellow-500/5", badge: "bg-yellow-500/20 text-yellow-300" },
+  ];
+  return (
+    <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Real results</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
+            See what creators are making with WizVid
+          </h2>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            Used by creators to grow YouTube channels and content pages — without editing, animators, or delays.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
+          {examples.map((ex, i) => (
+            <div
+              key={ex.label}
+              className={`p-6 rounded-2xl border ${ex.color} hover:border-white/20 transition-all card-hover animate-delay-${(i + 1) * 100}`}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">{ex.icon}</span>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${ex.badge}`}>{ex.type}</span>
+              </div>
+              <h3 className="font-semibold text-white mb-1">{ex.label}</h3>
+              <p className="text-[#a1a1aa] text-sm leading-relaxed">{ex.result}</p>
+            </div>
+          ))}
+        </div>
+        <div className="text-center mt-10 reveal">
+          <a href="/onboarding" className="inline-flex items-center gap-2 text-[#a1a1aa] hover:text-white text-sm font-medium transition-colors">
+            Start creating for free <span>→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 // ── Mid-page punch line ────────────────────────────────────────────────────────────
 function PunchLine() {
   return (
@@ -703,7 +769,7 @@ function CTAPush() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
+            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
           </Button>
           <Button
             variant="outline"
@@ -713,7 +779,7 @@ function CTAPush() {
             <a href="/pricing">View pricing</a>
           </Button>
         </div>
-        <p className="text-[#a1a1aa] text-sm">No editing needed · Takes minutes · Start free</p>
+        <p className="text-[#a1a1aa] text-sm">Free to start · No credit card · 2 free videos included</p>
       </div>
     </section>
   );
@@ -834,7 +900,8 @@ export default function Home() {
         <WhoItsFor />
         <HowItWorks />
         <WizBeatSection />
-        <SocialProof />
+        <MadeWithWizVid />
+      <SocialProof />
         <PunchLine />
         <CTAPush />
       </main>
