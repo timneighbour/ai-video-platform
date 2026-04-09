@@ -105,7 +105,7 @@ function Nav() {
                 Sign in
               </a>
               <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 shadow-sm" asChild>
-                <a href="/onboarding">Get started</a>
+                <a href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create video</a>
               </Button>
             </>
           )}
@@ -135,7 +135,7 @@ function Nav() {
           <div className="pt-5 flex gap-3">
             <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
             <a href="/onboarding" className="flex-1">
-              <Button className="w-full bg-white text-black rounded-xl text-sm font-semibold h-10">Get started</Button>
+              <Button className="w-full bg-white text-black rounded-xl text-sm font-semibold h-10">Create video</Button>
             </a>
           </div>
         </div>
@@ -217,7 +217,8 @@ function Hero() {
               </Button>
             </div>
 
-            <p className="text-sm text-[#a1a1aa] mb-8">No editing needed · Takes minutes · Start free</p>
+            <p className="text-sm text-[#a1a1aa] mb-3">No editing needed · Takes minutes · Start free</p>
+            <p className="text-xs text-[#a1a1aa]/70 mb-8">Used by creators already generating full videos</p>
           </div>
 
           {/* Right: logo video */}
@@ -668,7 +669,23 @@ function SocialProof() {
   );
 }
 
-// ── CTA ───────────────────────────────────────────────────────────────────────
+// ── Mid-page punch line ────────────────────────────────────────────────────────────
+function PunchLine() {
+  return (
+    <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-4xl mx-auto text-center reveal">
+        <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          No editing.
+          <span className="text-[#a1a1aa]"> No complexity.</span>
+          <br />
+          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Just results.</span>
+        </h2>
+      </div>
+    </section>
+  );
+}
+
+// ── CTA ────────────────────────────────────────────────────────────────────────────────
 function CTAPush() {
   return (
     <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
@@ -706,8 +723,8 @@ function Footer() {
     {
       title: "Product",
       links: [
-        { label: "WizBeat", href: "/music-video" },
-        { label: "WizPilot", href: "/wizpilot" },
+        { label: "Music Videos", href: "/music-video" },
+        { label: "Create Video", href: "/wizpilot" },
         { label: "Pricing", href: "/pricing" },
         { label: "Help", href: "/help" },
       ],
@@ -794,6 +811,7 @@ export default function Home() {
         <HowItWorks />
         <WizBeatSection />
         <SocialProof />
+        <PunchLine />
         <CTAPush />
       </main>
       <Footer />

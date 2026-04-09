@@ -548,3 +548,15 @@
 - [x] Wire /music-video route to landing page instead of direct login
 - [x] Enhance Pricing page: add "Start free — no credit card required" above plans
 - [x] Highlight PRO with "Most Popular — Unlimited video creation" label
+
+## Final Conversion Optimisation Pass (Apr 2026)
+- [x] Add soft trust line to hero: "Used by creators already generating full videos"
+- [x] Add mid-page punch line section: "No editing. No complexity. Just results."
+- [x] Audit all primary CTAs — ensure every one says "Create Your First Video"
+- [x] Verify ProductDemo section is present and polished below hero
+- [x] Verify WhyWizVid section is present with 4 benefit points
+- [x] Verify Music Videos landing page (/music-video) is a full landing page, not a login gate
+- [x] Verify Pricing page has "Start free — no credit card required" badge
+- [x] Verify PRO plan badge says "Most Popular — Unlimited video creation"
+- [x] Final spacing/clutter check on homepage
+- [x] Final mobile responsiveness check
