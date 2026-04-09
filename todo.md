@@ -1003,3 +1003,15 @@
 - [x] Insufficient credits modal with Get Credits + Reduce Quality buttons
 - [x] Post-video cinematic upsell: "Want to enhance this video? Upgrade key scenes to cinematic quality"
 - [x] Smart microcopy across UI (creator-friendly language, no technical terms)
+
+## Feature: Cinematic Upsell Modal (Apr 2026)
+- [x] Audit render completion flow and scene data structure (sceneStatuses, thumbnails, videoUrls)
+- [x] Build CinematicUpsellModal: scene grid selector, per-scene cost (20 Credits), total cost preview
+- [x] Add quality comparison callout (Standard vs Cinematic) with feature bullets
+- [x] Add "Select All" / "Deselect All" toggle in modal
+- [x] Add backend tRPC procedure: cinematicUpgrade (validate credits, deduct, queue premium re-render)
+- [x] Wire modal trigger into MusicVideoAutopilot on render completion (replaces simple toast)
+- [x] Credit guard: check balance before dispatching, show InsufficientCreditsModal if short
+- [x] Show re-render progress inline in modal (scene-by-scene status)
+- [x] Write vitest tests for cinematicUpgrade procedure (17 tests)
+- [x] TypeScript check: 0 errors, 81/81 tests passing

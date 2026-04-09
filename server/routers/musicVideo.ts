@@ -885,6 +885,124 @@ export const musicVideoRouter = router({
       return { success: true, sceneId: input.sceneId, prompt: input.prompt.trim() };
     }),
 
+  // Cinematic Upgrade: re-render selected completed scenes with premium (Kling) quality
+  cinematicUpgrade: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      sceneIds: z.array(z.number().int()).min(1).max(50),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // 1. Verify job belongs to user
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      // 2. Verify all requested scenes belong to this job and are completed
+      const scenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+      const sceneMap = new Map(scenes.map((s) => [s.id, s]));
+
+      const validScenes = input.sceneIds.filter((id) => {
+        const scene = sceneMap.get(id);
+        return scene && scene.status === "completed";
+      });
+
+      if (validScenes.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No valid completed scenes selected for upgrade" });
+      }
+
+      // 3. Calculate credit cost
+      const { VIDEO_CREDIT_COSTS } = await import("../../shared/const");
+      const totalCost = validScenes.length * VIDEO_CREDIT_COSTS.perCinematicScene;
+
+      // 4. Check credit balance
+      const balance = await getUserCredits(ctx.user.id);
+      if (balance < totalCost) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Insufficient credits. Need ${totalCost}, have ${balance}.`,
+        });
+      }
+
+      // 5. Deduct credits upfront
+      await deductCredits(ctx.user.id, totalCost, `Cinematic upgrade: ${validScenes.length} scene(s) for job #${input.jobId}`);
+      console.log(`[CinematicUpgrade] ${new Date().toISOString()} User ${ctx.user.id} upgrading ${validScenes.length} scenes for job ${input.jobId} (cost: ${totalCost} credits)`);
+
+      // 6. Reset selected scenes to pending so they re-render with premium renderer
+      for (const sceneId of validScenes) {
+        await db.update(musicVideoScenes)
+          .set({
+            status: "pending",
+            taskId: null,
+            videoUrl: null,
+            videoKey: null,
+            errorMessage: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+
+      // 7. Dispatch premium renders for each scene (kling forced)
+      const scenesToRender = validScenes
+        .map((id) => sceneMap.get(id)!)
+        .filter(Boolean);
+
+      const renderResults: Array<{ sceneId: number; success: boolean; error?: string }> = [];
+
+      for (const scene of scenesToRender) {
+        try {
+          await db.update(musicVideoScenes)
+            .set({ status: "generating", updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, scene.id));
+
+          const taskId = await startSceneRender(
+            scene.id,
+            scene.prompt,
+            scene.duration,
+            scene.lipSync,
+            scene.lipSyncStyle as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+            "kling_pro"
+          );
+
+          await db.update(musicVideoScenes)
+            .set({ taskId, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, scene.id));
+
+          renderResults.push({ sceneId: scene.id, success: true });
+          console.log(`[CinematicUpgrade] Scene ${scene.id} dispatched to Kling (taskId: ${taskId})`);
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          console.error(`[CinematicUpgrade] Scene ${scene.id} failed to dispatch: ${msg}`);
+          await db.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: `Cinematic upgrade failed: ${msg}`, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, scene.id));
+          renderResults.push({ sceneId: scene.id, success: false, error: msg });
+        }
+      }
+
+      const successCount = renderResults.filter((r) => r.success).length;
+      const failCount = renderResults.filter((r) => !r.success).length;
+
+      // Partial refund if some scenes failed to dispatch
+      if (failCount > 0) {
+        const refundAmount = failCount * VIDEO_CREDIT_COSTS.perCinematicScene;
+        await deductCredits(ctx.user.id, -refundAmount, `Cinematic upgrade partial refund: ${failCount} scene(s) failed`);
+        console.log(`[CinematicUpgrade] Refunded ${refundAmount} credits for ${failCount} failed scenes`);
+      }
+
+      return {
+        success: true,
+        dispatched: successCount,
+        failed: failCount,
+        creditsCharged: successCount * VIDEO_CREDIT_COSTS.perCinematicScene,
+        creditsRefunded: failCount * VIDEO_CREDIT_COSTS.perCinematicScene,
+        results: renderResults,
+      };
+    }),
+
   // List all jobs for the current user (with per-job scene stats)
   listJobs: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();

@@ -5,6 +5,7 @@ import { getLoginUrl } from "@/const";
 import { calculateVideoCreditCost } from "../../../shared/const";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
+import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -173,7 +174,10 @@ export default function MusicVideoAutopilot() {
   const updateScene = trpc.musicVideo.updateScene.useMutation();
   const startRender = trpc.musicVideo.startRender.useMutation();
   const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
-  const { checkLowCredits, checkCanAfford, showCinematicUpsell, balance: creditBalance } = useCreditGuard();
+  const { checkLowCredits, checkCanAfford, balance: creditBalance } = useCreditGuard();
+  const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
+  const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
+  const cinematicUpgradeMutation = trpc.musicVideo.cinematicUpgrade.useMutation();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
   const generateScenePreviewMutation = trpc.musicVideo.generateScenePreview.useMutation();
   const saveCharactersMutation = trpc.characters.saveCharacters.useMutation();
@@ -617,8 +621,8 @@ export default function MusicVideoAutopilot() {
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
-              // Show cinematic upsell after a short delay
-              setTimeout(() => showCinematicUpsell(title || undefined), 2000);
+              // Show cinematic upsell modal after a short delay
+              setTimeout(() => setShowCinematicUpsell(true), 1500);
               // Check if credits are now low
               setTimeout(() => checkLowCredits(), 3000);
               return; // stop polling
@@ -702,6 +706,48 @@ export default function MusicVideoAutopilot() {
         required={creditCost}
         balance={creditBalance}
         canReduceQuality={false}
+      />
+      {/* Cinematic Upsell Modal — shown after render completes */}
+      <CinematicUpsellModal
+        open={showCinematicUpsell}
+        onClose={() => setShowCinematicUpsell(false)}
+        scenes={scenes.map((s): CinematicScene => ({
+          id: s.id,
+          index: s.sceneIndex,
+          prompt: s.prompt,
+          previewImageUrl: s.previewImageUrl,
+          status: s.status,
+        }))}
+        creditBalance={creditBalance}
+        isUpgrading={isUpgradingCinematic}
+        onUpgrade={async (sceneIds) => {
+          if (!jobId) return;
+          setIsUpgradingCinematic(true);
+          try {
+            const result = await cinematicUpgradeMutation.mutateAsync({ jobId, sceneIds });
+            setShowCinematicUpsell(false);
+            if (result.dispatched > 0) {
+              toast.success(
+                `Cinematic upgrade started for ${result.dispatched} scene${result.dispatched !== 1 ? "s" : ""}`,
+                { description: "Your scenes are being re-rendered with premium quality. Use the retry panel to track progress." }
+              );
+              // Refresh scene statuses so the render progress grid shows the new pending scenes
+              setScenes(prev => prev.map(s =>
+                sceneIds.includes(s.id) ? { ...s, status: "generating" } : s
+              ));
+            }
+            if (result.failed > 0) {
+              toast.error(
+                `${result.failed} scene${result.failed !== 1 ? "s" : ""} failed to start`,
+                { description: `${result.creditsRefunded} credits refunded.` }
+              );
+            }
+          } catch (err: any) {
+            toast.error("Upgrade failed", { description: err?.message ?? "Please try again." });
+          } finally {
+            setIsUpgradingCinematic(false);
+          }
+        }}
       />
       {/* Header */}
       <div className="border-b border-zinc-800 bg-zinc-950">
