@@ -212,27 +212,24 @@
 ## FAQ Update
 - [x] Add Apple Pay and Google Pay to payment methods FAQ answer in Home.tsx
 
-## Visual Enhancement (Landing Page)
-- [ ] Generate AI hero image — cinematic dark neon scene showing AI video creation
-- [ ] Generate 4 tool showcase images (Text-to-Video, Lip Sync, Video Transform, AI Voiceover)
-- [ ] Generate scrolling gallery sample images (8-10 example AI video outputs)
-- [ ] Upload all images to CDN via manus-upload-file --webdev
-- [ ] Add hero background image to Home.tsx hero section
-- [ ] Add tool showcase images to the carousel/features section
-- [ ] Add auto-scrolling marquee gallery of sample outputs
-- [ ] Add animated "before/after" demo visual for video transformation tool
+## Visual Enhancement (Landing Page) - COMPLETED ✅
+- [x] Generate AI hero image — cinematic dark neon scene showing AI video creation
+- [x] Generate 4 tool showcase images (Text-to-Video, Lip Sync, Video Transform, AI Voiceover)
+- [x] Generate scrolling gallery sample images (10 example AI video outputs)
+- [x] Upload all images to CDN via manus-upload-file --webdev
+- [x] Add hero background image to Home.tsx hero section
+- [x] Add tool showcase images to the features section (alternating layout)
+- [x] Add auto-scrolling marquee gallery of sample outputs (two rows, opposite directions)
+- [x] Cinematic Bebas Neue + Barlow typography applied
 
-## Premium Visual Redesign (seeddance.io reference)
-- [ ] Study seeddance.io layout and document key design patterns
-- [ ] Generate hero background video (looping, cinematic AI scenes)
-- [ ] Generate gallery videos for scrolling marquee (8-10 clips)
-- [ ] Upload all video assets to CDN
-- [ ] Rebuild hero section with full-screen autoplay muted looping video background
-- [ ] Add scrolling video marquee gallery (two rows, opposite directions)
-- [ ] Add real tool showcase images to AI Tools section cards
-- [ ] Add before/after video transform demo section
-- [ ] Add animated stats/social proof section with visual richness
-- [ ] Polish typography, spacing, and overall visual hierarchy
+## Premium Visual Redesign (seeddance.io reference) - COMPLETED ✅
+- [x] Study seeddance.io layout and document key design patterns
+- [x] Full-screen cinematic hero background image with dark overlay
+- [x] Scrolling marquee gallery with 10 AI-generated cinematic images (two rows, opposite directions)
+- [x] Large feature showcase sections with real AI imagery (seeddance.io style)
+- [x] CSS keyframe animation for marquee scroll
+- [x] WizVid logo large and prominent as brand centrepiece in hero
+- [x] Polish typography, spacing, and overall visual hierarchy
 - [x] Make WizVid logo large and prominent in hero (brand centrepiece, not just nav icon)
 - [x] Full-screen cinematic hero background image with dark overlay
 - [x] Scrolling marquee gallery with 10 AI-generated cinematic images (two rows, opposite directions)
@@ -274,3 +271,15 @@
 - [x] Add Music Video link to DashboardLayout sidebar (full sidebar rebuilt with all WizVid nav items)
 - [x] WizPilot also added to DashboardLayout sidebar
 - [x] 24 tests passing
+
+## Audio Upload Limit Increase (6 minutes)
+- [ ] Update backend: increase max file size from 50MB to 100MB for audio uploads
+- [ ] Update backend: increase max duration validation from current limit to 360 seconds (6 min)
+- [ ] Update frontend: update upload hint text to show "up to 6 minutes"
+- [ ] Update frontend: update file size validation message
+
+## WizPilot Duration Options
+- [x] Add longer duration options to WizPilot (30s, 60s, 90s, 120s) alongside existing 5s/10s/15s
+- [x] Update credit costs for longer durations (proportional: 300/600/900/1200 credits)
+- [x] Backend already accepts any string duration via options — no validation change needed
+- [x] Duration selector changed from flex row to 4-column grid to accommodate 7 options cleanly

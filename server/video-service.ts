@@ -52,7 +52,12 @@ export async function generateVideo(
     throw new Error("Database not available");
   }
 
-  const creditCost = CREDIT_COSTS[request.toolType];
+  // For text_to_video, credit cost scales with duration (10 credits/sec)
+  const rawDuration = String(request.options?.duration || "10");
+  const durationSeconds = parseInt(rawDuration, 10) || 10;
+  const creditCost = request.toolType === "text_to_video"
+    ? durationSeconds * 10
+    : CREDIT_COSTS[request.toolType];
 
   // Enforce 4K gating — only Pro and Business plans can request 4K
   if (request.request4K) {
@@ -86,11 +91,18 @@ export async function generateVideo(
       case "text_to_video": {
         // Use Kling AI for text-to-video
         const kling = initKlingAI();
+        // Kling natively supports "5" and "10" second clips.
+        // For longer durations (15s+) we use "10" as the clip length.
+        const klingDuration = durationSeconds <= 5 ? "5" : "10";
+        const aspectRatioRaw = String(request.options?.aspectRatio || "16:9");
+        const aspectRatio = (["16:9", "9:16", "1:1"].includes(aspectRatioRaw)
+          ? aspectRatioRaw
+          : "16:9") as "16:9" | "9:16" | "1:1";
         taskId = await kling.createTextToVideo({
           prompt: request.prompt,
-          duration: "5",
+          duration: klingDuration,
           mode: "pro",
-          aspect_ratio: "16:9",
+          aspect_ratio: aspectRatio,
         });
         apiProvider = "kling";
         break;

@@ -25,6 +25,10 @@ const DURATIONS = [
   { id: "5", label: "5s", credits: 50 },
   { id: "10", label: "10s", credits: 100 },
   { id: "15", label: "15s", credits: 150 },
+  { id: "30", label: "30s", credits: 300 },
+  { id: "60", label: "60s", credits: 600 },
+  { id: "90", label: "90s", credits: 900 },
+  { id: "120", label: "120s", credits: 1200 },
 ];
 
 const ASPECT_RATIOS = [
@@ -251,7 +255,7 @@ export default function Autopilot() {
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-white mb-3">Duration</label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {DURATIONS.map((d) => (
                     <button
                       key={d.id}
