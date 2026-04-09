@@ -131,7 +131,7 @@ export default function Account() {
             <CardContent className="space-y-4">
               <div className="p-4 bg-muted/50 rounded-lg border border-border/40 text-center">
                 <p className="text-sm text-muted-foreground mb-3">
-                  Upgrade to Business plan to access API keys and integrate Synthora into your applications
+                  Upgrade to Business plan to access API keys and integrate WizVid into your applications
                 </p>
                 <Button onClick={() => setLocation("/subscribe")}>
                   Upgrade to Business

@@ -76,7 +76,7 @@ export default function Credits() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-xl font-bold">Synthora - Buy Credits</h1>
+          <h1 className="text-xl font-bold">WizVid - Buy Credits</h1>
           <div className="w-20" />
         </div>
       </div>
