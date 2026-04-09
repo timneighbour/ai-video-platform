@@ -1,4 +1,3 @@
-@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -43,137 +42,101 @@
 }
 
 :root {
-  /* Premium light theme with purple accent */
-  --primary: oklch(0.623 0.214 259.815);
-  --primary-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(0.623 0.214 259.815);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --chart-1: oklch(0.7 0.2 280);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.55 0.2 260);
-  --chart-4: oklch(0.5 0.18 260);
-  --chart-5: oklch(0.45 0.15 260);
-  --radius: 0.75rem;
-  --background: oklch(0.995 0 0);
-  --foreground: oklch(0.2 0.01 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.01 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.01 260);
-  --secondary: oklch(0.95 0.01 260);
-  --secondary-foreground: oklch(0.35 0.02 260);
-  --muted: oklch(0.94 0.008 260);
-  --muted-foreground: oklch(0.55 0.02 260);
-  --accent: oklch(0.623 0.214 259.815);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.005 260);
-  --input: oklch(0.92 0.005 260);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.995 0 0);
-  --sidebar-foreground: oklch(0.2 0.01 260);
-  --sidebar-accent: oklch(0.623 0.214 259.815);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.92 0.005 260);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
-}
-
-.dark {
-  /* Premium dark theme with purple accent */
-  --primary: oklch(0.7 0.2 280);
+  /* Dark theme with neon accents for WizVid */
+  --primary: oklch(0.7 0.25 280);
   --primary-foreground: oklch(0.05 0 0);
-  --sidebar-primary: oklch(0.7 0.2 280);
+  --sidebar-primary: oklch(0.7 0.25 280);
   --sidebar-primary-foreground: oklch(0.05 0 0);
-  --background: oklch(0.08 0.01 260);
-  --foreground: oklch(0.95 0.01 260);
+  --chart-1: oklch(0.75 0.28 280);
+  --chart-2: oklch(0.65 0.3 300);
+  --chart-3: oklch(0.7 0.25 200);
+  --chart-4: oklch(0.75 0.28 50);
+  --chart-5: oklch(0.6 0.25 280);
+  --radius: 0.75rem;
+  --background: oklch(0.08 0 0);
+  --foreground: oklch(0.95 0.01 0);
   --card: oklch(0.12 0.01 260);
-  --card-foreground: oklch(0.95 0.01 260);
+  --card-foreground: oklch(0.95 0.01 0);
   --popover: oklch(0.12 0.01 260);
-  --popover-foreground: oklch(0.95 0.01 260);
-  --secondary: oklch(0.15 0.01 260);
-  --secondary-foreground: oklch(0.75 0.01 260);
+  --popover-foreground: oklch(0.95 0.01 0);
+  --secondary: oklch(0.15 0.02 260);
+  --secondary-foreground: oklch(0.75 0.05 280);
   --muted: oklch(0.2 0.01 260);
-  --muted-foreground: oklch(0.65 0.02 260);
-  --accent: oklch(0.7 0.2 280);
+  --muted-foreground: oklch(0.6 0.02 260);
+  --accent: oklch(0.7 0.25 280);
   --accent-foreground: oklch(0.05 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.65 0.28 30);
+  --destructive-foreground: oklch(0.95 0.01 0);
   --border: oklch(0.2 0.01 260);
-  --input: oklch(0.2 0.01 260);
-  --ring: oklch(0.7 0.2 280);
-  --chart-1: oklch(0.7 0.2 280);
-  --chart-2: oklch(0.65 0.18 270);
-  --chart-3: oklch(0.6 0.16 260);
-  --chart-4: oklch(0.55 0.14 250);
-  --chart-5: oklch(0.5 0.12 240);
-  --sidebar: oklch(0.12 0.01 260);
-  --sidebar-foreground: oklch(0.95 0.01 260);
-  --sidebar-accent: oklch(0.7 0.2 280);
+  --input: oklch(0.15 0.01 260);
+  --ring: oklch(0.7 0.25 280);
+  --sidebar: oklch(0.1 0.01 260);
+  --sidebar-foreground: oklch(0.95 0.01 0);
+  --sidebar-accent: oklch(0.7 0.25 280);
   --sidebar-accent-foreground: oklch(0.05 0 0);
   --sidebar-border: oklch(0.2 0.01 260);
-  --sidebar-ring: oklch(0.7 0.2 280);
+  --sidebar-ring: oklch(0.7 0.25 280);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  button:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]),
-  [type="button"]:not(:disabled),
-  [type="submit"]:not(:disabled),
-  [type="reset"]:not(:disabled),
-  a[href],
-  select:not(:disabled),
-  input[type="checkbox"]:not(:disabled),
-  input[type="radio"]:not(:disabled) {
-    @apply cursor-pointer;
-  }
+* {
+  @apply border-border;
 }
 
-@layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
-  .container {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
-    padding-right: 1rem;
-  }
+body {
+  @apply bg-background text-foreground;
+}
 
-  .flex {
-    min-height: 0;
-    min-width: 0;
-  }
+html {
+  scroll-behavior: smooth;
+}
 
-  @media (min-width: 640px) {
-    .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
-      padding-right: 1.5rem;
-    }
-  }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-  @media (min-width: 1024px) {
-    .container {
-      padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
-    }
-  }
+::-webkit-scrollbar-track {
+  background: oklch(0.1 0.01 260);
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.7 0.25 280);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.75 0.28 280);
+}
+
+/* Neon glow effects */
+.neon-glow {
+  text-shadow: 0 0 10px oklch(0.7 0.25 280), 0 0 20px oklch(0.7 0.25 280);
+}
+
+.neon-glow-cyan {
+  text-shadow: 0 0 10px oklch(0.7 0.25 200), 0 0 20px oklch(0.7 0.25 200);
+}
+
+.neon-glow-magenta {
+  text-shadow: 0 0 10px oklch(0.65 0.3 300), 0 0 20px oklch(0.65 0.3 300);
+}
+
+/* Smooth transitions */
+button, a, input, select, textarea {
+  @apply transition-all duration-200;
+}
+
+/* Focus states */
+button:focus-visible, a:focus-visible, input:focus-visible {
+  @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-background;
+}
+
+/* Gradient backgrounds */
+.gradient-neon {
+  background: linear-gradient(135deg, oklch(0.7 0.25 280) 0%, oklch(0.65 0.3 300) 50%, oklch(0.7 0.25 200) 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, oklch(0.08 0 0) 0%, oklch(0.12 0.01 260) 100%);
 }

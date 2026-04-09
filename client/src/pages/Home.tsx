@@ -104,7 +104,7 @@ export default function Home() {
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Synthora_999ed4b0.png" alt="Synthora" className="h-8" />
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Wizvidlogowithneonmagicflair(1)_03506e50.png" alt="WizVid" className="h-10" />
           </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
@@ -142,7 +142,7 @@ export default function Home() {
               Create stunning videos with AI
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              Synthora transforms your creative vision into reality. Generate cinematic videos, create talking avatars, and produce professional content in minutes, not hours.
+              WizVid transforms your creative vision into reality. Generate cinematic videos, create talking avatars, and produce professional content in minutes, not hours.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" className="gap-2" asChild>
@@ -351,7 +351,7 @@ export default function Home() {
           <div className="grid gap-8 md:grid-cols-4 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Synthora_999ed4b0.png" alt="Synthora" className="h-8" />
+                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Wizvidlogowithneonmagicflair(1)_03506e50.png" alt="WizVid" className="h-10" />
               </div>
               <p className="text-sm text-muted-foreground">Create stunning videos with AI</p>
             </div>
