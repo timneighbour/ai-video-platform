@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png"; // v2 logo
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-nav_0022186c.webp"; // v2 logo optimised WebP
+const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-footer_0754d3d5.webp"; // footer logo optimised WebP
 const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
 const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
 const HERO_VIDEOS = [
@@ -26,10 +27,10 @@ const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "Hip-Hop Artist" },
 ];
 const STYLE_IMAGES = [
-  { label: "Cinematic", img: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp` },
-  { label: "Anime", img: `${CDN}/style-anime-bCLhyWeYo6mek5pWMnEUV7.webp` },
-  { label: "Pixar 3D", img: `${CDN}/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV.webp` },
-  { label: "Documentary", img: `${CDN}/style-documentary-nyjoHJnTHZU2hdjABnnjBm.webp` },
+  { label: "Cinematic", img: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq-thumb_855006a3.webp` },
+  { label: "Anime", img: `${CDN}/style-anime-bCLhyWeYo6mek5pWMnEUV7-thumb_2704d4cf.webp` },
+  { label: "Pixar 3D", img: `${CDN}/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV-thumb_59429596.webp` },
+  { label: "Documentary", img: `${CDN}/style-documentary-nyjoHJnTHZU2hdjABnnjBm-thumb_3587102a.webp` },
 ];
 
 // ── Scroll reveal hook ──────────────────────────────────────────────────────
@@ -74,6 +75,8 @@ function Nav() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
+            width={230}
+            height={129}
             className="h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
           />
         </a>
@@ -145,15 +148,28 @@ function Nav() {
 }
 
 // ── Hero ─────────────────────────────────────────────────────────────────────
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.innerWidth >= 1024);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isDesktop;
+}
+
 function Hero() {
   const logoVideoRef = useRef<HTMLVideoElement>(null);
   const [logoMuted, setLogoMuted] = useState(true);
   const [currentBg, setCurrentBg] = useState(0);
+  const isDesktop = useIsDesktop();
 
   useEffect(() => {
+    if (!isDesktop) return;
     const timer = setInterval(() => setCurrentBg((prev) => (prev + 1) % HERO_VIDEOS.length), 8000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isDesktop]);
 
   const handleLogoClick = () => {
     if (!logoVideoRef.current) return;
@@ -165,13 +181,17 @@ function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0f0f0f]">
-      {/* Background videos */}
-      {HERO_VIDEOS.map((src, i) => (
+      {/* Background videos — desktop only to avoid 24MB download on mobile */}
+      {isDesktop && HERO_VIDEOS.map((src, i) => (
         <video key={src} src={src} autoPlay loop muted playsInline preload="none"
           aria-hidden="true"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-20" : "opacity-0"}`}
         />
       ))}
+      {/* Mobile background — CSS gradient instead of video */}
+      {!isDesktop && (
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-950/40 via-[#0f0f0f] to-blue-950/30" aria-hidden="true" />
+      )}
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-[#0f0f0f]/80 to-[#0f0f0f]/40" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f]/60 via-transparent to-[#0f0f0f]" />
@@ -833,7 +853,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={127} height={72} className="h-9 w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.

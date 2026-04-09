@@ -167,6 +167,40 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor: React core
+          "vendor-react": ["react", "react-dom"],
+          // Vendor: tRPC + query
+          "vendor-trpc": ["@trpc/client", "@trpc/react-query", "@tanstack/react-query"],
+          // Vendor: UI components
+          "vendor-ui": ["lucide-react", "sonner", "class-variance-authority", "clsx", "tailwind-merge"],
+          // Vendor: Radix UI primitives
+          "vendor-radix": [
+            "@radix-ui/react-accordion", "@radix-ui/react-alert-dialog", "@radix-ui/react-aspect-ratio",
+            "@radix-ui/react-avatar", "@radix-ui/react-checkbox", "@radix-ui/react-collapsible",
+            "@radix-ui/react-context-menu", "@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-hover-card", "@radix-ui/react-label", "@radix-ui/react-menubar",
+            "@radix-ui/react-navigation-menu", "@radix-ui/react-popover", "@radix-ui/react-progress",
+            "@radix-ui/react-radio-group", "@radix-ui/react-scroll-area", "@radix-ui/react-select",
+            "@radix-ui/react-separator", "@radix-ui/react-slider", "@radix-ui/react-slot",
+            "@radix-ui/react-switch", "@radix-ui/react-tabs", "@radix-ui/react-toggle",
+            "@radix-ui/react-toggle-group", "@radix-ui/react-tooltip",
+          ],
+          // Vendor: Animation
+          "vendor-motion": ["framer-motion"],
+          // Vendor: Charts
+          "vendor-charts": ["recharts"],
+          // Vendor: Forms & dates
+          "vendor-forms": ["react-hook-form", "@hookform/resolvers", "zod", "date-fns"],
+          // Vendor: i18n
+          "vendor-i18n": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
+          // Vendor: routing
+          "vendor-router": ["wouter"],
+        },
+      },
+    },
   },
   server: {
     host: true,

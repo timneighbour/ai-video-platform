@@ -660,3 +660,13 @@
 - [x] Fix heading order in Pricing.tsx (h1→h3 skip fixed with sr-only h2) and MusicVideoAutopilot.tsx (h2 before h1 fixed)
 - [x] Add <track kind="captions"> to hero video element
 - [x] Fix canonical URL: changed to https://www.wizvid.ai/ (www), updated OG/Twitter/JSON-LD and sitemap.xml
+
+## Mobile Performance Fixes (Lighthouse Mobile Score 58, LCP 30.2s)
+- [x] Remove hero background videos on mobile (they load 24MB+ on slow 4G) — replace with static gradient/image on screens < lg
+- [x] Add preload="none" to ALL hero background videos (already done for desktop, verify mobile path)
+- [x] Convert wizvid-logo-v2.png (52KB, 1360x768) to WebP and serve at correct display size (115x65) — 1KB nav WebP
+- [x] Convert style images (1920x1077 → 400x268 WebP thumbnails) saving ~1,148KB
+- [x] Add explicit width and height attributes to logo img elements
+- [x] Fix Google Fonts render-blocking: verified media=print onload pattern is in place; updated preload to WebP logo
+- [x] Add Vite manual chunks for code splitting (react, trpc, radix, motion, charts, i18n, forms, router)
+- [x] Lazy-load all non-Home routes with React.lazy + Suspense in App.tsx
