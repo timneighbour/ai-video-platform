@@ -80,7 +80,7 @@ function Nav() {
             alt="WizVid"
             width={230}
             height={129}
-            className="h-8 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
           />
         </a>
 

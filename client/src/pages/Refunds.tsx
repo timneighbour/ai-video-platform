@@ -6,7 +6,7 @@ export default function Refunds() {
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
           </a>
           <a href="/" className="text-sm text-[#a1a1aa] hover:text-white transition-colors">← Back to Home</a>
         </div>

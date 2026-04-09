@@ -1077,3 +1077,6 @@
 - [x] Update all nav instances to use cropped logo at h-8 (Pricing, Help, Home, MusicVideosLanding, Onboarding, Subscribe, SeoLandingPage, DashboardLayout, Privacy, Terms, Refunds)
 - [x] Fix BackButton: replace unreliable history.back() with direct navigate(fallback) so "Back to Home" always goes to /
 - [x] TypeScript check: 0 errors, 81/81 tests passing
+
+## Feature: Logo Hover Animation (Apr 2026)
+- [x] Add subtle hover animation to WizVid nav logo across all pages (scale-105 + brightness-110, 300ms transition)

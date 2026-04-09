@@ -68,7 +68,7 @@ export default function Onboarding() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-8 w-auto object-contain"
+            className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
             style={{ minWidth: "120px" }}
           />
         </a>

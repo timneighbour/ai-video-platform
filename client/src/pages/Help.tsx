@@ -120,7 +120,7 @@ export default function Help() {
             <BackButton fallback="/" label="Back to Home" />
             <Link href="/">
               <div className="hidden md:flex items-center gap-2.5 cursor-pointer">
-                <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+                <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
               </div>
             </Link>
           </div>

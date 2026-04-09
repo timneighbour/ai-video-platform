@@ -33,7 +33,7 @@ export default function MusicVideosLanding() {
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back to Home" />
             <a href="/" className="hidden md:flex items-center">
-              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
             </a>
           </div>
           <div className="hidden md:flex items-center gap-1">
