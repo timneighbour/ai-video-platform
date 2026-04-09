@@ -33,6 +33,7 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
+  AlertCircle,
 } from "lucide-react";
 
 type Step = "upload" | "storyboard" | "render";
@@ -82,7 +83,8 @@ export default function MusicVideoAutopilot() {
   const [characters, setCharacters] = useState<Character[]>([]);
 
   // Transcription / lyrics state — starts immediately on audio file select
-  const [transcriptionStatus, setTranscriptionStatus] = useState<string>("idle"); // idle | transcribing | done | failed
+  const [transcriptionStatus, setTranscriptionStatus] = useState<string>("idle"); // idle | transcribing | done | failed | quota
+  const [quotaError, setQuotaError] = useState<string | null>(null);
   const [transcriptionText, setTranscriptionText] = useState<string | null>(null);
   const [lyricsExpanded, setLyricsExpanded] = useState(false);
   // Keep segments for later use by storyboard
@@ -211,9 +213,14 @@ export default function MusicVideoAutopilot() {
           setTranscriptionText(result.text);
           setTranscriptionSegments(result.segments);
           setTranscriptionStatus("done");
-        } catch (err) {
+        } catch (err: any) {
           console.error("Transcription error:", err);
-          setTranscriptionStatus("failed");
+          const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");
+          if (isQuota) {
+            setTranscriptionStatus("quota");
+          } else {
+            setTranscriptionStatus("failed");
+          }
         }
       };
       reader.readAsDataURL(file);
@@ -304,11 +311,15 @@ export default function MusicVideoAutopilot() {
       setStep("storyboard");
       toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
     } catch (err: any) {
-      toast.error("Error", { description: err.message || "Failed to create job" });
+      const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");
+      if (isQuota) {
+        setQuotaError("The AI service is temporarily unavailable due to high demand. Please wait a few minutes and try again. Your progress has been saved.");
+      } else {
+        toast.error("Error", { description: err.message || "Failed to create job" });
+      }
     }
   };
-
-  // Fetch full job data (with real scene IDs) after moving to storyboard step
+  // Fetch full job data (with real scene IDs) after moving to storyboard stepp
   const jobQuery = trpc.musicVideo.getJob.useQuery(
     { jobId: jobId! },
     { enabled: !!jobId && step === "storyboard" }
@@ -570,6 +581,11 @@ export default function MusicVideoAutopilot() {
                               <Check className="w-3 h-3 mr-1" />
                               Ready
                             </Badge>
+                          ) : transcriptionStatus === "quota" ? (
+                            <Badge className="bg-orange-900/50 text-orange-300 border-orange-800 text-xs">
+                              <AlertCircle className="w-3 h-3 mr-1" />
+                              Service busy
+                            </Badge>
                           ) : (
                             <Badge className="bg-zinc-700 text-zinc-400 text-xs">Not available</Badge>
                           )}
@@ -590,6 +606,14 @@ export default function MusicVideoAutopilot() {
                             <div className="flex items-center gap-2 text-zinc-400 text-sm py-2">
                               <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
                               <span>AI is transcribing your song's lyrics... This takes 30–60 seconds.</span>
+                            </div>
+                          ) : transcriptionStatus === "quota" ? (
+                            <div className="flex items-start gap-2 text-sm py-2">
+                              <AlertCircle className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-orange-300 font-medium">AI service temporarily busy</p>
+                                <p className="text-zinc-400 mt-0.5">Lyrics could not be transcribed right now. You can still generate a storyboard from your theme description. Try again in a few minutes.</p>
+                              </div>
                             </div>
                           ) : (
                             <p className="text-zinc-500 text-sm py-2">
@@ -766,9 +790,25 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
+              {quotaError && (
+                <div className="flex items-start gap-3 rounded-xl border border-orange-800 bg-orange-950/40 px-4 py-3">
+                  <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-orange-300 font-medium text-sm">AI service temporarily busy</p>
+                    <p className="text-orange-200/70 text-xs mt-0.5">{quotaError}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-orange-400 hover:text-orange-200 transition-colors"
+                    onClick={() => setQuotaError(null)}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               <Button
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3"
-                onClick={handleUploadAndGenerate}
+                onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
                 disabled={createJob.isPending || generateStoryboardMutation.isPending || !audioFile || !title || !themePrompt}
               >
                 {createJob.isPending || generateStoryboardMutation.isPending ? (

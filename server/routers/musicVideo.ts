@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos } from "../../drizzle/schema";
+import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import {
@@ -37,8 +38,13 @@ export const musicVideoRouter = router({
       const audioKey = `music-video-transcribe-temp/${ctx.user.id}-${Date.now()}.${ext}`;
       const { url: audioUrl } = await storagePut(audioKey, audioBuffer, input.audioMimeType);
 
-      const result = await transcribeAudio({ audioUrl });
+      const result = await withQuotaGuard(() => transcribeAudio({ audioUrl }));
       if ('error' in result) {
+        // Check if the details indicate quota exhaustion
+        const details = (result as any).details ?? "";
+        if (/412|usage exhausted|quota|rate limit/i.test(details)) {
+          throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: QUOTA_EXHAUSTED_MESSAGE });
+        }
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error });
       }
       return {
@@ -187,14 +193,14 @@ export const musicVideoRouter = router({
         enrichedThemePrompt += "\n\nLip Sync: Include close-up shots of the character's face/mouth in scenes where lyrics are being sung, suitable for lip sync processing.";
       }
 
-      const scenes = await generateStoryboard(
+      const scenes = await withQuotaGuard(() => generateStoryboard(
         enrichedThemePrompt,
         job.genre,
         job.mood,
         job.audioDuration,
         job.title,
         lyricsSegments
-      );
+      ));
 
       // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
@@ -469,10 +475,10 @@ export const musicVideoRouter = router({
       ].filter(Boolean).join(". ");
 
       try {
-        const { url } = await generateImage({
+        const { url } = await withQuotaGuard(() => generateImage({
           prompt: imagePrompt,
           originalImages: referenceImages.length > 0 ? referenceImages : undefined,
-        });
+        }));
         if (url) {
           await db.update(musicVideoScenes)
             .set({ previewImageUrl: url })
@@ -480,6 +486,8 @@ export const musicVideoRouter = router({
         }
         return { imageUrl: url ?? null };
       } catch (err) {
+        // Quota errors are re-thrown so the frontend can show a friendly message
+        if (err instanceof TRPCError && err.code === "TOO_MANY_REQUESTS") throw err;
         console.error("[generateScenePreview] Image generation failed for scene", input.sceneId, err);
         return { imageUrl: null };
       }
