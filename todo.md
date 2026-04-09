@@ -238,3 +238,6 @@
 - [x] Scrolling marquee gallery with 10 AI-generated cinematic images (two rows, opposite directions)
 - [x] Large feature showcase sections with real AI imagery (seeddance.io style)
 - [x] CSS keyframe animation for marquee scroll
+
+## Font Update
+- [x] Replace Space Grotesk with Bebas Neue (headlines) + Barlow (body) for cinematic feel

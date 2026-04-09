@@ -4,7 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Barlow', system-ui, sans-serif;
+  --font-display: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -141,6 +142,12 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
 .gradient-dark {
   background: linear-gradient(135deg, oklch(0.08 0 0) 0%, oklch(0.12 0.01 260) 100%);
+}
+
+/* ── Cinematic heading typography ── */
+h1, h2, h3 {
+  font-family: 'Bebas Neue', 'Barlow Condensed', system-ui, sans-serif;
+  letter-spacing: 0.04em;
 }
 
 /* ── Marquee scroll animations ── */
