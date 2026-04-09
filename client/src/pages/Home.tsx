@@ -110,17 +110,13 @@ export default function Home() {
               alt="WizVid" 
               className="h-8 w-auto" 
             />
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">WizVid</span>
+            <span className="text-lg font-bold text-white">WizVid</span>
           </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <Button variant="ghost" className="text-white hover:text-purple-400">
-                  <a href="/dashboard">Dashboard</a>
-                </Button>
-                <Button variant="ghost" className="text-white hover:text-purple-400">
-                  <a href="/account">Account</a>
-                </Button>
+                <a href="/dashboard" className="text-white hover:text-purple-400">Dashboard</a>
+                <a href="/account" className="text-white hover:text-purple-400">Account</a>
                 <Button 
                   variant="outline" 
                   className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
@@ -131,18 +127,11 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Button 
-                  variant="ghost" 
-                  className="text-white hover:text-purple-400"
-                  asChild
-                >
-                  <a href={getLoginUrl()}>Sign In</a>
-                </Button>
+                <a href={getLoginUrl()} className="text-white hover:text-purple-400">Sign In</a>
                 <Button 
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                  asChild
                 >
-                  <a href={getLoginUrl()}>Get Started</a>
+                  <a href={getLoginUrl()} className="text-white">Get Started</a>
                 </Button>
               </>
             )}
