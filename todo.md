@@ -610,3 +610,8 @@
 - [x] Lip sync toggle on Step 1 (checkbox/switch to enable HeyGen lip sync on character scenes)
 - [x] Pass characterImageUrl and enableLipSync flags through tRPC generateStoryboard and startRender procedures
 - [x] Update storyboard LLM prompt to include character image reference when provided
+
+## Lyrics Fix (Apr 2026)
+- [x] Add transcribeAudioDirect tRPC procedure: accepts base64 audio, uploads to S3, calls Whisper, returns text immediately
+- [x] Trigger transcription immediately on audio file select (not after storyboard generation)
+- [x] Show lyrics panel as soon as audio is selected with live status indicator

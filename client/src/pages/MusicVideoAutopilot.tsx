@@ -82,11 +82,12 @@ export default function MusicVideoAutopilot() {
   // Lip sync state
   const [enableLipSync, setEnableLipSync] = useState(false);
 
-  // Transcription / lyrics state
-  const [transcriptionJobId, setTranscriptionJobId] = useState<number | null>(null);
-  const [transcriptionStatus, setTranscriptionStatus] = useState<string>("pending");
+  // Transcription / lyrics state — starts immediately on audio file select
+  const [transcriptionStatus, setTranscriptionStatus] = useState<string>("idle"); // idle | transcribing | done | failed
   const [transcriptionText, setTranscriptionText] = useState<string | null>(null);
   const [lyricsExpanded, setLyricsExpanded] = useState(false);
+  // Keep segments for later use by storyboard
+  const [transcriptionSegments, setTranscriptionSegments] = useState<Array<{ start: number; end: number; text: string }>>([]);
   const transcriptionPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const VIDEO_STYLES = [
@@ -144,32 +145,14 @@ export default function MusicVideoAutopilot() {
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const transcribeAudioDirect = trpc.musicVideo.transcribeAudioDirect.useMutation();
   const createJob = trpc.musicVideo.createJob.useMutation();
   const generateStoryboardMutation = trpc.musicVideo.generateStoryboard.useMutation();
   const updateScene = trpc.musicVideo.updateScene.useMutation();
   const startRender = trpc.musicVideo.startRender.useMutation();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
 
-  // Poll transcription status after job is created
-  const transcriptionQuery = trpc.musicVideo.getTranscription.useQuery(
-    { jobId: transcriptionJobId! },
-    {
-      enabled: !!transcriptionJobId && transcriptionStatus !== "done" && transcriptionStatus !== "failed",
-      refetchInterval: transcriptionStatus === "processing" || transcriptionStatus === "pending" ? 5000 : false,
-    }
-  );
-
-  useEffect(() => {
-    if (transcriptionQuery.data) {
-      setTranscriptionStatus(transcriptionQuery.data.status);
-      if (transcriptionQuery.data.transcription) {
-        setTranscriptionText(transcriptionQuery.data.transcription);
-        if (transcriptionQuery.data.status === "done") {
-          setLyricsExpanded(true); // Auto-expand when lyrics arrive
-        }
-      }
-    }
-  }, [transcriptionQuery.data]);
+  // No polling needed — transcription is a direct mutation that resolves when done
 
   // Cleanup poll interval on unmount
   useEffect(() => {
@@ -191,6 +174,12 @@ export default function MusicVideoAutopilot() {
       return;
     }
     setAudioFile(file);
+    // Reset transcription state for the new file
+    setTranscriptionText(null);
+    setTranscriptionSegments([]);
+    setTranscriptionStatus("idle");
+    setLyricsExpanded(false);
+
     // Get duration
     const url = URL.createObjectURL(file);
     const audio = new Audio(url);
@@ -199,10 +188,37 @@ export default function MusicVideoAutopilot() {
       if (dur > 360) {
         toast.error("Song too long", { description: "Maximum song length is 6 minutes." });
         setAudioFile(null);
+        setTranscriptionStatus("idle");
         return;
       }
       setAudioDuration(dur);
+
+      // Immediately start transcription in the background
+      setTranscriptionStatus("transcribing");
+      setLyricsExpanded(true);
+
+      // Read file as base64 and call the direct transcription mutation
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = (reader.result as string).split(",")[1];
+          const mimeType = file.type.includes("wav") ? "audio/wav" :
+                           file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+          const result = await transcribeAudioDirect.mutateAsync({
+            audioBase64: base64,
+            audioMimeType: mimeType as any,
+          });
+          setTranscriptionText(result.text);
+          setTranscriptionSegments(result.segments);
+          setTranscriptionStatus("done");
+        } catch (err) {
+          console.error("Transcription error:", err);
+          setTranscriptionStatus("failed");
+        }
+      };
+      reader.readAsDataURL(file);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCharacterFileDrop = useCallback((file: File) => {
@@ -292,10 +308,7 @@ export default function MusicVideoAutopilot() {
 
       setJobId(result.jobId);
       setTotalScenes(result.sceneCount);
-
-      // Start polling for transcription
-      setTranscriptionJobId(result.jobId);
-      setTranscriptionStatus("processing");
+      // Transcription was already started when the file was selected; no need to re-trigger;
 
       toast.loading("Generating storyboard...", { description: "Our AI director is crafting your scenes." });
 
@@ -506,8 +519,8 @@ export default function MusicVideoAutopilot() {
                     />
                   </div>
 
-                  {/* Lyrics / Transcription Panel — shows after job is created */}
-                  {transcriptionJobId && (
+                  {/* Lyrics / Transcription Panel — shows as soon as audio is selected */}
+                  {transcriptionStatus !== "idle" && (
                     <div className="rounded-xl border border-zinc-700 overflow-hidden">
                       <button
                         type="button"
@@ -517,7 +530,7 @@ export default function MusicVideoAutopilot() {
                         <div className="flex items-center gap-2">
                           <FileText className="w-4 h-4 text-purple-400" />
                           <span className="text-sm font-medium text-white">Detected Lyrics</span>
-                          {transcriptionStatus === "processing" || transcriptionStatus === "pending" ? (
+                          {transcriptionStatus === "transcribing" ? (
                             <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800 text-xs">
                               <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                               Transcribing...
@@ -543,7 +556,7 @@ export default function MusicVideoAutopilot() {
                             <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap font-mono">
                               {transcriptionText}
                             </p>
-                          ) : transcriptionStatus === "processing" || transcriptionStatus === "pending" ? (
+                          ) : transcriptionStatus === "transcribing" ? (
                             <div className="flex items-center gap-2 text-zinc-400 text-sm py-2">
                               <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
                               <span>AI is transcribing your song's lyrics... This takes 30–60 seconds.</span>
@@ -960,7 +973,7 @@ export default function MusicVideoAutopilot() {
                       <Button
                         variant="outline"
                         className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
-                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacterFile(null); setCharacterPreview(null); setEnableLipSync(false); setTranscriptionJobId(null); setTranscriptionText(null); setTranscriptionStatus("pending"); }}
+                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacterFile(null); setCharacterPreview(null); setEnableLipSync(false); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); }}
                       >
                         Create Another
                       </Button>

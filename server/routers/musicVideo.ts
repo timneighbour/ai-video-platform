@@ -18,8 +18,38 @@ import {
   transcribeJobAudio,
 } from "../music-video-service";
 import { deductCredits, getUserCredits } from "../credit-service";
+import { transcribeAudio } from "../_core/voiceTranscription";
 
 export const musicVideoRouter = router({
+  // Transcribe audio directly (no job required) — called as soon as user selects a file
+  transcribeAudioDirect: protectedProcedure
+    .input(
+      z.object({
+        audioBase64: z.string(),
+        audioMimeType: z.enum(["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Upload audio to S3 so Whisper can fetch it via URL
+      const audioBuffer = Buffer.from(input.audioBase64, "base64");
+      const ext = input.audioMimeType.split("/")[1].replace("mpeg", "mp3");
+      const audioKey = `music-video-transcribe-temp/${ctx.user.id}-${Date.now()}.${ext}`;
+      const { url: audioUrl } = await storagePut(audioKey, audioBuffer, input.audioMimeType);
+
+      const result = await transcribeAudio({ audioUrl });
+      if ('error' in result) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error });
+      }
+      return {
+        text: result.text ?? "",
+        segments: (result.segments ?? []).map((s) => ({
+          start: s.start,
+          end: s.end,
+          text: s.text.trim(),
+        })),
+      };
+    }),
+
   // Upload audio and create a new job (draft state)
   createJob: protectedProcedure
     .input(
