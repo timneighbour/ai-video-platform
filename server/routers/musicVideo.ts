@@ -19,6 +19,7 @@ import {
 } from "../music-video-service";
 import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
+import { generateImage } from "../_core/imageGeneration";
 
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
@@ -394,6 +395,41 @@ export const musicVideoRouter = router({
       scenes.sort((a, b) => a.sceneIndex - b.sceneIndex);
 
       return { job, scenes };
+    }),
+
+  // Generate a preview image for a single scene (called per-scene after storyboard loads)
+  generateScenePreview: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      // If already has a preview image, return it immediately
+      if (scene.previewImageUrl) return { imageUrl: scene.previewImageUrl };
+      // Build a rich image prompt from scene data
+      const styleLabel = scene.visualStyle || job.themePrompt || "cinematic";
+      const imagePrompt = `Storyboard scene preview: ${scene.prompt}. Visual style: ${styleLabel}. Cinematic composition, high quality, detailed, 16:9 widescreen aspect ratio, professional film still.`;
+      try {
+        const { url } = await generateImage({ prompt: imagePrompt });
+        if (url) {
+          await db.update(musicVideoScenes)
+            .set({ previewImageUrl: url })
+            .where(eq(musicVideoScenes.id, input.sceneId));
+        }
+        return { imageUrl: url ?? null };
+      } catch (err) {
+        console.error("[generateScenePreview] Image generation failed for scene", input.sceneId, err);
+        return { imageUrl: null };
+      }
     }),
 
   // List all jobs for the current user

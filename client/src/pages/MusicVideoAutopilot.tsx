@@ -47,6 +47,8 @@ interface SceneCard {
   visualStyle: string;
   status: string;
   videoUrl?: string | null;
+  previewImageUrl?: string | null;
+  previewImageLoading?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -148,6 +150,7 @@ export default function MusicVideoAutopilot() {
   const updateScene = trpc.musicVideo.updateScene.useMutation();
   const startRender = trpc.musicVideo.startRender.useMutation();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
+  const generateScenePreviewMutation = trpc.musicVideo.generateScenePreview.useMutation();
 
   // No polling needed — transcription is a direct mutation that resolves when done
 
@@ -313,7 +316,7 @@ export default function MusicVideoAutopilot() {
 
   useEffect(() => {
     if (jobQuery.data?.scenes) {
-      setScenes(jobQuery.data.scenes.map((s: any) => ({
+      const mappedScenes = jobQuery.data.scenes.map((s: any) => ({
         id: s.id,
         sceneIndex: s.sceneIndex,
         startTime: s.startTime,
@@ -323,8 +326,34 @@ export default function MusicVideoAutopilot() {
         visualStyle: s.visualStyle ?? "",
         status: s.status,
         videoUrl: s.videoUrl,
-      })));
+        previewImageUrl: s.previewImageUrl ?? null,
+        previewImageLoading: !s.previewImageUrl,
+      }));
+      setScenes(mappedScenes);
+      // Trigger image generation for scenes that don't have a preview yet
+      mappedScenes.forEach((scene) => {
+        if (!scene.previewImageUrl && jobId) {
+          generateScenePreviewMutation.mutateAsync({ sceneId: scene.id, jobId })
+            .then(({ imageUrl }) => {
+              if (imageUrl) {
+                setScenes(prev => prev.map(s =>
+                  s.id === scene.id ? { ...s, previewImageUrl: imageUrl, previewImageLoading: false } : s
+                ));
+              } else {
+                setScenes(prev => prev.map(s =>
+                  s.id === scene.id ? { ...s, previewImageLoading: false } : s
+                ));
+              }
+            })
+            .catch(() => {
+              setScenes(prev => prev.map(s =>
+                s.id === scene.id ? { ...s, previewImageLoading: false } : s
+              ));
+            });
+        }
+      });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobQuery.data]);
 
   const handleSaveEdit = async (sceneId: number) => {
@@ -772,20 +801,52 @@ export default function MusicVideoAutopilot() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scenes.map((scene) => (
-                <Card key={scene.id} className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors">
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-purple-900/50 text-purple-300 border-purple-800 text-xs">
-                          Scene {scene.sceneIndex + 1}
-                        </Badge>
-                        <span className="text-zinc-500 text-xs">{formatTime(scene.startTime)} · {scene.duration}s</span>
+                <Card key={scene.id} className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors overflow-hidden">
+                  {/* Scene preview image */}
+                  <div className="relative w-full aspect-video bg-zinc-800">
+                    {scene.previewImageUrl ? (
+                      <img
+                        src={scene.previewImageUrl}
+                        alt={`Scene ${scene.sceneIndex + 1} preview`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        {scene.previewImageLoading ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                            <span className="text-zinc-500 text-xs">Generating preview...</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <Film className="w-6 h-6 text-zinc-600" />
+                            <span className="text-zinc-600 text-xs">No preview</span>
+                          </div>
+                        )}
                       </div>
-                      {scene.visualStyle && (
-                        <Badge variant="outline" className="border-zinc-700 text-zinc-400 text-xs">
-                          {scene.visualStyle}
-                        </Badge>
-                      )}
+                    )}
+                    {/* Scene number overlay */}
+                    <div className="absolute top-2 left-2">
+                      <Badge className="bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
+                        Scene {scene.sceneIndex + 1}
+                      </Badge>
+                    </div>
+                    {/* Duration overlay */}
+                    <div className="absolute bottom-2 right-2">
+                      <span className="text-xs text-white/80 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm">
+                        {formatTime(scene.startTime)} · {scene.duration}s
+                      </span>
+                    </div>
+                  </div>
+                  <CardContent className="pt-3 pb-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {scene.visualStyle && (
+                          <Badge variant="outline" className="border-zinc-700 text-zinc-400 text-xs">
+                            {scene.visualStyle}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     {/* Lyrics for this scene */}

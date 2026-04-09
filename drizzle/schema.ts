@@ -136,6 +136,8 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   videoUrl: varchar("videoUrl", { length: 1024 }),
   videoKey: varchar("videoKey", { length: 512 }),
   errorMessage: text("errorMessage"),
+  previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
+  previewImageKey: varchar("previewImageKey", { length: 512 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
