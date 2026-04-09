@@ -1130,3 +1130,10 @@
 
 ## Feature: Google Analytics 4 (Apr 2026)
 - [x] Add GA4 gtag.js snippet (G-YJD1MG144E) to index.html head
+
+## Feature: GA4 Generate Video Event Tracking (Apr 2026)
+- [ ] Create shared analytics helper (client/src/lib/analytics.ts) with trackEvent() wrapper
+- [ ] Fire generate_video_click event on every Generate Video button across all pages
+
+## Feature: New Video Styles (Apr 2026)
+- [x] Add Neon Noir, Disney, Epic Fantasy styles to video creation flow (MusicVideoAutopilot + Autopilot, with AI-generated thumbnails)

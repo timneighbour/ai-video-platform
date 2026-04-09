@@ -22,6 +22,9 @@ const VIDEO_STYLES = [
   { id: "documentary", label: "Documentary", desc: "Authentic & raw footage" },
   { id: "abstract", label: "Abstract", desc: "Artistic visual journey" },
   { id: "vintage", label: "Vintage", desc: "Retro film aesthetic" },
+  { id: "neon_noir", label: "Neon Noir", desc: "Dark cyberpunk neon glow" },
+  { id: "disney", label: "Disney", desc: "Magical Disney animation" },
+  { id: "epic_fantasy", label: "Epic Fantasy", desc: "Dramatic magical landscapes" },
 ];
 
 const DURATIONS = [

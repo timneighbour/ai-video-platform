@@ -68,4 +68,12 @@ export const analytics = {
   onboardingCompleted: () => trackEvent("onboarding_completed"),
   downloadAttempted: (plan: string) =>
     trackEvent("download_attempted", { plan }),
+
+  /** Fire when any "Generate Video" button is clicked */
+  generateVideoClicked: (source: string, extra?: Record<string, string | number | boolean>) =>
+    trackEvent("generate_video_click", { source, ...extra }),
+
+  /** Fire when the final "Render Video" button is clicked (post-storyboard) */
+  renderVideoClicked: (source: string, extra?: Record<string, string | number | boolean>) =>
+    trackEvent("render_video_click", { source, ...extra }),
 };

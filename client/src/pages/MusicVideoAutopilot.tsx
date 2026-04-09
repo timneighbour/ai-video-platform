@@ -143,6 +143,24 @@ export default function MusicVideoAutopilot() {
       desc: "Retro film aesthetic",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-iCZFjq9buUWkDWVxu3J7Qy.webp",
     },
+    {
+      id: "neon_noir",
+      label: "Neon Noir",
+      desc: "Dark cyberpunk neon glow",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-XR46whfoD5cgi3ADa8iDDe.webp",
+    },
+    {
+      id: "disney",
+      label: "Disney",
+      desc: "Magical Disney animation",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-n4CZF3mgReCEjogjqRoDKz.webp",
+    },
+    {
+      id: "epic_fantasy",
+      label: "Epic Fantasy",
+      desc: "Dramatic magical landscapes",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp",
+    },
   ];
   const [isDragging, setIsDragging] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
