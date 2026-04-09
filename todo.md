@@ -1061,3 +1061,10 @@
 - [x] Wire banner into WizPilot prompt step (shows before generation)
 - [x] Add persistent low-credit card to DashboardLayout sidebar when balance < 20
 - [x] TypeScript check: 0 errors, 81/81 tests passing
+
+## Feature: Quick Top-Up from Low Credit Banner (Apr 2026)
+- [x] Build QuickTopUpModal: 3 standard credit packs, cost-per-video helper, Stripe checkout dispatch
+- [x] Update LowCreditBanner: "Top up credits" button opens QuickTopUpModal (not /credits redirect)
+- [x] Wire QuickTopUpModal into sidebar banner (DashboardLayout)
+- [x] Wire QuickTopUpModal into inline banners (MusicVideoAutopilot, WizPilot)
+- [x] TypeScript check: 0 errors, 81/81 tests passing, checkpoint saved
