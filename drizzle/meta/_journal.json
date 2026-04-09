@@ -71,6 +71,20 @@
       "when": 1775751708197,
       "tag": "0009_freezing_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1775754080421,
+      "tag": "0010_tough_mongu",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1775754811854,
+      "tag": "0011_unknown_ares",
+      "breakpoints": true
     }
   ]
 }

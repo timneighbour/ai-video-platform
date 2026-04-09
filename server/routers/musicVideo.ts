@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
@@ -183,6 +183,13 @@ export const musicVideoRouter = router({
         }
       }
 
+      // Fetch locked characters for this job to enforce visual consistency
+      const allCharacters = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      const lockedCharacters = allCharacters
+        .filter((c) => c.isLocked && c.lockedDescription)
+        .map((c) => ({ name: c.name, role: c.role, lockedDescription: c.lockedDescription! }));
+
       // Generate scenes via LLM — lyrics-driven if available, theme-only otherwise
       // Include character image reference in theme prompt if provided
       let enrichedThemePrompt = job.themePrompt;
@@ -199,7 +206,8 @@ export const musicVideoRouter = router({
         job.mood,
         job.audioDuration,
         job.title,
-        lyricsSegments
+        lyricsSegments,
+        lockedCharacters.length > 0 ? lockedCharacters : undefined
       ));
 
       // Delete existing scenes if regenerating
@@ -422,6 +430,13 @@ export const musicVideoRouter = router({
       // If already has a preview image, return it immediately
       if (scene.previewImageUrl) return { imageUrl: scene.previewImageUrl };
 
+      // --- Gather locked character briefs for visual fidelity enforcement ---
+      const allJobCharacters = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      const lockedBriefs = allJobCharacters
+        .filter((c) => c.isLocked && c.lockedDescription)
+        .map((c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.lockedDescription!}`);
+
       // --- Gather character reference photos ---
       // Fetch all character photos for this job, prioritising primary photos
       const characterPhotos = await db.select().from(videoCharacterPhotos)
@@ -460,10 +475,12 @@ export const musicVideoRouter = router({
       // Genre/mood from the job for consistent colour grading
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 
-      // Character instruction if photos are provided
-      const characterInstruction = referenceImages.length > 0
-        ? "The character(s) shown in the reference photo(s) must appear in this scene with the same face, hair, and appearance. Maintain character consistency."
-        : "";
+      // Character instruction: enforce locked briefs first, then photo consistency
+      const characterInstruction = lockedBriefs.length > 0
+        ? `STRICT CHARACTER CONSISTENCY — DO NOT DEVIATE: ${lockedBriefs.join(" | ")}. These characters must appear with EXACTLY this appearance: same clothing, same colours, same hairstyle, same facial features, same accessories. No changes.`
+        : referenceImages.length > 0
+          ? "The character(s) shown in the reference photo(s) must appear in this scene with the same face, hair, and appearance. Maintain character consistency."
+          : "";
 
       // Final prompt: scene prompt is the primary directive, style/mood/character are modifiers
       const imagePrompt = [
@@ -490,6 +507,113 @@ export const musicVideoRouter = router({
         if (err instanceof TRPCError && err.code === "TOO_MANY_REQUESTS") throw err;
         console.error("[generateScenePreview] Image generation failed for scene", input.sceneId, err);
         return { imageUrl: null };
+      }
+    }),
+
+  // Update lip sync setting for a single scene
+  updateSceneLipSync: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+      lipSync: z.boolean(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoScenes)
+        .set({ lipSync: input.lipSync })
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      return { success: true, sceneId: input.sceneId, lipSync: input.lipSync };
+    }),
+
+  // Update lip sync for ALL scenes in a job (global override)
+  updateAllScenesLipSync: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      lipSync: z.boolean(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoScenes)
+        .set({ lipSync: input.lipSync })
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+      return { success: true, jobId: input.jobId, lipSync: input.lipSync };
+    }),
+
+  // Regenerate a single scene video (independent, does not affect other scenes)
+  regenerateScene: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Reset scene to pending so the render loop picks it up
+      await db.update(musicVideoScenes)
+        .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+
+      // Fetch locked character briefs for this job
+      const allJobCharacters = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      const lockedBriefs = allJobCharacters
+        .filter((c) => c.isLocked && c.lockedDescription)
+        .map((c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.lockedDescription!}`);
+
+      // Fetch character reference photos
+      const characterPhotos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.jobId, input.jobId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary));
+      const referenceImages: Array<{ url: string; mimeType: string }> = [];
+      if (characterPhotos.length > 0) {
+        const seenCharacters = new Set<number>();
+        for (const photo of characterPhotos) {
+          if (!seenCharacters.has(photo.characterId) && referenceImages.length < 2) {
+            seenCharacters.add(photo.characterId);
+            referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
+          }
+        }
+      } else if (job.characterImageUrl) {
+        referenceImages.push({ url: job.characterImageUrl, mimeType: "image/jpeg" });
+      }
+
+      // Start the scene render (respects current lipSync flag on the scene)
+      // Build a character-enriched prompt if locked briefs are available
+      let enrichedPrompt = scene.prompt;
+      if (lockedBriefs.length > 0) {
+        enrichedPrompt = `${scene.prompt}. STRICT CHARACTER CONSISTENCY: ${lockedBriefs.join(" | ")}`;
+      }
+      try {
+        const taskId = await startSceneRender(input.sceneId, enrichedPrompt, scene.duration);
+        if (taskId) {
+          await db.update(musicVideoScenes)
+            .set({ status: "generating", taskId })
+            .where(eq(musicVideoScenes.id, input.sceneId));
+        }
+        return { success: true, sceneId: input.sceneId, status: "generating" };
+      } catch (err) {
+        console.error("[regenerateScene] Failed to start scene render:", err);
+        await db.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: String(err) })
+          .where(eq(musicVideoScenes.id, input.sceneId));
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to start scene regeneration" });
       }
     }),
 

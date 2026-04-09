@@ -50,6 +50,8 @@ interface SceneCard {
   videoUrl?: string | null;
   previewImageUrl?: string | null;
   previewImageLoading?: boolean;
+  lipSync: boolean;
+  regenerating?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -153,6 +155,53 @@ export default function MusicVideoAutopilot() {
   const startRender = trpc.musicVideo.startRender.useMutation();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
   const generateScenePreviewMutation = trpc.musicVideo.generateScenePreview.useMutation();
+  const saveCharactersMutation = trpc.characters.saveCharacters.useMutation();
+  const lockCharacterMutation = trpc.characters.lockCharacter.useMutation();
+  const updateSceneLipSyncMutation = trpc.musicVideo.updateSceneLipSync.useMutation();
+  const updateAllScenesLipSyncMutation = trpc.musicVideo.updateAllScenesLipSync.useMutation();
+  const regenerateSceneMutation = trpc.musicVideo.regenerateScene.useMutation();
+
+  // Global lip sync override — null means "per-scene", true/false means all scenes
+  const [globalLipSync, setGlobalLipSync] = useState<boolean | null>(null);
+
+  const handleToggleSceneLipSync = async (sceneId: number, newValue: boolean) => {
+    if (!jobId) return;
+    // Optimistic update
+    setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, lipSync: newValue } : s));
+    try {
+      await updateSceneLipSyncMutation.mutateAsync({ sceneId, jobId, lipSync: newValue });
+    } catch (err: any) {
+      // Rollback on failure
+      setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, lipSync: !newValue } : s));
+      toast.error("Failed to update lip sync", { description: err.message });
+    }
+  };
+
+  const handleGlobalLipSyncToggle = async (value: boolean) => {
+    if (!jobId) return;
+    setGlobalLipSync(value);
+    // Optimistic update all scenes
+    setScenes(prev => prev.map(s => ({ ...s, lipSync: value })));
+    try {
+      await updateAllScenesLipSyncMutation.mutateAsync({ jobId, lipSync: value });
+      toast.success(value ? "Lip sync enabled for all scenes" : "Lip sync disabled for all scenes");
+    } catch (err: any) {
+      toast.error("Failed to update lip sync", { description: err.message });
+    }
+  };
+
+  const handleRegenerateScene = async (sceneId: number) => {
+    if (!jobId) return;
+    // Mark scene as regenerating
+    setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, regenerating: true, status: "generating" } : s));
+    try {
+      await regenerateSceneMutation.mutateAsync({ sceneId, jobId });
+      toast.success("Scene regeneration started", { description: "This scene will be re-rendered independently." });
+    } catch (err: any) {
+      setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, regenerating: false, status: "failed" } : s));
+      toast.error("Failed to regenerate scene", { description: err.message });
+    }
+  };
 
   // No polling needed — transcription is a direct mutation that resolves when done
 
@@ -300,6 +349,47 @@ export default function MusicVideoAutopilot() {
 
       setJobId(result.jobId);
       setTotalScenes(result.sceneCount);
+
+      // Save characters (with photos) to the DB so the storyboard LLM can use them
+      if (characters.length > 0) {
+        try {
+          const saveResult = await saveCharactersMutation.mutateAsync({
+            jobId: result.jobId,
+            characters: characters.map((c) => ({
+              slotIndex: c.slotIndex,
+              name: c.name,
+              role: c.role,
+              enableLipSync: c.enableLipSync,
+              photos: c.photos.map((p) => ({
+                photoBase64: p.base64,
+                photoMimeType: p.mimeType,
+                isPrimary: p.isPrimary,
+              })),
+            })),
+          });
+          // Lock characters that have a locked description using the returned DB IDs
+          const savedChars = saveResult.characters;
+          for (const char of characters) {
+            if (char.isLocked && char.lockedDescription.trim()) {
+              const saved = savedChars.find((s: { slotIndex: number }) => s.slotIndex === char.slotIndex);
+              if (saved) {
+                try {
+                  await lockCharacterMutation.mutateAsync({
+                    characterId: saved.id,
+                    lockedDescription: char.lockedDescription.trim(),
+                  });
+                } catch (lockErr) {
+                  console.warn("[MusicVideoAutopilot] Failed to lock character:", lockErr);
+                }
+              }
+            }
+          }
+        } catch (charErr) {
+          console.warn("[MusicVideoAutopilot] Failed to save characters:", charErr);
+          // Non-fatal — continue with storyboard generation
+        }
+      }
+
       // Transcription was already started when the file was selected; no need to re-trigger;
 
       toast.loading("Generating storyboard...", { description: "Our AI director is crafting your scenes." });
@@ -339,6 +429,8 @@ export default function MusicVideoAutopilot() {
         videoUrl: s.videoUrl,
         previewImageUrl: s.previewImageUrl ?? null,
         previewImageLoading: !s.previewImageUrl,
+        lipSync: s.lipSync ?? true,
+        regenerating: false,
       }));
       setScenes(mappedScenes);
       // Trigger image generation for scenes that don't have a preview yet
@@ -872,6 +964,46 @@ export default function MusicVideoAutopilot() {
               </div>
             </div>
 
+            {/* Global Lip Sync Control */}
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Mic className="w-4 h-4 text-pink-400" />
+                <div>
+                  <p className="text-sm font-medium text-white">Lip Sync — All Scenes</p>
+                  <p className="text-xs text-zinc-500">Control when characters sing or stay cinematic</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`text-xs border-zinc-700 bg-transparent ${
+                    globalLipSync === false ? "border-zinc-500 text-zinc-300" : "text-zinc-500"
+                  } hover:bg-zinc-800`}
+                  onClick={() => handleGlobalLipSyncToggle(false)}
+                  disabled={updateAllScenesLipSyncMutation.isPending}
+                >
+                  <X className="w-3 h-3 mr-1" /> Off for all
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`text-xs border-zinc-700 bg-transparent ${
+                    globalLipSync === true ? "border-pink-500 text-pink-300" : "text-zinc-500"
+                  } hover:bg-zinc-800`}
+                  onClick={() => handleGlobalLipSyncToggle(true)}
+                  disabled={updateAllScenesLipSyncMutation.isPending}
+                >
+                  {updateAllScenesLipSyncMutation.isPending ? (
+                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  ) : (
+                    <Mic className="w-3 h-3 mr-1" />
+                  )}
+                  On for all
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scenes.map((scene) => (
                 <Card key={scene.id} className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors overflow-hidden">
@@ -920,6 +1052,21 @@ export default function MusicVideoAutopilot() {
                           </Badge>
                         )}
                       </div>
+                      {/* Regenerate button */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-zinc-500 hover:text-purple-300 hover:bg-zinc-800 text-xs -mr-1 shrink-0"
+                        onClick={() => handleRegenerateScene(scene.id)}
+                        disabled={scene.regenerating || regenerateSceneMutation.isPending}
+                        title="Regenerate this scene only"
+                      >
+                        {scene.regenerating ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3 h-3" />
+                        )}
+                      </Button>
                     </div>
 
                     {/* Lyrics for this scene */}
@@ -971,6 +1118,30 @@ export default function MusicVideoAutopilot() {
                         </Button>
                       </div>
                     )}
+
+                    {/* Lip Sync toggle */}
+                    <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-pink-400" : "text-zinc-600"}`} />
+                        <span className={`text-xs font-medium ${scene.lipSync ? "text-pink-300" : "text-zinc-500"}`}>
+                          Lip Sync
+                        </span>
+                        <Badge
+                          className={`text-xs px-1.5 py-0 ${
+                            scene.lipSync
+                              ? "bg-pink-900/40 text-pink-300 border-pink-800/60"
+                              : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                          }`}
+                        >
+                          {scene.lipSync ? "ON" : "OFF"}
+                        </Badge>
+                      </div>
+                      <Switch
+                        checked={scene.lipSync}
+                        onCheckedChange={(val) => handleToggleSceneLipSync(scene.id, val)}
+                        aria-label={`Lip sync for scene ${scene.sceneIndex + 1}`}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               ))}

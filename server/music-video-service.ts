@@ -106,7 +106,8 @@ export async function generateStoryboard(
   mood: string | null | undefined,
   audioDurationSeconds: number,
   title: string,
-  lyricsSegments?: Array<{ start: number; end: number; text: string }>
+  lyricsSegments?: Array<{ start: number; end: number; text: string }>,
+  lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>
 ): Promise<Array<{
   sceneIndex: number;
   startTime: number;
@@ -137,6 +138,24 @@ export async function generateStoryboard(
   ).join("\n");
 
   const hasLyrics = lyricsSegments && lyricsSegments.length > 0;
+  const hasLockedCharacters = lockedCharacters && lockedCharacters.length > 0;
+
+  // Build character consistency block for the system prompt
+  const characterConsistencyBlock = hasLockedCharacters
+    ? `
+
+⚠️ CHARACTER CONSISTENCY RULES — STRICTLY ENFORCED:
+The following characters have locked visual briefs. You MUST reference them by name in every scene where they appear.
+Do NOT change, embellish, or reinterpret their appearance. Do NOT add new characters unless instructed.
+
+${lockedCharacters!.map((c) =>
+  `CHARACTER: ${c.name}${c.role ? ` (${c.role})` : ""}
+LOCKED APPEARANCE: ${c.lockedDescription}
+RULE: Every scene must describe ${c.name} with EXACTLY this appearance. No outfit changes. No colour changes. No facial feature changes. No accessory changes.`
+).join("\n\n")}
+
+Storyboard Preview Rule: All storyboard scene prompts must reference the locked character appearance above so the user can verify consistency before confirming render.`
+    : "";
 
   const systemPrompt = `You are a professional music video director and creative director. 
 Your job is to create detailed, cinematic scene descriptions for AI video generation.
@@ -146,7 +165,7 @@ Each scene description must be:
 ${hasLyrics ? "- Visually inspired by the lyrics being sung in that scene — the imagery should reflect the words and emotions" : ""}
 - Optimised for AI video generation (clear, vivid, no abstract concepts)
 - Varied enough to create an interesting visual journey
-- Between 50-100 words each
+- Between 50-100 words each${characterConsistencyBlock}
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 

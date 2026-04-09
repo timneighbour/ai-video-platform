@@ -728,3 +728,45 @@
 - [ ] Update hero headline positioning copy site-wide
 - [ ] Wire Suno router into main routers.ts and build Suno music creator page
 - [ ] Ensure all animations are smooth, lightweight, and mobile-responsive
+
+## MVP Enhancement: Core Flow Polish (Apr 2026)
+- [ ] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
+- [ ] Smooth animated transitions between steps
+- [ ] Loading/progress indicators during storyboard generation and video rendering with % complete
+- [ ] Scene type labels on storyboard cards (Intro, Verse, Chorus, Drop, Outro)
+- [ ] Beat-sync timestamp on each storyboard scene card
+- [ ] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
+- [ ] Style preset selection: clean visual card grid (6 presets), no prompt-heavy UI
+- [ ] Optional lyric/caption sync toggle per scene
+- [ ] Export format selection: YouTube 16:9, TikTok 9:16, Instagram 1:1 with aspect ratio preview
+- [ ] Final video preview screen with format badge and download/share buttons
+- [ ] Ensure every storyboard scene shows AI-generated visual thumbnail before render
+- [ ] Add scene-based generation labels: Intro, Verse, Chorus, Drop, Outro
+
+## Character Consistency System (Apr 2026)
+- [ ] Add characterLock fields to videoCharacters DB table: lockedDescription (full visual brief text), isLocked (bool), lockedAt
+- [ ] Add tRPC procedure: characters.lockCharacter — saves full visual brief and sets isLocked=true
+- [ ] Add tRPC procedure: characters.unlockCharacter — clears lock (requires explicit user action)
+- [ ] Inject locked character brief as system-level constraint in storyboard LLM prompt (every scene must reference the locked brief)
+- [ ] Enforce character brief as prefix to every scene image generation prompt
+- [ ] Build Character Lock reference panel UI: locked character card showing name, photo, and all visual attributes (clothing, hair, colours, accessories)
+- [ ] Add lock/unlock toggle to CharacterManager with confirmation dialog on unlock
+- [ ] Add consistency warning banner when storyboard is generated without a locked character
+- [ ] Add "Character Locked" badge on each storyboard scene card when a character lock is active
+- [ ] Prevent scene image prompts from deviating from locked character description
+- [ ] Add character reference panel to storyboard review screen (always visible sidebar/header)
+- [ ] Write vitest tests for character lock/unlock procedures
+
+## Scene-Level Lip Sync Control System (Apr 2026)
+- [x] Fix TypeScript error: saveResult undefined in MusicVideoAutopilot character lock flow
+- [x] Add `lipSync` boolean field to `musicVideoScenes` DB table (default true)
+- [x] Add `updateSceneLipSync` tRPC procedure (update single scene lip sync flag)
+- [x] Add `updateAllScenesLipSync` tRPC procedure (global override for all scenes)
+- [x] Add `regenerateScene` tRPC procedure (re-render single scene with current settings)
+- [x] Build per-scene lip sync toggle UI (ON/OFF switch + badge, visible on each scene card)
+- [ ] Smart defaults: vocals detected → lip sync ON; instrumental → lip sync OFF
+- [x] Global lip sync override control ("On for all" / "Off for all" buttons in storyboard header)
+- [x] Per-scene loading indicator during independent regeneration (spinner on regenerate button)
+- [x] Preserve all other scenes when regenerating one scene
+- [x] Optimistic UI updates for lip sync toggle (instant feedback, rollback on error)
+- [x] Write vitest tests for updateSceneLipSync, updateAllScenesLipSync, regenerateScene procedures

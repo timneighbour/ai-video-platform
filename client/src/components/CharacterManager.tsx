@@ -1,14 +1,14 @@
 /**
  * CharacterManager
  * Allows users to define up to 4 named characters for a music/animation video.
- * Each character can have multiple reference photos and an optional lip sync toggle.
+ * Each character can have multiple reference photos, an optional lip sync toggle,
+ * and a Character Lock that freezes visual appearance across all scenes.
  *
- * Usage:
- *   <CharacterManager
- *     characters={characters}
- *     onChange={setCharacters}
- *     maxCharacters={4}
- *   />
+ * Character Lock Rules:
+ * - Once locked, the character's appearance is frozen for all storyboard scenes and renders.
+ * - The locked description is injected as a strict constraint into every LLM and image-gen prompt.
+ * - Unlocking does NOT erase the description — it can be re-locked with the same brief.
+ * - Saving characters recreates rows; the UI must preserve lock state across saves.
  */
 import { useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   Plus,
@@ -26,6 +27,10 @@ import {
   X,
   Star,
   Crown,
+  Lock,
+  LockOpen,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 
 export interface CharacterPhoto {
@@ -43,6 +48,10 @@ export interface Character {
   role: string;
   enableLipSync: boolean;
   photos: CharacterPhoto[];
+  /** Locked visual brief — injected into every scene prompt when isLocked=true */
+  lockedDescription: string;
+  /** Whether the character's visual appearance is locked */
+  isLocked: boolean;
 }
 
 interface CharacterManagerProps {
@@ -103,6 +112,8 @@ export function CharacterManager({
         role: "",
         enableLipSync: false,
         photos: [],
+        lockedDescription: "",
+        isLocked: false,
       },
     ]);
   };
@@ -116,6 +127,29 @@ export function CharacterManager({
 
   const updateCharacter = (slotIndex: number, patch: Partial<Character>) => {
     onChange(characters.map((c) => c.slotIndex === slotIndex ? { ...c, ...patch } : c));
+  };
+
+  const toggleLock = (slotIndex: number) => {
+    const char = characters.find((c) => c.slotIndex === slotIndex);
+    if (!char) return;
+    if (!char.isLocked) {
+      // Locking — require a description
+      if (!char.lockedDescription.trim()) {
+        toast.error("Add a visual description first", {
+          description: "Describe the character's appearance before locking (clothing, hair, colours, etc.).",
+        });
+        return;
+      }
+      updateCharacter(slotIndex, { isLocked: true });
+      toast.success(`${char.name} locked`, {
+        description: "Appearance is now frozen across all scenes and renders.",
+      });
+    } else {
+      updateCharacter(slotIndex, { isLocked: false });
+      toast.info(`${char.name} unlocked`, {
+        description: "You can now edit the appearance description.",
+      });
+    }
   };
 
   const handlePhotoFiles = useCallback(async (slotIndex: number, files: FileList | null) => {
@@ -152,7 +186,6 @@ export function CharacterManager({
     const char = characters.find((c) => c.slotIndex === slotIndex);
     if (!char) return;
     const updated = char.photos.filter((_, i) => i !== photoIndex);
-    // Ensure first photo is primary
     if (updated.length > 0 && !updated.some((p) => p.isPrimary)) {
       updated[0] = { ...updated[0], isPrimary: true };
     }
@@ -171,23 +204,56 @@ export function CharacterManager({
       {/* Character slots */}
       {characters.map((char) => {
         const colors = SLOT_COLORS[char.slotIndex] ?? SLOT_COLORS[0];
+        const isLocked = char.isLocked;
         return (
           <div
             key={char.slotIndex}
-            className={`rounded-xl border border-zinc-700 overflow-hidden transition-all ${char.photos.length > 0 ? `ring-1 ${colors.ring}` : ""}`}
+            className={`rounded-xl border overflow-hidden transition-all ${
+              isLocked
+                ? "border-emerald-600/70 ring-1 ring-emerald-500/40"
+                : char.photos.length > 0
+                  ? `ring-1 ${colors.ring} border-zinc-700`
+                  : "border-zinc-700"
+            }`}
           >
             {/* Character header */}
-            <div className={`px-4 py-3 flex items-center gap-3 ${colors.bg} border-b border-zinc-700/50`}>
-              <div className={`w-8 h-8 rounded-lg ${colors.icon} flex items-center justify-center flex-shrink-0`}>
-                {char.slotIndex === 0 ? <Crown className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-white" />}
+            <div className={`px-4 py-3 flex items-center gap-3 ${isLocked ? "bg-emerald-900/20" : colors.bg} border-b border-zinc-700/50`}>
+              <div className={`w-8 h-8 rounded-lg ${isLocked ? "bg-emerald-700" : colors.icon} flex items-center justify-center flex-shrink-0`}>
+                {isLocked
+                  ? <ShieldCheck className="w-4 h-4 text-white" />
+                  : char.slotIndex === 0
+                    ? <Crown className="w-4 h-4 text-white" />
+                    : <User className="w-4 h-4 text-white" />
+                }
               </div>
-              <Badge className={`${colors.badge} text-xs`}>{colors.label}</Badge>
+              <Badge className={`${isLocked ? "bg-emerald-900/60 text-emerald-300 border-emerald-700" : colors.badge} text-xs`}>
+                {isLocked ? "🔒 Locked" : colors.label}
+              </Badge>
+              {isLocked && (
+                <span className="text-emerald-400 text-xs font-medium">Appearance frozen</span>
+              )}
               <div className="flex-1" />
+              {/* Lock / Unlock toggle */}
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={() => toggleLock(char.slotIndex)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all border ${
+                    isLocked
+                      ? "border-emerald-600/60 bg-emerald-900/30 text-emerald-300 hover:bg-emerald-900/50"
+                      : "border-zinc-600 bg-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-400"
+                  }`}
+                  title={isLocked ? "Unlock appearance" : "Lock appearance"}
+                >
+                  {isLocked ? <Lock className="w-3 h-3" /> : <LockOpen className="w-3 h-3" />}
+                  {isLocked ? "Unlock" : "Lock"}
+                </button>
+              )}
               {!disabled && (
                 <button
                   type="button"
                   onClick={() => removeCharacter(char.slotIndex)}
-                  className="text-zinc-500 hover:text-red-400 transition-colors p-1 rounded"
+                  className="text-zinc-500 hover:text-red-400 transition-colors p-1 rounded ml-1"
                   title="Remove character"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -205,7 +271,7 @@ export function CharacterManager({
                     onChange={(e) => updateCharacter(char.slotIndex, { name: e.target.value })}
                     placeholder="e.g. Alex, Lead Singer"
                     className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-500"
-                    disabled={disabled}
+                    disabled={disabled || isLocked}
                   />
                 </div>
                 <div>
@@ -215,9 +281,58 @@ export function CharacterManager({
                     onChange={(e) => updateCharacter(char.slotIndex, { role: e.target.value })}
                     placeholder="e.g. Lead Singer, Dancer"
                     className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-500"
-                    disabled={disabled}
+                    disabled={disabled || isLocked}
                   />
                 </div>
+              </div>
+
+              {/* Character Lock Visual Brief */}
+              <div className={`rounded-lg border p-3 transition-all ${
+                isLocked
+                  ? "border-emerald-600/50 bg-emerald-900/10"
+                  : "border-zinc-700 bg-zinc-800/30"
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {isLocked
+                    ? <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                    : <LockOpen className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" />
+                  }
+                  <Label className={`text-xs font-medium ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
+                    {isLocked ? "Locked Visual Brief" : "Visual Appearance Brief"}
+                  </Label>
+                  {isLocked && (
+                    <Badge className="ml-auto text-xs bg-emerald-900/60 text-emerald-300 border-emerald-700 py-0">
+                      Enforced on all scenes
+                    </Badge>
+                  )}
+                </div>
+                <Textarea
+                  value={char.lockedDescription}
+                  onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
+                  placeholder="Describe the character's exact appearance: clothing colour and style, hair colour and length, facial features, accessories, body type, species/age. Example: 'Young woman, long red hair, wearing a black leather jacket with silver zips, blue jeans, white trainers, green eyes, freckles.'"
+                  className={`bg-zinc-900 border-zinc-700 text-sm placeholder:text-zinc-600 resize-none min-h-[80px] ${
+                    isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"
+                  }`}
+                  disabled={disabled || isLocked}
+                  rows={3}
+                />
+                {!isLocked && char.lockedDescription.trim() && (
+                  <p className="text-zinc-500 text-xs mt-1.5 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                    Click <strong className="text-zinc-300">Lock</strong> to freeze this appearance across all scenes.
+                  </p>
+                )}
+                {!isLocked && !char.lockedDescription.trim() && (
+                  <p className="text-zinc-600 text-xs mt-1.5">
+                    Describe the appearance, then lock it to enforce consistency across every scene.
+                  </p>
+                )}
+                {isLocked && (
+                  <p className="text-emerald-600 text-xs mt-1.5 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 flex-shrink-0" />
+                    This brief is injected into every storyboard scene and image generation prompt. No changes will be made to this character's appearance.
+                  </p>
+                )}
               </div>
 
               {/* Photos */}
@@ -236,7 +351,7 @@ export function CharacterManager({
                         alt={`${char.name} photo ${photoIdx + 1}`}
                         className={`w-16 h-16 rounded-lg object-cover border-2 transition-all ${
                           photo.isPrimary ? "border-yellow-500" : "border-zinc-700 group-hover:border-zinc-500"
-                        }`}
+                        } ${isLocked ? "opacity-80" : ""}`}
                       />
                       {/* Primary star */}
                       <button
@@ -253,7 +368,7 @@ export function CharacterManager({
                         <Star className="w-2.5 h-2.5" fill={photo.isPrimary ? "currentColor" : "none"} />
                       </button>
                       {/* Remove button */}
-                      {!disabled && (
+                      {!disabled && !isLocked && (
                         <button
                           type="button"
                           onClick={() => removePhoto(char.slotIndex, photoIdx)}
@@ -267,7 +382,7 @@ export function CharacterManager({
                   ))}
 
                   {/* Add photo button */}
-                  {!disabled && char.photos.length < 10 && (
+                  {!disabled && !isLocked && char.photos.length < 10 && (
                     <button
                       type="button"
                       onClick={() => photoInputRefs.current[char.slotIndex]?.click()}

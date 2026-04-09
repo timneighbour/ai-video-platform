@@ -29,4 +29,16 @@ describe("Music Video Service", () => {
     expect(musicVideoRouter).toBeDefined();
     expect(typeof musicVideoRouter).toBe("object");
   });
+
+  it("musicVideoRouter has updateSceneLipSync procedure", () => {
+    expect(musicVideoRouter._def.procedures.updateSceneLipSync).toBeDefined();
+  });
+
+  it("musicVideoRouter has updateAllScenesLipSync procedure", () => {
+    expect(musicVideoRouter._def.procedures.updateAllScenesLipSync).toBeDefined();
+  });
+
+  it("musicVideoRouter has regenerateScene procedure", () => {
+    expect(musicVideoRouter._def.procedures.regenerateScene).toBeDefined();
+  });
 });

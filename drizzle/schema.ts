@@ -138,6 +138,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   errorMessage: text("errorMessage"),
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
   previewImageKey: varchar("previewImageKey", { length: 512 }),
+  lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -165,6 +166,10 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   role: varchar("role", { length: 255 }), // e.g. "Lead Singer", "Dancer"
   enableLipSync: boolean("enableLipSync").default(false),
   slotIndex: int("slotIndex").notNull().default(0), // 0-3 for up to 4 characters
+  // Character Lock — once locked, appearance is enforced across all scenes
+  lockedDescription: text("lockedDescription"), // Full visual brief: clothing, hair, colours, accessories, etc.
+  isLocked: boolean("isLocked").default(false), // When true, brief is enforced in every scene prompt
+  lockedAt: timestamp("lockedAt"), // When the lock was applied
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

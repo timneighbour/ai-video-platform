@@ -169,6 +169,54 @@ export const charactersRouter = router({
       return { success: true };
     }),
 
+  // Lock a character's visual brief — enforces appearance consistency across all scenes
+  lockCharacter: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      lockedDescription: z.string().min(10).max(2000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await db.update(videoCharacters)
+        .set({
+          lockedDescription: input.lockedDescription,
+          isLocked: true,
+          lockedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      return { success: true, isLocked: true };
+    }),
+
+  // Unlock a character's visual brief — allows editing again
+  unlockCharacter: protectedProcedure
+    .input(z.object({ characterId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await db.update(videoCharacters)
+        .set({
+          isLocked: false,
+          lockedAt: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      return { success: true, isLocked: false };
+    }),
+
   // Delete a character and all its photos
   deleteCharacter: protectedProcedure
     .input(z.object({ characterId: z.number().int() }))
