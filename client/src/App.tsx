@@ -16,6 +16,10 @@ import VideoToVideo from "./pages/tools/VideoToVideo";
 import Voiceover from "./pages/tools/Voiceover";
 import Autopilot from "./pages/Autopilot"; // WizPilot page
 import MusicVideoAutopilot from "./pages/MusicVideoAutopilot";
+import Pricing from "./pages/Pricing";
+import Onboarding from "./pages/Onboarding";
+import Help from "./pages/Help";
+import SeoLandingPage from "./pages/SeoLandingPage";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -34,6 +38,10 @@ function Router() {
       <Route path={"/wizpilot"} component={Autopilot} />
       <Route path={"/autopilot"} component={Autopilot} />{/* backward compat redirect */}
       <Route path={"/music-video"} component={MusicVideoAutopilot} />
+      <Route path={"/pricing"} component={Pricing} />
+      <Route path={"/onboarding"} component={Onboarding} />
+      <Route path={"/help"} component={Help} />
+      <Route path={"/seo/:slug"} component={SeoLandingPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -78,7 +78,7 @@ export const projects = mysqlTable("projects", {
   userId: int("userId").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  toolType: mysqlEnum("toolType", ["text_to_video", "lip_sync", "video_to_video", "voiceover"]).notNull(),
+  toolType: mysqlEnum("toolType", ["text_to_video", "lip_sync", "video_to_video", "voiceover", "musetalk_lip_sync", "seedance_t2v", "seedance_i2v"]).notNull(),
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
   taskId: varchar("taskId", { length: 255 }).notNull(),
   apiProvider: varchar("apiProvider", { length: 64 }).notNull(),

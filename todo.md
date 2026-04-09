@@ -294,3 +294,192 @@
 - [ ] Frontend: Remove manual duration input — duration is auto-detected from uploaded audio
 - [ ] Frontend: Show "Transcribing lyrics..." loading state after upload
 - [ ] DB migration: add `lyrics` text column to music_video_scenes table
+
+## Logo & Video Integration
+- [ ] Replace old logo with new WizVid wizard hat logo image in navbar, hero, footer, and CTA section
+- [ ] Add animated logo video (10s, with audio) as hero intro on landing page — autoplay muted, click to unmute
+- [ ] Update favicon to use new logo
+- [ ] Audit all video elements site-wide and ensure autoplay + loop on all decorative/preview videos
+- [ ] Switch Seedance integration from Volcengine Ark to fal.ai (requires FAL_AI_API_KEY secret)
+- [ ] Update index.html meta tags to remove Seedance 2.0 references
+
+## MuseTalk Lip-Sync via fal.ai
+- [ ] Research fal.ai MuseTalk API endpoint and request format
+- [ ] Implement fal.ai client (musetalk.ts) with text-to-video and lip-sync methods
+- [ ] Switch Seedance integration to fal.ai (fal-ai/seedance or similar model)
+- [ ] Update LipSync.tsx tool page to use MuseTalk via fal.ai (real generation, not mock)
+- [ ] Add MuseTalk lip-sync option to Music Video creator (optional face video + audio sync)
+- [ ] Add FAL_AI_API_KEY secret via webdev_request_secrets
+- [ ] Update landing page tool description to mention MuseTalk for lip-sync
+- [ ] Add MuseTalk to AI API tests
+
+## Character-Driven Music Video Feature
+- [ ] Character reference pack UI: up to 4 characters per music video
+- [ ] Per-character: name, type (real/animated), gender, role (lead/backing/featured/non-singing), singing flag
+- [ ] Per-character: up to 8 reference images (different angles, outfits, costumes)
+- [ ] Image upload for each character reference pack via /api/video/upload
+- [ ] Store characters in musicVideoJobs.charactersJson field (DB migration)
+- [ ] Pass character data to storyboard AI prompt for scene assignment
+- [ ] AI assigns characters to scenes in storyboard generation
+- [ ] Singing characters get MuseTalk lip-sync applied during render phase
+- [ ] Non-singing characters get image-to-video motion via Kling/Seedance
+- [ ] Animated characters use style-consistent generation prompts
+
+## WizBeat Music Video Maker & Navigation
+- [ ] Rename Music Video Autopilot feature to "WizBeat" throughout the app
+- [ ] Add sticky top navigation to landing page with links: Home, WizBeat, Tools, Pricing, Sign In
+- [ ] Add mobile hamburger menu to landing page navigation
+- [ ] Build WizBeat landing section: cinematic hero with artist/band showcase images
+- [ ] Generate Pixar-style animated character showcase images for WizBeat section
+- [ ] Generate cinematic artist/band showcase images for WizBeat section
+- [ ] Upload all WizBeat showcase images to CDN
+- [ ] Add WizBeat to main app navigation (dashboard sidebar)
+- [ ] Character reference pack UI: up to 4 characters per music video
+- [ ] Per-character: name, type (real/animated), gender, role, singing flag
+- [ ] Per-character: up to 8 reference images (angles, outfits, costumes)
+- [ ] Wire characters into storyboard AI prompt for scene assignment
+- [ ] Singing characters get MuseTalk lip-sync during render
+- [ ] Switch Seedance integration to fal.ai (Seedance 1.5 Pro)
+- [ ] Fix logo: use new WizVid logo image in navbar, footer, CTA section
+- [ ] Add logo video as hero intro (autoplay muted, click for audio)
+- [ ] Fix all video elements site-wide: autoplay + loop + playsInline
+- [ ] Add MuseTalk lip-sync engine option to Lip-Sync tool page
+
+## Homepage Cinematic Rebuild
+- [ ] Source cinematic background video clips from Pexels/Pixabay (concert lights, AI visuals, music)
+- [ ] Upload hero background video to CDN
+- [ ] Full-screen cinematic hero: looping background video, dark overlay, WizVid animated logo centred
+- [ ] Hero headline: bold, single impactful statement for artists/bands
+- [ ] Two hero CTAs: "Make a Music Video" and "Explore Tools"
+- [ ] Sticky frosted-glass navigation: Logo, WizBeat, Tools, Pricing, Sign In, mobile hamburger
+- [ ] Lean below-fold: WizBeat teaser, Tools grid, Social proof, Pricing — no walls of text
+- [ ] Demo video section: YouTube embed thumbnails from Kling AI, Runway, HeyGen official channels
+- [ ] Mobile-first responsive design for all new sections
+
+## Homepage Cinematic Rebuild
+- [ ] Source cinematic background video clips from Pexels/Pixabay (concert lights, AI visuals, music)
+- [ ] Upload hero background video to CDN
+- [ ] Full-screen cinematic hero: looping background video, dark overlay, WizVid animated logo centred
+- [ ] Hero headline: bold, single impactful statement for artists/bands
+- [ ] Two hero CTAs: Make a Music Video (WizBeat) and Create Any Video (WizPilot)
+- [ ] Sticky frosted-glass navigation: Logo, WizBeat, WizPilot, Tools, Pricing, Sign In, mobile hamburger
+- [ ] WizBeat section: cinematic artist/band showcase with animated characters
+- [ ] WizPilot section: general video creation showcase
+- [ ] Demo video section: YouTube embed thumbnails from Kling AI, Runway, HeyGen official channels
+- [ ] Lean below-fold: Tools grid, Social proof, Pricing
+- [ ] Mobile-first responsive design for all new sections
+
+## Suno AI Music Generation
+- [ ] Research Suno API availability (official API vs third-party)
+- [ ] Add Suno music generation step to WizBeat flow (generate song from prompt)
+- [ ] If no official API: build guided Suno import workflow (user generates on Suno, imports audio URL)
+- [ ] Add SUNO_API_KEY secret if API available
+- [ ] Wire Suno-generated audio directly into WizBeat storyboard pipeline
+
+## Homepage 9-Point Fix
+- [ ] Headline: "Create AI Music Videos & Animations in Minutes — No Editing Needed"
+- [ ] Audience callouts: Musicians, YouTubers, AI Creators
+- [ ] USP statement: "Create full AI music videos — not just clips"
+- [ ] Single primary CTA everywhere: "Create Your First Video"
+- [ ] Autoplay cinematic hero reel (background video loop)
+- [ ] Demo video gallery with YouTube embeds from Kling/Runway/HeyGen
+- [ ] Social proof section: "Trusted by X creators" + testimonial cards
+- [ ] SEO meta tags: "AI music video generator", "AI animation video maker"
+- [ ] Wizard/magic transformation branding: Idea → Video journey throughout
+
+## Pricing Update
+- [ ] Starter: £19/month — limited videos, watermark
+- [ ] Pro: £49/month (main sell) — unlimited videos, no watermark, faster rendering
+- [ ] Creator+: £99/month — priority processing, premium styles, early features
+- [ ] Core offer statement: "Create 30 videos per month without editing"
+- [ ] Update Stripe products/prices to match GBP tiers
+
+## SEO Implementation
+- [ ] Meta title: "AI Music Video Generator | Create Videos Instantly with AI | WizVid"
+- [ ] Meta description: "Create AI music videos and animations in minutes. Turn your ideas or audio into full videos instantly with WizVid. No editing needed. Start free today."
+- [ ] H1: "Create AI Music Videos & Animations in Minutes"
+- [ ] SEO paragraph on homepage
+- [ ] Primary keywords in page content: AI music video generator, create music video with AI, AI animation video maker
+- [ ] Long-tail keywords in section headings and copy
+- [ ] CTA SEO line everywhere: "Create your first AI video now — no editing required."
+
+## SEO Landing Pages
+- [ ] /create-music-video-with-ai — "create music video with AI"
+- [ ] /ai-video-generator-for-youtube — "AI video generator for YouTube creators"
+- [ ] /ai-kids-video-generator — "AI kids video generator"
+- [ ] /ai-animation-video-maker — "AI animation video maker"
+- [ ] /turn-audio-into-video-ai — "turn audio into video AI"
+- [ ] Each page: H1, intro, H2 steps, H2 why, H2 best tool, CTA, demo video embed, internal links
+- [ ] sitemap.xml with all pages
+- [ ] robots.txt
+
+## Programmatic SEO (50 Pages)
+- [ ] Dynamic SEO route /seo/:slug rendering master template
+- [ ] All 50 keyword pages from the master list
+- [ ] Internal links between all pages
+- [ ] Demo video embed on every page
+- [ ] sitemap.xml listing all 50 URLs + main pages
+- [ ] robots.txt with sitemap reference
+
+
+## Multilingual Support (i18n)
+- [ ] Install i18next + react-i18next + i18next-browser-languagedetector
+- [ ] Create translation files for EN, ES, PT-BR, FR (all key UI strings)
+- [ ] Add LanguageSelector component to nav (flags + language names dropdown)
+- [ ] Auto-detect browser language on first visit
+- [ ] Persist language choice in localStorage
+- [ ] Integrate i18n into Home.tsx nav, hero, and key sections
+
+## Customer Support System
+- [ ] Add Crisp live chat widget to all pages (bottom right)
+- [ ] Build /help page with FAQ help centre
+- [ ] Add support email support@wizvid.ai reference in help page
+- [ ] Add help link in nav and footer
+
+## Onboarding Flow
+- [ ] Build /onboarding page: goal selection screen
+- [ ] Step 1-3 guided creation flow
+- [ ] First success moment with download + create another
+- [ ] Redirect new users to /onboarding after first login
+- [ ] Mobile responsive, minimal, one action per screen
+
+## WizBeat Character Reference Packs
+- [ ] Add character panel to MusicVideoAutopilot (up to 4 characters)
+- [ ] Per character: name, type, gender, role, singing flag, up to 8 images
+- [ ] Pass character data to storyboard AI prompt
+- [ ] Apply MuseTalk lip-sync to singing characters
+
+## Suno AI Integration
+- [ ] Add Suno API key secret
+- [ ] Create server/ai-apis/suno.ts
+- [ ] Add Generate Song with AI option to WizBeat
+
+## Homepage Cinematic Rebuild
+- [ ] Rebuild Home.tsx with full-screen cinematic hero
+- [ ] Sticky frosted-glass nav with language selector
+- [ ] All 9 sections (hero, what it does, who its for, USP, how it works, WizBeat, WizPilot, social proof, pricing)
+- [ ] GBP pricing tiers (Starter 19, Pro 49, Creator+ 99)
+- [ ] SEO meta tags throughout
+
+## Programmatic SEO (50 Pages)
+- [ ] Register /seo/:slug route in App.tsx
+- [ ] sitemap.xml and robots.txt created
+
+## Pricing & Monetisation System (Task: Apr 9 2026)
+- [x] Create /pricing page with 3 GBP tiers (Starter £19, Pro £49, Creator+ £99)
+- [x] Annual billing toggle with 33% discount
+- [x] Pro plan highlighted as "Most Popular" with visual emphasis
+- [x] Feature comparison table (Starter vs Pro vs Creator+)
+- [x] Add-on video packs section (£5, £10, £20)
+- [x] Pricing FAQ section
+- [x] Final CTA section on pricing page
+- [x] Create /onboarding page with 3-step guided flow
+- [x] Onboarding: creator type selection (Musician, YouTuber, Kids, AI Creator)
+- [x] Onboarding: free trial benefits screen
+- [x] Onboarding: sign-up / start creating CTA
+- [x] Rebuild Home.tsx with cinematic 9-section design
+- [x] Register /pricing, /onboarding, /help, /seo/:slug routes in App.tsx
+- [ ] Wire Pricing page CTAs to Stripe checkout (via /subscribe)
+- [ ] Add upgrade trigger modals when user hits video limit
+- [ ] Add upgrade prompt on video download for free/starter users
+- [ ] Update Stripe products to match GBP pricing tiers

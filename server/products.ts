@@ -1,6 +1,6 @@
 /**
  * Stripe Products & Pricing Configuration
- * Centralized definitions for subscription plans and credit packs
+ * WizVid GBP pricing: Starter £19 | Pro £49 (Most Popular) | Creator+ £99
  */
 
 /** Free trial credits granted to every new user on first sign-up */
@@ -8,71 +8,114 @@ export const FREE_TRIAL_CREDITS = 50;
 
 export const SUBSCRIPTION_PLANS = {
   free: {
-    name: "Free",
+    name: "Free Trial",
     pricePerMonth: 0,
     pricePerYear: 0,
     credits: 50,
+    videosPerMonth: 2,
     has4K: false,
     hasApiAccess: false,
-    features: ["50 trial credits", "All AI tools", "Standard quality", "Watermarked output"],
+    popular: false,
+    features: [
+      "2 free videos (watermarked)",
+      "All AI tools",
+      "Standard quality",
+      "WizBeat music video maker",
+      "WizPilot AI video creator",
+    ],
     stripePriceId: null,
     stripeAnnualPriceId: null,
   },
   starter: {
     name: "Starter",
     pricePerMonth: 19,
-    pricePerYear: 153, // 19 * 12 * 0.67 = ~£153/yr (33% off)
-    credits: 1000,
+    pricePerYear: 152, // £19 × 8 = £152/yr (save 33%)
+    credits: 600,
+    videosPerMonth: 20,
     has4K: false,
     hasApiAccess: false,
-    features: ["1,000 credits/month", "Standard quality", "Watermark-free", "Priority queue", "Free storyboard generation"],
+    popular: false,
+    features: [
+      "Up to 20 videos per month",
+      "All 6 AI video styles",
+      "WizBeat music video maker",
+      "WizPilot AI video creator",
+      "Standard generation speed",
+      "Watermark on videos",
+      "Cancel anytime",
+    ],
     stripePriceId: process.env.STRIPE_STARTER_PRICE_ID || "price_starter_placeholder",
     stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || "price_starter_annual_placeholder",
   },
   pro: {
     name: "Pro",
     pricePerMonth: 49,
-    pricePerYear: 394, // 49 * 12 * 0.67 = ~£394/yr (33% off)
-    credits: 3000,
+    pricePerYear: 392, // £49 × 8 = £392/yr (save 33%)
+    credits: 99999,
+    videosPerMonth: -1, // unlimited
     has4K: true,
     hasApiAccess: false,
-    features: ["3,000 credits/month", "4K upscaling included", "Commercial license", "Early access to new models", "Free storyboard generation"],
+    popular: true,
+    features: [
+      "Unlimited videos per month",
+      "No watermark",
+      "Faster generation speed",
+      "4K quality export",
+      "All 6 AI video styles + premium styles",
+      "MuseTalk lip-sync for characters",
+      "Priority support",
+      "Cancel anytime",
+    ],
     stripePriceId: process.env.STRIPE_PRO_PRICE_ID || "price_pro_placeholder",
     stripeAnnualPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || "price_pro_annual_placeholder",
   },
-  business: {
-    name: "Business",
-    pricePerMonth: 149,
-    pricePerYear: 1198, // 149 * 12 * 0.67 = ~£1198/yr (33% off)
-    credits: 10000,
+  creator_plus: {
+    name: "Creator+",
+    pricePerMonth: 99,
+    pricePerYear: 792, // £99 × 8 = £792/yr (save 33%)
+    credits: 99999,
+    videosPerMonth: -1, // unlimited
     has4K: true,
     hasApiAccess: true,
-    features: ["10,000 credits/month", "4K upscaling included", "API access", "Team collaboration", "Dedicated support", "Free storyboard generation"],
-    stripePriceId: process.env.STRIPE_BUSINESS_PRICE_ID || "price_business_placeholder",
-    stripeAnnualPriceId: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || "price_business_annual_placeholder",
+    popular: false,
+    features: [
+      "Everything in Pro",
+      "Priority rendering (2× faster)",
+      "Premium exclusive styles",
+      "Early access to new features",
+      "Highest quality output",
+      "API access for automation",
+      "Dedicated account support",
+      "Cancel anytime",
+    ],
+    stripePriceId: process.env.STRIPE_CREATOR_PLUS_PRICE_ID || "price_creator_plus_placeholder",
+    stripeAnnualPriceId: process.env.STRIPE_CREATOR_PLUS_ANNUAL_PRICE_ID || "price_creator_plus_annual_placeholder",
   },
 } as const;
 
 export const CREDIT_PACKS = {
   small: {
-    name: "Small",
-    price: 10,
-    credits: 500,
-    costPerCredit: 0.02,
+    name: "Video Boost Pack",
+    description: "5 extra videos",
+    price: 5,
+    credits: 150,
+    costPerCredit: 0.033,
     stripePriceId: process.env.STRIPE_SMALL_PACK_PRICE_ID || "price_small_pack_placeholder",
   },
   medium: {
-    name: "Medium",
-    price: 25,
-    credits: 1500,
-    costPerCredit: 0.0167,
+    name: "Creator Pack",
+    description: "15 extra videos",
+    price: 10,
+    credits: 450,
+    costPerCredit: 0.022,
     stripePriceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID || "price_medium_pack_placeholder",
   },
   large: {
-    name: "Large",
-    price: 60,
-    credits: 4000,
-    costPerCredit: 0.015,
+    name: "Pro Pack",
+    description: "40 extra videos",
+    price: 20,
+    credits: 1200,
+    costPerCredit: 0.017,
     stripePriceId: process.env.STRIPE_LARGE_PACK_PRICE_ID || "price_large_pack_placeholder",
   },
 } as const;
@@ -80,23 +123,14 @@ export const CREDIT_PACKS = {
 export type SubscriptionPlan = keyof typeof SUBSCRIPTION_PLANS;
 export type CreditPack = keyof typeof CREDIT_PACKS;
 
-/**
- * Get subscription plan details by key
- */
 export function getSubscriptionPlan(plan: SubscriptionPlan) {
   return SUBSCRIPTION_PLANS[plan];
 }
 
-/**
- * Get credit pack details by key
- */
 export function getCreditPack(pack: CreditPack) {
   return CREDIT_PACKS[pack];
 }
 
-/**
- * Get all paid subscription plans as array (excludes free)
- */
 export function getAllSubscriptionPlans() {
   return Object.entries(SUBSCRIPTION_PLANS).map(([key, value]) => ({
     id: key,
@@ -104,9 +138,6 @@ export function getAllSubscriptionPlans() {
   }));
 }
 
-/**
- * Get all credit packs as array
- */
 export function getAllCreditPacks() {
   return Object.entries(CREDIT_PACKS).map(([key, value]) => ({
     id: key,
@@ -114,16 +145,14 @@ export function getAllCreditPacks() {
   }));
 }
 
-/**
- * Check if a plan includes 4K export
- */
 export function planHas4K(plan: SubscriptionPlan): boolean {
   return SUBSCRIPTION_PLANS[plan].has4K;
 }
 
-/**
- * Check if a plan includes API access
- */
 export function planHasApiAccess(plan: SubscriptionPlan): boolean {
   return SUBSCRIPTION_PLANS[plan].hasApiAccess;
+}
+
+export function planIsUnlimited(plan: SubscriptionPlan): boolean {
+  return SUBSCRIPTION_PLANS[plan].videosPerMonth === -1;
 }

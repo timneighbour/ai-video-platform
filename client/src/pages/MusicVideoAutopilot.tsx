@@ -681,6 +681,9 @@ export default function MusicVideoAutopilot() {
                     <video
                       src={finalVideoUrl}
                       controls
+                      autoPlay
+                      loop
+                      playsInline
                       className="w-full rounded-xl mb-6 max-h-80 bg-black"
                     />
 

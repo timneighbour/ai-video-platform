@@ -1,26 +1,151 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Sparkles, Zap, Upload } from "lucide-react";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Sparkles, Zap, Upload, Video, Mic, CheckCircle2, ExternalLink } from "lucide-react";
+import { useState, useRef } from "react";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+
+type Engine = "musetalk" | "heygen";
+
+const ENGINE_INFO: Record<Engine, { label: string; badge: string; description: string; inputLabel: string; inputHint: string; accepts: string; creditCost: number }> = {
+  musetalk: {
+    label: "MuseTalk (fal.ai)",
+    badge: "Recommended",
+    description: "Audio-driven lip-sync using MuseTalk. Upload a video with a visible face and any audio track — the face is animated to match the audio in real time.",
+    inputLabel: "Source Video",
+    inputHint: "MP4, MOV, WebM with a clear face visible — up to 100MB",
+    accepts: "video/*",
+    creditCost: 75,
+  },
+  heygen: {
+    label: "HeyGen Avatar",
+    badge: "Avatar-based",
+    description: "Generate a talking avatar video using HeyGen. Provide a script and HeyGen will render a photorealistic avatar speaking your text.",
+    inputLabel: "Avatar Image",
+    inputHint: "PNG, JPG portrait — up to 10MB",
+    accepts: "image/*",
+    creditCost: 75,
+  },
+};
 
 export default function LipSync() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const [engine, setEngine] = useState<Engine>("musetalk");
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [projectId, setProjectId] = useState<number | null>(null);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
 
-  const estimatedCredits = 150;
+  const sourceInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+
+  const info = ENGINE_INFO[engine];
+
+  const uploadFileMutation = trpc.video.getUploadUrl.useMutation();
+  const generateMutation = trpc.video.generate.useMutation({
+    onSuccess: (data: { projectId: number; taskId: string; status: string; creditCost: number }) => {
+      setProjectId(data.projectId);
+      toast.success("Lip-sync job started! Polling for results…");
+      pollStatus(data.projectId);
+    },
+    onError: (err: { message?: string }) => {
+      toast.error(err.message || "Generation failed");
+      setGenerating(false);
+    },
+  });
+
+  const statusQuery = trpc.video.getStatus.useQuery(
+    { projectId: projectId! },
+    { enabled: false }
+  );
+
+  const pollStatus = (pid: number) => {
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      try {
+        const result = await statusQuery.refetch();
+        const data = result.data;
+        if (data?.status === "completed" && data.videoUrl) {
+          clearInterval(interval);
+          setResultUrl(data.videoUrl);
+          setGenerating(false);
+          toast.success("Lip-sync complete!");
+        } else if (data?.status === "failed") {
+          clearInterval(interval);
+          setGenerating(false);
+          toast.error("Generation failed. Please try again.");
+        } else if (attempts > 60) {
+          clearInterval(interval);
+          setGenerating(false);
+          toast.error("Timed out waiting for result.");
+        }
+      } catch {
+        // keep polling
+      }
+    }, 5000);
+  };
 
   const handleGenerate = async () => {
-    if (!imageFile || !audioFile) return;
+    if (!sourceFile || !audioFile) {
+      toast.error("Please upload both files before generating.");
+      return;
+    }
+    if (!isAuthenticated) {
+      toast.error("Please sign in to generate videos.");
+      return;
+    }
+
     setGenerating(true);
-    // TODO: Implement actual generation
-    setTimeout(() => setGenerating(false), 2000);
+    setResultUrl(null);
+
+    try {
+      // Upload source file via server-side proxy
+      const sourceUpload = await uploadFileMutation.mutateAsync({ fileName: sourceFile.name, fileType: sourceFile.type });
+      const sourceFormData = new FormData();
+      sourceFormData.append("file", sourceFile);
+      const sourceRes = await fetch(sourceUpload.uploadUrl, { method: "POST", body: sourceFormData });
+      if (!sourceRes.ok) throw new Error("Source file upload failed");
+      const sourceData = await sourceRes.json();
+      const resolvedSourceUrl = sourceData.url || sourceUpload.fileUrl;
+
+      // Upload audio file via server-side proxy
+      const audioUpload = await uploadFileMutation.mutateAsync({ fileName: audioFile.name, fileType: audioFile.type });
+      const audioFormData = new FormData();
+      audioFormData.append("file", audioFile);
+      const audioRes = await fetch(audioUpload.uploadUrl, { method: "POST", body: audioFormData });
+      if (!audioRes.ok) throw new Error("Audio file upload failed");
+      const audioData = await audioRes.json();
+      const resolvedAudioUrl = audioData.url || audioUpload.fileUrl;
+
+      // Submit generation job
+      if (engine === "musetalk") {
+        await generateMutation.mutateAsync({
+          toolType: "musetalk_lip_sync",
+          prompt: "Lip-sync the face in the video to the provided audio",
+          videoUrl: resolvedSourceUrl,
+          audioUrl: resolvedAudioUrl,
+        });
+      } else {
+        await generateMutation.mutateAsync({
+          toolType: "lip_sync",
+          prompt: "Generate talking avatar",
+          imageUrl: resolvedSourceUrl,
+          audioUrl: resolvedAudioUrl,
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      toast.error(message);
+      setGenerating(false);
+    }
   };
 
   return (
@@ -37,47 +162,93 @@ export default function LipSync() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="container py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Input Section */}
           <div className="lg:col-span-2 space-y-6">
+
+            {/* Engine Selector */}
             <Card className="border-border/40 bg-card/50 backdrop-blur">
               <CardHeader>
-                <CardTitle>Upload Image</CardTitle>
-                <CardDescription>Upload a portrait image or avatar for lip-syncing</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-accent" />
+                  Lip-Sync Engine
+                </CardTitle>
+                <CardDescription>Choose the AI engine for your lip-sync</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {(Object.entries(ENGINE_INFO) as [Engine, typeof ENGINE_INFO[Engine]][]).map(([key, eng]) => (
+                    <button
+                      key={key}
+                      onClick={() => { setEngine(key); setSourceFile(null); setAudioFile(null); setResultUrl(null); }}
+                      className={`relative rounded-xl border-2 p-4 text-left transition-all ${
+                        engine === key
+                          ? "border-accent bg-accent/10"
+                          : "border-border/40 bg-card/30 hover:border-accent/40"
+                      }`}
+                    >
+                      {engine === key && (
+                        <CheckCircle2 className="absolute top-3 right-3 h-4 w-4 text-accent" />
+                      )}
+                      <div className="flex items-center gap-2 mb-1">
+                        {key === "musetalk" ? <Video className="h-4 w-4 text-accent" /> : <Mic className="h-4 w-4 text-purple-400" />}
+                        <span className="font-semibold text-sm text-foreground">{eng.label}</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs mb-2">{eng.badge}</Badge>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{eng.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Source File Upload */}
+            <Card className="border-border/40 bg-card/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Upload {info.inputLabel}</CardTitle>
+                <CardDescription>{info.inputHint}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center hover:border-accent/50 transition-colors cursor-pointer">
+                <div
+                  className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center hover:border-accent/50 transition-colors cursor-pointer"
+                  onClick={() => sourceInputRef.current?.click()}
+                >
                   <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="font-medium text-foreground">Drop image here or click to upload</p>
-                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</p>
+                  <p className="font-medium text-foreground">Drop {info.inputLabel.toLowerCase()} here or click to upload</p>
+                  <p className="text-xs text-muted-foreground mt-1">{info.inputHint}</p>
                   <input
+                    ref={sourceInputRef}
                     type="file"
-                    accept="image/*"
+                    accept={info.accepts}
                     className="hidden"
-                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                    onChange={(e) => setSourceFile(e.target.files?.[0] || null)}
                   />
                 </div>
-                {imageFile && (
-                  <p className="text-sm text-accent mt-3">✓ {imageFile.name}</p>
+                {sourceFile && (
+                  <p className="text-sm text-accent mt-3">✓ {sourceFile.name}</p>
                 )}
               </CardContent>
             </Card>
 
+            {/* Audio Upload */}
             <Card className="border-border/40 bg-card/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Upload Audio</CardTitle>
-                <CardDescription>Upload audio or video with audio for lip-syncing</CardDescription>
+                <CardDescription>The audio track to lip-sync to — MP3, WAV, M4A up to 50MB</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center hover:border-accent/50 transition-colors cursor-pointer">
+                <div
+                  className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center hover:border-accent/50 transition-colors cursor-pointer"
+                  onClick={() => audioInputRef.current?.click()}
+                >
                   <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="font-medium text-foreground">Drop audio here or click to upload</p>
                   <p className="text-xs text-muted-foreground mt-1">MP3, WAV, M4A up to 50MB</p>
                   <input
+                    ref={audioInputRef}
                     type="file"
-                    accept="audio/*,video/*"
+                    accept="audio/*"
                     className="hidden"
                     onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
                   />
@@ -88,26 +259,33 @@ export default function LipSync() {
               </CardContent>
             </Card>
 
-            <Card className="border-border/40 bg-card/50 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Advanced Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Sync Intensity</label>
-                  <Select defaultValue="normal">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="subtle">Subtle</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="intense">Intense</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Result */}
+            {resultUrl && (
+              <Card className="border-accent/40 bg-accent/5 backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-accent">
+                    <CheckCircle2 className="h-5 w-5" />
+                    Lip-Sync Complete
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <video
+                    src={resultUrl}
+                    controls
+                    autoPlay
+                    loop
+                    playsInline
+                    className="w-full rounded-lg"
+                  />
+                  <Button variant="outline" className="w-full gap-2" asChild>
+                    <a href={resultUrl} download target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4" />
+                      Download Video
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -121,20 +299,22 @@ export default function LipSync() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-3xl font-bold text-foreground">{estimatedCredits}</p>
+                  <p className="text-3xl font-bold text-foreground">{info.creditCost}</p>
                   <p className="text-sm text-muted-foreground">credits</p>
                 </div>
                 <Button
                   className="w-full gap-2 mt-4"
                   onClick={handleGenerate}
-                  disabled={!imageFile || !audioFile || generating}
+                  disabled={!sourceFile || !audioFile || generating}
                 >
                   <Sparkles className="h-4 w-4" />
-                  {generating ? "Processing..." : "Create Avatar"}
+                  {generating ? "Processing…" : "Create Lip-Sync"}
                 </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  Available: 2,500 credits
-                </p>
+                {generating && (
+                  <p className="text-xs text-muted-foreground text-center animate-pulse">
+                    This typically takes 30–90 seconds…
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -143,10 +323,22 @@ export default function LipSync() {
                 <CardTitle className="text-sm">Requirements</CardTitle>
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-2">
-                <p>✓ Clear face visible in image</p>
-                <p>✓ Good lighting preferred</p>
-                <p>✓ Audio with clear speech</p>
-                <p>✓ Minimum 2 seconds audio</p>
+                {engine === "musetalk" ? (
+                  <>
+                    <p>✓ Clear face visible in video</p>
+                    <p>✓ Face should be mostly front-facing</p>
+                    <p>✓ Good lighting preferred</p>
+                    <p>✓ Audio with clear speech or music</p>
+                    <p>✓ Minimum 2 seconds audio</p>
+                  </>
+                ) : (
+                  <>
+                    <p>✓ Clear face visible in image</p>
+                    <p>✓ Good lighting preferred</p>
+                    <p>✓ Audio with clear speech</p>
+                    <p>✓ Minimum 2 seconds audio</p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

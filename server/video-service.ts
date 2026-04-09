@@ -10,11 +10,12 @@ import { initKlingAI } from "./ai-apis/kling";
 import { initHeyGen } from "./ai-apis/heygen";
 import { initSeedance } from "./ai-apis/seedance";
 import { initRunway } from "./ai-apis/runway";
+import { initFalAI } from "./ai-apis/falai";
 import { deductCredits, refundCredits } from "./credit-service";
 
 export interface VideoGenerationRequest {
   userId: number;
-  toolType: "text_to_video" | "lip_sync" | "video_to_video" | "voiceover";
+  toolType: "text_to_video" | "lip_sync" | "video_to_video" | "voiceover" | "musetalk_lip_sync" | "seedance_t2v" | "seedance_i2v";
   prompt: string;
   imageUrl?: string;
   videoUrl?: string;
@@ -39,6 +40,9 @@ const CREDIT_COSTS = {
   "lip_sync": 75,
   "video_to_video": 150,
   voiceover: 50,
+  "musetalk_lip_sync": 75,
+  "seedance_t2v": 100,
+  "seedance_i2v": 100,
 };
 
 /**
@@ -109,13 +113,63 @@ export async function generateVideo(
       }
 
       case "lip_sync": {
-        // Use HeyGen for lip-sync
+        // Use HeyGen for lip-sync (avatar-based)
         const heygen = initHeyGen();
         taskId = await heygen.createVideo({
           input_text: request.prompt,
           title: `WizVid Lip-Sync - ${new Date().toISOString()}`,
         });
         apiProvider = "heygen";
+        break;
+      }
+
+      case "musetalk_lip_sync": {
+        // Use MuseTalk via fal.ai for audio-driven face lip-sync
+        if (!request.videoUrl || !request.audioUrl) {
+          throw new Error("MuseTalk requires both a source video URL and an audio URL");
+        }
+        const falai = initFalAI();
+        taskId = await falai.museTalkSubmit({
+          source_video_url: request.videoUrl,
+          audio_url: request.audioUrl,
+        });
+        apiProvider = "musetalk";
+        break;
+      }
+
+      case "seedance_t2v": {
+        // Use Seedance 1.5 Pro via fal.ai for text-to-video
+        const falai = initFalAI();
+        const seedanceDuration = durationSeconds <= 5 ? 5 : 10;
+        const seedanceAspect = (["16:9", "9:16", "1:1"].includes(String(request.options?.aspectRatio || ""))
+          ? String(request.options?.aspectRatio)
+          : "16:9") as "16:9" | "9:16" | "1:1";
+        taskId = await falai.seedanceTextToVideoSubmit({
+          prompt: request.prompt,
+          duration: seedanceDuration as 5 | 10,
+          aspect_ratio: seedanceAspect,
+        });
+        apiProvider = "seedance_fal";
+        break;
+      }
+
+      case "seedance_i2v": {
+        // Use Seedance 1.5 Pro via fal.ai for image-to-video
+        if (!request.imageUrl) {
+          throw new Error("Seedance image-to-video requires an image URL");
+        }
+        const falai = initFalAI();
+        const seedanceDuration = durationSeconds <= 5 ? 5 : 10;
+        const seedanceAspect = (["16:9", "9:16", "1:1"].includes(String(request.options?.aspectRatio || ""))
+          ? String(request.options?.aspectRatio)
+          : "16:9") as "16:9" | "9:16" | "1:1";
+        taskId = await falai.seedanceImageToVideoSubmit({
+          prompt: request.prompt,
+          image_url: request.imageUrl,
+          duration: seedanceDuration as 5 | 10,
+          aspect_ratio: seedanceAspect,
+        });
+        apiProvider = "seedance_fal";
         break;
       }
 
@@ -260,6 +314,27 @@ export async function checkVideoStatus(
         const taskStatus = await seedance.getTaskStatus(proj.taskId);
         status = taskStatus.status;
         videoUrl = taskStatus.video_url;
+        break;
+      }
+
+      case "musetalk": {
+        const falai = initFalAI();
+        const mtStatus = await falai.museTalkStatus(proj.taskId);
+        status = mtStatus.status;
+        videoUrl = mtStatus.video_url;
+        break;
+      }
+
+      case "seedance_fal": {
+        const falai = initFalAI();
+        // Determine which model was used based on inputData
+        const inputData = proj.inputData ? JSON.parse(proj.inputData as string) : {};
+        const modelId = inputData.imageUrl
+          ? "bytedance/seedance/v1.5/pro/image-to-video"
+          : "bytedance/seedance/v1.5/pro/text-to-video";
+        const sfStatus = await falai.seedanceStatus(proj.taskId, modelId);
+        status = sfStatus.status;
+        videoUrl = sfStatus.video_url;
         break;
       }
 

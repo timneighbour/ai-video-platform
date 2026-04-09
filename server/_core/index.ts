@@ -2,11 +2,13 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { storagePut } from "../storage";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -33,6 +35,24 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // File upload endpoint for video generation tools
+  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 200 * 1024 * 1024 } });
+  app.post("/api/video/upload", upload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: "No file provided" });
+        return;
+      }
+      const key = (req.query.key as string) || `uploads/${Date.now()}-${req.file.originalname}`;
+      const contentType = (req.query.type as string) || req.file.mimetype;
+      const { url } = await storagePut(key, req.file.buffer, contentType);
+      res.json({ url, key });
+    } catch (err) {
+      console.error("[Upload] Error:", err);
+      res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API

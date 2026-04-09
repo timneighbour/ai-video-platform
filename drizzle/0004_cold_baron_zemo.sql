@@ -1,0 +1,1 @@
+ALTER TABLE `projects` MODIFY COLUMN `toolType` enum('text_to_video','lip_sync','video_to_video','voiceover','musetalk_lip_sync','seedance_t2v','seedance_i2v') NOT NULL;
