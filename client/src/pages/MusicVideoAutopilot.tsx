@@ -161,6 +161,18 @@ export default function MusicVideoAutopilot() {
       desc: "Dramatic magical landscapes",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp",
     },
+    {
+      id: "realistic",
+      label: "Realistic",
+      desc: "True-to-life photorealism",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-2wim9Wp8GGSWcE5kbukVwX.webp",
+    },
+    {
+      id: "horror",
+      label: "Horror",
+      desc: "Dark, eerie & atmospheric",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-horror-gsFZakWZNY3wasPTthWDBJ.webp",
+    },
   ];
   const [isDragging, setIsDragging] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);

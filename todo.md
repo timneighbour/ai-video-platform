@@ -1137,3 +1137,9 @@
 
 ## Feature: New Video Styles (Apr 2026)
 - [x] Add Neon Noir, Disney, Epic Fantasy styles to video creation flow (MusicVideoAutopilot + Autopilot, with AI-generated thumbnails)
+
+## Feature: Realistic Video Style (Apr 2026)
+- [x] Generate thumbnail and add Realistic style to video creation flow
+
+## Feature: Horror Video Style (Apr 2026)
+- [x] Generate thumbnail and add Horror style to video creation flow

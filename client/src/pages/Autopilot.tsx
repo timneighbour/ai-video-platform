@@ -25,6 +25,8 @@ const VIDEO_STYLES = [
   { id: "neon_noir", label: "Neon Noir", desc: "Dark cyberpunk neon glow" },
   { id: "disney", label: "Disney", desc: "Magical Disney animation" },
   { id: "epic_fantasy", label: "Epic Fantasy", desc: "Dramatic magical landscapes" },
+  { id: "realistic", label: "Realistic", desc: "True-to-life photorealism" },
+  { id: "horror", label: "Horror", desc: "Dark, eerie & atmospheric" },
 ];
 
 const DURATIONS = [
