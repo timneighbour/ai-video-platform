@@ -74,7 +74,7 @@ function Nav() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-11 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            className="h-12 w-auto object-contain group-hover:opacity-90 transition-opacity"
           />
         </a>
 
@@ -755,7 +755,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.

@@ -591,3 +591,15 @@
 - [x] Update Home.tsx footer / trust section to include PayPal
 - [x] Update FAQ to mention PayPal as accepted payment method
 - [x] Update JSON-LD structured data to mention PayPal
+
+## Onboarding Visual Upgrade (Apr 2026)
+- [ ] Add background images to Music Video card on Onboarding step 1
+- [ ] Add background images to YouTube Video card on Onboarding step 1
+- [ ] Add background images to Kids Video card on Onboarding step 1
+- [ ] Add background images to Something Else card on Onboarding step 1
+
+## Onboarding Page Visual Upgrade (Apr 2026)
+- [x] Add "Back to Home" button on Onboarding page header
+- [x] Enlarge WizVid logo on Onboarding page (h-11 → h-16 or larger)
+- [x] Add background images to all 4 creator type cards on Onboarding step 1
+- [x] Audit logo sizes across all pages and standardise

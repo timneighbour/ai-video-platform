@@ -117,7 +117,7 @@ export default function Help() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-2.5 cursor-pointer">
-              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-11 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-1">

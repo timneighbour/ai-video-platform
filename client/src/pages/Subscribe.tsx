@@ -159,7 +159,7 @@ export default function Subscribe() {
             <img
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png"
               alt="WizVid"
-              className="h-11 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
           </div>
           <div className="w-24" />

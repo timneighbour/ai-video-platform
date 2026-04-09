@@ -29,7 +29,7 @@ export default function MusicVideosLanding() {
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-11 w-auto object-contain" />
+            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain" />
           </a>
           <div className="hidden md:flex items-center gap-1">
             {[
@@ -220,7 +220,7 @@ export default function MusicVideosLanding() {
       {/* Footer */}
       <footer className="bg-[#0f0f0f] border-t border-white/8 py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-          <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+          <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain" />
           <p>© 2025 WizVid. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>

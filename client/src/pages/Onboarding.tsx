@@ -2,19 +2,25 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check, Home } from "lucide-react";
 import { useLocation } from "wouter";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png";
+
+const CARD_IMAGES = {
+  music:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-music-video-Lti8pizeJFuSUTkuX2SUfY.webp",
+  youtube: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-youtube-video-6X3kKvAJxkigT4BXCR4wzr.webp",
+  kids:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-kids-video-4jtPsxNUHKapQcdfCEWTpZ.webp",
+  other:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-other-video-FnRcSMEshSBioqwE2ZWqnB.webp",
+};
 
 type CreatorType = "music" | "youtube" | "kids" | "other";
 
-const CREATOR_TYPES: { id: CreatorType; icon: React.ReactNode; title: string; desc: string }[] = [
-  { id: "music",   icon: <Music className="w-5 h-5" />,   title: "Music Video",    desc: "Turn your songs into cinematic music videos" },
-  { id: "youtube", icon: <Youtube className="w-5 h-5" />, title: "YouTube Video",  desc: "Create engaging content that stands out in the feed" },
-  { id: "kids",    icon: <Baby className="w-5 h-5" />,    title: "Kids Video",     desc: "Animated characters, nursery rhymes, and family content" },
-  { id: "other",   icon: <Cpu className="w-5 h-5" />,     title: "Something Else", desc: "Explore all AI video creation tools" },
+const CREATOR_TYPES: { id: CreatorType; icon: React.ReactNode; title: string; desc: string; accent: string }[] = [
+  { id: "music",   icon: <Music className="w-5 h-5" />,   title: "Music Video",     desc: "Turn your songs into cinematic music videos",          accent: "from-purple-600/80 to-violet-900/90" },
+  { id: "youtube", icon: <Youtube className="w-5 h-5" />, title: "YouTube Video",   desc: "Create engaging content that stands out in the feed",  accent: "from-red-600/70 to-slate-900/90" },
+  { id: "kids",    icon: <Baby className="w-5 h-5" />,    title: "Kids Video",      desc: "Animated characters, nursery rhymes, and family content", accent: "from-pink-500/70 to-orange-900/90" },
+  { id: "other",   icon: <Cpu className="w-5 h-5" />,     title: "Something Else",  desc: "Explore all AI video creation tools",                 accent: "from-blue-600/70 to-indigo-900/90" },
 ];
 
 const FREE_BENEFITS = [
@@ -52,10 +58,26 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center px-6 py-16 font-sans">
-      {/* Logo */}
-      <a href="/" className="mb-12 flex items-center gap-2.5">
-        <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-11 w-auto object-contain" />
-      </a>
+
+      {/* Header: Logo + Back to Home */}
+      <div className="w-full max-w-2xl flex items-center justify-between mb-12">
+        <a href="/" className="flex items-center gap-2 text-[#a1a1aa] hover:text-white text-sm transition-colors group">
+          <Home className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          <span>Back to home</span>
+        </a>
+
+        <a href="/" className="flex items-center">
+          <img
+            src={WIZVID_LOGO_FULL}
+            alt="WizVid"
+            className="h-10 w-auto object-contain"
+            style={{ minWidth: "120px" }}
+          />
+        </a>
+
+        {/* Spacer to balance the flex row */}
+        <div className="w-24" />
+      </div>
 
       {/* Progress indicator */}
       <div className="flex items-center gap-3 mb-12">
@@ -79,7 +101,7 @@ export default function Onboarding() {
 
       {/* Step 1: Creator Type */}
       {step === 1 && (
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-2xl">
           <div className="text-center mb-10">
             <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 1 of 3</p>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
@@ -88,24 +110,48 @@ export default function Onboarding() {
             <p className="text-[#a1a1aa] text-base">We'll personalise your experience based on your goals.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {CREATOR_TYPES.map((ct) => (
               <button
                 key={ct.id}
                 onClick={() => handleCreatorSelect(ct.id)}
-                className={`group relative p-5 rounded-xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                className={`group relative overflow-hidden rounded-2xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-44 ${
                   creatorType === ct.id
-                    ? "border-white/30 bg-white/8"
-                    : "border-white/8 bg-[#171717] hover:border-white/15 hover:bg-white/5"
+                    ? "border-white/40 ring-2 ring-white/20"
+                    : "border-white/10 hover:border-white/25"
                 }`}
                 aria-pressed={creatorType === ct.id}
               >
-                <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center text-[#a1a1aa] mb-3">
-                  {ct.icon}
+                {/* Background image */}
+                <img
+                  src={CARD_IMAGES[ct.id]}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+
+                {/* Gradient overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-t ${ct.accent} transition-opacity duration-300`} />
+
+                {/* Darker bottom overlay for text legibility */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+                {/* Content */}
+                <div className="relative z-10 flex flex-col justify-between h-full p-5">
+                  {/* Icon badge top-left */}
+                  <div className="w-9 h-9 rounded-lg bg-black/40 backdrop-blur-sm border border-white/15 flex items-center justify-center text-white">
+                    {ct.icon}
+                  </div>
+
+                  {/* Title + desc bottom */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-white font-bold text-base">{ct.title}</h3>
+                      <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                    <p className="text-white/70 text-xs leading-relaxed">{ct.desc}</p>
+                  </div>
                 </div>
-                <h3 className="text-white font-semibold text-sm mb-1">{ct.title}</h3>
-                <p className="text-[#a1a1aa] text-xs leading-relaxed">{ct.desc}</p>
-                <ArrowRight className="absolute top-5 right-5 w-4 h-4 text-white/15 group-hover:text-white/40 transition-all group-hover:translate-x-0.5" />
               </button>
             ))}
           </div>
@@ -206,7 +252,10 @@ export default function Onboarding() {
 
       {/* Footer note */}
       <p className="mt-16 text-[#a1a1aa] text-xs text-center max-w-xs">
-        By continuing, you agree to WizVid's Terms of Service and Privacy Policy.
+        By continuing, you agree to WizVid's{" "}
+        <a href="/terms" className="underline hover:text-white transition-colors">Terms of Service</a>{" "}
+        and{" "}
+        <a href="/privacy" className="underline hover:text-white transition-colors">Privacy Policy</a>.
       </p>
     </div>
   );

@@ -180,7 +180,7 @@ function DashboardLayoutContent({
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png"
                     alt="WizVid"
-                    className="h-9 w-auto object-contain"
+                    className="h-10 w-auto object-contain"
                   />
                 </div>
               ) : (
