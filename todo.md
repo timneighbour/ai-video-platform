@@ -190,3 +190,13 @@
 - [x] Fix VideoCarousel component with fallback UI for missing videos
 - [x] Ensure full premium design renders correctly on published site
 - [x] Fix stale Synthora branding in Credits.tsx and Account.tsx
+
+
+## Visual Rendering Fixes (Priority)
+- [x] Fix hero section - ensure gradient headline text is visible (bg-clip-text requires explicit color values)
+- [x] Fix CTA buttons - ensure gradient backgrounds render (not transparent/unstyled)
+- [x] Fix carousel - ensure animated placeholder cards show colored backgrounds at all widths
+- [x] Fix section cards - ensure card backgrounds are visible (not transparent)
+- [x] Fix nav bar - ensure it has visible background and proper styling
+- [x] Test full page at multiple viewport widths
+- [x] ROOT CAUSE FIXED: Added missing @import "tailwindcss" to index.css (Tailwind v4 requires explicit import)
