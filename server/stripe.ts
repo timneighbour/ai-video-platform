@@ -18,10 +18,20 @@ export async function createSubscriptionCheckout(
   planId: keyof typeof SUBSCRIPTION_PLANS,
   customerEmail: string,
   customerName: string | null,
-  origin: string
+  origin: string,
+  billingInterval: "monthly" | "annual" = "monthly"
 ) {
   const plan = SUBSCRIPTION_PLANS[planId];
-  
+
+  // Free plan has no Stripe price — should not reach here
+  if (!plan.stripePriceId) {
+    throw new Error("Free plan does not require a checkout session");
+  }
+
+  const priceId = billingInterval === "annual" && plan.stripeAnnualPriceId
+    ? plan.stripeAnnualPriceId
+    : plan.stripePriceId;
+
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer_email: customerEmail,
@@ -31,10 +41,11 @@ export async function createSubscriptionCheckout(
       customer_email: customerEmail,
       customer_name: customerName || "",
       plan_id: planId,
+      billing_interval: billingInterval,
     },
     line_items: [
       {
-        price: plan.stripePriceId,
+        price: priceId,
         quantity: 1,
       },
     ],

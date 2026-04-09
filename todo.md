@@ -149,3 +149,33 @@
 - [x] Integrate carousel into landing page
 - [x] Make carousel responsive for mobile and desktop
 - [x] Add video descriptions and tool labels
+
+
+## Priority 1 Competitive Features (vs Neural Frames) - COMPLETED ✅
+- [x] Free tier: grant 50 trial credits on first sign-up (no credit card required)
+- [x] Free tier: add "Free" plan to pricing page and subscribe page
+- [x] Free tier: update sign-up flow to auto-grant trial credits
+- [x] Autopilot: build Quick Create page with prompt/audio upload input
+- [x] Autopilot: storyboard generation is FREE (no credit deduction)
+- [x] Autopilot: unlimited free storyboard regenerations
+- [x] Autopilot: credits only charged on final video render
+- [x] Autopilot: add to navigation and landing page
+- [x] Annual billing: add yearly toggle to Subscribe page (33% discount)
+- [x] Annual billing: create annual Stripe price IDs for all three tiers
+- [x] Annual billing: update billing router to handle annual subscriptions
+- [x] 4K export: add 4K flag to Pro and Business plan features
+- [x] 4K export: gate 4K export behind Pro/Business plan check on tool pages
+- [x] Landing page: add "Free Storyboard" competitive messaging
+- [x] Landing page: add annual billing savings callout
+- [x] Landing page: update hero to highlight WizVid advantages over Neural Frames
+
+
+## SEO Fixes - COMPLETED ✅
+- [x] Add meta description (50-160 chars) to index.html
+- [x] Add keywords meta tag to index.html
+- [x] Add Open Graph tags (og:title, og:description, og:image, og:url)
+- [x] Add Twitter Card meta tags
+- [x] Add canonical URL meta tag
+- [x] Add structured data (JSON-LD) for the platform
+- [x] Update page title to be keyword-rich
+- [x] Add Space Grotesk premium font via Google Fonts

@@ -20,6 +20,10 @@ export interface VideoGenerationRequest {
   videoUrl?: string;
   audioUrl?: string;
   options?: Record<string, unknown>;
+  /** If true, request 4K output — only allowed for Pro/Business plan users */
+  request4K?: boolean;
+  /** User's current subscription plan for feature gating */
+  userPlan?: string;
 }
 
 export interface VideoGenerationResult {
@@ -49,6 +53,15 @@ export async function generateVideo(
   }
 
   const creditCost = CREDIT_COSTS[request.toolType];
+
+  // Enforce 4K gating — only Pro and Business plans can request 4K
+  if (request.request4K) {
+    const plan = request.userPlan || "free";
+    const allowed4KPlans = ["pro", "business"];
+    if (!allowed4KPlans.includes(plan)) {
+      throw new Error("4K export is available on Pro and Business plans only. Please upgrade to access this feature.");
+    }
+  }
 
   // Check if user has enough credits
   const userCredits = await db

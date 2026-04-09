@@ -14,6 +14,7 @@ export const billingRouter = router({
       z.object({
         planId: z.enum(["starter", "pro", "business"]),
         origin: z.string().url(),
+        billingInterval: z.enum(["monthly", "annual"]).default("monthly"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -23,7 +24,8 @@ export const billingRouter = router({
           input.planId as keyof typeof SUBSCRIPTION_PLANS,
           ctx.user.email || "",
           ctx.user.name,
-          input.origin
+          input.origin,
+          input.billingInterval
         );
 
         return checkoutUrl;

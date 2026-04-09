@@ -115,6 +115,7 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
+                <a href="/autopilot" className="text-white hover:text-purple-400 font-medium">Autopilot</a>
                 <a href="/dashboard" className="text-white hover:text-purple-400">Dashboard</a>
                 <a href="/account" className="text-white hover:text-purple-400">Account</a>
                 <Button 
@@ -139,6 +140,14 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* Competitive Advantage Banner */}
+      <div className="bg-gradient-to-r from-green-900/40 via-emerald-900/40 to-green-900/40 border-b border-green-500/20 py-2.5 px-4 text-center">
+        <p className="text-sm text-green-300 font-medium">
+          <span className="text-green-400 font-bold">WizVid Advantage:</span> Regenerate your storyboard as many times as you need — completely free. Credits only charged when you render your final video.
+          <a href="/autopilot" className="ml-3 underline hover:text-white transition">Try Autopilot →</a>
+        </p>
+      </div>
+
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent"></div>
@@ -157,19 +166,26 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
               <Button 
                 size="lg"
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white gap-2"
                 asChild
               >
-                <a href={getLoginUrl()}>Start Creating Free</a>
+                <a href={getLoginUrl()}><Sparkles className="h-4 w-4" />Start Creating Free</a>
               </Button>
               <Button 
                 size="lg"
                 variant="outline"
-                className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
+                className="border-purple-500 text-purple-400 hover:bg-purple-500/10 gap-2"
                 asChild
               >
-                <a href="/subscribe">View Plans</a>
+                <a href="/autopilot"><Wand2 className="h-4 w-4" />Try Autopilot</a>
               </Button>
+            </div>
+            {/* Free trial callout */}
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-6 text-sm text-gray-400">
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-green-400" />50 free credits on sign-up</span>
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-green-400" />Free storyboard regeneration</span>
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-green-400" />No credit card required</span>
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-green-400" />Save 33% with annual billing</span>
             </div>
           </div>
         </div>
@@ -220,6 +236,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why WizVid Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-3 text-white">Why Creators Choose WizVid</h2>
+          <p className="text-center text-gray-400 mb-10">Built differently from the competition</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: "🆓", title: "Free Storyboards", desc: "Regenerate your storyboard unlimited times at zero cost — pay only when you render" },
+              { icon: "🤖", title: "4 AI Engines", desc: "Kling AI, Seedance 2.0, Runway ML & HeyGen — the best models in one platform" },
+              { icon: "💰", title: "Best Value", desc: "Starting at $19/mo — 33% cheaper than competitors. Save even more with annual billing" },
+              { icon: "🎭", title: "Lip-Sync Avatars", desc: "Create talking avatars in 160+ languages — a feature competitors simply don't offer" },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-purple-500/40 transition">
+                <div className="text-3xl mb-3">{item.icon}</div>
+                <h3 className="font-semibold text-white text-sm mb-1.5">{item.title}</h3>
+                <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-purple-900/10">
         <div className="max-w-7xl mx-auto">
@@ -247,7 +285,12 @@ export default function Home() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-4 text-white">Simple, Transparent Pricing</h2>
-          <p className="text-center text-gray-400 mb-16">Choose the perfect plan for your needs</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
+            <p className="text-gray-400">Choose the perfect plan for your needs.</p>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-300">
+              <Sparkles className="h-3 w-3" />Save 33% with annual billing — available on all plans
+            </span>
+          </div>
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => (
               <Card 

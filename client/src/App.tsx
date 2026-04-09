@@ -14,6 +14,7 @@ import TextToVideo from "./pages/tools/TextToVideo";
 import LipSync from "./pages/tools/LipSync";
 import VideoToVideo from "./pages/tools/VideoToVideo";
 import Voiceover from "./pages/tools/Voiceover";
+import Autopilot from "./pages/Autopilot";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -29,6 +30,7 @@ function Router() {
       <Route path={"/tools/lip-sync"} component={LipSync} />
       <Route path={"/tools/video-to-video"} component={VideoToVideo} />
       <Route path={"/tools/voiceover"} component={Voiceover} />
+      <Route path={"/autopilot"} component={Autopilot} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

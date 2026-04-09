@@ -3,6 +3,8 @@ import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { notifyOwner } from "./notification";
+import { FREE_TRIAL_CREDITS } from "../products";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -28,6 +30,10 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
+      // Check if this is a new user (no credits record yet)
+      const existingUser = await db.getUserByOpenId(userInfo.openId);
+      const isNewUser = !existingUser;
+
       await db.upsertUser({
         openId: userInfo.openId,
         name: userInfo.name || null,
@@ -35,6 +41,24 @@ export function registerOAuthRoutes(app: Express) {
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
         lastSignedIn: new Date(),
       });
+
+      // Grant free trial credits to new users
+      if (isNewUser) {
+        const newUser = await db.getUserByOpenId(userInfo.openId);
+        if (newUser) {
+          await db.addCredits(
+            newUser.id,
+            FREE_TRIAL_CREDITS,
+            "subscription_grant",
+            `Welcome gift: ${FREE_TRIAL_CREDITS} free trial credits`
+          );
+          // Notify owner of new sign-up
+          await notifyOwner({
+            title: "New WizVid Sign-Up",
+            content: `New user signed up: ${userInfo.name || "Unknown"} (${userInfo.email || "no email"}) — ${FREE_TRIAL_CREDITS} trial credits granted.`,
+          }).catch(() => {}); // Non-blocking
+        }
+      }
 
       const sessionToken = await sdk.createSessionToken(userInfo.openId, {
         name: userInfo.name || "",
