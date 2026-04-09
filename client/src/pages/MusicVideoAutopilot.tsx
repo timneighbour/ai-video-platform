@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
   Music,
@@ -25,6 +26,11 @@ import {
   Clock,
   Coins,
   RefreshCw,
+  User,
+  Mic,
+  ChevronDown,
+  ChevronUp,
+  FileText,
 } from "lucide-react";
 
 type Step = "upload" | "storyboard" | "render";
@@ -35,6 +41,7 @@ interface SceneCard {
   startTime: number;
   duration: number;
   prompt: string;
+  lyrics?: string | null;
   visualStyle: string;
   status: string;
   videoUrl?: string | null;
@@ -66,6 +73,21 @@ export default function MusicVideoAutopilot() {
   const [genre, setGenre] = useState("");
   const [mood, setMood] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("cinematic");
+
+  // Character photo state
+  const [characterFile, setCharacterFile] = useState<File | null>(null);
+  const [characterPreview, setCharacterPreview] = useState<string | null>(null);
+  const characterInputRef = useRef<HTMLInputElement>(null);
+
+  // Lip sync state
+  const [enableLipSync, setEnableLipSync] = useState(false);
+
+  // Transcription / lyrics state
+  const [transcriptionJobId, setTranscriptionJobId] = useState<number | null>(null);
+  const [transcriptionStatus, setTranscriptionStatus] = useState<string>("pending");
+  const [transcriptionText, setTranscriptionText] = useState<string | null>(null);
+  const [lyricsExpanded, setLyricsExpanded] = useState(false);
+  const transcriptionPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const VIDEO_STYLES = [
     {
@@ -128,10 +150,32 @@ export default function MusicVideoAutopilot() {
   const startRender = trpc.musicVideo.startRender.useMutation();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
 
+  // Poll transcription status after job is created
+  const transcriptionQuery = trpc.musicVideo.getTranscription.useQuery(
+    { jobId: transcriptionJobId! },
+    {
+      enabled: !!transcriptionJobId && transcriptionStatus !== "done" && transcriptionStatus !== "failed",
+      refetchInterval: transcriptionStatus === "processing" || transcriptionStatus === "pending" ? 5000 : false,
+    }
+  );
+
+  useEffect(() => {
+    if (transcriptionQuery.data) {
+      setTranscriptionStatus(transcriptionQuery.data.status);
+      if (transcriptionQuery.data.transcription) {
+        setTranscriptionText(transcriptionQuery.data.transcription);
+        if (transcriptionQuery.data.status === "done") {
+          setLyricsExpanded(true); // Auto-expand when lyrics arrive
+        }
+      }
+    }
+  }, [transcriptionQuery.data]);
+
   // Cleanup poll interval on unmount
   useEffect(() => {
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (transcriptionPollRef.current) clearInterval(transcriptionPollRef.current);
     };
   }, []);
 
@@ -161,6 +205,21 @@ export default function MusicVideoAutopilot() {
     };
   }, []);
 
+  const handleCharacterFileDrop = useCallback((file: File) => {
+    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Invalid image type", { description: "Please upload a JPG, PNG, or WebP image." });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image too large", { description: "Maximum image size is 10MB." });
+      return;
+    }
+    setCharacterFile(file);
+    const url = URL.createObjectURL(file);
+    setCharacterPreview(url);
+  }, []);
+
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = () => setIsDragging(false);
   const handleDrop = (e: React.DragEvent) => {
@@ -176,6 +235,18 @@ export default function MusicVideoAutopilot() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _unused = user;
 
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Strip the data:...;base64, prefix
+        resolve(result.split(",")[1]);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   const handleUploadAndGenerate = async () => {
     if (!audioFile || !title || !themePrompt) {
       toast.error("Missing fields", { description: "Please fill in all required fields and upload your song." });
@@ -183,7 +254,7 @@ export default function MusicVideoAutopilot() {
     }
 
     try {
-      // Convert file to base64
+      // Convert audio file to base64
       const arrayBuffer = await audioFile.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       let binary = "";
@@ -191,6 +262,14 @@ export default function MusicVideoAutopilot() {
       const base64 = btoa(binary);
       const mimeType = audioFile.type.includes("wav") ? "audio/wav" :
                        audioFile.type.includes("mp4") || audioFile.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+
+      // Convert character image to base64 if provided
+      let characterImageBase64: string | undefined;
+      let characterImageMimeType: string | undefined;
+      if (characterFile) {
+        characterImageBase64 = await fileToBase64(characterFile);
+        characterImageMimeType = characterFile.type;
+      }
 
       toast.loading("Uploading song...", { description: "This may take a moment." });
 
@@ -206,10 +285,17 @@ export default function MusicVideoAutopilot() {
         themePrompt: enrichedThemePrompt,
         genre: genre || undefined,
         mood: mood || undefined,
+        characterImageBase64,
+        characterImageMimeType,
+        enableLipSync,
       });
 
       setJobId(result.jobId);
       setTotalScenes(result.sceneCount);
+
+      // Start polling for transcription
+      setTranscriptionJobId(result.jobId);
+      setTranscriptionStatus("processing");
 
       toast.loading("Generating storyboard...", { description: "Our AI director is crafting your scenes." });
 
@@ -238,6 +324,7 @@ export default function MusicVideoAutopilot() {
         startTime: s.startTime,
         duration: s.duration,
         prompt: s.prompt,
+        lyrics: s.lyrics,
         visualStyle: s.visualStyle ?? "",
         status: s.status,
         videoUrl: s.videoUrl,
@@ -310,7 +397,7 @@ export default function MusicVideoAutopilot() {
         <Card className="bg-zinc-900 border-zinc-800 max-w-md w-full mx-4">
           <CardContent className="pt-8 pb-8 text-center">
             <Music className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Music Video Autopilot</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">Music Video WizPilot</h2>
             <p className="text-zinc-400 mb-6">Sign in to create your AI music video</p>
             <Button
               className="bg-purple-600 hover:bg-purple-700 text-white w-full"
@@ -335,7 +422,7 @@ export default function MusicVideoAutopilot() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-                MUSIC VIDEO AUTOPILOT
+                MUSIC VIDEO WIZPILOT
               </h1>
               <p className="text-zinc-400 text-sm">Upload your song. Describe your vision. We'll create the video.</p>
             </div>
@@ -418,6 +505,58 @@ export default function MusicVideoAutopilot() {
                       className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                     />
                   </div>
+
+                  {/* Lyrics / Transcription Panel — shows after job is created */}
+                  {transcriptionJobId && (
+                    <div className="rounded-xl border border-zinc-700 overflow-hidden">
+                      <button
+                        type="button"
+                        className="w-full flex items-center justify-between px-4 py-3 bg-zinc-800 hover:bg-zinc-750 transition-colors"
+                        onClick={() => setLyricsExpanded(!lyricsExpanded)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-purple-400" />
+                          <span className="text-sm font-medium text-white">Detected Lyrics</span>
+                          {transcriptionStatus === "processing" || transcriptionStatus === "pending" ? (
+                            <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800 text-xs">
+                              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                              Transcribing...
+                            </Badge>
+                          ) : transcriptionStatus === "done" ? (
+                            <Badge className="bg-green-900/50 text-green-300 border-green-800 text-xs">
+                              <Check className="w-3 h-3 mr-1" />
+                              Ready
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-zinc-700 text-zinc-400 text-xs">Not available</Badge>
+                          )}
+                        </div>
+                        {lyricsExpanded ? (
+                          <ChevronUp className="w-4 h-4 text-zinc-400" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-zinc-400" />
+                        )}
+                      </button>
+                      {lyricsExpanded && (
+                        <div className="px-4 py-3 bg-zinc-900/50">
+                          {transcriptionStatus === "done" && transcriptionText ? (
+                            <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap font-mono">
+                              {transcriptionText}
+                            </p>
+                          ) : transcriptionStatus === "processing" || transcriptionStatus === "pending" ? (
+                            <div className="flex items-center gap-2 text-zinc-400 text-sm py-2">
+                              <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+                              <span>AI is transcribing your song's lyrics... This takes 30–60 seconds.</span>
+                            </div>
+                          ) : (
+                            <p className="text-zinc-500 text-sm py-2">
+                              Could not transcribe lyrics. The storyboard will be generated from your theme description instead.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -510,6 +649,109 @@ export default function MusicVideoAutopilot() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Character & Lip Sync */}
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <User className="w-5 h-5 text-blue-400" />
+                    Character & Lip Sync
+                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {/* Character photo upload */}
+                  <div>
+                    <Label className="text-zinc-300 mb-2 block">Character Photo</Label>
+                    <p className="text-zinc-500 text-xs mb-3">
+                      Upload a photo of a person or character. The AI will use their appearance consistently throughout your video.
+                    </p>
+                    <div
+                      className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                        characterFile ? "border-blue-500 bg-blue-500/10" : "border-zinc-700 hover:border-zinc-500"
+                      }`}
+                      onClick={() => characterInputRef.current?.click()}
+                    >
+                      <input
+                        ref={characterInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCharacterFileDrop(f); }}
+                      />
+                      {characterFile && characterPreview ? (
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={characterPreview}
+                            alt="Character preview"
+                            className="w-16 h-16 rounded-lg object-cover border border-blue-500/50"
+                          />
+                          <div className="text-left flex-1">
+                            <p className="text-blue-400 font-medium text-sm">{characterFile.name}</p>
+                            <p className="text-zinc-500 text-xs mt-0.5">Click to change</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setCharacterFile(null); setCharacterPreview(null); }}
+                            className="text-zinc-500 hover:text-zinc-300 p-1"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <User className="w-8 h-8 text-zinc-500 mx-auto mb-2" />
+                          <p className="text-zinc-300 text-sm font-medium">Upload character photo</p>
+                          <p className="text-zinc-500 text-xs mt-1">JPG, PNG, WebP · Max 10MB</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Lip sync toggle */}
+                  <div className={`rounded-xl border p-4 transition-all ${
+                    enableLipSync ? "border-pink-700 bg-pink-900/20" : "border-zinc-700 bg-zinc-800/50"
+                  }`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          enableLipSync ? "bg-pink-600" : "bg-zinc-700"
+                        }`}>
+                          <Mic className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">Enable Lip Sync</p>
+                          <p className="text-zinc-400 text-xs mt-0.5">
+                            AI will generate close-up face shots in scenes with lyrics, then apply lip sync to match your audio.
+                            {!characterFile && (
+                              <span className="text-yellow-400 ml-1">Upload a character photo above to use this feature.</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={enableLipSync}
+                        onCheckedChange={(v) => {
+                          if (v && !characterFile) {
+                            toast.warning("Character photo required", { description: "Please upload a character photo to use lip sync." });
+                            return;
+                          }
+                          setEnableLipSync(v);
+                        }}
+                        className="flex-shrink-0"
+                      />
+                    </div>
+                    {enableLipSync && (
+                      <div className="mt-3 pt-3 border-t border-pink-800/50">
+                        <p className="text-pink-300 text-xs flex items-center gap-1.5">
+                          <Sparkles className="w-3 h-3" />
+                          Lip sync scenes will be processed using HeyGen AI after rendering. Additional credits may apply.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Summary sidebar */}
@@ -531,6 +773,18 @@ export default function MusicVideoAutopilot() {
                     <span className="text-zinc-400 flex items-center gap-1.5"><Coins className="w-4 h-4" /> Credits</span>
                     <span className="text-white">{creditCost > 0 ? creditCost : "—"}</span>
                   </div>
+                  {characterFile && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-zinc-400 flex items-center gap-1.5"><User className="w-4 h-4" /> Character</span>
+                      <span className="text-blue-400">✓ Added</span>
+                    </div>
+                  )}
+                  {enableLipSync && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-zinc-400 flex items-center gap-1.5"><Mic className="w-4 h-4" /> Lip Sync</span>
+                      <span className="text-pink-400">✓ Enabled</span>
+                    </div>
+                  )}
                   <div className="border-t border-zinc-800 pt-3 text-xs text-zinc-500">
                     Storyboard generation is free & unlimited. Credits are only charged when you start rendering.
                   </div>
@@ -542,7 +796,7 @@ export default function MusicVideoAutopilot() {
                   <p className="text-purple-300 text-sm font-medium mb-1">How it works</p>
                   <ol className="text-zinc-400 text-xs space-y-1.5 list-decimal list-inside">
                     <li>Upload your song & describe your vision</li>
-                    <li>AI generates a free scene-by-scene storyboard</li>
+                    <li>AI transcribes lyrics & generates a free storyboard</li>
                     <li>Review & edit any scene prompts</li>
                     <li>Render all scenes (credits charged here)</li>
                     <li>Download your finished music video</li>
@@ -618,6 +872,16 @@ export default function MusicVideoAutopilot() {
                         </Badge>
                       )}
                     </div>
+
+                    {/* Lyrics for this scene */}
+                    {scene.lyrics && (
+                      <div className="mb-3 px-3 py-2 rounded-lg bg-purple-900/20 border border-purple-800/40">
+                        <p className="text-purple-300 text-xs font-medium mb-1 flex items-center gap-1">
+                          <Mic className="w-3 h-3" /> Lyrics
+                        </p>
+                        <p className="text-zinc-300 text-xs italic leading-relaxed">"{scene.lyrics}"</p>
+                      </div>
+                    )}
 
                     {editingSceneId === scene.id ? (
                       <div className="space-y-2">
@@ -696,7 +960,7 @@ export default function MusicVideoAutopilot() {
                       <Button
                         variant="outline"
                         className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
-                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); }}
+                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacterFile(null); setCharacterPreview(null); setEnableLipSync(false); setTranscriptionJobId(null); setTranscriptionText(null); setTranscriptionStatus("pending"); }}
                       >
                         Create Another
                       </Button>

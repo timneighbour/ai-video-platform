@@ -105,6 +105,9 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   mood: varchar("mood", { length: 128 }),
   transcription: text("transcription"), // Full Whisper transcription text
   transcriptionStatus: varchar("transcriptionStatus", { length: 32 }).default("pending"), // pending | processing | done | failed
+  characterImageUrl: varchar("characterImageUrl", { length: 1024 }), // Optional character/face photo for AI to use
+  characterImageKey: varchar("characterImageKey", { length: 512 }), // S3 key for character image
+  enableLipSync: boolean("enableLipSync").default(false), // Whether to apply lip sync to character scenes
   status: mysqlEnum("mvJobStatus", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),

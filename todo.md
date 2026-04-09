@@ -603,3 +603,10 @@
 - [x] Enlarge WizVid logo on Onboarding page (h-11 → h-16 or larger)
 - [x] Add background images to all 4 creator type cards on Onboarding step 1
 - [x] Audit logo sizes across all pages and standardise
+
+## Music Video Autopilot — Missing Features (Apr 2026)
+- [x] Show transcribed lyrics after audio upload (call Whisper, display lyrics in collapsible panel)
+- [x] Character photo upload on Step 1 (upload face/character image, store S3 URL, pass to storyboard LLM)
+- [x] Lip sync toggle on Step 1 (checkbox/switch to enable HeyGen lip sync on character scenes)
+- [x] Pass characterImageUrl and enableLipSync flags through tRPC generateStoryboard and startRender procedures
+- [x] Update storyboard LLM prompt to include character image reference when provided

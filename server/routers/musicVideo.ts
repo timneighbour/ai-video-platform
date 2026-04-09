@@ -31,6 +31,9 @@ export const musicVideoRouter = router({
         themePrompt: z.string().min(10).max(2000),
         genre: z.string().max(128).optional(),
         mood: z.string().max(128).optional(),
+        characterImageBase64: z.string().optional(), // base64 encoded character photo
+        characterImageMimeType: z.string().optional(), // e.g. "image/jpeg"
+        enableLipSync: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -42,6 +45,17 @@ export const musicVideoRouter = router({
       const ext = input.audioMimeType.split("/")[1].replace("mpeg", "mp3");
       const audioKey = `music-video-audio/${ctx.user.id}-${Date.now()}.${ext}`;
       const { url: audioUrl } = await storagePut(audioKey, audioBuffer, input.audioMimeType);
+
+      // Upload character image to S3 if provided
+      let characterImageUrl: string | null = null;
+      let characterImageKey: string | null = null;
+      if (input.characterImageBase64 && input.characterImageMimeType) {
+        const imgBuffer = Buffer.from(input.characterImageBase64, "base64");
+        const imgExt = input.characterImageMimeType.split("/")[1] || "jpg";
+        characterImageKey = `music-video-characters/${ctx.user.id}-${Date.now()}.${imgExt}`;
+        const { url } = await storagePut(characterImageKey, imgBuffer, input.characterImageMimeType);
+        characterImageUrl = url;
+      }
 
       const sceneCount = calculateSceneCount(input.audioDuration);
       const creditCost = calculateCreditCost(sceneCount);
@@ -55,6 +69,9 @@ export const musicVideoRouter = router({
         themePrompt: input.themePrompt,
         genre: input.genre ?? null,
         mood: input.mood ?? null,
+        characterImageUrl,
+        characterImageKey,
+        enableLipSync: input.enableLipSync ?? false,
         status: "draft",
         totalScenes: sceneCount,
         completedScenes: 0,
@@ -70,6 +87,24 @@ export const musicVideoRouter = router({
       });
 
       return { jobId, sceneCount, creditCost };
+    }),
+
+  // Get transcription status and lyrics for a job (for polling from frontend)
+  getTranscription: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return {
+        status: job.transcriptionStatus ?? "pending",
+        transcription: job.transcription ?? null,
+      };
     }),
 
   // Generate storyboard for a job (free, unlimited)
@@ -112,8 +147,17 @@ export const musicVideoRouter = router({
       }
 
       // Generate scenes via LLM — lyrics-driven if available, theme-only otherwise
+      // Include character image reference in theme prompt if provided
+      let enrichedThemePrompt = job.themePrompt;
+      if (job.characterImageUrl) {
+        enrichedThemePrompt += `\n\nCharacter Reference: A specific character/person should appear in scenes. Use their visual appearance consistently throughout the video. Character image URL: ${job.characterImageUrl}`;
+      }
+      if (job.enableLipSync) {
+        enrichedThemePrompt += "\n\nLip Sync: Include close-up shots of the character's face/mouth in scenes where lyrics are being sung, suitable for lip sync processing.";
+      }
+
       const scenes = await generateStoryboard(
-        job.themePrompt,
+        enrichedThemePrompt,
         job.genre,
         job.mood,
         job.audioDuration,
