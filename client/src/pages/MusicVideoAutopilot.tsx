@@ -417,28 +417,42 @@ export default function MusicVideoAutopilot() {
       setRenderStatus("rendering");
       setCompletedScenes(0);
 
-      // Start polling
-      pollIntervalRef.current = setInterval(async () => {
-        try {
-          const progress = await pollProgress.mutateAsync({ jobId });
-          setCompletedScenes(progress.completedScenes);
-          setTotalScenes(progress.totalScenes);
-          setRenderStatus(progress.status);
+      // Start polling with adaptive backoff on 429
+      let pollBackoffMs = 20000; // Start at 20s (scenes take 30-120s each)
+      const schedulePoll = () => {
+        pollIntervalRef.current = setTimeout(async () => {
+          try {
+            const progress = await pollProgress.mutateAsync({ jobId });
+            setCompletedScenes(progress.completedScenes);
+            setTotalScenes(progress.totalScenes);
+            setRenderStatus(progress.status);
 
-          if (progress.status === "completed" && progress.finalVideoUrl) {
-            setFinalVideoUrl(progress.finalVideoUrl);
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            toast.success("Your music video is ready!", { description: "Click Download to save it." });
-          }
+            if (progress.status === "completed" && progress.finalVideoUrl) {
+              setFinalVideoUrl(progress.finalVideoUrl);
+              toast.success("Your music video is ready!", { description: "Click Download to save it." });
+              return; // stop polling
+            }
 
-          if (progress.status === "failed") {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            toast.error("Render failed", { description: "Some scenes could not be generated." });
+            if (progress.status === "failed") {
+              toast.error("Render failed", { description: "Some scenes could not be generated." });
+              return; // stop polling
+            }
+
+            // Reset backoff on success and schedule next
+            pollBackoffMs = 20000;
+            schedulePoll();
+          } catch (err: any) {
+            console.error("Poll error:", err);
+            // On 429, back off exponentially (max 120s)
+            if (err?.data?.httpStatus === 429 || String(err?.message).includes("429")) {
+              pollBackoffMs = Math.min(pollBackoffMs * 2, 120000);
+              console.warn(`[MusicVideo] Rate limited, backing off to ${pollBackoffMs}ms`);
+            }
+            schedulePoll(); // keep trying
           }
-        } catch (err) {
-          console.error("Poll error:", err);
-        }
-      }, 15000); // Poll every 15 seconds
+        }, pollBackoffMs) as unknown as ReturnType<typeof setInterval>;
+      };
+      schedulePoll(); // Poll with adaptive backoff
 
     } catch (err: any) {
       toast.error("Error", { description: err.message });

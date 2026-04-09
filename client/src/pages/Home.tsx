@@ -7,7 +7,8 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { trpc } from "@/lib/trpc";
 import {
   Sparkles, Music, Zap, Star, Play, Check, ArrowRight,
-  Menu, X, Volume2, VolumeX, Film, Wand2, Users, ChevronRight
+  Menu, X, Volume2, VolumeX, Film, Wand2, Users, ChevronRight,
+  Music2, Bot, Lightbulb, Video, Download
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -162,9 +163,29 @@ function useIsDesktop() {
 
 function Hero() {
   const logoVideoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const [logoMuted, setLogoMuted] = useState(true);
   const [currentBg, setCurrentBg] = useState(0);
   const isDesktop = useIsDesktop();
+
+  // Force-play all background videos once the component mounts
+  useEffect(() => {
+    if (!isDesktop) return;
+    bgVideoRefs.current.forEach((v) => {
+      if (v) {
+        v.muted = true;
+        v.play().catch(() => {});
+      }
+    });
+  }, [isDesktop]);
+
+  // Force-play logo video on mount
+  useEffect(() => {
+    const v = logoVideoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -177,7 +198,7 @@ function Hero() {
     const newMuted = !logoMuted;
     setLogoMuted(newMuted);
     logoVideoRef.current.muted = newMuted;
-    if (!newMuted) logoVideoRef.current.play();
+    logoVideoRef.current.play().catch(() => {});
   };
 
   return (
@@ -185,7 +206,9 @@ function Hero() {
       {/* Background videos — desktop only to avoid 24MB download on mobile */}
       {isDesktop && HERO_VIDEOS.map((src, i) => (
         <video key={src} src={src} autoPlay loop muted playsInline preload="none"
+          ref={(el) => { bgVideoRefs.current[i] = el; }}
           aria-hidden="true"
+          onCanPlay={(e) => { const v = e.currentTarget; v.muted = true; v.play().catch(() => {}); }}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-20" : "opacity-0"}`}
         />
       ))}
@@ -257,6 +280,7 @@ function Hero() {
                   muted
                   playsInline
                   preload="metadata"
+                  onCanPlay={(e) => { const v = e.currentTarget; v.muted = true; v.play().catch(() => {}); }}
                   className="absolute inset-0 w-full h-full object-cover bg-black"
                   aria-label="WizVid animated logo"
                 >
@@ -558,7 +582,334 @@ function WhoItsFor() {
   );
 }
 
-// ── How it works ──────────────────────────────────────────────────────────────
+//// ── Content Engine USP ─────────────────────────────────────────────────────
+function ContentEngine() {
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setActiveStep((prev) => (prev + 1) % 4), 2200);
+    return () => clearInterval(timer);
+  }, []);
+
+  const steps = [
+    {
+      icon: <Lightbulb className="w-6 h-6" />,
+      label: "Idea or Prompt",
+      sub: "Describe your vision",
+      color: "violet",
+      glow: "from-violet-500/30 to-violet-500/5",
+      border: "border-violet-500/40",
+      iconBg: "bg-violet-500/15 text-violet-300",
+      activeBg: "bg-violet-500/10",
+    },
+    {
+      icon: <Music2 className="w-6 h-6" />,
+      label: "AI Music (Suno)",
+      sub: "Full song generated",
+      color: "blue",
+      glow: "from-blue-500/30 to-blue-500/5",
+      border: "border-blue-500/40",
+      iconBg: "bg-blue-500/15 text-blue-300",
+      activeBg: "bg-blue-500/10",
+    },
+    {
+      icon: <Film className="w-6 h-6" />,
+      label: "Music Video",
+      sub: "Scenes & characters",
+      color: "purple",
+      glow: "from-purple-500/30 to-purple-500/5",
+      border: "border-purple-500/40",
+      iconBg: "bg-purple-500/15 text-purple-300",
+      activeBg: "bg-purple-500/10",
+    },
+    {
+      icon: <Download className="w-6 h-6" />,
+      label: "Final Video",
+      sub: "Export & publish",
+      color: "green",
+      glow: "from-green-500/30 to-green-500/5",
+      border: "border-green-500/40",
+      iconBg: "bg-green-500/15 text-green-300",
+      activeBg: "bg-green-500/10",
+    },
+  ];
+
+  const features = [
+    {
+      icon: <Music2 className="w-7 h-7" />,
+      badge: "Powered by Suno",
+      badgeColor: "bg-blue-500/15 text-blue-300 border-blue-500/20",
+      iconColor: "text-blue-400",
+      iconBg: "bg-blue-500/10 border-blue-500/20",
+      title: "AI Music Generation",
+      desc: "Generate complete songs from a text prompt — vocals, instruments, and full production. Choose from any style, genre, or mood.",
+      bullets: ["Full songs from text", "Any style or genre", "Vocals & instrumentals"],
+      cta: "Generate a Song",
+      href: "/music-creator",
+    },
+    {
+      icon: <Film className="w-7 h-7" />,
+      badge: "WizBeat",
+      badgeColor: "bg-violet-500/15 text-violet-300 border-violet-500/20",
+      iconColor: "text-violet-400",
+      iconBg: "bg-violet-500/10 border-violet-500/20",
+      title: "Music Video Creation",
+      desc: "Upload your song and WizVid generates a complete scene-by-scene music video — synced to your lyrics, with characters and animation.",
+      bullets: ["Synced to lyrics", "Characters & scenes", "YouTube & socials ready"],
+      cta: "Create Music Video",
+      href: "/music-video",
+    },
+    {
+      icon: <Bot className="w-7 h-7" />,
+      badge: "WizPilot",
+      badgeColor: "bg-green-500/15 text-green-300 border-green-500/20",
+      iconColor: "text-green-400",
+      iconBg: "bg-green-500/10 border-green-500/20",
+      title: "WizPilot Automation",
+      desc: "Create full videos from prompts or images. WizPilot generates the storyboard, renders every scene, and delivers a finished video — no editing.",
+      bullets: ["Prompt to full video", "Free storyboard", "No editing required"],
+      cta: "Start WizPilot",
+      href: "/wizpilot",
+    },
+  ];
+
+  return (
+    <>
+      {/* ── Animated Flow ─────────────────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12 reveal">
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Complete AI Content Engine</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+              From idea to finished video
+              <br />
+              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-green-400 bg-clip-text text-transparent">in one platform</span>
+            </h2>
+            <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
+              Create complete AI content — music, video, and storytelling — without switching tools.
+            </p>
+          </div>
+
+          {/* Flow steps */}
+          <div className="flex flex-col md:flex-row items-center gap-3 md:gap-0 reveal">
+            {steps.map((step, i) => (
+              <div key={step.label} className="flex items-center flex-1 min-w-0">
+                <div
+                  className={`flex-1 relative p-5 rounded-2xl border transition-all duration-500 cursor-default
+                    ${activeStep === i
+                      ? `${step.activeBg} ${step.border} shadow-lg`
+                      : "bg-[#171717] border-white/6"}
+                  `}
+                  onMouseEnter={() => setActiveStep(i)}
+                >
+                  {/* Glow on active */}
+                  {activeStep === i && (
+                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${step.glow} opacity-40 pointer-events-none`} aria-hidden="true" />
+                  )}
+                  <div className="relative z-10">
+                    <div className={`w-11 h-11 rounded-xl border flex items-center justify-center mb-3 transition-colors duration-300 ${activeStep === i ? step.iconBg + " " + step.border : "bg-white/5 border-white/8 text-[#a1a1aa]"}`}>
+                      {step.icon}
+                    </div>
+                    <div className="text-xs font-bold text-[#a1a1aa] tracking-widest mb-1">STEP {String(i + 1).padStart(2, "0")}</div>
+                    <div className={`font-semibold text-sm mb-0.5 transition-colors duration-300 ${activeStep === i ? "text-white" : "text-white/70"}`}>{step.label}</div>
+                    <div className="text-xs text-[#a1a1aa]">{step.sub}</div>
+                  </div>
+                </div>
+                {i < steps.length - 1 && (
+                  <div className={`flex-shrink-0 mx-2 transition-colors duration-500 ${activeStep > i ? "text-white" : "text-white/20"}`}>
+                    <ArrowRight className="w-5 h-5 hidden md:block" />
+                    <div className="w-px h-5 bg-current mx-auto md:hidden" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-6 h-0.5 bg-white/6 rounded-full overflow-hidden reveal">
+            <div
+              className="h-full bg-gradient-to-r from-violet-500 via-blue-500 to-green-500 rounded-full transition-all duration-[2200ms] ease-linear"
+              style={{ width: `${((activeStep + 1) / 4) * 100}%` }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3-Column Feature Block ────────────────────────────────────────────── */}
+      <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14 reveal">
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Everything in one place</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+              Replace multiple tools<br />
+              <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">with one platform</span>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {features.map((f, i) => (
+              <div
+                key={f.title}
+                className={`flex flex-col p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+              >
+                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 ${f.iconBg} ${f.iconColor}`}>
+                  {f.icon}
+                </div>
+                <span className={`inline-flex self-start text-xs font-semibold px-2.5 py-1 rounded-full border mb-3 ${f.badgeColor}`}>{f.badge}</span>
+                <h3 className="text-lg font-bold text-white mb-2">{f.title}</h3>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4 flex-1">{f.desc}</p>
+                <ul className="space-y-1.5 mb-5">
+                  {f.bullets.map((b) => (
+                    <li key={b} className="flex items-center gap-2 text-sm text-[#a1a1aa]">
+                      <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  variant="outline"
+                  className="border-white/12 text-white hover:bg-white/5 bg-transparent text-sm rounded-xl font-medium h-auto py-2.5 mt-auto"
+                  asChild
+                >
+                  <a href={f.href}><ArrowRight className="w-3.5 h-3.5 mr-1.5" />{f.cta}</a>
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Combined Flow Example ─────────────────────────────────────────────── */}
+      <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12 reveal">
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">See it in action</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+              From idea to finished video
+              <br />
+              <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">in minutes</span>
+            </h2>
+          </div>
+
+          <div className="relative reveal">
+            {/* Vertical connector line */}
+            <div className="absolute left-6 top-8 bottom-8 w-px bg-gradient-to-b from-violet-500/60 via-blue-500/40 to-green-500/60 hidden md:block" aria-hidden="true" />
+
+            <div className="space-y-4">
+              {[
+                {
+                  step: "Prompt",
+                  color: "violet",
+                  dot: "bg-violet-500",
+                  content: (
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-violet-500/20">
+                      <p className="text-xs text-violet-300 font-semibold uppercase tracking-widest mb-2">Your idea</p>
+                      <p className="text-white font-medium text-lg">"Kids pirate adventure song"</p>
+                    </div>
+                  ),
+                },
+                {
+                  step: "AI Music",
+                  color: "blue",
+                  dot: "bg-blue-500",
+                  content: (
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-blue-500/20">
+                      <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest mb-3">Suno generates</p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex gap-0.5 items-end h-8">
+                          {[3,5,4,7,5,6,4,8,5,4,6,5,7,4,5].map((h, i) => (
+                            <div key={i} className="w-1.5 rounded-full bg-blue-400/70 animate-pulse" style={{height: `${h * 4}px`, animationDelay: `${i * 80}ms`}} />
+                          ))}
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Full song — 2:45</p>
+                          <p className="text-[#a1a1aa] text-sm">Upbeat pirate folk, vocals + instruments</p>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  step: "WizVid creates",
+                  color: "purple",
+                  dot: "bg-purple-500",
+                  content: (
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-purple-500/20">
+                      <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-3">WizVid generates</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {["Storyboard", "Animated scenes", "Final video"].map((item) => (
+                          <div key={item} className="p-3 rounded-xl bg-purple-500/8 border border-purple-500/15 text-center">
+                            <Check className="w-4 h-4 text-green-400 mx-auto mb-1" />
+                            <p className="text-white text-xs font-medium">{item}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  step: "Result",
+                  color: "green",
+                  dot: "bg-green-500",
+                  content: (
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-green-500/20">
+                      <p className="text-xs text-green-300 font-semibold uppercase tracking-widest mb-3">Ready to publish</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-10 rounded-lg bg-gradient-to-br from-green-900/40 to-black border border-green-500/20 flex items-center justify-center flex-shrink-0">
+                          <Play className="w-4 h-4 text-green-300 ml-0.5" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">Full 2:45 animated video</p>
+                          <div className="flex gap-2 mt-1">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">1080p</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">No watermark</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">YouTube ready</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+              ].map((row) => (
+                <div key={row.step} className="flex gap-5 md:pl-14 relative">
+                  <div className={`absolute left-4 top-6 w-4 h-4 rounded-full ${row.dot} shadow-lg hidden md:block flex-shrink-0`} aria-hidden="true" />
+                  <div className="flex-1">{row.content}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Conversion hook */}
+          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-violet-500/8 via-blue-500/5 to-green-500/8 border border-white/8 text-center reveal">
+            <p className="text-white font-semibold text-lg mb-1">
+              Replace hours of production, editors, animators, and music tools
+            </p>
+            <p className="text-[#a1a1aa] text-base">
+              — all with one platform, starting free.
+            </p>
+          </div>
+
+          {/* Dual CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8 reveal">
+            <Button
+              className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
+              asChild
+            >
+              <a href="/onboarding"><Video className="w-4 h-4 mr-2" />Create Your First AI Video</a>
+            </Button>
+            <Button
+              className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
+              asChild
+            >
+              <a href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Generate Your First Song</a>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ── HowItWorks ──────────────────────────────────────────────────────────────
 function HowItWorks() {
   return (
     <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
@@ -1024,6 +1375,7 @@ export default function Home() {
         <ProductDemo />
         <WhyWizVid />
         <Features />
+        <ContentEngine />
         <WhoItsFor />
         <HowItWorks />
         <WizBeatSection />

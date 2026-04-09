@@ -11,6 +11,7 @@
  */
 
 import axios from "axios";
+import { withRetry } from "../utils/rateLimitRetry";
 
 const SEEDANCE_API_BASE = "https://ark.cn-beijing.volces.com/api/v3";
 
@@ -161,13 +162,13 @@ export class SeedanceClient {
    */
   async getTaskStatus(taskId: string): Promise<SeedanceLegacyStatus> {
     try {
-      const response = await axios.get<SeedanceTaskResponse>(
+      const response = await withRetry(() => axios.get<SeedanceTaskResponse>(
         `${SEEDANCE_API_BASE}/contents/generations/tasks/${taskId}`,
         {
           headers: this.getHeaders(),
           timeout: 30000,
         }
-      );
+      ));
 
       const data = response.data;
       const videoUrl = data.content?.find(

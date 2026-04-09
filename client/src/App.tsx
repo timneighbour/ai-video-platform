@@ -31,6 +31,7 @@ const Privacy = lazy(() => import("@/pages/Privacy"));
 const Terms = lazy(() => import("@/pages/Terms"));
 const Refunds = lazy(() => import("@/pages/Refunds"));
 const CrispChat = lazy(() => import("@/components/CrispChat"));
+const MusicCreator = lazy(() => import("@/pages/MusicCreator"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -53,6 +54,7 @@ function Router() {
         <Route path={"/tools/voiceover"} component={Voiceover} />
         <Route path={"/wizpilot"} component={Autopilot} />
         <Route path={"/autopilot"} component={Autopilot} />{/* backward compat redirect */}
+        <Route path={"/music-creator"} component={MusicCreator} />
         <Route path={"/music-video"} component={MusicVideosLanding} />
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
         <Route path={"/pricing"} component={Pricing} />

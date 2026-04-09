@@ -68,29 +68,44 @@ export default function LipSync() {
 
   const pollStatus = (pid: number) => {
     let attempts = 0;
-    const interval = setInterval(async () => {
+    let backoffMs = 10000; // Start at 10s, back off on 429
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const poll = async () => {
       attempts++;
       try {
         const result = await statusQuery.refetch();
         const data = result.data;
         if (data?.status === "completed" && data.videoUrl) {
-          clearInterval(interval);
           setResultUrl(data.videoUrl);
           setGenerating(false);
           toast.success("Lip-sync complete!");
+          return;
         } else if (data?.status === "failed") {
-          clearInterval(interval);
           setGenerating(false);
           toast.error("Generation failed. Please try again.");
+          return;
         } else if (attempts > 60) {
-          clearInterval(interval);
           setGenerating(false);
           toast.error("Timed out waiting for result.");
+          return;
         }
-      } catch {
+        // Reset backoff on success
+        backoffMs = 10000;
+      } catch (err: any) {
+        // On 429, back off exponentially (max 60s)
+        if (err?.data?.httpStatus === 429 || err?.message?.includes("429")) {
+          backoffMs = Math.min(backoffMs * 2, 60000);
+          console.warn(`[LipSync] Rate limited, backing off to ${backoffMs}ms`);
+        }
         // keep polling
       }
-    }, 5000);
+      timeoutId = setTimeout(poll, backoffMs);
+    };
+
+    timeoutId = setTimeout(poll, backoffMs);
+    // Return cleanup
+    return () => clearTimeout(timeoutId);
   };
 
   const handleGenerate = async () => {

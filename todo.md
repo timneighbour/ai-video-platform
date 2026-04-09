@@ -684,3 +684,47 @@
 - [x] Ensure autoplay/loop/muted on all showcase videos, poster images for LCP (hover-to-play on desktop)
 - [x] Add "Made with WizVid" badge on each card
 - [x] Insert showcase section into Home.tsx (replaced text-only MadeWithWizVid section)
+
+## Bug: Videos Not Playing
+- [ ] Investigate and fix: hero background videos not autoplaying
+- [ ] Investigate and fix: hero logo video not playing
+- [ ] Investigate and fix: showcase card hover-to-play not working
+
+## Suno Music Creator Feature
+- [ ] Research Suno API availability and integration approach
+- [ ] Build /music-creator page with style/mood/genre selector and prompt input
+- [ ] Integrate Suno API (or structure for plug-in) for music generation
+- [ ] Add playback UI with waveform/audio player on results
+- [ ] Add music creator to main navigation
+- [ ] Add music creator CTA on landing page
+- [ ] Add tRPC procedure for music generation job management
+- [ ] Write vitest tests for music creator backend
+
+## Bug: Video Rendering Errors (All Pages)
+- [ ] Audit all video elements site-wide for broken URLs, missing poster images, codec errors
+- [ ] Fix all broken video CDN URLs
+- [ ] Fix autoplay on hero background videos and logo video
+- [ ] Fix video rendering on MusicVideoAutopilot page
+- [ ] Fix video rendering on Dashboard/project history video previews
+- [ ] Fix video rendering on tool output pages
+
+## Bug: HTTP 426 Error on Video Rendering
+- [ ] Find which endpoint/API call returns HTTP 426 (Upgrade Required)
+- [ ] Fix the 426 error — likely a video generation status poll or AI API call using wrong protocol
+
+## Bug: HTTP 429 Rate Limit on Video Generation
+- [ ] Find all polling loops hitting AI APIs (Kling, HeyGen, Runway, Seedance) and check intervals
+- [ ] Add exponential backoff to all status polling loops
+- [ ] Handle Retry-After header from 429 responses
+- [ ] Increase minimum polling interval to avoid rate limits
+
+## USP Visual Overhaul (AI Content Engine)
+- [ ] Animated 4-step idea-to-video flow component (sequential light-up, mobile vertical stack)
+- [ ] USP sub-headline: "Create complete AI content — music, video, and storytelling in one platform"
+- [ ] 3-column feature block: AI Music Generation / Music Video Creation / WizPilot Automation
+- [ ] Combined flow example section: "From idea to finished video in minutes"
+- [ ] Conversion hook copy: "Replace hours of production..."
+- [ ] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
+- [ ] Update hero headline positioning copy site-wide
+- [ ] Wire Suno router into main routers.ts and build Suno music creator page
+- [ ] Ensure all animations are smooth, lightweight, and mobile-responsive

@@ -4,6 +4,7 @@
  */
 
 import axios from "axios";
+import { withRetry } from "../utils/rateLimitRetry";
 
 const RUNWAY_API_BASE = "https://api.runwayml.com";
 
@@ -129,13 +130,13 @@ export class RunwayClient {
    */
   async getTaskStatus(taskId: string): Promise<RunwayTaskStatus["data"]> {
     try {
-      const response = await axios.get<RunwayTaskStatus>(
+      const response = await withRetry(() => axios.get<RunwayTaskStatus>(
         `${RUNWAY_API_BASE}/v1/task/${taskId}`,
         {
           headers: this.getHeaders(),
           timeout: 30000,
         }
-      );
+      ));
 
       if (response.data.code === 0) {
         return response.data.data;

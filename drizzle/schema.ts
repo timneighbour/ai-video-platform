@@ -204,3 +204,21 @@ export const showcaseItems = mysqlTable("showcaseItems", {
 });
 export type ShowcaseItem = typeof showcaseItems.$inferSelect;
 export type InsertShowcaseItem = typeof showcaseItems.$inferInsert;
+
+// ─── Suno Music Generation ──────────────────────────────────────────────────
+
+export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  taskId: varchar("taskId", { length: 128 }).notNull(),
+  title: varchar("title", { length: 120 }),
+  prompt: text("prompt"),
+  style: varchar("style", { length: 200 }),
+  instrumental: boolean("instrumental").default(false),
+  status: mysqlEnum("status", ["pending", "processing", "complete", "failed"]).default("pending"),
+  /** Two tracks are returned per task — stored as JSON array */
+  tracks: longtext("tracks"), // JSON: Array<{ audioUrl, imageUrl, title, tags, duration }>
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});

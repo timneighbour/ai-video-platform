@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, CreditCard, Settings, FolderOpen } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -31,6 +31,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Zap, label: "WizPilot", path: "/wizpilot" },
   { icon: Music, label: "Music Video", path: "/music-video" },
+  { icon: Music2, label: "AI Music Creator", path: "/music-creator" },
   { icon: Video, label: "Text to Video", path: "/tools/text-to-video" },
   { icon: Wand2, label: "Video Transform", path: "/tools/video-to-video" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },

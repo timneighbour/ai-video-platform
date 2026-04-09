@@ -8,6 +8,7 @@
 
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { withRetry } from "../utils/rateLimitRetry";
 
 const KLING_API_BASE = "https://api-singapore.klingai.com";
 
@@ -130,7 +131,7 @@ export class KlingAIClient {
    */
   async getTaskStatus(taskId: string): Promise<KlingTaskStatus["data"]> {
     try {
-      const response = await axios.get<KlingTaskStatus>(
+      const response = await withRetry(() => axios.get<KlingTaskStatus>(
         `${KLING_API_BASE}/v1/videos/text2video/${taskId}`,
         {
           headers: {
@@ -139,7 +140,7 @@ export class KlingAIClient {
           },
           timeout: 30000,
         }
-      );
+      ));
 
       if (response.data.code === 0) {
         return response.data.data;
