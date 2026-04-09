@@ -1080,3 +1080,6 @@
 
 ## Feature: Logo Hover Animation (Apr 2026)
 - [x] Add subtle hover animation to WizVid nav logo across all pages (scale-105 + brightness-110, 300ms transition)
+
+## Feature: Nav Link Hover Animation (Apr 2026)
+- [x] Add subtle hover animation (scale-105 + -translate-y-0.5, 200ms) to all header nav links across all pages (Home, Pricing, Help, MusicVideosLanding)

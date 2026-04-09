@@ -174,7 +174,7 @@ export default function Pricing() {
               <a
                 key={link.label}
                 href={link.href}
-                className={`px-4 py-2 text-sm rounded-lg transition-colors font-medium ${link.href === "/pricing" ? "text-white" : "text-[#a1a1aa] hover:text-white"}`}
+                className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 font-medium inline-block hover:scale-105 hover:-translate-y-0.5 ${link.href === "/pricing" ? "text-white" : "text-[#a1a1aa] hover:text-white"}`}
               >
                 {link.label}
               </a>

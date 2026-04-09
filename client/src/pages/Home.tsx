@@ -90,7 +90,7 @@ function Nav() {
             <a
               key={link.label}
               href={link.href}
-              className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-colors font-medium"
+              className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
             >
               {link.label}
             </a>

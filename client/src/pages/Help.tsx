@@ -132,7 +132,7 @@ export default function Help() {
               { label: "Help", href: "/help" },
             ].map((link) => (
               <Link key={link.label} href={link.href}>
-                <span className={`px-4 py-2 text-sm rounded-lg transition-colors font-medium cursor-pointer ${link.href === "/help" ? "text-white" : "text-[#a1a1aa] hover:text-white"}`}>
+                <span className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 font-medium cursor-pointer inline-block hover:scale-105 hover:-translate-y-0.5 ${link.href === "/help" ? "text-white" : "text-[#a1a1aa] hover:text-white"}`}>
                   {link.label}
                 </span>
               </Link>
