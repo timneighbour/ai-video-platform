@@ -19,7 +19,7 @@ export default function MusicVideosLanding() {
     if (isAuthenticated) {
       window.location.href = "/music-video/create";
     } else {
-      window.location.href = getLoginUrl();
+      window.location.href = "/onboarding";
     }
   };
 
@@ -33,8 +33,8 @@ export default function MusicVideosLanding() {
           </a>
           <div className="hidden md:flex items-center gap-1">
             {[
-              { label: "Music Videos", href: "/music-video" },
-              { label: "Create Video", href: "/wizpilot" },
+              { label: "Music Video", href: "/music-video" },
+              { label: "WizPilot", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
@@ -53,7 +53,7 @@ export default function MusicVideosLanding() {
                 className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9"
                 onClick={handleCTA}
               >
-                <Sparkles className="w-3.5 h-3.5 mr-1.5" />Create Video
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />WizPilot
               </Button>
             ) : (
               <>
@@ -222,9 +222,13 @@ export default function MusicVideosLanding() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
           <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain" />
           <p>© 2025 WizVid. All rights reserved.</p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-6">
             <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
             <a href="/help" className="hover:text-white transition-colors">Help</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+            <a href="/refunds" className="hover:text-white transition-colors">Refunds</a>
+            <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
           </div>
         </div>
       </footer>

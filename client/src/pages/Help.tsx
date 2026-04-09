@@ -169,7 +169,7 @@ export default function Help() {
         {/* Quick links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
           {[
-            { icon: <Music className="w-4 h-4" />, label: "Music Videos", href: "/music-video" },
+            { icon: <Music className="w-4 h-4" />, label: "Music Video", href: "/music-video" },
             { icon: <Video className="w-4 h-4" />, label: "WizPilot", href: "/wizpilot" },
             { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/seo/ai-kids-video-generator" },
             { icon: <MessageCircle className="w-4 h-4" />, label: "Live Chat", href: "#chat" },

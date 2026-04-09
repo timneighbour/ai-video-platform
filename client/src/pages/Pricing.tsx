@@ -155,8 +155,8 @@ export default function Pricing() {
           </a>
           <div className="hidden md:flex items-center gap-1">
             {[
-              { label: "Music Videos", href: "/music-video" },
-              { label: "Create Video", href: "/wizpilot" },
+              { label: "Music Video", href: "/music-video" },
+              { label: "WizPilot", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
@@ -170,7 +170,7 @@ export default function Pricing() {
             ))}
           </div>
           <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
-            <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
+            <a href={isAuthenticated ? "/dashboard" : "/onboarding"}>
               {isAuthenticated ? "Dashboard" : "Get started"}
             </a>
           </Button>
@@ -367,7 +367,7 @@ export default function Pricing() {
               className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
+              <a href={isAuthenticated ? "/dashboard" : "/onboarding"}>
                 <Sparkles className="w-4 h-4 mr-2" />Create your first video free
               </a>
             </Button>
@@ -379,6 +379,15 @@ export default function Pricing() {
               <a href="/help">View Help Centre <ArrowRight className="w-4 h-4 ml-2" /></a>
             </Button>
           </div>
+        </div>
+      </div>
+      {/* Legal footer */}
+      <div className="border-t border-white/8 py-8 mt-8">
+        <div className="max-w-6xl mx-auto px-6 flex flex-wrap gap-4 justify-center text-sm text-[#a1a1aa]">
+          <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+          <a href="/refunds" className="hover:text-white transition-colors">Refund Policy</a>
+          <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
         </div>
       </div>
     </div>

@@ -23,6 +23,9 @@ import Pricing from "./pages/Pricing";
 import Onboarding from "./pages/Onboarding";
 import Help from "./pages/Help";
 import SeoLandingPage from "./pages/SeoLandingPage";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Refunds from "./pages/Refunds";
 import CrispChat from "./components/CrispChat";
 
 function Router() {
@@ -46,6 +49,9 @@ function Router() {
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/onboarding"} component={Onboarding} />
       <Route path={"/help"} component={Help} />
+      <Route path={"/privacy"} component={Privacy} />
+      <Route path={"/terms"} component={Terms} />
+      <Route path={"/refunds"} component={Refunds} />
       <Route path={"/seo/:slug"} component={SeoLandingPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

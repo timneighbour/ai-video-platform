@@ -624,3 +624,12 @@
 - [ ] Replace single character upload in MusicVideoAutopilot with CharacterManager component
 - [ ] Pass character descriptions (name + photo URLs) into storyboard LLM prompt
 - [ ] Add CharacterManager to Animation Video page if it exists
+- [x] Add /privacy, /terms, /refunds legal pages
+- [x] Update robots.txt with proper disallow rules
+- [x] Add legal pages to sitemap.xml
+- [x] Standardise nav labels to "Music Video" and "WizPilot" across all pages
+- [x] Add Legal section to Home footer with Privacy, Terms, Refunds links
+- [x] Fix support@wizvid.ai to be a mailto link in footer
+- [x] Soften testimonial claims (remove "CTR doubled", "0 to 5K subs")
+- [x] Add legal footer links to Pricing, MusicVideosLanding pages
+- [x] Fix CTA on Pricing and MusicVideosLanding to go to /onboarding for unauthenticated users

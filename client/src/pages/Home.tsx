@@ -58,8 +58,8 @@ function Nav() {
   }, []);
 
   const navLinks = [
-    { label: "Music Videos", href: "/music-video" },
-    { label: "Create Video", href: "/wizpilot" },
+    { label: "Music Video", href: "/music-video" },
+    { label: "WizPilot", href: "/wizpilot" },
     { label: "Pricing", href: "/pricing" },
     { label: "Help", href: "/help" },
   ];
@@ -637,9 +637,9 @@ function WizBeatSection() {
 function SocialProof() {
   const testimonials = [
     { text: "This saved me hours of editing. My music video looks incredible.", author: "Sarah M.", role: "Indie Artist" },
-    { text: "Game changer for my YouTube channel. My CTR doubled in a week.", author: "James K.", role: "YouTuber, 50K subs" },
+    { text: "WizVid has genuinely changed how I approach YouTube content. My thumbnails and videos look so much more professional.", author: "James K.", role: "YouTuber" },
     { text: "Finally an AI that actually creates videos, not just edits them.", author: "Priya R.", role: "AI Content Creator" },
-    { text: "My kids channel went from 0 to 5K subscribers using WizVid animations.", author: "Tom B.", role: "Kids Content Creator" },
+    { text: "I use WizVid for my kids channel and the animations are incredible. My audience loves the quality.", author: "Tom B.", role: "Kids Content Creator" },
   ];
 
   return (
@@ -725,8 +725,8 @@ function Footer() {
     {
       title: "Product",
       links: [
-        { label: "Music Videos", href: "/music-video" },
-        { label: "Create Video", href: "/wizpilot" },
+        { label: "Music Video", href: "/music-video" },
+        { label: "WizPilot", href: "/wizpilot" },
         { label: "Pricing", href: "/pricing" },
         { label: "Help", href: "/help" },
       ],
@@ -747,6 +747,14 @@ function Footer() {
         { label: "Contact", href: "mailto:support@wizvid.ai" },
       ],
     },
+    {
+      title: "Legal",
+      links: [
+        { label: "Privacy Policy", href: "/privacy" },
+        { label: "Terms of Service", href: "/terms" },
+        { label: "Refund Policy", href: "/refunds" },
+      ],
+    },
   ];
 
   return (
@@ -760,7 +768,7 @@ function Footer() {
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.
             </p>
-            <p className="text-[#a1a1aa] text-xs">support@wizvid.ai</p>
+            <a href="mailto:support@wizvid.ai" className="text-[#a1a1aa] text-xs hover:text-white transition-colors">support@wizvid.ai</a>
           </div>
           {footerLinks.map((section) => (
             <div key={section.title}>

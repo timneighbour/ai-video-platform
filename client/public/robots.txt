@@ -1,5 +1,13 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://wizvid.ai/sitemap.xml
+Disallow: /dashboard
+Disallow: /account
+Disallow: /projects
+Disallow: /credits
+Disallow: /tools/
+Disallow: /music-video/create
+Disallow: /wizpilot
+Disallow: /autopilot
+
+Sitemap: https://www.wizvid.ai/sitemap.xml
