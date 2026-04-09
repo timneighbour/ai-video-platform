@@ -41,4 +41,20 @@ describe("Music Video Service", () => {
   it("musicVideoRouter has regenerateScene procedure", () => {
     expect(musicVideoRouter._def.procedures.regenerateScene).toBeDefined();
   });
+
+  it("musicVideoRouter has retryFailedScene procedure", () => {
+    expect(musicVideoRouter._def.procedures.retryFailedScene).toBeDefined();
+  });
+
+  it("musicVideoRouter has retryAllFailedScenes procedure", () => {
+    expect(musicVideoRouter._def.procedures.retryAllFailedScenes).toBeDefined();
+  });
+
+  it("musicVideoRouter has updateScenePrompt procedure", () => {
+    expect(musicVideoRouter._def.procedures.updateScenePrompt).toBeDefined();
+  });
+
+  it("musicVideoRouter has pollProgress procedure", () => {
+    expect(musicVideoRouter._def.procedures.pollProgress).toBeDefined();
+  });
 });

@@ -757,6 +757,43 @@ export const musicVideoRouter = router({
       return { success: true, retriedCount: failedScenes.length };
     }),
 
+  // Update the visual prompt (and optionally lyrics) for a scene before retrying
+  updateScenePrompt: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+      prompt: z.string().min(1).max(2000),
+      lyrics: z.string().max(1000).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const updatePayload: Record<string, unknown> = {
+        prompt: input.prompt.trim(),
+        updatedAt: new Date(),
+      };
+      if (input.lyrics !== undefined) {
+        updatePayload.lyrics = input.lyrics.trim() || null;
+      }
+
+      await db.update(musicVideoScenes)
+        .set(updatePayload as any)
+        .where(eq(musicVideoScenes.id, input.sceneId));
+
+      console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} prompt updated by user ${ctx.user.id}`);
+      return { success: true, sceneId: input.sceneId, prompt: input.prompt.trim() };
+    }),
+
   // List all jobs for the current user
   listJobs: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();

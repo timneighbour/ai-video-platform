@@ -826,3 +826,17 @@
 - [x] Optimistic UI update on retry (scene chip moves to pending immediately)
 - [x] Resume polling after retry is triggered (isRenderingRef + setRenderStatus)
 - [x] Staggered 3s delay between bulk retries to avoid 429 cascade
+
+## Feature: Edit Prompt Before Retry
+- [x] Add updateScenePrompt tRPC procedure (update prompt + optional lyrics for a scene)
+- [x] Add editingFailedSceneId state to track which failed scene is in edit mode
+- [x] Add editFailedPrompt / editFailedLyrics local state for the edit form
+- [x] "Edit" button on each failed scene card (opens inline edit form)
+- [x] Inline textarea for visual prompt (pre-filled with current scene prompt)
+- [x] Inline textarea for lyrics (optional, pre-filled with current scene lyrics)
+- [x] "Save & Retry" button: persists edited prompt to DB then triggers retryFailedScene
+- [x] "Cancel" button: collapses edit form without saving
+- [x] Character count on prompt textarea (yellow at 1400, red at 1800, max 2000)
+- [x] Optimistic UI: scene chip moves to pending after Save & Retry
+- [x] Prompt/lyrics preserved in perSceneStatuses across poll updates
+- [x] Write vitest tests for retryFailedScene, retryAllFailedScenes, updateScenePrompt, pollProgress

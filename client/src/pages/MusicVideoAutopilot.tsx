@@ -152,7 +152,7 @@ export default function MusicVideoAutopilot() {
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const [failedScenes, setFailedScenes] = useState(0);
   // Per-scene statuses from pollProgress for the real-time progress grid
-  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null }>>([]); 
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null }>>([]); 
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
   const [renderStartTime, setRenderStartTime] = useState<number | null>(null);
@@ -174,6 +174,12 @@ export default function MusicVideoAutopilot() {
   const regenerateSceneMutation = trpc.musicVideo.regenerateScene.useMutation();
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
+  const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+
+  // Edit-before-retry state (separate from storyboard edit state above)
+  const [editingFailedSceneId, setEditingFailedSceneId] = useState<number | null>(null);
+  const [editFailedPrompt, setEditFailedPrompt] = useState("");
+  const [editFailedLyrics, setEditFailedLyrics] = useState("");
 
   // Global lip sync override — null means "per-scene", true/false means all scenes
   const [globalLipSync, setGlobalLipSync] = useState<boolean | null>(null);
@@ -552,7 +558,16 @@ export default function MusicVideoAutopilot() {
             setFailedScenes(progress.failedScenes);
             setRenderStatus(progress.status);
             if (progress.sceneStatuses) {
-              setPerSceneStatuses(progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null }>);
+              setPerSceneStatuses((prev) => {
+                // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll
+                const prevMap = new Map(prev.map((s) => [s.id, s]));
+                return (progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null }>).map((s) => ({
+                  ...s,
+                  // Preserve prompt/lyrics from the storyboard scenes array if available
+                  prompt: prevMap.get(s.id)?.prompt ?? scenes.find((sc) => sc.id === s.id)?.prompt ?? undefined,
+                  lyrics: prevMap.get(s.id)?.lyrics ?? scenes.find((sc) => sc.id === s.id)?.lyrics ?? undefined,
+                }));
+              });
               // Clear retrying state for scenes that are no longer failed
               setRetryingScenes((prev) => {
                 const next = new Set(prev);
@@ -1443,7 +1458,7 @@ export default function MusicVideoAutopilot() {
                           {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/20 ring-1 ring-red-500 inline-block" /> Failed</span>}
                         </div>
 
-                        {/* Failed scene detail cards */}
+                        {/* Failed scene detail cards with edit-before-retry */}
                         {perSceneStatuses.filter((s) => s.status === "failed").length > 0 && (
                           <div className="space-y-2">
                             <p className="text-xs text-red-400 font-medium">Failed Scenes</p>
@@ -1451,62 +1466,185 @@ export default function MusicVideoAutopilot() {
                               .filter((s) => s.status === "failed")
                               .map((scene) => {
                                 const isRetrying = retryingScenes.has(scene.id);
+                                const isEditing = editingFailedSceneId === scene.id;
                                 // Humanise the raw error message
                                 const rawErr = scene.errorMessage ?? "Unknown error";
                                 const friendlyErr = rawErr.includes("429") || rawErr.toLowerCase().includes("rate limit")
-                                  ? "Rate limit reached — the AI rendering service was busy. Retry to re-queue this scene."
+                                  ? "Rate limit reached — the AI rendering service was busy. Edit the prompt or retry to re-queue."
                                   : rawErr.includes("timeout") || rawErr.toLowerCase().includes("timed out")
-                                  ? "Request timed out. The scene took too long to generate. Retry to try again."
+                                  ? "Request timed out. The scene took too long to generate. Try simplifying the prompt."
                                   : rawErr.length > 200 ? rawErr.slice(0, 200) + "…" : rawErr;
 
                                 return (
                                   <div
                                     key={scene.id}
-                                    className="flex items-start gap-3 bg-red-500/5 border border-red-500/20 rounded-lg p-3"
+                                    className="bg-red-500/5 border border-red-500/20 rounded-lg overflow-hidden"
                                   >
-                                    {/* Scene number badge */}
-                                    <div className="w-7 h-7 rounded-md bg-red-500/20 text-red-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                                      {scene.index + 1}
+                                    {/* Header row */}
+                                    <div className="flex items-start gap-3 p-3">
+                                      {/* Scene number badge */}
+                                      <div className="w-7 h-7 rounded-md bg-red-500/20 text-red-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                        {scene.index + 1}
+                                      </div>
+
+                                      {/* Error info */}
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-red-300 mb-0.5">Scene {scene.index + 1} failed</p>
+                                        <p className="text-xs text-zinc-400 leading-relaxed break-words">{friendlyErr}</p>
+                                      </div>
+
+                                      {/* Action buttons */}
+                                      <div className="flex gap-1.5 shrink-0">
+                                        {/* Edit button */}
+                                        {!isEditing && !isRetrying && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-7 px-2 text-xs border-zinc-600 text-zinc-300 bg-transparent hover:bg-zinc-800"
+                                            onClick={() => {
+                                              setEditingFailedSceneId(scene.id);
+                                              setEditFailedPrompt(scene.prompt ?? "");
+                                              setEditFailedLyrics(scene.lyrics ?? "");
+                                            }}
+                                          >
+                                            <Pencil className="w-3 h-3 mr-1" /> Edit
+                                          </Button>
+                                        )}
+
+                                        {/* Retry (quick, no edit) */}
+                                        {!isEditing && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-7 px-2 text-xs border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/10 hover:text-red-300"
+                                            disabled={isRetrying}
+                                            onClick={async () => {
+                                              if (!jobId) return;
+                                              setRetryingScenes((prev) => new Set(prev).add(scene.id));
+                                              setPerSceneStatuses((prev) =>
+                                                prev.map((s) => s.id === scene.id ? { ...s, status: "pending", errorMessage: null } : s)
+                                              );
+                                              try {
+                                                await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                                toast.success(`Scene ${scene.index + 1} re-queued for rendering`);
+                                                isRenderingRef.current = true;
+                                                setRenderStatus("rendering");
+                                              } catch (err: any) {
+                                                setPerSceneStatuses((prev) =>
+                                                  prev.map((s) => s.id === scene.id ? { ...s, status: "failed", errorMessage: rawErr } : s)
+                                                );
+                                                setRetryingScenes((prev) => { const n = new Set(prev); n.delete(scene.id); return n; });
+                                                toast.error("Retry failed", { description: err.message });
+                                              }
+                                            }}
+                                          >
+                                            {isRetrying
+                                              ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Retrying</>
+                                              : <><RefreshCw className="w-3 h-3 mr-1" /> Retry</>}
+                                          </Button>
+                                        )}
+                                      </div>
                                     </div>
 
-                                    {/* Error info */}
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-red-300 mb-0.5">Scene {scene.index + 1} failed</p>
-                                      <p className="text-xs text-zinc-400 leading-relaxed break-words">{friendlyErr}</p>
-                                    </div>
+                                    {/* Inline edit form — shown when Edit is clicked */}
+                                    {isEditing && (
+                                      <div className="border-t border-red-500/20 bg-zinc-900/60 p-3 space-y-3">
+                                        <p className="text-xs text-zinc-400 font-medium">Edit scene before retrying</p>
 
-                                    {/* Retry button */}
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="shrink-0 h-7 px-2 text-xs border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/10 hover:text-red-300"
-                                      disabled={isRetrying}
-                                      onClick={async () => {
-                                        if (!jobId) return;
-                                        setRetryingScenes((prev) => new Set(prev).add(scene.id));
-                                        // Optimistically update scene status to pending in UI
-                                        setPerSceneStatuses((prev) =>
-                                          prev.map((s) => s.id === scene.id ? { ...s, status: "pending", errorMessage: null } : s)
-                                        );
-                                        try {
-                                          await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
-                                          toast.success(`Scene ${scene.index + 1} re-queued for rendering`);
-                                          isRenderingRef.current = true;
-                                          setRenderStatus("rendering");
-                                        } catch (err: any) {
-                                          // Rollback optimistic update
-                                          setPerSceneStatuses((prev) =>
-                                            prev.map((s) => s.id === scene.id ? { ...s, status: "failed", errorMessage: rawErr } : s)
-                                          );
-                                          setRetryingScenes((prev) => { const n = new Set(prev); n.delete(scene.id); return n; });
-                                          toast.error("Retry failed", { description: err.message });
-                                        }
-                                      }}
-                                    >
-                                      {isRetrying
-                                        ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Retrying</>
-                                        : <><RefreshCw className="w-3 h-3 mr-1" /> Retry</>}
-                                    </Button>
+                                        {/* Visual prompt */}
+                                        <div>
+                                          <div className="flex items-center justify-between mb-1">
+                                            <Label className="text-xs text-zinc-400">Visual Prompt</Label>
+                                            <span className={`text-xs ${
+                                              editFailedPrompt.length > 1800 ? "text-red-400" :
+                                              editFailedPrompt.length > 1400 ? "text-yellow-400" : "text-zinc-600"
+                                            }`}>{editFailedPrompt.length}/2000</span>
+                                          </div>
+                                          <Textarea
+                                            value={editFailedPrompt}
+                                            onChange={(e) => setEditFailedPrompt(e.target.value)}
+                                            placeholder="Describe the visual scene..."
+                                            className="text-xs min-h-[80px] bg-zinc-800/60 border-zinc-700 text-zinc-200 resize-none"
+                                            maxLength={2000}
+                                          />
+                                          <p className="text-xs text-zinc-600 mt-1">Tip: shorter, clearer prompts often render more reliably.</p>
+                                        </div>
+
+                                        {/* Lyrics (optional) */}
+                                        <div>
+                                          <div className="flex items-center justify-between mb-1">
+                                            <Label className="text-xs text-zinc-400">Lyrics <span className="text-zinc-600">(optional)</span></Label>
+                                            <span className={`text-xs ${
+                                              editFailedLyrics.length > 900 ? "text-red-400" : "text-zinc-600"
+                                            }`}>{editFailedLyrics.length}/1000</span>
+                                          </div>
+                                          <Textarea
+                                            value={editFailedLyrics}
+                                            onChange={(e) => setEditFailedLyrics(e.target.value)}
+                                            placeholder="Lyrics for this scene window (leave blank to keep current)"
+                                            className="text-xs min-h-[50px] bg-zinc-800/60 border-zinc-700 text-zinc-200 resize-none"
+                                            maxLength={1000}
+                                          />
+                                        </div>
+
+                                        {/* Save & Retry / Cancel */}
+                                        <div className="flex gap-2 justify-end">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-7 px-3 text-xs border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800"
+                                            onClick={() => setEditingFailedSceneId(null)}
+                                          >
+                                            Cancel
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            className="h-7 px-3 text-xs bg-purple-600 hover:bg-purple-500 text-white"
+                                            disabled={!editFailedPrompt.trim() || updateScenePromptMutation.isPending || isRetrying}
+                                            onClick={async () => {
+                                              if (!jobId || !editFailedPrompt.trim()) return;
+                                              try {
+                                                // 1. Persist the edited prompt
+                                                await updateScenePromptMutation.mutateAsync({
+                                                  sceneId: scene.id,
+                                                  jobId,
+                                                  prompt: editFailedPrompt.trim(),
+                                                  lyrics: editFailedLyrics.trim() || undefined,
+                                                });
+                                                // 2. Update local perSceneStatuses with new prompt
+                                                setPerSceneStatuses((prev) =>
+                                                  prev.map((s) => s.id === scene.id
+                                                    ? { ...s, prompt: editFailedPrompt.trim(), lyrics: editFailedLyrics.trim() || null }
+                                                    : s
+                                                  )
+                                                );
+                                                // 3. Close edit form
+                                                setEditingFailedSceneId(null);
+                                                // 4. Trigger retry with updated prompt
+                                                setRetryingScenes((prev) => new Set(prev).add(scene.id));
+                                                setPerSceneStatuses((prev) =>
+                                                  prev.map((s) => s.id === scene.id ? { ...s, status: "pending", errorMessage: null } : s)
+                                                );
+                                                await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                                toast.success(`Scene ${scene.index + 1} updated and re-queued`);
+                                                isRenderingRef.current = true;
+                                                setRenderStatus("rendering");
+                                              } catch (err: any) {
+                                                setPerSceneStatuses((prev) =>
+                                                  prev.map((s) => s.id === scene.id ? { ...s, status: "failed", errorMessage: rawErr } : s)
+                                                );
+                                                setRetryingScenes((prev) => { const n = new Set(prev); n.delete(scene.id); return n; });
+                                                toast.error("Save & Retry failed", { description: err.message });
+                                              }
+                                            }}
+                                          >
+                                            {(updateScenePromptMutation.isPending || isRetrying)
+                                              ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving...</>
+                                              : <><RefreshCw className="w-3 h-3 mr-1" /> Save & Retry</>}
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 );
                               })}
