@@ -800,3 +800,16 @@
 - [x] Fix Suno callBackUrl: add /api/suno/callback endpoint + pass origin from MusicCreator
 - [x] Update Suno router to build callBackUrl from input.origin
 - [x] Run full TypeScript check and all 36 tests after changes
+
+## Feature: Real-Time Render Progress Bar
+- [x] Add stage pipeline display: Queued → Generating Scenes → Assembling → Complete
+- [x] Add animated progress bar that fills based on completedScenes/totalScenes
+- [x] Add per-scene status grid showing each scene as a dot/chip (pending/generating/done/failed)
+- [x] Show estimated time remaining based on scenes completed
+- [x] Show current stage label with animated pulse indicator
+- [x] Smooth CSS transitions on progress bar fill (shimmer animation)
+- [x] Show assembly stage progress after all scenes complete
+- [x] Show final completion state with video preview auto-loaded
+- [x] Add elapsed time counter
+- [x] Add failed scene count indicator in progress bar
+- [x] Add pollProgress sceneStatuses return for per-scene real-time status

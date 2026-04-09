@@ -408,12 +408,22 @@ export const musicVideoRouter = router({
 
       const [updatedJob] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId));
 
+      // Re-fetch scenes to get latest statuses for per-scene progress display
+      const updatedScenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
       return {
         status: updatedJob?.status ?? job.status,
         totalScenes: scenes.length,
         completedScenes: completedCount,
         failedScenes: failedCount,
         finalVideoUrl: updatedJob?.finalVideoUrl ?? null,
+        // Per-scene status for real-time progress display
+        sceneStatuses: updatedScenes.map((s) => ({
+          id: s.id,
+          index: s.sceneIndex,
+          status: s.status, // "pending" | "generating" | "completed" | "failed"
+        })),
       };
     }),
 

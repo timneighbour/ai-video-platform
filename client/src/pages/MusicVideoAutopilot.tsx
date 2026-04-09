@@ -34,6 +34,10 @@ import {
   ChevronUp,
   FileText,
   AlertCircle,
+  Clapperboard,
+  CheckCircle2,
+  Layers,
+  Wand2,
 } from "lucide-react";
 
 type Step = "upload" | "storyboard" | "render";
@@ -146,6 +150,10 @@ export default function MusicVideoAutopilot() {
   const [totalScenes, setTotalScenes] = useState(0);
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
+  const [failedScenes, setFailedScenes] = useState(0);
+  // Per-scene statuses from pollProgress for the real-time progress grid
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string }>>([]);
+  const [renderStartTime, setRenderStartTime] = useState<number | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref guard to prevent double-click / React re-render duplicate render submissions
   const isRenderingRef = useRef(false);
@@ -514,14 +522,13 @@ export default function MusicVideoAutopilot() {
 
     try {
       const result = await startRender.mutateAsync({ jobId });
-      // If server returned duplicate guard (already rendering), just switch to render step
-      if ((result as any).duplicate) {
-        setStep("render");
-        setRenderStatus("rendering");
-      } else {
-        setStep("render");
-        setRenderStatus("rendering");
+      setStep("render");
+      setRenderStatus("rendering");
+      if (!(result as any).duplicate) {
         setCompletedScenes(0);
+        setFailedScenes(0);
+        setPerSceneStatuses([]);
+        setRenderStartTime(Date.now());
       }
 
       // Start polling with adaptive backoff on 429
@@ -538,7 +545,11 @@ export default function MusicVideoAutopilot() {
             const progress = await pollProgress.mutateAsync({ jobId });
             setCompletedScenes(progress.completedScenes);
             setTotalScenes(progress.totalScenes);
+            setFailedScenes(progress.failedScenes);
             setRenderStatus(progress.status);
+            if (progress.sceneStatuses) {
+              setPerSceneStatuses(progress.sceneStatuses);
+            }
 
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
@@ -1247,46 +1258,154 @@ export default function MusicVideoAutopilot() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
-                      <Film className="w-8 h-8 text-purple-400 animate-pulse" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">
-                      {renderStatus === "assembling" ? "Assembling Your Video..." : "Rendering Scenes..."}
-                    </h2>
-                    <p className="text-zinc-400 mb-6">
-                      {renderStatus === "assembling"
-                        ? "All scenes are done! Stitching clips together with your audio track..."
-                        : `Generating ${totalScenes} cinematic scenes. This takes 5–15 minutes.`}
-                    </p>
+                  <div>
+                    {/* Stage pipeline */}
+                    {(() => {
+                      const stages = [
+                        { key: "queued",     label: "Queued",           icon: <Clock className="w-4 h-4" /> },
+                        { key: "rendering",  label: "Generating Scenes", icon: <Clapperboard className="w-4 h-4" /> },
+                        { key: "assembling", label: "Assembling",        icon: <Layers className="w-4 h-4" /> },
+                        { key: "completed",  label: "Complete",          icon: <CheckCircle2 className="w-4 h-4" /> },
+                      ];
+                      const stageOrder = ["queued", "rendering", "assembling", "completed"];
+                      const currentIdx = stageOrder.indexOf(renderStatus === "failed" ? "rendering" : renderStatus);
+                      return (
+                        <div className="flex items-center justify-between mb-8 px-2">
+                          {stages.map((stage, i) => {
+                            const isDone    = i < currentIdx;
+                            const isCurrent = i === currentIdx;
+                            const isPending = i > currentIdx;
+                            return (
+                              <div key={stage.key} className="flex items-center flex-1">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
+                                    isDone    ? "bg-purple-600 text-white" :
+                                    isCurrent ? "bg-purple-500/30 text-purple-300 ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-900" :
+                                                "bg-zinc-800 text-zinc-600"
+                                  }`}>
+                                    {isDone ? <Check className="w-4 h-4" /> : stage.icon}
+                                  </div>
+                                  <span className={`text-xs font-medium whitespace-nowrap ${
+                                    isDone    ? "text-purple-400" :
+                                    isCurrent ? "text-white" :
+                                                "text-zinc-600"
+                                  }`}>{stage.label}</span>
+                                </div>
+                                {i < stages.length - 1 && (
+                                  <div className={`flex-1 h-0.5 mx-2 mb-5 transition-all duration-700 ${
+                                    i < currentIdx ? "bg-purple-600" : "bg-zinc-800"
+                                  }`} />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
 
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm text-zinc-400 mb-2">
-                        <span>{completedScenes} of {totalScenes} scenes complete</span>
-                        <span>{totalScenes > 0 ? Math.round((completedScenes / totalScenes) * 100) : 0}%</span>
+                    {/* Main status header */}
+                    <div className="text-center mb-6">
+                      <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
+                        {renderStatus === "assembling"
+                          ? <Wand2 className="w-7 h-7 text-purple-400 animate-pulse" />
+                          : <Film className="w-7 h-7 text-purple-400 animate-pulse" />}
                       </div>
-                      <Progress
-                        value={totalScenes > 0 ? (completedScenes / totalScenes) * 100 : 0}
-                        className="h-3 bg-zinc-800"
-                      />
+                      <h2 className="text-xl font-bold text-white mb-1">
+                        {renderStatus === "assembling" ? "Assembling Your Video..." : "Rendering Scenes..."}
+                      </h2>
+                      <p className="text-zinc-400 text-sm">
+                        {renderStatus === "assembling"
+                          ? "All scenes done! Stitching clips together with your audio track..."
+                          : `Generating ${totalScenes} cinematic scenes — this takes 5–15 minutes.`}
+                      </p>
                     </div>
 
-                    <p className="text-zinc-500 text-xs">
-                      Each scene takes 1–3 minutes to generate. You can leave this page and come back — we'll keep rendering.
+                    {/* Progress bar */}
+                    <div className="mb-5">
+                      {(() => {
+                        const pct = renderStatus === "assembling"
+                          ? 100
+                          : totalScenes > 0 ? Math.round((completedScenes / totalScenes) * 100) : 0;
+                        const elapsedMs = renderStartTime ? Date.now() - renderStartTime : 0;
+                        const elapsedMin = Math.floor(elapsedMs / 60000);
+                        const elapsedSec = Math.floor((elapsedMs % 60000) / 1000);
+                        const etaText = (() => {
+                          if (completedScenes === 0 || totalScenes === 0) return null;
+                          const msPerScene = elapsedMs / completedScenes;
+                          const remaining = (totalScenes - completedScenes) * msPerScene;
+                          const remMin = Math.ceil(remaining / 60000);
+                          return remMin <= 1 ? "< 1 min remaining" : `~${remMin} min remaining`;
+                        })();
+                        return (
+                          <>
+                            <div className="flex justify-between items-center text-sm mb-2">
+                              <span className="text-zinc-300 font-medium">
+                                {renderStatus === "assembling"
+                                  ? "Assembling final video"
+                                  : `${completedScenes} / ${totalScenes} scenes`}
+                                {failedScenes > 0 && (
+                                  <span className="ml-2 text-red-400 text-xs">({failedScenes} failed)</span>
+                                )}
+                              </span>
+                              <div className="flex items-center gap-3 text-zinc-500 text-xs">
+                                {etaText && <span className="text-purple-400">{etaText}</span>}
+                                <span>{elapsedMin}:{String(elapsedSec).padStart(2, "0")} elapsed</span>
+                                <span className="text-zinc-300 font-semibold">{pct}%</span>
+                              </div>
+                            </div>
+                            <div className="relative h-3 bg-zinc-800 rounded-full overflow-hidden">
+                              <div
+                                className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
+                                style={{
+                                  width: `${pct}%`,
+                                  background: renderStatus === "assembling"
+                                    ? "linear-gradient(90deg, #7c3aed, #ec4899, #7c3aed)"
+                                    : "linear-gradient(90deg, #7c3aed, #a855f7)",
+                                  backgroundSize: "200% 100%",
+                                  animation: pct < 100 ? "shimmer 2s linear infinite" : "none",
+                                }}
+                              />
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Per-scene status grid */}
+                    {totalScenes > 0 && (
+                      <div className="mb-5">
+                        <p className="text-xs text-zinc-500 mb-2 font-medium uppercase tracking-wide">Scene Status</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(perSceneStatuses.length > 0 ? perSceneStatuses : Array.from({ length: totalScenes }, (_, i) => ({ id: i, index: i, status: "pending" }))).map((scene) => (
+                            <div
+                              key={scene.id}
+                              title={`Scene ${scene.index + 1}: ${scene.status}`}
+                              className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                                scene.status === "completed"  ? "bg-purple-600 text-white" :
+                                scene.status === "generating" ? "bg-purple-500/30 text-purple-300 ring-1 ring-purple-500 animate-pulse" :
+                                scene.status === "failed"     ? "bg-red-500/30 text-red-400 ring-1 ring-red-500" :
+                                                                "bg-zinc-800 text-zinc-600"
+                              }`}
+                            >
+                              {scene.status === "completed"  ? <Check className="w-3 h-3" /> :
+                               scene.status === "generating" ? <Loader2 className="w-3 h-3 animate-spin" /> :
+                               scene.status === "failed"     ? <X className="w-3 h-3" /> :
+                               <span>{scene.index + 1}</span>}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-4 mt-2 text-xs text-zinc-600">
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-zinc-800 inline-block" /> Queued</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-500/30 ring-1 ring-purple-500 inline-block" /> Generating</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-600 inline-block" /> Done</span>
+                          {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/30 ring-1 ring-red-500 inline-block" /> Failed</span>}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-zinc-600 text-xs text-center">
+                      Each scene takes 1–3 minutes. You can leave this page — rendering continues in the background.
                     </p>
-
-                    <div className="mt-6 grid grid-cols-5 gap-2">
-                      {Array.from({ length: Math.min(totalScenes, 20) }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-2 rounded-full transition-all ${
-                            i < completedScenes ? "bg-purple-500" :
-                            i === completedScenes ? "bg-purple-500/50 animate-pulse" :
-                            "bg-zinc-800"
-                          }`}
-                        />
-                      ))}
-                    </div>
                   </div>
                 )}
               </CardContent>
