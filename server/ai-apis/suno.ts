@@ -14,6 +14,12 @@ const SUNO_API_BASE = "https://api.sunoapi.org";
 export interface SunoGenerateRequest {
   /** Describe the style, mood, and topic (non-custom mode). Max 400 chars. */
   prompt: string;
+  /**
+   * Actual song lyrics (custom mode only).
+   * When customMode is active, Suno uses this as the lyric body.
+   * If omitted in custom mode, prompt is used as lyrics (may cause 400).
+   */
+  lyrics?: string;
   /** Music style/genre (custom mode). Max 200 chars. */
   style?: string;
   /** Song title (custom mode). Max 80 chars. */
@@ -61,10 +67,18 @@ export class SunoClient {
    * Returns the task ID. Each task generates 2 tracks.
    */
   async generate(req: SunoGenerateRequest): Promise<string> {
+    // Custom mode requires: style + title + lyrics (as prompt body)
+    // Non-custom mode: prompt is a description and Suno auto-generates lyrics
     const useCustomMode = !!(req.style && req.title);
 
+    // In custom mode, the prompt field must contain the actual lyrics.
+    // If the user provided explicit lyrics, use those; otherwise fall back to the description.
+    const promptBody = useCustomMode && req.lyrics?.trim()
+      ? req.lyrics.trim()
+      : req.prompt;
+
     const body: Record<string, unknown> = {
-      prompt: req.prompt,
+      prompt: promptBody,
       instrumental: req.instrumental ?? false,
       model: req.model ?? "V4",
     };

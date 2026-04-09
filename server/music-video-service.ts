@@ -252,6 +252,7 @@ const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
   expressive: "Characters sing with highly expressive, exaggerated mouth movements and energetic facial animation synced to the music.",
   subtle: "Characters sing with very subtle, minimal mouth movements, almost imperceptible, softly synced to the music.",
   dramatic: "Characters sing with dramatic, theatrical mouth movements and intense emotional facial expressions synced to the music.",
+  anime: "Anime-style lip sync: stylized, exaggerated mouth flaps with wide open/close movements, expressive eyes, and vibrant character animation in the style of Japanese animation.",
 };
 
 export async function startSceneRender(
@@ -259,7 +260,7 @@ export async function startSceneRender(
   prompt: string,
   duration: number,
   lipSync = true,
-  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" = "natural"
+  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync

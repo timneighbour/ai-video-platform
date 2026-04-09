@@ -10,6 +10,7 @@ import { getDb } from "../db";
 import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno } from "../ai-apis/suno";
+import { invokeLLM } from "../_core/llm";
 
 export const sunoRouter = router({
   /**
@@ -20,6 +21,11 @@ export const sunoRouter = router({
     .input(
       z.object({
         prompt: z.string().min(1).max(400),
+        /**
+         * Actual song lyrics for custom mode (style + title must also be set).
+         * In custom mode Suno uses this as the lyric body — must be at least 20 chars.
+         */
+        lyrics: z.string().max(3000).optional(),
         style: z.string().max(200).optional(),
         title: z.string().max(80).optional(),
         instrumental: z.boolean().default(false),
@@ -29,6 +35,14 @@ export const sunoRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Validate: custom mode requires lyrics to be non-empty
+      const isCustomMode = !!(input.style && input.title);
+      if (isCustomMode && !input.instrumental && (!input.lyrics || input.lyrics.trim().length < 20)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Please enter at least a few lines of lyrics before generating in custom mode. You can use the \"Generate Lyrics\" button to create a draft.",
+        });
+      }
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
@@ -50,6 +64,7 @@ export const sunoRouter = router({
       // Submit to Suno API
       const externalTaskId = await suno.generate({
         prompt: input.prompt,
+        lyrics: input.lyrics,
         style: input.style,
         title: input.title,
         instrumental: input.instrumental,
@@ -152,6 +167,57 @@ export const sunoRouter = router({
       createdAt: t.createdAt,
     }));
   }),
+
+  /**
+   * Generate draft lyrics using the LLM.
+   * Returns a draft that the user can edit before generating the song.
+   */
+  generateLyrics: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(1).max(400),
+        genre: z.string().optional(),
+        mood: z.string().optional(),
+        title: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const context = [
+        input.title ? `Song title: "${input.title}"` : null,
+        input.genre ? `Genre: ${input.genre}` : null,
+        input.mood ? `Mood: ${input.mood}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const systemPrompt = `You are a professional songwriter. Write complete, singable song lyrics based on the user's description.
+
+Rules:
+- Structure: [Verse 1], [Pre-Chorus] (optional), [Chorus], [Verse 2], [Bridge] (optional), [Chorus], [Outro] (optional)
+- Each section label must be on its own line in square brackets, e.g. [Verse 1]
+- 3–5 lines per verse, 2–4 lines per chorus
+- Rhyme scheme: ABAB or AABB preferred
+- Keep language natural and singable — avoid tongue-twisters
+- Do NOT include explanations, just the lyrics
+- Total length: 150–400 words`;
+
+      const userMessage = `Write song lyrics for:\n${input.prompt}${context ? `\n\nAdditional context:\n${context}` : ""}`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
+        ],
+      });
+
+      const rawContent = response.choices?.[0]?.message?.content ?? "";
+      const lyrics = typeof rawContent === "string" ? rawContent : "";
+      if (!lyrics.trim()) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to generate lyrics. Please try again." });
+      }
+
+      return { lyrics: lyrics.trim() };
+    }),
 
   /**
    * Public endpoint: get featured/demo tracks for the landing page.

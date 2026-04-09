@@ -57,7 +57,7 @@ interface SceneCard {
   previewImageUrl?: string | null;
   previewImageLoading?: boolean;
   lipSync: boolean;
-  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic";
+  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime";
   regenerating?: boolean;
 }
 
@@ -201,7 +201,7 @@ export default function MusicVideoAutopilot() {
     }
   };
 
-  const handleChangeLipSyncStyle = async (sceneId: number, style: "natural" | "expressive" | "subtle" | "dramatic") => {
+  const handleChangeLipSyncStyle = async (sceneId: number, style: "natural" | "expressive" | "subtle" | "dramatic" | "anime") => {
     if (!jobId) return;
     const prev = scenes.find(s => s.id === sceneId)?.lipSyncStyle ?? "natural";
     // Optimistic update
@@ -468,7 +468,7 @@ export default function MusicVideoAutopilot() {
         previewImageUrl: s.previewImageUrl ?? null,
         previewImageLoading: !s.previewImageUrl,
         lipSync: s.lipSync ?? true,
-        lipSyncStyle: (s.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic",
+        lipSyncStyle: (s.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
         regenerating: false,
       }));
       setScenes(mappedScenes);
@@ -1256,7 +1256,7 @@ export default function MusicVideoAutopilot() {
                               type="single"
                               value={scene.lipSyncStyle}
                               onValueChange={(val) => {
-                                if (val) handleChangeLipSyncStyle(scene.id, val as "natural" | "expressive" | "subtle" | "dramatic");
+                                if (val) handleChangeLipSyncStyle(scene.id, val as "natural" | "expressive" | "subtle" | "dramatic" | "anime");
                               }}
                               className="flex gap-1 flex-wrap"
                             >
@@ -1265,6 +1265,7 @@ export default function MusicVideoAutopilot() {
                                 { value: "expressive", label: "Expressive", desc: "Exaggerated, energetic animation" },
                                 { value: "subtle",     label: "Subtle",     desc: "Minimal, almost imperceptible sync" },
                                 { value: "dramatic",   label: "Dramatic",   desc: "Theatrical, intense expressions" },
+                                { value: "anime",      label: "Anime",      desc: "Stylized Japanese animation lip sync" },
                               ] as const).map(({ value, label, desc }) => (
                                 <Tooltip key={value}>
                                   <TooltipTrigger asChild>

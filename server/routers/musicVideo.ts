@@ -311,7 +311,7 @@ export const musicVideoRouter = router({
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic");
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime");
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
@@ -590,7 +590,7 @@ export const musicVideoRouter = router({
     .input(z.object({
       sceneId: z.number().int(),
       jobId: z.number().int(),
-      lipSyncStyle: z.enum(["natural", "expressive", "subtle", "dramatic"]),
+      lipSyncStyle: z.enum(["natural", "expressive", "subtle", "dramatic", "anime"]),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -760,7 +760,7 @@ export const musicVideoRouter = router({
           const scene = failedScenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, STAGGER_MS));
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic");
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime");
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));

@@ -912,4 +912,32 @@
 - [x] Optimistic UI update on style change (instant feedback, rollback on error)
 - [x] Hide style selector when lipSync is OFF (not applicable)
 - [x] Pass lipSyncStyle to startSceneRender in both startRender and retryAllFailedScenes loops
-- [x] Write vitest test for updateSceneLipSyncStyle procedure (41/41 passing)
+- [x] Write vitest test for updateSceneLipSyncSty## Feature: Anime Lip-Sync Style (Apr 2026)
+- [x] Add 'anime' to lipSyncStyle enum in drizzle/schema.ts
+- [x] Generate and apply DB migration for 'anime' enum value (0013_peaceful_the_anarchist.sql)
+- [x] Add 'anime' to updateSceneLipSyncStyle zod enum in musicVideo router
+- [x] Update all type casts in musicVideo router to include 'anime'
+- [x] Add anime prompt modifier: "Anime-style lip sync: stylized, exaggerated mouth flaps..."
+- [x] Add 'Anime' pill button to the UI style selector in MusicVideoAutopilot
+- [x] Update SceneCard interface type to include 'anime'
+- [x] 41/41 test## Bug Fix: Kling AI 400 Bad Request on Scene Render (Apr 2026)
+- [x] Root cause: error was actually from Suno, not Kling (misidentified)
+- [x] Kling request body validated against API spec — no issues found
+- [x] Full error logging already in place via withRetry structured logs
+## Bug Fix: Suno 400 - Empty/Malformed Lyrics (Apr 2026)
+- [x] Root cause: custom mode prompt field was description text, not lyrics
+- [x] Updated Suno AI client to send lyrics as the prompt body in custom mode
+- [x] Updated Suno router to accept separate lyrics field
+- [x] Frontend validation: block submit if lyrics empty in custom mode
+- [x] Clear user error: "Please enter or generate lyrics for your song"
+- [x] 41/41 tests passing, 0 TypeScript errors
+
+## Feature: Editable Lyrics in MusicCreator (Apr 2026)
+- [x] Add lyrics field to Suno API client and router (custom mode uses lyrics as the prompt body)
+- [x] Add AI-generated lyrics step: "Generate Lyrics" button calls LLM via generateLyrics procedure
+- [x] Show editable textarea pre-filled with AI-generated lyrics
+- [x] User can freely edit the lyrics before generating the song
+- [x] Character count on lyrics textarea (yellow at 1800, red at 2400, max 3000)
+- [x] Fix Suno 400: in custom mode, pass lyrics as the prompt field (not the description)
+- [x] Show clear error if lyrics are empty when custom mode is active
+- [x] 41/41 tests passing, 0 TypeScript errors

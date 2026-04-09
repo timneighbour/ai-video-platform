@@ -1,6 +1,7 @@
 /**
  * WizVid Music Creator — powered by Suno AI
  * Visitors can generate full songs from style, mood, genre, and a text prompt.
+ * Custom mode: user can generate + edit lyrics before submitting.
  */
 
 import { useState, useRef, useEffect } from "react";
@@ -13,8 +14,10 @@ import { trpc } from "@/lib/trpc";
 import {
   Music2, Sparkles, Play, Pause, Download, Loader2,
   ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
+  FileText, RefreshCw, PenLine, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Link } from "wouter";
+import { toast } from "sonner";
 
 // ── Preset data ──────────────────────────────────────────────────────────────
 
@@ -154,6 +157,11 @@ export default function MusicCreator() {
   const [instrumental, setInstrumental] = useState(false);
   const [model, setModel] = useState<"V3_5" | "V4">("V4");
 
+  // Lyrics state
+  const [lyrics, setLyrics] = useState("");
+  const [showLyrics, setShowLyrics] = useState(false);
+  const [lyricsGenerated, setLyricsGenerated] = useState(false);
+
   // Generation state
   const [taskId, setTaskId] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -161,7 +169,21 @@ export default function MusicCreator() {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "pending" | "processing" | "complete" | "failed">("idle");
 
-  const utils = trpc.useUtils();
+  // Derived: is custom mode active (requires style + title → lyrics needed)
+  const isCustomMode = !!(selectedGenres.length > 0 || selectedMood) && !!title.trim() && !instrumental && selectedVocal !== "Instrumental only";
+
+  const generateLyricsMutation = trpc.suno.generateLyrics.useMutation({
+    onSuccess: (data) => {
+      setLyrics(data.lyrics);
+      setLyricsGenerated(true);
+      setShowLyrics(true);
+      toast.success("Lyrics generated! Review and edit them below.");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to generate lyrics. Please try again.");
+    },
+  });
+
   const generateMutation = trpc.suno.generate.useMutation({
     onSuccess: (data) => {
       setTaskId(data.id);
@@ -207,6 +229,19 @@ export default function MusicCreator() {
     return parts.join(", ");
   };
 
+  const handleGenerateLyrics = () => {
+    if (!prompt.trim()) {
+      toast.error("Please describe your song first.");
+      return;
+    }
+    generateLyricsMutation.mutate({
+      prompt: prompt.trim(),
+      genre: selectedGenres.join(", ") || undefined,
+      mood: selectedMood || undefined,
+      title: title.trim() || undefined,
+    });
+  };
+
   const handleGenerate = () => {
     if (!prompt.trim()) return;
     setError(null);
@@ -219,6 +254,7 @@ export default function MusicCreator() {
 
     generateMutation.mutate({
       prompt: prompt.trim(),
+      lyrics: lyrics.trim() || undefined,
       style: styleStr || undefined,
       title: title.trim() || undefined,
       instrumental: isInstrumental,
@@ -229,6 +265,9 @@ export default function MusicCreator() {
 
   const toggleGenre = (g: string) =>
     setSelectedGenres((prev) => prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g].slice(0, 3));
+
+  const lyricsCharCount = lyrics.length;
+  const lyricsCharColor = lyricsCharCount > 2800 ? "text-red-400" : lyricsCharCount > 2000 ? "text-yellow-400" : "text-[#a1a1aa]";
 
   const canGenerate = prompt.trim().length > 0 && !isGenerating;
 
@@ -261,8 +300,7 @@ export default function MusicCreator() {
             AI Music Generation
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            Generate full songs
-            <br />
+            Generate full songs{" "}
             <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
               from any idea
             </span>
@@ -370,6 +408,100 @@ export default function MusicCreator() {
               </div>
             </div>
 
+            {/* Lyrics editor */}
+            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-semibold text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-pink-400" />
+                  Lyrics
+                  <span className="text-[#a1a1aa] font-normal text-xs">(optional — recommended for custom mode)</span>
+                </label>
+                <button
+                  onClick={() => setShowLyrics((v) => !v)}
+                  className="text-xs text-[#a1a1aa] hover:text-white flex items-center gap-1 transition-colors"
+                >
+                  {showLyrics ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  {showLyrics ? "Collapse" : "Expand"}
+                </button>
+              </div>
+
+              {/* AI generate lyrics button */}
+              <div className="flex gap-2 mb-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateLyrics}
+                  disabled={!prompt.trim() || generateLyricsMutation.isPending}
+                  className="bg-pink-500/10 border-pink-500/30 text-pink-300 hover:bg-pink-500/20 hover:text-pink-200 text-xs h-8 rounded-lg"
+                >
+                  {generateLyricsMutation.isPending ? (
+                    <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Writing lyrics…</>
+                  ) : (
+                    <><Sparkles className="w-3 h-3 mr-1.5" />{lyricsGenerated ? "Regenerate Lyrics" : "Generate Lyrics with AI"}</>
+                  )}
+                </Button>
+                {lyrics.trim() && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setLyrics(""); setLyricsGenerated(false); }}
+                    className="bg-white/4 border-white/10 text-[#a1a1aa] hover:text-white text-xs h-8 rounded-lg"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+
+              {showLyrics && (
+                <>
+                  <div className="relative">
+                    <Textarea
+                      value={lyrics}
+                      onChange={(e) => setLyrics(e.target.value)}
+                      placeholder={`[Verse 1]\nWrite or paste your lyrics here...\n\n[Chorus]\nOr click "Generate Lyrics with AI" above to get a draft.`}
+                      className="bg-[#0f0f0f] border-white/10 text-white placeholder:text-[#555] resize-none min-h-[260px] focus:border-pink-500/50 focus:ring-0 rounded-xl font-mono text-sm leading-relaxed"
+                      maxLength={3000}
+                    />
+                    {lyrics.trim() && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-pink-500/15 text-pink-300 border-pink-500/20 text-[10px]">
+                          <PenLine className="w-2.5 h-2.5 mr-1" />Editable
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <p className={`text-xs ${lyricsCharColor}`}>{lyricsCharCount}/3000 characters</p>
+                    <p className="text-xs text-[#666]">
+                      Use [Verse 1], [Chorus], [Bridge] section labels
+                    </p>
+                  </div>
+                  {isCustomMode && !lyrics.trim() && (
+                    <div className="mt-3 p-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2">
+                      <span className="text-base leading-none">⚠️</span>
+                      <span>
+                        You have a title and style set — Suno will use <strong>custom mode</strong>, which requires lyrics.
+                        Click <strong>"Generate Lyrics with AI"</strong> above or write your own.
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {!showLyrics && lyrics.trim() && (
+                <div className="flex items-center gap-2 text-xs text-green-400">
+                  <Check className="w-3.5 h-3.5" />
+                  {lyrics.split("\n").filter(Boolean).length} lines of lyrics ready
+                  <button
+                    onClick={() => setShowLyrics(true)}
+                    className="text-[#a1a1aa] hover:text-white underline ml-1"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Advanced: title + model */}
             <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
               <p className="text-sm font-semibold text-white mb-4">Advanced options</p>
@@ -429,7 +561,22 @@ export default function MusicCreator() {
                     <span className="text-white">{selectedMood}</span>
                   </div>
                 )}
+                {lyrics.trim() && (
+                  <div className="flex gap-2 text-sm">
+                    <span className="text-[#a1a1aa] flex-shrink-0">Lyrics:</span>
+                    <span className="text-green-400 flex items-center gap-1">
+                      <Check className="w-3 h-3" />{lyrics.split("\n").filter(Boolean).length} lines
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {/* Custom mode warning */}
+              {isCustomMode && !lyrics.trim() && (
+                <div className="mb-4 p-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-amber-300 text-xs">
+                  <strong>Lyrics required:</strong> You have a title and style set. Please add lyrics or click "Generate Lyrics with AI" to avoid a 400 error.
+                </div>
+              )}
 
               {!user && !authLoading ? (
                 <div className="text-center">
@@ -446,7 +593,7 @@ export default function MusicCreator() {
               ) : (
                 <Button
                   onClick={handleGenerate}
-                  disabled={!canGenerate}
+                  disabled={!canGenerate || (isCustomMode && !lyrics.trim())}
                   className="w-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl h-auto py-3 transition-all shadow-lg hover:shadow-violet-500/20"
                 >
                   {isGenerating ? (
@@ -459,6 +606,23 @@ export default function MusicCreator() {
                       <Music2 className="w-4 h-4 mr-2" />
                       Generate Song
                     </>
+                  )}
+                </Button>
+              )}
+
+              {/* Regenerate lyrics shortcut */}
+              {isCustomMode && !lyrics.trim() && user && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateLyrics}
+                  disabled={!prompt.trim() || generateLyricsMutation.isPending}
+                  className="w-full mt-2 bg-pink-500/10 border-pink-500/30 text-pink-300 hover:bg-pink-500/20 text-xs h-9 rounded-xl"
+                >
+                  {generateLyricsMutation.isPending ? (
+                    <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Writing lyrics…</>
+                  ) : (
+                    <><Sparkles className="w-3 h-3 mr-1.5" />Generate Lyrics First</>
                   )}
                 </Button>
               )}
