@@ -1121,3 +1121,12 @@
 - [x] P6: HowTo JSON-LD schema injected (3 steps from howToSteps data)
 - [x] P6: VideoObject JSON-LD schema injected with keyword-specific name and description
 - [x] P6: BreadcrumbList JSON-LD schema injected (Home > keyword)
+
+## Fix: Deployment OOM Build Failure (Apr 2026)
+- [ ] Diagnose largest Vite chunks causing OOM kill (exit code 137)
+- [ ] Add lazy loading / code-splitting for heavy page components
+- [ ] Add Vite chunk size warnings and manual chunk splitting config
+- [ ] Verify local build succeeds before re-deploying
+
+## Feature: Google Analytics 4 (Apr 2026)
+- [x] Add GA4 gtag.js snippet (G-YJD1MG144E) to index.html head
