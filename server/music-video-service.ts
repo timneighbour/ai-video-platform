@@ -15,8 +15,12 @@ import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
+import { initSeedance } from "./ai-apis/seedance";
+import type { RendererType } from "./products";
+import { RENDERER_COSTS } from "./products";
 
 const klingClient = initKlingAI();
+const seedanceClient = initSeedance();
 
 const execAsync = promisify(exec);
 
@@ -255,29 +259,68 @@ const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
   anime: "Anime-style lip sync: stylized, exaggerated mouth flaps with wide open/close movements, expressive eyes, and vibrant character animation in the style of Japanese animation.",
 };
 
+/**
+ * Estimate the render cost (GBP) for a set of scenes under a given renderer assignment.
+ */
+export function estimateRenderCost(
+  sceneCount: number,
+  premiumScenes: number
+): number {
+  const standardScenes = Math.max(0, sceneCount - premiumScenes);
+  return (
+    premiumScenes * RENDERER_COSTS.kling_standard +
+    standardScenes * RENDERER_COSTS.seedance
+  );
+}
+
 export async function startSceneRender(
   sceneId: number,
   prompt: string,
   duration: number,
   lipSync = true,
-  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural"
+  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural",
+  renderer: RendererType = "seedance"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
     ? `${prompt} ${LIP_SYNC_STYLE_PROMPTS[lipSyncStyle] ?? LIP_SYNC_STYLE_PROMPTS.natural}`
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
+  // Route to the appropriate renderer
+  if (renderer === "seedance") {
+    return startSceneRenderSeedance(sceneId, finalPrompt, duration);
+  }
+
+  // Premium renderers (kling_standard, kling_pro, runway) — with single retry + Seedance fallback
+  try {
+    const taskId = await startSceneRenderKling(finalPrompt, duration);
+    console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}`);
+    return taskId;
+  } catch (err) {
+    console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to Seedance:`, err);
+    // Single retry on premium; immediately fall back to Seedance on failure
+    return startSceneRenderSeedance(sceneId, finalPrompt, duration);
+  }
+}
+
+async function startSceneRenderKling(prompt: string, duration: number): Promise<string> {
   const taskId = await klingClient.createTextToVideo({
-    prompt: finalPrompt,
+    prompt,
     duration: duration <= 5 ? "5" : "10",
     aspect_ratio: "16:9",
     mode: "standard",
   });
+  if (!taskId) throw new Error("Kling: no task_id returned");
+  return taskId;
+}
 
-  if (!taskId) {
-    throw new Error("Failed to start video generation: no task_id returned");
-  }
-
+async function startSceneRenderSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
+  const taskId = await seedanceClient.createTextToVideo({
+    prompt,
+    duration: duration <= 5 ? 5 : 10,
+    aspect_ratio: "16:9",
+  });
+  if (!taskId) throw new Error(`Seedance: no task_id returned for scene ${sceneId}`);
   return taskId;
 }
 

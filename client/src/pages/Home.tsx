@@ -392,15 +392,20 @@ function ProductDemo() {
       badge: "bg-green-500/20 text-green-300",
       content: (
         <div className="space-y-3">
-          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Ready to export</div>
-          <div className="relative rounded-xl overflow-hidden bg-[#0f0f0f] border border-white/8 aspect-video flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-blue-900/20 to-black" />
-            <div className="relative z-10 flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
-                <Play className="w-6 h-6 text-white ml-1" />
-              </div>
-              <span className="text-white text-sm font-medium">Full 3-minute video</span>
-              <span className="text-[#a1a1aa] text-xs">1080p · Cinematic style · Ready in 4 min</span>
+          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Real video generated with WizVid</div>
+          <div className="relative rounded-xl overflow-hidden bg-[#0f0f0f] border border-white/8 aspect-video group cursor-pointer">
+            <video
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic_13667434.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="none"
+              className="w-full h-full object-cover"
+              aria-label="Real AI-generated cinematic video output"
+            />
+            <div className="absolute bottom-2 left-2 px-2 py-1 rounded-md bg-black/70 backdrop-blur-sm text-[10px] font-semibold text-white/80 border border-white/10">
+              Real WizVid output
             </div>
           </div>
           <div className="flex gap-2">

@@ -21,6 +21,10 @@ import {
 import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
+import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
+import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
+import { classifyScenes } from "../scene-classifier";
+import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
 
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
@@ -76,6 +80,33 @@ export const musicVideoRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // ── Profitability Gate 1: Resolve user plan ────────────────────────────
+      const isAdmin = ctx.user.role === "admin";
+      const userSub = isAdmin ? null : await getUserSubscription(ctx.user.id);
+      const productPlan = mapDbPlanToProductPlan(
+        userSub?.status === "active" ? userSub.plan : null
+      );
+      const planConfig = SUBSCRIPTION_PLANS[productPlan];
+
+      // ── Profitability Gate 2: Monthly video count limit ────────────────────
+      if (!isAdmin) {
+        const videosThisMonth = await countVideosThisMonth(ctx.user.id);
+        if (videosThisMonth >= planConfig.maxVideosPerMonth) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Monthly video limit reached (${planConfig.maxVideosPerMonth} videos on ${planConfig.name} plan). Upgrade your plan or wait until next month.`,
+          });
+        }
+      }
+
+      // ── Profitability Gate 3: Video length limit ───────────────────────────
+      if (!isAdmin && input.audioDuration > planConfig.maxVideoSeconds) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Video length exceeds your plan limit. ${planConfig.name} plan allows up to ${planConfig.maxVideoSeconds} seconds (${Math.floor(planConfig.maxVideoSeconds / 60)}m ${planConfig.maxVideoSeconds % 60}s). Your audio is ${input.audioDuration}s. Please trim your audio or upgrade your plan.`,
+        });
+      }
 
       // Upload audio to S3
       const audioBuffer = Buffer.from(input.audioBase64, "base64");
@@ -304,18 +335,58 @@ export const musicVideoRouter = router({
       const scenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
+      // ── Profitability Gate 4: Scene classification + renderer routing ──────
+      // Resolve user plan for renderer routing
+      const renderUserSub = await getUserSubscription(ctx.user.id);
+      const renderProductPlan = mapDbPlanToProductPlan(
+        renderUserSub?.status === "active" ? renderUserSub.plan : null
+      );
+
+      // Classify scenes by importance (async LLM for 4+ scenes, heuristic otherwise)
+      const classifiedScenes = await classifyScenes(
+        scenes.map((s) => ({
+          sceneIndex: s.sceneIndex,
+          prompt: s.prompt,
+          lyrics: s.lyrics,
+          startTime: s.startTime,
+          duration: s.duration,
+        }))
+      );
+
+      // Build cost-aware routing plan and enforce hard stop
+      let routingPlan = buildRoutingPlan(classifiedScenes, renderProductPlan);
+      if (!routingPlan.withinBudget) {
+        console.warn(`[MusicVideo] Job ${input.jobId} estimated cost £${routingPlan.totalEstimatedCostGBP.toFixed(2)} exceeds hard stop £${routingPlan.hardStopGBP} — downgrading scenes`);
+        routingPlan = enforceHardStop(routingPlan);
+      }
+
+      // Build a map of sceneIndex -> renderer for fast lookup
+      const rendererMap = new Map(
+        routingPlan.decisions.map((d) => [d.sceneIndex, d.renderer])
+      );
+
+      console.log(`[MusicVideo] Job ${input.jobId} routing plan: estimated £${routingPlan.totalEstimatedCostGBP.toFixed(2)}, premium scenes: ${routingPlan.premiumScenesUsed}/${routingPlan.premiumScenesAllowed}, plan: ${renderProductPlan}`);
+
       // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
       const SCENE_STAGGER_MS = 3000;
       (async () => {
         for (let i = 0; i < scenes.length; i++) {
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
+          const renderer = rendererMap.get(scene.sceneIndex) ?? "seedance";
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime");
+            const taskId = await startSceneRender(
+              scene.id,
+              scene.prompt,
+              scene.duration,
+              scene.lipSync ?? true,
+              (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+              renderer
+            );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
-            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued: ${taskId}`);
+            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued via ${renderer}: ${taskId}`);
           } catch (err: unknown) {
             const httpStatus = (err as any)?.response?.status;
             console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"})`, err);

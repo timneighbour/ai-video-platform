@@ -194,24 +194,63 @@ export const billingRouter = router({
   createCreditCheckout: protectedProcedure
     .input(
       z.object({
-        pack: z.enum(["small", "medium", "large"]),
+        // Standard packs: starter (£9/300cr), creator (£24/900cr), pro (£59/2400cr)
+        // Cinematic packs: cinematic_10 (£12/200cr), cinematic_25 (£25/500cr), cinematic_50 (£45/1000cr)
+        // Legacy keys kept for backward compat: small→starter, medium→creator, large→pro
+        pack: z.enum(["small", "medium", "large", "starter", "creator", "pro", "cinematic_10", "cinematic_25", "cinematic_50"]),
         origin: z.string().url(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const creditPacks: Record<string, { priceId: string; credits: number }> = {
+        const creditPacks: Record<string, { priceId: string; credits: number; label: string }> = {
+          // Standard packs (new keys)
+          starter: {
+            priceId: process.env.STRIPE_SMALL_PACK_PRICE_ID || process.env.STRIPE_CREDIT_SMALL_PRICE_ID || "",
+            credits: 300,
+            label: "Starter Pack",
+          },
+          creator: {
+            priceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID || process.env.STRIPE_CREDIT_MEDIUM_PRICE_ID || "",
+            credits: 900,
+            label: "Creator Pack",
+          },
+          pro: {
+            priceId: process.env.STRIPE_LARGE_PACK_PRICE_ID || process.env.STRIPE_CREDIT_LARGE_PRICE_ID || "",
+            credits: 2400,
+            label: "Pro Pack",
+          },
+          // Legacy keys (backward compat)
           small: {
-            priceId: process.env.STRIPE_CREDIT_SMALL_PRICE_ID || "",
-            credits: 500,
+            priceId: process.env.STRIPE_SMALL_PACK_PRICE_ID || process.env.STRIPE_CREDIT_SMALL_PRICE_ID || "",
+            credits: 300,
+            label: "Starter Pack",
           },
           medium: {
-            priceId: process.env.STRIPE_CREDIT_MEDIUM_PRICE_ID || "",
-            credits: 1500,
+            priceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID || process.env.STRIPE_CREDIT_MEDIUM_PRICE_ID || "",
+            credits: 900,
+            label: "Creator Pack",
           },
           large: {
-            priceId: process.env.STRIPE_CREDIT_LARGE_PRICE_ID || "",
-            credits: 4000,
+            priceId: process.env.STRIPE_LARGE_PACK_PRICE_ID || process.env.STRIPE_CREDIT_LARGE_PRICE_ID || "",
+            credits: 2400,
+            label: "Pro Pack",
+          },
+          // Cinematic upgrade packs
+          cinematic_10: {
+            priceId: process.env.STRIPE_CINEMATIC_10_PRICE_ID || "",
+            credits: 200,
+            label: "10 Cinematic Scenes",
+          },
+          cinematic_25: {
+            priceId: process.env.STRIPE_CINEMATIC_25_PRICE_ID || "",
+            credits: 500,
+            label: "25 Cinematic Scenes",
+          },
+          cinematic_50: {
+            priceId: process.env.STRIPE_CINEMATIC_50_PRICE_ID || "",
+            credits: 1000,
+            label: "50 Cinematic Scenes",
           },
         };
 
@@ -238,6 +277,7 @@ export const billingRouter = router({
             customer_email: ctx.user.email || "",
             customer_name: ctx.user.name || "",
             pack: input.pack,
+            pack_label: packInfo.label,
             credits: packInfo.credits.toString(),
           },
           allow_promotion_codes: true,

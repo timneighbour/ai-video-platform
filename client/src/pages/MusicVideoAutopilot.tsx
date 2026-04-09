@@ -2,6 +2,9 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { calculateVideoCreditCost } from "../../../shared/const";
+import { useCreditGuard } from "@/hooks/useCreditGuard";
+import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +43,7 @@ import {
   CheckCircle2,
   Layers,
   Wand2,
+  Zap,
 } from "lucide-react";
 
 type Step = "upload" | "storyboard" | "render";
@@ -168,6 +172,8 @@ export default function MusicVideoAutopilot() {
   const generateStoryboardMutation = trpc.musicVideo.generateStoryboard.useMutation();
   const updateScene = trpc.musicVideo.updateScene.useMutation();
   const startRender = trpc.musicVideo.startRender.useMutation();
+  const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
+  const { checkLowCredits, checkCanAfford, showCinematicUpsell, balance: creditBalance } = useCreditGuard();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
   const generateScenePreviewMutation = trpc.musicVideo.generateScenePreview.useMutation();
   const saveCharactersMutation = trpc.characters.saveCharacters.useMutation();
@@ -327,7 +333,13 @@ export default function MusicVideoAutopilot() {
   };
 
   const sceneCount = audioDuration > 0 ? Math.max(3, Math.min(45, Math.ceil(audioDuration / 8))) : 0;
-  const creditCost = sceneCount * 10;
+  const hasLipSync = characters.some(c => c.enableLipSync);
+  const creditBreakdown = calculateVideoCreditCost({
+    audioDurationSeconds: audioDuration,
+    cinematicSceneCount: 0, // standard render — cinematic upgrades are post-render
+    enableLipSync: hasLipSync,
+  });
+  const creditCost = audioDuration > 0 ? creditBreakdown.total : 0;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _unused = user;
@@ -547,6 +559,11 @@ export default function MusicVideoAutopilot() {
       console.warn("[MusicVideo] Render already in progress, ignoring duplicate click");
       return;
     }
+    // Credit guard: check if user can afford this render
+    if (!checkCanAfford(creditCost, "render this video")) {
+      setShowInsufficientCredits(true);
+      return;
+    }
     isRenderingRef.current = true;
 
     try {
@@ -600,7 +617,10 @@ export default function MusicVideoAutopilot() {
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
-              toast.success("Your music video is ready!", { description: "Click Download to save it." });
+              // Show cinematic upsell after a short delay
+              setTimeout(() => showCinematicUpsell(title || undefined), 2000);
+              // Check if credits are now low
+              setTimeout(() => checkLowCredits(), 3000);
               return; // stop polling
             }
 
@@ -675,6 +695,14 @@ export default function MusicVideoAutopilot() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        open={showInsufficientCredits}
+        onClose={() => setShowInsufficientCredits(false)}
+        required={creditCost}
+        balance={creditBalance}
+        canReduceQuality={false}
+      />
       {/* Header */}
       <div className="border-b border-zinc-800 bg-zinc-950">
         <div className="max-w-5xl mx-auto px-4 py-6">
@@ -962,24 +990,34 @@ export default function MusicVideoAutopilot() {
                     <span className="text-zinc-400 flex items-center gap-1.5"><Film className="w-4 h-4" /> Scenes</span>
                     <span className="text-white">{sceneCount > 0 ? sceneCount : "—"}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-zinc-400 flex items-center gap-1.5"><Coins className="w-4 h-4" /> Credits</span>
-                    <span className="text-white">{creditCost > 0 ? creditCost : "—"}</span>
-                  </div>
+                  {/* Credit cost breakdown */}
+                  {audioDuration > 0 && (
+                    <div className="border-t border-zinc-800 pt-3 space-y-2">
+                      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Credit Breakdown</p>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-zinc-400 flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> Standard video</span>
+                        <span className="text-white">{creditBreakdown.base} Credits</span>
+                      </div>
+                      {hasLipSync && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-zinc-400 flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> Lip sync</span>
+                          <span className="text-pink-400">+{creditBreakdown.lipSync} Credits</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-sm border-t border-zinc-800 pt-2 mt-1">
+                        <span className="text-zinc-200 font-semibold">Total</span>
+                        <span className="text-violet-300 font-bold">{creditBreakdown.total} Credits</span>
+                      </div>
+                    </div>
+                  )}
                   {characters.length > 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-zinc-400 flex items-center gap-1.5"><User className="w-4 h-4" /> Characters</span>
                       <span className="text-blue-400">{characters.length} added</span>
                     </div>
                   )}
-                  {characters.some(c => c.enableLipSync) && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-zinc-400 flex items-center gap-1.5"><Mic className="w-4 h-4" /> Lip Sync</span>
-                      <span className="text-pink-400">✓ Enabled</span>
-                    </div>
-                  )}
                   <div className="border-t border-zinc-800 pt-3 text-xs text-zinc-500">
-                    Storyboard generation is free & unlimited. Credits are only charged when you start rendering.
+                    Storyboard generation is free &amp; unlimited. Credits are only used when you start rendering.
                   </div>
                 </CardContent>
               </Card>

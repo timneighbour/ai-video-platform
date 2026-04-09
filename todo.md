@@ -956,3 +956,50 @@
 - [x] Fix nav consistency: Home, Pricing, WizPilot, Music Video, Help, Get Started/Login
 - [x] Remove duplicate/conflicting nav labels (removed duplicate brand logo from nav top-right)
 - [x] QA: homepage flows logically top→bottom, USP clear in 3s, footer links work, back buttons work
+
+## Video Showcase Integration (Apr 2026)
+- [x] Audit existing CDN video assets (hero videos, WizVid animation, showcase items)
+- [x] Generate AI video poster images for 6 video style categories
+- [x] Build VideoStylesShowcase section with 6 looping video previews
+- [x] Each showcase card: category label, short description, hover-to-play video
+- [x] Add "Real video generated with WizVid" label to demo section
+- [x] Ensure all videos: muted autoplay, loop, preload=none (lazy), no layout shift
+- [x] Performance: explicit aspect-ratio containers to prevent CLS
+- [x] QA: videos autoplay muted on mobile and desktop
+
+## Cinematic Hero Video Rebuild (Apr 2026)
+- [x] Generate hero background video (character animation, scene transitions, storytelling moments)
+- [x] Upload hero video to CDN
+- [x] Rebuild hero: full-bleed video background, dark gradient overlay, text readability
+- [x] New headline: "Create full AI videos in minutes — from idea to final content"
+- [x] New subheadline: "Turn a prompt, song, or idea into a complete animated video with zero editing"
+- [x] Add micro proof block: Prompt "Kids pirate adventure song" → Full animated video in under 2 minutes
+- [x] CTA primary: "Create Your First Video", secondary: "Try WizVid Free"
+- [x] Performance: compressed video, fallback poster image, no layout shift
+- [x] QA: muted autoplay on mobile and desktop, smooth loop
+
+## Profitability Control System (Apr 2026)
+- [x] Update products.ts: Starter 10 videos/60s, Pro 25 videos/120s, Creator+ 50 videos/180s
+- [x] Add cost target constants: Starter £1.25 hard stop, Pro £3.50, Creator+ £7.00
+- [x] Build scene-classifier.ts: LLM-based hero/performance/narrative/filler classification
+- [x] Build renderer-router.ts: route scenes to Seedance (cheap) vs Kling (premium) by scene type + plan allocation
+- [x] Add pre-generation cost estimate and hard stop enforcement in music-video-service.ts
+- [x] Add scene downgrade logic: if over budget, demote non-essential scenes to cheaper renderer
+- [x] Enforce video length limits per plan before generation starts
+- [x] Add audio trim/excerpt handling for tracks exceeding plan length limit
+- [x] Cap premium API retries: 1 retry for essential scenes, fallback to Seedance for non-essential
+- [x] Add per-user monthly video count check before job starts (enforce plan cap)
+- [x] Write vitest tests for scene classifier, renderer router, and cost guardrail logic
+
+## Credits System UI & Behaviour (Apr 2026)
+- [x] Fix estimateVideoCostGBP test signature mismatch (sceneCount+premiumScenes not sceneCount+plan)
+- [x] Update backend credit costs: 30/60/90 credits by video length, +20 per premium scene, +30 for lip sync
+- [x] Update products.ts credit pack prices: Starter £9, Creator £24, Pro £59
+- [x] Add cinematic upgrade packs: 10 scenes £12, 25 scenes £25, 50 scenes £45
+- [x] Credit balance display in nav/top bar: ⚡ N Credits, low warning at <20, zero state
+- [x] Estimated credit usage block on video creation screen (standard + cinematic breakdown)
+- [x] Credit pack purchase modal with 3 packs + cinematic upgrades + Stripe checkout
+- [x] Low credit toast trigger when balance drops below 20
+- [x] Insufficient credits modal with Get Credits + Reduce Quality buttons
+- [x] Post-video cinematic upsell: "Want to enhance this video? Upgrade key scenes to cinematic quality"
+- [x] Smart microcopy across UI (creator-friendly language, no technical terms)

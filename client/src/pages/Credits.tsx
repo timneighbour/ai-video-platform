@@ -1,167 +1,342 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Zap, ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import {
+  Zap,
+  ArrowLeft,
+  Sparkles,
+  Film,
+  CheckCircle2,
+  Star,
+  Clapperboard,
+} from "lucide-react";
+import CreditBalance from "@/components/CreditBalance";
 
-const CREDIT_PACKS = [
+// ── Standard credit packs ────────────────────────────────────────────────────
+const STANDARD_PACKS = [
   {
-    id: "small",
-    name: "Small",
-    price: 10,
-    credits: 500,
-    costPerCredit: "£0.020",
-    description: "Great for trying out",
+    id: "starter" as const,
+    name: "Starter Pack",
+    tagline: "Ideal for short creations",
+    price: 9,
+    credits: 300,
+    videos: "~10 standard videos",
+    popular: false,
+    perks: [
+      "300 Credits",
+      "~10 × 60-second videos",
+      "Never expires",
+      "Instant delivery",
+    ],
   },
   {
-    id: "medium",
-    name: "Medium",
+    id: "creator" as const,
+    name: "Creator Pack",
+    tagline: "Best value for regular creators",
+    price: 24,
+    credits: 900,
+    videos: "~30 standard videos",
+    popular: true,
+    perks: [
+      "900 Credits",
+      "~30 × 60-second videos",
+      "Never expires",
+      "Instant delivery",
+    ],
+  },
+  {
+    id: "pro" as const,
+    name: "Pro Pack",
+    tagline: "Built for high-volume creation",
+    price: 59,
+    credits: 2400,
+    videos: "~80 standard videos",
+    popular: false,
+    perks: [
+      "2,400 Credits",
+      "~80 × 60-second videos",
+      "Never expires",
+      "Instant delivery",
+    ],
+  },
+] as const;
+
+// ── Cinematic upgrade packs ──────────────────────────────────────────────────
+const CINEMATIC_PACKS = [
+  {
+    id: "cinematic_10" as const,
+    name: "10 Cinematic Scenes",
+    price: 12,
+    credits: 200,
+    scenes: 10,
+    description: "Apply premium rendering to 10 key scenes across your videos",
+  },
+  {
+    id: "cinematic_25" as const,
+    name: "25 Cinematic Scenes",
     price: 25,
-    credits: 1500,
-    costPerCredit: "£0.017",
-    description: "Best value",
+    credits: 500,
+    scenes: 25,
+    description: "Apply premium rendering to 25 key scenes — perfect for series creators",
     popular: true,
   },
   {
-    id: "large",
-    name: "Large",
-    price: 60,
-    credits: 4000,
-    costPerCredit: "£0.015",
-    description: "Maximum savings",
+    id: "cinematic_50" as const,
+    name: "50 Cinematic Scenes",
+    price: 45,
+    credits: 1000,
+    scenes: 50,
+    description: "Maximum cinematic upgrades for power creators",
   },
-];
+] as const;
+
+type PackId = typeof STANDARD_PACKS[number]["id"] | typeof CINEMATIC_PACKS[number]["id"];
 
 export default function Credits() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [loading, setLoading] = useState<string | null>(null);
+  const [loading, setLoading] = useState<PackId | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation("/");
-    }
+    if (!isAuthenticated) setLocation("/");
   }, [isAuthenticated, setLocation]);
 
-  const handleCheckout = async (packId: string) => {
-    setLoading(packId);
-    try {
-      const response = await fetch("/api/trpc/billing.createCreditCheckout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packId,
-          origin: window.location.origin,
-        }),
-      });
-
-      const data = await response.json();
-      if (data.result?.data) {
-        window.open(data.result.data, "_blank");
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-    } finally {
-      setLoading(null);
+  // Check for success/cancel query params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("canceled") === "true") {
+      toast.info("Purchase cancelled", { description: "Your credits were not charged." });
     }
+  }, []);
+
+  const createCreditCheckout = trpc.billing.createCreditCheckout.useMutation({
+    onSuccess: (data) => {
+      if (data.checkoutUrl) {
+        toast.info("Redirecting to checkout…", { description: "A new tab will open with the secure payment page." });
+        window.open(data.checkoutUrl, "_blank");
+      }
+    },
+    onError: (err) => {
+      toast.error("Checkout failed", { description: err.message });
+    },
+    onSettled: () => setLoading(null),
+  });
+
+  const handleCheckout = (packId: PackId) => {
+    setLoading(packId);
+    createCreditCheckout.mutate({ pack: packId, origin: window.location.origin });
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border/40">
-        <div className="container flex h-16 items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0a]/95 backdrop-blur-xl px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <button
+            onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/dashboard")}
+            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
             Back
-          </Button>
-          <h1 className="text-xl font-bold">WizVid - Buy Credits</h1>
-          <div className="w-20" />
+          </button>
+          <span className="text-sm font-semibold text-white">Buy Credits</span>
+          <CreditBalance variant="badge" />
         </div>
-      </div>
+      </nav>
 
-      {/* Content */}
-      <section className="py-20">
-        <div className="container">
-          <div className="mx-auto max-w-4xl">
-            <div className="mb-12 text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Purchase Additional Credits
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Never run out of credits. Buy now and use them anytime.
-              </p>
-            </div>
+      <div className="max-w-5xl mx-auto px-6 py-16 space-y-20">
 
-            <div className="grid gap-8 md:grid-cols-3">
-              {CREDIT_PACKS.map((pack) => (
-                <Card
-                  key={pack.id}
-                  className={`relative border-border/40 bg-card/50 backdrop-blur transition-all ${
-                    pack.popular ? "ring-2 ring-accent" : ""
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider">
+            <Zap className="w-3.5 h-3.5" />
+            Credits never expire
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight">
+            Get more Credits
+          </h1>
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">
+            Credits are only used when you create or upgrade videos. Storyboard generation is always free.
+          </p>
+        </div>
+
+        {/* Standard packs */}
+        <section>
+          <div className="flex items-center gap-3 mb-8">
+            <Film className="w-5 h-5 text-violet-400" />
+            <h2 className="text-xl font-bold">Video Credits</h2>
+            <span className="text-xs text-zinc-500">30–90 Credits per video depending on length</span>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {STANDARD_PACKS.map((pack) => (
+              <div
+                key={pack.id}
+                className={`relative rounded-2xl border p-6 flex flex-col gap-5 transition-all ${
+                  pack.popular
+                    ? "border-violet-500/50 bg-gradient-to-b from-violet-950/40 to-zinc-900/60 shadow-lg shadow-violet-900/20"
+                    : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
+                }`}
+              >
+                {pack.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-600 px-3 py-1 text-xs font-semibold text-white">
+                      <Star className="w-3 h-3" />
+                      Best Value
+                    </span>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-1">{pack.tagline}</p>
+                  <h3 className="text-xl font-bold text-white">{pack.name}</h3>
+                  <p className="text-sm text-zinc-400 mt-1">{pack.videos}</p>
+                </div>
+
+                <div className="flex items-end gap-1">
+                  <span className="text-4xl font-bold text-white">£{pack.price}</span>
+                  <span className="text-zinc-500 text-sm mb-1">one-time</span>
+                </div>
+
+                <ul className="space-y-2 flex-1">
+                  {pack.perks.map((perk) => (
+                    <li key={perk} className="flex items-center gap-2 text-sm text-zinc-300">
+                      <CheckCircle2 className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  onClick={() => handleCheckout(pack.id)}
+                  disabled={loading === pack.id}
+                  className={`w-full font-semibold ${
+                    pack.popular
+                      ? "bg-violet-600 hover:bg-violet-500 text-white"
+                      : "bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700"
                   }`}
                 >
-                  {pack.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
-                        <Zap className="h-3 w-3" />
-                        Best Value
-                      </span>
-                    </div>
+                  {loading === pack.id ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Processing…
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Zap className="w-4 h-4" />
+                      Buy {pack.credits.toLocaleString()} Credits
+                    </span>
                   )}
-                  <CardHeader>
-                    <CardTitle className="text-2xl">{pack.name} Pack</CardTitle>
-                    <CardDescription>{pack.description}</CardDescription>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold text-foreground">£{pack.price}</span>
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {pack.credits.toLocaleString()} credits
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {pack.costPerCredit} per credit
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      className="w-full"
-                      variant={pack.popular ? "default" : "outline"}
-                      onClick={() => handleCheckout(pack.id)}
-                      disabled={loading === pack.id}
-                    >
-                      {loading === pack.id ? "Processing..." : "Buy Now"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <div className="mt-12 grid gap-6 md:grid-cols-2">
-              <Card className="border-border/40 bg-card/50 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-lg">No Expiration</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Credits purchased through packs never expire. Use them whenever you want.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="border-border/40 bg-card/50 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-lg">Instant Access</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Your credits are added immediately after purchase. Start creating right away.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                </Button>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Cinematic upgrade packs */}
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <Clapperboard className="w-5 h-5 text-amber-400" />
+            <h2 className="text-xl font-bold">Cinematic Upgrades</h2>
+          </div>
+          <p className="text-zinc-400 text-sm mb-8">
+            Upgrade individual scenes in your videos to premium cinematic quality. Each cinematic scene costs 20 Credits.
+            Use these packs to top up your cinematic scene allowance.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {CINEMATIC_PACKS.map((pack) => (
+              <div
+                key={pack.id}
+                className={`relative rounded-2xl border p-6 flex flex-col gap-4 transition-all ${
+                  (pack as { popular?: boolean }).popular
+                    ? "border-amber-500/40 bg-gradient-to-b from-amber-950/30 to-zinc-900/60"
+                    : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
+                }`}
+              >
+                {(pack as { popular?: boolean }).popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-600 px-3 py-1 text-xs font-semibold text-white">
+                      <Sparkles className="w-3 h-3" />
+                      Popular
+                    </span>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-lg font-bold text-white">{pack.name}</h3>
+                  <p className="text-sm text-zinc-400 mt-1">{pack.description}</p>
+                </div>
+
+                <div className="flex items-end gap-1">
+                  <span className="text-3xl font-bold text-white">£{pack.price}</span>
+                  <span className="text-zinc-500 text-sm mb-1">one-time</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-amber-300">
+                  <Sparkles className="w-4 h-4" />
+                  {pack.scenes} cinematic scene upgrades
+                </div>
+
+                <Button
+                  onClick={() => handleCheckout(pack.id)}
+                  disabled={loading === pack.id}
+                  className="w-full bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-600/30 hover:border-amber-500/50 font-semibold"
+                >
+                  {loading === pack.id ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-amber-300/30 border-t-amber-300 rounded-full animate-spin" />
+                      Processing…
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Buy {pack.scenes} Cinematic Upgrades
+                    </span>
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Trust signals */}
+        <section className="grid md:grid-cols-3 gap-6 border-t border-zinc-800 pt-12">
+          {[
+            {
+              icon: <Zap className="w-5 h-5 text-violet-400" />,
+              title: "Credits never expire",
+              desc: "Buy now, use whenever. No monthly reset, no pressure.",
+            },
+            {
+              icon: <CheckCircle2 className="w-5 h-5 text-green-400" />,
+              title: "Instant delivery",
+              desc: "Credits are added to your account immediately after payment.",
+            },
+            {
+              icon: <Sparkles className="w-5 h-5 text-amber-400" />,
+              title: "Storyboard is always free",
+              desc: "Generate and regenerate your storyboard as many times as you like — no Credits needed.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="flex items-start gap-3">
+              <div className="mt-0.5">{item.icon}</div>
+              <div>
+                <p className="text-sm font-semibold text-white">{item.title}</p>
+                <p className="text-xs text-zinc-500 mt-1">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {/* Test card notice */}
+        <p className="text-center text-xs text-zinc-600">
+          Test payments: use card <span className="font-mono text-zinc-500">4242 4242 4242 4242</span>, any future date, any CVC.
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs } from "../drizzle/schema";
 import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -88,6 +88,37 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Map DB subscription plan name to products.ts SubscriptionPlan key.
+ * The DB uses 'business' for the top tier; products.ts uses 'creator_plus'.
+ */
+export function mapDbPlanToProductPlan(
+  dbPlan: string | null | undefined
+): "free" | "starter" | "pro" | "creator_plus" {
+  if (!dbPlan) return "free";
+  if (dbPlan === "business" || dbPlan === "creator_plus") return "creator_plus";
+  if (dbPlan === "pro") return "pro";
+  if (dbPlan === "starter") return "starter";
+  return "free";
+}
+
+/**
+ * Count how many music video jobs the user has created this calendar month.
+ * Used to enforce plan-based monthly video limits.
+ */
+export async function countVideosThisMonth(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const rows = await db
+    .select({ id: musicVideoJobs.id })
+    .from(musicVideoJobs)
+    .where(and(eq(musicVideoJobs.userId, userId), gte(musicVideoJobs.createdAt, startOfMonth)));
+  return rows.length;
 }
 
 /**
