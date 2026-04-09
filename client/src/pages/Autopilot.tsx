@@ -11,6 +11,7 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
+import CreditBalance from "@/components/CreditBalance";
 
 const VIDEO_STYLES = [
   { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism" },
@@ -159,7 +160,7 @@ export default function Autopilot() {
             <Wand2 className="h-5 w-5 text-purple-400" />
             <span className="font-bold text-white">WizPilot</span>
           </div>
-          <div className="w-24" />
+          <CreditBalance variant="badge" />
         </div>
       </div>
 
@@ -444,6 +445,9 @@ export default function Autopilot() {
                 <p className="text-sm text-muted-foreground">
                   Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {duration}s · {aspectRatio}
                 </p>
+                <div className="mt-2">
+                  <CreditBalance variant="inline" cost={creditCost} />
+                </div>
               </div>
               <div className="flex gap-3 w-full sm:w-auto">
                 <Button

@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
+import CreditBalance from "@/components/CreditBalance";
 import {
   Music,
   Upload,
@@ -703,6 +704,7 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
+              <CreditBalance variant="card" cost={creditCost > 0 ? creditCost : undefined} />
               <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-800/50">
                 <CardContent className="pt-4 pb-4">
                   <p className="text-purple-300 text-sm font-medium mb-1">How it works</p>
@@ -739,7 +741,8 @@ export default function MusicVideoAutopilot() {
                 <h2 className="text-xl font-bold text-white">Your Storyboard</h2>
                 <p className="text-zinc-400 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before rendering</p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex items-center gap-3">
+                <CreditBalance variant="badge" />
                 <Button
                   variant="outline"
                   className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
