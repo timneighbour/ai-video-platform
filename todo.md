@@ -211,3 +211,30 @@
 
 ## FAQ Update
 - [x] Add Apple Pay and Google Pay to payment methods FAQ answer in Home.tsx
+
+## Visual Enhancement (Landing Page)
+- [ ] Generate AI hero image — cinematic dark neon scene showing AI video creation
+- [ ] Generate 4 tool showcase images (Text-to-Video, Lip Sync, Video Transform, AI Voiceover)
+- [ ] Generate scrolling gallery sample images (8-10 example AI video outputs)
+- [ ] Upload all images to CDN via manus-upload-file --webdev
+- [ ] Add hero background image to Home.tsx hero section
+- [ ] Add tool showcase images to the carousel/features section
+- [ ] Add auto-scrolling marquee gallery of sample outputs
+- [ ] Add animated "before/after" demo visual for video transformation tool
+
+## Premium Visual Redesign (seeddance.io reference)
+- [ ] Study seeddance.io layout and document key design patterns
+- [ ] Generate hero background video (looping, cinematic AI scenes)
+- [ ] Generate gallery videos for scrolling marquee (8-10 clips)
+- [ ] Upload all video assets to CDN
+- [ ] Rebuild hero section with full-screen autoplay muted looping video background
+- [ ] Add scrolling video marquee gallery (two rows, opposite directions)
+- [ ] Add real tool showcase images to AI Tools section cards
+- [ ] Add before/after video transform demo section
+- [ ] Add animated stats/social proof section with visual richness
+- [ ] Polish typography, spacing, and overall visual hierarchy
+- [x] Make WizVid logo large and prominent in hero (brand centrepiece, not just nav icon)
+- [x] Full-screen cinematic hero background image with dark overlay
+- [x] Scrolling marquee gallery with 10 AI-generated cinematic images (two rows, opposite directions)
+- [x] Large feature showcase sections with real AI imagery (seeddance.io style)
+- [x] CSS keyframe animation for marquee scroll

@@ -142,3 +142,14 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 .gradient-dark {
   background: linear-gradient(135deg, oklch(0.08 0 0) 0%, oklch(0.12 0.01 260) 100%);
 }
+
+/* ── Marquee scroll animations ── */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
