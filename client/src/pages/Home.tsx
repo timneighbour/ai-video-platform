@@ -9,6 +9,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import VideoCarousel from "@/components/VideoCarousel";
 
 export default function Home() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -182,6 +183,51 @@ export default function Home() {
               </Button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Video Carousel Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-white">See What You Can Create</h2>
+          <p className="text-center text-gray-400 mb-12">Explore stunning examples from our AI tools</p>
+          <VideoCarousel 
+            videos={[
+              {
+                id: "1",
+                title: "Cinematic Landscape",
+                description: "A breathtaking journey through mountains and valleys created entirely from text",
+                videoUrl: "https://cdn.pixabay.com/vimeo/335032876/small_4f8f1c8f-1f1f-4f1f-8f1f-1f1f1f1f1f1f.mp4",
+                tool: "text-to-video",
+                duration: 15,
+              },
+              {
+                id: "2",
+                title: "Professional Spokesperson",
+                description: "Realistic talking avatar delivering your message with perfect lip-sync",
+                videoUrl: "https://cdn.pixabay.com/vimeo/335032876/small_4f8f1c8f-1f1f-4f1f-8f1f-1f1f1f1f1f1f.mp4",
+                tool: "lip-sync",
+                duration: 20,
+              },
+              {
+                id: "3",
+                title: "Artistic Transformation",
+                description: "Original video transformed with stunning artistic effects and style transfer",
+                videoUrl: "https://cdn.pixabay.com/vimeo/335032876/small_4f8f1c8f-1f1f-4f1f-8f1f-1f1f1f1f1f1f.mp4",
+                tool: "video-to-video",
+                duration: 18,
+              },
+              {
+                id: "4",
+                title: "Multilingual Narration",
+                description: "Natural-sounding voiceover in 160+ languages with multiple tone options",
+                videoUrl: "https://cdn.pixabay.com/vimeo/335032876/small_4f8f1c8f-1f1f-4f1f-8f1f-1f1f1f1f1f1f.mp4",
+                tool: "voiceover",
+                duration: 12,
+              },
+            ]}
+            autoPlayInterval={6000}
+          />
         </div>
       </section>
 

@@ -138,3 +138,14 @@
 - [x] Fix FAQ section display
 - [x] Fix footer alignment
 - [x] Ensure responsive design works properly
+
+
+## Video Carousel Feature - COMPLETED ✅
+- [x] Create video carousel component with auto-play functionality
+- [x] Add video samples for each AI tool (Text-to-Video, Lip-Sync, Video-to-Video, Voiceover)
+- [x] Implement smooth slide transitions and animations
+- [x] Add carousel controls (previous, next, play/pause)
+- [x] Add video indicators/dots for current slide
+- [x] Integrate carousel into landing page
+- [x] Make carousel responsive for mobile and desktop
+- [x] Add video descriptions and tool labels
