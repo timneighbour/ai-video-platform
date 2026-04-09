@@ -244,14 +244,21 @@ Make the scenes tell a visual story that matches the theme. Vary the camera angl
 /**
  * Start rendering a single scene via Kling AI.
  * Returns the task ID for polling.
+ * @param lipSync - If true, append a lip-sync hint to the prompt (for music-driven scenes).
  */
 export async function startSceneRender(
   sceneId: number,
   prompt: string,
-  duration: number
+  duration: number,
+  lipSync = true
 ): Promise<string> {
+  // Append lip-sync guidance to the prompt based on the per-scene setting
+  const finalPrompt = lipSync
+    ? `${prompt} Characters sing and their mouths move in sync with the music.`
+    : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
+
   const taskId = await klingClient.createTextToVideo({
-    prompt,
+    prompt: finalPrompt,
     duration: duration <= 5 ? "5" : "10",
     aspect_ratio: "16:9",
     mode: "standard",
@@ -278,12 +285,43 @@ export async function pollSceneStatus(
 
   const taskStatus = result.task_status;
 
+  // Kling API uses "succeed" as the success status
   if (taskStatus === "succeed") {
     const videoUrl = (result as any).task_result?.videos?.[0]?.url;
-    if (!videoUrl) return { status: "failed" };
+    if (!videoUrl) {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: "Video generation succeeded but no video URL returned", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
 
-    const response = await fetch(videoUrl);
-    const buffer = Buffer.from(await response.arrayBuffer());
+    // Download with retry (up to 3 attempts) in case of transient CDN errors
+    let buffer: Buffer | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(videoUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        buffer = Buffer.from(await response.arrayBuffer());
+        break;
+      } catch (fetchErr) {
+        console.warn(`[MusicVideo] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+        if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+      }
+    }
+
+    if (!buffer) {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: "Failed to download completed scene video after 3 attempts", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+
     const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
     const { url } = await storagePut(key, buffer, "video/mp4");
 
@@ -298,10 +336,14 @@ export async function pollSceneStatus(
   }
 
   if (taskStatus === "failed") {
+    // Extract Kling's actual failure reason if available
+    const failReason = (result as any).task_result?.fail_reason
+      ?? (result as any).fail_reason
+      ?? "Video generation failed";
     const db3 = await getDb();
     if (db3) {
       await db3.update(musicVideoScenes)
-        .set({ status: "failed", errorMessage: "Video generation failed", updatedAt: new Date() })
+        .set({ status: "failed", errorMessage: String(failReason), updatedAt: new Date() })
         .where(eq(musicVideoScenes.id, sceneId));
     }
     return { status: "failed" };
@@ -353,16 +395,15 @@ export async function assembleMusicVideo(jobId: number): Promise<string> {
 
     // Concatenate all video clips
     const concatenatedVideo = path.join(tmpDir, "concatenated.mp4");
-    await execAsync(
+     await execAsync(
       `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
-      { timeout: 300000 }
+      { timeout: 600000 } // 10 min — long videos with many scenes need more time
     );
-
     // Mix video with audio — trim to exact audio duration
     const finalVideo = path.join(tmpDir, "final.mp4");
     await execAsync(
       `ffmpeg -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest "${finalVideo}"`,
-      { timeout: 300000 }
+      { timeout: 600000 } // 10 min
     );
 
     const finalBuffer = fs.readFileSync(finalVideo);

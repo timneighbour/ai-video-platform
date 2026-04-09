@@ -869,3 +869,35 @@
 - [x] Fixed @custom-variant dark to match both root and child elements
 - [x] ThemeProvider has switchable=true and defaultTheme="dark" in App.tsx
 - [x] Remove language selector (EN flag dropdown) from the top navigation bar
+
+## UX: Retry All Failed Confirmation Dialog
+- [ ] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory.tsx
+- [ ] Dialog shows job title, failed scene count, and a clear warning message
+- [ ] "Confirm Retry" button triggers the mutation; "Cancel" dismisses without action
+
+## UX: Retry All Failed Confirmation Dialog
+- [ ] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory.tsx
+- [ ] Dialog shows job title, failed scene count, and warning message
+- [ ] "Confirm Retry" triggers mutation; "Cancel" dismisses
+
+## Final QA: Video Rendering Pipeline Audit
+- [ ] Verify startRender creates job record and fires scene renders correctly
+- [ ] Verify Kling AI client sends correct payload and handles response
+- [ ] Verify pollProgress correctly detects all-scenes-complete and triggers assembly
+- [ ] Verify assembly step concatenates scene videos and saves finalVideoUrl
+- [ ] Verify job status transitions: rendering → assembling → completed
+- [ ] Verify finalVideoUrl is stored in DB and returned to frontend
+- [ ] Verify frontend shows completed video with play/download after render
+- [ ] Fix any broken steps found in the audit
+
+## Pipeline Audit & Final QA (Apr 2026)
+- [x] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory dashboard
+- [x] Confirmation dialog shows job title, failed scene count, and credit warning
+- [x] Fix startSceneRender: pass lipSync flag from DB to Kling prompt modifier
+- [x] Fix pollSceneStatus: extract Kling's actual fail_reason instead of generic message
+- [x] Fix pollSceneStatus: add 3-attempt retry loop for scene video download (transient CDN errors)
+- [x] Fix pollSceneStatus: handle missing videoUrl after succeed status (mark as failed with clear message)
+- [x] Fix assembly: raise ffmpeg timeout from 5 min to 10 min for long multi-scene videos
+- [x] Verify lipSync flag is passed in retryAllFailedScenes stagger loop (both occurrences)
+- [x] TypeScript: 0 errors
+- [x] Tests: 40/40 passing

@@ -311,7 +311,7 @@ export const musicVideoRouter = router({
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration);
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true);
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
@@ -740,7 +740,7 @@ export const musicVideoRouter = router({
           const scene = failedScenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, STAGGER_MS));
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration);
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true);
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));

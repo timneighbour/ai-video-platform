@@ -12,6 +12,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Film,
   Download,
   RefreshCw,
@@ -81,6 +91,7 @@ export default function RenderHistory() {
   const { isAuthenticated } = useAuth();
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [retryingJobId, setRetryingJobId] = useState<number | null>(null);
+  const [confirmRetryJob, setConfirmRetryJob] = useState<{ id: number; title: string; failedCount: number } | null>(null);
 
   const jobsQuery = trpc.musicVideo.listJobs.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -274,25 +285,20 @@ export default function RenderHistory() {
                           </Button>
                         )}
 
-                        {/* Retry all failed */}
+                        {/* Retry all failed — opens confirmation dialog */}
                         {hasFailures && job.status !== "rendering" && (
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-7 px-2 text-xs border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/10"
                             disabled={retryingJobId === job.id}
-                            onClick={async () => {
-                              setRetryingJobId(job.id);
-                              try {
-                                const result = await retryAllMutation.mutateAsync({ jobId: job.id });
-                                toast.success(`${result.retriedCount} scene${result.retriedCount !== 1 ? "s" : ""} re-queued`);
-                                utils.musicVideo.listJobs.invalidate();
-                              } catch (err: any) {
-                                toast.error("Retry failed", { description: err.message });
-                              } finally {
-                                setRetryingJobId(null);
-                              }
-                            }}
+                            onClick={() =>
+                              setConfirmRetryJob({
+                                id: job.id,
+                                title: job.title || `Job #${job.id}`,
+                                failedCount: job.failedScenes,
+                              })
+                            }
                           >
                             {retryingJobId === job.id
                               ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Retrying</>
@@ -431,6 +437,62 @@ export default function RenderHistory() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Retry All Failed — Confirmation Dialog */}
+      <AlertDialog
+        open={confirmRetryJob !== null}
+        onOpenChange={(open) => { if (!open) setConfirmRetryJob(null); }}
+      >
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
+              <RefreshCw className="w-4 h-4 text-red-400" />
+              Retry Failed Scenes?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              <span className="block mb-2">
+                You are about to re-queue{" "}
+                <span className="font-semibold text-red-400">
+                  {confirmRetryJob?.failedCount} failed scene{confirmRetryJob?.failedCount !== 1 ? "s" : ""}
+                </span>{" "}
+                from <span className="font-semibold text-foreground">{confirmRetryJob?.title}</span>.
+              </span>
+              <span className="block text-sm">
+                Each scene will be sent back to the AI renderer. This may consume additional credits. Scenes will be staggered to avoid rate limits.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border text-foreground hover:bg-accent">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (!confirmRetryJob) return;
+                const { id } = confirmRetryJob;
+                setConfirmRetryJob(null);
+                setRetryingJobId(id);
+                try {
+                  const result = await retryAllMutation.mutateAsync({ jobId: id });
+                  toast.success(
+                    `${result.retriedCount} scene${result.retriedCount !== 1 ? "s" : ""} re-queued`,
+                    { description: "Rendering will resume shortly." }
+                  );
+                  utils.musicVideo.listJobs.invalidate();
+                } catch (err: any) {
+                  toast.error("Retry failed", { description: err.message });
+                } finally {
+                  setRetryingJobId(null);
+                }
+              }}
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Confirm Retry
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
