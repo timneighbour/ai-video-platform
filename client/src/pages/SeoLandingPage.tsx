@@ -95,11 +95,8 @@ export default function SeoLandingPage() {
       <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">WizVid</span>
+            <div className="flex items-center cursor-pointer">
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png" alt="WizVid" className="h-8 w-auto object-contain" />
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-white/60">
@@ -184,9 +181,7 @@ export default function SeoLandingPage() {
           <h2 className="text-3xl font-bold mb-6">Best AI Tool for {page.keyword.replace(/^AI /i, "")}</h2>
           <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/40 to-pink-900/20 border border-purple-500/20">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png" alt="WizVid" className="w-10 h-10 rounded-xl object-cover" />
               <span className="text-xl font-bold">WizVid AI</span>
               <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Recommended</Badge>
             </div>

@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO = `${CDN}/wizvid-logo_9bec645c.jpg`;
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png";
 
 const FAQS = [
   {
@@ -117,8 +117,7 @@ export default function Help() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-2.5 cursor-pointer">
-              <img src={WIZVID_LOGO} alt="WizVid" className="w-8 h-8 rounded-lg object-cover" />
-              <span className="font-bold text-white">WizVid</span>
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-1">

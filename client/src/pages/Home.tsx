@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO = `${CDN}/wizvid-logo_9bec645c.jpg`;
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png";
+const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
 const WIZVID_LOGO_VIDEO = `${CDN}/wizvid-logo-intro_184d3e7d.mp4`;
 const HERO_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
@@ -69,13 +70,12 @@ function Nav() {
     }`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-3 group">
+        <a href="/" className="flex items-center group">
           <img
-            src={WIZVID_LOGO}
+            src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="w-9 h-9 rounded-xl object-cover group-hover:scale-105 transition-transform"
+            className="h-8 w-auto object-contain group-hover:opacity-90 transition-opacity"
           />
-          <span className="font-bold text-lg tracking-tight text-white hidden sm:block">WizVid</span>
         </a>
 
         {/* Desktop nav */}
@@ -591,8 +591,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO} alt="WizVid" className="w-8 h-8 rounded-lg object-cover" />
-              <span className="font-bold text-white">WizVid</span>
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-6 w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.

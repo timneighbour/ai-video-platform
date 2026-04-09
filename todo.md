@@ -522,3 +522,14 @@
 - [x] Consistent button styles: white primary, outline secondary, hover lift
 - [x] Consistent card styles: rounded-2xl, #171717 bg, hover border + lift
 - [x] Mobile responsive check across all updated pages
+
+## Brand Logo Integration (Apr 2026)
+- [x] Upload full WizVid logo (icon + wordmark) to CDN
+- [x] Crop icon-only version for favicon and small UI elements
+- [x] Replace nav logo in Home.tsx with full logo image
+- [x] Replace nav logo in Pricing.tsx with full logo image
+- [x] Replace nav logo in Help.tsx with full logo image
+- [x] Replace nav logo in Onboarding.tsx with full logo image
+- [x] Replace footer logo in Home.tsx with full logo image
+- [x] Set favicon.ico using icon-only crop
+- [x] Replace placeholder icon in SeoLandingPage.tsx Best Tool section
