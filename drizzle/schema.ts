@@ -139,6 +139,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
   previewImageKey: varchar("previewImageKey", { length: 512 }),
   lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
+  lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic"]).default("natural").notNull(), // Lip sync animation style
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

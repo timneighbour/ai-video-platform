@@ -901,3 +901,15 @@
 - [x] Verify lipSync flag is passed in retryAllFailedScenes stagger loop (both occurrences)
 - [x] TypeScript: 0 errors
 - [x] Tests: 40/40 passing
+
+## Feature: Lip-Sync Style Selector (Apr 2026)
+- [x] Add lipSyncStyle column to musicVideoScenes schema (enum: natural, expressive, subtle, dramatic)
+- [x] Generate and apply DB migration for lipSyncStyle column (0012_mysterious_the_anarchist.sql)
+- [x] Add updateSceneLipSyncStyle tRPC procedure (update single scene lip sync style)
+- [x] Wire lipSyncStyle into startSceneRender prompt modifier (4 distinct prompt suffixes per style)
+- [x] Build style selector UI in storyboard scene card (4 pill buttons with ToggleGroup)
+- [x] Add tooltip descriptions for each style (Natural, Expressive, Subtle, Dramatic)
+- [x] Optimistic UI update on style change (instant feedback, rollback on error)
+- [x] Hide style selector when lipSync is OFF (not applicable)
+- [x] Pass lipSyncStyle to startSceneRender in both startRender and retryAllFailedScenes loops
+- [x] Write vitest test for updateSceneLipSyncStyle procedure (41/41 passing)

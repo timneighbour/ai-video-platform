@@ -311,7 +311,7 @@ export const musicVideoRouter = router({
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true);
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic");
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
@@ -585,6 +585,26 @@ export const musicVideoRouter = router({
       return { success: true, jobId: input.jobId, lipSync: input.lipSync };
     }),
 
+  // Update lip sync STYLE for a single scene
+  updateSceneLipSyncStyle: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+      lipSyncStyle: z.enum(["natural", "expressive", "subtle", "dramatic"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoScenes)
+        .set({ lipSyncStyle: input.lipSyncStyle })
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      return { success: true, sceneId: input.sceneId, lipSyncStyle: input.lipSyncStyle };
+    }),
+
   // Regenerate a single scene video (independent, does not affect other scenes)
   regenerateScene: protectedProcedure
     .input(z.object({
@@ -740,7 +760,7 @@ export const musicVideoRouter = router({
           const scene = failedScenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, STAGGER_MS));
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true);
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic");
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));

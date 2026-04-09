@@ -246,15 +246,24 @@ Make the scenes tell a visual story that matches the theme. Vary the camera angl
  * Returns the task ID for polling.
  * @param lipSync - If true, append a lip-sync hint to the prompt (for music-driven scenes).
  */
+/** Prompt modifiers for each lip-sync style */
+const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
+  natural: "Characters sing naturally with realistic, subtle mouth movements synced to the music.",
+  expressive: "Characters sing with highly expressive, exaggerated mouth movements and energetic facial animation synced to the music.",
+  subtle: "Characters sing with very subtle, minimal mouth movements, almost imperceptible, softly synced to the music.",
+  dramatic: "Characters sing with dramatic, theatrical mouth movements and intense emotional facial expressions synced to the music.",
+};
+
 export async function startSceneRender(
   sceneId: number,
   prompt: string,
   duration: number,
-  lipSync = true
+  lipSync = true,
+  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" = "natural"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
-    ? `${prompt} Characters sing and their mouths move in sync with the music.`
+    ? `${prompt} ${LIP_SYNC_STYLE_PROMPTS[lipSyncStyle] ?? LIP_SYNC_STYLE_PROMPTS.natural}`
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   const taskId = await klingClient.createTextToVideo({

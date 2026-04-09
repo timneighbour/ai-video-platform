@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CreditBalance from "@/components/CreditBalance";
@@ -55,6 +57,7 @@ interface SceneCard {
   previewImageUrl?: string | null;
   previewImageLoading?: boolean;
   lipSync: boolean;
+  lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic";
   regenerating?: boolean;
 }
 
@@ -171,6 +174,7 @@ export default function MusicVideoAutopilot() {
   const lockCharacterMutation = trpc.characters.lockCharacter.useMutation();
   const updateSceneLipSyncMutation = trpc.musicVideo.updateSceneLipSync.useMutation();
   const updateAllScenesLipSyncMutation = trpc.musicVideo.updateAllScenesLipSync.useMutation();
+  const updateSceneLipSyncStyleMutation = trpc.musicVideo.updateSceneLipSyncStyle.useMutation();
   const regenerateSceneMutation = trpc.musicVideo.regenerateScene.useMutation();
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
@@ -194,6 +198,20 @@ export default function MusicVideoAutopilot() {
       // Rollback on failure
       setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, lipSync: !newValue } : s));
       toast.error("Failed to update lip sync", { description: err.message });
+    }
+  };
+
+  const handleChangeLipSyncStyle = async (sceneId: number, style: "natural" | "expressive" | "subtle" | "dramatic") => {
+    if (!jobId) return;
+    const prev = scenes.find(s => s.id === sceneId)?.lipSyncStyle ?? "natural";
+    // Optimistic update
+    setScenes(p => p.map(s => s.id === sceneId ? { ...s, lipSyncStyle: style } : s));
+    try {
+      await updateSceneLipSyncStyleMutation.mutateAsync({ sceneId, jobId, lipSyncStyle: style });
+    } catch (err: any) {
+      // Rollback
+      setScenes(p => p.map(s => s.id === sceneId ? { ...s, lipSyncStyle: prev } : s));
+      toast.error("Failed to update lip sync style", { description: err.message });
     }
   };
 
@@ -450,6 +468,7 @@ export default function MusicVideoAutopilot() {
         previewImageUrl: s.previewImageUrl ?? null,
         previewImageLoading: !s.previewImageUrl,
         lipSync: s.lipSync ?? true,
+        lipSyncStyle: (s.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic",
         regenerating: false,
       }));
       setScenes(mappedScenes);
@@ -1202,28 +1221,74 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
 
-                    {/* Lip Sync toggle */}
-                    <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-pink-400" : "text-zinc-600"}`} />
-                        <span className={`text-xs font-medium ${scene.lipSync ? "text-pink-300" : "text-zinc-500"}`}>
-                          Lip Sync
-                        </span>
-                        <Badge
-                          className={`text-xs px-1.5 py-0 ${
-                            scene.lipSync
-                              ? "bg-pink-900/40 text-pink-300 border-pink-800/60"
-                              : "bg-zinc-800 text-zinc-500 border-zinc-700"
-                          }`}
-                        >
-                          {scene.lipSync ? "ON" : "OFF"}
-                        </Badge>
+                    {/* Lip Sync toggle + style selector */}
+                    <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2.5">
+                      {/* Toggle row */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-pink-400" : "text-zinc-600"}`} />
+                          <span className={`text-xs font-medium ${scene.lipSync ? "text-pink-300" : "text-zinc-500"}`}>
+                            Lip Sync
+                          </span>
+                          <Badge
+                            className={`text-xs px-1.5 py-0 ${
+                              scene.lipSync
+                                ? "bg-pink-900/40 text-pink-300 border-pink-800/60"
+                                : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                            }`}
+                          >
+                            {scene.lipSync ? "ON" : "OFF"}
+                          </Badge>
+                        </div>
+                        <Switch
+                          checked={scene.lipSync}
+                          onCheckedChange={(val) => handleToggleSceneLipSync(scene.id, val)}
+                          aria-label={`Lip sync for scene ${scene.sceneIndex + 1}`}
+                        />
                       </div>
-                      <Switch
-                        checked={scene.lipSync}
-                        onCheckedChange={(val) => handleToggleSceneLipSync(scene.id, val)}
-                        aria-label={`Lip sync for scene ${scene.sceneIndex + 1}`}
-                      />
+
+                      {/* Style selector — only shown when lip sync is ON */}
+                      {scene.lipSync && (
+                        <TooltipProvider delayDuration={200}>
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-wide font-medium">Style</p>
+                            <ToggleGroup
+                              type="single"
+                              value={scene.lipSyncStyle}
+                              onValueChange={(val) => {
+                                if (val) handleChangeLipSyncStyle(scene.id, val as "natural" | "expressive" | "subtle" | "dramatic");
+                              }}
+                              className="flex gap-1 flex-wrap"
+                            >
+                              {([
+                                { value: "natural",    label: "Natural",    desc: "Realistic, subtle mouth movements" },
+                                { value: "expressive", label: "Expressive", desc: "Exaggerated, energetic animation" },
+                                { value: "subtle",     label: "Subtle",     desc: "Minimal, almost imperceptible sync" },
+                                { value: "dramatic",   label: "Dramatic",   desc: "Theatrical, intense expressions" },
+                              ] as const).map(({ value, label, desc }) => (
+                                <Tooltip key={value}>
+                                  <TooltipTrigger asChild>
+                                    <ToggleGroupItem
+                                      value={value}
+                                      aria-label={label}
+                                      className={`text-[10px] px-2 py-0.5 h-6 rounded-full border transition-all ${
+                                        scene.lipSyncStyle === value
+                                          ? "bg-pink-900/50 border-pink-600 text-pink-200 font-semibold"
+                                          : "bg-zinc-800/60 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-300"
+                                      }`}
+                                    >
+                                      {label}
+                                    </ToggleGroupItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs max-w-[160px] text-center">
+                                    {desc}
+                                  </TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </ToggleGroup>
+                          </div>
+                        </TooltipProvider>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

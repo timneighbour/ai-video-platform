@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` ADD `lipSyncStyle` enum('natural','expressive','subtle','dramatic') DEFAULT 'natural' NOT NULL;

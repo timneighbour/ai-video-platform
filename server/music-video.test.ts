@@ -54,6 +54,10 @@ describe("Music Video Service", () => {
     expect(musicVideoRouter._def.procedures.updateScenePrompt).toBeDefined();
   });
 
+  it("musicVideoRouter has updateSceneLipSyncStyle procedure", () => {
+    expect(musicVideoRouter._def.procedures.updateSceneLipSyncStyle).toBeDefined();
+  });
+
   it("musicVideoRouter has pollProgress procedure", () => {
     expect(musicVideoRouter._def.procedures.pollProgress).toBeDefined();
   });
