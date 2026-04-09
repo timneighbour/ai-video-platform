@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import {
@@ -415,11 +415,64 @@ export const musicVideoRouter = router({
       if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
       // If already has a preview image, return it immediately
       if (scene.previewImageUrl) return { imageUrl: scene.previewImageUrl };
-      // Build a rich image prompt from scene data
-      const styleLabel = scene.visualStyle || job.themePrompt || "cinematic";
-      const imagePrompt = `Storyboard scene preview: ${scene.prompt}. Visual style: ${styleLabel}. Cinematic composition, high quality, detailed, 16:9 widescreen aspect ratio, professional film still.`;
+
+      // --- Gather character reference photos ---
+      // Fetch all character photos for this job, prioritising primary photos
+      const characterPhotos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.jobId, input.jobId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary)); // primary photos first
+
+      // Also check the legacy single character image on the job itself
+      const referenceImages: Array<{ url: string; mimeType: string }> = [];
+      if (characterPhotos.length > 0) {
+        // Use up to 2 character photos as reference (1 per unique character, primary preferred)
+        const seenCharacters = new Set<number>();
+        for (const photo of characterPhotos) {
+          if (!seenCharacters.has(photo.characterId) && referenceImages.length < 2) {
+            seenCharacters.add(photo.characterId);
+            referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
+          }
+        }
+      } else if (job.characterImageUrl) {
+        // Fall back to the legacy single character image
+        referenceImages.push({ url: job.characterImageUrl, mimeType: "image/jpeg" });
+      }
+
+      // --- Build a faithful, consistent image prompt ---
+      // Style consistency: derive a single style token from the scene's visualStyle
+      const styleMap: Record<string, string> = {
+        cinematic: "cinematic film still, dramatic lighting, shallow depth of field, anamorphic lens",
+        anime: "anime illustration, vibrant colors, detailed line art, Studio Ghibli quality",
+        "pixar 3d": "Pixar 3D animation style, warm lighting, expressive characters, high detail",
+        documentary: "documentary photography, natural lighting, authentic raw footage aesthetic",
+        abstract: "abstract art, bold colors, surreal composition, artistic",
+        vintage: "vintage film aesthetic, grain, warm tones, retro 35mm photography",
+      };
+      const styleKey = (scene.visualStyle || "").toLowerCase();
+      const styleDescriptor = styleMap[styleKey] || styleMap["cinematic"];
+
+      // Genre/mood from the job for consistent colour grading
+      const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
+
+      // Character instruction if photos are provided
+      const characterInstruction = referenceImages.length > 0
+        ? "The character(s) shown in the reference photo(s) must appear in this scene with the same face, hair, and appearance. Maintain character consistency."
+        : "";
+
+      // Final prompt: scene prompt is the primary directive, style/mood/character are modifiers
+      const imagePrompt = [
+        scene.prompt,
+        styleDescriptor,
+        moodContext ? `Mood: ${moodContext}` : "",
+        characterInstruction,
+        "16:9 widescreen aspect ratio, high quality, professional",
+      ].filter(Boolean).join(". ");
+
       try {
-        const { url } = await generateImage({ prompt: imagePrompt });
+        const { url } = await generateImage({
+          prompt: imagePrompt,
+          originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+        });
         if (url) {
           await db.update(musicVideoScenes)
             .set({ previewImageUrl: url })

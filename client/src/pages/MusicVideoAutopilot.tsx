@@ -359,9 +359,28 @@ export default function MusicVideoAutopilot() {
   const handleSaveEdit = async (sceneId: number) => {
     try {
       await updateScene.mutateAsync({ sceneId, prompt: editPrompt });
-      setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, prompt: editPrompt } : s));
+      // Clear the old preview so a fresh one is generated from the new prompt
+      setScenes(prev => prev.map(s =>
+        s.id === sceneId
+          ? { ...s, prompt: editPrompt, previewImageUrl: null, previewImageLoading: true }
+          : s
+      ));
       setEditingSceneId(null);
-      toast.success("Scene updated");
+      toast.success("Scene updated", { description: "Regenerating preview image..." });
+      // Regenerate the preview image for this scene
+      if (jobId) {
+        generateScenePreviewMutation.mutateAsync({ sceneId, jobId })
+          .then(({ imageUrl }) => {
+            setScenes(prev => prev.map(s =>
+              s.id === sceneId ? { ...s, previewImageUrl: imageUrl ?? null, previewImageLoading: false } : s
+            ));
+          })
+          .catch(() => {
+            setScenes(prev => prev.map(s =>
+              s.id === sceneId ? { ...s, previewImageLoading: false } : s
+            ));
+          });
+      }
     } catch (err: any) {
       toast.error("Error", { description: err.message });
     }
