@@ -181,7 +181,7 @@ function Hero() {
       <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-20 w-full">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 lg:gap-10 items-center">
           {/* Left: text */}
           <div>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-[#a1a1aa] mb-8 font-medium">
@@ -221,12 +221,14 @@ function Hero() {
             <p className="text-xs text-[#a1a1aa]/70 mb-8">Used by creators already generating full videos</p>
           </div>
 
-          {/* Right: logo video */}
+          {/* Right: logo video — large cinematic */}
           <div className="flex justify-center lg:justify-end">
-            <div className="relative cursor-pointer group" onClick={handleLogoClick}>
-              {/* Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-br from-purple-600/20 to-blue-600/15 rounded-3xl blur-2xl opacity-70 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
-              <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group-hover:border-purple-500/30 transition-all">
+            <div className="relative cursor-pointer group w-full" onClick={handleLogoClick}>
+              {/* Outer ambient glow — large and dramatic */}
+              <div className="absolute -inset-8 bg-gradient-to-br from-purple-600/30 via-violet-500/20 to-blue-600/25 rounded-[2rem] blur-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-500" aria-hidden="true" />
+              <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/15 to-blue-500/10 rounded-[2rem] blur-xl opacity-60" aria-hidden="true" />
+              {/* Video container — full-width 16:9 */}
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/12 shadow-[0_0_80px_rgba(139,92,246,0.25)] group-hover:shadow-[0_0_120px_rgba(139,92,246,0.4)] group-hover:border-purple-500/40 transition-all duration-500">
                 <video
                   ref={logoVideoRef}
                   src={WIZVID_LOGO_VIDEO}
@@ -234,17 +236,17 @@ function Hero() {
                   loop
                   muted
                   playsInline
-                  className="absolute inset-0 w-full h-full object-contain bg-black"
+                  className="absolute inset-0 w-full h-full object-cover bg-black"
                   aria-label="WizVid animated logo"
                 />
               </div>
               {/* Mute toggle */}
               <button
-                className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-[#171717] border border-white/15 flex items-center justify-center shadow-lg hover:bg-white/10 transition-colors"
+                className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/15 flex items-center justify-center shadow-lg hover:bg-white/10 transition-colors"
                 aria-label={logoMuted ? "Unmute logo video" : "Mute logo video"}
                 onClick={(e) => { e.stopPropagation(); handleLogoClick(); }}
               >
-                {logoMuted ? <VolumeX className="w-4 h-4 text-[#a1a1aa]" /> : <Volume2 className="w-4 h-4 text-white" />}
+                {logoMuted ? <VolumeX className="w-3.5 h-3.5 text-[#a1a1aa]" /> : <Volume2 className="w-3.5 h-3.5 text-white" />}
               </button>
             </div>
           </div>
