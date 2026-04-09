@@ -208,3 +208,6 @@
 - [x] Update products.ts (Stripe): currency comments updated to £
 - [x] Update Dashboard.tsx and Account.tsx: $ → £ on plan price display
 - [x] Verified no remaining $[0-9] references in codebase (excluding ComponentShowcase demo data)
+
+## FAQ Update
+- [x] Add Apple Pay and Google Pay to payment methods FAQ answer in Home.tsx

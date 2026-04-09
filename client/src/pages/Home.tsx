@@ -113,7 +113,7 @@ export default function Home() {
       id: "5",
       question: "What payment methods do you accept?",
       answer:
-        "We accept all major credit cards (Visa, Mastercard, American Express) and process payments securely through Stripe. All transactions are encrypted and PCI-compliant.",
+        "We accept all major credit cards (Visa, Mastercard, American Express), as well as Apple Pay and Google Pay. Payments are processed securely through Stripe — all transactions are encrypted and PCI-compliant.",
     },
     {
       id: "6",
