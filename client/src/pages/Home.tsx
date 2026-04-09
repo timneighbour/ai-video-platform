@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronRight, Sparkles, Zap, Video, Mic, Wand2, Check, HelpCircle } from "lucide-react";
+import { ChevronRight, Sparkles, Video, Mic, Wand2, Check } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useState } from "react";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [openFaq, setOpenFaq] = useState<string | null>(null);
 
   const faqs = [
@@ -99,29 +99,48 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Wizvidlogowithneonmagicflair(1)_03506e50.png" alt="WizVid" className="h-10" />
+      <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-black/80 backdrop-blur">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img 
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Wizvidlogowithneonmagicflair(1)_03506e50.png" 
+              alt="WizVid" 
+              className="h-8 w-auto" 
+            />
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">WizVid</span>
           </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" className="text-white hover:text-purple-400">
                   <a href="/dashboard">Dashboard</a>
                 </Button>
-                <Button variant="default">
+                <Button variant="ghost" className="text-white hover:text-purple-400">
                   <a href="/account">Account</a>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
+                  onClick={() => logout()}
+                >
+                  Logout
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" asChild>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-purple-400"
+                  asChild
+                >
                   <a href={getLoginUrl()}>Sign In</a>
                 </Button>
-                <Button variant="default" asChild>
+                <Button 
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  asChild
+                >
                   <a href={getLoginUrl()}>Get Started</a>
                 </Button>
               </>
@@ -131,28 +150,35 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-background via-background to-secondary/5 py-24 sm:py-32 lg:py-40">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-4 py-2">
-              <Zap className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium text-foreground">Powered by cutting-edge AI</span>
-            </div>
-            <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-              Create stunning videos with AI
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center space-y-8">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Create Stunning AI Videos
+              </span>
+              <br />
+              <span className="text-white">In Seconds</span>
             </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              WizVid transforms your creative vision into reality. Generate cinematic videos, create talking avatars, and produce professional content in minutes, not hours.
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Transform your ideas into professional-quality videos using cutting-edge AI. Text-to-video, lip-sync avatars, video transformation, and more.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" className="gap-2" asChild>
-                <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
-                  Start Creating
-                  <ChevronRight className="h-4 w-4" />
-                </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                asChild
+              >
+                <a href={getLoginUrl()}>Start Creating Free</a>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="#pricing">View Pricing</a>
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
+                asChild
+              >
+                <a href="/subscribe">View Plans</a>
               </Button>
             </div>
           </div>
@@ -160,29 +186,20 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="border-b border-border/40 py-20 sm:py-28">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Powerful AI Tools at Your Fingertips
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Everything you need to create professional-quality videos
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-purple-900/10">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16 text-white">Powerful AI Tools</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="border-border/40 bg-card/50 backdrop-blur">
+                <Card key={feature.title} className="bg-gray-900/50 border-purple-500/30 hover:border-purple-500/60 transition">
                   <CardHeader>
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10">
-                      <Icon className="h-6 w-6 text-accent" />
-                    </div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    <Icon className="w-10 h-10 text-purple-400 mb-2" />
+                    <CardTitle className="text-white">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    <p className="text-gray-300">{feature.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -192,92 +209,54 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="border-b border-border/40 py-20 sm:py-28">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Choose the perfect plan for your creative needs
-            </p>
-          </div>
-          <div className="grid gap-8 lg:grid-cols-3">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-white">Simple, Transparent Pricing</h2>
+          <p className="text-center text-gray-400 mb-16">Choose the perfect plan for your needs</p>
+          <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => (
-              <Card
+              <Card 
                 key={plan.name}
-                className={`relative border-border/40 bg-card/50 backdrop-blur transition-all ${
-                  plan.popular ? "ring-2 ring-accent lg:scale-105" : ""
-                }`}
+                className={`relative ${
+                  plan.popular 
+                    ? "bg-gradient-to-b from-purple-900/50 to-gray-900/50 border-purple-500 shadow-lg shadow-purple-500/20" 
+                    : "bg-gray-900/50 border-purple-500/30"
+                } transition hover:border-purple-500`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-accent px-4 py-1 text-sm font-semibold text-accent-foreground">
-                      <Sparkles className="h-3 w-3" />
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-1 rounded-full text-sm font-semibold text-white">
                       Most Popular
                     </span>
                   </div>
                 )}
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
+                <CardHeader className="pt-8">
+                  <CardTitle className="text-white">{plan.name}</CardTitle>
+                  <CardDescription className="text-gray-400">{plan.description}</CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-foreground">${plan.price}</span>
-                    <span className="text-muted-foreground">/month</span>
+                    <span className="text-4xl font-bold text-white">${plan.price}</span>
+                    <span className="text-gray-400">/month</span>
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{plan.credits.toLocaleString()} credits included</p>
+                  <p className="text-sm text-purple-400 mt-2">{plan.credits.toLocaleString()} credits included</p>
                 </CardHeader>
-                <CardContent>
-                  <Button className="w-full mb-6" variant={plan.popular ? "default" : "outline"} asChild>
-                    <a href={isAuthenticated ? "/subscribe" : getLoginUrl()}>
-                      {plan.cta}
-                    </a>
-                  </Button>
+                <CardContent className="space-y-6">
                   <ul className="space-y-3">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-3">
-                        <Check className="h-4 w-4 text-accent" />
-                        <span className="text-sm text-foreground">{feature}</span>
+                      <li key={feature} className="flex items-center gap-2 text-gray-300">
+                        <Check className="w-4 h-4 text-purple-400" />
+                        {feature}
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Credit Packs Section */}
-      <section className="border-b border-border/40 py-20 sm:py-28 bg-secondary/5">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Need More Credits?
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Purchase additional credit packs anytime to keep creating
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3 max-w-3xl mx-auto">
-            {[
-              { name: "Small", price: 10, credits: 500 },
-              { name: "Medium", price: 25, credits: 1500 },
-              { name: "Large", price: 60, credits: 4000 },
-            ].map((pack) => (
-              <Card key={pack.name} className="border-border/40 bg-card/50 backdrop-blur text-center">
-                <CardHeader>
-                  <CardTitle>{pack.name} Pack</CardTitle>
-                  <div className="mt-4">
-                    <span className="text-3xl font-bold text-foreground">${pack.price}</span>
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{pack.credits.toLocaleString()} credits</p>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full" variant="outline" asChild>
-                    <a href={isAuthenticated ? "/credits" : getLoginUrl()}>
-                      Buy Now
-                    </a>
+                  <Button 
+                    className={`w-full ${
+                      plan.popular
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        : "bg-gray-800 hover:bg-gray-700 border border-purple-500/30"
+                    }`}
+                    asChild
+                  >
+                    <a href="/subscribe">{plan.cta}</a>
                   </Button>
                 </CardContent>
               </Card>
@@ -287,103 +266,95 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="border-b border-border/40 py-20 sm:py-28">
-        <div className="container">
-          <div className="mx-auto max-w-2xl">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Frequently Asked Questions
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground">
-                Everything you need to know about Visionary
-              </p>
-            </div>
-            <div className="space-y-4">
-              {faqs.map((faq) => (
-                <Collapsible
-                  key={faq.id}
-                  open={openFaq === faq.id}
-                  onOpenChange={(open) => setOpenFaq(open ? faq.id : null)}
-                >
-                  <Card className="border-border/40 bg-card/50 backdrop-blur">
-                    <CollapsibleTrigger asChild>
-                      <button className="flex w-full items-center justify-between p-6 text-left hover:bg-secondary/20 transition-colors">
-                        <span className="font-semibold text-foreground">{faq.question}</span>
-                        <HelpCircle className="h-5 w-5 text-muted-foreground" />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="border-t border-border/40 px-6 py-4">
-                        <p className="text-muted-foreground">{faq.answer}</p>
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-purple-900/10">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16 text-white">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            {faqs.map((faq) => (
+              <Collapsible 
+                key={faq.id}
+                open={openFaq === faq.id}
+                onOpenChange={(open) => setOpenFaq(open ? faq.id : null)}
+              >
+                <CollapsibleTrigger className="w-full">
+                  <Card className="bg-gray-900/50 border-purple-500/30 hover:border-purple-500/60 transition cursor-pointer">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-white text-left">{faq.question}</CardTitle>
+                        <ChevronRight className={`w-5 h-5 text-purple-400 transition ${openFaq === faq.id ? "rotate-90" : ""}`} />
                       </div>
-                    </CollapsibleContent>
+                    </CardHeader>
                   </Card>
-                </Collapsible>
-              ))}
-            </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2">
+                  <Card className="bg-gray-800/50 border-purple-500/20">
+                    <CardContent className="pt-6">
+                      <p className="text-gray-300">{faq.answer}</p>
+                    </CardContent>
+                  </Card>
+                </CollapsibleContent>
+              </Collapsible>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="border-b border-border/40 py-20 sm:py-28 bg-accent/5">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Ready to create amazing videos?
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Join thousands of creators using Visionary to bring their ideas to life
-            </p>
-            <Button size="lg" className="mt-8 gap-2" asChild>
-              <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
-                Start Free Today
-                <ChevronRight className="h-4 w-4" />
-              </a>
-            </Button>
-          </div>
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6 text-white">Ready to Create?</h2>
+          <p className="text-xl text-gray-300 mb-8">Join thousands of creators using WizVid to bring their ideas to life</p>
+          <Button 
+            size="lg"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+            asChild
+          >
+            <a href={getLoginUrl()}>Get Started Free</a>
+          </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 bg-secondary/5 py-12 sm:py-16">
-        <div className="container">
-          <div className="grid gap-8 md:grid-cols-4 mb-8">
+      <footer className="border-t border-purple-500/20 bg-gray-900/50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/Wizvidlogowithneonmagicflair(1)_03506e50.png" alt="WizVid" className="h-10" />
-              </div>
-              <p className="text-sm text-muted-foreground">Create stunning videos with AI</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Features</a></li>
-                <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">API</a></li>
+              <h3 className="font-semibold text-white mb-4">Product</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="/tools/text-to-video" className="hover:text-purple-400">Text-to-Video</a></li>
+                <li><a href="/tools/lip-sync" className="hover:text-purple-400">Lip-Sync</a></li>
+                <li><a href="/tools/video-to-video" className="hover:text-purple-400">Video-to-Video</a></li>
+                <li><a href="/tools/voiceover" className="hover:text-purple-400">Voiceover</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
+              <h3 className="font-semibold text-white mb-4">Company</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-purple-400">About</a></li>
+                <li><a href="#" className="hover:text-purple-400">Blog</a></li>
+                <li><a href="#" className="hover:text-purple-400">Careers</a></li>
+                <li><a href="#" className="hover:text-purple-400">Contact</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-foreground mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Cookie Policy</a></li>
+              <h3 className="font-semibold text-white mb-4">Legal</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-purple-400">Privacy</a></li>
+                <li><a href="#" className="hover:text-purple-400">Terms</a></li>
+                <li><a href="#" className="hover:text-purple-400">Cookies</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-white mb-4">Follow</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-purple-400">Twitter</a></li>
+                <li><a href="#" className="hover:text-purple-400">Discord</a></li>
+                <li><a href="#" className="hover:text-purple-400">YouTube</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-border/40 pt-8">
-              <p className="text-center text-sm text-muted-foreground">
-              © 2026 Synthora. All rights reserved.
-            </p>
+          <div className="border-t border-purple-500/20 pt-8 text-center text-gray-400">
+            <p>&copy; 2026 WizVid. All rights reserved.</p>
           </div>
         </div>
       </footer>
