@@ -152,7 +152,9 @@ export default function MusicVideoAutopilot() {
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const [failedScenes, setFailedScenes] = useState(0);
   // Per-scene statuses from pollProgress for the real-time progress grid
-  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string }>>([]);
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null }>>([]); 
+  // Track which scenes are currently being retried
+  const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
   const [renderStartTime, setRenderStartTime] = useState<number | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref guard to prevent double-click / React re-render duplicate render submissions
@@ -170,6 +172,8 @@ export default function MusicVideoAutopilot() {
   const updateSceneLipSyncMutation = trpc.musicVideo.updateSceneLipSync.useMutation();
   const updateAllScenesLipSyncMutation = trpc.musicVideo.updateAllScenesLipSync.useMutation();
   const regenerateSceneMutation = trpc.musicVideo.regenerateScene.useMutation();
+  const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
+  const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
 
   // Global lip sync override — null means "per-scene", true/false means all scenes
   const [globalLipSync, setGlobalLipSync] = useState<boolean | null>(null);
@@ -548,7 +552,15 @@ export default function MusicVideoAutopilot() {
             setFailedScenes(progress.failedScenes);
             setRenderStatus(progress.status);
             if (progress.sceneStatuses) {
-              setPerSceneStatuses(progress.sceneStatuses);
+              setPerSceneStatuses(progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null }>);
+              // Clear retrying state for scenes that are no longer failed
+              setRetryingScenes((prev) => {
+                const next = new Set(prev);
+                progress.sceneStatuses!.forEach((s) => {
+                  if (s.status !== "failed") next.delete(s.id);
+                });
+                return next;
+              });
             }
 
             if (progress.status === "completed" && progress.finalVideoUrl) {
@@ -1374,16 +1386,44 @@ export default function MusicVideoAutopilot() {
                     {/* Per-scene status grid */}
                     {totalScenes > 0 && (
                       <div className="mb-5">
-                        <p className="text-xs text-zinc-500 mb-2 font-medium uppercase tracking-wide">Scene Status</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {(perSceneStatuses.length > 0 ? perSceneStatuses : Array.from({ length: totalScenes }, (_, i) => ({ id: i, index: i, status: "pending" }))).map((scene) => (
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Scene Status</p>
+                          {failedScenes > 0 && jobId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-xs border-red-500/50 text-red-400 bg-transparent hover:bg-red-500/10 hover:text-red-300"
+                              disabled={retryAllFailedScenesMutation.isPending}
+                              onClick={async () => {
+                                if (!jobId) return;
+                                try {
+                                  const result = await retryAllFailedScenesMutation.mutateAsync({ jobId });
+                                  toast.success(`Retrying ${result.retriedCount} failed scene${result.retriedCount !== 1 ? "s" : ""}`);
+                                  // Resume polling if it stopped
+                                  isRenderingRef.current = true;
+                                  setRenderStatus("rendering");
+                                } catch (err: any) {
+                                  toast.error("Retry failed", { description: err.message });
+                                }
+                              }}
+                            >
+                              {retryAllFailedScenesMutation.isPending
+                                ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Retrying...</>
+                                : <><RefreshCw className="w-3 h-3 mr-1" /> Retry All Failed</>}
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Scene chips grid */}
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {(perSceneStatuses.length > 0 ? perSceneStatuses : Array.from({ length: totalScenes }, (_, i) => ({ id: i, index: i, status: "pending", errorMessage: null }))).map((scene) => (
                             <div
                               key={scene.id}
-                              title={`Scene ${scene.index + 1}: ${scene.status}`}
-                              className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                              title={scene.status === "failed" && scene.errorMessage ? scene.errorMessage : `Scene ${scene.index + 1}: ${scene.status}`}
+                              className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-all duration-300 cursor-default ${
                                 scene.status === "completed"  ? "bg-purple-600 text-white" :
                                 scene.status === "generating" ? "bg-purple-500/30 text-purple-300 ring-1 ring-purple-500 animate-pulse" :
-                                scene.status === "failed"     ? "bg-red-500/30 text-red-400 ring-1 ring-red-500" :
+                                scene.status === "failed"     ? "bg-red-500/20 text-red-400 ring-1 ring-red-500" :
                                                                 "bg-zinc-800 text-zinc-600"
                               }`}
                             >
@@ -1394,12 +1434,84 @@ export default function MusicVideoAutopilot() {
                             </div>
                           ))}
                         </div>
-                        <div className="flex gap-4 mt-2 text-xs text-zinc-600">
+
+                        {/* Legend */}
+                        <div className="flex gap-4 text-xs text-zinc-600 mb-3">
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-zinc-800 inline-block" /> Queued</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-500/30 ring-1 ring-purple-500 inline-block" /> Generating</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-600 inline-block" /> Done</span>
-                          {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/30 ring-1 ring-red-500 inline-block" /> Failed</span>}
+                          {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/20 ring-1 ring-red-500 inline-block" /> Failed</span>}
                         </div>
+
+                        {/* Failed scene detail cards */}
+                        {perSceneStatuses.filter((s) => s.status === "failed").length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs text-red-400 font-medium">Failed Scenes</p>
+                            {perSceneStatuses
+                              .filter((s) => s.status === "failed")
+                              .map((scene) => {
+                                const isRetrying = retryingScenes.has(scene.id);
+                                // Humanise the raw error message
+                                const rawErr = scene.errorMessage ?? "Unknown error";
+                                const friendlyErr = rawErr.includes("429") || rawErr.toLowerCase().includes("rate limit")
+                                  ? "Rate limit reached — the AI rendering service was busy. Retry to re-queue this scene."
+                                  : rawErr.includes("timeout") || rawErr.toLowerCase().includes("timed out")
+                                  ? "Request timed out. The scene took too long to generate. Retry to try again."
+                                  : rawErr.length > 200 ? rawErr.slice(0, 200) + "…" : rawErr;
+
+                                return (
+                                  <div
+                                    key={scene.id}
+                                    className="flex items-start gap-3 bg-red-500/5 border border-red-500/20 rounded-lg p-3"
+                                  >
+                                    {/* Scene number badge */}
+                                    <div className="w-7 h-7 rounded-md bg-red-500/20 text-red-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                      {scene.index + 1}
+                                    </div>
+
+                                    {/* Error info */}
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-red-300 mb-0.5">Scene {scene.index + 1} failed</p>
+                                      <p className="text-xs text-zinc-400 leading-relaxed break-words">{friendlyErr}</p>
+                                    </div>
+
+                                    {/* Retry button */}
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="shrink-0 h-7 px-2 text-xs border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/10 hover:text-red-300"
+                                      disabled={isRetrying}
+                                      onClick={async () => {
+                                        if (!jobId) return;
+                                        setRetryingScenes((prev) => new Set(prev).add(scene.id));
+                                        // Optimistically update scene status to pending in UI
+                                        setPerSceneStatuses((prev) =>
+                                          prev.map((s) => s.id === scene.id ? { ...s, status: "pending", errorMessage: null } : s)
+                                        );
+                                        try {
+                                          await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                          toast.success(`Scene ${scene.index + 1} re-queued for rendering`);
+                                          isRenderingRef.current = true;
+                                          setRenderStatus("rendering");
+                                        } catch (err: any) {
+                                          // Rollback optimistic update
+                                          setPerSceneStatuses((prev) =>
+                                            prev.map((s) => s.id === scene.id ? { ...s, status: "failed", errorMessage: rawErr } : s)
+                                          );
+                                          setRetryingScenes((prev) => { const n = new Set(prev); n.delete(scene.id); return n; });
+                                          toast.error("Retry failed", { description: err.message });
+                                        }
+                                      }}
+                                    >
+                                      {isRetrying
+                                        ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Retrying</>
+                                        : <><RefreshCw className="w-3 h-3 mr-1" /> Retry</>}
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        )}
                       </div>
                     )}
 

@@ -813,3 +813,16 @@
 - [x] Add elapsed time counter
 - [x] Add failed scene count indicator in progress bar
 - [x] Add pollProgress sceneStatuses return for per-scene real-time status
+
+## Feature: Failed Scene Detail View & Retry
+- [x] Expose errorMessage in pollProgress sceneStatuses response
+- [x] Add retryFailedScene tRPC procedure (reset scene to pending + re-queue render)
+- [x] Add retryAllFailedScenes tRPC procedure (bulk retry all failed scenes in a job)
+- [x] Failed scene chips in progress grid with tooltip showing raw error on hover
+- [x] "Retry All Failed" button shown when failedScenes > 0 in render step
+- [x] Per-scene retry button in the failed scene detail card
+- [x] Human-readable error messages (429 → rate limit message, timeout → timeout message)
+- [x] Retry loading state per scene (spinner + "Retrying" label)
+- [x] Optimistic UI update on retry (scene chip moves to pending immediately)
+- [x] Resume polling after retry is triggered (isRenderingRef + setRenderStatus)
+- [x] Staggered 3s delay between bulk retries to avoid 429 cascade

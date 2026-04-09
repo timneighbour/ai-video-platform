@@ -423,6 +423,7 @@ export const musicVideoRouter = router({
           id: s.id,
           index: s.sceneIndex,
           status: s.status, // "pending" | "generating" | "completed" | "failed"
+          errorMessage: s.errorMessage ?? null,
         })),
       };
     }),
@@ -651,6 +652,109 @@ export const musicVideoRouter = router({
           .where(eq(musicVideoScenes.id, input.sceneId));
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to start scene regeneration" });
       }
+    }),
+
+  // Retry a single failed scene — resets it to pending and re-queues the render
+  retryFailedScene: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      if (scene.status !== "failed") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Scene is not in a failed state" });
+      }
+
+      // Reset scene
+      await db.update(musicVideoScenes)
+        .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+
+      // Ensure job is back in rendering state so polling continues
+      if (job.status === "failed") {
+        await db.update(musicVideoJobs)
+          .set({ status: "rendering", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, input.jobId));
+      }
+
+      // Re-queue the render asynchronously
+      (async () => {
+        try {
+          const taskId = await startSceneRender(input.sceneId, scene.prompt, scene.duration);
+          await db!.update(musicVideoScenes)
+            .set({ status: "generating", taskId, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, input.sceneId));
+          console.log(`[MusicVideo] ${new Date().toISOString()} Retried scene ${input.sceneId} → taskId ${taskId}`);
+        } catch (err) {
+          console.error(`[MusicVideo] ${new Date().toISOString()} Retry failed for scene ${input.sceneId}:`, err);
+          await db!.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, input.sceneId));
+        }
+      })();
+
+      return { success: true, sceneId: input.sceneId };
+    }),
+
+  // Retry ALL failed scenes in a job at once
+  retryAllFailedScenes: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const failedScenes = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.jobId, input.jobId), eq(musicVideoScenes.status, "failed")));
+
+      if (failedScenes.length === 0) return { success: true, retriedCount: 0 };
+
+      // Reset all failed scenes to pending
+      await db.update(musicVideoScenes)
+        .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
+        .where(and(eq(musicVideoScenes.jobId, input.jobId), eq(musicVideoScenes.status, "failed")));
+
+      // Ensure job is back in rendering state
+      await db.update(musicVideoJobs)
+        .set({ status: "rendering", updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      // Re-queue each failed scene with 3s stagger
+      const STAGGER_MS = 3000;
+      (async () => {
+        for (let i = 0; i < failedScenes.length; i++) {
+          const scene = failedScenes[i];
+          if (i > 0) await new Promise((r) => setTimeout(r, STAGGER_MS));
+          try {
+            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration);
+            await db!.update(musicVideoScenes)
+              .set({ status: "generating", taskId, updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, scene.id));
+            console.log(`[MusicVideo] ${new Date().toISOString()} Bulk retry scene ${scene.id} (${i + 1}/${failedScenes.length}) → taskId ${taskId}`);
+          } catch (err) {
+            console.error(`[MusicVideo] ${new Date().toISOString()} Bulk retry failed for scene ${scene.id}:`, err);
+            await db!.update(musicVideoScenes)
+              .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, scene.id));
+          }
+        }
+      })();
+
+      return { success: true, retriedCount: failedScenes.length };
     }),
 
   // List all jobs for the current user
