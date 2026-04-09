@@ -6,7 +6,7 @@ import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check } fro
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png";
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png";
 
 type CreatorType = "music" | "youtube" | "kids" | "other";
 
@@ -54,7 +54,7 @@ export default function Onboarding() {
     <div className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center px-6 py-16 font-sans">
       {/* Logo */}
       <a href="/" className="mb-12 flex items-center gap-2.5">
-        <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+        <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-11 w-auto object-contain" />
       </a>
 
       {/* Progress indicator */}

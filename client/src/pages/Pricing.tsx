@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png";
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png";
 
 const PLANS = [
   {
@@ -151,7 +151,7 @@ export default function Pricing() {
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
+            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-11 w-auto object-contain" />
           </a>
           <div className="hidden md:flex items-center gap-1">
             {[

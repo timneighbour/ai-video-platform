@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png";
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png"; // v2 logo
 const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
-const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-intro-v2_1e882c04.mp4";
+const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
 const HERO_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
   `${CDN}/hero-abstract-web_ed099aea.mp4`,
@@ -74,7 +74,7 @@ function Nav() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-8 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            className="h-11 w-auto object-contain group-hover:opacity-90 transition-opacity"
           />
         </a>
 
@@ -755,7 +755,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-6 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-8 w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.

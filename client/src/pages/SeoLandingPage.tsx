@@ -96,7 +96,7 @@ export default function SeoLandingPage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center cursor-pointer">
-              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-full_1ced13ff.png" alt="WizVid" className="h-8 w-auto object-contain" />
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-v2_02b60663.png" alt="WizVid" className="h-11 w-auto object-contain" />
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-white/60">
