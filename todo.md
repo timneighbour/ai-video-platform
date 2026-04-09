@@ -1091,3 +1091,16 @@
 - [x] Security: Added express-rate-limit — general (300/15min), AI generation (20/15min), upload (30/15min); trust proxy set
 - [x] UX: Seeded 6 showcase demo items (Cinematic, Anime, Pixar 3D, Hip-Hop, Indie Band, Documentary) into DB
 - [x] Produced audit action plan document covering all 6 areas with prioritised external actions
+
+## Conversion & Monetisation Optimisation System (Apr 2026)
+- [x] S1: Update hero headline to "Your song deserves a music video — create it in minutes"
+- [x] S1: Add "See your full video before you generate it" supporting line under headline
+- [x] S1: Update subheadline copy
+- [x] S2/S7: Add speed/urgency badges (⚡ Create your video in under 2 minutes, 🎬 Instant storyboard preview) to hero
+- [x] S3: Updated WhyWizVid section title to 'See it. Approve it. Then generate it.' with 3 key differentiators
+- [x] S4: Replaced cinematic language in WhyWizVid card and CinematicUpsellModal
+- [x] S5: Added pre-render upgrade nudge banner in MusicVideoAutopilot storyboard step
+- [x] S5: Updated CinematicUpsellModal title to 'Want this video to look like a real music video?'
+- [x] S5: Pre-render nudge covers this: 'standard quality — upgrade key scenes for professional finish'
+- [x] S6: Updated showcase section to 'Real videos. Real creators.' with 'Created with WizVid' label and new subtitle
+- [x] S8: Updated Credits page header and trust signal to reinforce 'preview free, pay to render' messaging

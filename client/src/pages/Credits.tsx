@@ -159,7 +159,7 @@ export default function Credits() {
             Get more Credits
           </h1>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto">
-            Credits are only used when you create or upgrade videos. Storyboard generation is always free.
+            Credits are only used when you render or upgrade videos. Storyboard generation is always free — preview your full video before you spend a single credit.
           </p>
         </div>
 
@@ -318,8 +318,8 @@ export default function Credits() {
             },
             {
               icon: <Sparkles className="w-5 h-5 text-amber-400" />,
-              title: "Storyboard is always free",
-              desc: "Generate and regenerate your storyboard as many times as you like — no Credits needed.",
+              title: "Preview your video for free",
+              desc: "Generate and refine your full storyboard as many times as you like — no Credits needed. You only pay when you’re happy and ready to render.",
             },
           ].map((item) => (
             <div key={item.title} className="flex items-start gap-3">

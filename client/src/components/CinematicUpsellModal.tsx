@@ -116,10 +116,10 @@ export default function CinematicUpsellModal({
             </div>
             <div>
               <DialogTitle className="text-white text-lg leading-tight">
-                Upgrade to Cinematic Quality
+                Want this video to look like a real music video?
               </DialogTitle>
               <DialogDescription className="text-zinc-400 text-sm mt-0.5">
-                Re-render selected scenes with our premium AI model for a sharper, more cinematic result.
+                Upgrade key scenes to cinematic quality — rendered with our premium AI model for sharper detail, cinematic motion, and a professional finish.
               </DialogDescription>
             </div>
           </div>

@@ -233,18 +233,25 @@ function Hero() {
               From idea to full video with AI
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-4 text-white">
               Your song deserves<br />
               <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
                 a music video.
               </span>
             </h1>
 
-            <p className="text-lg text-[#a1a1aa] leading-relaxed mb-3 max-w-lg">
+            <p className="text-base font-semibold text-violet-300 mb-5 tracking-wide">
+              See your full video before you generate it.
+            </p>
+
+            <p className="text-lg text-[#a1a1aa] leading-relaxed mb-5 max-w-lg">
               Turn lyrics, ideas, or audio into fully visualised music videos — with AI storyboards, scene previews, and cinematic moments built in.
             </p>
 
-            <p className="text-sm font-medium text-violet-400/90 mb-7">Create it in minutes.</p>
+            <div className="flex flex-wrap gap-2.5 mb-6">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-300 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1">⚡ Create your video in under 2 minutes</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1">🎬 Instant storyboard preview</span>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <Button
@@ -551,8 +558,8 @@ function WhyWizVid() {
     },
     {
       icon: "✨",
-      title: "Smart cinematic rendering where it matters most",
-      desc: "WizVid uses premium rendering only on your key moments — chorus, climax, hero scenes — keeping quality high and costs controlled.",
+      title: "Upgrade your video to cinematic quality",
+      desc: "Choose which scenes get premium cinematic rendering — chorus, climax, hero moments. You stay in control of quality and credits.",
     },
   ];
 
@@ -560,11 +567,12 @@ function WhyWizVid() {
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14 reveal">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">What makes us different</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Why WizVid is different</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            Why WizVid is different
+            See it. Approve it.<br />
+            <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Then generate it.</span>
           </h2>
-          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">Most AI tools give you clips. WizVid gives you a complete, consistent, cinematic music video.</p>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">Most AI tools give you clips. WizVid gives you a complete, consistent music video — and lets you preview every scene before you spend a single credit.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {reasons.map((r, i) => (
@@ -1270,12 +1278,12 @@ function MadeWithWizVid() {
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Real results</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Created with WizVid</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-            See what creators are making with WizVid
+            Real videos. Real creators.
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Used by creators to grow YouTube channels and content pages — without editing, animators, or delays.
+            Every video below was created using WizVid — no editing, no animators, no studio. Just an idea and a song.
           </p>
         </div>
 

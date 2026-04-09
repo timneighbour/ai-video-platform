@@ -1192,6 +1192,15 @@ export default function MusicVideoAutopilot() {
               </div>
             </div>
 
+            {/* Pre-render cinematic upgrade nudge */}
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-500/25 bg-gradient-to-r from-amber-950/30 to-orange-950/20 px-4 py-3">
+              <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <p className="text-sm text-amber-200 flex-1">
+                <span className="font-semibold">These scenes will render in standard quality.</span>{" "}
+                After rendering, you can upgrade key scenes to cinematic quality for a professional finish.
+              </p>
+            </div>
+
             {/* Global Lip Sync Control */}
             <div className="mb-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
               <div className="flex items-center gap-3">
