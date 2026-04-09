@@ -153,7 +153,7 @@ export default function Autopilot() {
           </Button>
           <div className="flex items-center gap-2">
             <Wand2 className="h-5 w-5 text-purple-400" />
-            <span className="font-bold text-white">WizVid Autopilot</span>
+            <span className="font-bold text-white">WizPilot</span>
           </div>
           <div className="w-24" />
         </div>

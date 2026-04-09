@@ -241,3 +241,36 @@
 
 ## Font Update
 - [x] Replace Space Grotesk with Bebas Neue (headlines) + Barlow (body) for cinematic feel
+
+## Music Video Autopilot Feature
+- [x] DB schema: music_video_jobs table
+- [x] DB schema: music_video_scenes table
+- [x] Migration: generate and apply SQL for both tables
+- [x] Backend: audio upload endpoint (S3, max 50MB, MP3/WAV/M4A)
+- [x] Backend: LLM storyboard generation (analyse theme + song duration, produce N scenes with prompts and timestamps)
+- [x] Backend: per-scene video generation via Kling AI with status polling
+- [x] Backend: ffmpeg video assembly (stitch clips + overlay audio track)
+- [x] Backend: tRPC procedures (createJob, generateStoryboard, updateScene, startRender, pollProgress, getJob, listJobs)
+- [x] Frontend: /music-video page with 3-step wizard (Upload → Storyboard → Render)
+- [x] Frontend: Step 1 — audio file upload with drag-and-drop, theme/genre/mood input
+- [x] Frontend: Step 2 — storyboard review (scene cards with timestamp, prompt, duration, edit button)
+- [x] Frontend: Step 3 — render progress (per-scene status indicators, overall progress bar, download)
+- [x] Frontend: Download button for final assembled video
+- [x] Nav: Added Music Video link to Home.tsx navigation
+- [x] Credits: 10 credits per scene (displayed upfront before render)
+- [x] Tests: 5 vitest tests for music video service (24 total passing)
+
+## Rename Autopilot → WizPilot
+- [x] Rename all "Autopilot" user-facing text to "WizPilot" in Home.tsx
+- [x] Rename in Autopilot.tsx page title and copy
+- [x] Rename in navigation (Home.tsx nav, DashboardLayout sidebar)
+- [x] Rename route /autopilot → /wizpilot in App.tsx
+- [x] Update FAQ answers referencing Autopilot
+- [x] Update announcement banner text
+- [x] Updated structured data in index.html
+
+## Music Video Feature Gaps
+- [x] Verify DB migration was applied (music_video_jobs and music_video_scenes tables confirmed in DB)
+- [x] Add Music Video link to DashboardLayout sidebar (full sidebar rebuilt with all WizVid nav items)
+- [x] WizPilot also added to DashboardLayout sidebar
+- [x] 24 tests passing

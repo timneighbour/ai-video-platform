@@ -92,6 +92,50 @@ export const projects = mysqlTable("projects", {
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;
 
+// Music Video Jobs table
+export const musicVideoJobs = mysqlTable("musicVideoJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  audioUrl: varchar("audioUrl", { length: 1024 }).notNull(),
+  audioKey: varchar("audioKey", { length: 512 }).notNull(),
+  audioDuration: int("audioDuration").notNull(),
+  themePrompt: text("themePrompt").notNull(),
+  genre: varchar("genre", { length: 128 }),
+  mood: varchar("mood", { length: 128 }),
+  status: mysqlEnum("mvJobStatus", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
+  totalScenes: int("totalScenes").default(0).notNull(),
+  completedScenes: int("completedScenes").default(0).notNull(),
+  finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
+  finalVideoKey: varchar("finalVideoKey", { length: 512 }),
+  creditCost: int("creditCost").default(0).notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type MusicVideoJob = typeof musicVideoJobs.$inferSelect;
+export type InsertMusicVideoJob = typeof musicVideoJobs.$inferInsert;
+
+// Music Video Scenes table
+export const musicVideoScenes = mysqlTable("musicVideoScenes", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  sceneIndex: int("sceneIndex").notNull(),
+  startTime: int("startTime").notNull(),
+  duration: int("duration").notNull(),
+  prompt: text("prompt").notNull(),
+  visualStyle: varchar("visualStyle", { length: 255 }),
+  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed"]).default("pending").notNull(),
+  taskId: varchar("taskId", { length: 255 }),
+  videoUrl: varchar("videoUrl", { length: 1024 }),
+  videoKey: varchar("videoKey", { length: 512 }),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type MusicVideoScene = typeof musicVideoScenes.$inferSelect;
+export type InsertMusicVideoScene = typeof musicVideoScenes.$inferInsert;
+
 // API Keys table (for Business plan users)
 export const apiKeys = mysqlTable("apiKeys", {
   id: int("id").autoincrement().primaryKey(),

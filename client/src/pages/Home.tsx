@@ -163,7 +163,7 @@ export default function Home() {
     {
       id: "2",
       question: "Is storyboard generation really free?",
-      answer: "Yes! With our Autopilot feature, you can generate and regenerate your storyboard as many times as you want — completely free. Credits are only charged when you click 'Render Final Video'. This is our key advantage over competitors like Neural Frames.",
+      answer: "Yes! With our WizPilot, you can generate and regenerate your storyboard as many times as you want — completely free. Credits are only charged when you click 'Render Final Video'. This is our key advantage over competitors like Neural Frames.",
     },
     {
       id: "3",
@@ -195,8 +195,8 @@ export default function Home() {
         <p className="text-sm text-purple-200">
           <span className="font-bold text-purple-300">✨ WizVid Advantage:</span>{" "}
           Regenerate your storyboard unlimited times — completely free. Credits only charged on final render.{" "}
-          <a href="/autopilot" className="underline hover:text-white transition-colors font-medium">
-            Try Autopilot →
+          <a href="/wizpilot" className="underline hover:text-white transition-colors font-medium">
+            Try WizPilot →
           </a>
         </p>
       </div>
@@ -214,7 +214,8 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
             <a href="/tools/text-to-video" className="hover:text-white transition-colors">Tools</a>
             <a href="/subscribe" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/autopilot" className="hover:text-white transition-colors">Autopilot</a>
+            <a href="/wizpilot" className="hover:text-white transition-colors">WizPilot</a>
+            <a href="/music-video" className="hover:text-white transition-colors text-purple-300 hover:text-purple-100 font-medium">🎵 Music Video</a>
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
@@ -497,7 +498,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Autopilot Feature Highlight ── */}
+      {/* ── WizPilot Feature Highlight ── */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-950/40 via-black to-blue-950/40" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-600/10 rounded-full blur-3xl" />
@@ -513,7 +514,7 @@ export default function Home() {
             </span>
           </h2>
           <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Our Autopilot feature lets you generate and regenerate your entire video storyboard unlimited times — for free. Credits are only charged when you're happy and click Render. No other platform does this.
+            Our WizPilot lets you generate and regenerate your entire video storyboard unlimited times — for free. Credits are only charged when you're happy and click Render. No other platform does this.
           </p>
           <div className="grid sm:grid-cols-3 gap-6 mb-10">
             {[
@@ -534,9 +535,9 @@ export default function Home() {
             style={{ background: "linear-gradient(135deg, #059669, #0891b2)", boxShadow: "0 0 30px rgba(5,150,105,0.4)" }}
             asChild
           >
-            <a href="/autopilot">
+            <a href="/wizpilot">
               <Sparkles className="h-5 w-5 mr-2" />
-              Try Autopilot Free
+              Try WizPilot Free
             </a>
           </Button>
         </div>
@@ -708,7 +709,7 @@ export default function Home() {
             <div>
               <h4 className="text-sm font-semibold text-white mb-4">Product</h4>
               <ul className="space-y-2.5 text-sm text-gray-500">
-                <li><a href="/autopilot" className="hover:text-gray-300 transition-colors">Autopilot</a></li>
+                <li><a href="/wizpilot" className="hover:text-gray-300 transition-colors">WizPilot</a></li>
                 <li><a href="/subscribe" className="hover:text-gray-300 transition-colors">Pricing</a></li>
                 <li><a href="/credits" className="hover:text-gray-300 transition-colors">Credits</a></li>
               </ul>

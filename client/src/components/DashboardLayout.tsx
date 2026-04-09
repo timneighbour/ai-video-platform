@@ -21,15 +21,22 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, CreditCard, Settings, FolderOpen } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: Zap, label: "WizPilot", path: "/wizpilot" },
+  { icon: Music, label: "Music Video", path: "/music-video" },
+  { icon: Video, label: "Text to Video", path: "/tools/text-to-video" },
+  { icon: Wand2, label: "Video Transform", path: "/tools/video-to-video" },
+  { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
+  { icon: FolderOpen, label: "Projects", path: "/projects" },
+  { icon: CreditCard, label: "Credits", path: "/credits" },
+  { icon: Settings, label: "Account", path: "/account" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -171,7 +178,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                    WizVid
                   </span>
                 </div>
               ) : null}

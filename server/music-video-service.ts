@@ -1,0 +1,268 @@
+/**
+ * Music Video Autopilot Service
+ * Handles storyboard generation, per-scene video rendering, and final assembly.
+ */
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+import { getDb } from "./db";
+import { musicVideoJobs, musicVideoScenes } from "../drizzle/schema";
+import { eq, and } from "drizzle-orm";
+import { storagePut } from "./storage";
+import { invokeLLM } from "./_core/llm";
+import { initKlingAI } from "./ai-apis/kling";
+
+const klingClient = initKlingAI();
+
+const execAsync = promisify(exec);
+
+const CREDITS_PER_SCENE = 10;
+const SCENE_DURATION_SECONDS = 8; // each scene is 8 seconds
+
+export function calculateSceneCount(audioDurationSeconds: number): number {
+  // One scene every 8 seconds, minimum 3 scenes, maximum 45 scenes (~6 min)
+  const count = Math.ceil(audioDurationSeconds / SCENE_DURATION_SECONDS);
+  return Math.max(3, Math.min(45, count));
+}
+
+export function calculateCreditCost(sceneCount: number): number {
+  return sceneCount * CREDITS_PER_SCENE;
+}
+
+/**
+ * Generate a storyboard using LLM based on theme and song duration.
+ * Returns an array of scene objects with prompts and timestamps.
+ */
+export async function generateStoryboard(
+  themePrompt: string,
+  genre: string | null | undefined,
+  mood: string | null | undefined,
+  audioDurationSeconds: number,
+  title: string
+): Promise<Array<{ sceneIndex: number; startTime: number; duration: number; prompt: string; visualStyle: string }>> {
+  const sceneCount = calculateSceneCount(audioDurationSeconds);
+  const minutes = Math.floor(audioDurationSeconds / 60);
+  const seconds = audioDurationSeconds % 60;
+  const durationStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+  const systemPrompt = `You are a professional music video director and creative director. 
+Your job is to create detailed, cinematic scene descriptions for AI video generation.
+Each scene description must be:
+- Highly visual and specific (describe lighting, camera angle, movement, subjects, atmosphere)
+- Consistent with the overall theme and mood
+- Optimised for AI video generation (clear, vivid, no abstract concepts)
+- Varied enough to create an interesting visual journey
+- Between 50-100 words each
+
+Return ONLY valid JSON, no markdown, no explanation.`;
+
+  const userPrompt = `Create a music video storyboard for a song called "${title}".
+
+Song details:
+- Duration: ${durationStr} (${audioDurationSeconds} seconds)
+- Theme/Concept: ${themePrompt}
+- Genre: ${genre || "not specified"}
+- Mood: ${mood || "not specified"}
+- Number of scenes needed: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)
+
+Return a JSON array of exactly ${sceneCount} scene objects. Each object must have:
+- sceneIndex: number (0-based)
+- startTime: number (seconds from start, evenly spaced every ${SCENE_DURATION_SECONDS} seconds)
+- duration: number (always ${SCENE_DURATION_SECONDS})
+- prompt: string (detailed AI video generation prompt, 50-100 words)
+- visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime", "oil painting")
+
+Make the scenes tell a visual story that matches the theme. Vary the camera angles, settings, and visual styles to keep it dynamic.`;
+
+  const response = await invokeLLM({
+    messages: [
+      { role: "system" as const, content: systemPrompt as string },
+      { role: "user" as const, content: userPrompt as string },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "storyboard",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            scenes: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  sceneIndex: { type: "integer" },
+                  startTime: { type: "integer" },
+                  duration: { type: "integer" },
+                  prompt: { type: "string" },
+                  visualStyle: { type: "string" },
+                },
+                required: ["sceneIndex", "startTime", "duration", "prompt", "visualStyle"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["scenes"],
+          additionalProperties: false,
+        },
+      },
+    },
+  });
+
+   const rawContent = response.choices[0]?.message?.content;
+  if (!rawContent) throw new Error("LLM returned empty response");
+  const content = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+  const parsed = JSON.parse(content);
+  return parsed.scenes;
+}
+
+/**
+ * Start rendering a single scene via Kling AI.
+ * Returns the task ID for polling.
+ */
+export async function startSceneRender(
+  sceneId: number,
+  prompt: string,
+  duration: number
+): Promise<string> {
+  // Use Kling AI for video generation
+  const taskId = await klingClient.createTextToVideo({
+    prompt,
+    duration: duration <= 5 ? "5" : "10",
+    aspect_ratio: "16:9",
+    mode: "standard",
+  });
+
+  if (!taskId) {
+    throw new Error("Failed to start video generation: no task_id returned");
+  }
+
+  return taskId;
+}
+
+/**
+ * Poll a scene's render status and update DB when complete.
+ * Returns the video URL if completed, null if still processing.
+ */
+export async function pollSceneStatus(
+  sceneId: number,
+  taskId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  const result = await klingClient.getTaskStatus(taskId);
+
+  if (!result) return { status: "processing" };
+
+  const taskStatus = result.task_status;
+
+  if (taskStatus === "succeed") {
+    const videoUrl = (result as any).task_result?.videos?.[0]?.url;
+    if (!videoUrl) return { status: "failed" };
+
+    // Download and re-upload to our S3 for permanent storage
+    const response = await fetch(videoUrl);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
+    const { url } = await storagePut(key, buffer, "video/mp4");
+
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+
+    return { status: "completed", videoUrl: url };
+  }
+
+  if (taskStatus === "failed") {
+    const db3 = await getDb();
+    if (db3) {
+      await db3.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: "Video generation failed", updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
+  }
+
+  return { status: "processing" };
+}
+
+/**
+ * Assemble all scene videos + audio into a final music video using ffmpeg.
+ * Returns the S3 URL of the final video.
+ */
+export async function assembleMusicVideo(jobId: number): Promise<string> {
+  // Get job and all completed scenes
+  const dbConn = await getDb();
+  if (!dbConn) throw new Error("Database not available");
+
+  const [job] = await dbConn.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, jobId));
+  if (!job) throw new Error(`Job ${jobId} not found`);
+
+  const scenes = await dbConn.select()
+    .from(musicVideoScenes)
+    .where(and(eq(musicVideoScenes.jobId, jobId), eq(musicVideoScenes.status, "completed")));
+
+  if (scenes.length === 0) throw new Error("No completed scenes to assemble");
+
+  // Sort by scene index
+  scenes.sort((a: typeof scenes[0], b: typeof scenes[0]) => a.sceneIndex - b.sceneIndex);
+
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `wizvid-job-${jobId}-`));
+
+  try {
+    // Download all scene videos
+    const sceneFiles: string[] = [];
+    for (const scene of scenes) {
+      if (!scene.videoUrl) continue;
+      const sceneFile = path.join(tmpDir, `scene-${scene.sceneIndex.toString().padStart(3, "0")}.mp4`);
+      const resp = await fetch(scene.videoUrl);
+      const buf = Buffer.from(await resp.arrayBuffer());
+      fs.writeFileSync(sceneFile, buf);
+      sceneFiles.push(sceneFile);
+    }
+
+    // Download audio
+    const audioFile = path.join(tmpDir, "audio.mp3");
+    const audioResp = await fetch(job.audioUrl);
+    const audioBuf = Buffer.from(await audioResp.arrayBuffer());
+    fs.writeFileSync(audioFile, audioBuf);
+
+    // Create ffmpeg concat list
+    const concatFile = path.join(tmpDir, "concat.txt");
+    const concatContent = sceneFiles.map(f => `file '${f}'`).join("\n");
+    fs.writeFileSync(concatFile, concatContent);
+
+    // Step 1: Concatenate all video clips
+    const concatenatedVideo = path.join(tmpDir, "concatenated.mp4");
+    await execAsync(
+      `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
+      { timeout: 300000 }
+    );
+
+    // Step 2: Mix video with audio (trim to audio duration)
+    const finalVideo = path.join(tmpDir, "final.mp4");
+    await execAsync(
+      `ffmpeg -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest "${finalVideo}"`,
+      { timeout: 300000 }
+    );
+
+    // Upload final video to S3
+    const finalBuffer = fs.readFileSync(finalVideo);
+    const finalKey = `music-videos/job-${jobId}-final-${Date.now()}.mp4`;
+    const { url } = await storagePut(finalKey, finalBuffer, "video/mp4");
+
+    // Update job record
+    await dbConn.update(musicVideoJobs)
+      .set({ status: "completed", finalVideoUrl: url, finalVideoKey: finalKey, updatedAt: new Date() })
+      .where(eq(musicVideoJobs.id, jobId));
+
+    return url;
+  } finally {
+    // Cleanup temp files
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+  }
+}

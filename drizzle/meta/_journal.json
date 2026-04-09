@@ -15,6 +15,13 @@
       "when": 1775690728325,
       "tag": "0001_dark_maverick",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775708906099,
+      "tag": "0002_faulty_shape",
+      "breakpoints": true
     }
   ]
 }
