@@ -321,12 +321,34 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     body: JSON.stringify(payload),
   });
 
+  // Read body as text first so we can inspect it before JSON.parse.
+  // The API sometimes returns plain-text rate-limit messages (e.g. "Rate exceeded.")
+  // with a 200 status, which would cause a JSON parse error.
+  const rawText = await response.text();
+  const trimmed = rawText.trim();
+
   if (!response.ok) {
-    const errorText = await response.text();
     throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
+      `LLM invoke failed: ${response.status} ${response.statusText} – ${trimmed}`
     );
   }
 
-  return (await response.json()) as InvokeResult;
+  // Detect plain-text rate-limit / quota responses (HTTP 200 but non-JSON body)
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.startsWith("rate exceeded") ||
+    lower.startsWith("rate limit") ||
+    lower.startsWith("too many requests") ||
+    lower.startsWith("usage exhausted") ||
+    lower.startsWith("quota exceeded") ||
+    lower === "rate exceeded."
+  ) {
+    throw new Error(`LLM invoke failed: rate limited – ${trimmed}`);
+  }
+
+  try {
+    return JSON.parse(trimmed) as InvokeResult;
+  } catch {
+    throw new Error(`LLM invoke failed: invalid JSON response – ${trimmed.slice(0, 200)}`);
+  }
 }

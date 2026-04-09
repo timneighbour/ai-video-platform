@@ -64,19 +64,34 @@ export async function generateImage(
     }),
   });
 
+  // Read body as text first to guard against plain-text rate-limit responses
+  const rawText = await response.text().catch(() => "");
+  const trimmed = rawText.trim();
+
   if (!response.ok) {
-    const detail = await response.text().catch(() => "");
     throw new Error(
-      `Image generation request failed (${response.status} ${response.statusText})${detail ? `: ${detail}` : ""}`
+      `Image generation request failed (${response.status} ${response.statusText})${trimmed ? `: ${trimmed}` : ""}`
     );
   }
 
-  const result = (await response.json()) as {
-    image: {
-      b64Json: string;
-      mimeType: string;
-    };
-  };
+  // Detect plain-text rate-limit / quota responses (HTTP 200 but non-JSON body)
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.startsWith("rate exceeded") ||
+    lower.startsWith("rate limit") ||
+    lower.startsWith("too many requests") ||
+    lower.startsWith("usage exhausted") ||
+    lower.startsWith("quota exceeded")
+  ) {
+    throw new Error(`Image generation failed: rate limited – ${trimmed}`);
+  }
+
+  let result: { image: { b64Json: string; mimeType: string } };
+  try {
+    result = JSON.parse(trimmed) as { image: { b64Json: string; mimeType: string } };
+  } catch {
+    throw new Error(`Image generation failed: invalid JSON response – ${trimmed.slice(0, 200)}`);
+  }
   const base64Data = result.image.b64Json;
   const buffer = Buffer.from(base64Data, "base64");
 
