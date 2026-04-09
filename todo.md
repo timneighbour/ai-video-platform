@@ -1104,3 +1104,20 @@
 - [x] S5: Pre-render nudge covers this: 'standard quality — upgrade key scenes for professional finish'
 - [x] S6: Updated showcase section to 'Real videos. Real creators.' with 'Created with WizVid' label and new subtitle
 - [x] S8: Updated Credits page header and trust signal to reinforce 'preview free, pay to render' messaging
+
+## SEO Checklist: 50 Programmatic /seo/ Pages (Apr 2026)
+### Phase 1 & 2: Technical Foundation & On-Page SEO
+- [x] P1: robots.txt verified — /seo/ is fully crawlable (only auth/dashboard routes blocked)
+- [x] P1: Self-referencing canonical tags injected dynamically per page via setLink()
+- [x] P2: Dynamic title + meta description already per-page; Open Graph + Twitter Card tags added
+- [x] P2: og:type, og:title, og:description, og:url, og:image, og:site_name injected per page
+- [x] P2: Breadcrumb nav with ChevronRight added (Home > keyword)
+- [x] P2: H1 already unique per page from seoPages.ts data
+### Phase 5: UX & Conversion
+- [x] P5: CTAButton now shows keyword-specific label ('Try [keyword] Free') in 3 locations per page
+- [x] P5: TrustBar component added below hero CTA (No credit card required, 10,000+ videos, Trusted by creators, First video free)
+### Phase 6: Schema Markup
+- [x] P6: FAQPage JSON-LD schema injected (4 questions per page, keyword-specific)
+- [x] P6: HowTo JSON-LD schema injected (3 steps from howToSteps data)
+- [x] P6: VideoObject JSON-LD schema injected with keyword-specific name and description
+- [x] P6: BreadcrumbList JSON-LD schema injected (Home > keyword)
