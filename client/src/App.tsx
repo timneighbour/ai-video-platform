@@ -16,6 +16,7 @@ import VideoToVideo from "./pages/tools/VideoToVideo";
 import Voiceover from "./pages/tools/Voiceover";
 import Autopilot from "./pages/Autopilot"; // WizPilot page
 import MusicVideoAutopilot from "./pages/MusicVideoAutopilot";
+import MusicVideosLanding from "./pages/MusicVideosLanding";
 import Pricing from "./pages/Pricing";
 import Onboarding from "./pages/Onboarding";
 import Help from "./pages/Help";
@@ -38,7 +39,8 @@ function Router() {
       <Route path={"/tools/voiceover"} component={Voiceover} />
       <Route path={"/wizpilot"} component={Autopilot} />
       <Route path={"/autopilot"} component={Autopilot} />{/* backward compat redirect */}
-      <Route path={"/music-video"} component={MusicVideoAutopilot} />
+      <Route path={"/music-video"} component={MusicVideosLanding} />
+      <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/onboarding"} component={Onboarding} />
       <Route path={"/help"} component={Help} />

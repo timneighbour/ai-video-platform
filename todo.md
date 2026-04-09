@@ -533,3 +533,18 @@
 - [x] Replace footer logo in Home.tsx with full logo image
 - [x] Set favicon.ico using icon-only crop
 - [x] Replace placeholder icon in SeoLandingPage.tsx Best Tool section
+
+## Conversion Optimisation (Apr 2026)
+- [x] Update hero headline to "Create full AI videos in minutes — not just clips"
+- [x] Update hero subheadline to "Turn your audio, lyrics, or ideas into fully animated videos instantly."
+- [x] Standardise primary CTA to "Create Your First Video" across all pages
+- [x] Add micro trust text under CTAs: "No editing needed · Takes minutes · Start free"
+- [x] Remove unverified stats (10,000+ videos, 1,000+ creators, 4.9 rating)
+- [x] Replace with honest early-stage social proof copy
+- [x] Update nav labels: "WizBeat" → "Music Videos", "WizPilot" → "Create Video"
+- [x] Add product demo section (input → storyboard → output) under hero
+- [x] Add/update "Why WizVid" section with 4 benefit points
+- [x] Create Music Videos landing page (pre-login) with product overview + CTA
+- [x] Wire /music-video route to landing page instead of direct login
+- [x] Enhance Pricing page: add "Start free — no credit card required" above plans
+- [x] Highlight PRO with "Most Popular — Unlimited video creation" label

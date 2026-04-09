@@ -58,8 +58,8 @@ function Nav() {
   }, []);
 
   const navLinks = [
-    { label: "WizBeat", href: "/music-video" },
-    { label: "WizPilot", href: "/wizpilot" },
+    { label: "Music Videos", href: "/music-video" },
+    { label: "Create Video", href: "/wizpilot" },
     { label: "Pricing", href: "/pricing" },
     { label: "Help", href: "/help" },
   ];
@@ -190,23 +190,23 @@ function Hero() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
-              Create AI<br />
+              Create full AI videos<br />
               <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                music videos
+                in minutes
               </span><br />
-              in minutes
+              — not just clips
             </h1>
 
             <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-              Turn your audio, ideas, or lyrics into fully animated videos — no editing, no experience, no studio required.
+              Turn your audio, lyrics, or ideas into fully animated videos instantly.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mb-10">
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <Button
                 className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
                 asChild
               >
-                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create your first video</a>
+                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
               </Button>
               <Button
                 variant="outline"
@@ -217,18 +217,7 @@ function Hero() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap gap-6 text-sm text-[#a1a1aa]">
-              {[
-                { icon: <Check className="w-4 h-4 text-green-400" />, text: "No editing skills needed" },
-                { icon: <Check className="w-4 h-4 text-green-400" />, text: "Create videos in minutes" },
-                { icon: <Check className="w-4 h-4 text-green-400" />, text: "Cancel anytime" },
-              ].map((item) => (
-                <div key={item.text} className="flex items-center gap-2">
-                  {item.icon}
-                  <span>{item.text}</span>
-                </div>
-              ))}
-            </div>
+            <p className="text-sm text-[#a1a1aa] mb-8">No editing needed · Takes minutes · Start free</p>
           </div>
 
           {/* Right: logo video */}
@@ -260,17 +249,173 @@ function Hero() {
           </div>
         </div>
 
-        {/* Stats row */}
+        {/* Trust row */}
         <div className="mt-16 pt-10 border-t border-white/8 flex flex-wrap gap-8 md:gap-16">
           {[
-            { num: "10,000+", label: "Videos created" },
-            { num: "1,000+", label: "Active creators" },
-            { num: "4.9 / 5", label: "Average rating" },
             { num: "< 5 min", label: "Average creation time" },
+            { num: "Full videos", label: "Not just clips" },
+            { num: "Free", label: "Start with no card required" },
+            { num: "Early access", label: "Used by early creators" },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-2xl font-bold text-white">{stat.num}</div>
               <div className="text-sm text-[#a1a1aa] mt-0.5">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Product Demo ────────────────────────────────────────────────────────────
+function ProductDemo() {
+  const steps = [
+    {
+      label: "Your input",
+      icon: "✍️",
+      color: "border-violet-500/30 bg-violet-500/5",
+      badge: "bg-violet-500/20 text-violet-300",
+      content: (
+        <div className="space-y-3">
+          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Example lyrics</div>
+          <div className="p-4 rounded-xl bg-[#0f0f0f] border border-white/8 text-sm text-white/80 leading-relaxed font-mono">
+            <p className="text-violet-300">🎵 Verse 1:</p>
+            <p className="mt-2">"Lights fade out, city sleeps,</p>
+            <p>Neon signs and broken dreams,</p>
+            <p>I walk alone through midnight rain,</p>
+            <p>Searching for a way back home again"</p>
+          </div>
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[#171717] border border-white/8 text-[#a1a1aa]">Style: Cinematic</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[#171717] border border-white/8 text-[#a1a1aa]">Mood: Dark</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      label: "AI storyboard",
+      icon: "🎨",
+      color: "border-blue-500/30 bg-blue-500/5",
+      badge: "bg-blue-500/20 text-blue-300",
+      content: (
+        <div className="space-y-2">
+          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Generated scenes</div>
+          {[
+            { time: "0:00", scene: "Wide city skyline at night, neon reflections on wet pavement" },
+            { time: "0:08", scene: "Close-up: artist silhouette under a flickering streetlight" },
+            { time: "0:16", scene: "Rain falling in slow motion, droplets catching neon light" },
+            { time: "0:24", scene: "Artist walking through empty alley, fog rolling in" },
+          ].map((s) => (
+            <div key={s.time} className="flex gap-3 p-3 rounded-lg bg-[#0f0f0f] border border-white/6 text-xs">
+              <span className="text-blue-400 font-mono font-bold flex-shrink-0">{s.time}</span>
+              <span className="text-white/70 leading-relaxed">{s.scene}</span>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      label: "Final video",
+      icon: "🎬",
+      color: "border-green-500/30 bg-green-500/5",
+      badge: "bg-green-500/20 text-green-300",
+      content: (
+        <div className="space-y-3">
+          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Ready to export</div>
+          <div className="relative rounded-xl overflow-hidden bg-[#0f0f0f] border border-white/8 aspect-video flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-900/30 via-blue-900/20 to-black" />
+            <div className="relative z-10 flex flex-col items-center gap-3">
+              <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                <Play className="w-6 h-6 text-white ml-1" />
+              </div>
+              <span className="text-white text-sm font-medium">Full 3-minute video</span>
+              <span className="text-[#a1a1aa] text-xs">1080p · Cinematic style · Ready in 4 min</span>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Synced to lyrics</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ No watermark</span>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">See it in action</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            Watch AI turn this into a full video
+          </h2>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            Paste your lyrics, pick a style — WizVid builds the entire video automatically.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-5 reveal">
+          {steps.map((step, i) => (
+            <div key={step.label} className={`relative p-6 rounded-2xl border ${step.color} transition-all`}>
+              {/* Arrow connector */}
+              {i < steps.length - 1 && (
+                <div className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-[#171717] border border-white/10 items-center justify-center">
+                  <ChevronRight className="w-3.5 h-3.5 text-[#a1a1aa]" />
+                </div>
+              )}
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xl">{step.icon}</span>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${step.badge}`}>{step.label}</span>
+              </div>
+              {step.content}
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-10 reveal">
+          <Button
+            className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
+            asChild
+          >
+            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
+          </Button>
+          <p className="text-[#a1a1aa] text-sm mt-3">No editing needed · Takes minutes · Start free</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Why WizVid ────────────────────────────────────────────────────────────────
+function WhyWizVid() {
+  const reasons = [
+    { icon: "🚫", title: "No editing required", desc: "WizVid handles everything from storyboard to final cut. You never touch a timeline." },
+    { icon: "🎬", title: "Create full videos, not clips", desc: "Most AI tools generate 10-second clips. WizVid creates complete, ready-to-publish videos." },
+    { icon: "🤖", title: "AI does everything for you", desc: "Upload your audio or idea. AI writes the storyboard, renders every scene, and delivers your video." },
+    { icon: "📺", title: "Built for YouTube, music & kids content", desc: "Optimised for the formats that matter — music videos, YouTube intros, and animated kids content." },
+  ];
+
+  return (
+    <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Why WizVid</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            Why creators use WizVid
+          </h2>
+        </div>
+        <div className="grid md:grid-cols-2 gap-5">
+          {reasons.map((r, i) => (
+            <div
+              key={r.title}
+              className={`flex gap-5 p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+            >
+              <div className="text-3xl flex-shrink-0">{r.icon}</div>
+              <div>
+                <h3 className="font-semibold text-white mb-2">{r.title}</h3>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed">{r.desc}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -499,7 +644,7 @@ function SocialProof() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 reveal">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Testimonials</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">Trusted by creators worldwide</h2>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">Used by early creators</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {testimonials.map((t, i) => (
@@ -532,14 +677,14 @@ function CTAPush() {
           Start creating today
         </h2>
         <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-          Join 1,000+ creators already making AI videos with WizVid. No editing skills needed.
+          Creators are already generating full videos with WizVid. Join them — no editing needed.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Button
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create your first AI video</a>
+            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
           </Button>
           <Button
             variant="outline"
@@ -549,7 +694,7 @@ function CTAPush() {
             <a href="/pricing">View pricing</a>
           </Button>
         </div>
-        <p className="text-[#a1a1aa] text-sm mt-8">No editing skills needed · Create videos in minutes · Cancel anytime</p>
+        <p className="text-[#a1a1aa] text-sm">No editing needed · Takes minutes · Start free</p>
       </div>
     </section>
   );
@@ -642,6 +787,8 @@ export default function Home() {
       <Nav />
       <main id="main-content">
         <Hero />
+        <ProductDemo />
+        <WhyWizVid />
         <Features />
         <WhoItsFor />
         <HowItWorks />

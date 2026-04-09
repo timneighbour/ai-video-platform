@@ -155,8 +155,8 @@ export default function Pricing() {
           </a>
           <div className="hidden md:flex items-center gap-1">
             {[
-              { label: "WizBeat", href: "/music-video" },
-              { label: "WizPilot", href: "/wizpilot" },
+              { label: "Music Videos", href: "/music-video" },
+              { label: "Create Video", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
@@ -186,9 +186,13 @@ export default function Pricing() {
             no editing required
           </span>
         </h1>
-        <p className="text-[#a1a1aa] text-lg mb-10 max-w-lg mx-auto">
+        <p className="text-[#a1a1aa] text-lg mb-6 max-w-lg mx-auto">
           Music videos, YouTube content, animations — all created by AI in minutes.
         </p>
+        <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-5 py-2 text-sm text-green-400 font-medium mb-10">
+          <span className="w-2 h-2 rounded-full bg-green-400" />
+          Start free — no credit card required
+        </div>
 
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-4 mb-14">
@@ -220,8 +224,8 @@ export default function Pricing() {
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full tracking-wide">
-                  Most Popular
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-4 py-1 rounded-full tracking-wide whitespace-nowrap">
+                  Most Popular — Unlimited video creation
                 </div>
               )}
 
@@ -252,7 +256,7 @@ export default function Pricing() {
                 asChild
               >
                 <a href={isAuthenticated ? "/subscribe" : getLoginUrl()}>
-                  {plan.popular ? <><Sparkles className="w-3.5 h-3.5 mr-1.5" />{plan.name === "Pro" ? "Start Pro" : "Get started"}</> : (plan.name === "Creator+" ? "Go Creator+" : "Get started")}
+                  {plan.popular ? <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create Your First Video</> : (plan.name === "Creator+" ? "Go Creator+" : "Get started free")}
                 </a>
               </Button>
 
