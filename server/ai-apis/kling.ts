@@ -1,9 +1,13 @@
 /**
  * Kling AI Integration
  * Handles text-to-video generation with job tracking
+ *
+ * Authentication: Kling AI requires a JWT signed with HS256 using the secret key.
+ * The JWT payload must include: { iss: accessKey, exp: now+1800, nbf: now-5 }
  */
 
 import axios from "axios";
+import jwt from "jsonwebtoken";
 
 const KLING_API_BASE = "https://api-singapore.klingai.com";
 
@@ -62,8 +66,19 @@ export class KlingAIClient {
   }
 
   private getAuthHeader(): string {
-    // Kling AI uses Bearer token format
-    return `Bearer ${this.accessKey}`;
+    // Kling AI requires a JWT signed with HS256 using the secret key.
+    // See: https://docs.klingai.com/en/api-reference/api-key
+    const now = Math.floor(Date.now() / 1000);
+    const token = jwt.sign(
+      {
+        iss: this.accessKey,
+        exp: now + 1800, // expires in 30 minutes
+        nbf: now - 5,   // not before (5 second grace period)
+      },
+      this.secretKey,
+      { algorithm: "HS256", header: { alg: "HS256", typ: "JWT" } }
+    );
+    return `Bearer ${token}`;
   }
 
   /**
@@ -100,7 +115,11 @@ export class KlingAIClient {
           `Kling API error: ${response.data.message || "Unknown error"}`
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { status?: number; data?: unknown } };
+      if (axiosErr?.response?.status === 401) {
+        throw new Error("Kling AI authentication failed (401). Check KLING_AI_ACCESS_KEY and KLING_AI_SECRET_KEY.");
+      }
       console.error("Kling AI text-to-video error:", error);
       throw error;
     }
@@ -129,7 +148,11 @@ export class KlingAIClient {
           `Kling API error: ${response.data.message || "Unknown error"}`
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { status?: number } };
+      if (axiosErr?.response?.status === 401) {
+        throw new Error("Kling AI authentication failed (401). Check KLING_AI_ACCESS_KEY and KLING_AI_SECRET_KEY.");
+      }
       console.error("Kling AI get status error:", error);
       throw error;
     }
@@ -158,7 +181,11 @@ export class KlingAIClient {
           `Kling API error: ${response.data.message || "Unknown error"}`
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { status?: number } };
+      if (axiosErr?.response?.status === 401) {
+        throw new Error("Kling AI authentication failed (401). Check KLING_AI_ACCESS_KEY and KLING_AI_SECRET_KEY.");
+      }
       console.error("Kling AI list tasks error:", error);
       throw error;
     }
