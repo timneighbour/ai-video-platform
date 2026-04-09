@@ -4,6 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { calculateVideoCreditCost } from "../../../shared/const";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
+import { LowCreditBanner } from "@/components/LowCreditBanner";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
 import { Button } from "@/components/ui/button";
@@ -1103,6 +1104,13 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               <CreditBalance variant="card" cost={creditCost > 0 ? creditCost : undefined} />
+              {/* Low credit warning — shown when balance is low or insufficient for this video */}
+              <LowCreditBanner
+                balance={creditBalance}
+                estimatedCost={creditCost > 0 ? creditCost : undefined}
+                variant="inline"
+                dismissible
+              />
               <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-800/50">
                 <CardContent className="pt-4 pb-4">
                   <p className="text-purple-300 text-sm font-medium mb-1">How it works</p>

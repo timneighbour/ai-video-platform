@@ -23,6 +23,9 @@ import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen } from "lucide-react";
 import CreditBalance from "./CreditBalance";
+import { LowCreditBanner } from "./LowCreditBanner";
+import { trpc } from "@/lib/trpc";
+import { LOW_CREDIT_THRESHOLD } from "../../../shared/const";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -110,6 +113,21 @@ type DashboardLayoutContentProps = {
   children: React.ReactNode;
   setSidebarWidth: (width: number) => void;
 };
+
+/** Small sidebar banner shown when credit balance is low — hidden when sidebar is collapsed */
+function LowCreditBannerSidebar() {
+  const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, {
+    refetchInterval: 60_000,
+  });
+  const balance = creditData?.balance ?? 0;
+  const isLow = balance >= 0 && balance < LOW_CREDIT_THRESHOLD;
+  if (!isLow) return null;
+  return (
+    <div className="group-data-[collapsible=icon]:hidden">
+      <LowCreditBanner balance={balance} variant="sidebar" />
+    </div>
+  );
+}
 
 function DashboardLayoutContent({
   children,
@@ -219,6 +237,8 @@ function DashboardLayoutContent({
           </SidebarContent>
 
           <SidebarFooter className="p-3 space-y-2">
+            {/* Low credit warning — shown when balance is below threshold, hidden when collapsed */}
+            <LowCreditBannerSidebar />
             {/* Credit balance card — hidden when sidebar is collapsed */}
             <div className="group-data-[collapsible=icon]:hidden">
               <CreditBalance variant="card" />

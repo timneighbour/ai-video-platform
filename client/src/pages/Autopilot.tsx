@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
+import { LowCreditBanner } from "@/components/LowCreditBanner";
+import { useCreditGuard } from "@/hooks/useCreditGuard";
 
 const VIDEO_STYLES = [
   { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism" },
@@ -76,6 +78,7 @@ function generateStoryboardFromPrompt(prompt: string, style: string): Storyboard
 
 export default function Autopilot() {
   const { isAuthenticated } = useAuth();
+  const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();
 
   // Step state: "input" | "storyboard" | "generating" | "done"
@@ -445,6 +448,14 @@ export default function Autopilot() {
                 </div>
               ))}
             </div>
+
+            {/* Low credit warning — shown when balance is low or insufficient for this render */}
+            <LowCreditBanner
+              balance={creditBalance}
+              estimatedCost={creditCost}
+              variant="inline"
+              dismissible
+            />
 
             {/* Regenerate + Render */}
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-6">

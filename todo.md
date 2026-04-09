@@ -1054,3 +1054,10 @@
 - [x] Credit helper text: "No credit card required · First video free · Under 2 minutes"
 - [x] Fix WizPilot page: content is left-aligned, needs to be centred (global @utility container override + mx-auto on all container divs)
 - [x] Fix WizPilot back button: use history.back() with 300ms fallback to setLocation("/")
+
+## Feature: Low Credit Warning Banner (Apr 2026)
+- [x] Build LowCreditBanner component: severity levels (low/insufficient), estimated cost vs balance, top-up CTA
+- [x] Wire banner into MusicVideoAutopilot upload step (shows before user starts)
+- [x] Wire banner into WizPilot prompt step (shows before generation)
+- [x] Add persistent low-credit card to DashboardLayout sidebar when balance < 20
+- [x] TypeScript check: 0 errors, 81/81 tests passing
