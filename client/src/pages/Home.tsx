@@ -155,11 +155,22 @@ function Hero() {
 
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-20">
         <div className="relative inline-block mb-8 group cursor-pointer" onClick={handleLogoClick}>
-          <div className="relative w-28 h-28 md:w-40 md:h-40 mx-auto rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/30 ring-2 ring-purple-500/30 group-hover:ring-purple-400/60 transition-all">
-            <video ref={logoVideoRef} src={WIZVID_LOGO_VIDEO} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+          {/* Glow ring behind the box */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/40 to-pink-500/40 blur-2xl scale-110 opacity-60" aria-hidden="true" />
+          <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/40 ring-2 ring-purple-500/40 group-hover:ring-purple-400/70 transition-all">
+            <video
+              ref={logoVideoRef}
+              src={WIZVID_LOGO_VIDEO}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-contain bg-black"
+              aria-label="WizVid animated logo"
+            />
           </div>
-          <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-purple-600 border-2 border-black flex items-center justify-center shadow-lg">
-            {logoMuted ? <VolumeX className="w-3.5 h-3.5 text-white" /> : <Volume2 className="w-3.5 h-3.5 text-white" />}
+          <div className="absolute -bottom-3 -right-3 w-9 h-9 rounded-full bg-purple-600 border-2 border-black flex items-center justify-center shadow-lg">
+            {logoMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
           </div>
         </div>
 

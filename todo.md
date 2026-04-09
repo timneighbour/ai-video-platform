@@ -504,3 +504,8 @@
 - [x] aria-pressed added to WizBeat image slider buttons
 - [x] role=switch + aria-checked added to Pricing billing toggle
 - [x] aria-label added to mobile menu button
+
+## Logo Fix (Apr 2026)
+- [x] Increase hero logo box size so video and text fit without clipping
+- [x] Ensure logo video fills the box correctly (no cropping)
+- [x] Make logo visually prominent in the hero section
