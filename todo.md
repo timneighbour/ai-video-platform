@@ -1143,3 +1143,10 @@
 
 ## Feature: Horror Video Style (Apr 2026)
 - [x] Generate thumbnail and add Horror style to video creation flow
+
+## Fix: Text to Video (WizPilot) Generation UX (Apr 2026)
+- [x] Add animated progress bar during video generation (7-stage, auto-advances every 6s)
+- [x] Add step-by-step status messages with icons (Queued → Analysing → Composing → Generating → Styling → Rendering → Finalising)
+- [x] Add success state with inline video player, Download, Open in New Tab, and View All Projects buttons
+- [x] Fix mobile layout: responsive step pills, stacked buttons, full-width CTAs, touch-friendly tap targets
+- [x] Added polling every 8s via checkVideoStatus; auto-transitions to done state with toast on completion
