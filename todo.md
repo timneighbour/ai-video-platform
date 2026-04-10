@@ -1212,3 +1212,16 @@
 - [ ] Fix Kling API mode value (standard→std) causing scene regeneration failures
 - [ ] Show per-scene lyrics as editable collapsible section on storyboard cards
 - [ ] Add optional captions toggle for final video render
+
+
+## Session 10 Fixes (April 2026) - COMPLETED ✅
+- [x] Add storyboard generation progress overlay (animated steps + progress bar) to MusicVideoAutopilot
+- [x] Fix render error handling: add prompt length truncation (480 chars) + automatic retry with simplified 200-char fallback prompt for fal.ai Seedance
+- [x] Fix Stripe webhook handler: update to match billing router metadata keys (pack/credits instead of pack_id/type)
+- [x] Fix Stripe webhook handler: actually call addCredits() to update user balance (previously only inserted transaction record)
+- [x] Fix Stripe webhook handler: support both new metadata format (pack+credits) and legacy format (pack_id)
+- [x] Register /api/stripe/webhook route in Express server with raw body parsing (was missing entirely)
+- [x] Verify: character injection in startRender already implemented (lines 371-388 musicVideo.ts)
+- [x] Verify: lyrics-in-video prevention already in storyboard LLM prompt (explicit NO text instructions)
+- [x] Verify: 30s truncation already fixed (ffprobe duration check + stream_loop in assembleMusicVideo)
+- [x] All 81 tests passing, 0 TypeScript errors

@@ -737,8 +737,54 @@ export default function MusicVideoAutopilot() {
     );
   }
 
+  const isGeneratingStoryboard = createJob.isPending || generateStoryboardMutation.isPending;
+
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* ===== STORYBOARD GENERATION PROGRESS OVERLAY ===== */}
+      {isGeneratingStoryboard && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm">
+          <div className="w-full max-w-md px-6 text-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mx-auto mb-6">
+              <Film className="w-10 h-10 text-white animate-pulse" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Creating Your Storyboard</h2>
+            <p className="text-zinc-400 text-sm mb-8">Our AI director is crafting your cinematic scenes. This takes about 30–60 seconds.</p>
+            <div className="w-full bg-zinc-800 rounded-full h-2 mb-8 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-[3000ms] ease-out"
+                style={{ width: createJob.isPending ? "20%" : "80%" }}
+              />
+            </div>
+            <div className="space-y-2.5 text-left">
+              {[
+                { label: "Uploading your song", done: !createJob.isPending, active: createJob.isPending },
+                { label: "Transcribing lyrics", done: false, active: !createJob.isPending },
+                { label: "Analysing mood & theme", done: false, active: !createJob.isPending },
+                { label: "Crafting scene descriptions", done: false, active: !createJob.isPending },
+                { label: "Building your storyboard", done: false, active: !createJob.isPending },
+              ].map((s, i) => (
+                <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${
+                  s.done ? "bg-green-900/30 border-green-700/30" :
+                  s.active ? "bg-purple-900/40 border-purple-600/40" :
+                  "bg-zinc-900/50 border-zinc-800/50"
+                }`}>
+                  {s.done ? (
+                    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                  ) : s.active ? (
+                    <Loader2 className="w-4 h-4 text-purple-400 animate-spin shrink-0" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
+                  )}
+                  <span className={`text-sm font-medium ${
+                    s.done ? "text-green-400" : s.active ? "text-purple-300" : "text-zinc-500"
+                  }`}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Insufficient Credits Modal */}
       <InsufficientCreditsModal
         open={showInsufficientCredits}

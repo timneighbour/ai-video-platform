@@ -367,6 +367,13 @@ export const musicVideoRouter = router({
 
       console.log(`[MusicVideo] Job ${input.jobId} routing plan: estimated £${routingPlan.totalEstimatedCostGBP.toFixed(2)}, premium scenes: ${routingPlan.premiumScenesUsed}/${routingPlan.premiumScenesAllowed}, plan: ${renderProductPlan}`);
 
+      // Fetch locked character briefs to inject into every scene prompt for visual consistency
+      const allJobCharsForRender = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      const lockedBriefsForRender = allJobCharsForRender
+        .filter((c) => c.isLocked && c.lockedDescription)
+        .map((c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.lockedDescription!}`);
+
       // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
       const SCENE_STAGGER_MS = 3000;
       (async () => {
@@ -374,10 +381,14 @@ export const musicVideoRouter = router({
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           const renderer = rendererMap.get(scene.sceneIndex) ?? "seedance";
+          // Inject character briefs into every scene prompt for visual consistency
+          const enrichedScenePrompt = lockedBriefsForRender.length > 0
+            ? `${scene.prompt}. STRICT CHARACTER CONSISTENCY — DO NOT DEVIATE: ${lockedBriefsForRender.join(" | ")}. These characters MUST appear with EXACTLY this appearance in every scene.`
+            : scene.prompt;
           try {
             const taskId = await startSceneRender(
               scene.id,
-              scene.prompt,
+              enrichedScenePrompt,
               scene.duration,
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",

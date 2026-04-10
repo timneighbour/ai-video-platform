@@ -170,10 +170,11 @@ Your job is to create detailed, cinematic scene descriptions for AI video genera
 Each scene description must be:
 - Highly visual and specific (describe lighting, camera angle, movement, subjects, atmosphere)
 - Consistent with the overall theme and mood
-${hasLyrics ? "- Visually inspired by the lyrics being sung in that scene — the imagery should reflect the words and emotions" : ""}
+${hasLyrics ? "- Visually inspired by the EMOTION and THEME of the lyrics — translate feelings into imagery, do NOT include any text, words, or lyrics visually in the video frame" : ""}
 - Optimised for AI video generation (clear, vivid, no abstract concepts)
 - Varied enough to create an interesting visual journey
-- Between 50-100 words each${characterConsistencyBlock}
+- Between 50-100 words each
+- CRITICAL: NEVER include text, words, captions, subtitles, or lyrics as visual elements in the video frame${characterConsistencyBlock}
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 
@@ -196,7 +197,7 @@ ${sceneList}
 - sceneIndex: number (0-based, matching the scene numbers above)
 - startTime: number (seconds from start, as listed above)
 - duration: number (as listed above)
-- prompt: string (detailed AI video generation prompt, 50-100 words${hasLyrics ? ", visually reflecting the lyrics for that scene" : ""})
+- prompt: string (detailed AI video generation prompt, 50-100 words${hasLyrics ? ", visually reflecting the EMOTION of the lyrics — NO text, words, or lyrics in the frame" : ""}. NEVER include text overlays, captions, or written words in the prompt)
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime", "oil painting")
 
 Make the scenes tell a visual story that matches the theme. Vary the camera angles, settings, and visual styles to keep it dynamic.`;
@@ -322,14 +323,40 @@ async function startSceneRenderKling(prompt: string, duration: number): Promise<
 }
 
 async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
-  const requestId = await submitFalSeedanceVideo({
-    prompt,
-    aspect_ratio: "16:9",
-    duration: duration <= 5 ? "5" : "8",
-    resolution: "720p",
-    generate_audio: false, // music video — audio comes from the track
-  });
-  if (!requestId) throw new Error(`fal.ai Seedance: no request_id returned for scene ${sceneId}`);
+  // fal.ai Seedance has a ~500 char prompt limit; truncate if needed
+  const MAX_PROMPT_CHARS = 480;
+  const safePrompt = prompt.length > MAX_PROMPT_CHARS
+    ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+    : prompt;
+
+  const trySubmit = async (p: string): Promise<string> => {
+    const requestId = await submitFalSeedanceVideo({
+      prompt: p,
+      aspect_ratio: "16:9",
+      duration: duration <= 5 ? "5" : "8",
+      resolution: "720p",
+      generate_audio: false, // music video — audio comes from the track
+    });
+    if (!requestId) throw new Error(`fal.ai Seedance: no request_id returned for scene ${sceneId}`);
+    return requestId;
+  };
+
+  let requestId: string;
+  try {
+    requestId = await trySubmit(safePrompt);
+  } catch (err: any) {
+    // If the first attempt fails (content policy / prompt too long), retry with a shorter fallback
+    const errMsg = String(err?.message ?? err);
+    console.warn(`[MusicVideo] Scene ${sceneId} fal.ai first attempt failed (${errMsg}). Retrying with simplified prompt.`);
+    // Simplified fallback: first 200 chars of the original prompt
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    try {
+      requestId = await trySubmit(fallbackPrompt);
+    } catch (retryErr: any) {
+      throw new Error(`fal.ai Seedance failed for scene ${sceneId} after retry: ${String(retryErr?.message ?? retryErr)}`);
+    }
+  }
+
   console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance requestId=${requestId}`);
   // Prefix the ID so pollSceneStatus knows which API to poll
   return `${FAL_REQUEST_ID_PREFIX}${requestId}`;
@@ -537,12 +564,31 @@ export async function assembleMusicVideo(jobId: number): Promise<string> {
       `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
       { timeout: 600000 } // 10 min — long videos with many scenes need more time
     );
-    // Mix video with audio — trim to exact audio duration
+    // Get the actual duration of the concatenated video and the audio
+    const videoInfo = await execAsync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${concatenatedVideo}"`);
+    const videoDuration = parseFloat(videoInfo.stdout.trim()) || 0;
+    const audioInfo = await execAsync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioFile}"`);
+    const audioDuration = parseFloat(audioInfo.stdout.trim()) || 0;
+    // Mix video with audio — loop video if shorter than audio to cover full track
     const finalVideo = path.join(tmpDir, "final.mp4");
-    await execAsync(
-      `ffmpeg -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest "${finalVideo}"`,
-      { timeout: 600000 } // 10 min
-    );
+    if (videoDuration > 0 && audioDuration > 0 && videoDuration < audioDuration) {
+      // Loop the concatenated video to cover the full audio duration
+      const loopedVideo = path.join(tmpDir, "looped.mp4");
+      await execAsync(
+        `ffmpeg -y -stream_loop -1 -i "${concatenatedVideo}" -t ${audioDuration} -c:v libx264 -preset fast -crf 22 "${loopedVideo}"`,
+        { timeout: 600000 }
+      );
+      await execAsync(
+        `ffmpeg -y -i "${loopedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -t ${audioDuration} "${finalVideo}"`,
+        { timeout: 600000 }
+      );
+    } else {
+      // Video is long enough — trim to exact audio duration
+      await execAsync(
+        `ffmpeg -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -t ${audioDuration} "${finalVideo}"`,
+        { timeout: 600000 }
+      );
+    }
 
     const finalBuffer = fs.readFileSync(finalVideo);
     const finalKey = `music-videos/job-${jobId}-final-${Date.now()}.mp4`;

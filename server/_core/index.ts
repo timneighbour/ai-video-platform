@@ -13,6 +13,8 @@ import { storagePut } from "../storage";
 import { getDb } from "../db";
 import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { handleStripeWebhook } from "../webhooks";
+import Stripe from "stripe";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -74,6 +76,38 @@ async function startServer() {
   const server = createServer(app);
   // Trust the first proxy hop (required for accurate IP detection behind load balancers / CDNs)
   app.set("trust proxy", 1);
+
+  // ── Stripe Webhook (MUST be before express.json() — needs raw body) ──────────
+  // Stripe sends a raw body that must be verified with the webhook secret
+  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      console.error("[Stripe Webhook] STRIPE_WEBHOOK_SECRET is not set");
+      res.status(500).json({ error: "Webhook secret not configured" });
+      return;
+    }
+
+    let event: Stripe.Event;
+    try {
+      const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+      event = stripeClient.webhooks.constructEvent(req.body, sig as string, webhookSecret);
+    } catch (err: any) {
+      console.error("[Stripe Webhook] Signature verification failed:", err.message);
+      res.status(400).json({ error: `Webhook signature verification failed: ${err.message}` });
+      return;
+    }
+
+    try {
+      const result = await handleStripeWebhook(event);
+      res.json({ received: true, ...result });
+    } catch (err: any) {
+      console.error("[Stripe Webhook] Handler error:", err);
+      res.status(500).json({ error: "Webhook handler failed" });
+    }
+  });
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

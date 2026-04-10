@@ -3,11 +3,17 @@
  * Processes payment events and updates database accordingly
  */
 
-import { stripe } from "./stripe";
+import Stripe from "stripe";
 import { getDb } from "./db";
 import { eq } from "drizzle-orm";
 import { subscriptions, creditTransactions, credits } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
+import { addCredits } from "./credit-service";
+
+// Lazy-init Stripe client (avoids crash if key not set at import time)
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY || "");
+}
 
 export async function handleStripeWebhook(event: any) {
   switch (event.type) {
@@ -29,36 +35,63 @@ async function handleCheckoutSessionCompleted(session: any) {
   if (!db) return { success: false };
 
   const userId = parseInt(session.client_reference_id);
-  const metadata = session.metadata;
+  if (!userId || isNaN(userId)) {
+    console.error("[Stripe Webhook] Missing or invalid client_reference_id:", session.client_reference_id);
+    return { success: false, error: "Invalid user ID" };
+  }
+
+  const metadata = session.metadata ?? {};
 
   try {
-    if (metadata.type === "credit_purchase") {
-      // Handle credit purchase
-      const packId = metadata.pack_id;
-      const creditAmounts: Record<string, number> = {
-        small: 500,
-        medium: 1500,
-        large: 4000,
-      };
+    // Detect credit purchase: billing router sends metadata.pack + metadata.credits
+    // Also support legacy metadata.type === 'credit_purchase' + metadata.pack_id
+    const isCreditPurchase = metadata.pack || metadata.type === "credit_purchase";
 
-      const creditsToAdd = creditAmounts[packId] || 0;
+    if (isCreditPurchase) {
+      // Resolve credits to add — prefer explicit credits field from billing router
+      let creditsToAdd = 0;
+      if (metadata.credits) {
+        creditsToAdd = parseInt(metadata.credits, 10) || 0;
+      } else {
+        // Legacy fallback using pack_id
+        const packId = metadata.pack_id || metadata.pack;
+        const legacyCreditAmounts: Record<string, number> = {
+          small: 300,
+          medium: 900,
+          large: 2400,
+          starter: 300,
+          creator: 900,
+          pro: 2400,
+          cinematic_10: 200,
+          cinematic_25: 500,
+          cinematic_50: 1000,
+        };
+        creditsToAdd = legacyCreditAmounts[packId] || 0;
+      }
 
-      // Add credits transaction
-      await db.insert(creditTransactions).values({
+      if (creditsToAdd <= 0) {
+        console.error("[Stripe Webhook] Could not determine credits to add from metadata:", metadata);
+        return { success: false, error: "Unknown pack" };
+      }
+
+      // Add credits to user balance (updates credits table + inserts transaction)
+      await addCredits(
         userId,
-        amount: creditsToAdd,
-        type: "purchase",
-        description: `Credit pack purchase: ${packId}`,
-      });
+        creditsToAdd,
+        "purchase",
+        `Credit pack purchase: ${metadata.pack_label || metadata.pack || metadata.pack_id || "unknown"}`
+      );
+
+      console.log(`[Stripe Webhook] Added ${creditsToAdd} credits to user ${userId} (pack: ${metadata.pack || metadata.pack_id})`);
 
       // Notify owner
       await notifyOwner({
         title: "New Credit Purchase",
-        content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased ${creditsToAdd} credits for $${session.amount_total / 100}`,
-      });
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased ${creditsToAdd} credits for £${(session.amount_total ?? 0) / 100}`,
+      }).catch(() => {}); // non-fatal
     } else {
-      // Handle subscription
-      const planId = metadata.plan_id;
+      // Handle subscription — metadata.plan from billing router
+      const planId = metadata.plan || metadata.plan_id;
       const planCredits: Record<string, number> = {
         starter: 1000,
         pro: 3000,
@@ -67,32 +100,45 @@ async function handleCheckoutSessionCompleted(session: any) {
 
       const monthlyCredits = planCredits[planId] || 0;
 
-      // Create subscription
-      await db.insert(subscriptions).values({
-        userId,
-        stripeSubscriptionId: session.subscription,
-        plan: planId as any,
-        status: "active",
-      });
+      // Upsert subscription (ignore duplicate key errors)
+      try {
+        await db.insert(subscriptions).values({
+          userId,
+          stripeSubscriptionId: session.subscription || null,
+          plan: planId as any,
+          status: "active",
+        });
+      } catch (dupErr: any) {
+        // Subscription already exists — update it
+        if (session.subscription) {
+          await db.update(subscriptions)
+            .set({ plan: planId as any, status: "active", updatedAt: new Date() })
+            .where(eq(subscriptions.stripeSubscriptionId, session.subscription));
+        }
+      }
 
-      // Add subscription grant transaction
-      await db.insert(creditTransactions).values({
-        userId,
-        amount: monthlyCredits,
-        type: "subscription_grant",
-        description: `${planId} plan subscription - ${monthlyCredits} credits`,
-      });
+      // Grant subscription credits
+      if (monthlyCredits > 0) {
+        await addCredits(
+          userId,
+          monthlyCredits,
+          "subscription_grant",
+          `${planId} plan subscription - ${monthlyCredits} credits`
+        );
+      }
+
+      console.log(`[Stripe Webhook] Subscription activated for user ${userId}: plan=${planId}, credits=${monthlyCredits}`);
 
       // Notify owner
       await notifyOwner({
         title: "New Subscription",
-        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan ($${session.amount_total / 100}/month)`,
-      });
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan (£${(session.amount_total ?? 0) / 100}/month)`,
+      }).catch(() => {}); // non-fatal
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error handling checkout session:", error);
+    console.error("[Stripe Webhook] Error handling checkout session:", error);
     return { success: false, error };
   }
 }
