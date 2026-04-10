@@ -18,6 +18,7 @@ import { initKlingAI } from "./ai-apis/kling";
 import { initSeedance } from "./ai-apis/seedance";
 import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
+import { submitAtlasVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 
@@ -28,6 +29,7 @@ const seedanceClient = initSeedance();
 const FAL_REQUEST_ID_PREFIX = "fal:";
 // Prefix used to distinguish Hypereal job IDs
 const HYPEREAL_JOB_ID_PREFIX = "hypereal:";
+const ATLAS_JOB_ID_PREFIX = "atlas:";
 
 const execAsync = promisify(exec);
 
@@ -453,8 +455,13 @@ export async function startSceneRender(
     try {
       return await startSceneRenderHypereal(sceneId, finalPrompt, duration);
     } catch (hyperealErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, falling back to fal.ai Seedance:`, hyperealErr);
-      return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying Atlas Cloud:`, hyperealErr);
+      try {
+        return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration);
+      } catch (atlasErr) {
+        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, falling back to fal.ai Seedance:`, atlasErr);
+        return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+      }
     }
   }
 
@@ -556,6 +563,36 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
   return `${FAL_REQUEST_ID_PREFIX}${requestId}`;
 }
 
+async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, duration: number): Promise<string> {
+  const MAX_PROMPT_CHARS = 480;
+  const safePrompt = prompt.length > MAX_PROMPT_CHARS
+    ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+    : prompt;
+
+  const trySubmit = async (p: string): Promise<string> => {
+    const { predictionId } = await submitAtlasVideo(p, duration <= 5 ? 5 : 8);
+    if (!predictionId) throw new Error(`Atlas Cloud: no predictionId returned for scene ${sceneId}`);
+    return predictionId;
+  };
+
+  let predictionId: string;
+  try {
+    predictionId = await trySubmit(safePrompt);
+  } catch (err: any) {
+    const errMsg = String(err?.message ?? err);
+    console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud first attempt failed (${errMsg}). Retrying with simplified prompt.`);
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    try {
+      predictionId = await trySubmit(fallbackPrompt);
+    } catch (retryErr: any) {
+      throw new Error(`Atlas Cloud failed for scene ${sceneId} after retry: ${String(retryErr?.message ?? retryErr)}`);
+    }
+  }
+
+  console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud Seedance 2.0 predictionId=${predictionId}`);
+  return `${ATLAS_JOB_ID_PREFIX}${predictionId}`;
+}
+
 async function startSceneRenderSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
   const taskId = await seedanceClient.createTextToVideo({
     prompt,
@@ -564,6 +601,76 @@ async function startSceneRenderSeedance(sceneId: number, prompt: string, duratio
   });
   if (!taskId) throw new Error(`Seedance: no task_id returned for scene ${sceneId}`);
   return taskId;
+}
+
+/**
+ * Poll an Atlas Cloud video generation job and update DB when complete.
+ */
+async function pollSceneStatusAtlasCloud(
+  sceneId: number,
+  predictionId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const result = await pollAtlasVideo(predictionId);
+
+    if (result.status === "completed" && result.videoUrl) {
+      // Download and re-upload to S3 for permanent storage
+      let buffer: Buffer | null = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const response = await fetch(result.videoUrl);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          buffer = Buffer.from(await response.arrayBuffer());
+          break;
+        } catch (fetchErr) {
+          console.warn(`[AtlasCloud] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+        }
+      }
+
+      if (!buffer) {
+        const db2 = await getDb();
+        if (db2) {
+          await db2.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Failed to download Atlas Cloud video after 3 attempts", updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+        }
+        return { status: "failed" };
+      }
+
+      const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
+      const { url } = await storagePut(key, buffer, "video/mp4");
+
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+
+      return { status: "completed", videoUrl: url };
+    }
+
+    if (result.status === "failed") {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: result.error ?? "Atlas Cloud generation failed", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+
+    return { status: "processing" };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
+  }
 }
 
 /**
@@ -691,6 +798,10 @@ export async function pollSceneStatus(
   // Route to the correct API based on the task ID prefix
   if (taskId.startsWith(HYPEREAL_JOB_ID_PREFIX)) {
     return pollSceneStatusHypereal(sceneId, taskId.slice(HYPEREAL_JOB_ID_PREFIX.length));
+  }
+
+  if (taskId.startsWith(ATLAS_JOB_ID_PREFIX)) {
+    return pollSceneStatusAtlasCloud(sceneId, taskId.slice(ATLAS_JOB_ID_PREFIX.length));
   }
 
   if (taskId.startsWith(FAL_REQUEST_ID_PREFIX)) {

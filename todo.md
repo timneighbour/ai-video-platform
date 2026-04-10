@@ -1261,3 +1261,16 @@
 - [x] Updated music-video-service.ts: fal_seedance/seedance renderers now try Hypereal first, fal.ai as fallback
 - [x] Added pollSceneStatusHypereal function with S3 re-upload and DB update
 - [x] All 83 tests passing, 0 TypeScript errors
+
+## Session 14 Fixes
+- [ ] Fix "Failed to start scene regeneration" error on /music-video/create
+- [ ] Integrate Atlas Cloud as video generation provider and add to fallback chain
+- [ ] Research Atlas Cloud API docs and build client module
+
+## Session 14 - Atlas Cloud Integration - COMPLETED ✅
+- [x] Fix "Failed to start scene regeneration" error — added Atlas Cloud as fallback between Hypereal and fal.ai
+- [x] Integrate Atlas Cloud (atlascloud.ai) as video generation provider — Seedance 2.0 via bytedance/seedance-2.0/text-to-video model
+- [x] Built server/ai-apis/atlascloud.ts with submitAtlasVideo, pollAtlasVideo, validateAtlasKey
+- [x] Added startSceneRenderAtlasCloud and pollSceneStatusAtlasCloud to music-video-service.ts
+- [x] Fallback chain is now: Hypereal → Atlas Cloud → fal.ai Seedance
+- [x] ATLAS_CLOUD_API_KEY validated (85/85 tests passing)
