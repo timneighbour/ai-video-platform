@@ -77,7 +77,9 @@ export class SunoClient {
       ? req.lyrics.trim()
       : req.prompt;
 
+    // customMode is now a REQUIRED boolean field in the Suno API — must always be explicitly true/false
     const body: Record<string, unknown> = {
+      customMode: useCustomMode,
       prompt: promptBody,
       instrumental: req.instrumental ?? false,
       model: req.model ?? "V4",
@@ -88,7 +90,6 @@ export class SunoClient {
     }
 
     if (useCustomMode) {
-      body.customMode = true;
       body.style = req.style;
       body.title = req.title;
     }

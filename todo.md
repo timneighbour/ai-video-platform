@@ -1237,3 +1237,4 @@
 - [x] Store AI-invented character descriptions in the storyboard JSON so startRender can inject them per-scene alongside locked character briefs
 - [x] Fix stuck storyboard spinner: overlay must dismiss immediately when generateStoryboardMutation resolves, regardless of subsequent jobQuery loading state
 - [x] Fix 404 tRPC API error on /music-creator page — Suno API endpoint changed from /api/v1/generate-record-info to /api/v1/generate/record-info; also fixed response parsing (sunoData array, uppercase status values)
+- [x] Fix Suno API error "customMode cannot be null" on /music-creator — customMode is now a required boolean field in the Suno API, must always be explicitly true/false
