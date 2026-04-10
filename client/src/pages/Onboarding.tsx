@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import BackButton from "@/components/BackButton";
-import { Sparkles, Music, Youtube, Baby, Wand2, ArrowRight, ArrowLeft, Check, Home } from "lucide-react";
+import { Music, Youtube, Baby, Wand2, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
+import React from "react";
 
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
 
@@ -39,217 +38,108 @@ const DESTINATION: Record<CreatorType, string> = {
 };
 
 export default function Onboarding() {
-  const [step, setStep] = useState(1);
-  const [creatorType, setCreatorType] = useState<CreatorType | null>(null);
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
+  const [selecting, setSelecting] = useState<CreatorType | null>(null);
 
-  const handleCreatorSelect = (type: CreatorType) => {
-    setCreatorType(type);
-    setStep(2);
-  };
-
-  const handleStart = () => {
+  const handleSelect = (type: CreatorType) => {
+    setSelecting(type);
+    const destination = DESTINATION[type];
     if (isAuthenticated) {
-      navigate(creatorType ? DESTINATION[creatorType] : "/dashboard");
+      navigate(destination);
     } else {
+      // Store the intended destination so we can redirect after OAuth completes
+      sessionStorage.setItem("wizvid_post_login_redirect", destination);
       window.location.href = getLoginUrl();
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center px-6 py-16 font-sans">
+    <div className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center px-4 sm:px-6 py-12 font-sans">
 
-      {/* Header: Logo + Back to Home */}
-      <div className="w-full max-w-2xl flex items-center justify-between mb-12">
-        <BackButton fallback="/" label="Back to Home" />
-
+      {/* ── Header ── */}
+      <div className="w-full max-w-2xl flex items-center justify-between mb-10">
+        <button
+          onClick={() => navigate("/")}
+          className="text-sm text-[#a1a1aa] hover:text-white transition-colors flex items-center gap-1.5"
+        >
+          ← Back to Home
+        </button>
         <a href="/" className="flex items-center">
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
-            style={{ minWidth: "120px" }}
+            className="h-10 w-auto object-contain hover:scale-105 hover:brightness-110 transition-all duration-300"
+            style={{ minWidth: "110px" }}
           />
         </a>
-
-        {/* Spacer to balance the flex row */}
         <div className="w-24" />
       </div>
 
-      {/* Progress indicator */}
-      <div className="flex items-center gap-3 mb-12">
-        {[1, 2, 3].map((s) => (
-          <div key={s} className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-              s < step
-                ? "bg-white text-black"
-                : s === step
-                ? "bg-white text-black ring-4 ring-white/15"
-                : "bg-white/8 text-[#a1a1aa] border border-white/10"
-            }`}>
-              {s < step ? <Check className="w-3.5 h-3.5" /> : s}
-            </div>
-            {s < 3 && (
-              <div className={`w-10 h-px transition-all ${s < step ? "bg-white/40" : "bg-white/10"}`} />
-            )}
-          </div>
-        ))}
+      {/* ── Heading ── */}
+      <div className="text-center mb-10 w-full max-w-2xl">
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+          What do you want to create?
+        </h1>
+        <p className="text-[#a1a1aa] text-base">
+          We'll personalise your experience based on your goals.
+        </p>
       </div>
 
-      {/* Step 1: Creator Type */}
-      {step === 1 && (
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-10">
-            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 1 of 3</p>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-              What do you want to create?
-            </h1>
-            <p className="text-[#a1a1aa] text-base">We'll personalise your experience based on your goals.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {CREATOR_TYPES.map((ct) => (
-              <button
-                key={ct.id}
-                onClick={() => handleCreatorSelect(ct.id)}
-                className={`group relative overflow-hidden rounded-2xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-44 ${
-                  creatorType === ct.id
-                    ? "border-white/40 ring-2 ring-white/20"
-                    : "border-white/10 hover:border-white/25"
-                }`}
-                aria-pressed={creatorType === ct.id}
-              >
-                {/* Background image */}
-                <img
-                  src={CARD_IMAGES[ct.id]}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-
-                {/* Gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-t ${ct.accent} transition-opacity duration-300`} />
-
-                {/* Darker bottom overlay for text legibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-
-                {/* Content */}
-                <div className="relative z-10 flex flex-col justify-between h-full p-5">
-                  {/* Icon badge top-left */}
-                  <div className="w-9 h-9 rounded-lg bg-black/40 backdrop-blur-sm border border-white/15 flex items-center justify-center text-white">
-                    {ct.icon}
-                  </div>
-
-                  {/* Title + desc bottom */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-white font-bold text-base">{ct.title}</h3>
-                      <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                    </div>
-                    <p className="text-white/70 text-xs leading-relaxed">{ct.desc}</p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Step 2: Free Trial Preview */}
-      {step === 2 && (
-        <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 2 of 3</p>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-              Start creating for free
-            </h1>
-            <p className="text-[#a1a1aa] text-base">No credit card required. Create your first video today.</p>
-          </div>
-
-          <div className="bg-[#171717] border border-white/8 rounded-2xl p-6 mb-4">
-            <div className="grid grid-cols-2 gap-5">
-              {FREE_BENEFITS.map((b) => (
-                <div key={b.title} className="flex items-start gap-3">
-                  <span className="text-xl" aria-hidden="true">{b.icon}</span>
-                  <div>
-                    <div className="text-white font-semibold text-sm">{b.title}</div>
-                    <div className="text-[#a1a1aa] text-xs mt-0.5">{b.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white/4 border border-white/8 rounded-xl p-4 mb-8 text-center">
-            <p className="text-[#a1a1aa] text-sm">
-              🎁 Your free trial includes <span className="text-white font-semibold">2 videos</span> — no card needed
-            </p>
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setStep(1)}
-              className="border-white/12 text-[#a1a1aa] hover:text-white bg-transparent hover:bg-white/5 rounded-xl h-11 px-5"
+      {/* ── Video type cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
+        {CREATOR_TYPES.map((ct) => {
+          const isLoading = selecting === ct.id;
+          return (
+            <button
+              key={ct.id}
+              onClick={() => handleSelect(ct.id)}
+              disabled={selecting !== null}
+              className={`group relative overflow-hidden rounded-2xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-48 sm:h-52 ${
+                isLoading
+                  ? "border-white/40 ring-2 ring-white/20 scale-[0.98]"
+                  : "border-white/10 hover:border-white/30 hover:scale-[1.01]"
+              } ${selecting !== null && !isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             >
-              <ArrowLeft className="w-4 h-4 mr-1.5" />Back
-            </Button>
-            <Button
-              onClick={() => setStep(3)}
-              className="flex-1 bg-white text-black hover:bg-white/90 rounded-xl font-semibold h-11"
-            >
-              Looks great! <ArrowRight className="w-4 h-4 ml-1.5" />
-            </Button>
-          </div>
-        </div>
-      )}
+              {/* Background image */}
+              <img
+                src={CARD_IMAGES[ct.id]}
+                alt={ct.title}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              {/* Gradient overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${ct.accent} opacity-80`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-      {/* Step 3: Sign Up / Start */}
-      {step === 3 && (
-        <div className="w-full max-w-sm text-center">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Step 3 of 3</p>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-            You're ready to create!
-          </h1>
-          <p className="text-[#a1a1aa] text-base mb-8">
-            {isAuthenticated
-              ? "You're signed in. Let's make your first video."
-              : "Sign in to activate your free trial and start creating AI videos."}
-          </p>
+              {/* Content */}
+              <div className="relative z-10 h-full flex flex-col justify-between p-5">
+                {/* Icon badge */}
+                <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white">
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    ct.icon
+                  )}
+                </div>
 
-          <div className="bg-[#171717] border border-white/8 rounded-2xl p-5 mb-8">
-            {[
-              "2 free videos — no card required",
-              "AI handles the full creation process",
-              "Download and share anywhere",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
-                <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
-                <span className="text-[#a1a1aa] text-sm">{item}</span>
+                {/* Title + desc */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h3 className="text-white font-bold text-base leading-tight">{ct.title}</h3>
+                    <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white group-hover:translate-x-0.5 transition-all flex-shrink-0 ml-2" />
+                  </div>
+                  <p className="text-white/70 text-xs leading-relaxed">{ct.desc}</p>
+                </div>
               </div>
-            ))}
-          </div>
+            </button>
+          );
+        })}
+      </div>
 
-          <Button
-            onClick={handleStart}
-            className="w-full bg-white text-black hover:bg-white/90 rounded-xl font-semibold h-12 text-base shadow-lg hover:shadow-xl transition-all mb-4"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            {isAuthenticated ? "Start creating" : "Sign in & start free"}
-          </Button>
-
-          <button
-            onClick={() => setStep(2)}
-            className="text-[#a1a1aa] hover:text-white text-sm transition-colors"
-          >
-            ← Back
-          </button>
-        </div>
-      )}
-
-      {/* Footer note */}
-      <p className="mt-16 text-[#a1a1aa] text-xs text-center max-w-xs">
+      {/* ── Footer note ── */}
+      <p className="mt-10 text-[#a1a1aa] text-xs text-center max-w-xs">
         By continuing, you agree to WizVid's{" "}
         <a href="/terms" className="underline hover:text-white transition-colors">Terms of Service</a>{" "}
         and{" "}

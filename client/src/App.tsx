@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { WizVidLoader } from "./components/WizVidLoader";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Home is eagerly loaded — it's the LCP page
 import Home from "./pages/Home";
+import { trpc } from "./lib/trpc";
 
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -42,6 +43,24 @@ function PageFallback() {
   return <div className="min-h-screen bg-[#0f0f0f]" />;
 }
 
+// After OAuth login, the server redirects to "/". This component checks
+// sessionStorage for a pending destination set before the OAuth redirect
+// and navigates there once the user is confirmed authenticated.
+function PostLoginRedirect() {
+  const { data: me } = trpc.auth.me.useQuery();
+  const [, navigate] = useLocation();
+  useEffect(() => {
+    if (me?.id) {
+      const dest = sessionStorage.getItem("wizvid_post_login_redirect");
+      if (dest) {
+        sessionStorage.removeItem("wizvid_post_login_redirect");
+        navigate(dest);
+      }
+    }
+  }, [me?.id, navigate]);
+  return null;
+}
+
 function Router() {
   return (
     <Suspense fallback={<PageFallback />}>
@@ -68,6 +87,7 @@ function Router() {
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />
         <Route path={"/how-it-works"} component={HowItWorks} />
+        <PostLoginRedirect />
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />
