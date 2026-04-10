@@ -126,21 +126,22 @@ export class SunoClient {
         data: {
           taskId: string;
           status: string;
-          clips?: Array<{
-            id?: string;
-            audio_url?: string;
-            image_url?: string;
-            title?: string;
-            tags?: string;
-            duration?: number;
-          }>;
-          // Some API versions return top-level audioUrl for single track
-          audioUrl?: string;
-          imageUrl?: string;
-          title?: string;
-          tags?: string;
+          errorCode?: string | null;
+          errorMessage?: string | null;
+          response?: {
+            taskId?: string;
+            sunoData?: Array<{
+              id?: string;
+              audioUrl?: string;
+              streamAudioUrl?: string;
+              imageUrl?: string;
+              title?: string;
+              tags?: string;
+              duration?: number;
+            }>;
+          };
         };
-      }>(`${SUNO_API_BASE}/api/v1/generate-record-info?taskId=${taskId}`, {
+      }>(`${SUNO_API_BASE}/api/v1/generate/record-info?taskId=${taskId}`, {
         headers: this.getHeaders(),
         timeout: 30000,
       })
@@ -154,40 +155,35 @@ export class SunoClient {
     const d = data.data;
 
     // Map status string to our enum
-    const statusMap: Record<string, SunoTaskStatus["status"]> = {
-      pending: "pending",
-      processing: "processing",
-      complete: "complete",
-      completed: "complete",
-      success: "complete",
-      failed: "failed",
-      error: "failed",
-    };
-    const status = statusMap[d.status?.toLowerCase()] ?? "processing";
+    // API returns uppercase: PENDING, TEXT_SUCCESS, FIRST_SUCCESS, SUCCESS, CREATE_TASK_FAILED, GENERATE_AUDIO_FAILED
+    const statusUpper = (d.status ?? "").toUpperCase();
+    let status: SunoTaskStatus["status"];
+    if (statusUpper === "SUCCESS" || statusUpper === "FIRST_SUCCESS") {
+      status = "complete";
+    } else if (statusUpper.includes("FAILED") || statusUpper.includes("ERROR") || statusUpper === "CALLBACK_EXCEPTION") {
+      status = "failed";
+    } else if (statusUpper === "PENDING" || statusUpper === "TEXT_SUCCESS") {
+      status = "pending";
+    } else {
+      status = "processing";
+    }
 
-    // Parse tracks from clips array or top-level fields
+    // Parse tracks from response.sunoData (current API format)
     let tracks: SunoTrack[] | undefined;
-    if (d.clips && d.clips.length > 0) {
-      tracks = d.clips.map((c) => ({
+    const sunoData = d.response?.sunoData;
+    if (sunoData && sunoData.length > 0) {
+      tracks = sunoData.map((c) => ({
         id: c.id,
-        audioUrl: c.audio_url ?? "",
-        imageUrl: c.image_url,
+        audioUrl: c.audioUrl ?? "",
+        imageUrl: c.imageUrl,
         title: c.title ?? "Generated Track",
         tags: c.tags,
         duration: c.duration,
       }));
-    } else if (d.audioUrl) {
-      tracks = [
-        {
-          audioUrl: d.audioUrl,
-          imageUrl: d.imageUrl,
-          title: d.title ?? "Generated Track",
-          tags: d.tags,
-        },
-      ];
     }
 
-    return { taskId, status, tracks };
+    const errorMessage = d.errorMessage ?? undefined;
+    return { taskId, status, tracks, errorMessage };
   }
 
   /**

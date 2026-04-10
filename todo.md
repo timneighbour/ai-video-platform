@@ -1236,3 +1236,4 @@
 - [x] Fix character consistency for ALL characters (not just locked): LLM must define any AI-invented additional/background characters once in a "character roster" and reuse those exact descriptions in every scene they appear in — no improvising different appearances
 - [x] Store AI-invented character descriptions in the storyboard JSON so startRender can inject them per-scene alongside locked character briefs
 - [x] Fix stuck storyboard spinner: overlay must dismiss immediately when generateStoryboardMutation resolves, regardless of subsequent jobQuery loading state
+- [x] Fix 404 tRPC API error on /music-creator page — Suno API endpoint changed from /api/v1/generate-record-info to /api/v1/generate/record-info; also fixed response parsing (sunoData array, uppercase status values)
