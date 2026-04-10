@@ -1238,3 +1238,13 @@
 - [x] Fix stuck storyboard spinner: overlay must dismiss immediately when generateStoryboardMutation resolves, regardless of subsequent jobQuery loading state
 - [x] Fix 404 tRPC API error on /music-creator page — Suno API endpoint changed from /api/v1/generate-record-info to /api/v1/generate/record-info; also fixed response parsing (sunoData array, uppercase status values)
 - [x] Fix Suno API error "customMode cannot be null" on /music-creator — customMode is now a required boolean field in the Suno API, must always be explicitly true/false
+
+## Session 12 - Deep Character Consistency Fix - COMPLETED ✅
+- [x] Fix Character 2 (locked with uploaded photo) never matching the photo — vision LLM (Gemini 2.5 Flash) now auto-analyses uploaded photo and generates precise 60-100 word appearance description
+- [x] Fix duplicate roles in same scene — roster LLM now enforces role exclusivity: if Character 1 is singer, no other character can be singer in any scene
+- [x] Fix roster assignment: locked character roles are now exclusive — "LOCKED ROLE EXCLUSIVITY" block added to scene generation prompt
+- [x] Fix render prompt: character description now appears FIRST in every fal.ai scene prompt (before scene/setting description)
+- [x] Auto-analysis flow: after saveCharacters returns fresh IDs + primaryPhotoUrl, frontend auto-calls analysePhoto then auto-locks each character
+- [x] saveCharacters now returns primaryPhotoUrl so no extra fetch needed
+- [x] CharacterManager UI updated: no longer requires manual typing, shows "AI will auto-analyse your photo" hint
+- [x] All 81 tests passing, 0 TypeScript errors

@@ -81,7 +81,12 @@ export const charactersRouter = router({
           });
         }
 
-        savedCharacters.push({ id: characterId, slotIndex: charInput.slotIndex, name: charInput.name });
+        // Find the primary photo URL to return (for auto-analysis)
+        const savedPhotos = await db.select().from(videoCharacterPhotos)
+          .where(eq(videoCharacterPhotos.characterId, characterId));
+        const primaryPhotoUrl = savedPhotos.find(p => p.isPrimary)?.photoUrl ?? savedPhotos[0]?.photoUrl ?? null;
+
+        savedCharacters.push({ id: characterId, slotIndex: charInput.slotIndex, name: charInput.name, primaryPhotoUrl });
       }
 
       return { success: true, characters: savedCharacters };
@@ -167,6 +172,58 @@ export const charactersRouter = router({
 
       await db.delete(videoCharacterPhotos).where(eq(videoCharacterPhotos.id, input.photoId));
       return { success: true };
+    }),
+
+  // Analyse an uploaded character photo using vision LLM and return a precise appearance description
+  // This auto-populates the locked description so users don't need to type it manually
+  analysePhoto: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      photoUrl: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Use vision LLM to extract precise physical appearance from the photo
+      const { invokeLLM } = await import("../_core/llm");
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system" as const,
+            content: `You are a professional casting director writing character appearance briefs for AI video generation.
+Your job is to describe a person's physical appearance in precise, objective detail so that an AI video model can reproduce the same person consistently across many scenes.
+Focus ONLY on observable physical features — do NOT guess personality, emotion, or backstory.
+Write in the third person. Be specific and concrete. Avoid vague terms like "attractive" or "average".
+Output format: A single paragraph of 60-100 words covering: gender, approximate age range, ethnicity/skin tone, hair (colour, length, style, texture), eyes (colour, shape), face shape, build/height impression, and any distinctive features (scars, tattoos, glasses, beard, etc.).`,
+          },
+          {
+            role: "user" as const,
+            content: [
+              {
+                type: "image_url" as const,
+                image_url: { url: input.photoUrl, detail: "high" as const },
+              },
+              {
+                type: "text" as const,
+                text: "Describe this person's physical appearance in precise detail for use as a character brief in AI video generation. Write 60-100 words covering all key physical features.",
+              },
+            ],
+          },
+        ],
+      });
+
+      const description = response.choices[0]?.message?.content;
+      if (!description || typeof description !== "string" || description.trim().length < 20) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Could not analyse photo — please try again or type a description manually" });
+      }
+
+      return { description: description.trim() };
     }),
 
   // Lock a character's visual brief — enforces appearance consistency across all scenes

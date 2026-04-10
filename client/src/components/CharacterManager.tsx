@@ -133,17 +133,20 @@ export function CharacterManager({
     const char = characters.find((c) => c.slotIndex === slotIndex);
     if (!char) return;
     if (!char.isLocked) {
-      // Locking — require a description
-      if (!char.lockedDescription.trim()) {
-        toast.error("Add a visual description first", {
-          description: "Describe the character's appearance before locking (clothing, hair, colours, etc.).",
-        });
-        return;
-      }
       updateCharacter(slotIndex, { isLocked: true });
-      toast.success(`${char.name} locked`, {
-        description: "Appearance is now frozen across all scenes and renders.",
-      });
+      if (char.photos.length > 0) {
+        toast.success(`${char.name} will be auto-analysed`, {
+          description: "When you generate the storyboard, AI will analyse your photo and lock the appearance automatically.",
+        });
+      } else if (char.lockedDescription.trim()) {
+        toast.success(`${char.name} locked`, {
+          description: "Appearance is now frozen across all scenes and renders.",
+        });
+      } else {
+        toast.info(`${char.name} marked for locking`, {
+          description: "Upload a photo or add an appearance description to lock this character's look.",
+        });
+      }
     } else {
       updateCharacter(slotIndex, { isLocked: false });
       toast.info(`${char.name} unlocked`, {
@@ -309,28 +312,42 @@ export function CharacterManager({
                 <Textarea
                   value={char.lockedDescription}
                   onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
-                  placeholder="Describe the character's exact appearance: clothing colour and style, hair colour and length, facial features, accessories, body type, species/age. Example: 'Young woman, long red hair, wearing a black leather jacket with silver zips, blue jeans, white trainers, green eyes, freckles.'"
+                  placeholder={char.photos.length > 0
+                    ? "Optional: AI will auto-analyse your photo and generate this description. You can override it here if needed."
+                    : "Describe the character's exact appearance: clothing colour and style, hair colour and length, facial features, accessories, body type, species/age. Example: 'Young woman, long red hair, wearing a black leather jacket with silver zips, blue jeans, white trainers, green eyes, freckles.'"}
                   className={`bg-zinc-900 border-zinc-700 text-sm placeholder:text-zinc-600 resize-none min-h-[80px] ${
                     isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"
                   }`}
                   disabled={disabled || isLocked}
                   rows={3}
                 />
-                {!isLocked && char.lockedDescription.trim() && (
+                {!isLocked && char.photos.length > 0 && (
+                  <p className="text-zinc-500 text-xs mt-1.5 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                    AI will automatically analyse your photo and lock the appearance when you generate the storyboard.
+                  </p>
+                )}
+                {!isLocked && char.photos.length === 0 && !char.lockedDescription.trim() && (
+                  <p className="text-zinc-600 text-xs mt-1.5">
+                    Upload a photo (recommended) or describe the appearance manually, then lock it to enforce consistency across every scene.
+                  </p>
+                )}
+                {!isLocked && char.photos.length === 0 && char.lockedDescription.trim() && (
                   <p className="text-zinc-500 text-xs mt-1.5 flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3 text-amber-500 flex-shrink-0" />
                     Click <strong className="text-zinc-300">Lock</strong> to freeze this appearance across all scenes.
                   </p>
                 )}
-                {!isLocked && !char.lockedDescription.trim() && (
-                  <p className="text-zinc-600 text-xs mt-1.5">
-                    Describe the appearance, then lock it to enforce consistency across every scene.
-                  </p>
-                )}
-                {isLocked && (
+                {isLocked && char.photos.length > 0 && (
                   <p className="text-emerald-600 text-xs mt-1.5 flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3 flex-shrink-0" />
-                    This brief is injected into every storyboard scene and image generation prompt. No changes will be made to this character's appearance.
+                    AI will analyse your photo and auto-generate this brief when you generate the storyboard.
+                  </p>
+                )}
+                {isLocked && char.photos.length === 0 && (
+                  <p className="text-emerald-600 text-xs mt-1.5 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 flex-shrink-0" />
+                    This brief is injected into every storyboard scene and image generation prompt.
                   </p>
                 )}
               </div>

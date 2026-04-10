@@ -181,12 +181,24 @@ APPEARANCE: ${c.lockedDescription}`
 
   const rosterSystemPrompt = `You are a professional music video casting director.
 Your job is to define the COMPLETE cast of characters for a music video.
-Rules:
-- Include all locked characters exactly as specified — do NOT alter their appearance
-- Add any additional characters needed for the video concept (musicians, dancers, extras, etc.)
-- For each additional character you invent, write a DETAILED, SPECIFIC visual description (40-80 words) covering: gender, age range, ethnicity, hair colour and style, eye colour, skin tone, build, clothing/costume, and any distinctive features
-- This description will be copied VERBATIM into every scene the character appears in — make it precise enough for an AI video model to reproduce the same person every time
-- Keep the total cast to a maximum of 6 characters
+
+CRITICAL RULES — MUST FOLLOW:
+1. Include ALL locked characters exactly as specified — copy their appearance descriptions VERBATIM, do NOT alter a single word
+2. Each locked character has a FIXED ROLE — no other character may perform that same role in any scene
+   Example: if Character 1 is the "guitarist", no other character can play guitar in any scene
+3. Add additional characters ONLY if the video concept genuinely requires them (e.g. a drummer when none is locked)
+4. For each additional character you invent, write a DETAILED, SPECIFIC visual description (60-80 words) covering:
+   - Gender and approximate age (e.g. "woman in her late 20s")
+   - Ethnicity and skin tone (e.g. "South Asian, warm medium-brown skin")
+   - Hair: colour, length, style, texture (e.g. "long straight black hair with blunt fringe")
+   - Eyes: colour and shape (e.g. "almond-shaped dark brown eyes")
+   - Build and height impression (e.g. "slender, medium height")
+   - Clothing/costume specific to this video (e.g. "black leather jacket, ripped jeans, white trainers")
+   - Any distinctive features (e.g. "small nose ring, visible tattoo on left forearm")
+5. This description will be copied VERBATIM into every scene — make it precise enough for an AI to reproduce the SAME person every time
+6. Keep the total cast to a maximum of 6 characters
+7. NEVER create a character whose role duplicates a locked character's role
+
 Return ONLY valid JSON, no markdown, no explanation.`;
 
   const rosterUserPrompt = `Define the complete character roster for a music video called "${title}".
@@ -256,24 +268,34 @@ Return a JSON object with a "characters" array. Each character must have:
   //   • Copy their description verbatim into the scene prompt
   // ─────────────────────────────────────────────────────────────────────────────
 
+  // Build a clear role map so the LLM knows which roles are locked
+  const lockedRoles = fullRoster
+    .filter(c => c.isLocked)
+    .map(c => `"${c.name}" is the ONLY ${c.role} — no other character may play this role`)
+    .join("\n");
+
   const rosterBlock = `
 ⚠️ COMPLETE CHARACTER ROSTER — ALL DESCRIPTIONS ARE FIXED, DO NOT ALTER:
 
 ${fullRoster.map((c, i) =>
-  `CHARACTER ${i + 1}: "${c.name}" (${c.role})${c.isLocked ? " [LOCKED — user-uploaded photo]" : " [AI-defined]"}
+  `CHARACTER ${i + 1}: "${c.name}" (${c.role})${c.isLocked ? " [LOCKED — user-uploaded photo, MUST match exactly]" : " [AI-defined, keep consistent]"}
 FIXED APPEARANCE (copy EXACTLY into prompt when this character appears):
 ${c.description}`
 ).join("\n\n")}
 
+⚠️ LOCKED ROLE EXCLUSIVITY — NEVER VIOLATE:
+${lockedRoles || "No locked roles."}
+
 CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
 1. For every scene, decide which character(s) from the roster above appear
-2. List their exact names in "characterAssignments"
-3. Copy their FIXED APPEARANCE description verbatim into the scene prompt
-4. NEVER describe a character differently from their roster entry — not even minor variations
+2. List their exact names in "characterAssignments" — use ONLY names from the roster above
+3. Copy their FIXED APPEARANCE description verbatim into the scene prompt — do NOT paraphrase or summarise
+4. NEVER describe a character differently from their roster entry — not even minor variations in hair, clothing, or features
 5. NEVER invent characters not in the roster above
-6. Each character must appear in at least 2 scenes
-7. Solo scenes (one character) are encouraged — use them to highlight individual characters
-8. Ensemble scenes should be used sparingly`;
+6. NEVER put two characters in the same scene performing the same role (e.g. two guitarists, two singers)
+7. Each character must appear in at least 2 scenes
+8. Prefer solo scenes (one character) — they produce the most consistent results
+9. When a locked character appears, their description MUST be the FIRST thing in the scene prompt, before any setting or action description`;
 
   const systemPrompt = `You are a professional music video director.
 Your job is to create detailed, cinematic scene descriptions for AI video generation.

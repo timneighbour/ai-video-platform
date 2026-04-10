@@ -225,6 +225,7 @@ export default function MusicVideoAutopilot() {
   const generateScenePreviewMutation = trpc.musicVideo.generateScenePreview.useMutation();
   const saveCharactersMutation = trpc.characters.saveCharacters.useMutation();
   const lockCharacterMutation = trpc.characters.lockCharacter.useMutation();
+  const analysePhotoMutation = trpc.characters.analysePhoto.useMutation();
   const updateSceneLipSyncMutation = trpc.musicVideo.updateSceneLipSync.useMutation();
   const updateAllScenesLipSyncMutation = trpc.musicVideo.updateAllScenesLipSync.useMutation();
   const updateSceneLipSyncStyleMutation = trpc.musicVideo.updateSceneLipSyncStyle.useMutation();
@@ -464,20 +465,69 @@ export default function MusicVideoAutopilot() {
               })),
             })),
           });
-          // Lock characters that have a locked description using the returned DB IDs
+          // Auto-analyse and auto-lock every character that has photos
+          // The vision LLM extracts a precise physical description from the uploaded photo
+          // so users never need to type appearance descriptions manually
           const savedChars = saveResult.characters;
           for (const char of characters) {
-            if (char.isLocked && char.lockedDescription.trim()) {
-              const saved = savedChars.find((s: { slotIndex: number }) => s.slotIndex === char.slotIndex);
-              if (saved) {
-                try {
+            const saved = savedChars.find((s: { slotIndex: number; id: number }) => s.slotIndex === char.slotIndex);
+            if (!saved) continue;
+
+            // Find the primary photo URL — we need the server-side URL after upload
+            // The saveCharacters mutation uploads photos to S3 and returns the character IDs;
+            // we need to fetch the character's photos to get the S3 URL for analysis
+            if (char.photos.length > 0) {
+              try {
+                // Use the primary photo URL returned by saveCharacters (already uploaded to S3)
+                const primaryPhotoUrl = (saved as { id: number; slotIndex: number; name: string; primaryPhotoUrl?: string | null }).primaryPhotoUrl;
+
+                if (primaryPhotoUrl) {
+                  toast.loading(`Analysing ${char.name}'s appearance...`, { id: `analyse-${char.slotIndex}` });
+                  const analysis = await analysePhotoMutation.mutateAsync({
+                    characterId: saved.id,
+                    photoUrl: primaryPhotoUrl,
+                  });
+
+                  // Auto-lock with the AI-generated description
+                  const description = char.lockedDescription.trim() || analysis.description;
+                  await lockCharacterMutation.mutateAsync({
+                    characterId: saved.id,
+                    lockedDescription: description,
+                  });
+                  toast.success(`${char.name} locked`, {
+                    id: `analyse-${char.slotIndex}`,
+                    description: "Appearance analysed and locked from your photo.",
+                  });
+                } else if (char.isLocked && char.lockedDescription.trim()) {
+                  // Fallback: use manually typed description if no photo URL available
                   await lockCharacterMutation.mutateAsync({
                     characterId: saved.id,
                     lockedDescription: char.lockedDescription.trim(),
                   });
-                } catch (lockErr) {
-                  console.warn("[MusicVideoAutopilot] Failed to lock character:", lockErr);
                 }
+                // (primaryPhotoUrl was null — no S3 URL available yet)
+              } catch (lockErr) {
+                console.warn(`[MusicVideoAutopilot] Failed to analyse/lock character ${char.name}:`, lockErr);
+                toast.dismiss(`analyse-${char.slotIndex}`);
+                // Fallback: use manually typed description if analysis fails
+                if (char.isLocked && char.lockedDescription.trim()) {
+                  try {
+                    await lockCharacterMutation.mutateAsync({
+                      characterId: saved.id,
+                      lockedDescription: char.lockedDescription.trim(),
+                    });
+                  } catch {}
+                }
+              }
+            } else if (char.isLocked && char.lockedDescription.trim()) {
+              // No photos — use manually typed description
+              try {
+                await lockCharacterMutation.mutateAsync({
+                  characterId: saved.id,
+                  lockedDescription: char.lockedDescription.trim(),
+                });
+              } catch (lockErr) {
+                console.warn("[MusicVideoAutopilot] Failed to lock character:", lockErr);
               }
             }
           }

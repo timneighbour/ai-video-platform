@@ -443,9 +443,11 @@ export const musicVideoRouter = router({
             );
           }
 
-          // Inject ONLY the relevant character brief(s) into this scene's prompt
+          // Inject character brief(s) at the VERY START of the prompt
+          // AI video models weight the beginning of the prompt most heavily —
+          // character appearance must come before any scene/setting description
           const enrichedScenePrompt = sceneBriefs.length > 0
-            ? `${scene.prompt}\n\nCHARACTER APPEARANCE — COPY EXACTLY, DO NOT DEVIATE:\n${sceneBriefs.join("\n")}\nThe character(s) listed above MUST appear with EXACTLY this appearance. No changes to hair, clothing, face, or accessories.`
+            ? `CHARACTER APPEARANCE — EXACT, DO NOT DEVIATE:\n${sceneBriefs.join("\n")}\n\nSCENE: ${scene.prompt}\n\nIMPORTANT: The character(s) above MUST appear with EXACTLY the described appearance. Do NOT change hair colour, hair length, eye colour, skin tone, face shape, clothing, or any other feature. Maintain 100% visual consistency with the description above.`
             : scene.prompt;
           try {
             const taskId = await startSceneRender(
