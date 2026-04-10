@@ -35,6 +35,7 @@ const MusicCreator = lazy(() => import("@/pages/MusicCreator"));
 const RenderHistory = lazy(() => import("@/pages/RenderHistory"));
 const KidsVideo = lazy(() => import("@/pages/KidsVideo"));
 const TextToVideoCreator = lazy(() => import("@/pages/TextToVideoCreator"));
+const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -66,6 +67,7 @@ function Router() {
         <Route path={"/pricing"} component={Pricing} />
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />
+        <Route path={"/how-it-works"} component={HowItWorks} />
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />

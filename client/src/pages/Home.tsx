@@ -1154,204 +1154,17 @@ function ContentEngine() {
 
 // ── How It Works Modal ───────────────────────────────────────────────────────
 function HowItWorksModalButton() {
-  const [open, setOpen] = useState(false);
-
-  const steps = [
-    {
-      step: "01",
-      icon: "🎵",
-      title: "Choose your video type",
-      desc: "Pick from Music Video, YouTube/WizPilot, Kids Video, or Text to Video. Each has a tailored flow built for your content.",
-      visual: (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {["🎤 Music Video", "🎥 WizPilot", "🧒 Kids Video", "✨ Text to Video"].map(t => (
-            <span key={t} className="text-xs bg-white/8 border border-white/10 rounded-full px-3 py-1 text-white/80">{t}</span>
-          ))}
-        </div>
-      ),
-    },
-    {
-      step: "02",
-      icon: "🎨",
-      title: "Pick your style",
-      desc: "Choose from 11 cinematic styles — Cinematic, Anime, Pixar 3D, Documentary, Neon Noir, Disney, Epic Fantasy, Realistic, Horror, Abstract, or Vintage.",
-      visual: (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {["🎬 Cinematic", "🌸 Anime", "✨ Pixar 3D", "🌃 Neon Noir", "🏰 Disney"].map(t => (
-            <span key={t} className="text-xs bg-violet-500/15 border border-violet-500/25 rounded-full px-3 py-1 text-violet-300">{t}</span>
-          ))}
-        </div>
-      ),
-    },
-    {
-      step: "03",
-      icon: "🖼️",
-      title: "Preview your storyboard",
-      desc: "WizVid instantly generates an AI storyboard with scene images. Review every scene, edit any prompt, and approve before spending a single credit.",
-      visual: (
-        <div className="mt-3 p-3 rounded-xl bg-white/5 border border-white/8 text-xs text-white/60">
-          💡 <span className="text-white/80 font-medium">Free to preview</span> — you only pay credits when you click Render
-        </div>
-      ),
-    },
-    {
-      step: "04",
-      icon: "🚀",
-      title: "Render your video",
-      desc: "Happy with the storyboard? Hit Render and WizVid generates your full video — every scene synced, styled, and ready to download.",
-      visual: (
-        <div className="mt-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-300">
-          ✅ Download MP4 · Share anywhere · Your video, your rights
-        </div>
-      ),
-    },
-  ];
-
   return (
-    <>
-      <Button
-        variant="outline"
-        className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
-        onClick={() => setOpen(true)}
-      >
-        <ChevronRight className="w-4 h-4 mr-1" />See How It Works
-      </Button>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl bg-[#111] border border-white/10 text-white p-0 overflow-hidden">
-          {/* Header */}
-          <div className="px-7 pt-7 pb-5 border-b border-white/8">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-extrabold text-white tracking-tight">
-                How WizVid works
-              </DialogTitle>
-              <p className="text-[#a1a1aa] text-sm mt-1">From idea to full video in under 5 minutes — no editing required.</p>
-            </DialogHeader>
-          </div>
-
-          {/* Steps */}
-          <div className="px-7 py-6 space-y-5 max-h-[60vh] overflow-y-auto">
-            {steps.map((s, i) => (
-              <div key={s.step} className="flex gap-4">
-                {/* Step indicator */}
-                <div className="flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-lg flex-shrink-0">
-                    {s.icon}
-                  </div>
-                  {i < steps.length - 1 && <div className="w-px flex-1 bg-white/8 mt-2" />}
-                </div>
-                {/* Content */}
-                <div className="flex-1 pb-5">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-[#a1a1aa] tracking-widest">STEP {s.step}</span>
-                  </div>
-                  <h3 className="font-semibold text-white text-base mb-1">{s.title}</h3>
-                  <p className="text-[#a1a1aa] text-sm leading-relaxed">{s.desc}</p>
-                  {s.visual}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer CTA */}
-          <div className="px-7 py-5 border-t border-white/8 flex flex-col sm:flex-row gap-3">
-            <Button
-              className="flex-1 bg-white text-black hover:bg-white/90 font-semibold rounded-xl"
-              asChild
-            >
-              <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Ready to Create Video</a>
-            </Button>
-            <Button
-              variant="outline"
-              className="border-white/15 text-white/70 hover:text-white bg-transparent rounded-xl"
-              onClick={() => setOpen(false)}
-            >
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <a
+      href="/how-it-works"
+      className="inline-flex items-center gap-1.5 text-base px-7 py-3 rounded-xl font-medium border border-white/15 text-white hover:bg-white/5 transition-all"
+    >
+      <ChevronRight className="w-4 h-4" />See How It Works
+    </a>
   );
 }
 
-// ── HowItWorks ──────────────────────────────────────────────────────────────
-function HowItWorks() {
-  return (
-    <section id="how-it-works" className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-16 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">How it works</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">Three steps to your video</h2>
-          <p className="text-[#a1a1aa] text-lg max-w-lg mx-auto">Done in minutes. No editing required.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            {
-              step: "01", icon: "🎵",
-              title: "Upload your audio or idea",
-              desc: "Drop in your song, describe your concept, or let AI generate the music.",
-              img: STEP_IMAGES.upload,
-              imgAlt: "Audio waveform upload interface with glowing violet microphone",
-              accent: "from-violet-500/20 to-violet-500/0",
-            },
-            {
-              step: "02", icon: "🎨",
-              title: "Choose your style",
-              desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage.",
-              img: STEP_IMAGES.styles,
-              imgAlt: "Four-panel collage showing Cinematic, Anime, Pixar 3D, and Vintage video styles",
-              accent: "from-blue-500/20 to-blue-500/0",
-            },
-            {
-              step: "03", icon: "🚀",
-              title: "WizVid generates your video",
-              desc: "AI builds your storyboard, renders every scene, and delivers a complete video.",
-              img: STEP_IMAGES.render,
-              imgAlt: "AI-generated cinematic music video scene — singer on stage with cosmic LED backdrop",
-              accent: "from-emerald-500/20 to-emerald-500/0",
-            },
-          ].map((step, i) => (
-            <div
-              key={step.step}
-              className={`rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden group`}
-            >
-              {/* Step image */}
-              <div className="relative w-full aspect-video overflow-hidden">
-                <img
-                  src={step.img}
-                  alt={step.imgAlt}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className={`absolute inset-0 bg-gradient-to-br ${step.accent} mix-blend-multiply`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent" />
-              </div>
-              {/* Step content */}
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">{step.icon}</span>
-                  <span className="text-xs font-bold text-[#a1a1aa] tracking-widest">STEP {step.step}</span>
-                </div>
-                <h3 className="font-semibold text-white text-base mb-2">{step.title}</h3>
-                <p className="text-[#a1a1aa] text-sm leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-12 reveal">
-          <Button
-            className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
-            asChild
-          >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Ready to Create Video</a>
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
+
 
 // ── WizBeat showcase ──────────────────────────────────────────────────────────
 function WizBeatSection() {
@@ -1783,7 +1596,6 @@ export default function Home() {
         <Features />
         <ContentEngine />
         <WhoItsFor />
-        <HowItWorks />
         <WizBeatSection />
         <MadeWithWizVid />
       <SocialProof />

@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Copy, Key, LogOut } from "lucide-react";
+import { ArrowLeft, Copy, Home, Key, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 
@@ -27,12 +27,18 @@ export default function Account() {
       {/* Header */}
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="gap-2 text-muted-foreground hover:text-foreground">
+              <Home className="h-4 w-4" />
+              Home
+            </Button>
+          </div>
           <h1 className="text-xl font-bold">Account Settings</h1>
-          <div className="w-20" />
+          <div className="w-32" />
         </div>
       </div>
 
