@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Music, Youtube, Baby, Wand2, ArrowRight } from "lucide-react";
+import { Music, Youtube, Baby, Wand2, ArrowRight, Headphones } from "lucide-react";
 import { useLocation } from "wouter";
 import React from "react";
 
@@ -12,15 +12,17 @@ const CARD_IMAGES = {
   youtube: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-youtube-video-6X3kKvAJxkigT4BXCR4wzr.webp",
   kids:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-video-thumbnail_207da3b3.png",
   other:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-other-video-FnRcSMEshSBioqwE2ZWqnB.webp",
+  aimusic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp",
 };
 
-type CreatorType = "music" | "youtube" | "kids" | "other";
+type CreatorType = "music" | "youtube" | "kids" | "other" | "aimusic";
 
 const CREATOR_TYPES: { id: CreatorType; icon: React.ReactNode; title: string; desc: string; accent: string }[] = [
-  { id: "music",   icon: <Music className="w-5 h-5" />,   title: "Music Video",     desc: "Turn your songs into cinematic music videos",          accent: "from-purple-600/80 to-violet-900/90" },
-  { id: "youtube", icon: <Youtube className="w-5 h-5" />, title: "YouTube Video",   desc: "Create engaging content that stands out in the feed",  accent: "from-red-600/70 to-slate-900/90" },
-  { id: "kids",    icon: <Baby className="w-5 h-5" />,    title: "Kids Video",      desc: "Animated characters, nursery rhymes, and family content", accent: "from-pink-500/70 to-orange-900/90" },
-  { id: "other",   icon: <Wand2 className="w-5 h-5" />,   title: "Text to Video",   desc: "Describe any scene and AI generates a video for you", accent: "from-blue-600/70 to-indigo-900/90" },
+  { id: "music",   icon: <Music className="w-5 h-5" />,      title: "Music Video",          desc: "Turn your songs into cinematic music videos",          accent: "from-purple-600/80 to-violet-900/90" },
+  { id: "youtube", icon: <Youtube className="w-5 h-5" />,    title: "YouTube Video",        desc: "Create engaging content that stands out in the feed",  accent: "from-red-600/70 to-slate-900/90" },
+  { id: "kids",    icon: <Baby className="w-5 h-5" />,       title: "Kids Video",           desc: "Animated characters, nursery rhymes, and family content", accent: "from-pink-500/70 to-orange-900/90" },
+  { id: "other",   icon: <Wand2 className="w-5 h-5" />,      title: "Text to Video",        desc: "Describe any scene and AI generates a video for you", accent: "from-blue-600/70 to-indigo-900/90" },
+  { id: "aimusic", icon: <Headphones className="w-5 h-5" />, title: "AI Music Generator",   desc: "Generate original songs and tracks powered by Suno AI", accent: "from-emerald-600/70 to-teal-900/90" },
 ];
 
 const FREE_BENEFITS = [
@@ -31,10 +33,11 @@ const FREE_BENEFITS = [
 ];
 
 const DESTINATION: Record<CreatorType, string> = {
-  music: "/music-video",
+  music:   "/music-video",
   youtube: "/wizpilot",
-  kids: "/kids-video",
-  other: "/text-to-video",
+  kids:    "/kids-video",
+  other:   "/text-to-video",
+  aimusic: "/music-creator",
 };
 
 export default function Onboarding() {
@@ -95,7 +98,7 @@ export default function Onboarding() {
               key={ct.id}
               onClick={() => handleSelect(ct.id)}
               disabled={selecting !== null}
-              className={`group relative overflow-hidden rounded-2xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-48 sm:h-52 ${
+              className={`group relative overflow-hidden rounded-2xl border text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-48 sm:h-52 ${ct.id === 'aimusic' ? 'sm:col-span-2' : ''} ${
                 isLoading
                   ? "border-white/40 ring-2 ring-white/20 scale-[0.98]"
                   : "border-white/10 hover:border-white/30 hover:scale-[1.01]"
