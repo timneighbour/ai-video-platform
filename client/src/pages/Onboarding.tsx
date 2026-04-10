@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import BackButton from "@/components/BackButton";
-import { Sparkles, Music, Youtube, Baby, Cpu, ArrowRight, ArrowLeft, Check, Home } from "lucide-react";
+import { Sparkles, Music, Youtube, Baby, Wand2, ArrowRight, ArrowLeft, Check, Home } from "lucide-react";
 import { useLocation } from "wouter";
 
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
@@ -11,7 +11,7 @@ const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/3105196635008689
 const CARD_IMAGES = {
   music:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-music-video-Lti8pizeJFuSUTkuX2SUfY.webp",
   youtube: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-youtube-video-6X3kKvAJxkigT4BXCR4wzr.webp",
-  kids:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-kids-video-4jtPsxNUHKapQcdfCEWTpZ.webp",
+  kids:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-video-thumbnail_207da3b3.png",
   other:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/onboarding-other-video-FnRcSMEshSBioqwE2ZWqnB.webp",
 };
 
@@ -21,7 +21,7 @@ const CREATOR_TYPES: { id: CreatorType; icon: React.ReactNode; title: string; de
   { id: "music",   icon: <Music className="w-5 h-5" />,   title: "Music Video",     desc: "Turn your songs into cinematic music videos",          accent: "from-purple-600/80 to-violet-900/90" },
   { id: "youtube", icon: <Youtube className="w-5 h-5" />, title: "YouTube Video",   desc: "Create engaging content that stands out in the feed",  accent: "from-red-600/70 to-slate-900/90" },
   { id: "kids",    icon: <Baby className="w-5 h-5" />,    title: "Kids Video",      desc: "Animated characters, nursery rhymes, and family content", accent: "from-pink-500/70 to-orange-900/90" },
-  { id: "other",   icon: <Cpu className="w-5 h-5" />,     title: "Something Else",  desc: "Explore all AI video creation tools",                 accent: "from-blue-600/70 to-indigo-900/90" },
+  { id: "other",   icon: <Wand2 className="w-5 h-5" />,   title: "Text to Video",   desc: "Describe any scene and AI generates a video for you", accent: "from-blue-600/70 to-indigo-900/90" },
 ];
 
 const FREE_BENEFITS = [
@@ -34,8 +34,8 @@ const FREE_BENEFITS = [
 const DESTINATION: Record<CreatorType, string> = {
   music: "/music-video",
   youtube: "/wizpilot",
-  kids: "/wizpilot",
-  other: "/dashboard",
+  kids: "/kids-video",
+  other: "/text-to-video",
 };
 
 export default function Onboarding() {

@@ -1161,3 +1161,32 @@
 - [x] Add deleteProject procedure to billing router + video-service.ts
 - [x] Projects page now uses real trpc.billing.getProjects data (was hardcoded sample data)
 - [x] Auto-refresh every 15s while jobs are pending/processing
+
+## Feature: WizPilot Storyboard Upgrade (Apr 2026)
+- [ ] Scene preview images: generate AI image per scene after storyboard is created (visual confirmation before render)
+- [ ] Scene preview images: show loading skeleton while image generates, then fade in the result
+- [ ] Scene preview images: add tRPC procedure to generate a preview image for a single scene
+- [ ] Editable frames: allow user to edit scene prompt/description text inline
+- [ ] Editable frames: add "Add Scene" button to insert a new blank scene
+- [ ] Editable frames: add "Remove Scene" button (X) on each scene card
+- [ ] Editable frames: support copy-paste of scene text (standard browser behaviour + clipboard button)
+- [ ] Photo upload: add image upload input in WizPilot prompt step for AI context
+- [ ] Video upload: add video upload input in WizPilot prompt step for AI context
+- [ ] Photo/video upload: pass uploaded asset URLs to storyboard generation as context
+- [ ] YouTube branding: add YouTube logo/badge to WizPilot page header
+
+## Fix: Kids Video Storyboard Flow (Apr 2026)
+- [ ] Find Kids Video component and audit current storyboard/scene flow
+- [ ] Add AI scene preview image generation per scene (same as WizPilot)
+- [ ] Add editable scene text (title, description, visual notes) inline
+- [ ] Add confirm-and-regenerate: user edits scene text, clicks regenerate to get new preview image
+- [ ] Fix mobile layout: responsive scene cards, stacked buttons, full-width CTAs
+- [ ] Enhance Kids Video style thumbnail to be more obviously kids/animation-focused
+- [ ] Add "Add Scene" and "Remove Scene" controls to Kids Video storyboard
+
+## Feature: Text to Video Page + Kids Video Page + Onboarding Rework (Apr 2026)
+- [ ] Create /kids-video page: kid-friendly branding, Pixar 3D pre-selected, full storyboard with AI previews
+- [ ] Create /text-to-video page: prompt + style selector, no audio upload, storyboard with AI previews, render
+- [ ] Update Onboarding: replace 'Something Else' with 'Text to Video' option routing to /text-to-video
+- [ ] Update Onboarding: route 'Kids Video' to /kids-video instead of /wizpilot
+- [ ] Add /kids-video and /text-to-video routes to App.tsx

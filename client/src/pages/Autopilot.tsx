@@ -2,10 +2,12 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Wand2, Sparkles, RefreshCw, Play, ChevronRight,
   Zap, CheckCircle2, Clock, Film, ArrowLeft, Loader2,
   Music, AlertCircle, Download, ExternalLink, Clapperboard,
+  Plus, Trash2, Copy, ImageIcon, Video, X, Eye,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
@@ -15,6 +17,9 @@ import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
+
+// YouTube brand colour
+const YT_RED = "#FF0000";
 
 const VIDEO_STYLES = [
   { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism" },
@@ -46,7 +51,6 @@ const ASPECT_RATIOS = [
   { id: "1:1", label: "1:1", desc: "Square" },
 ];
 
-// Generation progress stages shown to the user
 const PROGRESS_STAGES = [
   { label: "Submitting your request…", pct: 8 },
   { label: "Analysing your prompt…", pct: 18 },
@@ -63,7 +67,11 @@ type StoryboardScene = {
   description: string;
   visualNotes: string;
   duration: string;
+  previewImageUrl?: string;
+  previewLoading?: boolean;
 };
+
+let nextSceneId = 100;
 
 function generateStoryboardFromPrompt(prompt: string, style: string): StoryboardScene[] {
   const styleDesc = VIDEO_STYLES.find((s) => s.id === style)?.label || "Cinematic";
@@ -92,12 +100,21 @@ function generateStoryboardFromPrompt(prompt: string, style: string): Storyboard
   ];
 }
 
+// YouTube logo SVG inline
+function YouTubeLogo({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size * 1.42} height={size} viewBox="0 0 71 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M69.5 7.8C68.7 4.9 66.4 2.6 63.5 1.8C57.9 0.3 35.5 0.3 35.5 0.3C35.5 0.3 13.1 0.3 7.5 1.8C4.6 2.6 2.3 4.9 1.5 7.8C0 13.4 0 25 0 25C0 25 0 36.6 1.5 42.2C2.3 45.1 4.6 47.4 7.5 48.2C13.1 49.7 35.5 49.7 35.5 49.7C35.5 49.7 57.9 49.7 63.5 48.2C66.4 47.4 68.7 45.1 69.5 42.2C71 36.6 71 25 71 25C71 25 71 13.4 69.5 7.8Z" fill="#FF0000"/>
+      <path d="M28.4 35.5L46.9 25L28.4 14.5V35.5Z" fill="white"/>
+    </svg>
+  );
+}
+
 export default function Autopilot() {
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();
 
-  // Step state
   const [step, setStep] = useState<"input" | "storyboard" | "generating" | "done">("input");
 
   // Form state
@@ -109,6 +126,12 @@ export default function Autopilot() {
   const [regenerating, setRegenerating] = useState(false);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioMode, setAudioMode] = useState<"prompt" | "audio">("prompt");
+
+  // Photo / video context uploads
+  const [contextImageFile, setContextImageFile] = useState<File | null>(null);
+  const [contextImageUrl, setContextImageUrl] = useState<string | null>(null);
+  const [contextVideoFile, setContextVideoFile] = useState<File | null>(null);
+  const [uploadingContext, setUploadingContext] = useState(false);
 
   // Generation tracking
   const [projectId, setProjectId] = useState<number | null>(null);
@@ -122,7 +145,6 @@ export default function Autopilot() {
   const selectedDuration = DURATIONS.find((d) => d.id === duration)!;
   const creditCost = selectedDuration.credits;
 
-  // Animated progress stage ticker (advances through stages while polling)
   const startProgressAnimation = useCallback(() => {
     setProgressPct(PROGRESS_STAGES[0].pct);
     setProgressStage(0);
@@ -131,10 +153,8 @@ export default function Autopilot() {
       stageIdx = Math.min(stageIdx + 1, PROGRESS_STAGES.length - 1);
       setProgressStage(stageIdx);
       setProgressPct(PROGRESS_STAGES[stageIdx].pct);
-      if (stageIdx === PROGRESS_STAGES.length - 1) {
-        clearInterval(stageIntervalRef.current!);
-      }
-    }, 6000); // advance a stage every 6s
+      if (stageIdx === PROGRESS_STAGES.length - 1) clearInterval(stageIntervalRef.current!);
+    }, 6000);
   }, []);
 
   const stopProgressAnimation = useCallback(() => {
@@ -142,11 +162,10 @@ export default function Autopilot() {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => () => stopProgressAnimation(), [stopProgressAnimation]);
 
-  // Poll for video status
   const utils = trpc.useUtils();
+
   const startPolling = useCallback((pid: number) => {
     pollIntervalRef.current = setInterval(async () => {
       try {
@@ -163,20 +182,19 @@ export default function Autopilot() {
           setStep("storyboard");
           toast.error(result.error || "Video generation failed. Please try again.");
         }
-        // "processing" / "pending" → keep polling
       } catch {
         // network hiccup — keep polling silently
       }
-    }, 8000); // poll every 8s
+    }, 8000);
   }, [utils, stopProgressAnimation]);
 
-  const generateVideo = trpc.billing.generateVideo.useMutation({
+  // tRPC mutations
+  const generateVideoMutation = trpc.billing.generateVideo.useMutation({
     onSuccess: (data) => {
       if (data.projectId) {
         setProjectId(data.projectId);
         startPolling(data.projectId);
       }
-      // If already completed synchronously (unlikely but possible)
       if (data.status === "completed") {
         stopProgressAnimation();
         setProgressPct(100);
@@ -192,6 +210,47 @@ export default function Autopilot() {
     },
   });
 
+  const generateScenePreviewMutation = trpc.billing.generateScenePreview.useMutation();
+
+  // Generate AI preview image for a single scene
+  const generatePreviewForScene = useCallback(async (sceneId: number) => {
+    const scene = storyboard.find((s) => s.id === sceneId);
+    if (!scene) return;
+    setStoryboard((prev) =>
+      prev.map((s) => s.id === sceneId ? { ...s, previewLoading: true } : s)
+    );
+    try {
+      const styleLabel = VIDEO_STYLES.find((s) => s.id === style)?.label || style;
+      const result = await generateScenePreviewMutation.mutateAsync({
+        sceneTitle: scene.title,
+        sceneDescription: scene.description,
+        visualNotes: scene.visualNotes,
+        style: styleLabel,
+        contextImageUrl: contextImageUrl || undefined,
+      });
+      setStoryboard((prev) =>
+        prev.map((s) =>
+          s.id === sceneId
+            ? { ...s, previewLoading: false, previewImageUrl: result.imageUrl }
+            : s
+        )
+      );
+    } catch {
+      setStoryboard((prev) =>
+        prev.map((s) => s.id === sceneId ? { ...s, previewLoading: false } : s)
+      );
+      toast.error("Preview generation failed for this scene.");
+    }
+  }, [storyboard, style, contextImageUrl, generateScenePreviewMutation]);
+
+  // Generate previews for all scenes
+  const generateAllPreviews = useCallback(async (scenes: StoryboardScene[]) => {
+    for (const scene of scenes) {
+      await generatePreviewForScene(scene.id);
+    }
+  }, [generatePreviewForScene]);
+
+  // Storyboard handlers
   const handleGenerateStoryboard = useCallback(() => {
     if (!prompt.trim() || prompt.length < 10) {
       toast.error("Please enter a prompt of at least 10 characters.");
@@ -200,7 +259,9 @@ export default function Autopilot() {
     const scenes = generateStoryboardFromPrompt(prompt, style);
     setStoryboard(scenes);
     setStep("storyboard");
-  }, [prompt, style]);
+    // Auto-generate previews for all scenes
+    setTimeout(() => generateAllPreviews(scenes), 100);
+  }, [prompt, style, generateAllPreviews]);
 
   const handleRegenerateStoryboard = useCallback(() => {
     setRegenerating(true);
@@ -212,8 +273,44 @@ export default function Autopilot() {
       setStoryboard(scenes);
       setRegenerating(false);
       toast.success("Storyboard regenerated — free of charge!");
+      generateAllPreviews(scenes);
     }, 1200);
-  }, [prompt, style]);
+  }, [prompt, style, generateAllPreviews]);
+
+  // Scene editing handlers
+  const updateScene = useCallback((id: number, field: keyof StoryboardScene, value: string) => {
+    setStoryboard((prev) =>
+      prev.map((s) => s.id === id ? { ...s, [field]: value } : s)
+    );
+  }, []);
+
+  const addScene = useCallback(() => {
+    const styleDesc = VIDEO_STYLES.find((s) => s.id === style)?.label || "Cinematic";
+    const newScene: StoryboardScene = {
+      id: ++nextSceneId,
+      title: "New Scene",
+      description: "Describe what happens in this scene…",
+      visualNotes: `${styleDesc} composition. Add your visual direction here.`,
+      duration: "4s",
+    };
+    setStoryboard((prev) => [...prev, newScene]);
+    toast.success("Scene added.");
+  }, [style]);
+
+  const removeScene = useCallback((id: number) => {
+    setStoryboard((prev) => {
+      if (prev.length <= 1) {
+        toast.error("You need at least one scene.");
+        return prev;
+      }
+      return prev.filter((s) => s.id !== id);
+    });
+  }, []);
+
+  const copySceneText = useCallback((scene: StoryboardScene) => {
+    const text = `${scene.title}\n${scene.description}\nVisual notes: ${scene.visualNotes}`;
+    navigator.clipboard.writeText(text).then(() => toast.success("Scene text copied!"));
+  }, []);
 
   const handleRenderVideo = useCallback(() => {
     if (!isAuthenticated) {
@@ -225,12 +322,37 @@ export default function Autopilot() {
     setProjectId(null);
     setStep("generating");
     startProgressAnimation();
-    generateVideo.mutate({
+    generateVideoMutation.mutate({
       toolType: "text_to_video",
       prompt,
       options: { style, duration, aspectRatio },
     });
-  }, [isAuthenticated, prompt, style, duration, aspectRatio, generateVideo, startProgressAnimation]);
+  }, [isAuthenticated, prompt, style, duration, aspectRatio, generateVideoMutation, startProgressAnimation]);
+
+  // Context image upload (read as data URL for preview, store URL for API)
+  const handleContextImageChange = useCallback((file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be under 10 MB");
+      return;
+    }
+    setContextImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setContextImageUrl(dataUrl);
+    };
+    reader.readAsDataURL(file);
+    toast.success(`Photo uploaded: ${file.name}`);
+  }, []);
+
+  const handleContextVideoChange = useCallback((file: File) => {
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error("Video must be under 100 MB");
+      return;
+    }
+    setContextVideoFile(file);
+    toast.success(`Video uploaded: ${file.name}`);
+  }, []);
 
   const stepIndex = { input: 0, storyboard: 1, generating: 2, done: 2 }[step];
 
@@ -246,7 +368,6 @@ export default function Autopilot() {
               if (step === "storyboard") {
                 setStep("input");
               } else if (step === "generating") {
-                // Don't go back during generation
                 toast.info("Video is rendering — you can check progress in Projects.");
               } else {
                 setLocation("/");
@@ -259,43 +380,53 @@ export default function Autopilot() {
               {step === "storyboard" ? "Edit Prompt" : "Back"}
             </span>
           </Button>
-          <div className="flex items-center gap-2">
+
+          {/* WizPilot + YouTube branding */}
+          <div className="flex items-center gap-2.5">
             <Wand2 className="h-5 w-5 text-purple-400" />
             <span className="font-bold text-white">WizPilot</span>
+            <span className="text-muted-foreground/40 text-sm">·</span>
+            <div className="flex items-center gap-1.5">
+              <YouTubeLogo size={18} />
+              <span className="text-xs text-muted-foreground hidden sm:inline">for YouTube</span>
+            </div>
           </div>
+
           <CreditBalance variant="badge" />
         </div>
       </div>
 
       {/* Progress Steps */}
       <div className="border-b border-white/10 bg-white/5">
-        <div className="container mx-auto py-3 px-4">
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-1 sm:gap-2 py-3 overflow-x-auto scrollbar-none">
             {[
               { key: "input", label: "1. Describe" },
               { key: "storyboard", label: "2. Storyboard" },
               { key: "generating", label: "3. Render" },
             ].map((s, i) => (
-              <div key={s.key} className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                <span
-                  className={`rounded-full px-2.5 sm:px-3 py-1 font-medium transition-all whitespace-nowrap ${
-                    step === s.key
+              <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <div
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                    stepIndex === i
                       ? "bg-purple-600 text-white"
-                      : step === "done" || i < stepIndex
+                      : stepIndex > i
                       ? "bg-green-600/30 text-green-400"
                       : "bg-white/10 text-muted-foreground"
                   }`}
                 >
-                  {step === "done" && i < 3 ? "✓ " : ""}{s.label}
-                </span>
-                {i < 2 && <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
+                  {stepIndex > i ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                  <span className="whitespace-nowrap">{s.label}</span>
+                </div>
+                {i < 2 && <ChevronRight className="h-3 w-3 text-muted-foreground/40 flex-shrink-0" />}
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="container py-8 sm:py-12 max-w-4xl mx-auto px-4">
+      {/* Content */}
+      <div className="container mx-auto px-4 py-6 sm:py-10 max-w-3xl">
 
         {/* ── STEP 1: INPUT ── */}
         {step === "input" && (
@@ -318,7 +449,7 @@ export default function Autopilot() {
               <label className="block text-sm font-medium text-white mb-2">
                 Video Prompt <span className="text-muted-foreground">(min. 10 characters)</span>
               </label>
-              <textarea
+              <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="A futuristic city at sunset with flying cars weaving between neon-lit skyscrapers, cinematic drone shot…"
@@ -330,6 +461,103 @@ export default function Autopilot() {
                   <span className="text-xs text-green-400 flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" /> Ready
                   </span>
+                )}
+              </div>
+            </div>
+
+            {/* Photo & Video Context Upload */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-white mb-1 flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4 text-purple-400" />
+                  Reference Photo <span className="text-muted-foreground font-normal">(optional)</span>
+                </h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Upload a photo to guide the AI's visual style, colour palette, or subject matter.
+                </p>
+                {contextImageFile ? (
+                  <div className="flex items-center gap-3 rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 py-3">
+                    {contextImageUrl && (
+                      <img src={contextImageUrl} alt="context" className="h-12 w-16 object-cover rounded-lg flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white font-medium truncate">{contextImageFile.name}</p>
+                      <p className="text-xs text-muted-foreground">{(contextImageFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                    </div>
+                    <button
+                      onClick={() => { setContextImageFile(null); setContextImageUrl(null); }}
+                      className="text-muted-foreground hover:text-red-400 transition flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="context-image-upload"
+                    className="flex flex-col items-center justify-center w-full h-20 rounded-xl border-2 border-dashed border-purple-500/30 bg-purple-500/5 cursor-pointer hover:border-purple-500/60 hover:bg-purple-500/10 transition-all"
+                  >
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <ImageIcon className="h-5 w-5 text-purple-400" />
+                      <span className="text-sm">Tap to upload JPG, PNG, or WEBP</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground/60 mt-1">Max 10 MB</span>
+                    <input
+                      id="context-image-upload"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleContextImageChange(file);
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div className="border-t border-white/10 pt-4">
+                <h3 className="text-sm font-medium text-white mb-1 flex items-center gap-2">
+                  <Video className="h-4 w-4 text-blue-400" />
+                  Reference Video <span className="text-muted-foreground font-normal">(optional)</span>
+                </h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Upload a video clip to show the AI the pacing, style, or content you're going for.
+                </p>
+                {contextVideoFile ? (
+                  <div className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3">
+                    <Video className="h-8 w-8 text-blue-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white font-medium truncate">{contextVideoFile.name}</p>
+                      <p className="text-xs text-muted-foreground">{(contextVideoFile.size / 1024 / 1024).toFixed(1)} MB</p>
+                    </div>
+                    <button
+                      onClick={() => setContextVideoFile(null)}
+                      className="text-muted-foreground hover:text-red-400 transition flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="context-video-upload"
+                    className="flex flex-col items-center justify-center w-full h-20 rounded-xl border-2 border-dashed border-blue-500/30 bg-blue-500/5 cursor-pointer hover:border-blue-500/60 hover:bg-blue-500/10 transition-all"
+                  >
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Video className="h-5 w-5 text-blue-400" />
+                      <span className="text-sm">Tap to upload MP4, MOV, or WEBM</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground/60 mt-1">Max 100 MB</span>
+                    <input
+                      id="context-video-upload"
+                      type="file"
+                      accept="video/mp4,video/quicktime,video/webm,video/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleContextVideoChange(file);
+                      }}
+                    />
+                  </label>
                 )}
               </div>
             </div>
@@ -398,13 +626,13 @@ export default function Autopilot() {
             </div>
 
             {/* Audio Upload (Optional) */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <label className="text-sm font-medium text-white flex items-center gap-2">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h3 className="text-sm font-medium text-white flex items-center gap-2">
                   <Music className="h-4 w-4 text-purple-400" />
-                  Audio Soundtrack <span className="text-muted-foreground font-normal">(optional)</span>
-                </label>
-                <div className="flex gap-2">
+                  Audio / Soundtrack <span className="text-muted-foreground font-normal">(optional)</span>
+                </h3>
+                <div className="flex gap-1 rounded-lg bg-white/10 p-0.5">
                   {(["prompt", "audio"] as const).map((mode) => (
                     <button
                       key={mode}
@@ -412,7 +640,7 @@ export default function Autopilot() {
                       className={`rounded-lg px-3 py-1 text-xs font-medium transition-all ${
                         audioMode === mode
                           ? "bg-purple-600 text-white"
-                          : "bg-white/10 text-muted-foreground hover:text-white"
+                          : "bg-transparent text-muted-foreground hover:text-white"
                       }`}
                     >
                       {mode === "prompt" ? "Prompt only" : "Upload audio"}
@@ -447,10 +675,7 @@ export default function Autopilot() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          if (file.size > 16 * 1024 * 1024) {
-                            toast.error("Audio file must be under 16 MB");
-                            return;
-                          }
+                          if (file.size > 16 * 1024 * 1024) { toast.error("Audio file must be under 16 MB"); return; }
                           setAudioFile(file);
                           toast.success(`Audio uploaded: ${file.name}`);
                         }
@@ -458,10 +683,7 @@ export default function Autopilot() {
                     />
                   </label>
                   {audioFile && (
-                    <button
-                      onClick={() => setAudioFile(null)}
-                      className="mt-2 text-xs text-muted-foreground hover:text-red-400 transition"
-                    >
+                    <button onClick={() => setAudioFile(null)} className="mt-2 text-xs text-muted-foreground hover:text-red-400 transition">
                       Remove audio
                     </button>
                   )}
@@ -500,11 +722,11 @@ export default function Autopilot() {
               </Badge>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Storyboard</h1>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Review your scenes below. Not happy? Regenerate for free — as many times as you need.
+                Edit scene text, add or remove scenes, and preview AI images before rendering.
               </p>
             </div>
 
-            {/* Error banner if previous render failed */}
+            {/* Error banner */}
             {generationError && (
               <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -516,30 +738,120 @@ export default function Autopilot() {
             )}
 
             {/* Scenes */}
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-4">
               {storyboard.map((scene, i) => (
                 <div
                   key={scene.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5"
+                  className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden"
                 >
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-sm">
+                  {/* Scene header */}
+                  <div className="flex items-center gap-3 px-4 pt-4 pb-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-sm">
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-semibold text-white text-sm">{scene.title}</h3>
-                        <span className="text-xs text-muted-foreground border border-white/10 rounded px-1.5 py-0.5">
-                          {scene.duration}
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground/80 mb-1">{scene.description}</p>
-                      <p className="text-xs text-muted-foreground italic">{scene.visualNotes}</p>
+                      <input
+                        type="text"
+                        value={scene.title}
+                        onChange={(e) => updateScene(scene.id, "title", e.target.value)}
+                        className="w-full bg-transparent text-white font-semibold text-sm focus:outline-none focus:ring-1 focus:ring-purple-500/50 rounded px-1 -ml-1"
+                        placeholder="Scene title…"
+                      />
                     </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => copySceneText(scene)}
+                        title="Copy scene text"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => generatePreviewForScene(scene.id)}
+                        title="Generate AI preview image"
+                        disabled={scene.previewLoading}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-purple-400 hover:bg-purple-500/10 transition disabled:opacity-50"
+                      >
+                        {scene.previewLoading ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Eye className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => removeScene(scene.id)}
+                        title="Remove scene"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* AI Preview Image */}
+                  {(scene.previewLoading || scene.previewImageUrl) && (
+                    <div className="mx-4 mb-3 rounded-xl overflow-hidden bg-white/5 border border-white/10 aspect-video relative">
+                      {scene.previewLoading ? (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                          <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
+                          <p className="text-xs text-muted-foreground">Generating AI preview…</p>
+                        </div>
+                      ) : scene.previewImageUrl ? (
+                        <img
+                          src={scene.previewImageUrl}
+                          alt={`Preview for ${scene.title}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : null}
+                    </div>
+                  )}
+
+                  {/* No preview yet — placeholder */}
+                  {!scene.previewLoading && !scene.previewImageUrl && (
+                    <button
+                      onClick={() => generatePreviewForScene(scene.id)}
+                      className="mx-4 mb-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-white/10 bg-white/3 aspect-video flex flex-col items-center justify-center gap-2 hover:border-purple-500/40 hover:bg-purple-500/5 transition group"
+                    >
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/40 group-hover:text-purple-400 transition" />
+                      <span className="text-xs text-muted-foreground/60 group-hover:text-purple-300 transition">
+                        Click to generate AI preview image
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Editable description */}
+                  <div className="px-4 pb-2">
+                    <label className="text-xs text-muted-foreground mb-1 block">Scene description</label>
+                    <Textarea
+                      value={scene.description}
+                      onChange={(e) => updateScene(scene.id, "description", e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-purple-500/50 min-h-[60px]"
+                      placeholder="Describe what happens in this scene…"
+                    />
+                  </div>
+
+                  {/* Editable visual notes */}
+                  <div className="px-4 pb-4">
+                    <label className="text-xs text-muted-foreground mb-1 block">Visual notes / direction</label>
+                    <Textarea
+                      value={scene.visualNotes}
+                      onChange={(e) => updateScene(scene.id, "visualNotes", e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-purple-500/50 min-h-[48px]"
+                      placeholder="Camera angle, lighting, mood…"
+                    />
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Add Scene button */}
+            <button
+              onClick={addScene}
+              className="w-full rounded-2xl border-2 border-dashed border-white/10 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-purple-500/40 hover:text-purple-300 hover:bg-purple-500/5 transition"
+            >
+              <Plus className="h-4 w-4" />
+              Add Scene
+            </button>
 
             {/* Low credit warning */}
             <LowCreditBanner
@@ -570,11 +882,7 @@ export default function Autopilot() {
                   disabled={regenerating}
                   className="gap-2 border-white/20 text-white hover:bg-white/10 flex-1"
                 >
-                  {regenerating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="h-4 w-4" />
-                  )}
+                  {regenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                   Regenerate Free
                 </Button>
                 <Button
@@ -599,7 +907,6 @@ export default function Autopilot() {
         {/* ── STEP 3: GENERATING ── */}
         {step === "generating" && (
           <div className="py-12 sm:py-20 space-y-8 max-w-lg mx-auto">
-            {/* Animated icon */}
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-600/20 border border-purple-500/40 mb-6">
                 <Clapperboard className="h-10 w-10 text-purple-400 animate-pulse" />
@@ -609,8 +916,6 @@ export default function Autopilot() {
                 Our AI engines are building your video. Sit tight — this usually takes 1–5 minutes.
               </p>
             </div>
-
-            {/* Progress bar */}
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{PROGRESS_STAGES[progressStage]?.label}</span>
@@ -621,33 +926,23 @@ export default function Autopilot() {
                 This page will update automatically when your video is ready
               </p>
             </div>
-
-            {/* Stage indicators */}
             <div className="grid grid-cols-1 gap-2">
               {PROGRESS_STAGES.map((stage, i) => (
                 <div
                   key={i}
                   className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-all ${
-                    i < progressStage
-                      ? "bg-green-500/10 text-green-400"
-                      : i === progressStage
-                      ? "bg-purple-500/20 text-white"
-                      : "bg-white/5 text-muted-foreground/50"
+                    i < progressStage ? "bg-green-500/10 text-green-400"
+                    : i === progressStage ? "bg-purple-500/20 text-white"
+                    : "bg-white/5 text-muted-foreground/50"
                   }`}
                 >
-                  {i < progressStage ? (
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-400" />
-                  ) : i === progressStage ? (
-                    <Loader2 className="h-4 w-4 flex-shrink-0 text-purple-400 animate-spin" />
-                  ) : (
-                    <div className="h-4 w-4 flex-shrink-0 rounded-full border border-white/20" />
-                  )}
+                  {i < progressStage ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-400" />
+                  : i === progressStage ? <Loader2 className="h-4 w-4 flex-shrink-0 text-purple-400 animate-spin" />
+                  : <div className="h-4 w-4 flex-shrink-0 rounded-full border border-white/20" />}
                   {stage.label}
                 </div>
               ))}
             </div>
-
-            {/* Escape hatch */}
             <div className="text-center pt-2">
               <p className="text-xs text-muted-foreground mb-3">
                 You can safely leave this page — your video will still be generated.
@@ -676,26 +971,14 @@ export default function Autopilot() {
                 Your video has been generated and is ready to watch, download, or share.
               </p>
             </div>
-
-            {/* Inline video player if URL available */}
             {generatedVideoUrl && (
               <div className="rounded-2xl overflow-hidden border border-white/10 bg-black aspect-video">
-                <video
-                  src={generatedVideoUrl}
-                  controls
-                  autoPlay
-                  className="w-full h-full object-contain"
-                />
+                <video src={generatedVideoUrl} controls autoPlay className="w-full h-full object-contain" />
               </div>
             )}
-
-            {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {generatedVideoUrl && (
-                <Button
-                  asChild
-                  className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0"
-                >
+                <Button asChild className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0">
                   <a href={generatedVideoUrl} download target="_blank" rel="noopener noreferrer">
                     <Download className="h-4 w-4" />
                     Download Video
@@ -711,11 +994,7 @@ export default function Autopilot() {
                 View All Projects
               </Button>
               {generatedVideoUrl && (
-                <Button
-                  asChild
-                  variant="outline"
-                  className="gap-2 border-white/20 text-white hover:bg-white/10"
-                >
+                <Button asChild variant="outline" className="gap-2 border-white/20 text-white hover:bg-white/10">
                   <a href={generatedVideoUrl} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
                     Open in New Tab
@@ -723,8 +1002,6 @@ export default function Autopilot() {
                 </Button>
               )}
             </div>
-
-            {/* Create another */}
             <div className="pt-2 border-t border-white/10">
               <Button
                 variant="ghost"
@@ -736,6 +1013,9 @@ export default function Autopilot() {
                   setProjectId(null);
                   setProgressPct(0);
                   setProgressStage(0);
+                  setContextImageFile(null);
+                  setContextImageUrl(null);
+                  setContextVideoFile(null);
                 }}
                 className="gap-2 text-muted-foreground hover:text-white"
               >

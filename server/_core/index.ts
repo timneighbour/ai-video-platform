@@ -40,6 +40,7 @@ const generalApiLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { error: "Too many requests. Please try again later." },
 });
 
@@ -50,6 +51,7 @@ const aiGenerationLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { error: "Too many generation requests. Please wait a few minutes before trying again." },
   skip: (req) => {
     // Skip rate limiting in test environments
@@ -63,6 +65,7 @@ const uploadLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: { error: "Too many upload requests. Please try again later." },
 });
 

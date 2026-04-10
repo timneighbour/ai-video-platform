@@ -4,6 +4,7 @@
  */
 
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { generateImage } from "../_core/imageGeneration";
 import { z } from "zod";
 import { getUserCredits, addCredits, getCreditHistory } from "../credit-service";
 import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
@@ -318,5 +319,37 @@ export const billingRouter = router({
             : "Failed to create checkout session"
         );
       }
+    }),
+
+  /**
+   * Generate an AI preview image for a single storyboard scene.
+   * Free — no credits deducted. Used in WizPilot storyboard step.
+   */
+  generateScenePreview: protectedProcedure
+    .input(
+      z.object({
+        sceneTitle: z.string(),
+        sceneDescription: z.string(),
+        visualNotes: z.string(),
+        style: z.string(),
+        contextImageUrl: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const prompt = [
+        `${input.style} style video scene.`,
+        `Scene: ${input.sceneTitle}.`,
+        input.sceneDescription,
+        `Visual direction: ${input.visualNotes}`,
+        "Cinematic composition, high quality, detailed, 16:9 aspect ratio.",
+      ].join(" ");
+
+      const options: Parameters<typeof generateImage>[0] = { prompt };
+      if (input.contextImageUrl) {
+        options.originalImages = [{ url: input.contextImageUrl, mimeType: "image/jpeg" }];
+      }
+
+      const { url } = await generateImage(options);
+      return { imageUrl: url };
     }),
 });
