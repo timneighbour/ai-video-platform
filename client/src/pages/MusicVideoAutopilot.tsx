@@ -205,7 +205,8 @@ export default function MusicVideoAutopilot() {
     staleTime: 5 * 60 * 1000,
   });
   const maxVideoSeconds = planLimits?.maxVideoSeconds ?? 60;
-  const audioExceedsLimit = audioDuration > 0 && audioDuration > maxVideoSeconds;
+  const isAdminUser = planLimits?.isAdmin === true;
+  const audioExceedsLimit = !isAdminUser && audioDuration > 0 && audioDuration > maxVideoSeconds;
 
   const transcribeAudioDirect = trpc.musicVideo.transcribeAudioDirect.useMutation();
   const createJob = trpc.musicVideo.createJob.useMutation();

@@ -42,6 +42,16 @@ export const billingRouter = router({
    * Get user's plan limits (maxVideoSeconds, maxVideosPerMonth, maxPremiumScenesPerVideo)
    */
   getPlanLimits: protectedProcedure.query(async ({ ctx }) => {
+    // Admin/owner gets unlimited access for testing
+    if (ctx.user.role === "admin") {
+      return {
+        plan: "creator_plus" as const,
+        maxVideoSeconds: 99999,
+        maxVideosPerMonth: 99999,
+        maxPremiumScenesPerVideo: 99999,
+        isAdmin: true,
+      };
+    }
     const sub = await getUserSubscription(ctx.user.id);
     const productPlan = mapDbPlanToProductPlan(sub?.plan ?? "free");
     const limits = SUBSCRIPTION_PLANS[productPlan];
@@ -50,6 +60,7 @@ export const billingRouter = router({
       maxVideoSeconds: limits.maxVideoSeconds,
       maxVideosPerMonth: limits.maxVideosPerMonth,
       maxPremiumScenesPerVideo: limits.maxPremiumScenesPerVideo,
+      isAdmin: false,
     };
   }),
 
