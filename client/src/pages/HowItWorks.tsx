@@ -105,7 +105,7 @@ export default function HowItWorks() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           {/* Back button */}
           <button
-            onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/")}
+            onClick={() => setLocation("/")}
             className="flex items-center gap-2 text-[#a1a1aa] hover:text-white transition-colors text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -242,7 +242,7 @@ export default function HowItWorks() {
           <Button
             variant="outline"
             className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-8 py-3 rounded-xl font-medium h-auto"
-            onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/")}
+            onClick={() => setLocation("/")}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />Back to Home
           </Button>
