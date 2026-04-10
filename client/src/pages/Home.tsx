@@ -68,6 +68,7 @@ function useReveal() {
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -76,12 +77,30 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navLinks = [
+  // Close tools dropdown when clicking outside
+  useEffect(() => {
+    if (!toolsOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-tools-menu]")) setToolsOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [toolsOpen]);
+
+  const mainLinks = [
     { label: "Home", href: "/" },
     { label: "Music Video", href: "/music-video" },
     { label: "WizPilot", href: "/wizpilot" },
     { label: "Pricing", href: "/pricing" },
     { label: "Help", href: "/help" },
+  ];
+
+  const toolLinks = [
+    { label: "AI Music Generator", sub: "Powered by Suno", href: "/music-creator", icon: "🎵" },
+    { label: "YouTube Video Creator", sub: "WizPilot for YouTube", href: "/wizpilot", icon: "🎥" },
+    { label: "Kids Video", sub: "Safe animated content", href: "/kids-video", icon: "🧒" },
+    { label: "Text to Video", sub: "Prompt to full video", href: "/text-to-video", icon: "✨" },
   ];
 
   return (
@@ -90,7 +109,7 @@ function Nav() {
     }`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center group">
+        <a href="/" className="flex items-center group flex-shrink-0">
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
@@ -101,16 +120,59 @@ function Nav() {
         </a>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
+        <div className="hidden lg:flex items-center gap-0.5">
+          {mainLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
+              className="px-3 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block whitespace-nowrap"
             >
               {link.label}
             </a>
           ))}
+
+          {/* Tools dropdown */}
+          <div className="relative" data-tools-menu>
+            <button
+              data-tools-menu
+              onClick={() => setToolsOpen((v) => !v)}
+              className={`flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all duration-200 font-medium whitespace-nowrap ${
+                toolsOpen ? "text-white bg-white/8" : "text-[#a1a1aa] hover:text-white"
+              }`}
+            >
+              Tools
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsOpen ? "rotate-180" : ""}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {toolsOpen && (
+              <div
+                data-tools-menu
+                className="absolute top-full right-0 mt-2 w-64 bg-[#111]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              >
+                <div className="p-2">
+                  {toolLinks.map((tool) => (
+                    <a
+                      key={tool.label}
+                      href={tool.href}
+                      onClick={() => setToolsOpen(false)}
+                      className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-white/6 transition-colors group"
+                    >
+                      <span className="text-xl mt-0.5 flex-shrink-0">{tool.icon}</span>
+                      <div>
+                        <div className="text-sm font-medium text-white">{tool.label}</div>
+                        <div className="text-xs text-[#a1a1aa] mt-0.5">{tool.sub}</div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right controls */}
@@ -131,7 +193,7 @@ function Nav() {
             </>
           )}
           <button
-            className="md:hidden p-2 text-[#a1a1aa] hover:text-white"
+            className="lg:hidden p-2 text-[#a1a1aa] hover:text-white"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle mobile menu"
           >
@@ -142,8 +204,9 @@ function Nav() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#0f0f0f]/98 backdrop-blur-xl border-t border-white/8 px-6 py-5">
-          {navLinks.map((link) => (
+        <div className="lg:hidden bg-[#0f0f0f]/98 backdrop-blur-xl border-t border-white/8 px-6 py-5 max-h-[80vh] overflow-y-auto">
+          {/* Main links */}
+          {mainLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
@@ -153,7 +216,27 @@ function Nav() {
               {link.label}
             </a>
           ))}
-          <div className="pt-5 flex gap-3">
+
+          {/* Tools section */}
+          <div className="pt-4 pb-2">
+            <p className="text-xs font-bold text-[#a1a1aa]/60 uppercase tracking-widest mb-3">Tools</p>
+            {toolLinks.map((tool) => (
+              <a
+                key={tool.label}
+                href={tool.href}
+                className="flex items-center gap-3 py-3 border-b border-white/5"
+                onClick={() => setMobileOpen(false)}
+              >
+                <span className="text-lg">{tool.icon}</span>
+                <div>
+                  <div className="text-sm font-medium text-white">{tool.label}</div>
+                  <div className="text-xs text-[#a1a1aa]">{tool.sub}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div className="pt-4 flex gap-3">
             <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
             <a href="/onboarding" className="flex-1">
               <Button className="w-full bg-white text-black rounded-xl text-sm font-semibold h-10">Get Started</Button>
