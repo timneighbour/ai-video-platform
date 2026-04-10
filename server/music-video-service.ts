@@ -17,6 +17,7 @@ import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
 import { initSeedance } from "./ai-apis/seedance";
 import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
+import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 
@@ -25,6 +26,8 @@ const seedanceClient = initSeedance();
 
 // Prefix used to distinguish fal.ai request IDs from Kling/Volcengine task IDs
 const FAL_REQUEST_ID_PREFIX = "fal:";
+// Prefix used to distinguish Hypereal job IDs
+const HYPEREAL_JOB_ID_PREFIX = "hypereal:";
 
 const execAsync = promisify(exec);
 
@@ -445,22 +448,24 @@ export async function startSceneRender(
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   // Route to the appropriate renderer
-  if (renderer === "fal_seedance") {
-    return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+  // fal_seedance and seedance both now try Hypereal first, then fall back to fal.ai
+  if (renderer === "fal_seedance" || renderer === "seedance") {
+    try {
+      return await startSceneRenderHypereal(sceneId, finalPrompt, duration);
+    } catch (hyperealErr) {
+      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, falling back to fal.ai Seedance:`, hyperealErr);
+      return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+    }
   }
 
-  if (renderer === "seedance") {
-    return startSceneRenderSeedance(sceneId, finalPrompt, duration);
-  }
-
-  // Premium renderers (kling_standard, kling_pro, runway) — with single retry + fal_seedance fallback
+  // Premium renderers (kling_standard, kling_pro, runway) — with single retry + Hypereal fallback
   try {
     const taskId = await startSceneRenderKling(finalPrompt, duration);
     console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}`);
     return taskId;
   } catch (err) {
-    console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to fal.ai Seedance:`, err);
-    return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+    console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to Hypereal Seedance:`, err);
+    return startSceneRenderHypereal(sceneId, finalPrompt, duration);
   }
 }
 
@@ -473,6 +478,42 @@ async function startSceneRenderKling(prompt: string, duration: number): Promise<
   });
   if (!taskId) throw new Error("Kling: no task_id returned");
   return taskId;
+}
+
+async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number): Promise<string> {
+  // Hypereal Seedance 2.0 has a ~500 char prompt limit; truncate if needed
+  const MAX_PROMPT_CHARS = 480;
+  const safePrompt = prompt.length > MAX_PROMPT_CHARS
+    ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+    : prompt;
+
+  const trySubmit = async (p: string): Promise<string> => {
+    const jobId = await submitHyperealVideo({
+      model: HYPEREAL_MODELS.SEEDANCE_2_T2V,
+      prompt: p,
+      duration: duration <= 5 ? 5 : 8,
+      mode: "auto",
+    });
+    if (!jobId) throw new Error(`Hypereal: no jobId returned for scene ${sceneId}`);
+    return jobId;
+  };
+
+  let jobId: string;
+  try {
+    jobId = await trySubmit(safePrompt);
+  } catch (err: any) {
+    const errMsg = String(err?.message ?? err);
+    console.warn(`[MusicVideo] Scene ${sceneId} Hypereal first attempt failed (${errMsg}). Retrying with simplified prompt.`);
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    try {
+      jobId = await trySubmit(fallbackPrompt);
+    } catch (retryErr: any) {
+      throw new Error(`Hypereal Seedance failed for scene ${sceneId} after retry: ${String(retryErr?.message ?? retryErr)}`);
+    }
+  }
+
+  console.log(`[MusicVideo] Scene ${sceneId} → Hypereal Seedance 2.0 jobId=${jobId}`);
+  return `${HYPEREAL_JOB_ID_PREFIX}${jobId}`;
 }
 
 async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
@@ -523,6 +564,63 @@ async function startSceneRenderSeedance(sceneId: number, prompt: string, duratio
   });
   if (!taskId) throw new Error(`Seedance: no task_id returned for scene ${sceneId}`);
   return taskId;
+}
+
+/**
+ * Poll a Hypereal AI video generation job and update DB when complete.
+ */
+async function pollSceneStatusHypereal(
+  sceneId: number,
+  jobId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const outputUrl = await pollHyperealVideo(jobId, HYPEREAL_MODELS.SEEDANCE_2_T2V);
+    if (!outputUrl) return { status: "processing" };
+
+    // Download and re-upload to S3 for permanent storage
+    let buffer: Buffer | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(outputUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        buffer = Buffer.from(await response.arrayBuffer());
+        break;
+      } catch (fetchErr) {
+        console.warn(`[Hypereal] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+        if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+      }
+    }
+
+    if (!buffer) {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: "Failed to download Hypereal video after 3 attempts", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+
+    const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
+    const { url } = await storagePut(key, buffer, "video/mp4");
+
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+
+    return { status: "completed", videoUrl: url };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
+  }
 }
 
 /**
@@ -591,6 +689,10 @@ export async function pollSceneStatus(
   taskId: string
 ): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
   // Route to the correct API based on the task ID prefix
+  if (taskId.startsWith(HYPEREAL_JOB_ID_PREFIX)) {
+    return pollSceneStatusHypereal(sceneId, taskId.slice(HYPEREAL_JOB_ID_PREFIX.length));
+  }
+
   if (taskId.startsWith(FAL_REQUEST_ID_PREFIX)) {
     return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_REQUEST_ID_PREFIX.length));
   }

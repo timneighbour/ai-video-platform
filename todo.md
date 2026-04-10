@@ -1248,3 +1248,16 @@
 - [x] saveCharacters now returns primaryPhotoUrl so no extra fetch needed
 - [x] CharacterManager UI updated: no longer requires manual typing, shows "AI will auto-analyse your photo" hint
 - [x] All 81 tests passing, 0 TypeScript errors
+
+## Session 13 Fixes (April 2026) - COMPLETED ✅
+- [x] Fix stuck storyboard spinner (AGAIN) — storyboardGenerating state now set to false in all error paths
+- [x] Fix 401 Unauthorized errors from fal.ai Seedance — switched to Hypereal AI (hypereal.cloud) as primary renderer
+- [x] Fix 401 fal.ai AuthN error — Hypereal API key validated and working (83/83 tests pass)
+- [x] Fix Character 2 photo analysis not matching uploaded photos — upgraded to forensic-level 80-120 word vision LLM prompt with hyper-specific descriptions
+- [x] Fix Character 1 still appearing in Character 2's role — strengthened role exclusivity rules in storyboard LLM
+- [x] Integrate Hypereal AI (hypereal.cloud) as primary video generation provider — Seedance 2.0 via unified gateway
+- [x] HYPEREAL_API_KEY and ATLAS_CLOUD_API_KEY stored as secrets
+- [x] Built server/ai-apis/hypereal.ts client with submitHyperealVideo, pollHyperealVideo, validateHyperealKey
+- [x] Updated music-video-service.ts: fal_seedance/seedance renderers now try Hypereal first, fal.ai as fallback
+- [x] Added pollSceneStatusHypereal function with S3 re-upload and DB update
+- [x] All 83 tests passing, 0 TypeScript errors

@@ -196,11 +196,16 @@ export const charactersRouter = router({
         messages: [
           {
             role: "system" as const,
-            content: `You are a professional casting director writing character appearance briefs for AI video generation.
-Your job is to describe a person's physical appearance in precise, objective detail so that an AI video model can reproduce the same person consistently across many scenes.
-Focus ONLY on observable physical features — do NOT guess personality, emotion, or backstory.
-Write in the third person. Be specific and concrete. Avoid vague terms like "attractive" or "average".
-Output format: A single paragraph of 60-100 words covering: gender, approximate age range, ethnicity/skin tone, hair (colour, length, style, texture), eyes (colour, shape), face shape, build/height impression, and any distinctive features (scars, tattoos, glasses, beard, etc.).`,
+            content: `You are a forensic visual analyst writing character appearance briefs for AI video generation.
+Your ONLY job is to describe exactly what you see in the photo with maximum precision.
+This description will be used word-for-word in AI video prompts to reproduce this exact person in every scene.
+Rules:
+- Describe ONLY what is visually observable. Do NOT guess, infer, or add context.
+- Be hyper-specific: exact hair colour (not just "brown" — say "dark chestnut brown"), exact eye colour, exact skin tone (use descriptors like "warm olive", "deep ebony", "fair porcelain", "medium golden brown").
+- Include: gender presentation, apparent age range (e.g. "mid-30s"), ethnicity/skin tone, hair (exact colour, length, texture, style — e.g. "shoulder-length wavy auburn hair with subtle highlights"), eyes (exact colour and shape), face shape (oval, square, round, heart, etc.), build impression (slim, athletic, stocky, etc.), and ANY distinctive features (beard stubble, glasses, tattoos, scars, piercings, prominent jawline, high cheekbones, etc.).
+- Also describe visible clothing/outfit in detail as it helps the AI maintain consistency.
+- Output: A single dense paragraph of 80-120 words. No bullet points. No headers. Just the paragraph.
+- CRITICAL: Be so specific that someone who has never seen this person could pick them out of a crowd from your description alone.`,
           },
           {
             role: "user" as const,
@@ -211,7 +216,9 @@ Output format: A single paragraph of 60-100 words covering: gender, approximate 
               },
               {
                 type: "text" as const,
-                text: "Describe this person's physical appearance in precise detail for use as a character brief in AI video generation. Write 60-100 words covering all key physical features.",
+                text: `Analyse this photo and write a precise 80-120 word character appearance brief for AI video generation. 
+Be forensically specific about every visual detail — hair colour/texture/style, exact skin tone, eye colour and shape, face structure, build, clothing, and any distinctive features. 
+This description must be accurate enough to reproduce this exact person consistently across multiple AI-generated video scenes.`,
               },
             ],
           },
