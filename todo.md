@@ -1206,3 +1206,9 @@
 - [ ] Fix light/dark toggle — diagnose why theme switch doesn't apply visually
 - [ ] Ensure toggle works on mobile and desktop
 - [ ] Verify CSS variables update correctly when theme changes
+- [ ] Fix "Failed to start scene regeneration" error on /music-video/create page
+- [ ] Remove lyrics from storyboard scene cards on /music-video/create
+- [ ] Add optional captions toggle so users can add captions if they want
+- [ ] Fix Kling API mode value (standard→std) causing scene regeneration failures
+- [ ] Show per-scene lyrics as editable collapsible section on storyboard cards
+- [ ] Add optional captions toggle for final video render

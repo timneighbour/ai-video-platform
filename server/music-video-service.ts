@@ -16,11 +16,15 @@ import { invokeLLM } from "./_core/llm";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
 import { initSeedance } from "./ai-apis/seedance";
+import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 
 const klingClient = initKlingAI();
 const seedanceClient = initSeedance();
+
+// Prefix used to distinguish fal.ai request IDs from Kling/Volcengine task IDs
+const FAL_REQUEST_ID_PREFIX = "fal:";
 
 const execAsync = promisify(exec);
 
@@ -279,7 +283,7 @@ export async function startSceneRender(
   duration: number,
   lipSync = true,
   lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural",
-  renderer: RendererType = "seedance"
+  renderer: RendererType = "fal_seedance"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
@@ -287,19 +291,22 @@ export async function startSceneRender(
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   // Route to the appropriate renderer
+  if (renderer === "fal_seedance") {
+    return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+  }
+
   if (renderer === "seedance") {
     return startSceneRenderSeedance(sceneId, finalPrompt, duration);
   }
 
-  // Premium renderers (kling_standard, kling_pro, runway) — with single retry + Seedance fallback
+  // Premium renderers (kling_standard, kling_pro, runway) — with single retry + fal_seedance fallback
   try {
     const taskId = await startSceneRenderKling(finalPrompt, duration);
     console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}`);
     return taskId;
   } catch (err) {
-    console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to Seedance:`, err);
-    // Single retry on premium; immediately fall back to Seedance on failure
-    return startSceneRenderSeedance(sceneId, finalPrompt, duration);
+    console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to fal.ai Seedance:`, err);
+    return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
   }
 }
 
@@ -314,6 +321,20 @@ async function startSceneRenderKling(prompt: string, duration: number): Promise<
   return taskId;
 }
 
+async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
+  const requestId = await submitFalSeedanceVideo({
+    prompt,
+    aspect_ratio: "16:9",
+    duration: duration <= 5 ? "5" : "8",
+    resolution: "720p",
+    generate_audio: false, // music video — audio comes from the track
+  });
+  if (!requestId) throw new Error(`fal.ai Seedance: no request_id returned for scene ${sceneId}`);
+  console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance requestId=${requestId}`);
+  // Prefix the ID so pollSceneStatus knows which API to poll
+  return `${FAL_REQUEST_ID_PREFIX}${requestId}`;
+}
+
 async function startSceneRenderSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
   const taskId = await seedanceClient.createTextToVideo({
     prompt,
@@ -325,6 +346,63 @@ async function startSceneRenderSeedance(sceneId: number, prompt: string, duratio
 }
 
 /**
+ * Poll a fal.ai Seedance scene and update DB when complete.
+ */
+async function pollSceneStatusFalSeedance(
+  sceneId: number,
+  requestId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const result = await pollFalSeedanceVideo(requestId);
+    if (!result) return { status: "processing" };
+
+    // Download and re-upload to S3 for permanent storage
+    let buffer: Buffer | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(result.videoUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        buffer = Buffer.from(await response.arrayBuffer());
+        break;
+      } catch (fetchErr) {
+        console.warn(`[FalSeedance] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+        if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+      }
+    }
+
+    if (!buffer) {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: "Failed to download fal.ai video after 3 attempts", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+
+    const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
+    const { url } = await storagePut(key, buffer, "video/mp4");
+
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+
+    return { status: "completed", videoUrl: url };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
+  }
+}
+
+/**
  * Poll a scene's render status and update DB when complete.
  * Returns the video URL if completed, null if still processing.
  */
@@ -332,6 +410,13 @@ export async function pollSceneStatus(
   sceneId: number,
   taskId: string
 ): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  // Route to the correct API based on the task ID prefix
+  if (taskId.startsWith(FAL_REQUEST_ID_PREFIX)) {
+    return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_REQUEST_ID_PREFIX.length));
+  }
+
+  // Legacy: Volcengine Seedance task IDs are handled by klingClient (wrong but kept for backward compat)
+  // Kling task IDs are UUIDs without the fal: prefix
   const result = await klingClient.getTaskStatus(taskId);
 
   if (!result) return { status: "processing" };

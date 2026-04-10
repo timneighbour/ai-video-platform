@@ -67,7 +67,9 @@ export const PLAN_COST_TARGETS = {
  * Based on current API pricing (Apr 2026, £1 = $1.27)
  */
 export const RENDERER_COSTS = {
-  /** Seedance 2.0 via Volcengine — primary cheap renderer (~$0.15/scene) */
+  /** Seedance 2.0 via fal.ai — primary cheap renderer (~$0.05-0.10/scene, best margin) */
+  fal_seedance: 0.06,
+  /** Seedance 2.0 via Volcengine — legacy fallback renderer (~$0.15/scene) */
   seedance: 0.12,
   /** Kling AI v3 Standard (720p) via official API — premium renderer (~$0.67/scene) */
   kling_standard: 0.53,
