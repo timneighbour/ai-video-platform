@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import BackButton from "@/components/BackButton";
+import AuthGate from "@/components/AuthGate";
 import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -18,17 +19,25 @@ const WIZBEAT_IMAGES = [
 export default function MusicVideosLanding() {
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
+  const [showAuthGate, setShowAuthGate] = useState(false);
 
   const handleCTA = () => {
     if (isAuthenticated) {
       navigate("/music-video/create");
     } else {
-      navigate("/onboarding");
+      setShowAuthGate(true);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
+      {/* Auth Gate Modal */}
+      <AuthGate
+        open={showAuthGate}
+        onClose={() => setShowAuthGate(false)}
+        featureName="create your music video"
+      />
+
       {/* Nav */}
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">

@@ -16,6 +16,7 @@ import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
+import AuthGate from "@/components/AuthGate";
 
 const VIDEO_STYLES = [
   { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "🎬" },
@@ -108,6 +109,7 @@ export default function TextToVideoCreator() {
   const [, setLocation] = useLocation();
 
   const [step, setStep] = useState<"input" | "storyboard" | "generating" | "done">("input");
+  const [showAuthGate, setShowAuthGate] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("cinematic");
   const [duration, setDuration] = useState("10");
@@ -285,7 +287,7 @@ export default function TextToVideoCreator() {
 
   const handleRenderVideo = useCallback(() => {
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      setShowAuthGate(true);
       return;
     }
     setGenerationError(null);
@@ -305,6 +307,8 @@ export default function TextToVideoCreator() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Auth Gate */}
+      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="render your video" />
       {/* Header */}
       <div className="border-b border-white/10">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">

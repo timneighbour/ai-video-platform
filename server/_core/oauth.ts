@@ -5,6 +5,8 @@ import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
 import { notifyOwner } from "./notification";
 import { FREE_TRIAL_CREDITS } from "../products";
+import { ENV } from "./env";
+import { addCredits, getUserCredits } from "../credit-service";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -30,6 +32,8 @@ export function registerOAuthRoutes(app: Express) {
         return;
       }
 
+      const isOwner = userInfo.openId === ENV.ownerOpenId;
+
       // Check if this is a new user (no credits record yet)
       const existingUser = await db.getUserByOpenId(userInfo.openId);
       const isNewUser = !existingUser;
@@ -42,12 +46,26 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
-      // Grant free trial credits to new users
-      if (isNewUser) {
-        const newUser = await db.getUserByOpenId(userInfo.openId);
-        if (newUser) {
+      const savedUser = await db.getUserByOpenId(userInfo.openId);
+
+      if (savedUser) {
+        if (isOwner) {
+          // Owner: ensure they always have a large credit balance for testing
+          const currentBalance = await getUserCredits(savedUser.id);
+          const OWNER_MIN_CREDITS = 999999;
+          if (currentBalance < OWNER_MIN_CREDITS) {
+            const topUp = OWNER_MIN_CREDITS - currentBalance;
+            await addCredits(
+              savedUser.id,
+              topUp,
+              "subscription_grant",
+              "Owner account: unlimited test credits"
+            );
+          }
+        } else if (isNewUser) {
+          // Regular new user: grant free trial credits
           await db.addCredits(
-            newUser.id,
+            savedUser.id,
             FREE_TRIAL_CREDITS,
             "subscription_grant",
             `Welcome gift: ${FREE_TRIAL_CREDITS} free trial credits`
