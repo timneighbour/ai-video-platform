@@ -106,8 +106,30 @@ function extractLyricsForWindow(
 
 /**
  * Generate a storyboard using LLM based on theme, lyrics, and song duration.
- * Returns an array of scene objects with prompts, timestamps, and lyrics.
+ * Uses a two-pass approach:
+ *   Pass 1 — Build a complete character roster (locked characters + any AI-invented ones)
+ *   Pass 2 — Generate scenes using that fixed roster so every character is visually consistent
  */
+export interface StoryboardCharacter {
+  name: string;
+  role: string;
+  isLocked: boolean;
+  description: string;
+}
+
+export interface StoryboardResult {
+  scenes: Array<{
+    sceneIndex: number;
+    startTime: number;
+    duration: number;
+    prompt: string;
+    visualStyle: string;
+    lyrics: string;
+    characterAssignments: string[];
+  }>;
+  roster: StoryboardCharacter[]; // full character roster (locked + AI-invented)
+}
+
 export async function generateStoryboard(
   themePrompt: string,
   genre: string | null | undefined,
@@ -116,14 +138,7 @@ export async function generateStoryboard(
   title: string,
   lyricsSegments?: Array<{ start: number; end: number; text: string }>,
   lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>
-): Promise<Array<{
-  sceneIndex: number;
-  startTime: number;
-  duration: number;
-  prompt: string;
-  visualStyle: string;
-  lyrics: string;
-}>> {
+): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
   const minutes = Math.floor(audioDurationSeconds / 60);
   const seconds = audioDurationSeconds % 60;
@@ -148,35 +163,133 @@ export async function generateStoryboard(
   const hasLyrics = lyricsSegments && lyricsSegments.length > 0;
   const hasLockedCharacters = lockedCharacters && lockedCharacters.length > 0;
 
-  // Build character consistency block for the system prompt
-  const characterConsistencyBlock = hasLockedCharacters
-    ? `
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PASS 1: Build the complete character roster
+  // Ask the LLM to list ALL characters that will appear in this video:
+  //   • Locked characters (from user-uploaded photos) — descriptions are fixed
+  //   • Additional characters the LLM wants to invent (e.g. bass player, crowd)
+  // The roster is defined ONCE here and reused verbatim in every scene.
+  // ─────────────────────────────────────────────────────────────────────────────
 
-⚠️ CHARACTER CONSISTENCY RULES — STRICTLY ENFORCED:
-The following characters have locked visual briefs. You MUST reference them by name in every scene where they appear.
-Do NOT change, embellish, or reinterpret their appearance. Do NOT add new characters unless instructed.
+  const lockedBlock = hasLockedCharacters
+    ? `The following characters are LOCKED — their appearance is fixed by the user and MUST NOT be changed:
+${lockedCharacters!.map((c, i) =>
+  `LOCKED CHARACTER ${i + 1}: "${c.name}"${c.role ? ` (${c.role})` : ""}
+APPEARANCE: ${c.lockedDescription}`
+).join("\n\n")}`
+    : "No locked characters — you may invent all characters.";
 
-${lockedCharacters!.map((c) =>
-  `CHARACTER: ${c.name}${c.role ? ` (${c.role})` : ""}
-LOCKED APPEARANCE: ${c.lockedDescription}
-RULE: Every scene must describe ${c.name} with EXACTLY this appearance. No outfit changes. No colour changes. No facial feature changes. No accessory changes.`
+  const rosterSystemPrompt = `You are a professional music video casting director.
+Your job is to define the COMPLETE cast of characters for a music video.
+Rules:
+- Include all locked characters exactly as specified — do NOT alter their appearance
+- Add any additional characters needed for the video concept (musicians, dancers, extras, etc.)
+- For each additional character you invent, write a DETAILED, SPECIFIC visual description (40-80 words) covering: gender, age range, ethnicity, hair colour and style, eye colour, skin tone, build, clothing/costume, and any distinctive features
+- This description will be copied VERBATIM into every scene the character appears in — make it precise enough for an AI video model to reproduce the same person every time
+- Keep the total cast to a maximum of 6 characters
+Return ONLY valid JSON, no markdown, no explanation.`;
+
+  const rosterUserPrompt = `Define the complete character roster for a music video called "${title}".
+
+Video concept:
+- Theme: ${themePrompt}
+- Genre: ${genre || "not specified"}
+- Mood: ${mood || "not specified"}
+- Style: music video with ${sceneCount} scenes
+
+${lockedBlock}
+
+Return a JSON object with a "characters" array. Each character must have:
+- name: string (character name or role, e.g. "Lead Singer", "Bass Player", "Dancer")
+- role: string (their role in the video, e.g. "vocalist", "musician", "background dancer")
+- isLocked: boolean (true only for the locked characters listed above)
+- description: string (full visual appearance — copy locked characters' descriptions exactly; write new detailed descriptions for invented characters)`;
+
+  const rosterResponse = await invokeLLM({
+    messages: [
+      { role: "system" as const, content: rosterSystemPrompt },
+      { role: "user" as const, content: rosterUserPrompt },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "character_roster",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            characters: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  role: { type: "string" },
+                  isLocked: { type: "boolean" },
+                  description: { type: "string" },
+                },
+                required: ["name", "role", "isLocked", "description"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["characters"],
+          additionalProperties: false,
+        },
+      },
+    },
+  });
+
+  const rosterRaw = rosterResponse.choices[0]?.message?.content;
+  if (!rosterRaw) throw new Error("LLM returned empty roster response");
+  const rosterContent = typeof rosterRaw === "string" ? rosterRaw : JSON.stringify(rosterRaw);
+  const rosterParsed = JSON.parse(rosterContent);
+  const fullRoster: Array<{ name: string; role: string; isLocked: boolean; description: string }> =
+    rosterParsed.characters ?? [];
+
+  console.log(`[Storyboard] Character roster defined: ${fullRoster.map(c => `${c.name} (${c.role})`).join(", ")}`);
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PASS 2: Generate scenes using the fixed roster
+  // Every character in the roster has a locked description — the LLM must:
+  //   • Assign specific character(s) to each scene
+  //   • Copy their description verbatim into the scene prompt
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  const rosterBlock = `
+⚠️ COMPLETE CHARACTER ROSTER — ALL DESCRIPTIONS ARE FIXED, DO NOT ALTER:
+
+${fullRoster.map((c, i) =>
+  `CHARACTER ${i + 1}: "${c.name}" (${c.role})${c.isLocked ? " [LOCKED — user-uploaded photo]" : " [AI-defined]"}
+FIXED APPEARANCE (copy EXACTLY into prompt when this character appears):
+${c.description}`
 ).join("\n\n")}
 
-Storyboard Preview Rule: All storyboard scene prompts must reference the locked character appearance above so the user can verify consistency before confirming render.`
-    : "";
+CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
+1. For every scene, decide which character(s) from the roster above appear
+2. List their exact names in "characterAssignments"
+3. Copy their FIXED APPEARANCE description verbatim into the scene prompt
+4. NEVER describe a character differently from their roster entry — not even minor variations
+5. NEVER invent characters not in the roster above
+6. Each character must appear in at least 2 scenes
+7. Solo scenes (one character) are encouraged — use them to highlight individual characters
+8. Ensemble scenes should be used sparingly`;
 
-  const systemPrompt = `You are a professional music video director and creative director. 
+  const systemPrompt = `You are a professional music video director.
 Your job is to create detailed, cinematic scene descriptions for AI video generation.
 Each scene description must be:
-- Highly visual and specific (describe lighting, camera angle, movement, subjects, atmosphere)
+- Highly visual and specific (lighting, camera angle, movement, subjects, atmosphere)
 - Consistent with the overall theme and mood
 ${hasLyrics ? "- Visually inspired by the EMOTION and THEME of the lyrics — translate feelings into imagery, do NOT include any text, words, or lyrics visually in the video frame" : ""}
 - Optimised for AI video generation (clear, vivid, no abstract concepts)
-- Varied enough to create an interesting visual journey
-- Between 50-100 words each
-- CRITICAL: NEVER include text, words, captions, subtitles, or lyrics as visual elements in the video frame${characterConsistencyBlock}
+- Varied in camera angles, settings, and visual styles
+- Between 60-120 words each
+- CRITICAL: NEVER include text, words, captions, subtitles, or lyrics as visual elements in the video frame
+- CRITICAL: Copy each character's FIXED APPEARANCE description verbatim when they appear in a scene${rosterBlock}
 
 Return ONLY valid JSON, no markdown, no explanation.`;
+
+  const allCharacterNames = fullRoster.map(c => `"${c.name}"`).join(", ");
 
   const userPrompt = `Create a music video storyboard for a song called "${title}".
 
@@ -193,14 +306,15 @@ ${sceneList}
 ` : `Scene timeline:
 ${sceneList}
 
-`}Return a JSON array of exactly ${sceneCount} scene objects. Each object must have:
-- sceneIndex: number (0-based, matching the scene numbers above)
-- startTime: number (seconds from start, as listed above)
-- duration: number (as listed above)
-- prompt: string (detailed AI video generation prompt, 50-100 words${hasLyrics ? ", visually reflecting the EMOTION of the lyrics — NO text, words, or lyrics in the frame" : ""}. NEVER include text overlays, captions, or written words in the prompt)
-- visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime", "oil painting")
+`}Return a JSON object with a "scenes" array of exactly ${sceneCount} scene objects. Each object must have:
+- sceneIndex: number (0-based)
+- startTime: number (seconds)
+- duration: number (seconds)
+- prompt: string (60-120 words. Copy the character's FIXED APPEARANCE verbatim. NO text, captions, or lyrics in the frame.)
+- visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime")
+- characterAssignments: array of character names from [${allCharacterNames}] who appear in this scene
 
-Make the scenes tell a visual story that matches the theme. Vary the camera angles, settings, and visual styles to keep it dynamic.`;
+Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.`;
 
   const response = await invokeLLM({
     messages: [
@@ -225,8 +339,12 @@ Make the scenes tell a visual story that matches the theme. Vary the camera angl
                   duration: { type: "integer" },
                   prompt: { type: "string" },
                   visualStyle: { type: "string" },
+                  characterAssignments: {
+                    type: "array",
+                    items: { type: "string" },
+                  },
                 },
-                required: ["sceneIndex", "startTime", "duration", "prompt", "visualStyle"],
+                required: ["sceneIndex", "startTime", "duration", "prompt", "visualStyle", "characterAssignments"],
                 additionalProperties: false,
               },
             },
@@ -243,11 +361,24 @@ Make the scenes tell a visual story that matches the theme. Vary the camera angl
   const content = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
   const parsed = JSON.parse(content);
 
-  // Merge the lyrics back into each scene result
-  return parsed.scenes.map((scene: any) => ({
-    ...scene,
-    lyrics: sceneWindows[scene.sceneIndex]?.lyrics ?? "",
-  }));
+  // Build a lookup of the full roster by name (lowercase) for validation
+  const rosterByName = new Map(fullRoster.map(c => [c.name.toLowerCase(), c]));
+
+  // Merge lyrics and validate characterAssignments against the roster
+  const scenes = parsed.scenes.map((scene: any) => {
+    const assignments: string[] = scene.characterAssignments ?? [];
+    // Validate assignments — remove any names not in the roster
+    const validAssignments = assignments.filter(name =>
+      rosterByName.has(name.toLowerCase())
+    );
+    return {
+      ...scene,
+      lyrics: sceneWindows[scene.sceneIndex]?.lyrics ?? "",
+      characterAssignments: validAssignments,
+    };
+  });
+
+  return { scenes, roster: fullRoster };
 }
 
 /**

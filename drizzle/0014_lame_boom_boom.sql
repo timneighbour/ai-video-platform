@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` ADD `characterAssignments` text;

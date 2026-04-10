@@ -182,6 +182,9 @@ export default function MusicVideoAutopilot() {
   const [scenes, setScenes] = useState<SceneCard[]>([]);
   const [editingSceneId, setEditingSceneId] = useState<number | null>(null);
   const [editPrompt, setEditPrompt] = useState("");
+  // Track whether storyboard generation is actively in progress
+  // This is separate from mutation.isPending to avoid the overlay persisting after scenes arrive
+  const [storyboardGenerating, setStoryboardGenerating] = useState(false);
 
   // Step 3: Render state
   const [renderStatus, setRenderStatus] = useState<string>("rendering");
@@ -486,15 +489,19 @@ export default function MusicVideoAutopilot() {
 
       // Transcription was already started when the file was selected; no need to re-trigger;
 
+      setStoryboardGenerating(true);
       toast.loading("Generating storyboard...", { description: "Our AI director is crafting your scenes." });
 
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
       setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
 
+      // Dismiss the overlay immediately — scenes are ready
+      setStoryboardGenerating(false);
       // Fetch actual scene IDs from server
       setStep("storyboard");
       toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
     } catch (err: any) {
+      setStoryboardGenerating(false);
       const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");
       if (isQuota) {
         setQuotaError("The AI service is temporarily unavailable due to high demand. Please wait a few minutes and try again. Your progress has been saved.");
@@ -587,11 +594,14 @@ export default function MusicVideoAutopilot() {
   const handleRegenerateStoryboard = async () => {
     if (!jobId) return;
     try {
+      setStoryboardGenerating(true);
       toast.loading("Regenerating storyboard...");
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId });
       setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+      setStoryboardGenerating(false);
       toast.success("Storyboard regenerated!");
     } catch (err: any) {
+      setStoryboardGenerating(false);
       toast.error("Error", { description: err.message });
     }
   };
@@ -737,7 +747,9 @@ export default function MusicVideoAutopilot() {
     );
   }
 
-  const isGeneratingStoryboard = createJob.isPending || generateStoryboardMutation.isPending;
+  // Use explicit storyboardGenerating state (not mutation.isPending) to avoid the overlay
+  // persisting after scenes have already been received and rendered
+  const isGeneratingStoryboard = storyboardGenerating;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -749,18 +761,18 @@ export default function MusicVideoAutopilot() {
               <Film className="w-10 h-10 text-white animate-pulse" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Creating Your Storyboard</h2>
-            <p className="text-zinc-400 text-sm mb-8">Our AI director is crafting your cinematic scenes. This takes about 30–60 seconds.</p>
+            <p className="text-zinc-400 text-sm mb-8">Our AI director is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
             <div className="w-full bg-zinc-800 rounded-full h-2 mb-8 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-[3000ms] ease-out"
-                style={{ width: createJob.isPending ? "20%" : "80%" }}
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-[5000ms] ease-out"
+                style={{ width: createJob.isPending ? "15%" : "75%" }}
               />
             </div>
             <div className="space-y-2.5 text-left">
               {[
                 { label: "Uploading your song", done: !createJob.isPending, active: createJob.isPending },
                 { label: "Transcribing lyrics", done: false, active: !createJob.isPending },
-                { label: "Analysing mood & theme", done: false, active: !createJob.isPending },
+                { label: "Casting characters & defining appearances", done: false, active: !createJob.isPending },
                 { label: "Crafting scene descriptions", done: false, active: !createJob.isPending },
                 { label: "Building your storyboard", done: false, active: !createJob.isPending },
               ].map((s, i) => (

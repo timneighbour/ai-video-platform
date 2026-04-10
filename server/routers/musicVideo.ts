@@ -231,7 +231,7 @@ export const musicVideoRouter = router({
         enrichedThemePrompt += "\n\nLip Sync: Include close-up shots of the character's face/mouth in scenes where lyrics are being sung, suitable for lip sync processing.";
       }
 
-      const scenes = await withQuotaGuard(() => generateStoryboard(
+      const { scenes, roster } = await withQuotaGuard(() => generateStoryboard(
         enrichedThemePrompt,
         job.genre,
         job.mood,
@@ -240,6 +240,8 @@ export const musicVideoRouter = router({
         lyricsSegments,
         lockedCharacters.length > 0 ? lockedCharacters : undefined
       ));
+
+      console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);
 
       // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
@@ -254,13 +256,22 @@ export const musicVideoRouter = router({
           prompt: scene.prompt,
           lyrics: scene.lyrics || null,
           visualStyle: scene.visualStyle,
+          characterAssignments: scene.characterAssignments && scene.characterAssignments.length > 0
+            ? JSON.stringify(scene.characterAssignments)
+            : null,
           status: "pending",
         });
       }
 
-      // Update job status
+      // Save the full character roster (locked + AI-invented) to the job record
+      // This is used at render time to inject the correct character description into each scene prompt
       await db.update(musicVideoJobs)
-        .set({ status: "storyboard_ready", totalScenes: scenes.length, updatedAt: new Date() })
+        .set({
+          status: "storyboard_ready",
+          totalScenes: scenes.length,
+          characterRoster: JSON.stringify(roster),
+          updatedAt: new Date(),
+        })
         .where(eq(musicVideoJobs.id, input.jobId));
 
       return { scenes };
@@ -367,12 +378,35 @@ export const musicVideoRouter = router({
 
       console.log(`[MusicVideo] Job ${input.jobId} routing plan: estimated £${routingPlan.totalEstimatedCostGBP.toFixed(2)}, premium scenes: ${routingPlan.premiumScenesUsed}/${routingPlan.premiumScenesAllowed}, plan: ${renderProductPlan}`);
 
-      // Fetch locked character briefs to inject into every scene prompt for visual consistency
+      // Build the full character map from the job's characterRoster (includes locked + AI-invented characters)
+      // This ensures ALL characters — not just user-uploaded ones — are visually consistent across scenes
+      const fullCharMap = new Map<string, { name: string; role: string; brief: string }>();
+
+      // First: load the AI-generated roster saved during storyboard generation
+      if (job.characterRoster) {
+        try {
+          const roster: Array<{ name: string; role: string; isLocked: boolean; description: string }> =
+            JSON.parse(job.characterRoster);
+          for (const c of roster) {
+            fullCharMap.set(c.name.toLowerCase(), { name: c.name, role: c.role, brief: c.description });
+          }
+          console.log(`[MusicVideo] Loaded ${roster.length} characters from roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);
+        } catch (err) {
+          console.warn(`[MusicVideo] Failed to parse characterRoster for job ${input.jobId}:`, err);
+        }
+      }
+
+      // Second: override/supplement with locked character descriptions from videoCharacters table
+      // (These are the user-uploaded photo descriptions — they take precedence over AI-generated ones)
       const allJobCharsForRender = await db.select().from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
-      const lockedBriefsForRender = allJobCharsForRender
-        .filter((c) => c.isLocked && c.lockedDescription)
-        .map((c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.lockedDescription!}`);
+      for (const c of allJobCharsForRender) {
+        if (c.isLocked && c.lockedDescription) {
+          fullCharMap.set(c.name.toLowerCase(), { name: c.name, role: c.role ?? "", brief: c.lockedDescription });
+        }
+      }
+
+      console.log(`[MusicVideo] Final character map for job ${input.jobId}: ${Array.from(fullCharMap.keys()).join(", ")}`);
 
       // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
       const SCENE_STAGGER_MS = 3000;
@@ -381,9 +415,37 @@ export const musicVideoRouter = router({
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           const renderer = rendererMap.get(scene.sceneIndex) ?? "seedance";
-          // Inject character briefs into every scene prompt for visual consistency
-          const enrichedScenePrompt = lockedBriefsForRender.length > 0
-            ? `${scene.prompt}. STRICT CHARACTER CONSISTENCY — DO NOT DEVIATE: ${lockedBriefsForRender.join(" | ")}. These characters MUST appear with EXACTLY this appearance in every scene.`
+
+          // Parse the per-scene character assignments stored by generateStoryboard
+          let assignedNames: string[] = [];
+          try {
+            if (scene.characterAssignments) {
+              assignedNames = JSON.parse(scene.characterAssignments);
+            }
+          } catch {}
+
+          // Build brief block for ONLY the characters assigned to this scene
+          // Uses the full character map (locked + AI-invented) for complete consistency
+          let sceneBriefs: string[] = [];
+          if (assignedNames.length > 0) {
+            for (const name of assignedNames) {
+              const charData = fullCharMap.get(name.toLowerCase());
+              if (charData) {
+                sceneBriefs.push(
+                  `${charData.name}${charData.role ? ` (${charData.role})` : ""}: ${charData.brief}`
+                );
+              }
+            }
+          } else if (fullCharMap.size > 0) {
+            // Legacy fallback: inject all characters
+            sceneBriefs = Array.from(fullCharMap.values()).map(
+              (c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.brief}`
+            );
+          }
+
+          // Inject ONLY the relevant character brief(s) into this scene's prompt
+          const enrichedScenePrompt = sceneBriefs.length > 0
+            ? `${scene.prompt}\n\nCHARACTER APPEARANCE — COPY EXACTLY, DO NOT DEVIATE:\n${sceneBriefs.join("\n")}\nThe character(s) listed above MUST appear with EXACTLY this appearance. No changes to hair, clothing, face, or accessories.`
             : scene.prompt;
           try {
             const taskId = await startSceneRender(

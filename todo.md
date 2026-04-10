@@ -1225,3 +1225,14 @@
 - [x] Verify: lyrics-in-video prevention already in storyboard LLM prompt (explicit NO text instructions)
 - [x] Verify: 30s truncation already fixed (ffprobe duration check + stream_loop in assembleMusicVideo)
 - [x] All 81 tests passing, 0 TypeScript errors
+
+## Session 11 Fixes (April 2026)
+- [ ] Fix character consistency: storyboard LLM must assign specific named characters to each scene (not just describe all characters generically)
+- [ ] Fix character consistency: store per-scene character assignments in DB (new column or JSON field on musicVideoScenes)
+- [ ] Fix character consistency: startRender must inject ONLY the character(s) assigned to each scene, not all locked characters
+- [ ] Fix character consistency: storyboard LLM prompt must enforce "CHARACTER X appears in scenes Y, Z" assignment logic
+- [ ] Fix stuck storyboard spinner: find state transition bug that leaves "generating storyboard" overlay active after scenes are loaded
+- [ ] Fix stuck storyboard spinner: ensure overlay dismisses when generateStoryboard mutation completes or scenes data is present
+- [x] Fix character consistency for ALL characters (not just locked): LLM must define any AI-invented additional/background characters once in a "character roster" and reuse those exact descriptions in every scene they appear in — no improvising different appearances
+- [x] Store AI-invented character descriptions in the storyboard JSON so startRender can inject them per-scene alongside locked character briefs
+- [x] Fix stuck storyboard spinner: overlay must dismiss immediately when generateStoryboardMutation resolves, regardless of subsequent jobQuery loading state

@@ -114,6 +114,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
   finalVideoKey: varchar("finalVideoKey", { length: 512 }),
   creditCost: int("creditCost").default(0).notNull(),
+  characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -138,6 +139,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   errorMessage: text("errorMessage"),
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
   previewImageKey: varchar("previewImageKey", { length: 512 }),
+  characterAssignments: text("characterAssignments"), // JSON array of character names assigned to this scene e.g. ["Singer","Drummer"]
   lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
   createdAt: timestamp("createdAt").defaultNow().notNull(),
