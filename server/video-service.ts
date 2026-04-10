@@ -388,3 +388,25 @@ export async function getUserProjects(userId: number, limit: number = 20) {
     .orderBy(projects.createdAt)
     .limit(limit);
 }
+
+/**
+ * Delete a project owned by the given user (ownership check enforced)
+ */
+export async function deleteProject(userId: number, projectId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+  const existing = await db
+    .select({ id: projects.id, userId: projects.userId })
+    .from(projects)
+    .where(eq(projects.id, projectId))
+    .limit(1);
+  if (!existing.length) {
+    throw new Error("Project not found");
+  }
+  if (existing[0].userId !== userId) {
+    throw new Error("Forbidden: you do not own this project");
+  }
+  await db.delete(projects).where(eq(projects.id, projectId));
+}

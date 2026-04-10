@@ -1150,3 +1150,14 @@
 - [x] Add success state with inline video player, Download, Open in New Tab, and View All Projects buttons
 - [x] Fix mobile layout: responsive step pills, stacked buttons, full-width CTAs, touch-friendly tap targets
 - [x] Added polling every 8s via checkVideoStatus; auto-transitions to done state with toast on completion
+
+## Fix: Video Action Buttons + Back Navigation (Apr 2026)
+- [x] Fix Preview button: opens Dialog modal with inline video player + Download button
+- [x] Fix Download button: creates anchor with outputUrl, triggers download, shows toast
+- [x] Fix Delete button: AlertDialog confirmation, deleteProject mutation with ownership check on server
+- [x] Fix back button: dropdown menu (click Back arrow) with Dashboard / Home Page / WizPilot options
+- [x] Add Home option to back button navigation dropdown
+- [x] Show remaining credits on Projects page header with top-up shortcut
+- [x] Add deleteProject procedure to billing router + video-service.ts
+- [x] Projects page now uses real trpc.billing.getProjects data (was hardcoded sample data)
+- [x] Auto-refresh every 15s while jobs are pending/processing

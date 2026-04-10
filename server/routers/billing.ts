@@ -7,7 +7,7 @@ import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { getUserCredits, addCredits, getCreditHistory } from "../credit-service";
 import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
-import { generateVideo, checkVideoStatus, getUserProjects } from "../video-service";
+import { generateVideo, checkVideoStatus, getUserProjects, deleteProject } from "../video-service";
 import { SUBSCRIPTION_PLANS } from "../products";
 // import { notifyOwner } from "../_core/notification";
 import Stripe from "stripe";
@@ -136,6 +136,16 @@ export const billingRouter = router({
     .query(async ({ ctx, input }) => {
       const projects = await getUserProjects(ctx.user.id, input.limit);
       return projects;
+    }),
+
+  /**
+   * Delete a project owned by the current user
+   */
+  deleteProject: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await deleteProject(ctx.user.id, input.projectId);
+      return { success: true };
     }),
 
   /**
