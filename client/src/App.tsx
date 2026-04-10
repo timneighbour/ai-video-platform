@@ -87,7 +87,6 @@ function Router() {
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />
         <Route path={"/how-it-works"} component={HowItWorks} />
-        <PostLoginRedirect />
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />
@@ -96,6 +95,7 @@ function Router() {
         {/* Final fallback route */}
         <Route component={NotFound} />
       </Switch>
+      <PostLoginRedirect />
     </Suspense>
   );
 }

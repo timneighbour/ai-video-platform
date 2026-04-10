@@ -279,7 +279,7 @@ export default function MusicCreator() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-[#a1a1aa] hover:text-white transition-colors text-sm">
             <ArrowLeft className="w-4 h-4" />
-            Back to WizVid
+            Back to Home
           </Link>
           <div className="flex items-center gap-2">
             <Music2 className="w-5 h-5 text-violet-400" />

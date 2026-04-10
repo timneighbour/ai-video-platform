@@ -4,6 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import BackButton from "@/components/BackButton";
 import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "lucide-react";
+import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
@@ -16,12 +17,13 @@ const WIZBEAT_IMAGES = [
 
 export default function MusicVideosLanding() {
   const { isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
 
   const handleCTA = () => {
     if (isAuthenticated) {
-      window.location.href = "/music-video/create";
+      navigate("/music-video/create");
     } else {
-      window.location.href = "/onboarding";
+      navigate("/onboarding");
     }
   };
 
