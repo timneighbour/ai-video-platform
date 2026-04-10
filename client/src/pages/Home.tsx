@@ -29,6 +29,13 @@ const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "Solo Artist" },
   { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "Hip-Hop Artist" },
 ];
+// ── How It Works step images ────────────────────────────────────────────────
+const STEP_IMAGES = {
+  upload: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp",
+  styles: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step2-style-collage-P6HWeTbd9g6UsLFLRWYJEi.webp",
+  render: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp",
+};
+
 // ── Who It's For images ──────────────────────────────────────────────────────
 const WHO_IMAGES = {
   musicians: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp",
@@ -1197,18 +1204,56 @@ function HowItWorks() {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { step: "01", icon: "🎵", title: "Upload your audio or idea", desc: "Drop in your song, describe your concept, or let AI generate the music." },
-            { step: "02", icon: "🎨", title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
-            { step: "03", icon: "🚀", title: "WizVid generates your video", desc: "AI builds your storyboard, renders every scene, and delivers a complete video." },
+            {
+              step: "01", icon: "🎵",
+              title: "Upload your audio or idea",
+              desc: "Drop in your song, describe your concept, or let AI generate the music.",
+              img: STEP_IMAGES.upload,
+              imgAlt: "Audio waveform upload interface with glowing violet microphone",
+              accent: "from-violet-500/20 to-violet-500/0",
+            },
+            {
+              step: "02", icon: "🎨",
+              title: "Choose your style",
+              desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage.",
+              img: STEP_IMAGES.styles,
+              imgAlt: "Four-panel collage showing Cinematic, Anime, Pixar 3D, and Vintage video styles",
+              accent: "from-blue-500/20 to-blue-500/0",
+            },
+            {
+              step: "03", icon: "🚀",
+              title: "WizVid generates your video",
+              desc: "AI builds your storyboard, renders every scene, and delivers a complete video.",
+              img: STEP_IMAGES.render,
+              imgAlt: "AI-generated cinematic music video scene — singer on stage with cosmic LED backdrop",
+              accent: "from-emerald-500/20 to-emerald-500/0",
+            },
           ].map((step, i) => (
             <div
               key={step.step}
-              className={`p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+              className={`rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden group`}
             >
-              <div className="text-4xl mb-5">{step.icon}</div>
-              <div className="text-xs font-bold text-[#a1a1aa] tracking-widest mb-3">STEP {step.step}</div>
-              <h3 className="font-semibold text-white text-base mb-2">{step.title}</h3>
-              <p className="text-[#a1a1aa] text-sm leading-relaxed">{step.desc}</p>
+              {/* Step image */}
+              <div className="relative w-full aspect-video overflow-hidden">
+                <img
+                  src={step.img}
+                  alt={step.imgAlt}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-br ${step.accent} mix-blend-multiply`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent" />
+              </div>
+              {/* Step content */}
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">{step.icon}</span>
+                  <span className="text-xs font-bold text-[#a1a1aa] tracking-widest">STEP {step.step}</span>
+                </div>
+                <h3 className="font-semibold text-white text-base mb-2">{step.title}</h3>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed">{step.desc}</p>
+              </div>
             </div>
           ))}
         </div>
