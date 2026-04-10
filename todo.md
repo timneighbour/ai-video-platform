@@ -1190,3 +1190,19 @@
 - [ ] Update Onboarding: replace 'Something Else' with 'Text to Video' option routing to /text-to-video
 - [ ] Update Onboarding: route 'Kids Video' to /kids-video instead of /wizpilot
 - [ ] Add /kids-video and /text-to-video routes to App.tsx
+
+## Feature: Music Video Flow Upgrade (Apr 2026)
+- [ ] Step 1: Artist Type selection — Band, Solo Artist, Animated Characters, Solo Animated Character
+- [ ] Step 2: Audio input — Upload audio, Paste lyrics (copy/paste), or Generate with Suno (style + genre + prompt)
+- [ ] Suno integration in Music Video flow: user picks style/genre, generates audio, can save and select before storyboard
+- [ ] Storyboard: AI image preview per scene with editable prompt, regenerate button before confirming render
+- [ ] Credits display + top-up on MusicVideoAutopilot render step
+- [ ] Credits display + top-up on Autopilot (WizPilot) render step
+- [ ] Credits display + top-up on KidsVideo render step
+- [ ] Credits display + top-up on TextToVideoCreator render step
+- [ ] Shared CreditsBanner component for reuse across all video creation pages
+
+## Fix: Light/Dark Theme Toggle (Apr 2026)
+- [ ] Fix light/dark toggle — diagnose why theme switch doesn't apply visually
+- [ ] Ensure toggle works on mobile and desktop
+- [ ] Verify CSS variables update correctly when theme changes

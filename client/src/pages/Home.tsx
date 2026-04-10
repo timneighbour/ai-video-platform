@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -28,6 +29,14 @@ const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "Solo Artist" },
   { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "Hip-Hop Artist" },
 ];
+// ── Who It's For images ──────────────────────────────────────────────────────
+const WHO_IMAGES = {
+  musicians: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp",
+  youtubers: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp",
+  aiCreators: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp",
+  kidsCreators: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp",
+};
+
 const STYLE_IMAGES = [
   { label: "Cinematic", img: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq-thumb_855006a3.webp` },
   { label: "Anime", img: `${CDN}/style-anime-bCLhyWeYo6mek5pWMnEUV7-thumb_2704d4cf.webp` },
@@ -258,15 +267,9 @@ function Hero() {
                 className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
                 asChild
               >
-                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create My First Video</a>
+                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Ready to Create Video</a>
               </Button>
-              <Button
-                variant="outline"
-                className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
-                asChild
-              >
-                <a href="#how-it-works"><ChevronRight className="w-4 h-4 mr-1" />See How It Works</a>
-              </Button>
+              <HowItWorksModalButton />
             </div>
 
             <p className="text-sm text-[#a1a1aa] mb-1">No editing. No experience. Just your idea.</p>
@@ -647,10 +650,46 @@ function Features() {
 // ── Who it's for ─────────────────────────────────────────────────────────────
 function WhoItsFor() {
   const audiences = [
-    { emoji: "🎤", title: "Musicians", desc: "Create music videos instantly — no director, no studio, no budget needed.", cta: "Make a music video", href: "/music-video" },
-    { emoji: "🎥", title: "YouTubers", desc: "Boost CTR with AI animation. Stand out in a crowded feed without editing.", cta: "Create YouTube content", href: "/wizpilot" },
-    { emoji: "🤖", title: "AI Creators", desc: "Automate your content pipeline. Scale to 30+ videos a month without lifting a finger.", cta: "Start automating", href: "/wizpilot" },
-    { emoji: "🧒", title: "Kids Content Creators", desc: "Safe, fun, fully automated. Perfect for animated channels and family content.", cta: "Create kids content", href: "/seo/ai-kids-video-generator" },
+    {
+      img: WHO_IMAGES.musicians,
+      imgAlt: "Musician performing on stage with purple stage lighting",
+      title: "Musicians",
+      desc: "Create music videos instantly — no director, no studio, no budget needed.",
+      cta: "Make a music video",
+      href: "/music-video",
+      accent: "from-violet-500/20 to-purple-500/5",
+      badge: "🎤 Music Video",
+    },
+    {
+      img: WHO_IMAGES.youtubers,
+      imgAlt: "YouTuber recording in a professional studio setup",
+      title: "YouTubers & Podcasters",
+      desc: "Boost CTR with AI animation. Stand out in a crowded feed without editing.",
+      cta: "Create YouTube content",
+      href: "/wizpilot",
+      accent: "from-red-500/20 to-orange-500/5",
+      badge: "🎥 YouTube & Podcast",
+    },
+    {
+      img: WHO_IMAGES.aiCreators,
+      imgAlt: "Futuristic AI-generated digital avatar with neon glow",
+      title: "AI Creators",
+      desc: "Automate your content pipeline. Scale to 30+ videos a month without lifting a finger.",
+      cta: "Start automating",
+      href: "/wizpilot",
+      accent: "from-cyan-500/20 to-blue-500/5",
+      badge: "🤖 AI Content",
+    },
+    {
+      img: WHO_IMAGES.kidsCreators,
+      imgAlt: "Cute Pixar-style 3D animated child character in a colorful world",
+      title: "Kids Content Creators",
+      desc: "Safe, fun, fully automated. Perfect for animated channels and family content.",
+      cta: "Create kids content",
+      href: "/kids-video",
+      accent: "from-pink-500/20 to-yellow-500/5",
+      badge: "🧒 Kids & Family",
+    },
   ];
 
   return (
@@ -665,14 +704,29 @@ function WhoItsFor() {
           {audiences.map((a, i) => (
             <div
               key={a.title}
-              className={`group p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+              className={`group rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden`}
             >
-              <div className="text-3xl mb-4">{a.emoji}</div>
-              <h3 className="text-lg font-semibold text-white mb-2">{a.title}</h3>
-              <p className="text-[#a1a1aa] text-sm leading-relaxed mb-5">{a.desc}</p>
-              <a href={a.href} className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors">
-                {a.cta} <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              {/* Image */}
+              <div className="relative w-full aspect-[16/9] overflow-hidden">
+                <img
+                  src={a.img}
+                  alt={a.imgAlt}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-br ${a.accent} mix-blend-multiply`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent" />
+                <span className="absolute top-3 left-3 text-xs font-semibold text-white bg-black/50 backdrop-blur-sm border border-white/10 rounded-full px-3 py-1">{a.badge}</span>
+              </div>
+              {/* Text */}
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-2">{a.title}</h3>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">{a.desc}</p>
+                <a href={a.href} className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors">
+                  {a.cta} <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           ))}
         </div>
@@ -1008,10 +1062,133 @@ function ContentEngine() {
   );
 }
 
+// ── How It Works Modal ───────────────────────────────────────────────────────
+function HowItWorksModalButton() {
+  const [open, setOpen] = useState(false);
+
+  const steps = [
+    {
+      step: "01",
+      icon: "🎵",
+      title: "Choose your video type",
+      desc: "Pick from Music Video, YouTube/WizPilot, Kids Video, or Text to Video. Each has a tailored flow built for your content.",
+      visual: (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {["🎤 Music Video", "🎥 WizPilot", "🧒 Kids Video", "✨ Text to Video"].map(t => (
+            <span key={t} className="text-xs bg-white/8 border border-white/10 rounded-full px-3 py-1 text-white/80">{t}</span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      step: "02",
+      icon: "🎨",
+      title: "Pick your style",
+      desc: "Choose from 11 cinematic styles — Cinematic, Anime, Pixar 3D, Documentary, Neon Noir, Disney, Epic Fantasy, Realistic, Horror, Abstract, or Vintage.",
+      visual: (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {["🎬 Cinematic", "🌸 Anime", "✨ Pixar 3D", "🌃 Neon Noir", "🏰 Disney"].map(t => (
+            <span key={t} className="text-xs bg-violet-500/15 border border-violet-500/25 rounded-full px-3 py-1 text-violet-300">{t}</span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      step: "03",
+      icon: "🖼️",
+      title: "Preview your storyboard",
+      desc: "WizVid instantly generates an AI storyboard with scene images. Review every scene, edit any prompt, and approve before spending a single credit.",
+      visual: (
+        <div className="mt-3 p-3 rounded-xl bg-white/5 border border-white/8 text-xs text-white/60">
+          💡 <span className="text-white/80 font-medium">Free to preview</span> — you only pay credits when you click Render
+        </div>
+      ),
+    },
+    {
+      step: "04",
+      icon: "🚀",
+      title: "Render your video",
+      desc: "Happy with the storyboard? Hit Render and WizVid generates your full video — every scene synced, styled, and ready to download.",
+      visual: (
+        <div className="mt-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-300">
+          ✅ Download MP4 · Share anywhere · Your video, your rights
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
+        onClick={() => setOpen(true)}
+      >
+        <ChevronRight className="w-4 h-4 mr-1" />See How It Works
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl bg-[#111] border border-white/10 text-white p-0 overflow-hidden">
+          {/* Header */}
+          <div className="px-7 pt-7 pb-5 border-b border-white/8">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-extrabold text-white tracking-tight">
+                How WizVid works
+              </DialogTitle>
+              <p className="text-[#a1a1aa] text-sm mt-1">From idea to full video in under 5 minutes — no editing required.</p>
+            </DialogHeader>
+          </div>
+
+          {/* Steps */}
+          <div className="px-7 py-6 space-y-5 max-h-[60vh] overflow-y-auto">
+            {steps.map((s, i) => (
+              <div key={s.step} className="flex gap-4">
+                {/* Step indicator */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 rounded-full bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                    {s.icon}
+                  </div>
+                  {i < steps.length - 1 && <div className="w-px flex-1 bg-white/8 mt-2" />}
+                </div>
+                {/* Content */}
+                <div className="flex-1 pb-5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-bold text-[#a1a1aa] tracking-widest">STEP {s.step}</span>
+                  </div>
+                  <h3 className="font-semibold text-white text-base mb-1">{s.title}</h3>
+                  <p className="text-[#a1a1aa] text-sm leading-relaxed">{s.desc}</p>
+                  {s.visual}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer CTA */}
+          <div className="px-7 py-5 border-t border-white/8 flex flex-col sm:flex-row gap-3">
+            <Button
+              className="flex-1 bg-white text-black hover:bg-white/90 font-semibold rounded-xl"
+              asChild
+            >
+              <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Ready to Create Video</a>
+            </Button>
+            <Button
+              variant="outline"
+              className="border-white/15 text-white/70 hover:text-white bg-transparent rounded-xl"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 // ── HowItWorks ──────────────────────────────────────────────────────────────
 function HowItWorks() {
   return (
-    <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
+    <section id="how-it-works" className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16 reveal">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">How it works</p>
@@ -1040,7 +1217,7 @@ function HowItWorks() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create your first video</a>
+            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Ready to Create Video</a>
           </Button>
         </div>
       </div>
