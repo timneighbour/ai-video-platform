@@ -536,11 +536,40 @@ Rules:
             );
           }
 
-          // Inject character brief(s) at the VERY START of the prompt
+          // Build a compact identity tag for each assigned character.
+          // The Hypereal/Seedance APIs have a ~480 char prompt limit, so we must be concise.
+          // Strategy: extract the first 2 sentences of the frozen description (most specific visual anchors)
+          // and prepend them as a compact identity tag before the scene description.
+          const buildCompactTag = (brief: string, name: string, role: string): string => {
+            // Extract first 2 sentences — these contain the most critical visual anchors
+            const sentences = brief.split(/(?<=[.!?])\s+/);
+            const compactBrief = sentences.slice(0, 2).join(" ");
+            // Truncate to 200 chars max to leave room for the scene description
+            const truncated = compactBrief.length > 200
+              ? compactBrief.slice(0, 197) + "..."
+              : compactBrief;
+            return `[${name}${role ? `, ${role}` : ""}: ${truncated}]`;
+          };
+
+          const compactTags = sceneBriefs.length > 0
+            ? sceneBriefs.map(brief => {
+                // brief format: "Name (role): description"
+                const colonIdx = brief.indexOf(": ");
+                const nameRole = colonIdx > 0 ? brief.slice(0, colonIdx) : "";
+                const description = colonIdx > 0 ? brief.slice(colonIdx + 2) : brief;
+                const parenIdx = nameRole.indexOf(" (");
+                const charName = parenIdx > 0 ? nameRole.slice(0, parenIdx) : nameRole;
+                const charRole = parenIdx > 0 ? nameRole.slice(parenIdx + 2, -1) : "";
+                return buildCompactTag(description, charName, charRole);
+              })
+            : [];
+
+          // Inject character identity tags at the VERY START of the prompt.
           // AI video models weight the beginning of the prompt most heavily —
-          // character appearance must come before any scene/setting description
-          const enrichedScenePrompt = sceneBriefs.length > 0
-            ? `CHARACTER APPEARANCE — EXACT, DO NOT DEVIATE:\n${sceneBriefs.join("\n")}\n\nSCENE: ${scene.prompt}\n\nIMPORTANT: The character(s) above MUST appear with EXACTLY the described appearance. Do NOT change hair colour, hair length, eye colour, skin tone, face shape, clothing, or any other feature. Maintain 100% visual consistency with the description above.`
+          // character appearance must come before any scene/setting description.
+          // The compact tag format [Name, Role: description] is understood by Seedance/Hailuo.
+          const enrichedScenePrompt = compactTags.length > 0
+            ? `${compactTags.join(" ")} ${scene.prompt} Maintain exact character appearance, same person in every scene, no variation in hair, face, or clothing.`
             : scene.prompt;
           try {
             // For now, always use WaveSpeed as primary renderer (via startSceneRender)

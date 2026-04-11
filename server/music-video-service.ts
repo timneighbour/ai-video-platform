@@ -190,25 +190,36 @@ APPEARANCE: ${c.lockedDescription}`
 ).join("\n\n")}`
     : "No locked characters — you may invent all characters.";
 
+  // Count locked characters to determine if we need any extras
+  const lockedCount = lockedCharacters?.length ?? 0;
+  const lockedRoleList = lockedCharacters?.map(c => `${c.name} (${c.role})`).join(", ") ?? "none";
+
   const rosterSystemPrompt = `You are a professional music video casting director.
 Your job is to define the COMPLETE cast of characters for a music video.
+
+⚠️ MOST IMPORTANT RULE — READ CAREFULLY:
+The user has already defined ${lockedCount} character(s): ${lockedRoleList}.
+These characters ALREADY COVER their roles. You MUST NOT invent any new character that performs a role already covered by a locked character.
+If the theme mentions "3 piece rock band" but the user only uploaded 2 characters (e.g. singer and drummer), you should ONLY add a 3rd character for the missing role (e.g. bassist) — and ONLY if the theme explicitly requires it.
+If all roles are covered by locked characters, return ONLY the locked characters — do NOT add anyone.
 
 CRITICAL RULES — MUST FOLLOW:
 1. Include ALL locked characters exactly as specified — copy their appearance descriptions VERBATIM, do NOT alter a single word
 2. Each locked character has a FIXED ROLE — no other character may perform that same role in any scene
-   Example: if Character 1 is the "guitarist", no other character can play guitar in any scene
-3. Add additional characters ONLY if the video concept genuinely requires them (e.g. a drummer when none is locked)
+   Example: if a locked character is the "drummer", NO other character may play drums in any scene
+3. Add additional characters ONLY if the video concept requires a role that is NOT covered by any locked character
 4. For each additional character you invent, write a DETAILED, SPECIFIC visual description (60-80 words) covering:
-   - Gender and approximate age (e.g. "woman in her late 20s")
-   - Ethnicity and skin tone (e.g. "South Asian, warm medium-brown skin")
-   - Hair: colour, length, style, texture (e.g. "long straight black hair with blunt fringe")
-   - Eyes: colour and shape (e.g. "almond-shaped dark brown eyes")
-   - Build and height impression (e.g. "slender, medium height")
-   - Clothing/costume specific to this video (e.g. "black leather jacket, ripped jeans, white trainers")
-   - Any distinctive features (e.g. "small nose ring, visible tattoo on left forearm")
+   - Gender and approximate age (e.g. "man in his late 20s")
+   - Ethnicity and skin tone (e.g. "white British, fair skin")
+   - Hair: colour, length, style, texture (e.g. "short dark brown hair, slightly messy")
+   - Eyes: colour and shape
+   - Build and height impression
+   - Clothing/costume specific to this video
+   - Any distinctive features
 5. This description will be copied VERBATIM into every scene — make it precise enough for an AI to reproduce the SAME person every time
-6. Keep the total cast to a maximum of 6 characters
+6. Keep the total cast to a maximum of 4 characters
 7. NEVER create a character whose role duplicates a locked character's role
+8. NEVER create a character with unusual hair colours (blue, green, pink, purple) unless explicitly requested
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 
@@ -267,10 +278,50 @@ Return a JSON object with a "characters" array. Each character must have:
   if (!rosterRaw) throw new Error("LLM returned empty roster response");
   const rosterContent = typeof rosterRaw === "string" ? rosterRaw : JSON.stringify(rosterRaw);
   const rosterParsed = JSON.parse(rosterContent);
-  const fullRoster: Array<{ name: string; role: string; isLocked: boolean; description: string }> =
+  let fullRoster: Array<{ name: string; role: string; isLocked: boolean; description: string }> =
     rosterParsed.characters ?? [];
 
-  console.log(`[Storyboard] Character roster defined: ${fullRoster.map(c => `${c.name} (${c.role})`).join(", ")}`);
+  // ─── SERVER-SIDE ROSTER VALIDATION ───────────────────────────────────────────
+  // 1. Always start with the locked characters using their EXACT frozen descriptions
+  //    (never trust the LLM to copy them correctly)
+  if (hasLockedCharacters) {
+    const lockedByName = new Map(lockedCharacters!.map(c => [c.name.toLowerCase(), c]));
+
+    // Build a set of locked roles (normalised to lowercase) to detect duplicates
+    const lockedRoleSet = new Set(
+      lockedCharacters!.map(c => (c.role ?? "").toLowerCase().replace(/[^a-z]/g, ""))
+    );
+
+    // Filter the LLM roster:
+    // - Replace locked characters with authoritative versions (exact frozen descriptions)
+    // - Remove any invented character whose role duplicates a locked role
+    const inventedCharacters = fullRoster
+      .filter(c => !c.isLocked)
+      .filter(c => {
+        const normRole = (c.role ?? "").toLowerCase().replace(/[^a-z]/g, "");
+        // Check if this invented character's role overlaps with any locked role
+        for (const lockedRole of Array.from(lockedRoleSet)) {
+          if (normRole.includes(lockedRole) || lockedRole.includes(normRole)) {
+            console.log(`[Storyboard] Removing invented character "${c.name}" (${c.role}) — role duplicates locked character`);
+            return false;
+          }
+        }
+        return true;
+      })
+      .slice(0, 2); // max 2 invented characters
+
+    // Build the authoritative roster: locked characters first (with exact descriptions), then invented
+    const authorativeLockedChars = lockedCharacters!.map(c => ({
+      name: c.name,
+      role: c.role ?? "",
+      isLocked: true,
+      description: c.lockedDescription, // ALWAYS use the frozen description, never the LLM's version
+    }));
+
+    fullRoster = [...authorativeLockedChars, ...inventedCharacters];
+  }
+
+  console.log(`[Storyboard] Final roster (${fullRoster.length} chars): ${fullRoster.map(c => `${c.name} (${c.role})${c.isLocked ? " [LOCKED]" : ""}`).join(", ")}`);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // PASS 2: Generate scenes using the fixed roster

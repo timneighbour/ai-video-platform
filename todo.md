@@ -1322,3 +1322,23 @@
 - [x] Fix: storyboard loading overlay toast dismissed properly when done
 - [x] Fix: regenerate storyboard toast also uses ID to dismiss properly
 - [x] Improve: server-side character description injection already done - verify it works end-to-end
+
+## Session 21 - Character Consistency Critical Fixes
+- [x] Fix: LLM assigning wrong roles (Greg=bassist instead of drummer)
+- [x] Fix: LLM inventing extra characters (Sarah with blue hair)
+- [x] Fix: Storyboard preview images use reference photos (img2img) not just text
+- [x] Fix: Stuck "Uploading song..." toast never dismissed
+- [x] Fix: Character locked descriptions must include instrument/role explicitly
+
+## Character Lock System (Critical - Core Product Fix)
+- [x] Phase 1: Run real photo analysis (LLM vision) for Tim and Greg on all existing jobs
+- [x] Phase 1: Merge user style text + photo analysis into one rich frozen description
+- [x] Phase 2: Rewrite analysePhoto to produce 120-150 word forensic description including role/instrument
+- [x] Phase 2: Store frozen description as immutable once set (never overwrite with weaker text)
+- [x] Phase 3: Roster LLM prompt: explicitly list all locked roles, forbid inventing duplicates
+- [x] Phase 3: Scene LLM prompt: inject frozen character description verbatim into EVERY scene prompt
+- [x] Phase 3: Scene LLM prompt: add "ONLY characters from roster" rule with zero tolerance
+- [x] Phase 4: Add negative prompt suffix to every scene render: "different person, different hair, different clothing, inconsistent character"
+- [x] Phase 4: Scene render: prepend frozen character description as first sentence of every prompt
+- [x] Phase 5: Fix stuck "Uploading song..." toast
+- [x] Phase 5: Fix "Loading song" spinner in bottom-left corner

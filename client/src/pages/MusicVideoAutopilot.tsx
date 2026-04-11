@@ -434,6 +434,7 @@ export default function MusicVideoAutopilot() {
       return;
     }
 
+    const UPLOAD_TOAST_ID = "uploading-song";
     try {
       // Convert audio file to base64
       const arrayBuffer = await audioFile.arrayBuffer();
@@ -450,7 +451,7 @@ export default function MusicVideoAutopilot() {
       const characterImageMimeType = firstCharWithPhoto?.photos.find(p => p.isPrimary)?.mimeType ?? firstCharWithPhoto?.photos[0]?.mimeType;
       const enableLipSync = characters.some(c => c.enableLipSync);
 
-      toast.loading("Uploading song...", { description: "This may take a moment." });
+      toast.loading("Uploading song...", { id: UPLOAD_TOAST_ID, description: "This may take a moment." });
 
       // Append the selected visual style to the theme prompt so the LLM uses it
       const styleLabel = VIDEO_STYLES.find(s => s.id === selectedStyle)?.label ?? selectedStyle;
@@ -562,6 +563,8 @@ export default function MusicVideoAutopilot() {
       }
 
       // Transcription was already started when the file was selected; no need to re-trigger;
+      // Dismiss the upload toast — song is uploaded, now moving to storyboard generation
+      toast.dismiss(UPLOAD_TOAST_ID);
       setStoryboardGenerating(true);
       const STORYBOARD_TOAST_ID = "storyboard-generating";
       toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
@@ -574,6 +577,7 @@ export default function MusicVideoAutopilot() {
       setStep("storyboard");
       toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
     } catch (err: any) {
+      toast.dismiss(UPLOAD_TOAST_ID);
       toast.dismiss("storyboard-generating");
       setStoryboardGenerating(false);
       const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");

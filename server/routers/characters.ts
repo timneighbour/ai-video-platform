@@ -191,21 +191,29 @@ export const charactersRouter = router({
       if (!char) throw new TRPCError({ code: "NOT_FOUND" });
 
       // Use vision LLM to extract precise physical appearance from the photo
+      // Also fetch the character's name, role, and user-entered style text to merge into the description
       const { invokeLLM } = await import("../_core/llm");
+
+      const charName = char.name ?? "Character";
+      const charRole = char.role ?? "";
+      const charStyleText = char.lockedDescription ?? ""; // user-entered style/appearance notes
+
       const response = await invokeLLM({
         messages: [
           {
             role: "system" as const,
-            content: `You are a forensic visual analyst writing character appearance briefs for AI video generation.
-Your ONLY job is to describe exactly what you see in the photo with maximum precision.
-This description will be used word-for-word in AI video prompts to reproduce this exact person in every scene.
-Rules:
-- Describe ONLY what is visually observable. Do NOT guess, infer, or add context.
-- Be hyper-specific: exact hair colour (not just "brown" — say "dark chestnut brown"), exact eye colour, exact skin tone (use descriptors like "warm olive", "deep ebony", "fair porcelain", "medium golden brown").
-- Include: gender presentation, apparent age range (e.g. "mid-30s"), ethnicity/skin tone, hair (exact colour, length, texture, style — e.g. "shoulder-length wavy auburn hair with subtle highlights"), eyes (exact colour and shape), face shape (oval, square, round, heart, etc.), build impression (slim, athletic, stocky, etc.), and ANY distinctive features (beard stubble, glasses, tattoos, scars, piercings, prominent jawline, high cheekbones, etc.).
-- Also describe visible clothing/outfit in detail as it helps the AI maintain consistency.
-- Output: A single dense paragraph of 80-120 words. No bullet points. No headers. Just the paragraph.
-- CRITICAL: Be so specific that someone who has never seen this person could pick them out of a crowd from your description alone.`,
+            content: `You are a forensic visual analyst creating FROZEN CHARACTER IDENTITY BRIEFS for AI video generation.
+These briefs are injected verbatim into every scene prompt to guarantee 100% visual consistency across all scenes.
+
+CRITICAL RULES:
+- Start with: "${charName}${charRole ? `, ${charRole}` : ""}: "
+- Describe ONLY what is visually observable. Do NOT guess or infer.
+- Be hyper-specific: exact hair colour (e.g. "dark chestnut brown", NOT just "brown"), exact eye colour, exact skin tone (e.g. "fair with warm undertones", "deep ebony", "medium golden brown").
+- Include: gender, apparent age range, ethnicity/skin tone, hair (exact colour, length, texture, style), eyes (exact colour and shape), face shape, jawline, any distinctive features (beard, stubble, glasses, tattoos, scars, piercings), build.
+- Include clothing/costume from the user's style notes if provided.
+- Include the character's instrument and how they play it.
+- End with: "CONSISTENCY RULE: This character's appearance MUST NOT change between scenes."
+- Output: 120-150 words. Single dense paragraph. No bullet points. No headers.`,
           },
           {
             role: "user" as const,
@@ -216,9 +224,9 @@ Rules:
               },
               {
                 type: "text" as const,
-                text: `Analyse this photo and write a precise 80-120 word character appearance brief for AI video generation. 
-Be forensically specific about every visual detail — hair colour/texture/style, exact skin tone, eye colour and shape, face structure, build, clothing, and any distinctive features. 
-This description must be accurate enough to reproduce this exact person consistently across multiple AI-generated video scenes.`,
+                text: `Create a FROZEN CHARACTER IDENTITY BRIEF for ${charName}${charRole ? `, ${charRole}` : ""}.
+${charStyleText ? `User's style notes: "${charStyleText}"\n` : ""}Analyse the photo forensically. Include: exact hair colour/texture/style, precise skin tone, eye colour and shape, face structure, jawline, beard/stubble if present, build, clothing, instrument and playing style.
+This description will be copied verbatim into every AI video scene prompt — it must be specific enough to reproduce this exact person every single time.`,
               },
             ],
           },
