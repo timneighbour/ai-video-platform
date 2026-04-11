@@ -1501,3 +1501,55 @@
 - [x] Auto-poll status every 3 seconds while batch is running
 - [x] Show summary on completion: X succeeded, Y failed, with retry-failed button
 - [x] Write vitest tests for batchRegenerateCharacterPreviews procedure
+
+## Character Identity System Redesign (Core Architecture Change)
+
+### Step 1: Master Character Generation
+- [ ] Add DB columns to videoCharacters: masterPortraitUrl, masterSeed, characterPrompt (locked), scenePromptTemplate
+- [ ] Add DB column to musicVideoJobs: characterLockMode (boolean, default true)
+- [ ] Generate migration SQL and apply via webdev_execute_sql
+- [ ] Add generateMasterPortrait tRPC procedure: runs InstantID (primary) or Flux PuLID (fallback) with uploaded reference photo, stores masterPortraitUrl + masterSeed + characterPrompt in DB
+- [ ] Auto-trigger generateMasterPortrait for all photo-mode characters when job enters CharacterConfirmation step
+- [ ] Store the exact prompt used for master portrait as characterPrompt (locked, never changes per scene)
+
+### Step 2: Character Anchor System
+- [ ] In generateScenePreview: read masterPortraitUrl + masterSeed + characterPrompt from DB for each character
+- [ ] Pass masterPortraitUrl as face reference image to every scene generation call (Flux PuLID / InstantID)
+- [ ] Pass masterSeed to fal.ai subscribe call (seed parameter) for deterministic face generation
+- [ ] Pass characterPrompt as a locked prefix in every scene prompt
+
+### Step 3: Prompt Split
+- [ ] Add splitScenePrompt() helper: takes full scene description, returns { characterPrompt, scenePrompt }
+- [ ] characterPrompt = locked identity text (from DB, never regenerated per scene)
+- [ ] scenePrompt = environment/action/lighting only (changes per scene)
+- [ ] Final prompt = characterPrompt + scenePrompt — character always leads
+
+### Step 4: Reduce Model Freedom
+- [ ] Set identity_controlnet_conditioning_scale: 0.95 for InstantID scene calls
+- [ ] Set ip_adapter_scale: 0.9
+- [ ] Set guidance_scale: 3.5 (lower CFG = less creativity, more identity fidelity)
+- [ ] Set num_inference_steps: 35
+
+### Step 5: Reference Reinforcement Loop
+- [ ] Track previousSceneImageUrl per character in scene generation context
+- [ ] For scene N>1: pass both masterPortraitUrl AND previousSceneImageUrl as reference images
+- [ ] Weight masterPortraitUrl higher than previousSceneImageUrl
+
+### Step 6: Multi-Generation + Pick Best
+- [ ] Generate 3 variations per scene for photo-mode characters via 3 parallel fal calls
+- [ ] Score each variation using face similarity vs masterPortraitUrl
+- [ ] Select variation with highest face similarity score
+- [ ] Store only the best variation URL to DB
+
+### Step 7: Consistency Check
+- [ ] After selecting best variation: run face similarity check vs masterPortraitUrl
+- [ ] If similarity < 0.65 threshold: auto-regenerate once more (max 2 retries)
+- [ ] Store faceValidationScore on the scene record
+- [ ] Show warning badge on scene card if score < 0.65 after retries
+
+### Step 8: Character Lock Mode UI
+- [ ] Add "Character Lock Mode" toggle to CharacterConfirmationStep (ON by default)
+- [ ] When ON: show "Identity Anchored" badge on each photo-mode character card
+- [ ] When ON: disable per-scene character prompt editing (scene prompt only)
+- [ ] Add tooltip explaining the feature
+- [ ] Store characterLockMode preference on musicVideoJobs table

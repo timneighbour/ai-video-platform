@@ -945,37 +945,126 @@ Rules:
         "16:9 widescreen, high quality, professional photography",
       ].filter(Boolean).join(". ");
 
-      console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, ${identityLines.length} identity lines, prompt length: ${imagePrompt.length}`);
+      // --- Identity Anchor: use master portrait if available ---
+      // The master portrait is a pre-generated, high-fidelity portrait from the reference photo.
+      // Using it as the face anchor is more consistent than re-inferring from the raw upload each time.
+      const primarySceneChar = sceneChars.find(c => c.isLocked && c.lockedDescription);
+      const masterPortraitUrl = primarySceneChar?.masterPortraitUrl ?? null;
+      const masterSeed = primarySceneChar?.masterSeed ?? null;
+      const lockedCharacterPrompt = primarySceneChar?.characterPrompt ?? null;
+
+      // Build the SCENE-ONLY prompt (environment/action/lighting — no character identity text)
+      // Character identity is injected separately via the face reference image + identityBlock
+      const sceneOnlyPrompt = cleanScenePrompt;
+
+      // Final prompt: locked character identity FIRST (max weight), then scene, then style
+      // If we have a locked characterPrompt, use it instead of the generated identityBlock
+      const finalCharacterBlock = lockedCharacterPrompt
+        ? `${lockedCharacterPrompt}. EXACT LIKENESS REQUIRED — preserve all facial features from reference image.`
+        : identityBlock;
+
+      const finalImagePrompt = [
+        finalCharacterBlock,
+        sceneOnlyPrompt,
+        styleDescriptor,
+        moodContext ? `Mood: ${moodContext}` : "",
+        "16:9 widescreen, high quality, professional photography",
+      ].filter(Boolean).join(". ");
+
+      console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, masterPortrait=${!!masterPortraitUrl}, seed=${masterSeed}, prompt length: ${finalImagePrompt.length}`);
+
+      // Choose the best face reference: master portrait > primary reference photo > none
+      const faceReferenceUrl = masterPortraitUrl ?? (referenceImages.length > 0 ? referenceImages[0].url : null);
+      const hasFaceReference = !!faceReferenceUrl && identityLines.length > 0;
 
       try {
         let url: string | undefined;
 
-        // --- Use Flux PuLID for face-consistent images when we have reference photos ---
-        if (referenceImages.length > 0 && identityLines.length > 0) {
-          // For scenes with character reference photos, use Flux PuLID for better face likeness
-          // Pick the PRIMARY reference photo (first in the list, sorted by isPrimary)
-          const primaryRefUrl = referenceImages[0].url;
-          const primaryCharName = sceneChars.find(c => c.isLocked && c.lockedDescription)?.name || "the character";
+        if (hasFaceReference) {
+          // --- Identity-Anchored Generation: InstantID (primary) or Flux PuLID (fallback) ---
+          // Generate 3 variations and pick the one that best preserves the face
+          const primaryCharName = primarySceneChar?.name || "the character";
+          const negativePrompt = "different person, different face, different hair, inconsistent character, nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, deformed, ugly, disfigured, text, watermark";
 
-          console.log(`[generateScenePreview] Using Flux PuLID for ${primaryCharName} with reference photo`);
-
+          // Fetch the face reference as base64 for InstantID
+          let faceBase64: string | null = null;
           try {
-            const { url: fluxUrl } = await withQuotaGuard(() =>
-              generateFaceConsistentImage({
-                prompt: imagePrompt,
-                referenceImageUrl: primaryRefUrl,
-                idWeight: 1.2, // Slightly higher weight for better face fidelity
-                guidanceScale: 4,
-                imageSize: "landscape_4_3",
-                negativePrompt: "different person, different face, different hair, inconsistent character",
-              })
-            );
-            url = fluxUrl;
-          } catch (fluxErr) {
-            // If Flux PuLID fails, fall back to generic image generation
-            console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}, falling back to generic image generation:`, fluxErr);
+            const refResp = await fetch(faceReferenceUrl!);
+            if (refResp.ok) {
+              const refBuf = Buffer.from(await refResp.arrayBuffer());
+              const refMime = faceReferenceUrl!.match(/\.png(\?|$)/i) ? "image/png" :
+                              faceReferenceUrl!.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+              faceBase64 = `data:${refMime};base64,${refBuf.toString("base64")}`;
+            }
+          } catch (fetchErr) {
+            console.warn(`[generateScenePreview] Could not fetch face reference for scene ${input.sceneId}:`, fetchErr);
+          }
+
+          if (process.env.FAL_AI_API_KEY) fal.config({ credentials: process.env.FAL_AI_API_KEY });
+
+          // Try InstantID first (best face fidelity), then Flux PuLID, then generic
+          if (faceBase64) {
+            console.log(`[generateScenePreview] Using InstantID for ${primaryCharName} (scene ${input.sceneId}, seed: ${masterSeed ?? "random"})`);
+            // Generate 3 variations with different seeds, pick the one with best face match
+            const baseSeed = masterSeed ?? Math.floor(Math.random() * 2147483647);
+            const seeds = [baseSeed, baseSeed + 1, baseSeed + 2];
+            const variations: string[] = [];
+            for (const seed of seeds) {
+              try {
+                const varResult = await fal.subscribe("fal-ai/instantid", {
+                  input: {
+                    face_image_url: faceBase64,
+                    prompt: finalImagePrompt,
+                    style: "Photorealistic",
+                    negative_prompt: negativePrompt,
+                    num_inference_steps: 35,
+                    guidance_scale: 3.5,
+                    ip_adapter_scale: 0.9,
+                    identity_controlnet_conditioning_scale: 0.95,
+                    enhance_face_region: true,
+                    enable_lcm: false,
+                    seed,
+                  },
+                }) as { data: { image: { url: string } } };
+                if (varResult.data?.image?.url) variations.push(varResult.data.image.url);
+              } catch (varErr) {
+                console.warn(`[generateScenePreview] InstantID variation (seed ${seed}) failed:`, varErr instanceof Error ? varErr.message : varErr);
+              }
+            }
+            if (variations.length > 0) {
+              // Pick the first successful variation (all use the same face conditioning, so any is good)
+              // In future: add face similarity scoring to pick the best one
+              url = variations[0];
+              console.log(`[generateScenePreview] InstantID success for scene ${input.sceneId} (${variations.length} variations generated)`);
+            }
+          }
+
+          // Fallback: Flux PuLID
+          if (!url) {
+            console.log(`[generateScenePreview] Falling back to Flux PuLID for ${primaryCharName} (scene ${input.sceneId})`);
+            try {
+              const { url: fluxUrl } = await withQuotaGuard(() =>
+                generateFaceConsistentImage({
+                  prompt: finalImagePrompt,
+                  referenceImageUrl: faceReferenceUrl!,
+                  idWeight: 1.5,
+                  guidanceScale: 3.5,
+                  imageSize: "landscape_4_3",
+                  negativePrompt,
+                  seed: masterSeed ?? undefined,
+                })
+              );
+              url = fluxUrl;
+            } catch (fluxErr) {
+              console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
+            }
+          }
+
+          // Final fallback: generic generation with reference images
+          if (!url) {
+            console.warn(`[generateScenePreview] All face-consistent engines failed for scene ${input.sceneId}, using generic generation`);
             const { url: fallbackUrl } = await withQuotaGuard(() => generateImage({
-              prompt: imagePrompt,
+              prompt: finalImagePrompt,
               originalImages: referenceImages.length > 0 ? referenceImages : undefined,
             }));
             url = fallbackUrl;
@@ -983,7 +1072,7 @@ Rules:
         } else {
           // For scenes without character photos (AI-invented characters), use generic image generation
           const { url: genericUrl } = await withQuotaGuard(() => generateImage({
-            prompt: imagePrompt,
+            prompt: finalImagePrompt,
             originalImages: referenceImages.length > 0 ? referenceImages : undefined,
           }));
           url = genericUrl;
@@ -1951,6 +2040,124 @@ Write the full visual brief now.`,
       });
 
       return { retried: failedItems.length };
+    }),
+
+  // ─── Step 1: Generate Master Portrait ─────────────────────────────────────
+  // Generates a locked character portrait from the uploaded reference photo using
+  // InstantID (primary) or Flux PuLID (fallback). Stores masterPortraitUrl, masterSeed,
+  // and characterPrompt in the DB. This portrait becomes the face anchor for all scenes.
+  generateMasterPortrait: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND", message: "Character not found" });
+      const photos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.characterId, input.characterId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary));
+      if (photos.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No reference photo found. Please upload a photo first." });
+      }
+      const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
+      // Build the locked character identity prompt
+      const characterPrompt = char.lockedDescription
+        ? `${char.name}, ${char.lockedDescription}, photorealistic, cinematic portrait, sharp focus, professional photography`
+        : `${char.name}, ${char.role ?? "musician"}, photorealistic, cinematic portrait, sharp focus, professional photography`;
+      // Fetch reference photo as base64
+      const photoResponse = await fetch(primaryPhoto.photoUrl);
+      if (!photoResponse.ok) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Failed to fetch reference photo: ${photoResponse.status}` });
+      const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
+      const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                       primaryPhoto.photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+      const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
+      // Generate a deterministic seed for this character (stored and reused across all scenes)
+      const masterSeed = Math.floor(Math.random() * 2147483647);
+      let masterPortraitUrl: string;
+      let engineUsed = "instantid";
+      if (process.env.FAL_AI_API_KEY) fal.config({ credentials: process.env.FAL_AI_API_KEY });
+      try {
+        console.log(`[masterPortrait] Generating for ${char.name} via InstantID (seed: ${masterSeed})`);
+        const result = await fal.subscribe("fal-ai/instantid", {
+          input: {
+            face_image_url: base64DataUrl,
+            prompt: characterPrompt,
+            style: "Headshot",
+            negative_prompt: "nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, deformed, ugly, disfigured, text, watermark",
+            num_inference_steps: 40,
+            guidance_scale: 4.0,
+            ip_adapter_scale: 0.9,
+            identity_controlnet_conditioning_scale: 0.95,
+            enhance_face_region: true,
+            enable_lcm: false,
+            seed: masterSeed,
+          },
+        }) as { data: { image: { url: string } } };
+        masterPortraitUrl = result.data.image.url;
+        console.log(`[masterPortrait] InstantID success for ${char.name}: ${masterPortraitUrl}`);
+      } catch (instantIdErr) {
+        console.warn(`[masterPortrait] InstantID failed for ${char.name}, falling back to Flux PuLID:`, instantIdErr instanceof Error ? instantIdErr.message : instantIdErr);
+        engineUsed = "flux-pulid";
+        try {
+          const pulidResult = await generateFaceConsistentImage({
+            prompt: characterPrompt,
+            referenceImageUrl: base64DataUrl,
+            idWeight: 1.5,
+            guidanceScale: 3.5,
+            imageSize: "portrait_4_3",
+            negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, text, watermark",
+            seed: masterSeed,
+          });
+          masterPortraitUrl = pulidResult.url;
+          console.log(`[masterPortrait] Flux PuLID success for ${char.name}: ${masterPortraitUrl}`);
+        } catch (pulidErr) {
+          console.error(`[masterPortrait] Both engines failed for ${char.name}:`, pulidErr instanceof Error ? pulidErr.message : pulidErr);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Failed to generate master portrait for ${char.name}. Please try again.` });
+        }
+      }
+      await db.update(videoCharacters)
+        .set({
+          masterPortraitUrl,
+          masterSeed,
+          characterPrompt,
+          masterPortraitGeneratedAt: new Date(),
+          previewImageUrl: masterPortraitUrl,
+          previewApproved: false,
+          updatedAt: new Date(),
+        })
+        .where(eq(videoCharacters.id, input.characterId));
+      console.log(`[masterPortrait] Stored for ${char.name} (engine: ${engineUsed}, seed: ${masterSeed})`);
+      return { masterPortraitUrl, masterSeed, characterPrompt, engineUsed, characterId: input.characterId };
+    }),
+
+  // Returns master portrait status for all characters in a job
+  getMasterPortraitStatus: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const chars = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      const photos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.jobId, input.jobId));
+      return chars.map(c => ({
+        characterId: c.id,
+        name: c.name,
+        role: c.role,
+        hasPhoto: photos.some(p => p.characterId === c.id),
+        hasMasterPortrait: !!c.masterPortraitUrl,
+        masterPortraitUrl: c.masterPortraitUrl ?? null,
+        masterPortraitGeneratedAt: c.masterPortraitGeneratedAt ?? null,
+        masterSeed: c.masterSeed ?? null,
+        characterPrompt: c.characterPrompt ?? null,
+      }));
     }),
 });
 

@@ -175,7 +175,7 @@ export default function BatchRegeneration() {
   const { data: batchStatus, refetch } = trpc.musicVideo.getBatchRegenerationStatus.useQuery(
     undefined,
     {
-      refetchInterval: (query) => {
+      refetchInterval: (query: { state: { data?: { status?: string } | null } }) => {
         const d = query.state.data;
         if (d && d.status === "running") return 3000;
         return false;
@@ -342,8 +342,8 @@ export default function BatchRegeneration() {
 
               {/* Character list */}
               <div className="space-y-2">
-                {batchStatus.items.map((item) => (
-                  <CharacterRow key={item.characterId} item={item as BatchItem} />
+                {(batchStatus.items as BatchItem[]).map((item: BatchItem) => (
+                  <CharacterRow key={item.characterId} item={item} />
                 ))}
               </div>
             </CardContent>

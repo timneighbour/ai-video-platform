@@ -235,6 +235,11 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   referencePhotoBase64: longtext("referencePhotoBase64"), // Cached base64 of primary reference photo (avoids re-fetching from S3)
   lockedSeed: int("lockedSeed"), // Fixed seed used for generation to maintain consistency
   faceValidationThreshold: int("faceValidationThreshold").default(75), // Minimum Face++ confidence score (0-100) to pass validation
+  // ─── Master Character Identity (Identity Anchor System) ───────────────────────────────
+  masterPortraitUrl: varchar("masterPortraitUrl", { length: 1024 }), // Locked portrait generated from reference photo — used as face anchor in every scene
+  masterSeed: int("masterSeed"), // Seed used when generating the master portrait — injected into all scene calls for determinism
+  characterPrompt: text("characterPrompt"), // Locked identity prompt: "male, short dark hair, beard, leather jacket" — NEVER changes per scene
+  masterPortraitGeneratedAt: timestamp("masterPortraitGeneratedAt"), // When the master portrait was last generated
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

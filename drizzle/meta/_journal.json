@@ -169,6 +169,13 @@
       "when": 1775943749525,
       "tag": "0023_nifty_steve_rogers",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1775949503574,
+      "tag": "0024_supreme_amazoness",
+      "breakpoints": true
     }
   ]
 }
