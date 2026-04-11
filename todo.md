@@ -1290,3 +1290,7 @@
 - [x] Implement lyrics editing UI - allow users to edit AI-generated lyrics before storyboard generation
 - [ ] Add generation progress indicator - show real-time progress during storyboard and render phases
 - [ ] Prevent form submission during upload - disable buttons while file is uploading
+
+## Session 16 - Database Schema Fix
+- [x] Fix musicVideoJobs INSERT failing with "Unknown column" error — applied missing column migrations to production database (isKidsVideo, kidsTargetAge, kidsEducationalTheme, kidsEnableSingalong, kidsFriendlyIntensity, lyrics, lyricsStatus, captionsEnabled, captionStyle, captionBackground, captionFontSize, captionFontStyle, captionTextColour, captionHighlightColour, captionKaraokeMode, captionSafeArea, lyricsApproved, status columns were all missing from the live database)
+- [x] Fix mvJobStatus → status column rename — old column dropped, new status column added with data migrated
