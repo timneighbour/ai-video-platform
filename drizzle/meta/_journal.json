@@ -134,6 +134,13 @@
       "when": 1775913623862,
       "tag": "0018_white_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1775923087507,
+      "tag": "0019_tranquil_ultragirl",
+      "breakpoints": true
     }
   ]
 }
