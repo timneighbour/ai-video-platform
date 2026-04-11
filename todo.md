@@ -1485,3 +1485,8 @@
 - [x] Add per-scene validation status badges: matched / warning / regenerated
 - [x] Add faceValidationStatus and faceValidationScores to SceneCard interface and scene mapping
 - [x] Request API keys via webdev_request_secrets (FACEPP_API_KEY, FACEPP_API_SECRET, AWS_REKOGNITION_ACCESS_KEY_ID, AWS_REKOGNITION_SECRET_ACCESS_KEY, AWS_REKOGNITION_REGION)
+
+## InstantID Switch (Priority: Now)
+- [x] Update previewCharacter procedure to use fal-ai/instantid instead of Flux PuLID
+- [x] Pass face_image as base64 data URL to InstantID for exact face matching
+- [x] Keep generateImage as fallback if InstantID fails

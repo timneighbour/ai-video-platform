@@ -1575,10 +1575,8 @@ Rules:
 
       let imageUrl: string;
       if (photos.length > 0) {
-        // Use Flux PuLID for face-consistent preview.
-        // The storage proxy URLs are not publicly accessible to fal.ai's servers,
-        // so we fetch the photo on our server and convert it to a base64 data URL
-        // which is passed directly to Flux PuLID as reference_image_url.
+        // Use InstantID for near-exact face matching from uploaded reference photo.
+        // InstantID accepts base64 data URIs directly as face_image_url.
         const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
         try {
           // Fetch the photo from our storage proxy (accessible from server)
@@ -1587,26 +1585,53 @@ Rules:
           const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
           const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
                            primaryPhoto.photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
-          // Convert to base64 data URL — fal.ai Flux PuLID accepts data: URLs as reference_image_url
+          // Convert to base64 data URL — InstantID accepts data: URIs as face_image_url
           const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
 
-          console.log(`[previewCharacter] Using base64 reference for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
+          console.log(`[previewCharacter] Using InstantID for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
 
-          const result = await generateFaceConsistentImage({
-            prompt: previewPrompt,
-            referenceImageUrl: base64DataUrl,
-            idWeight: 1.4, // High weight for maximum face likeness
-            guidanceScale: 4,
-            imageSize: "portrait_4_3",
-            negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
-          });
-          imageUrl = result.url;
-          console.log(`[previewCharacter] Flux PuLID success for ${char.name}`);
-        } catch (pulidErr) {
-          console.warn(`[previewCharacter] Flux PuLID failed for ${char.name}:`, pulidErr instanceof Error ? pulidErr.message : pulidErr);
-          // Final fallback: generic image generation from description only
-          const fallback = await generateImage({ prompt: previewPrompt });
-          imageUrl = fallback.url ?? "";
+          // Use fal.ai InstantID — highest face fidelity available
+          const { fal } = await import("@fal-ai/client");
+          const instantIdResult = await fal.subscribe("fal-ai/instantid", {
+            input: {
+              face_image_url: base64DataUrl,
+              prompt: previewPrompt,
+              style: "Headshot",
+              negative_prompt: "nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, deformed, ugly, disfigured",
+              num_inference_steps: 30,
+              guidance_scale: 5,
+              ip_adapter_scale: 0.8,
+              identity_controlnet_conditioning_scale: 0.9, // Maximum identity preservation
+              enhance_face_region: true,
+              enable_lcm: false, // Disable LCM for higher quality
+            },
+          }) as { data: { image: { url: string } } };
+          imageUrl = instantIdResult.data.image.url;
+          console.log(`[previewCharacter] InstantID success for ${char.name}: ${imageUrl}`);
+        } catch (instantIdErr) {
+          console.warn(`[previewCharacter] InstantID failed for ${char.name}:`, instantIdErr instanceof Error ? instantIdErr.message : instantIdErr);
+          // Fallback to Flux PuLID
+          try {
+            const photoResponse2 = await fetch(photos[0].photoUrl);
+            const photoBuffer2 = Buffer.from(await photoResponse2.arrayBuffer());
+            const mimeType2 = photos[0].photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                              photos[0].photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+            const base64DataUrl2 = `data:${mimeType2};base64,${photoBuffer2.toString("base64")}`;
+            const pulidResult = await generateFaceConsistentImage({
+              prompt: previewPrompt,
+              referenceImageUrl: base64DataUrl2,
+              idWeight: 1.4,
+              guidanceScale: 4,
+              imageSize: "portrait_4_3",
+              negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
+            });
+            imageUrl = pulidResult.url;
+            console.log(`[previewCharacter] Flux PuLID fallback success for ${char.name}`);
+          } catch (pulidErr) {
+            console.warn(`[previewCharacter] Flux PuLID fallback also failed for ${char.name}:`, pulidErr instanceof Error ? pulidErr.message : pulidErr);
+            const fallback = await generateImage({ prompt: previewPrompt });
+            imageUrl = fallback.url ?? "";
+          }
         }
       } else {
         // No photos — use generic image generation (AI-described character)
