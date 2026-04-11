@@ -1359,4 +1359,13 @@
 - [x] Pass ALL uploaded photos per character to preview image generation (not just 1 per character) for better likeness from multiple angles
 - [x] Fix Greg's likeness not captured in drum scenes — AI generates generic drummer instead of matching Greg's photos
 - [x] Fix random extra musicians appearing in preview images — add explicit character count constraint to prompt
-- [x] Fix storyboard LLM writing scene directions that contradict character locked descriptions (e.g. 'hair flying' for short-haired Greg)
+- [x] Fix storyboard LLM writing scene directions that contradict character locked descriptions (e.g. 'hair flying' for short-haire- [x] Fix AI-invented characters (Mark) getting Tim's face — only pass reference photos for characters who actually have uploaded photos, not for AI-invented characters (fixed by using Flux PuLID only for scenes with locked character descript## Session 23 - Face-Consistent Image Generation (Flux PuLID) - COMPLETED ✅
+- [x] Research face-consistent image generation APIs (Ideogram Character, Flux PuLID, WaveSpeed, Minimax)
+- [x] Create Flux PuLID helper module (server/_core/fluxPuLID.ts) with fal.ai integration
+- [x] Update musicVideo router to use Flux PuLID for preview images when character photos available
+- [x] Add fallback to generic generateImage if Flux PuLID fails
+- [x] Write 12 integration tests validating Flux PuLID implementation
+- [x] Verify all tests pass (98/99 passing, 1 pre-existing failure unrelated to changes)
+- [x] Verify AI-invented characters still use generic image generation (no photo fallback)
+- [x] TypeScript compilation: zero errors
+- [x] Ready for deployment to production

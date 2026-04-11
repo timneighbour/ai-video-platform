@@ -21,6 +21,7 @@ import {
 import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
+import { generateFaceConsistentImage } from "../_core/fluxPuLID";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
 import { classifyScenes } from "../scene-classifier";
@@ -818,8 +819,10 @@ Rules:
           referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
         }
       }
-      // Fall back to legacy single character image if no per-character photos
-      if (referenceImages.length === 0 && job.characterImageUrl) {
+      // Fall back to legacy single character image ONLY if the scene has a locked (user-uploaded) character
+      // Do NOT fall back for AI-invented characters — they have no photos and should not inherit Tim/Greg's face
+      const sceneHasLockedChar = sceneChars.some(c => c.isLocked && c.lockedDescription);
+      if (referenceImages.length === 0 && job.characterImageUrl && sceneHasLockedChar) {
         referenceImages.push({ url: job.characterImageUrl, mimeType: "image/jpeg" });
       }
 
@@ -894,10 +897,47 @@ Rules:
       console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, ${identityLines.length} identity lines, prompt length: ${imagePrompt.length}`);
 
       try {
-        const { url } = await withQuotaGuard(() => generateImage({
-          prompt: imagePrompt,
-          originalImages: referenceImages.length > 0 ? referenceImages : undefined,
-        }));
+        let url: string | undefined;
+
+        // --- Use Flux PuLID for face-consistent images when we have reference photos ---
+        if (referenceImages.length > 0 && identityLines.length > 0) {
+          // For scenes with character reference photos, use Flux PuLID for better face likeness
+          // Pick the PRIMARY reference photo (first in the list, sorted by isPrimary)
+          const primaryRefUrl = referenceImages[0].url;
+          const primaryCharName = sceneChars.find(c => c.isLocked && c.lockedDescription)?.name || "the character";
+
+          console.log(`[generateScenePreview] Using Flux PuLID for ${primaryCharName} with reference photo`);
+
+          try {
+            const { url: fluxUrl } = await withQuotaGuard(() =>
+              generateFaceConsistentImage({
+                prompt: imagePrompt,
+                referenceImageUrl: primaryRefUrl,
+                idWeight: 1.2, // Slightly higher weight for better face fidelity
+                guidanceScale: 4,
+                imageSize: "landscape_4_3",
+                negativePrompt: "different person, different face, different hair, inconsistent character",
+              })
+            );
+            url = fluxUrl;
+          } catch (fluxErr) {
+            // If Flux PuLID fails, fall back to generic image generation
+            console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}, falling back to generic image generation:`, fluxErr);
+            const { url: fallbackUrl } = await withQuotaGuard(() => generateImage({
+              prompt: imagePrompt,
+              originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+            }));
+            url = fallbackUrl;
+          }
+        } else {
+          // For scenes without character photos (AI-invented characters), use generic image generation
+          const { url: genericUrl } = await withQuotaGuard(() => generateImage({
+            prompt: imagePrompt,
+            originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+          }));
+          url = genericUrl;
+        }
+
         if (url) {
           await db.update(musicVideoScenes)
             .set({ previewImageUrl: url })
