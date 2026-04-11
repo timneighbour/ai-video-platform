@@ -72,6 +72,8 @@ interface SceneCard {
   lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime";
   regenerating?: boolean;
   characterAssignments?: string[] | null; // Names of characters in this scene e.g. ["Tim", "Greg"]
+  faceValidationStatus?: "matched" | "warning" | "regenerated" | "skipped" | null;
+  faceValidationScores?: string | null; // JSON string of { characterName: score }
 }
 
 function formatTime(seconds: number): string {
@@ -645,6 +647,8 @@ export default function MusicVideoAutopilot() {
         characterAssignments: s.characterAssignments
           ? (() => { try { return JSON.parse(s.characterAssignments); } catch { return null; } })()
           : null,
+        faceValidationStatus: s.faceValidationStatus ?? null,
+        faceValidationScores: s.faceValidationScores ?? null,
       }));
       setScenes(mappedScenes);
       // Trigger image generation for scenes that don't have a preview yet
@@ -1621,7 +1625,22 @@ export default function MusicVideoAutopilot() {
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
                         className="w-full h-full object-cover"
                       />
-                    ) : (
+                    ) : null}
+                    {/* Face validation status badge */}
+                    {scene.faceValidationStatus && scene.faceValidationStatus !== "skipped" && (
+                      <div className={`absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
+                        scene.faceValidationStatus === "matched"
+                          ? "bg-green-500/80 text-white"
+                          : scene.faceValidationStatus === "warning"
+                          ? "bg-amber-500/80 text-white"
+                          : "bg-blue-500/80 text-white"
+                      }`}>
+                        {scene.faceValidationStatus === "matched" && <span>✓ Face Matched</span>}
+                        {scene.faceValidationStatus === "warning" && <span>⚠ Face Drift</span>}
+                        {scene.faceValidationStatus === "regenerated" && <span>↻ Regenerated</span>}
+                      </div>
+                    )}
+                    {!scene.previewImageUrl && (
                       <div className="w-full h-full flex items-center justify-center">
                         {scene.previewImageLoading ? (
                           <div className="flex flex-col items-center gap-2">

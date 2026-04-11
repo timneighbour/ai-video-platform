@@ -22,6 +22,7 @@ import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
 import { generateFaceConsistentImage } from "../_core/fluxPuLID";
+import { validateSceneFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
 import { classifyScenes } from "../scene-classifier";
@@ -987,6 +988,37 @@ Rules:
           await db.update(musicVideoScenes)
             .set({ previewImageUrl: url })
             .where(eq(musicVideoScenes.id, input.sceneId));
+
+          // ─── Character Lock: validate face consistency ────────────────────
+          if (job.characterLockEnabled !== false) {
+            try {
+              const lockCharacters: CharacterLockData[] = [];
+              for (const char of sceneChars) {
+                if (!char.isLocked || !char.lockedDescription) continue;
+                const primaryPhoto = allPhotos.find(p => p.characterId === char.id);
+                if (!primaryPhoto) continue;
+                const refBase64 = await ensureReferencePhotoBase64(char.id, primaryPhoto.photoUrl);
+                if (!refBase64) continue;
+                lockCharacters.push({
+                  characterId: char.id,
+                  name: char.name,
+                  referencePhotoBase64: refBase64,
+                  lockedDescription: char.lockedDescription!,
+                  faceValidationThreshold: char.faceValidationThreshold ?? 70,
+                });
+              }
+              if (lockCharacters.length > 0) {
+                const validationStatus = await validateSceneFaceConsistency(
+                  input.sceneId,
+                  url,
+                  lockCharacters
+                );
+                console.log(`[generateScenePreview] Scene ${input.sceneId} face validation: ${validationStatus}`);
+              }
+            } catch (validationErr) {
+              console.warn(`[generateScenePreview] Face validation error for scene ${input.sceneId}:`, validationErr);
+            }
+          }
         }
         return { imageUrl: url ?? null };
       } catch (err) {

@@ -1466,3 +1466,22 @@
 - [x] Ensure the primary photo base64/URL is passed to the previewCharacter call from CharacterConfirmationStep
 - [x] AI-generated characters (no photo) continue to use standard image generation from their visual brief
 - [x] Fix AI-generated character preview: enforce portrait/head-and-shoulders framing in the image generation prompt so the face is always visible
+
+## Switch to InstantID for Exact Face Matching
+- [ ] Research InstantID API on fal.ai (model ID, parameters, response format)
+- [ ] Update previewCharacter procedure to use InstantID instead of Flux PuLID
+- [ ] Keep Flux PuLID as fallback if InstantID fails
+
+## Character Lock System (Priority: Critical)
+- [x] Research Banuba Face SDK REST API endpoints and auth (replaced with DeepFace/server-side approach)
+- [x] Research Face++ Compare Faces API endpoint, auth, and similarity scoring
+- [x] Research Amazon Rekognition CompareFaces API
+- [x] Add DB columns: faceAnchorData, lockedSeed, faceValidationScore, faceValidationStatus, faceValidationScores, faceValidationThreshold, referencePhotoBase64 to videoCharacters
+- [x] Add DB columns: faceValidationStatus, faceValidationScores to musicVideoScenes; characterLockEnabled to musicVideoJobs
+- [x] Build server/character-lock.ts: ensureReferencePhotoBase64, compareFacesFacePlusPlus, compareFacesRekognition (AWS fallback), validateFaceConsistency, validateSceneFaceConsistency
+- [x] Wire character lock into generateScenePreview: run validateSceneFaceConsistency after image is generated
+- [x] Add post-generation validation step: run Face++ comparison, update scene faceValidationStatus
+- [x] Add characterLockEnabled field to musicVideoJobs
+- [x] Add per-scene validation status badges: matched / warning / regenerated
+- [x] Add faceValidationStatus and faceValidationScores to SceneCard interface and scene mapping
+- [x] Request API keys via webdev_request_secrets (FACEPP_API_KEY, FACEPP_API_SECRET, AWS_REKOGNITION_ACCESS_KEY_ID, AWS_REKOGNITION_SECRET_ACCESS_KEY, AWS_REKOGNITION_REGION)

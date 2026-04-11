@@ -135,6 +135,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   creditCost: int("creditCost").default(0).notNull(),
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
   sceneSetting: varchar("sceneSetting", { length: 512 }), // User-chosen visual environment e.g. "concert venue", "desert", "rooftop"
+  characterLockEnabled: boolean("characterLockEnabled").default(true).notNull(), // Whether to enforce face consistency validation across scenes
   lyricsApproved: boolean("lyricsApproved").default(false).notNull(), // User has approved lyrics before render
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -187,6 +188,10 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
   previewImageKey: varchar("previewImageKey", { length: 512 }),
   characterAssignments: text("characterAssignments"), // JSON array of character names assigned to this scene e.g. ["Singer","Drummer"]
+  // ─── Face Lock Validation ────────────────────────────────────────────────
+  faceValidationStatus: mysqlEnum("faceValidationStatus", ["pending", "matched", "warning", "regenerated", "skipped"]).default("pending"), // Per-scene face validation result
+  faceValidationScores: text("faceValidationScores"), // JSON: { characterName: confidenceScore } per assigned character
+  faceValidationAttempts: int("faceValidationAttempts").default(0), // Number of regeneration attempts due to face mismatch
   modelAssignment: mysqlEnum("modelAssignment", ["seedance-2.0", "hailuo-minimax"]).default("seedance-2.0").notNull(), // WaveSpeed model: seedance-2.0 for character-heavy, hailuo-minimax for wide/atmospheric
   lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
@@ -225,6 +230,11 @@ export const videoCharacters = mysqlTable("videoCharacters", {
    lockedAt: timestamp("lockedAt"), // When the lock was applied
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated test image for user approval before storyboard
   previewApproved: boolean("previewApproved").default(false), // User approved the character likeness
+  // ─── Face Lock System ────────────────────────────────────────────────────
+  faceEmbedding: longtext("faceEmbedding"), // JSON: face embedding vector extracted from reference photo (for similarity comparison)
+  referencePhotoBase64: longtext("referencePhotoBase64"), // Cached base64 of primary reference photo (avoids re-fetching from S3)
+  lockedSeed: int("lockedSeed"), // Fixed seed used for generation to maintain consistency
+  faceValidationThreshold: int("faceValidationThreshold").default(75), // Minimum Face++ confidence score (0-100) to pass validation
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
