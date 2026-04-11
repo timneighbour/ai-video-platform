@@ -108,6 +108,24 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   characterImageUrl: varchar("characterImageUrl", { length: 1024 }), // Optional character/face photo for AI to use
   characterImageKey: varchar("characterImageKey", { length: 512 }), // S3 key for character image
   enableLipSync: boolean("enableLipSync").default(false), // Whether to apply lip sync to character scenes
+  // ─── Kids Video Mode ──────────────────────────────────────────────────
+  isKidsVideo: boolean("isKidsVideo").default(false).notNull(), // Enable Kids Video Mode
+  kidsTargetAge: varchar("kidsTargetAge", { length: 32 }), // e.g., "3-5", "5-8", "8-12"
+  kidsEducationalTheme: varchar("kidsEducationalTheme", { length: 128 }), // e.g., "counting", "colours", "animals", "letters", "friendship", "feelings", "routines", "adventure", "music_and_movement"
+  kidsEnableSingalong: boolean("kidsEnableSingalong").default(true).notNull(), // Singalong captions in Kids Mode
+  kidsFriendlyIntensity: mysqlEnum("kidsFriendlyIntensity", ["soft", "moderate", "vibrant"]).default("vibrant").notNull(), // Visual intensity level for kids
+  // ─── Captions & Lyrics ────────────────────────────────────────────────
+  lyrics: longtext("lyrics"), // Full lyrics text (JSON array of {line, startTime, endTime})
+  lyricsStatus: varchar("lyricsStatus", { length: 32 }).default("pending"), // pending | extracted | edited | approved
+  captionsEnabled: boolean("captionsEnabled").default(true).notNull(), // Whether to include captions in final render
+  captionStyle: varchar("captionStyle", { length: 32 }).default("bottom"), // bottom | top | custom
+  captionBackground: varchar("captionBackground", { length: 32 }).default("soft_shadow"), // none | soft_shadow | solid_box
+  captionFontSize: int("captionFontSize").default(24).notNull(), // Font size in pixels
+  captionFontStyle: varchar("captionFontStyle", { length: 32 }).default("sans-serif"), // sans-serif | serif | monospace
+  captionTextColour: varchar("captionTextColour", { length: 7 }).default("#FFFFFF"), // Hex colour code
+  captionHighlightColour: varchar("captionHighlightColour", { length: 7 }).default("#FFD700"), // Hex colour for karaoke highlight
+  captionKaraokeMode: boolean("captionKaraokeMode").default(false).notNull(), // Word-by-word highlight mode
+  captionSafeArea: varchar("captionSafeArea", { length: 32 }).default("bottom_center"), // bottom_center | top_center | custom
   status: mysqlEnum("mvJobStatus", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
@@ -115,12 +133,39 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   finalVideoKey: varchar("finalVideoKey", { length: 512 }),
   creditCost: int("creditCost").default(0).notNull(),
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
+  lyricsApproved: boolean("lyricsApproved").default(false).notNull(), // User has approved lyrics before render
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 export type MusicVideoJob = typeof musicVideoJobs.$inferSelect;
 export type InsertMusicVideoJob = typeof musicVideoJobs.$inferInsert;
+
+// ─── Kids Video Mode & Captions Types ──────────────────────────────────────
+export type KidsEducationalTheme = "counting" | "colours" | "animals" | "letters" | "friendship" | "feelings" | "routines" | "adventure" | "music_and_movement";
+export type KidsFriendlyIntensity = "soft" | "moderate" | "vibrant";
+export type CaptionStyle = "bottom" | "top" | "custom";
+export type CaptionBackground = "none" | "soft_shadow" | "solid_box";
+export type CaptionFontStyle = "sans-serif" | "serif" | "monospace";
+export type CaptionSafeArea = "bottom_center" | "top_center" | "custom";
+
+export interface LyricsLine {
+  line: string;
+  startTime: number; // milliseconds
+  endTime: number; // milliseconds
+}
+
+export interface CaptionConfig {
+  enabled: boolean;
+  style: CaptionStyle;
+  background: CaptionBackground;
+  fontSize: number;
+  fontStyle: CaptionFontStyle;
+  textColour: string;
+  highlightColour: string;
+  karaokeMode: boolean;
+  safeArea: CaptionSafeArea;
+}
 
 // Music Video Scenes table
 export const musicVideoScenes = mysqlTable("musicVideoScenes", {
