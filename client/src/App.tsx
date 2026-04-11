@@ -62,10 +62,81 @@ function PostLoginRedirect() {
   return null;
 }
 
+/**
+ * SAFETY FALLBACK ROUTING
+ *
+ * Catches any broken or invalid navigation attempts and redirects to a safe default.
+ * This is a permanent safety net to ensure users never get stuck on 404 pages.
+ *
+ * Valid destinations:
+ * - /music-video/create (Music Video Creator)
+ * - /wizpilot (YouTube Video Creator)
+ * - /kids-video (Kids Video Maker)
+ * - /text-to-video (Text to Video)
+ * - /music-creator (AI Music Generator)
+ * - / (Homepage)
+ *
+ * If any link fails or points to a non-existent route, redirect to /music-video/create
+ */
+function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
+  const [location, navigate] = useLocation();
+  const [previousLocation, setPreviousLocation] = useState<string | null>(null);
+
+  // List of valid routes that should NOT trigger fallback
+  const validRoutes = [
+    '/',
+    '/subscribe',
+    '/credits',
+    '/dashboard',
+    '/projects',
+    '/account',
+    '/tools/text-to-video',
+    '/tools/lip-sync',
+    '/tools/video-to-video',
+    '/tools/voiceover',
+    '/wizpilot',
+    '/autopilot',
+    '/music-creator',
+    '/music-video',
+    '/music-video/create',
+    '/render-history',
+    '/kids-video',
+    '/text-to-video',
+    '/enhancement-studio',
+    '/pricing',
+    '/onboarding',
+    '/help',
+    '/how-it-works',
+    '/privacy',
+    '/terms',
+    '/refunds',
+    '/404',
+  ];
+
+  useEffect(() => {
+    // Check if current location is valid
+    const isValidRoute = validRoutes.some(route => {
+      if (route === '/seo/:slug') return location.startsWith('/seo/');
+      return location === route;
+    });
+
+    // If route is invalid and we're not already on a fallback, redirect to Music Video Creator
+    if (!isValidRoute && location !== '/404' && previousLocation !== location) {
+      console.warn(`[SafeFallbackRouter] Invalid route detected: ${location}. Redirecting to /music-video/create`);
+      navigate('/music-video/create');
+    }
+
+    setPreviousLocation(location);
+  }, [location, navigate, previousLocation]);
+
+  return <>{children}</>;
+}
+
 function Router() {
   return (
-    <Suspense fallback={<PageFallback />}>
-      <Switch>
+    <SafeFallbackRouter>
+      <Suspense fallback={<PageFallback />}>
+        <Switch>
         <Route path={"/"} component={Home} />
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
@@ -96,9 +167,10 @@ function Router() {
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />
-      </Switch>
-      <PostLoginRedirect />
-    </Suspense>
+        </Switch>
+        <PostLoginRedirect />
+      </Suspense>
+    </SafeFallbackRouter>
   );
 }
 

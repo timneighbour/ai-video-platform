@@ -451,10 +451,6 @@ export const musicVideoRouter = router({
             ? `CHARACTER APPEARANCE — EXACT, DO NOT DEVIATE:\n${sceneBriefs.join("\n")}\n\nSCENE: ${scene.prompt}\n\nIMPORTANT: The character(s) above MUST appear with EXACTLY the described appearance. Do NOT change hair colour, hair length, eye colour, skin tone, face shape, clothing, or any other feature. Maintain 100% visual consistency with the description above.`
             : scene.prompt;
           try {
-            // Read modelAssignment from the scene (set by storyboard LLM)
-            // Defaults to "seedance-2.0" for character-heavy scenes, "hailuo-minimax" for wide/atmospheric
-            const modelAssignment = (scene.modelAssignment as string) ?? "seedance-2.0";
-            
             // For now, always use WaveSpeed as primary renderer (via startSceneRender)
             // The renderer parameter is still used for fallback routing if WaveSpeed fails
             const taskId = await startSceneRender(
@@ -464,12 +460,12 @@ export const musicVideoRouter = router({
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
               "wavespeed" as any, // Route through WaveSpeed primary renderer
-              modelAssignment as any
+              rendererType as any
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
-            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued via WaveSpeed (${modelAssignment}): ${taskId}`);
+            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued via WaveSpeed (${rendererType}): ${taskId}`);
           } catch (err: unknown) {
             const httpStatus = (err as any)?.response?.status;
             console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"})`, err);
