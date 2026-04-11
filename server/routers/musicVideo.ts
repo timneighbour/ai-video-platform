@@ -782,66 +782,90 @@ Rules:
       // If already has a preview image, return it immediately
       if (scene.previewImageUrl) return { imageUrl: scene.previewImageUrl };
 
-      // --- Gather locked character briefs for visual fidelity enforcement ---
+      // --- Gather ALL locked characters for this job ---
       const allJobCharacters = await db.select().from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
-      const lockedBriefs = allJobCharacters
-        .filter((c) => c.isLocked && c.lockedDescription)
-        .map((c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.lockedDescription!}`);
 
-      // --- Gather character reference photos ---
-      // Fetch all character photos for this job, prioritising primary photos
-      const characterPhotos = await db.select().from(videoCharacterPhotos)
-        .where(eq(videoCharacterPhotos.jobId, input.jobId))
-        .orderBy(desc(videoCharacterPhotos.isPrimary)); // primary photos first
-
-      // Also check the legacy single character image on the job itself
-      const referenceImages: Array<{ url: string; mimeType: string }> = [];
-      if (characterPhotos.length > 0) {
-        // Use up to 2 character photos as reference (1 per unique character, primary preferred)
-        const seenCharacters = new Set<number>();
-        for (const photo of characterPhotos) {
-          if (!seenCharacters.has(photo.characterId) && referenceImages.length < 2) {
-            seenCharacters.add(photo.characterId);
-            referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
-          }
+      // --- Determine which characters are assigned to THIS scene ---
+      let sceneCharNames: string[] = [];
+      try {
+        if (scene.characterAssignments) {
+          sceneCharNames = JSON.parse(scene.characterAssignments);
         }
-      } else if (job.characterImageUrl) {
-        // Fall back to the legacy single character image
+      } catch {}
+
+      // Build a map of character name -> character record for quick lookup
+      const charByName = new Map(allJobCharacters.map(c => [c.name.toLowerCase(), c]));
+
+      // Get the specific characters assigned to this scene (or all if none specified)
+      const sceneChars = sceneCharNames.length > 0
+        ? sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean) as typeof allJobCharacters
+        : allJobCharacters.filter(c => c.isLocked && c.lockedDescription);
+
+      // --- Gather reference photos for scene-assigned characters ONLY ---
+      const allPhotos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.jobId, input.jobId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary));
+
+      // Build a set of character IDs that appear in this scene
+      const sceneCharIds = new Set(sceneChars.map(c => c.id));
+
+      // Collect reference photos: prioritise scene-assigned characters, primary photos first
+      const referenceImages: Array<{ url: string; mimeType: string }> = [];
+      const seenCharacters = new Set<number>();
+      for (const photo of allPhotos) {
+        if (sceneCharIds.has(photo.characterId) && !seenCharacters.has(photo.characterId) && referenceImages.length < 4) {
+          seenCharacters.add(photo.characterId);
+          referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
+        }
+      }
+      // Fall back to legacy single character image if no per-character photos
+      if (referenceImages.length === 0 && job.characterImageUrl) {
         referenceImages.push({ url: job.characterImageUrl, mimeType: "image/jpeg" });
       }
 
-      // --- Build a faithful, consistent image prompt ---
-      // Style consistency: derive a single style token from the scene's visualStyle
+      // --- Build character identity block (FIRST in prompt for maximum weight) ---
+      // The image model weights the beginning of the prompt most heavily.
+      // Character identity must come BEFORE scene description.
+      const identityLines = sceneChars
+        .filter(c => c.isLocked && c.lockedDescription)
+        .map(c => {
+          // Extract the first 2-3 sentences (most distinctive visual anchors)
+          const sentences = c.lockedDescription!.split(/(?<=[.!?])\s+/);
+          const compact = sentences.slice(0, 3).join(" ");
+          return `${c.name}: ${compact}`;
+        });
+
+      const hasPhotos = referenceImages.length > 0;
+      const identityBlock = identityLines.length > 0
+        ? `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hair style, and skin tone from the reference photos. This is a real person — the generated face MUST be recognisable as the same individual.`
+        : hasPhotos
+          ? "Generate the SAME person shown in the reference photo(s). Preserve exact facial features, bone structure, and appearance."
+          : "";
+
+      // --- Style and mood ---
       const styleMap: Record<string, string> = {
-        cinematic: "cinematic film still, dramatic lighting, shallow depth of field, anamorphic lens",
-        anime: "anime illustration, vibrant colors, detailed line art, Studio Ghibli quality",
-        "pixar 3d": "Pixar 3D animation style, warm lighting, expressive characters, high detail",
-        documentary: "documentary photography, natural lighting, authentic raw footage aesthetic",
-        abstract: "abstract art, bold colors, surreal composition, artistic",
-        vintage: "vintage film aesthetic, grain, warm tones, retro 35mm photography",
+        cinematic: "cinematic film still, dramatic lighting, shallow depth of field",
+        anime: "anime illustration, vibrant colors, detailed line art",
+        "pixar 3d": "Pixar 3D animation style, warm lighting, expressive characters",
+        documentary: "documentary photography, natural lighting, authentic raw footage",
+        abstract: "abstract art, bold colors, surreal composition",
+        vintage: "vintage film aesthetic, grain, warm tones, retro 35mm",
       };
       const styleKey = (scene.visualStyle || "").toLowerCase();
       const styleDescriptor = styleMap[styleKey] || styleMap["cinematic"];
-
-      // Genre/mood from the job for consistent colour grading
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 
-      // Character instruction: enforce locked briefs first, then photo consistency
-      const characterInstruction = lockedBriefs.length > 0
-        ? `STRICT CHARACTER CONSISTENCY — DO NOT DEVIATE: ${lockedBriefs.join(" | ")}. These characters must appear with EXACTLY this appearance: same clothing, same colours, same hairstyle, same facial features, same accessories. No changes.`
-        : referenceImages.length > 0
-          ? "The character(s) shown in the reference photo(s) must appear in this scene with the same face, hair, and appearance. Maintain character consistency."
-          : "";
-
-      // Final prompt: scene prompt is the primary directive, style/mood/character are modifiers
+      // --- Final prompt: CHARACTER IDENTITY FIRST, then scene, then style ---
       const imagePrompt = [
+        identityBlock,
         scene.prompt,
         styleDescriptor,
         moodContext ? `Mood: ${moodContext}` : "",
-        characterInstruction,
-        "16:9 widescreen aspect ratio, high quality, professional",
+        "16:9 widescreen, high quality, professional photography",
       ].filter(Boolean).join(". ");
+
+      console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, ${identityLines.length} identity lines, prompt length: ${imagePrompt.length}`);
 
       try {
         const { url } = await withQuotaGuard(() => generateImage({

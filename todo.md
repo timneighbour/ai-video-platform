@@ -1354,3 +1354,5 @@
 - [x] Post-processing injects character descriptions mechanically — guaranteed correct, no duplication
 - [x] Clean up user-visible prompt text: strip verbose character description prefix from displayed prompt in storyboard UI
 - [x] Ensure new forensic descriptions for Tim and Greg are used after storyboard regeneration
+- [x] Fix storyboard preview images not loading after prompt duplication fix
+- [x] Improve character likeness in storyboard preview images — AI-generated images don't resemble uploaded photos
