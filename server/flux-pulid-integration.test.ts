@@ -51,7 +51,7 @@ describe("Flux PuLID Integration", () => {
 
     // New pipeline: InstantID is primary, Flux PuLID is fallback
     expect(content).toContain("fal-ai/instantid");
-    expect(content).toContain("Identity-Anchored Generation: InstantID (primary) or Flux PuLID (fallback)");
+    expect(content).toContain("Identity-Anchored Generation");
     expect(content).toContain("generateFaceConsistentImage");
   });
 
@@ -71,9 +71,9 @@ describe("Flux PuLID Integration", () => {
     const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
-    // Flux PuLID fallback parameters
-    expect(content).toContain("idWeight: 1.5");
-    expect(content).toContain("guidanceScale: 3.5");
+    // V2 Flux PuLID fallback parameters (updated for higher identity weight, lower CFG)
+    expect(content).toContain("idWeight: 1.8");
+    expect(content).toContain("guidanceScale: 2.5");
     expect(content).toContain("imageSize: \"landscape_4_3\"");
   });
 

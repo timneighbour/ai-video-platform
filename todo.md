@@ -1553,3 +1553,16 @@
 - [ ] When ON: disable per-scene character prompt editing (scene prompt only)
 - [ ] Add tooltip explaining the feature
 - [ ] Store characterLockMode preference on musicVideoJobs table
+
+## Photo Mode Pipeline V2
+- [ ] Auto-generate master portrait on photo upload (InstantID, clean lighting, front-facing)
+- [ ] Store masterPortraitUrl, seed, lockedPrompt immediately after photo upload
+- [ ] Enforce character lock: all scenes use masterPortraitUrl + seed + lockedPrompt
+- [ ] Split prompts: CHARACTER (locked) / SCENE (variable) / NEGATIVE
+- [ ] Lower CFG / temperature, increase identity weight in all scene generation calls
+- [ ] Max 3-5 second clips per scene
+- [ ] Chained reference: scene N uses masterPortrait + previous scene output
+- [ ] 3-variation generation per scene, pick best facial match
+- [ ] Basic face consistency check: regenerate if face diverges significantly
+- [ ] Character Lock Mode UI toggle (default ON)
+- [ ] Fix LSP errors: extract batch + master portrait procedures into separate router file

@@ -3,7 +3,7 @@
  *
  * These tests verify:
  * 1. The fal.ai client is configured with FAL_AI_API_KEY (not the default FAL_KEY).
- * 2. The batch regeneration procedures exist and are correctly typed in the router.
+ * 2. The batch regeneration procedures exist in batchRegenRouter.
  * 3. The credential fix is applied before every InstantID call.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -29,10 +29,8 @@ describe("fal.ai credential configuration", () => {
 
 // ─── Test: batch regeneration router procedures ───────────────────────────────
 
-describe("musicVideo router — batch regeneration procedures", () => {
+describe("batchRegenRouter — batch regeneration procedures", () => {
   it("should export startBatchRegeneration, getBatchRegenerationStatus, cancelBatchRegeneration, retryFailedBatchItems", async () => {
-    // Dynamically import the router to verify the procedures are present.
-    // We mock the DB and fal client to avoid real side effects.
     vi.mock("../server/db", () => ({
       getDb: vi.fn().mockResolvedValue(null),
     }));
@@ -43,13 +41,17 @@ describe("musicVideo router — batch regeneration procedures", () => {
       },
     }));
 
-    const { musicVideoRouter } = await import("./routers/musicVideo");
-    const procedureNames = Object.keys(musicVideoRouter._def.procedures ?? musicVideoRouter._def.record ?? {});
+    const { batchRegenRouter } = await import("./routers/batchRegen");
+    const procedureNames = Object.keys(
+      batchRegenRouter._def.procedures ?? batchRegenRouter._def.record ?? {}
+    );
 
     expect(procedureNames).toContain("startBatchRegeneration");
     expect(procedureNames).toContain("getBatchRegenerationStatus");
     expect(procedureNames).toContain("cancelBatchRegeneration");
     expect(procedureNames).toContain("retryFailedBatchItems");
+    expect(procedureNames).toContain("generateMasterPortrait");
+    expect(procedureNames).toContain("getMasterPortraitStatus");
   });
 });
 
@@ -68,11 +70,11 @@ describe("getBatchRegenerationStatus", () => {
       fal: { config: vi.fn(), subscribe: vi.fn() },
     }));
 
-    const { musicVideoRouter } = await import("./routers/musicVideo");
+    const { batchRegenRouter } = await import("./routers/batchRegen");
 
     // The getBatchRegenerationStatus procedure reads from the in-memory batchJobs Map.
     // For a fresh module load (no batch started), it should return null.
-    const proc = (musicVideoRouter._def.procedures ?? musicVideoRouter._def.record)
+    const proc = (batchRegenRouter._def.procedures ?? batchRegenRouter._def.record)
       ?.getBatchRegenerationStatus;
     expect(proc).toBeDefined();
   });

@@ -242,6 +242,7 @@ export default function MusicVideoAutopilot() {
   const saveCharactersMutation = trpc.characters.saveCharacters.useMutation();
   const lockCharacterMutation = trpc.characters.lockCharacter.useMutation();
   const analysePhotoMutation = trpc.characters.analysePhoto.useMutation();
+  const generateMasterPortraitMutation = trpc.musicVideo.generateMasterPortrait.useMutation();
   const updateSceneLipSyncMutation = trpc.musicVideo.updateSceneLipSync.useMutation();
   const updateAllScenesLipSyncMutation = trpc.musicVideo.updateAllScenesLipSync.useMutation();
   const updateSceneLipSyncStyleMutation = trpc.musicVideo.updateSceneLipSyncStyle.useMutation();
@@ -534,22 +535,40 @@ export default function MusicVideoAutopilot() {
                 const primaryPhotoUrl = (saved as { id: number; slotIndex: number; name: string; primaryPhotoUrl?: string | null }).primaryPhotoUrl;
 
                 if (primaryPhotoUrl) {
+                  // Step 1: Analyse photo with vision LLM
                   toast.loading(`Analysing ${char.name}'s appearance...`, { id: `analyse-${char.slotIndex}` });
                   const analysis = await analysePhotoMutation.mutateAsync({
                     characterId: saved.id,
                     photoUrl: primaryPhotoUrl,
                   });
 
-                  // Auto-lock with the AI-generated description
+                  // Step 2: Lock character with the AI-generated description
                   const description = char.lockedDescription.trim() || analysis.description;
                   await lockCharacterMutation.mutateAsync({
                     characterId: saved.id,
                     lockedDescription: description,
                   });
-                  toast.success(`${char.name} locked`, {
-                    id: `analyse-${char.slotIndex}`,
-                    description: "Appearance analysed and locked from your photo.",
-                  });
+
+                  // Step 3: Generate MASTER PORTRAIT (Photo Mode Pipeline V2)
+                  // This creates the locked face anchor used in ALL future scenes.
+                  // Must run before the user reaches the character confirmation step.
+                  try {
+                    toast.loading(`Generating master portrait for ${char.name}...`, { id: `analyse-${char.slotIndex}` });
+                    await generateMasterPortraitMutation.mutateAsync({
+                      characterId: saved.id,
+                      jobId: result.jobId,
+                    });
+                    toast.success(`${char.name} ready`, {
+                      id: `analyse-${char.slotIndex}`,
+                      description: "Master portrait generated — face locked for all scenes.",
+                    });
+                  } catch (masterErr) {
+                    console.warn(`[MusicVideoAutopilot] Master portrait failed for ${char.name}:`, masterErr);
+                    toast.success(`${char.name} locked`, {
+                      id: `analyse-${char.slotIndex}`,
+                      description: "Appearance analysed and locked from your photo.",
+                    });
+                  }
                 } else if (char.isLocked && char.lockedDescription.trim()) {
                   // Fallback: use manually typed description if no photo URL available
                   await lockCharacterMutation.mutateAsync({
@@ -651,28 +670,39 @@ export default function MusicVideoAutopilot() {
         faceValidationScores: s.faceValidationScores ?? null,
       }));
       setScenes(mappedScenes);
-      // Trigger image generation for scenes that don't have a preview yet
-      mappedScenes.forEach((scene) => {
-        if (!scene.previewImageUrl && jobId) {
-          generateScenePreviewMutation.mutateAsync({ sceneId: scene.id, jobId })
-            .then(({ imageUrl }) => {
+      // V2: Trigger image generation sequentially so each scene can use the previous scene
+      // as a chained reference (reinforces character identity across scenes).
+      const scenesNeedingPreview = mappedScenes.filter(s => !s.previewImageUrl);
+      if (scenesNeedingPreview.length > 0 && jobId) {
+        // Run sequentially: scene[0] -> scene[1] -> ... passing each result as previousSceneImageUrl
+        (async () => {
+          let previousSceneImageUrl: string | undefined = undefined;
+          for (const scene of scenesNeedingPreview) {
+            try {
+              const { imageUrl } = await generateScenePreviewMutation.mutateAsync({
+                sceneId: scene.id,
+                jobId,
+                previousSceneImageUrl, // V2: chained reference
+              });
               if (imageUrl) {
                 setScenes(prev => prev.map(s =>
                   s.id === scene.id ? { ...s, previewImageUrl: imageUrl, previewImageLoading: false } : s
                 ));
+                previousSceneImageUrl = imageUrl; // chain to next scene
               } else {
                 setScenes(prev => prev.map(s =>
                   s.id === scene.id ? { ...s, previewImageLoading: false } : s
                 ));
+                // Don't update previousSceneImageUrl if generation failed
               }
-            })
-            .catch(() => {
+            } catch {
               setScenes(prev => prev.map(s =>
                 s.id === scene.id ? { ...s, previewImageLoading: false } : s
               ));
-            });
-        }
-      });
+            }
+          }
+        })();
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobQuery.data]);
