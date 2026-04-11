@@ -4,9 +4,17 @@ import { useLocation } from 'wouter';
 
 const Onboarding: React.FC = () => {
   const [, setLocation] = useLocation();
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleBack = () => {
     setLocation('/');
+  };
+
+  const handleCardClick = (href: string) => {
+    setIsLoading(true);
+    setSelectedId(href);
+    setTimeout(() => setLocation(href), 300);
   };
   const options = [
     {
@@ -76,16 +84,17 @@ const Onboarding: React.FC = () => {
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         {/* Header section */}
         <div className="text-center mb-20 max-w-3xl">
-          <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-            <p className="text-sm font-semibold text-purple-300">Welcome to WizVid</p>
+          {/* Progress indicator */}
+          <div className="inline-block mb-6 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+            <p className="text-sm font-semibold text-purple-300">Step 1 of 2 – Choose your creation type</p>
           </div>
           
           <h1 className="text-6xl sm:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-            What do you want to create?
+            Choose what you want to create
           </h1>
           
           <p className="text-xl text-slate-300 font-light mb-8">
-            We'll personalise your experience based on your creative goals.
+            WizVid does the rest
           </p>
 
           {/* Trust line */}
@@ -94,28 +103,47 @@ const Onboarding: React.FC = () => {
             <span className="text-slate-600">•</span>
             <span>⚡ Ready in minutes</span>
           </div>
+          <p className="text-slate-500 text-sm mt-6">Your video will be ready in minutes</p>
         </div>
 
         {/* Options Grid */}
         <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {options.map((option, index) => {
             const Icon = option.icon;
+            const isPopular = index === 0; // Music Video is most popular
+            const isSelected = selectedId === option.href;
+            const isClickingOther = isLoading && !isSelected;
+            
             return (
-              <a
+              <button
                 key={index}
-                href={option.href}
-                className={`group relative h-full transition-all duration-500 hover:-translate-y-2 cursor-pointer`}
+                onClick={() => handleCardClick(option.href)}
+                disabled={isLoading}
+                className={`group relative h-full transition-all duration-500 hover:-translate-y-2 cursor-pointer outline-none ${
+                  isSelected ? 'scale-95 opacity-50' : isClickingOther ? 'opacity-50' : ''
+                } ${
+                  isPopular ? 'md:scale-105 md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-1' : ''
+                }`}
               >
                 {/* Gradient glow background on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-0 group-hover:opacity-40 rounded-2xl blur-2xl transition-all duration-500`} />
                 
                 {/* Main card container */}
-                <div className={`relative h-full bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-xl border border-slate-700/40 ${option.borderColor} rounded-2xl p-8 transition-all duration-500 group-hover:shadow-2xl overflow-hidden`}>
+                <div className={`relative h-full bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-xl border border-slate-700/40 ${option.borderColor} rounded-2xl p-8 transition-all duration-500 group-hover:shadow-2xl overflow-hidden ${
+                  isPopular ? 'ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20' : ''
+                }`}>
                   
                   {/* Shine effect on hover */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                   </div>
+
+                  {/* Popular badge */}
+                  {isPopular && (
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-xs font-semibold text-white">
+                      Most popular
+                    </div>
+                  )}
 
                   {/* Icon container with gradient background */}
                   <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${option.color} p-3 mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg`}>
@@ -132,17 +160,24 @@ const Onboarding: React.FC = () => {
                     {option.description}
                   </p>
 
+                  {/* Loading spinner */}
+                  {isSelected && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm rounded-2xl">
+                      <div className="w-6 h-6 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+                    </div>
+                  )}
+
                   {/* CTA with animated arrow */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors duration-300">
-                      Get Started
+                      {isSelected ? 'Starting...' : 'Get Started'}
                     </span>
                     <div className="w-8 h-8 rounded-full bg-slate-700/50 group-hover:bg-slate-600 flex items-center justify-center transition-all duration-300 group-hover:translate-x-1">
                       <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-white transition-colors duration-300" />
                     </div>
                   </div>
                 </div>
-              </a>
+              </button>
             );
           })}
         </div>
