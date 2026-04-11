@@ -1357,3 +1357,5 @@
 - [x] Fix storyboard preview images not loading after prompt duplication fix
 - [x] Improve character likeness in storyboard preview images — AI-generated images don't resemble uploaded photos
 - [x] Pass ALL uploaded photos per character to preview image generation (not just 1 per character) for better likeness from multiple angles
+- [x] Fix Greg's likeness not captured in drum scenes — AI generates generic drummer instead of matching Greg's photos
+- [x] Fix random extra musicians appearing in preview images — add explicit character count constraint to prompt

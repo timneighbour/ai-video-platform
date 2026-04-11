@@ -829,18 +829,45 @@ Rules:
       const identityLines = sceneChars
         .filter(c => c.isLocked && c.lockedDescription)
         .map(c => {
-          // Extract the first 2-3 sentences (most distinctive visual anchors)
-          const sentences = c.lockedDescription!.split(/(?<=[.!?])\s+/);
-          const compact = sentences.slice(0, 3).join(" ");
-          return `${c.name}: ${compact}`;
+          // Use the full locked description for maximum likeness fidelity
+          return `${c.name} (${c.role || "musician"}): ${c.lockedDescription!}`;
         });
 
       const hasPhotos = referenceImages.length > 0;
+
+      // Character count constraint — prevent AI from inventing extra people
+      const charCount = sceneChars.length;
+      const charCountConstraint = charCount === 1
+        ? `EXACTLY ONE person in this image — only ${sceneChars[0]?.name || "the character"}. No other people, no crowd members, no extra musicians.`
+        : charCount > 1
+          ? `EXACTLY ${charCount} people in this image: ${sceneChars.map(c => c.name).join(", ")}. No other people, no extra musicians, no crowd members visible.`
+          : allJobCharacters.length > 0
+            ? `The band has exactly ${allJobCharacters.length} members: ${allJobCharacters.map(c => c.name).join(", ")}. Show only these people, no extras.`
+            : "";
+
       const identityBlock = identityLines.length > 0
-        ? `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hair style, and skin tone from the reference photos. This is a real person — the generated face MUST be recognisable as the same individual.`
+        ? `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hair style, and skin tone from the reference photos. This is a real person — the generated face MUST be recognisable as the same individual. ${charCountConstraint}`
         : hasPhotos
-          ? "Generate the SAME person shown in the reference photo(s). Preserve exact facial features, bone structure, and appearance."
-          : "";
+          ? `Generate the SAME person shown in the reference photo(s). Preserve exact facial features, bone structure, and appearance. ${charCountConstraint}`
+          : charCountConstraint;
+
+      // --- Clean the stored scene prompt ---
+      // Old storyboards may have character descriptions baked into scene.prompt
+      // (e.g. "Tim, Rock Star, leather jacket and plays a sunburst Gibson Les Paul...")
+      // Strip these out since we now inject identity separately via identityBlock
+      let cleanScenePrompt = scene.prompt;
+      for (const char of allJobCharacters) {
+        // Remove patterns like "CharName, old description text, " from the start or middle of prompts
+        // Also remove the old user-entered style notes that got duplicated
+        const namePrefix = new RegExp(
+          `${char.name}(?:,\\s*(?:Rock Star|Wears a|Woman in|Man in)[^.]*?\\.\\s*)?(?:${char.name})?`,
+          "gi"
+        );
+        cleanScenePrompt = cleanScenePrompt.replace(namePrefix, char.name);
+      }
+      // Remove any remaining duplicated old descriptions (e.g. repeated "leather jacket and plays...")
+      // by collapsing repeated phrases
+      cleanScenePrompt = cleanScenePrompt.replace(/(\b\w{4,}\b[^.]{10,}?)\1+/g, "$1").trim();
 
       // --- Style and mood ---
       const styleMap: Record<string, string> = {
@@ -855,10 +882,10 @@ Rules:
       const styleDescriptor = styleMap[styleKey] || styleMap["cinematic"];
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 
-      // --- Final prompt: CHARACTER IDENTITY FIRST, then scene, then style ---
+      // --- Final prompt: CHARACTER IDENTITY FIRST, then clean scene direction, then style ---
       const imagePrompt = [
         identityBlock,
-        scene.prompt,
+        cleanScenePrompt,
         styleDescriptor,
         moodContext ? `Mood: ${moodContext}` : "",
         "16:9 widescreen, high quality, professional photography",
