@@ -829,11 +829,22 @@ Rules:
       // --- Build character identity block (FIRST in prompt for maximum weight) ---
       // The image model weights the beginning of the prompt most heavily.
       // Character identity must come BEFORE scene description.
+      // For multi-character scenes, add spatial positioning to help AI place characters correctly
       const identityLines = sceneChars
         .filter(c => c.isLocked && c.lockedDescription)
-        .map(c => {
+        .map((c, idx) => {
           // Use the full locked description for maximum likeness fidelity
-          return `${c.name} (${c.role || "musician"}): ${c.lockedDescription!}`;
+          const baseDescription = `${c.name} (${c.role || "musician"}): ${c.lockedDescription!}`;
+          
+          // For multi-character scenes, add spatial positioning hints
+          // This helps the AI place each character in the right position and use the right reference photo
+          if (sceneChars.length > 1) {
+            const positions = ["LEFT", "CENTER", "RIGHT"];
+            const position = positions[idx % positions.length];
+            return `${baseDescription} [POSITION: ${position}]`;
+          }
+          
+          return baseDescription;
         });
 
       const hasPhotos = referenceImages.length > 0;
@@ -848,8 +859,18 @@ Rules:
             ? `The band has exactly ${allJobCharacters.length} members: ${allJobCharacters.map(c => c.name).join(", ")}. Show only these people, no extras.`
             : "";
 
+      // Build the identity block with enhanced instructions for multi-character consistency
       const identityBlock = identityLines.length > 0
-        ? `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hair style, and skin tone from the reference photos. This is a real person — the generated face MUST be recognisable as the same individual. ${charCountConstraint}`
+        ? (() => {
+            const baseInstruction = `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hair style, and skin tone from the reference photos. This is a real person — the generated face MUST be recognisable as the same individual.`;
+            
+            // For multi-character scenes, add extra guidance to prevent character mixing
+            if (sceneChars.length > 1) {
+              return `${baseInstruction} CRITICAL: Each character MUST match their reference photo EXACTLY. Do NOT mix up faces between characters. ${sceneChars.map(c => `${c.name} has UNIQUE features that MUST be preserved`).join(". ")}. ${charCountConstraint}`;
+            }
+            
+            return `${baseInstruction} ${charCountConstraint}`;
+          })()
         : hasPhotos
           ? `Generate the SAME person shown in the reference photo(s). Preserve exact facial features, bone structure, and appearance. ${charCountConstraint}`
           : charCountConstraint;

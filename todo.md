@@ -1369,3 +1369,27 @@
 - [x] Verify AI-invented characters still use generic image generation (no photo fallback)
 - [x] TypeScript compilation: zero errors
 - [x] Ready for deployment to production
+- [x] **VERIFIED IN PRODUCTION**: Greg's face likeness preserved beautifully in drum scene preview
+
+## Session 24 - Reusable Skill Creation - COMPLETED ✅
+- [x] Created face-consistent-image-generation skill using skill-creator
+- [x] Wrote comprehensive SKILL.md with implementation patterns and best practices
+- [x] Created flux-pulid-api.md reference with detailed API documentation
+- [x] Created api-comparison.md with detailed comparison of all face-consistent APIs
+- [x] Created fluxPuLID-helper.ts template with ready-to-use helper module
+- [x] Created test-face-consistent.ts with integration test suite
+- [x] Validated skill structure with quick_validate.py
+- [x] Skill is production-ready and available in skills library
+## Session 25 - Multi-Character Scene Consistency Fix - IN PROGRESS
+- [x] Investigated current multi-character scene generation logic
+- [x] Identified that Flux PuLID only accepts ONE reference image (same limitation as Ideogram)
+- [x] Researched Ideogram Character API — also single-reference only
+- [x] Designed improved prompt strategy with spatial positioning hints
+- [x] Implemented spatial positioning tags [POSITION: LEFT/CENTER/RIGHT] for multi-character scenes
+- [x] Enhanced identity block with critical instructions to prevent character mixing
+- [x] Added explicit uniqueness emphasis for each character
+- [x] Verified TypeScript compilation (zero errors)
+- [x] Verified tests pass (97/98, 1 pre-existing failure)
+- [ ] Test multi-character scenes to verify improved consistency
+- [ ] Verify Tim and Greg are correctly placed in multi-character scenes
+- [ ] Verify no face mixing between characters
