@@ -21,7 +21,7 @@ const CREATOR_TYPES: {
   href: string;
   wide?: boolean;
 }[] = [
-  { id: "music",   icon: <Music className="w-5 h-5" />,      title: "Music Video",        desc: "Turn your songs into cinematic music videos",             accent: "from-purple-600/80 to-violet-900/90", href: "/music-video" },
+  { id: "music",   icon: <Music className="w-5 h-5" />,      title: "Music Video",        desc: "Turn your songs into cinematic music videos",             accent: "from-purple-600/80 to-violet-900/90", href: "/music-video/create" },
   { id: "youtube", icon: <Youtube className="w-5 h-5" />,    title: "YouTube Video",      desc: "Create engaging content that stands out in the feed",     accent: "from-red-600/70 to-slate-900/90",     href: "/wizpilot" },
   { id: "kids",    icon: <Baby className="w-5 h-5" />,       title: "Kids Video",         desc: "Animated characters, nursery rhymes, and family content", accent: "from-pink-500/70 to-orange-900/90",   href: "/kids-video" },
   { id: "other",   icon: <Wand2 className="w-5 h-5" />,      title: "Text to Video",      desc: "Describe any scene and AI generates a video for you",     accent: "from-blue-600/70 to-indigo-900/90",   href: "/text-to-video" },
