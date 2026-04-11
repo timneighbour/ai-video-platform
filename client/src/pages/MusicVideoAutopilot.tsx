@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useLocalStorage, useFormPersistence } from "@/hooks/useLocalStorage";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -87,23 +88,27 @@ export default function MusicVideoAutopilot() {
   const [step, setStep] = useState<Step>("upload");
   const [jobId, setJobId] = useState<number | null>(null);
 
-  // Step 1: Upload form state
-  const [title, setTitle] = useState("");
-  const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [audioDuration, setAudioDuration] = useState<number>(0);
-  const [themePrompt, setThemePrompt] = useState("");
-  const [genre, setGenre] = useState("");
-  const [mood, setMood] = useState("");
-  const [selectedStyle, setSelectedStyle] = useState("cinematic");
+  // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
+  const [title, setTitle] = useLocalStorage("musicVideo_title", "");
+  const [audioDuration, setAudioDuration] = useLocalStorage("musicVideo_duration", 0);
+  const [themePrompt, setThemePrompt] = useLocalStorage("musicVideo_theme", "");
+  const [genre, setGenre] = useLocalStorage("musicVideo_genre", "");
+  const [mood, setMood] = useLocalStorage("musicVideo_mood", "");
+  const [selectedStyle, setSelectedStyle] = useLocalStorage("musicVideo_style", "cinematic");
+  const [transcriptionText, setTranscriptionText] = useLocalStorage<string | null>("musicVideo_lyrics", null);
+  const [audioFile, setAudioFile] = useState<File | null>(null); // Files can't be persisted
+  const [uploadProgress, setUploadProgress] = useState<number>(0); // 0-100 for upload progress bar
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Multi-character state (replaces single character + lip sync)
-  const [characters, setCharacters] = useState<Character[]>([]);
+  // Multi-character state (replaces single character + lip sync) - PERSISTED
+  const [characters, setCharacters] = useLocalStorage<Character[]>("musicVideo_characters", []);
 
   // Transcription / lyrics state — starts immediately on audio file select
   const [transcriptionStatus, setTranscriptionStatus] = useState<string>("idle"); // idle | transcribing | done | failed | quota
   const [quotaError, setQuotaError] = useState<string | null>(null);
-  const [transcriptionText, setTranscriptionText] = useState<string | null>(null);
+  // transcriptionText is now persisted above
   const [lyricsExpanded, setLyricsExpanded] = useState(false);
+  const [isEditingLyrics, setIsEditingLyrics] = useState(false);
   // Keep segments for later use by storyboard
   const [transcriptionSegments, setTranscriptionSegments] = useState<Array<{ start: number; end: number; text: string }>>([]);
   const transcriptionPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -319,6 +324,9 @@ export default function MusicVideoAutopilot() {
       return;
     }
     setAudioFile(file);
+    setIsUploading(true);
+    setUploadProgress(0);
+    
     // Reset transcription state for the new file
     setTranscriptionText(null);
     setTranscriptionSegments([]);
@@ -334,9 +342,11 @@ export default function MusicVideoAutopilot() {
         toast.error("Song too long", { description: "Maximum song length is 6 minutes." });
         setAudioFile(null);
         setTranscriptionStatus("idle");
+        setIsUploading(false);
         return;
       }
       setAudioDuration(dur);
+      setUploadProgress(30); // Show progress
 
       // Immediately start transcription in the background
       setTranscriptionStatus("transcribing");
@@ -344,8 +354,15 @@ export default function MusicVideoAutopilot() {
 
       // Read file as base64 and call the direct transcription mutation
       const reader = new FileReader();
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 30) + 30; // 30-60%
+          setUploadProgress(percentComplete);
+        }
+      };
       reader.onload = async () => {
         try {
+          setUploadProgress(60); // Reading complete
           const base64 = (reader.result as string).split(",")[1];
           const mimeType = file.type.includes("wav") ? "audio/wav" :
                            file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
@@ -353,6 +370,8 @@ export default function MusicVideoAutopilot() {
             audioBase64: base64,
             audioMimeType: mimeType as any,
           });
+          setUploadProgress(100); // Complete
+          setTimeout(() => setIsUploading(false), 500);
           setTranscriptionText(result.text);
           setTranscriptionSegments(result.segments);
           setTranscriptionStatus("done");
@@ -956,13 +975,24 @@ export default function MusicVideoAutopilot() {
                     />
                     {audioFile ? (
                       <div>
-                        <Check className="w-10 h-10 text-green-400 mx-auto mb-2" />
-                        <p className="text-green-400 font-medium">{audioFile.name}</p>
-                        <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-amber-400 font-medium" : "text-zinc-400"}`}>
-                          Duration: {formatDuration(audioDuration)}
-                          {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
-                        </p>
-                        <p className="text-zinc-500 text-xs mt-1">Click to change</p>
+                        {isUploading ? (
+                          <div className="space-y-3">
+                            <Loader2 className="w-10 h-10 text-purple-400 mx-auto mb-2 animate-spin" />
+                            <p className="text-purple-400 font-medium">Uploading & Processing...</p>
+                            <Progress value={uploadProgress} className="h-2" />
+                            <p className="text-zinc-400 text-sm text-center">{uploadProgress}% complete</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <Check className="w-10 h-10 text-green-400 mx-auto mb-2" />
+                            <p className="text-green-400 font-medium">{audioFile.name}</p>
+                            <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-amber-400 font-medium" : "text-zinc-400"}`}>
+                              Duration: {formatDuration(audioDuration)}
+                              {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
+                            </p>
+                            <p className="text-zinc-500 text-xs mt-1">Click to change</p>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div>
@@ -1045,9 +1075,51 @@ export default function MusicVideoAutopilot() {
                       {lyricsExpanded && (
                         <div className="px-4 py-3 bg-zinc-900/50">
                           {transcriptionStatus === "done" && transcriptionText ? (
-                            <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap font-mono">
-                              {transcriptionText}
-                            </p>
+                            <div className="space-y-2">
+                              {!isEditingLyrics ? (
+                                <div className="space-y-2">
+                                  <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap font-mono bg-zinc-800/50 p-3 rounded">
+                                    {transcriptionText}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setIsEditingLyrics(true)}
+                                    className="w-full text-xs"
+                                  >
+                                    <Pencil className="w-3 h-3 mr-1" />
+                                    Edit Lyrics
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="space-y-2">
+                                  <Textarea
+                                    value={transcriptionText}
+                                    onChange={(e) => setTranscriptionText(e.target.value)}
+                                    className="bg-zinc-800 border-zinc-700 text-white text-sm min-h-[100px]"
+                                  />
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => setIsEditingLyrics(false)}
+                                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                                    >
+                                      <Check className="w-3 h-3 mr-1" />
+                                      Save
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setIsEditingLyrics(false)}
+                                      className="flex-1"
+                                    >
+                                      <X className="w-3 h-3 mr-1" />
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           ) : transcriptionStatus === "transcribing" ? (
                             <div className="flex items-center gap-2 text-zinc-400 text-sm py-2">
                               <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
