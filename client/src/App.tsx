@@ -38,6 +38,7 @@ const KidsVideo = lazy(() => import("@/pages/KidsVideo"));
 const TextToVideoCreator = lazy(() => import("@/pages/TextToVideoCreator"));
 const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
 const EnhancementStudio = lazy(() => import("@/pages/EnhancementStudio"));
+const BatchRegeneration = lazy(() => import("@/pages/BatchRegeneration"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -103,6 +104,7 @@ function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
     '/kids-video',
     '/text-to-video',
     '/enhancement-studio',
+    '/batch-regeneration',
     '/pricing',
     '/onboarding',
     '/help',
@@ -156,6 +158,7 @@ function Router() {
         <Route path={"/kids-video"} component={KidsVideo} />
         <Route path={"/text-to-video"} component={TextToVideoCreator} />
         <Route path={"/enhancement-studio"} component={EnhancementStudio} />
+        <Route path={"/batch-regeneration"} component={BatchRegeneration} />
         <Route path={"/pricing"} component={Pricing} />
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />

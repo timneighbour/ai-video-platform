@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Zap, Video, Mic, Wand2, Plus, Settings, History } from "lucide-react";
+import { Sparkles, Zap, Video, Mic, Wand2, Plus, Settings, History, RefreshCw } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
@@ -143,6 +143,14 @@ export default function Dashboard() {
                 <Button variant="outline" className="gap-2" onClick={() => setLocation("/render-history")}>
                   <History className="h-4 w-4" />
                   Render History
+                </Button>
+                <Button
+                  variant="outline"
+                  className="gap-2 border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
+                  onClick={() => setLocation("/batch-regeneration")}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Re-generate Portraits
                 </Button>
               </div>
             </CardContent>

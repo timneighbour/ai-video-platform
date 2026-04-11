@@ -7,7 +7,12 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
+import { fal } from "@fal-ai/client";
+// Configure fal.ai credentials (uses FAL_AI_API_KEY env var, not the default FAL_KEY)
+if (process.env.FAL_AI_API_KEY) {
+  fal.config({ credentials: process.env.FAL_AI_API_KEY });
+}
 import { storagePut } from "../storage";
 import {
   generateStoryboard,
@@ -1589,9 +1594,9 @@ Rules:
           const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
 
           console.log(`[previewCharacter] Using InstantID for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
-
           // Use fal.ai InstantID — highest face fidelity available
-          const { fal } = await import("@fal-ai/client");
+          // Ensure credentials are set (FAL_AI_API_KEY, not the default FAL_KEY)
+          if (process.env.FAL_AI_API_KEY) fal.config({ credentials: process.env.FAL_AI_API_KEY });
           const instantIdResult = await fal.subscribe("fal-ai/instantid", {
             input: {
               face_image_url: base64DataUrl,
@@ -1774,4 +1779,308 @@ Write the full visual brief now.`,
         style: input.style,
       };
     }),
+
+  // ─── Batch InstantID Regeneration ────────────────────────────────────────────
+  //
+  // Queues all photo-mode characters belonging to the current user for
+  // sequential InstantID preview regeneration.  Progress is tracked in an
+  // in-memory Map so the client can poll without hitting the DB on every tick.
+
+  startBatchRegeneration: protectedProcedure
+    .input(z.object({
+      /** Optionally restrict to a single job; omit to process all jobs. */
+      jobId: z.number().int().optional(),
+      /** Optionally restrict to specific character IDs. */
+      characterIds: z.array(z.number().int()).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Abort if a batch is already running for this user
+      const existing = batchJobs.get(ctx.user.id);
+      if (existing && existing.status === "running") {
+        throw new TRPCError({ code: "CONFLICT", message: "A batch regeneration is already running for your account." });
+      }
+
+      // Fetch all photo-mode characters for this user (optionally filtered)
+      const baseQuery = db
+        .select({
+          charId: videoCharacters.id,
+          charName: videoCharacters.name,
+          charRole: videoCharacters.role,
+          charDescription: videoCharacters.lockedDescription,
+          jobId: videoCharacters.jobId,
+          jobTitle: musicVideoJobs.title,
+          currentPreview: videoCharacters.previewImageUrl,
+        })
+        .from(videoCharacters)
+        .innerJoin(musicVideoJobs, eq(musicVideoJobs.id, videoCharacters.jobId))
+        .innerJoin(
+          videoCharacterPhotos,
+          and(
+            eq(videoCharacterPhotos.characterId, videoCharacters.id),
+            eq(videoCharacterPhotos.isPrimary, true)
+          )
+        )
+        .where(
+          and(
+            eq(videoCharacters.userId, ctx.user.id),
+            input.jobId ? eq(videoCharacters.jobId, input.jobId) : undefined,
+            input.characterIds?.length
+              ? (() => {
+                  const { inArray } = require("drizzle-orm");
+                  return inArray(videoCharacters.id, input.characterIds);
+                })()
+              : undefined
+          )
+        );
+
+      const rows = await baseQuery;
+
+      if (rows.length === 0) {
+        return { batchId: null, total: 0, message: "No photo-mode characters found to regenerate." };
+      }
+
+      // Deduplicate by charId (the join may produce duplicates if multiple primary photos exist)
+      const seen = new Set<number>();
+      const uniqueRows = rows.filter(r => { if (seen.has(r.charId)) return false; seen.add(r.charId); return true; });
+
+      const batchId = `batch-${ctx.user.id}-${Date.now()}`;
+      const items: BatchItem[] = uniqueRows.map(r => ({
+        characterId: r.charId,
+        characterName: r.charName,
+        characterRole: r.charRole ?? undefined,
+        jobId: r.jobId,
+        jobTitle: r.jobTitle,
+        currentPreviewUrl: r.currentPreview ?? undefined,
+        newPreviewUrl: undefined,
+        status: "pending" as const,
+        error: undefined,
+      }));
+
+      const batchState: BatchState = {
+        batchId,
+        userId: ctx.user.id,
+        status: "running",
+        items,
+        startedAt: new Date(),
+        completedAt: undefined,
+      };
+      batchJobs.set(ctx.user.id, batchState);
+
+      // Run regeneration sequentially in the background (no await — fire and forget)
+      runBatchRegeneration(batchState, ctx.user.id).catch(err => {
+        console.error("[batchRegen] Unhandled error:", err);
+        batchState.status = "completed";
+      });
+
+      return { batchId, total: items.length, message: `Started regenerating ${items.length} character(s).` };
+    }),
+
+  getBatchRegenerationStatus: protectedProcedure
+    .query(async ({ ctx }) => {
+      const state = batchJobs.get(ctx.user.id);
+      if (!state) return null;
+
+      const total = state.items.length;
+      const completed = state.items.filter(i => i.status === "done").length;
+      const failed = state.items.filter(i => i.status === "failed").length;
+      const inProgress = state.items.filter(i => i.status === "processing").length;
+      const pending = state.items.filter(i => i.status === "pending").length;
+
+      return {
+        batchId: state.batchId,
+        status: state.status,
+        total,
+        completed,
+        failed,
+        inProgress,
+        pending,
+        startedAt: state.startedAt,
+        completedAt: state.completedAt ?? null,
+        items: state.items.map(i => ({
+          characterId: i.characterId,
+          characterName: i.characterName,
+          characterRole: i.characterRole ?? null,
+          jobId: i.jobId,
+          jobTitle: i.jobTitle,
+          currentPreviewUrl: i.currentPreviewUrl ?? null,
+          newPreviewUrl: i.newPreviewUrl ?? null,
+          status: i.status,
+          error: i.error ?? null,
+        })),
+      };
+    }),
+
+  cancelBatchRegeneration: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      const state = batchJobs.get(ctx.user.id);
+      if (!state || state.status !== "running") {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No running batch to cancel." });
+      }
+      state.status = "cancelled";
+      // Mark all pending items as cancelled
+      for (const item of state.items) {
+        if (item.status === "pending") item.status = "cancelled" as BatchItemStatus;
+      }
+      return { cancelled: true };
+    }),
+
+  retryFailedBatchItems: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      const state = batchJobs.get(ctx.user.id);
+      if (!state) throw new TRPCError({ code: "NOT_FOUND", message: "No batch found." });
+      if (state.status === "running") throw new TRPCError({ code: "CONFLICT", message: "Batch is still running." });
+
+      const failedItems = state.items.filter(i => i.status === "failed" || i.status === "cancelled");
+      if (failedItems.length === 0) return { retried: 0 };
+
+      // Reset failed items to pending and re-run
+      for (const item of failedItems) {
+        item.status = "pending";
+        item.error = undefined;
+        item.newPreviewUrl = undefined;
+      }
+      state.status = "running";
+      state.completedAt = undefined;
+
+      runBatchRegeneration(state, ctx.user.id).catch(err => {
+        console.error("[batchRegen] Retry unhandled error:", err);
+        state.status = "completed";
+      });
+
+      return { retried: failedItems.length };
+    }),
 });
+
+// ─── Batch Regeneration State Machine ────────────────────────────────────────
+
+type BatchItemStatus = "pending" | "processing" | "done" | "failed" | "cancelled";
+
+interface BatchItem {
+  characterId: number;
+  characterName: string;
+  characterRole?: string;
+  jobId: number;
+  jobTitle: string;
+  currentPreviewUrl?: string;
+  newPreviewUrl?: string;
+  status: BatchItemStatus;
+  error?: string;
+}
+
+interface BatchState {
+  batchId: string;
+  userId: number;
+  status: "running" | "completed" | "cancelled";
+  items: BatchItem[];
+  startedAt: Date;
+  completedAt?: Date;
+}
+
+/** In-memory store: one active batch per user at a time. */
+const batchJobs = new Map<number, BatchState>();
+
+/**
+ * Runs all pending items in the batch sequentially.
+ * Mutates the BatchState in-place so polling can observe progress.
+ */
+async function runBatchRegeneration(state: BatchState, userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    state.status = "completed";
+    return;
+  }
+
+  for (const item of state.items) {
+    // Respect cancellation
+    if (state.status === "cancelled") break;
+    if (item.status !== "pending") continue;
+
+    item.status = "processing";
+    console.log(`[batchRegen] Processing character ${item.characterId} (${item.characterName}) for user ${userId}`);
+
+    try {
+      // Fetch the character record
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, item.characterId), eq(videoCharacters.userId, userId)));
+      if (!char) throw new Error("Character not found");
+
+      // Fetch primary photo
+      const photos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.characterId, item.characterId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary));
+      if (photos.length === 0) throw new Error("No photos found for character");
+
+      const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
+
+      // Fetch photo and convert to base64
+      const photoResponse = await fetch(primaryPhoto.photoUrl);
+      if (!photoResponse.ok) throw new Error(`Photo fetch failed: ${photoResponse.status}`);
+      const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
+      const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                       primaryPhoto.photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+      const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
+
+      const description = char.lockedDescription?.trim() ?? "";
+      const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
+      const previewPrompt = description.length > 20
+        ? `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera. ${description}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
+        : `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`;
+
+      // Run InstantID
+      let newImageUrl: string;
+      try {
+        // Ensure credentials are set (FAL_AI_API_KEY, not the default FAL_KEY)
+        if (process.env.FAL_AI_API_KEY) fal.config({ credentials: process.env.FAL_AI_API_KEY });
+        const instantIdResult = await fal.subscribe("fal-ai/instantid", {
+          input: {
+            face_image_url: base64DataUrl,
+            prompt: previewPrompt,
+            style: "Headshot",
+            negative_prompt: "nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, deformed, ugly, disfigured",
+            num_inference_steps: 30,
+            guidance_scale: 5,
+            ip_adapter_scale: 0.8,
+            identity_controlnet_conditioning_scale: 0.9,
+            enhance_face_region: true,
+            enable_lcm: false,
+          },
+        }) as { data: { image: { url: string } } };
+        newImageUrl = instantIdResult.data.image.url;
+        console.log(`[batchRegen] InstantID success for ${item.characterName}: ${newImageUrl}`);
+      } catch (instantIdErr) {
+        // Fallback to Flux PuLID
+        console.warn(`[batchRegen] InstantID failed for ${item.characterName}, falling back to Flux PuLID:`, instantIdErr instanceof Error ? instantIdErr.message : instantIdErr);
+        const pulidResult = await generateFaceConsistentImage({
+          prompt: previewPrompt,
+          referenceImageUrl: base64DataUrl,
+          idWeight: 1.4,
+          guidanceScale: 4,
+          imageSize: "portrait_4_3",
+          negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
+        });
+        newImageUrl = pulidResult.url;
+        console.log(`[batchRegen] Flux PuLID fallback success for ${item.characterName}`);
+      }
+
+      // Persist new preview URL to DB
+      await db.update(videoCharacters)
+        .set({ previewImageUrl: newImageUrl, previewApproved: false, updatedAt: new Date() })
+        .where(eq(videoCharacters.id, item.characterId));
+
+      item.newPreviewUrl = newImageUrl;
+      item.status = "done";
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[batchRegen] Failed for character ${item.characterId} (${item.characterName}):`, msg);
+      item.status = "failed";
+      item.error = msg;
+    }
+  }
+
+  state.status = "completed";
+  state.completedAt = new Date();
+  console.log(`[batchRegen] Batch ${state.batchId} completed for user ${userId}`);
+}

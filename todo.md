@@ -1468,9 +1468,9 @@
 - [x] Fix AI-generated character preview: enforce portrait/head-and-shoulders framing in the image generation prompt so the face is always visible
 
 ## Switch to InstantID for Exact Face Matching
-- [ ] Research InstantID API on fal.ai (model ID, parameters, response format)
-- [ ] Update previewCharacter procedure to use InstantID instead of Flux PuLID
-- [ ] Keep Flux PuLID as fallback if InstantID fails
+- [x] Research InstantID API on fal.ai (model ID, parameters, response format)
+- [x] Update previewCharacter procedure to use InstantID instead of Flux PuLID
+- [x] Keep Flux PuLID as fallback if InstantID fails
 
 ## Character Lock System (Priority: Critical)
 - [x] Research Banuba Face SDK REST API endpoints and auth (replaced with DeepFace/server-side approach)
@@ -1490,3 +1490,14 @@
 - [x] Update previewCharacter procedure to use fal-ai/instantid instead of Flux PuLID
 - [x] Pass face_image as base64 data URL to InstantID for exact face matching
 - [x] Keep generateImage as fallback if InstantID fails
+
+## Batch InstantID Re-generation
+- [x] Add batchRegenerateCharacterPreviews tRPC procedure — queries all photo-mode characters across all jobs for the current user, queues sequential InstantID regeneration, returns per-character status
+- [x] Add getBatchRegenerationStatus tRPC procedure — returns live progress (total, completed, failed, inProgress) polled by UI
+- [x] Add in-memory batch job tracker (Map keyed by userId) to hold running batch state server-side
+- [x] Build BatchRegenerationPanel React component — shows character list with status badges (Pending/Processing/Done/Failed), overall progress bar, Start/Cancel button
+- [x] Add BatchRegenerationPanel to Dashboard page (or dedicated /dashboard/batch-regenerate route)
+- [x] Per-character row: name, job title, current preview thumbnail, status pill, error message if failed
+- [x] Auto-poll status every 3 seconds while batch is running
+- [x] Show summary on completion: X succeeded, Y failed, with retry-failed button
+- [x] Write vitest tests for batchRegenerateCharacterPreviews procedure
