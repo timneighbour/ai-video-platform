@@ -1356,3 +1356,4 @@
 - [x] Ensure new forensic descriptions for Tim and Greg are used after storyboard regeneration
 - [x] Fix storyboard preview images not loading after prompt duplication fix
 - [x] Improve character likeness in storyboard preview images — AI-generated images don't resemble uploaded photos
+- [x] Pass ALL uploaded photos per character to preview image generation (not just 1 per character) for better likeness from multiple angles

@@ -810,12 +810,11 @@ Rules:
       // Build a set of character IDs that appear in this scene
       const sceneCharIds = new Set(sceneChars.map(c => c.id));
 
-      // Collect reference photos: prioritise scene-assigned characters, primary photos first
+      // Collect ALL reference photos for scene-assigned characters (multiple angles help AI with likeness)
+      // Primary photos come first (already sorted by isPrimary desc), then additional angles/styles
       const referenceImages: Array<{ url: string; mimeType: string }> = [];
-      const seenCharacters = new Set<number>();
       for (const photo of allPhotos) {
-        if (sceneCharIds.has(photo.characterId) && !seenCharacters.has(photo.characterId) && referenceImages.length < 4) {
-          seenCharacters.add(photo.characterId);
+        if (sceneCharIds.has(photo.characterId)) {
           referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
         }
       }
@@ -977,14 +976,11 @@ Rules:
       const characterPhotos = await db.select().from(videoCharacterPhotos)
         .where(eq(videoCharacterPhotos.jobId, input.jobId))
         .orderBy(desc(videoCharacterPhotos.isPrimary));
+      // Pass ALL photos for all characters (multiple angles/styles help AI with likeness)
       const referenceImages: Array<{ url: string; mimeType: string }> = [];
       if (characterPhotos.length > 0) {
-        const seenCharacters = new Set<number>();
         for (const photo of characterPhotos) {
-          if (!seenCharacters.has(photo.characterId) && referenceImages.length < 2) {
-            seenCharacters.add(photo.characterId);
-            referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
-          }
+          referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
         }
       } else if (job.characterImageUrl) {
         referenceImages.push({ url: job.characterImageUrl, mimeType: "image/jpeg" });
