@@ -138,6 +138,7 @@ export const musicVideoRouter = router({
         genre: input.genre ?? null,
         mood: input.mood ?? null,
         transcription: null,
+        transcriptionStatus: "pending",
         characterImageUrl: characterImageUrl ?? null,
         characterImageKey: characterImageKey ?? null,
         enableLipSync: input.enableLipSync ?? false,
