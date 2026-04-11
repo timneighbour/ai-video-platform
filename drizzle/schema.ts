@@ -134,6 +134,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   finalVideoKey: varchar("finalVideoKey", { length: 512 }),
   creditCost: int("creditCost").default(0).notNull(),
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
+  sceneSetting: varchar("sceneSetting", { length: 512 }), // User-chosen visual environment e.g. "concert venue", "desert", "rooftop"
   lyricsApproved: boolean("lyricsApproved").default(false).notNull(), // User has approved lyrics before render
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -221,11 +222,12 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   // Character Lock — once locked, appearance is enforced across all scenes
   lockedDescription: text("lockedDescription"), // Full visual brief: clothing, hair, colours, accessories, etc.
   isLocked: boolean("isLocked").default(false), // When true, brief is enforced in every scene prompt
-  lockedAt: timestamp("lockedAt"), // When the lock was applied
+   lockedAt: timestamp("lockedAt"), // When the lock was applied
+  previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated test image for user approval before storyboard
+  previewApproved: boolean("previewApproved").default(false), // User approved the character likeness
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
-
 export type VideoCharacter = typeof videoCharacters.$inferSelect;
 export type InsertVideoCharacter = typeof videoCharacters.$inferInsert;
 

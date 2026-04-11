@@ -21,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
+import CharacterConfirmationStep from "@/components/CharacterConfirmationStep";
 import CreditBalance from "@/components/CreditBalance";
 import { Link } from "wouter";
 import {
@@ -53,7 +54,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-type Step = "upload" | "storyboard" | "render";
+type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
 interface SceneCard {
   id: number;
@@ -70,6 +71,7 @@ interface SceneCard {
   lipSync: boolean;
   lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime";
   regenerating?: boolean;
+  characterAssignments?: string[] | null; // Names of characters in this scene e.g. ["Tim", "Greg"]
 }
 
 function formatTime(seconds: number): string {
@@ -98,6 +100,8 @@ export default function MusicVideoAutopilot() {
   const [genre, setGenre] = useLocalStorage("musicVideo_genre", "");
   const [mood, setMood] = useLocalStorage("musicVideo_mood", "");
   const [selectedStyle, setSelectedStyle] = useLocalStorage("musicVideo_style", "cinematic");
+  const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
+  const [savedCharacterIds, setSavedCharacterIds] = useState<Record<number, number>>({});
   const [transcriptionText, setTranscriptionText] = useLocalStorage<string | null>("musicVideo_lyrics", null);
   const [audioFile, setAudioFile] = useState<File | null>(null); // Files can't be persisted
   const [uploadProgress, setUploadProgress] = useState<number>(0); // 0-100 for upload progress bar
@@ -243,6 +247,15 @@ export default function MusicVideoAutopilot() {
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+  // Character roster for storyboard @-tag display and per-scene assignment
+  const jobCharactersQuery = trpc.musicVideo.getCharactersForJob.useQuery(
+    { jobId: jobId! },
+    { enabled: !!jobId && (step === "storyboard" || step === "character_confirmation"), staleTime: 30000 }
+  );
+  const jobCharacters = jobCharactersQuery.data?.characters ?? [];
+
+  // Per-scene character selector dropdown state
+  const [characterSelectorSceneId, setCharacterSelectorSceneId] = useState<number | null>(null);
 
   // Edit-before-retry state (separate from storyboard edit state above)
   const [editingFailedSceneId, setEditingFailedSceneId] = useState<number | null>(null);
@@ -468,6 +481,7 @@ export default function MusicVideoAutopilot() {
         characterImageBase64,
         characterImageMimeType: characterImageMimeType as any,
         enableLipSync,
+        sceneSetting: sceneSetting.trim() || undefined,
       });
 
       setJobId(result.jobId);
@@ -483,6 +497,11 @@ export default function MusicVideoAutopilot() {
               name: c.name,
               role: c.role,
               enableLipSync: c.enableLipSync,
+              mode: c.mode,
+              aiGeneratedImageUrl: c.aiGeneratedImageUrl || undefined,
+              aiGeneratedBrief: c.aiGeneratedBrief || undefined,
+              lockedDescription: c.lockedDescription || undefined,
+              isLocked: c.isLocked,
               photos: c.photos.map((p) => ({
                 photoBase64: p.base64,
                 photoMimeType: p.mimeType,
@@ -490,6 +509,12 @@ export default function MusicVideoAutopilot() {
               })),
             })),
           });
+          // Track saved character IDs for Re-analyse button
+          const newSavedIds: Record<number, number> = {};
+          for (const saved of saveResult.characters) {
+            newSavedIds[saved.slotIndex] = saved.id;
+          }
+          setSavedCharacterIds(newSavedIds);
           // Auto-analyse and auto-lock every character that has photos
           // The vision LLM extracts a precise physical description from the uploaded photo
           // so users never need to type appearance descriptions manually
@@ -563,19 +588,25 @@ export default function MusicVideoAutopilot() {
       }
 
       // Transcription was already started when the file was selected; no need to re-trigger;
-      // Dismiss the upload toast — song is uploaded, now moving to storyboard generation
+      // Dismiss the upload toast — song is uploaded
       toast.dismiss(UPLOAD_TOAST_ID);
-      setStoryboardGenerating(true);
-      const STORYBOARD_TOAST_ID = "storyboard-generating";
-      toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
-      const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
-      setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
-      // Dismiss the loading toast and overlay — scenes are ready
-      toast.dismiss(STORYBOARD_TOAST_ID);
-      setStoryboardGenerating(false);
-      // Fetch actual scene IDs from server
-      setStep("storyboard");
-      toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
+      // If there are characters with photos or AI-generated content, go to confirmation step first
+      const hasCharactersToConfirm = characters.length > 0;
+      if (hasCharactersToConfirm) {
+        setStep("character_confirmation");
+        toast.success("Characters saved!", { description: "Review your character previews before generating the storyboard." });
+      } else {
+        // No characters — go straight to storyboard generation
+        setStoryboardGenerating(true);
+        const STORYBOARD_TOAST_ID = "storyboard-generating";
+        toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
+        const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
+        setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+        toast.dismiss(STORYBOARD_TOAST_ID);
+        setStoryboardGenerating(false);
+        setStep("storyboard");
+        toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
+      }
     } catch (err: any) {
       toast.dismiss(UPLOAD_TOAST_ID);
       toast.dismiss("storyboard-generating");
@@ -611,6 +642,9 @@ export default function MusicVideoAutopilot() {
         lipSync: s.lipSync ?? true,
         lipSyncStyle: (s.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
         regenerating: false,
+        characterAssignments: s.characterAssignments
+          ? (() => { try { return JSON.parse(s.characterAssignments); } catch { return null; } })()
+          : null,
       }));
       setScenes(mappedScenes);
       // Trigger image generation for scenes that don't have a preview yet
@@ -666,6 +700,24 @@ export default function MusicVideoAutopilot() {
       }
     } catch (err: any) {
       toast.error("Error", { description: err.message });
+    }
+  };
+
+  const handleToggleSceneCharacter = async (sceneId: number, characterName: string) => {
+    const scene = scenes.find(s => s.id === sceneId);
+    if (!scene) return;
+    const current = scene.characterAssignments ?? [];
+    const updated = current.includes(characterName)
+      ? current.filter(n => n !== characterName)
+      : [...current, characterName];
+    // Optimistic update
+    setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, characterAssignments: updated } : s));
+    try {
+      await updateScene.mutateAsync({ sceneId, prompt: scene.prompt, characterAssignments: updated });
+    } catch (err: any) {
+      // Rollback
+      setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, characterAssignments: current } : s));
+      toast.error("Failed to update character assignment", { description: err?.message });
     }
   };
 
@@ -944,17 +996,17 @@ export default function MusicVideoAutopilot() {
 
           {/* Step indicators */}
           <div className="flex items-center gap-2 mt-4">
-            {(["upload", "storyboard", "render"] as Step[]).map((s, i) => (
+            {(["upload", "character_confirmation", "storyboard", "render"] as Step[]).map((s, i) => (
               <div key={s} className="flex items-center gap-2">
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                   step === s ? "bg-purple-600 text-white" :
-                  (["upload", "storyboard", "render"].indexOf(step) > i) ? "bg-zinc-700 text-zinc-300" :
+                  (["upload", "character_confirmation", "storyboard", "render"].indexOf(step) > i) ? "bg-zinc-700 text-zinc-300" :
                   "bg-zinc-900 text-zinc-500"
                 }`}>
                   <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">{i + 1}</span>
-                  <span className="capitalize hidden sm:inline">{s === "upload" ? "Upload & Theme" : s === "storyboard" ? "Review Storyboard" : "Render & Download"}</span>
+                  <span className="capitalize hidden sm:inline">{s === "upload" ? "Setup" : s === "character_confirmation" ? "Confirm Characters" : s === "storyboard" ? "Review Storyboard" : "Render & Download"}</span>
                 </div>
-                {i < 2 && <ChevronRight className="w-4 h-4 text-zinc-600" />}
+                {i < 3 && <ChevronRight className="w-4 h-4 text-zinc-600" />}
               </div>
             ))}
           </div>
@@ -1256,16 +1308,79 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
-              {/* Characters & Lip Sync — multi-character */}
+              {/* Locations / Scene Setting */}
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <span className="text-xl">🌍</span>
+                    Locations & Scene Settings
+                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional</Badge>
+                  </CardTitle>
+                  <p className="text-zinc-500 text-xs mt-1">
+                    Describe where your video takes place. The AI will use these as the primary visual environments across scenes.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Textarea
+                    value={sceneSetting}
+                    onChange={(e) => setSceneSetting(e.target.value)}
+                    placeholder={`Describe the locations and environments for your video.\n\nExamples:\n• Concert venue with dramatic stage lighting\n• Desert at golden hour, sand dunes\n• Rooftop at night with city skyline\n• Neon-lit underground club\n• Forest clearing with dappled sunlight\n• Multiple: concert stage, backstage corridor, crowd shots`}
+                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-600 min-h-[110px] text-sm resize-none"
+                    rows={5}
+                  />
+                  {/* Quick-pick location chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "🎸 Concert Venue",
+                      "🏜️ Desert",
+                      "🌆 City Rooftop",
+                      "🌲 Forest",
+                      "🌊 Beach at Sunset",
+                      "🌃 Neon Club",
+                      "🏔️ Mountain Peak",
+                      "🚂 Moving Train",
+                      "🎠 Abandoned Fairground",
+                      "🏙️ Urban Streets",
+                      "🌌 Space / Galaxy",
+                      "🏰 Medieval Castle",
+                    ].map((loc) => {
+                      const label = loc.split(" ").slice(1).join(" ");
+                      const isSelected = sceneSetting.toLowerCase().includes(label.toLowerCase());
+                      return (
+                        <button
+                          key={loc}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSceneSetting(prev => prev.replace(new RegExp(label + ",?\\s*", "i"), "").trim());
+                            } else {
+                              setSceneSetting(prev => prev ? `${prev.trim()}, ${label}` : label);
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                            isSelected
+                              ? "bg-violet-800/60 border-violet-500 text-violet-200"
+                              : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+                          }`}
+                        >
+                          {loc}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Characters — dual mode: Photo Upload or AI Generated */}
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <User className="w-5 h-5 text-purple-400" />
-                    Characters & Lip Sync
+                    Characters
                     <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional · Up to 4</Badge>
                   </CardTitle>
                   <p className="text-zinc-500 text-xs mt-1">
-                    Add up to 4 characters with reference photos. The AI will use their appearance consistently across all scenes.
+                    Upload photos of real people or describe AI-generated characters. Each will appear consistently across all scenes.
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -1273,6 +1388,9 @@ export default function MusicVideoAutopilot() {
                     characters={characters}
                     onChange={setCharacters}
                     maxCharacters={4}
+                    jobId={jobId}
+                    savedCharacterIds={savedCharacterIds}
+                    videoStyle={selectedStyle}
                   />
                 </CardContent>
               </Card>
@@ -1375,6 +1493,35 @@ export default function MusicVideoAutopilot() {
               </Button>
             </div>
           </div>
+        )}
+
+        {/* ===== STEP 1.5: CHARACTER CONFIRMATION ===== */}
+        {step === "character_confirmation" && jobId && (
+          <CharacterConfirmationStep
+            jobId={jobId}
+            savedCharacterIds={savedCharacterIds}
+            onApproveAll={() => {
+              // All characters approved — proceed to storyboard generation
+              setStoryboardGenerating(true);
+              const STORYBOARD_TOAST_ID = "storyboard-generating";
+              toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
+              generateStoryboardMutation.mutateAsync({ jobId: jobId! })
+                .then((storyboard) => {
+                  setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+                  toast.dismiss(STORYBOARD_TOAST_ID);
+                  setStoryboardGenerating(false);
+                  setStep("storyboard");
+                  toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created.` });
+                })
+                .catch((err: any) => {
+                  toast.dismiss(STORYBOARD_TOAST_ID);
+                  setStoryboardGenerating(false);
+                  toast.error("Storyboard generation failed", { description: err?.message ?? "Please try again." });
+                });
+            }}
+            onBack={() => setStep("upload")}
+            isGeneratingStoryboard={storyboardGenerating}
+          />
         )}
 
         {/* ===== STEP 2: STORYBOARD ===== */}
@@ -1578,6 +1725,69 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
 
+                    {/* @Character tags + per-scene character selector */}
+                    {jobCharacters.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-zinc-800/60">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {/* Assigned character tags */}
+                          {(scene.characterAssignments ?? []).map((name) => (
+                            <button
+                              key={name}
+                              type="button"
+                              onClick={() => handleToggleSceneCharacter(scene.id, name)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-violet-900/50 text-violet-300 border border-violet-700/60 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
+                              title={`Remove ${name} from this scene`}
+                            >
+                              @{name}
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          ))}
+                          {/* Add character button */}
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setCharacterSelectorSceneId(characterSelectorSceneId === scene.id ? null : scene.id)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-500 border border-zinc-700 hover:border-zinc-500 hover:text-zinc-300 transition-colors"
+                            >
+                              <User className="w-2.5 h-2.5" />
+                              {(scene.characterAssignments ?? []).length === 0 ? "Add character" : "+"}
+                            </button>
+                            {/* Dropdown */}
+                            {characterSelectorSceneId === scene.id && (
+                              <div className="absolute left-0 top-7 z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl min-w-[160px] py-1">
+                                {jobCharacters.map((char: any) => {
+                                  const isAssigned = (scene.characterAssignments ?? []).includes(char.name);
+                                  return (
+                                    <button
+                                      key={char.id}
+                                      type="button"
+                                      onClick={() => { handleToggleSceneCharacter(scene.id, char.name); setCharacterSelectorSceneId(null); }}
+                                      className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition-colors ${
+                                        isAssigned
+                                          ? "text-violet-300 bg-violet-900/30 hover:bg-violet-900/50"
+                                          : "text-zinc-300 hover:bg-zinc-800"
+                                      }`}
+                                    >
+                                      {isAssigned ? <CheckCircle2 className="w-3 h-3 text-violet-400" /> : <User className="w-3 h-3 text-zinc-500" />}
+                                      @{char.name}
+                                      {char.role && <span className="text-zinc-600 ml-auto">{char.role}</span>}
+                                    </button>
+                                  );
+                                })}
+                                <button
+                                  type="button"
+                                  onClick={() => setCharacterSelectorSceneId(null)}
+                                  className="w-full text-left px-3 py-2 text-xs text-zinc-600 hover:bg-zinc-800 border-t border-zinc-800 mt-1"
+                                >
+                                  Close
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Lip Sync toggle + style selector */}
                     <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2.5">
                       {/* Toggle row */}
@@ -1686,7 +1896,7 @@ export default function MusicVideoAutopilot() {
                       <Button
                         variant="outline"
                         className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
-                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); }}
+                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
                       >
                         Create Another
                       </Button>

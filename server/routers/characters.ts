@@ -23,6 +23,12 @@ const characterInputSchema = z.object({
   role: z.string().max(255).optional(),
   enableLipSync: z.boolean().optional().default(false),
   photos: z.array(photoInputSchema).max(10),
+  // AI-generated character fields
+  mode: z.enum(["photo", "ai_generated"]).optional().default("photo"),
+  aiGeneratedImageUrl: z.string().url().optional(),
+  aiGeneratedBrief: z.string().max(2000).optional(),
+  lockedDescription: z.string().max(2000).optional(),
+  isLocked: z.boolean().optional().default(false),
 });
 
 export const charactersRouter = router({
@@ -60,6 +66,9 @@ export const charactersRouter = router({
           role: charInput.role ?? null,
           enableLipSync: charInput.enableLipSync,
           slotIndex: charInput.slotIndex,
+          previewImageUrl: charInput.aiGeneratedImageUrl ?? null,
+          lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
+          isLocked: charInput.isLocked ?? false,
         });
         const characterId = (result as any).insertId as number;
 

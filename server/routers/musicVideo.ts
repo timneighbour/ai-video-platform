@@ -76,6 +76,7 @@ export const musicVideoRouter = router({
         characterImageBase64: z.string().optional(), // base64 encoded character photo
         characterImageMimeType: z.string().optional(), // e.g. "image/jpeg"
         enableLipSync: z.boolean().optional(),
+        sceneSetting: z.string().max(512).optional(), // e.g. "concert venue", "desert", "rooftop"
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -166,6 +167,7 @@ export const musicVideoRouter = router({
         finalVideoKey: null,
         creditCost,
         characterRoster: null,
+        sceneSetting: input.sceneSetting ?? null,
         lyricsApproved: false,
         errorMessage: null,
       });
@@ -262,10 +264,26 @@ export const musicVideoRouter = router({
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
 
       // Auto-analyse and lock any characters that have photos but no locked description yet.
-      // This handles the case where photo upload completed but analysis was skipped on the frontend.
+      // Also re-analyse if the existing description is too short/vague to be useful for AI image generation.
+      // A good AI-generated description is 150+ chars with specific visual details.
+      // Short user-typed descriptions like "Rock Star, leather jacket" won't produce face likeness.
       const { invokeLLM } = await import("../_core/llm");
+      const isDescriptionTooVague = (desc: string | null | undefined): boolean => {
+        if (!desc) return true;
+        const trimmed = desc.trim();
+        // Too short to be a proper forensic description
+        if (trimmed.length < 150) return true;
+        // Doesn't contain key forensic markers (hair, eyes, skin) — likely user-typed
+        const hasHair = /hair/i.test(trimmed);
+        const hasEyes = /eye/i.test(trimmed);
+        const hasSkin = /skin|complexion|tone/i.test(trimmed);
+        if (!hasHair && !hasEyes && !hasSkin) return true;
+        return false;
+      };
       for (const char of allCharacters) {
-        if (char.isLocked && char.lockedDescription) continue; // already locked
+        // Skip if already has a good detailed description AND no photos to re-analyse from
+        const needsAnalysis = !char.lockedDescription || isDescriptionTooVague(char.lockedDescription);
+        if (!needsAnalysis) continue; // already has a detailed description — skip
         // Fetch primary photo for this character
         const photos = await db.select().from(videoCharacterPhotos)
           .where(eq(videoCharacterPhotos.characterId, char.id));
@@ -332,7 +350,8 @@ Rules:
         job.audioDuration,
         job.title,
         lyricsSegments,
-        lockedCharacters.length > 0 ? lockedCharacters : undefined
+        lockedCharacters.length > 0 ? lockedCharacters : undefined,
+        job.sceneSetting ?? undefined
       ));
 
       console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);
@@ -420,6 +439,7 @@ Rules:
       sceneId: z.number().int(),
       prompt: z.string().min(10).max(1000),
       visualStyle: z.string().max(255).optional(),
+      characterAssignments: z.array(z.string()).optional(), // Names of characters in this scene
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -433,8 +453,12 @@ Rules:
         .where(and(eq(musicVideoJobs.id, scene.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "FORBIDDEN" });
 
+      const charAssignmentsJson = input.characterAssignments !== undefined
+        ? JSON.stringify(input.characterAssignments)
+        : scene.characterAssignments;
+
       await db.update(musicVideoScenes)
-        .set({ prompt: input.prompt, visualStyle: input.visualStyle ?? scene.visualStyle, updatedAt: new Date() })
+        .set({ prompt: input.prompt, visualStyle: input.visualStyle ?? scene.visualStyle, characterAssignments: charAssignmentsJson, updatedAt: new Date() })
         .where(eq(musicVideoScenes.id, input.sceneId));
 
       return { success: true };
@@ -1415,5 +1439,266 @@ Rules:
       const failedScenes = scenes.filter((s) => s.status === "failed").length;
 
       return { job, scenes, totalScenes, completedScenes, failedScenes };
+    }),
+
+  // Re-analyse a character's reference photo to generate a detailed forensic description.
+  // Useful when the existing lockedDescription is too short/vague (user-typed) and needs
+  // to be replaced with a proper AI-generated appearance brief for better face likeness.
+  reanalyseCharacterPhoto: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(
+          eq(videoCharacters.id, input.characterId),
+          eq(videoCharacters.jobId, input.jobId),
+          eq(videoCharacters.userId, ctx.user.id)
+        ));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND", message: "Character not found" });
+
+      // Fetch primary photo
+      const photos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.characterId, input.characterId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary));
+      const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
+      if (!primaryPhoto?.photoUrl) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No reference photo found for this character. Please upload a photo first." });
+      }
+
+      const { invokeLLM } = await import("../_core/llm");
+      const analysisResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system" as const,
+            content: `You are a forensic visual analyst writing character appearance briefs for AI video generation.
+Describe exactly what you see in the photo with maximum precision. This description will be used word-for-word in AI video prompts.
+Rules:
+- Describe ONLY what is visually observable. Do NOT guess or infer.
+- Be hyper-specific: exact hair colour, eye colour, skin tone, clothing.
+- Include: gender, apparent age range, ethnicity/skin tone, hair (colour, length, texture, style), eyes (colour and shape), face shape, build, clothing, distinctive features.
+- Output: A single dense paragraph of 80-120 words. No bullet points.`,
+          },
+          {
+            role: "user" as const,
+            content: [
+              { type: "image_url" as const, image_url: { url: primaryPhoto.photoUrl, detail: "high" as const } },
+              { type: "text" as const, text: `Analyse this photo and write a precise 80-120 word character appearance brief for ${char.name}. Include: ${char.role ? `Role: ${char.role}. ` : ""}Be forensically specific about hair colour/texture/style, exact skin tone, eye colour and shape, face structure, build, clothing, and any distinctive features.` },
+            ],
+          },
+        ],
+      });
+
+      const description = analysisResponse.choices[0]?.message?.content;
+      if (!description || typeof description !== "string" || description.trim().length < 20) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to generate description from photo. Please try again." });
+      }
+
+      const trimmedDescription = description.trim();
+      await db.update(videoCharacters)
+        .set({ isLocked: true, lockedDescription: trimmedDescription, updatedAt: new Date() })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      console.log(`[reanalyseCharacterPhoto] Updated ${char.name} description (${trimmedDescription.length} chars)`);
+      return { success: true, description: trimmedDescription };
+    }),
+
+  // Generate a test AI preview image for a locked character so the user can confirm likeness
+  // before the full storyboard is generated. Uses Flux PuLID if photos are available.
+  previewCharacter: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(
+          eq(videoCharacters.id, input.characterId),
+          eq(videoCharacters.jobId, input.jobId),
+          eq(videoCharacters.userId, ctx.user.id)
+        ));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND", message: "Character not found" });
+
+      const description = char.lockedDescription?.trim() ?? "";
+      const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
+
+      // Build a neutral portrait prompt for the preview
+      const previewPrompt = description.length > 20
+        ? `Portrait photo of ${characterLabel}. ${description}. Looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail.`
+        : `Portrait photo of ${characterLabel}, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail.`;
+
+      // Fetch all photos for Flux PuLID
+      const photos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.characterId, input.characterId))
+        .orderBy(desc(videoCharacterPhotos.isPrimary));
+
+      let imageUrl: string;
+      if (photos.length > 0) {
+        // Use Flux PuLID for face-consistent preview — use primary photo as reference
+        const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
+        try {
+          const result = await generateFaceConsistentImage({
+            prompt: previewPrompt,
+            referenceImageUrl: primaryPhoto.photoUrl,
+            idWeight: 1.3, // Slightly higher for preview — maximise likeness
+            guidanceScale: 4,
+            imageSize: "portrait_4_3",
+            negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration",
+          });
+          imageUrl = result.url;
+        } catch (pulidErr) {
+          console.warn(`[previewCharacter] Flux PuLID failed for ${char.name}, falling back:`, pulidErr);
+          const fallback = await generateImage({ prompt: previewPrompt });
+          imageUrl = fallback.url ?? "";
+        }
+      } else {
+        // No photos — use generic image generation
+        const result = await generateImage({ prompt: previewPrompt });
+        imageUrl = result.url ?? "";
+      }
+
+      // Store preview URL in DB (reset approval status)
+      await db.update(videoCharacters)
+        .set({ previewImageUrl: imageUrl, previewApproved: false, updatedAt: new Date() })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      console.log(`[previewCharacter] Generated preview for ${char.name}: ${imageUrl}`);
+      return { imageUrl, characterId: input.characterId, characterName: char.name };
+    }),
+
+  // Mark a character's preview image as approved by the user
+  approveCharacterPreview: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(
+          eq(videoCharacters.id, input.characterId),
+          eq(videoCharacters.jobId, input.jobId),
+          eq(videoCharacters.userId, ctx.user.id)
+        ));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await db.update(videoCharacters)
+        .set({ previewApproved: true, updatedAt: new Date() })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      return { success: true };
+    }),
+
+  // Fetch all characters for a job with their preview images and approval status
+  getCharactersForJob: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify job ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const chars = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)))
+        .orderBy(videoCharacters.slotIndex);
+
+      // Attach photo count per character
+      const charsWithPhotos = await Promise.all(chars.map(async (c) => {
+        const photos = await db.select().from(videoCharacterPhotos)
+          .where(eq(videoCharacterPhotos.characterId, c.id));
+        return {
+          ...c,
+          photoCount: photos.length,
+          primaryPhotoUrl: photos.find(p => p.isPrimary)?.photoUrl ?? photos[0]?.photoUrl ?? null,
+        };
+      }));
+
+      return { characters: charsWithPhotos };
+    }),
+
+  // Generate a character visual brief + preview image from a plain-English description.
+  // Supports both realistic and animated styles.
+  // Does NOT require a saved job — can be called before job creation for instant preview.
+  generateCharacterFromDescription: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1).max(100),
+      role: z.string().max(100).optional(),
+      description: z.string().min(5).max(500),
+      style: z.enum(["realistic", "pixar3d", "anime", "cartoon"]).default("realistic"),
+    }))
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+
+      const styleGuide: Record<string, string> = {
+        realistic: "photorealistic, real human, cinematic photography style, natural skin texture",
+        pixar3d: "Pixar 3D animation style, vibrant colours, expressive face, smooth 3D render, Disney-Pixar aesthetic",
+        anime: "Japanese anime style, cel-shaded, large expressive eyes, clean line art, vibrant colours",
+        cartoon: "cartoon illustration style, bold outlines, flat colours, exaggerated proportions, fun and expressive",
+      };
+
+      const styleLabel = { realistic: "Realistic", pixar3d: "Pixar 3D", anime: "Anime", cartoon: "Cartoon" }[input.style];
+
+      // Step 1: LLM expands the short description into a full visual brief
+      const briefResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system" as const,
+            content: `You are a character designer writing precise visual briefs for AI video generation.
+Expand the user's short character description into a detailed 80-120 word visual brief.
+Style: ${styleLabel} (${styleGuide[input.style]}).
+Rules:
+- Be hyper-specific: exact colours, clothing details, hair style, body type, age, expression.
+- For animated styles: describe the character AS IF they are that animation style (e.g. "Pixar-style character with large expressive eyes...").
+- For realistic: describe as a real person with precise physical details.
+- Output: A single dense paragraph. No bullet points. No preamble.`,
+          },
+          {
+            role: "user" as const,
+            content: `Character name: ${input.name}${input.role ? `. Role: ${input.role}` : ""}.
+User description: "${input.description}"
+Write the full visual brief now.`,
+          },
+        ],
+      });
+
+      const visualBrief = (briefResponse.choices[0]?.message?.content as string | undefined)?.trim() ?? input.description;
+
+      // Step 2: Generate preview image using the expanded brief
+      const imagePrompt = input.style === "realistic"
+        ? `Portrait of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. Looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
+        : `${styleLabel} style character portrait of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render.`;
+
+      const negativePrompt = input.style === "realistic"
+        ? "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, watermark"
+        : "photorealistic, photograph, ugly, distorted, low quality, watermark";
+
+      let imageUrl: string;
+      try {
+        const result = await generateImage({ prompt: imagePrompt });
+        imageUrl = result.url ?? "";
+      } catch (err) {
+        console.warn("[generateCharacterFromDescription] Image generation failed:", err);
+        imageUrl = "";
+      }
+
+      return {
+        visualBrief,
+        imageUrl,
+        style: input.style,
+      };
     }),
 });

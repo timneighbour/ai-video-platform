@@ -149,7 +149,8 @@ export async function generateStoryboard(
   audioDurationSeconds: number,
   title: string,
   lyricsSegments?: Array<{ start: number; end: number; text: string }>,
-  lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>
+  lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>,
+  sceneSetting?: string | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
   const minutes = Math.floor(audioDurationSeconds / 60);
@@ -224,13 +225,15 @@ CRITICAL RULES — MUST FOLLOW:
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 
+  const sceneSettingLine = sceneSetting ? `- Locations/Scene Setting: ${sceneSetting}` : "";
+
   const rosterUserPrompt = `Define the complete character roster for a music video called "${title}".
 
 Video concept:
 - Theme: ${themePrompt}
 - Genre: ${genre || "not specified"}
 - Mood: ${mood || "not specified"}
-- Style: music video with ${sceneCount} scenes
+- Style: music video with ${sceneCount} scenes${sceneSettingLine ? `\n${sceneSettingLine}` : ""}
 
 ${lockedBlock}
 
@@ -385,7 +388,7 @@ Song details:
 - Theme/Concept: ${themePrompt}
 - Genre: ${genre || "not specified"}
 - Mood: ${mood || "not specified"}
-- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)
+- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)${sceneSetting ? `\n- Locations/Scene Setting: ${sceneSetting} — USE THESE LOCATIONS as the primary visual environments for scenes. Vary between them naturally across the video.` : ""}
 
 ${hasLyrics ? `Lyrics by scene (use these to inspire each scene's visuals — make the imagery match what is being sung):
 ${sceneList}

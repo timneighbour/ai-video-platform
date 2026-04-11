@@ -1396,3 +1396,62 @@
 - [x] **VERIFIED**: Spatial positioning working correctly (LEFT/CENTER/RIGHT tags effective)
 - [x] Single-character scenes using Flux PuLID: Perfect face likeness across all scenes
 - [x] Multi-character scenes using improved prompts: All characters distinct and properly positioned
+
+## Session 26 - Character Consistency Bugs (Regression)
+- [ ] Fix random extra musicians appearing in multi-character scenes (e.g. Scene 6, 17, 24 have 4th person)
+- [ ] Fix Tim being shown playing bass in scenes where he should be playing guitar (instrument assignment wrong)
+- [ ] Investigate whether character locked descriptions include instrument info and if it's being respected
+- [ ] Investigate whether scene prompts are overriding character instrument assignments
+
+## Session 26 - Character Description Quality Fix
+- [ ] Auto re-analyse character photos on storyboard generation when lockedDescription is short (< 150 chars) and photos exist
+- [ ] Add reanalyseCharacterPhoto tRPC mutation that re-runs AI photo analysis and updates lockedDescription
+- [ ] Add "Re-analyse Photo" button to character card UI (next to Locked Visual Brief)
+- [ ] Show loading state on Re-analyse button while analysis runs
+- [ ] Show success/error toast after re-analysis completes
+- [ ] Update the auto-analysis threshold to force re-analysis when description looks like a user-typed placeholder
+
+## Character Re-analyse & Scene Setting Features
+- [x] Add Re-analyse Photo button to CharacterManager (calls reanalyseCharacterPhoto mutation, shows spinner, updates lockedDescription in UI)
+- [x] CharacterManager accepts optional jobId + savedCharacterIds props for re-analyse button to work on saved characters
+- [x] Add Scene Setting / Location selector to storyboard setup (concert venue, desert, rooftop, forest, studio, beach, city streets, etc.)
+- [x] Add sceneSetting field to musicVideoJobs DB schema and migration
+- [x] Wire sceneSetting into generateStoryboard LLM prompt so every scene respects the chosen location
+- [x] Show sceneSetting in storyboard UI so user can see/change it
+
+## Character Preview Confirmation Step
+- [x] Add previewCharacter tRPC procedure: generate a test AI image for a locked character using Flux PuLID (photos + description), return imageUrl
+- [x] Add character preview step to MusicVideoAutopilot wizard (between character setup and storyboard generation)
+- [x] Show generated test image per character with Approve / Re-analyse / Regenerate options
+- [x] Only proceed to storyboard generation once user clicks "Approve All & Generate Storyboard"
+- [x] Allow user to re-analyse photo or regenerate preview image from the confirmation screen
+- [x] Store approved preview image URL per character in DB (previewImageUrl column on videoCharacters)
+
+## AI Character Generator
+- [x] Add generateCharacterFromDescription tRPC procedure: LLM expands short description into 80-120 word visual brief (supports real/animated style), then generates a preview image
+- [x] Add AI Character Generator panel to CharacterManager: text input for description, style toggle (Realistic / Animated), Generate button, preview image result
+- [x] On generate: auto-fill lockedDescription with AI-expanded brief and show preview image
+- [x] User can accept the generated character (locks it) or regenerate with tweaks
+- [x] Animated style uses appropriate prompt modifiers (Pixar 3D, cartoon, etc.)
+- [x] Wire sceneSetting into createJob and generateStoryboard procedures
+- [x] Pass savedCharacterIds back from MusicVideoAutopilot to CharacterManager for Re-analyse button
+
+## Wizard Restructure (Step 1 Comprehensive Setup)
+- [x] Step 1 sections: (1) Upload Song, (2) Theme & Concept, (3) Locations/Scene Setting, (4) Characters
+- [x] Locations section: visual card grid with preset options (Concert Venue, Desert, Rooftop, Forest, Studio, Beach, City Streets, Warehouse, Club, Space, etc.) + custom text input
+- [x] Characters section: each slot has a mode toggle — "Upload Photo" (real person) vs "AI Generate" (description-based)
+- [x] AI Generate mode: text input for description + style selector (Realistic / Pixar 3D / Anime / Cartoon) + Generate Preview button
+- [x] Photo Upload mode: existing multi-photo upload UI with Re-analyse button
+- [x] Add generateCharacterFromDescription tRPC procedure: LLM expands description → full visual brief → generates preview image
+- [x] Character Confirmation step (new step between setup and storyboard): shows AI-generated preview image per character, Approve / Regenerate / Edit Description per card
+- [x] "Approve All & Generate Storyboard" button only enabled when all characters are approved
+- [x] Characters with no photo and no AI generation are skipped in confirmation step
+- [x] sceneSetting stored on job and injected into every storyboard scene LLM prompt
+
+## Storyboard Scene Editor — @Character Tags
+- [x] Show character assignments as @Name tags on each storyboard scene card (e.g. @Tim @Greg)
+- [x] Each @tag is colour-coded to match the character's slot colour
+- [x] Add per-scene character selector: click to open dropdown of full character roster, check/uncheck characters
+- [x] Changing character assignments updates the scene's characterAssignments array and saves to DB
+- [ ] When a character is added/removed from a scene, update the scene prompt accordingly (re-inject character description)
+- [ ] Show character avatar thumbnail (previewImageUrl or primaryPhotoUrl) next to @tag for visual recognition
