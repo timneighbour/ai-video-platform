@@ -37,6 +37,7 @@ const RenderHistory = lazy(() => import("@/pages/RenderHistory"));
 const KidsVideo = lazy(() => import("@/pages/KidsVideo"));
 const TextToVideoCreator = lazy(() => import("@/pages/TextToVideoCreator"));
 const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
+const EnhancementStudio = lazy(() => import("@/pages/EnhancementStudio"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -83,6 +84,7 @@ function Router() {
         <Route path={"/render-history"} component={RenderHistory} />
         <Route path={"/kids-video"} component={KidsVideo} />
         <Route path={"/text-to-video"} component={TextToVideoCreator} />
+        <Route path={"/enhancement-studio"} component={EnhancementStudio} />
         <Route path={"/pricing"} component={Pricing} />
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />
