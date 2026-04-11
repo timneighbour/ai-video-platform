@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import AuthGate from "@/components/AuthGate";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CreditBalance from "@/components/CreditBalance";
 import {
@@ -82,6 +83,7 @@ function formatDuration(seconds: number): string {
 
 export default function MusicVideoAutopilot() {
   const { user, isAuthenticated } = useAuth();
+  const [showAuthGate, setShowAuthGate] = useState(false);
   const [step, setStep] = useState<Step>("upload");
   const [jobId, setJobId] = useState<number | null>(null);
 
@@ -657,6 +659,10 @@ export default function MusicVideoAutopilot() {
   };
 
   const handleStartRender = async () => {
+    if (!isAuthenticated) {
+      setShowAuthGate(true);
+      return;
+    }
     if (!jobId) return;
     // Prevent duplicate submissions from double-click or React re-renders
     if (isRenderingRef.current) {
@@ -785,6 +791,8 @@ export default function MusicVideoAutopilot() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Auth Gate */}
+      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your music video" />
       {/* ===== STORYBOARD GENERATION PROGRESS OVERLAY ===== */}
       {isGeneratingStoryboard && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm">
