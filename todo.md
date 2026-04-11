@@ -1455,3 +1455,8 @@
 - [x] Changing character assignments updates the scene's characterAssignments array and saves to DB
 - [ ] When a character is added/removed from a scene, update the scene prompt accordingly (re-inject character description)
 - [ ] Show character avatar thumbnail (previewImageUrl or primaryPhotoUrl) next to @tag for visual recognition
+
+## AI Character Generator Visibility Fix
+- [x] AI Generate tab content (style selector, description input, Generate button, preview image) not visible to user — investigate and fix
+- [x] Make AI Generate mode the default for new character slots (or at least make the tab more prominent)
+- [x] Add a standalone "AI Character Builder" section that is always visible without needing to click a tab

@@ -8,12 +8,8 @@
  *   2. AI GENERATE — user describes what they want in plain English + picks a style;
  *      AI expands the description into a full visual brief and generates a preview image.
  *
- * Character Lock:
- *   Once locked, the visual brief is injected as a strict constraint into every LLM and image-gen prompt.
- *   Unlocking does NOT erase the description.
- *
- * Character Confirmation (separate step):
- *   After saving, the wizard shows AI-generated preview images per character for approval before storyboard.
+ * Design: All slots are always expanded. The mode toggle is the first thing visible.
+ * AI Generate mode is prominently displayed with a gradient CTA.
  */
 import { useRef, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,9 +21,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import {
-  Plus, Trash2, User, Mic, ImagePlus, X, Star,
-  Crown, Lock, LockOpen, ShieldCheck, AlertTriangle,
-  RefreshCw, Wand2, Camera, Sparkles, ChevronDown,
+  Plus, Trash2, User, Mic, ImagePlus, X,
+  Crown, Lock, LockOpen, ShieldCheck,
+  RefreshCw, Wand2, Camera, Sparkles,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -75,10 +71,10 @@ interface CharacterManagerProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SLOT_COLORS = [
-  { ring: "ring-purple-500", bg: "bg-purple-900/30", badge: "bg-purple-900/50 text-purple-300 border-purple-800", icon: "bg-purple-600", dot: "bg-purple-400" },
-  { ring: "ring-blue-500",   bg: "bg-blue-900/30",   badge: "bg-blue-900/50 text-blue-300 border-blue-800",     icon: "bg-blue-600",   dot: "bg-blue-400" },
-  { ring: "ring-pink-500",   bg: "bg-pink-900/30",   badge: "bg-pink-900/50 text-pink-300 border-pink-800",     icon: "bg-pink-600",   dot: "bg-pink-400" },
-  { ring: "ring-amber-500",  bg: "bg-amber-900/30",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  icon: "bg-amber-600",  dot: "bg-amber-400" },
+  { ring: "ring-purple-500", bg: "bg-purple-900/30", badge: "bg-purple-900/50 text-purple-300 border-purple-800", icon: "bg-purple-600", dot: "bg-purple-400", tab: "bg-purple-700 hover:bg-purple-600" },
+  { ring: "ring-blue-500",   bg: "bg-blue-900/30",   badge: "bg-blue-900/50 text-blue-300 border-blue-800",     icon: "bg-blue-600",   dot: "bg-blue-400",   tab: "bg-blue-700 hover:bg-blue-600" },
+  { ring: "ring-pink-500",   bg: "bg-pink-900/30",   badge: "bg-pink-900/50 text-pink-300 border-pink-800",     icon: "bg-pink-600",   dot: "bg-pink-400",   tab: "bg-pink-700 hover:bg-pink-600" },
+  { ring: "ring-amber-500",  bg: "bg-amber-900/30",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  icon: "bg-amber-600",  dot: "bg-amber-400",  tab: "bg-amber-700 hover:bg-amber-600" },
 ];
 
 const AI_STYLES: { id: AnimationStyle; label: string; desc: string; emoji: string }[] = [
@@ -129,9 +125,9 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
     videoStyle === "cartoon" ? "cartoon" : "realistic";
   return {
     slotIndex,
-    name: `Character ${slotIndex + 1}`,
+    name: "",
     role: "",
-    enableLipSync: false,
+    enableLipSync: true,
     mode: "photo",
     photos: [],
     aiDescription: "",
@@ -157,7 +153,6 @@ export function CharacterManager({
   const photoInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null]);
   const [reanalysingSlots, setReanalysingSlots] = useState<Set<number>>(new Set());
   const [generatingSlots, setGeneratingSlots] = useState<Set<number>>(new Set());
-  const [expandedSlots, setExpandedSlots] = useState<Set<number>>(new Set([0]));
 
   const reanalyseCharacterPhoto = trpc.musicVideo.reanalyseCharacterPhoto.useMutation();
   const generateCharacterFromDescription = trpc.musicVideo.generateCharacterFromDescription.useMutation();
@@ -170,7 +165,6 @@ export function CharacterManager({
     const nextSlot = characters.length;
     const newChar = createEmptyCharacter(nextSlot, videoStyle);
     onChange([...characters, newChar]);
-    setExpandedSlots(prev => new Set(prev).add(nextSlot));
   };
 
   const removeCharacter = (slotIndex: number) => {
@@ -180,70 +174,52 @@ export function CharacterManager({
     onChange(updated);
   };
 
-  const toggleExpanded = (slotIndex: number) => {
-    setExpandedSlots(prev => {
-      const next = new Set(prev);
-      if (next.has(slotIndex)) next.delete(slotIndex); else next.add(slotIndex);
-      return next;
-    });
-  };
-
   const toggleLock = (slotIndex: number) => {
     const char = characters.find((c) => c.slotIndex === slotIndex);
     if (!char) return;
     if (!char.isLocked) {
-      const hasContent = char.mode === "photo" ? char.photos.length > 0 : char.aiGeneratedBrief.trim().length > 0;
-      updateCharacter(slotIndex, { isLocked: true });
-      if (hasContent) {
-        toast.success(`${char.name} locked`, { description: "Appearance will be consistent across all scenes." });
-      } else {
-        toast.info(`${char.name} marked for locking`, { description: char.mode === "photo" ? "Upload a photo to lock this character's look." : "Generate a character first to lock the look." });
+      const hasContent = char.mode === "photo" ? char.photos.length > 0 : !!char.aiGeneratedImageUrl;
+      if (!hasContent) {
+        toast.error("Add content first", { description: char.mode === "photo" ? "Upload at least one photo before locking." : "Generate a character image first." });
+        return;
       }
-    } else {
-      updateCharacter(slotIndex, { isLocked: false });
-      toast.info(`${char.name} unlocked`);
     }
+    updateCharacter(slotIndex, { isLocked: !char.isLocked });
   };
 
-  // Re-analyse photo (requires saved character in DB)
   const handleReanalysePhoto = async (slotIndex: number) => {
     const char = characters.find((c) => c.slotIndex === slotIndex);
-    if (!char) return;
-    const characterId = savedCharacterIds[slotIndex];
-    if (!characterId || !jobId) {
-      toast.error("Save characters first", { description: "The Re-analyse button works after the job is created." });
-      return;
-    }
-    if (char.photos.length === 0) {
-      toast.error("No photo to analyse", { description: "Upload a reference photo first." });
+    if (!char || char.photos.length === 0) return;
+    const savedId = savedCharacterIds[slotIndex];
+    if (!savedId || !jobId) {
+      toast.error("Save characters first", { description: "Submit the form once to save characters, then you can re-analyse." });
       return;
     }
     setReanalysingSlots(prev => new Set(prev).add(slotIndex));
-    toast.loading(`Analysing ${char.name}'s photo...`, { id: `reanalyse-${slotIndex}` });
+    toast.loading(`Re-analysing ${char.name || "character"}...`, { id: `reanalyse-${slotIndex}` });
     try {
-      const result = await reanalyseCharacterPhoto.mutateAsync({ characterId, jobId });
-      updateCharacter(slotIndex, { lockedDescription: result.description, isLocked: true });
-      toast.success(`${char.name} re-analysed`, { id: `reanalyse-${slotIndex}`, description: "Appearance description updated." });
+      const result = await reanalyseCharacterPhoto.mutateAsync({ characterId: savedId, jobId: jobId! });
+      updateCharacter(slotIndex, { lockedDescription: result.description });
+      toast.success("Photo re-analysed!", { id: `reanalyse-${slotIndex}`, description: "Visual brief updated." });
     } catch (err: any) {
-      toast.error(`Failed to re-analyse ${char.name}`, { id: `reanalyse-${slotIndex}`, description: err?.message ?? "Please try again." });
+      toast.error("Re-analysis failed", { id: `reanalyse-${slotIndex}`, description: err?.message ?? "Please try again." });
     } finally {
       setReanalysingSlots(prev => { const n = new Set(prev); n.delete(slotIndex); return n; });
     }
   };
 
-  // Generate character from AI description
   const handleGenerateCharacter = async (slotIndex: number) => {
     const char = characters.find((c) => c.slotIndex === slotIndex);
     if (!char) return;
     if (!char.aiDescription.trim() || char.aiDescription.trim().length < 5) {
-      toast.error("Add a description", { description: "Describe what you want this character to look like." });
+      toast.error("Description too short", { description: "Please describe your character in at least a few words." });
       return;
     }
     setGeneratingSlots(prev => new Set(prev).add(slotIndex));
-    toast.loading(`Creating ${char.name}...`, { id: `generate-${slotIndex}` });
+    toast.loading(`Creating ${char.name || "character"}...`, { id: `generate-${slotIndex}` });
     try {
       const result = await generateCharacterFromDescription.mutateAsync({
-        name: char.name,
+        name: char.name || "Character",
         role: char.role || undefined,
         description: char.aiDescription,
         style: char.aiStyle,
@@ -254,9 +230,9 @@ export function CharacterManager({
         lockedDescription: result.visualBrief,
         isLocked: true,
       });
-      toast.success(`${char.name} created!`, { id: `generate-${slotIndex}`, description: "Preview image generated. You can regenerate or adjust the description." });
+      toast.success(`${char.name || "Character"} created!`, { id: `generate-${slotIndex}`, description: "Preview image generated. You can regenerate or adjust the description." });
     } catch (err: any) {
-      toast.error(`Failed to generate ${char.name}`, { id: `generate-${slotIndex}`, description: err?.message ?? "Please try again." });
+      toast.error(`Failed to generate character`, { id: `generate-${slotIndex}`, description: err?.message ?? "Please try again." });
     } finally {
       setGeneratingSlots(prev => { const n = new Set(prev); n.delete(slotIndex); return n; });
     }
@@ -296,14 +272,13 @@ export function CharacterManager({
     updateCharacter(slotIndex, { photos: characters.find(c => c.slotIndex === slotIndex)!.photos.map((p, i) => ({ ...p, isPrimary: i === photoIndex })) });
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {characters.map((char) => {
         const colors = SLOT_COLORS[char.slotIndex] ?? SLOT_COLORS[0];
         const isLocked = char.isLocked;
         const isReanalysing = reanalysingSlots.has(char.slotIndex);
         const isGenerating = generatingSlots.has(char.slotIndex);
         const hasSavedId = !!savedCharacterIds[char.slotIndex] && !!jobId;
-        const isExpanded = expandedSlots.has(char.slotIndex);
         const hasPreview = char.mode === "ai_generated" ? !!char.aiGeneratedImageUrl : char.photos.length > 0;
 
         return (
@@ -315,10 +290,7 @@ export function CharacterManager({
             }`}
           >
             {/* ── Header ── */}
-            <div
-              className={`px-4 py-3 flex items-center gap-3 cursor-pointer ${isLocked ? "bg-emerald-900/20" : colors.bg} border-b border-zinc-700/50`}
-              onClick={() => toggleExpanded(char.slotIndex)}
-            >
+            <div className={`px-4 py-3 flex items-center gap-3 ${isLocked ? "bg-emerald-900/20" : colors.bg} border-b border-zinc-700/50`}>
               {/* Slot icon */}
               <div className={`w-8 h-8 rounded-lg ${isLocked ? "bg-emerald-700" : colors.icon} flex items-center justify-center flex-shrink-0`}>
                 {isLocked ? <ShieldCheck className="w-4 h-4 text-white" /> :
@@ -327,11 +299,13 @@ export function CharacterManager({
               </div>
 
               {/* Name */}
-              <span className="text-white font-semibold text-sm truncate max-w-[120px]">{char.name}</span>
+              <span className="text-white font-semibold text-sm truncate max-w-[120px]">
+                {char.name || `Character ${char.slotIndex + 1}`}
+              </span>
 
               {/* Mode badge */}
               <Badge className={`text-xs ${isLocked ? "bg-emerald-900/60 text-emerald-300 border-emerald-700" : colors.badge}`}>
-                {isLocked ? "🔒 Locked" : char.mode === "ai_generated" ? "✨ AI" : "📷 Photo"}
+                {isLocked ? "🔒 Locked" : char.mode === "ai_generated" ? "✨ AI Generated" : "📷 Photo Upload"}
               </Badge>
 
               {/* Preview thumbnail */}
@@ -351,7 +325,7 @@ export function CharacterManager({
               {!disabled && (
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); toggleLock(char.slotIndex); }}
+                  onClick={() => toggleLock(char.slotIndex)}
                   className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all border ${
                     isLocked ? "border-emerald-600/60 bg-emerald-900/30 text-emerald-300 hover:bg-emerald-900/50" :
                     "border-zinc-600 bg-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-400"
@@ -366,269 +340,311 @@ export function CharacterManager({
               {!disabled && (
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); removeCharacter(char.slotIndex); }}
+                  onClick={() => removeCharacter(char.slotIndex)}
                   className="text-zinc-500 hover:text-red-400 transition-colors p-1 rounded"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </button>
               )}
-
-              <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
             </div>
 
-            {/* ── Expanded body ── */}
-            {isExpanded && (
-              <div className="p-4 space-y-4">
-                {/* Name + Role */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-zinc-400 text-xs mb-1 block">Name *</Label>
-                    <Input value={char.name} onChange={(e) => updateCharacter(char.slotIndex, { name: e.target.value })}
-                      placeholder="e.g. Alex, Lead Singer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
-                  </div>
-                  <div>
-                    <Label className="text-zinc-400 text-xs mb-1 block">Role</Label>
-                    <Input value={char.role} onChange={(e) => updateCharacter(char.slotIndex, { role: e.target.value })}
-                      placeholder="e.g. Lead Singer, Dancer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
-                  </div>
+            {/* ── Body — always visible ── */}
+            <div className="p-4 space-y-4">
+              {/* Name + Role */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Name *</Label>
+                  <Input value={char.name} onChange={(e) => updateCharacter(char.slotIndex, { name: e.target.value })}
+                    placeholder="e.g. Alex, Lead Singer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
                 </div>
+                <div>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Role</Label>
+                  <Input value={char.role} onChange={(e) => updateCharacter(char.slotIndex, { role: e.target.value })}
+                    placeholder="e.g. Lead Singer, Dancer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
+                </div>
+              </div>
 
-                {/* Mode selector */}
-                {!disabled && (
-                  <div className="flex rounded-lg overflow-hidden border border-zinc-700">
+              {/* ── Mode selector — prominent two-button toggle ── */}
+              {!disabled && (
+                <div>
+                  <Label className="text-zinc-400 text-xs mb-2 block">How do you want to add this character?</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Upload Photo */}
                     <button
                       type="button"
                       onClick={() => updateCharacter(char.slotIndex, { mode: "photo" })}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all ${
-                        char.mode === "photo" ? "bg-zinc-700 text-white" : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                      className={`flex flex-col items-center gap-2 py-3 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                        char.mode === "photo"
+                          ? "border-zinc-400 bg-zinc-700 text-white"
+                          : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
                       }`}
                     >
-                      <Camera className="w-4 h-4" />
-                      Upload Photo
+                      <Camera className="w-5 h-5" />
+                      <span>Upload Photo</span>
+                      <span className="text-xs font-normal text-zinc-500 leading-tight text-center">Real person — exact likeness</span>
                     </button>
+                    {/* AI Generate */}
                     <button
                       type="button"
                       onClick={() => updateCharacter(char.slotIndex, { mode: "ai_generated" })}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all ${
-                        char.mode === "ai_generated" ? "bg-violet-800 text-white" : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                      className={`flex flex-col items-center gap-2 py-3 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                        char.mode === "ai_generated"
+                          ? "border-violet-500 bg-violet-900/40 text-violet-200"
+                          : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-violet-600/60 hover:text-zinc-200"
                       }`}
                     >
-                      <Sparkles className="w-4 h-4" />
-                      AI Generate
+                      <Sparkles className="w-5 h-5 text-violet-400" />
+                      <span>AI Character Builder</span>
+                      <span className="text-xs font-normal text-zinc-500 leading-tight text-center">Describe & generate any character</span>
                     </button>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* ── PHOTO MODE ── */}
-                {char.mode === "photo" && (
-                  <div className="space-y-3">
-                    {/* Re-analyse button */}
-                    {char.photos.length > 0 && !disabled && (
+              {/* ── PHOTO MODE ── */}
+              {char.mode === "photo" && (
+                <div className="space-y-3">
+                  {/* Re-analyse button */}
+                  {char.photos.length > 0 && !disabled && (
+                    <button
+                      type="button"
+                      onClick={() => handleReanalysePhoto(char.slotIndex)}
+                      disabled={isReanalysing || !hasSavedId}
+                      className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                        hasSavedId
+                          ? "border-blue-600/60 bg-blue-900/20 text-blue-300 hover:bg-blue-900/40"
+                          : "border-zinc-700 bg-zinc-800/30 text-zinc-600 cursor-not-allowed"
+                      }`}
+                      title={!hasSavedId ? "Submit the form once to enable re-analysis" : "Re-run AI photo analysis to update the visual brief"}
+                    >
+                      {isReanalysing ? (
+                        <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Re-analysing...</>
+                      ) : (
+                        <><RefreshCw className="w-3.5 h-3.5" /> Re-analyse Photo</>
+                      )}
+                    </button>
+                  )}
+
+                  {/* Photo upload area */}
+                  <div>
+                    <input
+                      ref={(el) => { photoInputRefs.current[char.slotIndex] = el; }}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handlePhotoFiles(char.slotIndex, e.target.files)}
+                    />
+                    {char.photos.length === 0 ? (
                       <button
                         type="button"
-                        onClick={() => handleReanalysePhoto(char.slotIndex)}
-                        disabled={isReanalysing}
-                        className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium border transition-all ${
-                          isReanalysing ? "border-violet-600/40 bg-violet-900/20 text-violet-400 cursor-wait" :
-                          hasSavedId ? "border-violet-600/60 bg-violet-900/30 text-violet-300 hover:bg-violet-900/50" :
-                          "border-zinc-700 bg-zinc-800/50 text-zinc-500 cursor-not-allowed"
-                        }`}
-                        title={hasSavedId ? "Re-analyse photo to regenerate detailed appearance description" : "Save characters first to enable re-analysis"}
+                        onClick={() => photoInputRefs.current[char.slotIndex]?.click()}
+                        disabled={disabled}
+                        className="w-full rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-500 py-8 flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-zinc-200 transition-all group"
                       >
-                        <RefreshCw className={`w-4 h-4 ${isReanalysing ? "animate-spin" : ""}`} />
-                        {isReanalysing ? "Analysing photo..." : "Re-analyse Photo"}
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
+                          <ImagePlus className="w-5 h-5" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">Upload photos</p>
+                          <p className="text-xs text-zinc-600 mt-0.5">JPG, PNG, WebP · Up to 10 photos · 10MB each</p>
+                        </div>
                       </button>
-                    )}
-
-                    {/* Photo grid */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label className="text-zinc-400 text-xs">Reference Photos ({char.photos.length}/10)</Label>
-                        <span className="text-zinc-500 text-xs">★ = primary</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {char.photos.map((photo, photoIdx) => (
-                          <div key={photoIdx} className="relative group">
-                            <img src={photo.previewUrl} alt={`${char.name} ${photoIdx + 1}`}
-                              className={`w-16 h-16 rounded-lg object-cover border-2 ${photo.isPrimary ? "border-yellow-500" : "border-zinc-700 group-hover:border-zinc-500"}`} />
-                            <button type="button" onClick={() => setPrimaryPhoto(char.slotIndex, photoIdx)}
-                              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full flex items-center justify-center ${photo.isPrimary ? "bg-yellow-500 text-black" : "bg-black/60 text-zinc-400 opacity-0 group-hover:opacity-100"}`}
-                              disabled={disabled}>
-                              <Star className="w-2.5 h-2.5" fill={photo.isPrimary ? "currentColor" : "none"} />
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-4 gap-2">
+                          {char.photos.map((photo, photoIndex) => (
+                            <div key={photoIndex} className="relative group aspect-square rounded-lg overflow-hidden bg-zinc-800">
+                              <img src={photo.previewUrl} alt="" className="w-full h-full object-cover" />
+                              {photo.isPrimary && (
+                                <div className="absolute top-1 left-1">
+                                  <Badge className="text-xs px-1 py-0 bg-amber-900/80 text-amber-300 border-amber-700">★</Badge>
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                {!photo.isPrimary && (
+                                  <button type="button" onClick={() => setPrimaryPhoto(char.slotIndex, photoIndex)}
+                                    className="p-1 rounded bg-amber-600/80 hover:bg-amber-600 text-white" title="Set as primary">
+                                    <Sparkles className="w-3 h-3" />
+                                  </button>
+                                )}
+                                <button type="button" onClick={() => removePhoto(char.slotIndex, photoIndex)}
+                                  className="p-1 rounded bg-red-600/80 hover:bg-red-600 text-white" title="Remove photo">
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          {char.photos.length < 10 && !disabled && (
+                            <button type="button" onClick={() => photoInputRefs.current[char.slotIndex]?.click()}
+                              className="aspect-square rounded-lg border-2 border-dashed border-zinc-700 hover:border-zinc-500 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-all">
+                              <Plus className="w-5 h-5" />
                             </button>
-                            {!disabled && !isLocked && (
-                              <button type="button" onClick={() => removePhoto(char.slotIndex, photoIdx)}
-                                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                <X className="w-2.5 h-2.5" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        {!disabled && !isLocked && char.photos.length < 10 && (
-                          <button type="button" onClick={() => photoInputRefs.current[char.slotIndex]?.click()}
-                            className="w-16 h-16 rounded-lg border-2 border-dashed border-zinc-600 hover:border-zinc-400 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-zinc-300 transition-all">
-                            <ImagePlus className="w-5 h-5" />
-                            <span className="text-xs">Add</span>
-                          </button>
-                        )}
-                        <input ref={(el) => { photoInputRefs.current[char.slotIndex] = el; }} type="file"
-                          accept="image/jpeg,image/png,image/webp" multiple className="hidden"
-                          onChange={(e) => handlePhotoFiles(char.slotIndex, e.target.files)} />
+                          )}
+                        </div>
+                        <p className="text-zinc-600 text-xs">{char.photos.length} photo{char.photos.length !== 1 ? "s" : ""} · ★ = primary reference</p>
                       </div>
-                      {char.photos.length === 0 && (
-                        <p className="text-zinc-500 text-xs mt-2">Upload at least one photo so the AI can recognise this character.</p>
-                      )}
-                    </div>
+                    )}
+                  </div>
 
-                    {/* Locked description (photo mode) */}
+                  {/* Locked description (photo mode) */}
+                  {char.lockedDescription && (
                     <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
                       <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
-                        {isLocked ? "🔒 Locked Visual Brief" : "Visual Appearance Brief"}
+                        {isLocked ? "🔒 Locked Visual Brief" : "Visual Brief (editable)"}
                       </Label>
                       <Textarea value={char.lockedDescription}
                         onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
-                        placeholder={char.photos.length > 0 ? "AI will auto-analyse your photo. You can override here." : "Describe exact appearance: hair colour, clothing, features, etc."}
                         className={`bg-zinc-900 border-zinc-700 text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
                         disabled={disabled || isLocked} rows={3} />
-                      {!isLocked && char.photos.length > 0 && (
-                        <p className="text-zinc-500 text-xs mt-1 flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                          AI will analyse your photo and lock the appearance at the confirmation step.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── AI GENERATE MODE ── */}
+              {char.mode === "ai_generated" && (
+                <div className="space-y-4">
+                  {/* Intro banner */}
+                  <div className="rounded-xl bg-gradient-to-br from-violet-900/40 to-indigo-900/30 border border-violet-700/50 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-violet-700 flex items-center justify-center flex-shrink-0">
+                        <Wand2 className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-violet-200 font-semibold text-sm">AI Character Builder</p>
+                        <p className="text-violet-300/70 text-xs mt-0.5 leading-relaxed">
+                          Describe any character — real, animated, or fantastical — and the AI will generate a full visual brief and a preview image. Works for Pixar 3D, anime, cartoon, and photorealistic styles.
                         </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Style selector */}
+                  <div>
+                    <Label className="text-zinc-400 text-xs mb-2 block">Character Style</Label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {AI_STYLES.map((style) => (
+                        <button
+                          key={style.id}
+                          type="button"
+                          onClick={() => updateCharacter(char.slotIndex, { aiStyle: style.id })}
+                          disabled={disabled}
+                          className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border-2 text-xs font-medium transition-all ${
+                            char.aiStyle === style.id
+                              ? "border-violet-500 bg-violet-900/40 text-violet-200"
+                              : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+                          }`}
+                        >
+                          <span className="text-xl">{style.emoji}</span>
+                          <span>{style.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Description input */}
+                  <div>
+                    <Label className="text-zinc-400 text-xs mb-1 block">Describe Your Character *</Label>
+                    <Textarea
+                      value={char.aiDescription}
+                      onChange={(e) => updateCharacter(char.slotIndex, { aiDescription: e.target.value })}
+                      placeholder={`Describe what you want...\n\nExamples:\n• ${AI_DESCRIPTION_EXAMPLES[char.slotIndex % AI_DESCRIPTION_EXAMPLES.length]}\n• ${AI_DESCRIPTION_EXAMPLES[(char.slotIndex + 4) % AI_DESCRIPTION_EXAMPLES.length]}`}
+                      className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[100px]"
+                      disabled={disabled || isGenerating}
+                      rows={4}
+                    />
+                    <p className="text-zinc-600 text-xs mt-1">
+                      Be specific: age, gender, clothing style, hair, energy, role in the video. Works for animated characters too!
+                    </p>
+                  </div>
+
+                  {/* Generate button */}
+                  {!disabled && (
+                    <Button
+                      type="button"
+                      onClick={() => handleGenerateCharacter(char.slotIndex)}
+                      disabled={isGenerating || !char.aiDescription.trim()}
+                      className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 hover:from-violet-600 hover:to-indigo-600 text-white gap-2 py-5 text-base font-semibold shadow-lg shadow-violet-900/30"
+                    >
+                      {isGenerating ? (
+                        <><RefreshCw className="w-5 h-5 animate-spin" /> Generating Character...</>
+                      ) : char.aiGeneratedImageUrl ? (
+                        <><RefreshCw className="w-5 h-5" /> Regenerate Character</>
+                      ) : (
+                        <><Wand2 className="w-5 h-5" /> Generate Character Image</>
+                      )}
+                    </Button>
+                  )}
+
+                  {/* Generated preview */}
+                  {char.aiGeneratedImageUrl && (
+                    <div className="rounded-xl overflow-hidden border border-emerald-600/50 bg-emerald-900/10">
+                      <div className="relative">
+                        <img
+                          src={char.aiGeneratedImageUrl}
+                          alt={`${char.name} AI preview`}
+                          className="w-full max-h-72 object-cover"
+                        />
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-emerald-900/80 text-emerald-300 border-emerald-700 text-xs">
+                            ✨ AI Generated
+                          </Badge>
+                        </div>
+                      </div>
+                      {char.aiGeneratedBrief && (
+                        <div className="p-3">
+                          <p className="text-zinc-400 text-xs font-medium mb-1">AI Visual Brief:</p>
+                          <p className="text-zinc-300 text-xs leading-relaxed">{char.aiGeneratedBrief}</p>
+                        </div>
                       )}
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* ── AI GENERATE MODE ── */}
-                {char.mode === "ai_generated" && (
-                  <div className="space-y-3">
-                    {/* Style selector */}
-                    <div>
-                      <Label className="text-zinc-400 text-xs mb-2 block">Character Style</Label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {AI_STYLES.map((style) => (
-                          <button
-                            key={style.id}
-                            type="button"
-                            onClick={() => updateCharacter(char.slotIndex, { aiStyle: style.id })}
-                            disabled={disabled}
-                            className={`flex flex-col items-center gap-1 py-2 px-1 rounded-lg border text-xs font-medium transition-all ${
-                              char.aiStyle === style.id
-                                ? "border-violet-500 bg-violet-900/40 text-violet-200"
-                                : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
-                            }`}
-                          >
-                            <span className="text-base">{style.emoji}</span>
-                            <span>{style.label}</span>
-                          </button>
-                        ))}
-                      </div>
+                  {/* Locked description (ai mode — shows the brief) */}
+                  {char.aiGeneratedBrief && (
+                    <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
+                      <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
+                        {isLocked ? "🔒 Locked Visual Brief" : "Visual Brief (editable)"}
+                      </Label>
+                      <Textarea value={char.lockedDescription}
+                        onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
+                        className={`bg-zinc-900 border-zinc-700 text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
+                        disabled={disabled || isLocked} rows={3} />
                     </div>
+                  )}
+                </div>
+              )}
 
-                    {/* Description input */}
+              {/* ── Lip Sync ── */}
+              <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-pink-700/60 bg-pink-900/20" : "border-zinc-700 bg-zinc-800/30"}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-pink-400" : "text-zinc-500"}`} />
                     <div>
-                      <Label className="text-zinc-400 text-xs mb-1 block">Describe Your Character *</Label>
-                      <Textarea
-                        value={char.aiDescription}
-                        onChange={(e) => updateCharacter(char.slotIndex, { aiDescription: e.target.value })}
-                        placeholder={`Describe what you want...\n\nExamples:\n• ${AI_DESCRIPTION_EXAMPLES[char.slotIndex % AI_DESCRIPTION_EXAMPLES.length]}\n• ${AI_DESCRIPTION_EXAMPLES[(char.slotIndex + 4) % AI_DESCRIPTION_EXAMPLES.length]}`}
-                        className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[90px]"
-                        disabled={disabled || isGenerating}
-                        rows={4}
-                      />
-                      <p className="text-zinc-600 text-xs mt-1">
-                        Be specific: age, gender, clothing style, hair, energy, role in the video.
+                      <p className="text-white text-sm font-medium">Lip Sync</p>
+                      <p className="text-zinc-400 text-xs">
+                        Sync mouth to audio track
+                        {char.mode === "photo" && char.photos.length === 0 && <span className="text-yellow-400 ml-1">— add a photo first</span>}
+                        {char.mode === "ai_generated" && !char.aiGeneratedImageUrl && <span className="text-yellow-400 ml-1">— generate character first</span>}
                       </p>
                     </div>
-
-                    {/* Generate button */}
-                    {!disabled && (
-                      <Button
-                        type="button"
-                        onClick={() => handleGenerateCharacter(char.slotIndex)}
-                        disabled={isGenerating || !char.aiDescription.trim()}
-                        className="w-full bg-violet-700 hover:bg-violet-600 text-white gap-2"
-                      >
-                        {isGenerating ? (
-                          <><RefreshCw className="w-4 h-4 animate-spin" /> Generating Character...</>
-                        ) : char.aiGeneratedImageUrl ? (
-                          <><RefreshCw className="w-4 h-4" /> Regenerate Character</>
-                        ) : (
-                          <><Wand2 className="w-4 h-4" /> Generate Character</>
-                        )}
-                      </Button>
-                    )}
-
-                    {/* Generated preview */}
-                    {char.aiGeneratedImageUrl && (
-                      <div className="rounded-xl overflow-hidden border border-emerald-600/50 bg-emerald-900/10">
-                        <div className="relative">
-                          <img
-                            src={char.aiGeneratedImageUrl}
-                            alt={`${char.name} AI preview`}
-                            className="w-full max-h-64 object-cover"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <Badge className="bg-emerald-900/80 text-emerald-300 border-emerald-700 text-xs">
-                              ✨ AI Generated
-                            </Badge>
-                          </div>
-                        </div>
-                        {char.aiGeneratedBrief && (
-                          <div className="p-3">
-                            <p className="text-zinc-400 text-xs font-medium mb-1">AI Visual Brief:</p>
-                            <p className="text-zinc-300 text-xs leading-relaxed">{char.aiGeneratedBrief}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Locked description (ai mode — shows the brief) */}
-                    {char.aiGeneratedBrief && (
-                      <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
-                        <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
-                          {isLocked ? "🔒 Locked Visual Brief" : "Visual Brief (editable)"}
-                        </Label>
-                        <Textarea value={char.lockedDescription}
-                          onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
-                          className={`bg-zinc-900 border-zinc-700 text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
-                          disabled={disabled || isLocked} rows={3} />
-                      </div>
-                    )}
                   </div>
-                )}
-
-                {/* ── Lip Sync ── */}
-                <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-pink-700/60 bg-pink-900/20" : "border-zinc-700 bg-zinc-800/30"}`}>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-pink-400" : "text-zinc-500"}`} />
-                      <div>
-                        <p className="text-white text-sm font-medium">Lip Sync</p>
-                        <p className="text-zinc-400 text-xs">
-                          Sync mouth to audio track
-                          {char.mode === "photo" && char.photos.length === 0 && <span className="text-yellow-400 ml-1">— add a photo first</span>}
-                          {char.mode === "ai_generated" && !char.aiGeneratedImageUrl && <span className="text-yellow-400 ml-1">— generate character first</span>}
-                        </p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={char.enableLipSync}
-                      onCheckedChange={(v) => {
-                        const hasContent = char.mode === "photo" ? char.photos.length > 0 : !!char.aiGeneratedImageUrl;
-                        if (v && !hasContent) {
-                          toast.warning(char.mode === "photo" ? "Add a photo first" : "Generate a character first");
-                          return;
-                        }
-                        updateCharacter(char.slotIndex, { enableLipSync: v });
-                      }}
-                      disabled={disabled}
-                    />
-                  </div>
+                  <Switch
+                    checked={char.enableLipSync}
+                    onCheckedChange={(v) => {
+                      const hasContent = char.mode === "photo" ? char.photos.length > 0 : !!char.aiGeneratedImageUrl;
+                      if (v && !hasContent) {
+                        toast.error("Add content first", { description: char.mode === "photo" ? "Upload a photo to enable lip sync." : "Generate a character image first." });
+                        return;
+                      }
+                      updateCharacter(char.slotIndex, { enableLipSync: v });
+                    }}
+                    disabled={disabled}
+                  />
                 </div>
               </div>
-            )}
+            </div>
           </div>
         );
       })}
