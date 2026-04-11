@@ -1294,3 +1294,11 @@
 ## Session 16 - Database Schema Fix
 - [x] Fix musicVideoJobs INSERT failing with "Unknown column" error — applied missing column migrations to production database (isKidsVideo, kidsTargetAge, kidsEducationalTheme, kidsEnableSingalong, kidsFriendlyIntensity, lyrics, lyricsStatus, captionsEnabled, captionStyle, captionBackground, captionFontSize, captionFontStyle, captionTextColour, captionHighlightColour, captionKaraokeMode, captionSafeArea, lyricsApproved, status columns were all missing from the live database)
 - [x] Fix mvJobStatus → status column rename — old column dropped, new status column added with data migrated
+
+## Session 17 - Storyboard Generation Timeout Fix
+- [x] Identified root cause: generateStoryboard was re-transcribing audio (30-60s) causing HTTP timeout
+- [x] Fixed: Use stored transcription text from DB instead of re-transcribing
+- [x] Increased HTTP server timeout to 5 minutes for long-running AI calls
+- [x] Added splitLink in tRPC client: long-running AI procedures use non-batched httpLink
+- [x] Added onError logging to tRPC middleware for production error visibility
+- [x] Added generateStoryboard and createJob to AI rate limiter

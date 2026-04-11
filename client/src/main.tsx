@@ -3,7 +3,7 @@ import "@/lib/i18n"; // initialise i18n before app renders
 import { initGA4 } from "@/lib/analytics";
 import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink, TRPCClientError } from "@trpc/client";
+import { httpBatchLink, httpLink, splitLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
@@ -42,17 +42,37 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
+// Procedures that run long AI tasks — use a dedicated non-batched link with no timeout
+const AI_LONG_RUNNING_PROCEDURES = [
+  "musicVideo.generateStoryboard",
+  "musicVideo.createJob",
+  "musicVideo.renderVideo",
+  "autopilot.start",
+  "wizpilot.generate",
+];
+
+const fetchWithCredentials = (input: RequestInfo | URL, init?: RequestInit) =>
+  globalThis.fetch(input, { ...(init ?? {}), credentials: "include" });
+
 const trpcClient = trpc.createClient({
   links: [
-    httpBatchLink({
-      url: "/api/trpc",
-      transformer: superjson,
-      fetch(input, init) {
-        return globalThis.fetch(input, {
-          ...(init ?? {}),
-          credentials: "include",
-        });
+    splitLink({
+      // Route long-running AI procedures through a dedicated non-batched link
+      condition(op) {
+        return AI_LONG_RUNNING_PROCEDURES.some(
+          (proc) => op.path === proc || op.path.startsWith(proc + ".")
+        );
       },
+      true: httpLink({
+        url: "/api/trpc",
+        transformer: superjson,
+        fetch: fetchWithCredentials,
+      }),
+      false: httpBatchLink({
+        url: "/api/trpc",
+        transformer: superjson,
+        fetch: fetchWithCredentials,
+      }),
     }),
   ],
 });

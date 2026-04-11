@@ -203,6 +203,8 @@ async function startServer() {
   // tRPC API — apply AI generation limiter to generation-heavy procedures
   // The tRPC path includes the procedure name, e.g. /api/trpc/musicVideo.generate
   app.use("/api/trpc/musicVideo.generate", aiGenerationLimiter);
+  app.use("/api/trpc/musicVideo.generateStoryboard", aiGenerationLimiter);
+  app.use("/api/trpc/musicVideo.createJob", aiGenerationLimiter);
   app.use("/api/trpc/wizpilot.generate", aiGenerationLimiter);
   app.use("/api/trpc/suno.generate", aiGenerationLimiter);
   app.use("/api/trpc/suno.generateCustom", aiGenerationLimiter);
@@ -212,6 +214,12 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError({ path, error }) {
+        if (error.code !== 'UNAUTHORIZED' && error.code !== 'NOT_FOUND') {
+          console.error(`[tRPC Error] ${path}: ${error.code} — ${error.message}`);
+          if (error.cause) console.error('[tRPC Cause]', String(error.cause));
+        }
+      },
     })
   );
   // development mode uses Vite, production mode uses static files
@@ -228,6 +236,9 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
+  // Increase timeout for long-running AI requests (storyboard generation, video rendering)
+  server.timeout = 300_000; // 5 minutes
+  server.keepAliveTimeout = 305_000;
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });

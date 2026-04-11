@@ -210,28 +210,42 @@ export const musicVideoRouter = router({
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
 
-      // If transcription is done, use lyrics to drive the storyboard
-      // Otherwise generate based on theme alone (transcription may still be processing)
+      // Use stored transcription text to build lyric segments — avoids re-transcribing the audio
+      // which would add 30-60 seconds and cause request timeouts.
       let lyricsSegments: Array<{ start: number; end: number; text: string }> | undefined;
       if (job.transcriptionStatus === "done" && job.transcription) {
-        // Re-run transcription to get segments (or use stored transcription text as fallback)
-        // We use the audio URL to get fresh segments with timestamps
-        try {
-          const freshTranscription = await transcribeJobAudio(job.id, job.audioUrl);
-          lyricsSegments = freshTranscription.segments;
-        } catch {
-          // Fall back to theme-only storyboard
+        // Build approximate time-aligned segments from stored transcription text.
+        // Split by sentence/phrase boundaries and distribute evenly across the audio duration.
+        const lines = job.transcription
+          .split(/[.!?\n]+/)
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0);
+        if (lines.length > 0) {
+          const segDuration = job.audioDuration / lines.length;
+          lyricsSegments = lines.map((text, i) => ({
+            start: i * segDuration,
+            end: (i + 1) * segDuration,
+            text,
+          }));
         }
       } else if (job.transcriptionStatus === "processing") {
-        // Wait briefly for transcription to complete (up to 30s)
-        for (let attempt = 0; attempt < 6; attempt++) {
+        // Wait briefly for transcription to complete (up to 15s)
+        for (let attempt = 0; attempt < 3; attempt++) {
           await new Promise((r) => setTimeout(r, 5000));
           const [refreshed] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
           if (refreshed?.transcriptionStatus === "done" && refreshed.transcription) {
-            try {
-              const freshTranscription = await transcribeJobAudio(job.id, job.audioUrl);
-              lyricsSegments = freshTranscription.segments;
-            } catch {}
+            const lines = refreshed.transcription
+              .split(/[.!?\n]+/)
+              .map((l) => l.trim())
+              .filter((l) => l.length > 0);
+            if (lines.length > 0) {
+              const segDuration = job.audioDuration / lines.length;
+              lyricsSegments = lines.map((text, i) => ({
+                start: i * segDuration,
+                end: (i + 1) * segDuration,
+                text,
+              }));
+            }
             break;
           }
         }
