@@ -1,7 +1,13 @@
 import React from 'react';
-import { Music, Play, Sparkles, Wand2, Waves, ArrowRight } from 'lucide-react';
+import { Music, Play, Sparkles, Wand2, Waves, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 const Onboarding: React.FC = () => {
+  const [, setLocation] = useLocation();
+
+  const handleBack = () => {
+    setLocation('/');
+  };
   const options = [
     {
       href: '/music-video/create',
@@ -47,6 +53,18 @@ const Onboarding: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black overflow-hidden">
+      {/* Back button */}
+      <div className="fixed top-6 left-6 z-50">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-slate-200 transition-colors duration-300 group"
+          aria-label="Go back to homepage"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+      </div>
+
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
