@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` ADD `modelAssignment` enum('seedance-2.0','hailuo-minimax') DEFAULT 'seedance-2.0' NOT NULL;

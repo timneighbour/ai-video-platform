@@ -19,6 +19,7 @@ import { initSeedance } from "./ai-apis/seedance";
 import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
 import { submitAtlasVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
+import { submitWaveSpeedVideo, pollWaveSpeedVideo, type WaveSpeedModel } from "./ai-apis/wavespeed";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 
@@ -30,6 +31,9 @@ const FAL_REQUEST_ID_PREFIX = "fal:";
 // Prefix used to distinguish Hypereal job IDs
 const HYPEREAL_JOB_ID_PREFIX = "hypereal:";
 const ATLAS_JOB_ID_PREFIX = "atlas:";
+const WAVESPEED_JOB_ID_PREFIX = "wavespeed:";
+const WAVESPEED_SEEDANCE_PREFIX = "wavespeed:seedance:";
+const WAVESPEED_HAILUO_PREFIX = "wavespeed:hailuo:";
 
 const execAsync = promisify(exec);
 
@@ -340,8 +344,12 @@ ${sceneList}
 - prompt: string (60-120 words. Copy the character's FIXED APPEARANCE verbatim. NO text, captions, or lyrics in the frame.)
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime")
 - characterAssignments: array of character names from [${allCharacterNames}] who appear in this scene
+- modelAssignment: string, either "seedance-2.0" or "hailuo-minimax"
+  • Use "seedance-2.0" for scenes with close-up character faces, detailed facial expressions, or where character likeness is critical
+  • Use "hailuo-minimax" for wide shots, atmospheric scenes, crowd shots, instrument cutaways, or scenes where character detail is less critical
+  • When in doubt, prefer "seedance-2.0" for locked characters
 
-Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.`;
+Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.`
 
   const response = await invokeLLM({
     messages: [
@@ -370,8 +378,9 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
                     type: "array",
                     items: { type: "string" },
                   },
+                  modelAssignment: { type: "string", enum: ["seedance-2.0", "hailuo-minimax"] },
                 },
-                required: ["sceneIndex", "startTime", "duration", "prompt", "visualStyle", "characterAssignments"],
+                required: ["sceneIndex", "startTime", "duration", "prompt", "visualStyle", "characterAssignments", "modelAssignment"],
                 additionalProperties: false,
               },
             },
@@ -414,6 +423,12 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
  * @param lipSync - If true, append a lip-sync hint to the prompt (for music-driven scenes).
  */
 /** Prompt modifiers for each lip-sync style */
+// Helper to map storyboard modelAssignment to WaveSpeed model enum
+function mapModelAssignmentToWaveSpeed(modelAssignment: string): WaveSpeedModel {
+  if (modelAssignment === "hailuo-minimax") return "hailuo-minimax";
+  return "seedance-2.0"; // default to seedance-2.0 for character scenes
+}
+
 const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
   natural: "Characters sing naturally with realistic, subtle mouth movements synced to the music.",
   expressive: "Characters sing with highly expressive, exaggerated mouth movements and energetic facial animation synced to the music.",
@@ -442,12 +457,33 @@ export async function startSceneRender(
   duration: number,
   lipSync = true,
   lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural",
-  renderer: RendererType = "fal_seedance"
+  renderer: RendererType | "wavespeed" = "fal_seedance",
+  modelAssignment: WaveSpeedModel = "seedance-2.0"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
     ? `${prompt} ${LIP_SYNC_STYLE_PROMPTS[lipSyncStyle] ?? LIP_SYNC_STYLE_PROMPTS.natural}`
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
+
+  // Route to WaveSpeed first (primary renderer) with fallback chain
+  if (renderer === "wavespeed") {
+    try {
+      return await startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment);
+    } catch (waveSpeedErr) {
+      console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed failed, falling back to Hypereal:`, waveSpeedErr);
+      try {
+        return await startSceneRenderHypereal(sceneId, finalPrompt, duration);
+      } catch (hyperealErr) {
+        console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying Atlas Cloud:`, hyperealErr);
+        try {
+          return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration);
+        } catch (atlasErr) {
+          console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, falling back to fal.ai Seedance:`, atlasErr);
+          return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+        }
+      }
+    }
+  }
 
   // Route to the appropriate renderer
   // fal_seedance and seedance both now try Hypereal first, then fall back to fal.ai
@@ -796,6 +832,14 @@ export async function pollSceneStatus(
   taskId: string
 ): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
   // Route to the correct API based on the task ID prefix
+  if (taskId.startsWith(WAVESPEED_SEEDANCE_PREFIX)) {
+    return pollSceneStatusWaveSpeed(sceneId, taskId.slice(WAVESPEED_SEEDANCE_PREFIX.length));
+  }
+
+  if (taskId.startsWith(WAVESPEED_HAILUO_PREFIX)) {
+    return pollSceneStatusWaveSpeed(sceneId, taskId.slice(WAVESPEED_HAILUO_PREFIX.length));
+  }
+
   if (taskId.startsWith(HYPEREAL_JOB_ID_PREFIX)) {
     return pollSceneStatusHypereal(sceneId, taskId.slice(HYPEREAL_JOB_ID_PREFIX.length));
   }
@@ -967,5 +1011,123 @@ export async function assembleMusicVideo(jobId: number): Promise<string> {
     return url;
   } finally {
     try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+  }
+}
+
+/**
+ * Submit a video generation request to WaveSpeed AI with the specified model.
+ * Routes to either Seedance 2.0 (character-heavy) or Hailuo Minimax (wide/atmospheric).
+ */
+async function startSceneRenderWaveSpeed(
+  sceneId: number,
+  prompt: string,
+  duration: number,
+  model: WaveSpeedModel = "seedance-2.0"
+): Promise<string> {
+  // WaveSpeed has a ~500 char prompt limit; truncate if needed
+  const MAX_PROMPT_CHARS = 480;
+  const safePrompt = prompt.length > MAX_PROMPT_CHARS
+    ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+    : prompt;
+
+  const trySubmit = async (p: string): Promise<string> => {
+    const taskId = await submitWaveSpeedVideo({
+      model,
+      prompt: p,
+      duration: duration <= 5 ? 5 : 8,
+      width: 1280,
+      height: 720,
+    });
+    if (!taskId) throw new Error(`WaveSpeed: no task_id returned for scene ${sceneId}`);
+    return taskId;
+  };
+
+  let taskId: string;
+  try {
+    taskId = await trySubmit(safePrompt);
+  } catch (err: any) {
+    const errMsg = String(err?.message ?? err);
+    console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed ${model} first attempt failed (${errMsg}). Retrying with simplified prompt.`);
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    try {
+      taskId = await trySubmit(fallbackPrompt);
+    } catch (retryErr: any) {
+      throw new Error(`WaveSpeed ${model} failed for scene ${sceneId} after retry: ${String(retryErr?.message ?? retryErr)}`);
+    }
+  }
+
+  // Prefix the task ID with model info for routing during polling
+  const prefix = model === "hailuo-minimax" ? WAVESPEED_HAILUO_PREFIX : WAVESPEED_SEEDANCE_PREFIX;
+  console.log(`[MusicVideo] Scene ${sceneId} → WaveSpeed ${model} taskId=${taskId}`);
+  return `${prefix}${taskId}`;
+}
+
+/**
+ * Poll a WaveSpeed video generation task and update DB when complete.
+ */
+async function pollSceneStatusWaveSpeed(
+  sceneId: number,
+  taskId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const result = await pollWaveSpeedVideo(taskId);
+
+    if (result.status === "completed" && result.video_url) {
+      // Download and re-upload to S3 for permanent storage
+      let buffer: Buffer | null = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const response = await fetch(result.video_url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          buffer = Buffer.from(await response.arrayBuffer());
+          break;
+        } catch (fetchErr) {
+          console.warn(`[WaveSpeed] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+        }
+      }
+
+      if (!buffer) {
+        const db2 = await getDb();
+        if (db2) {
+          await db2.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Failed to download WaveSpeed video after 3 attempts", updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+        }
+        return { status: "failed" };
+      }
+
+      const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
+      const { url } = await storagePut(key, buffer, "video/mp4");
+
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+
+      return { status: "completed", videoUrl: url };
+    }
+
+    if (result.status === "failed") {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: result.error ?? "WaveSpeed generation failed", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+
+    return { status: "processing" };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
   }
 }

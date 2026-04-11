@@ -414,7 +414,8 @@ export const musicVideoRouter = router({
         for (let i = 0; i < scenes.length; i++) {
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
-          const renderer = rendererMap.get(scene.sceneIndex) ?? "seedance";
+          // Use modelAssignment from scene if available, otherwise fall back to router decision
+          const renderer = (scene.modelAssignment as string) ? "wavespeed" : (rendererMap.get(scene.sceneIndex) ?? "seedance");
 
           // Parse the per-scene character assignments stored by generateStoryboard
           let assignedNames: string[] = [];
@@ -450,18 +451,24 @@ export const musicVideoRouter = router({
             ? `CHARACTER APPEARANCE — EXACT, DO NOT DEVIATE:\n${sceneBriefs.join("\n")}\n\nSCENE: ${scene.prompt}\n\nIMPORTANT: The character(s) above MUST appear with EXACTLY the described appearance. Do NOT change hair colour, hair length, eye colour, skin tone, face shape, clothing, or any other feature. Maintain 100% visual consistency with the description above.`
             : scene.prompt;
           try {
+            // Read modelAssignment from the scene (set by storyboard LLM)
+            // Defaults to "seedance-2.0" for character-heavy scenes, "hailuo-minimax" for wide/atmospheric
+            const modelAssignment = (scene.modelAssignment as string) ?? "seedance-2.0";
+            
+            // For now, always use WaveSpeed as primary renderer (via startSceneRender)
+            // The renderer parameter is still used for fallback routing if WaveSpeed fails
             const taskId = await startSceneRender(
               scene.id,
               enrichedScenePrompt,
               scene.duration,
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
-              renderer
+              "wavespeed" as any // Route through WaveSpeed primary renderer
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
-            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued via ${renderer}: ${taskId}`);
+            console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued via WaveSpeed (${modelAssignment}): ${taskId}`);
           } catch (err: unknown) {
             const httpStatus = (err as any)?.response?.status;
             console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"})`, err);

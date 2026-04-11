@@ -140,6 +140,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
   previewImageKey: varchar("previewImageKey", { length: 512 }),
   characterAssignments: text("characterAssignments"), // JSON array of character names assigned to this scene e.g. ["Singer","Drummer"]
+  modelAssignment: mysqlEnum("modelAssignment", ["seedance-2.0", "hailuo-minimax"]).default("seedance-2.0").notNull(), // WaveSpeed model: seedance-2.0 for character-heavy, hailuo-minimax for wide/atmospheric
   lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -147,6 +148,8 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
 });
 export type MusicVideoScene = typeof musicVideoScenes.$inferSelect;
 export type InsertMusicVideoScene = typeof musicVideoScenes.$inferInsert;
+
+export type ModelAssignment = "seedance-2.0" | "hailuo-minimax";
 
 // API Keys table (for Business plan users)
 export const apiKeys = mysqlTable("apiKeys", {
@@ -214,6 +217,10 @@ export type ShowcaseItem = typeof showcaseItems.$inferSelect;
 export type InsertShowcaseItem = typeof showcaseItems.$inferInsert;
 
 // ─── Suno Music Generation ──────────────────────────────────────────────────
+
+// ─── WaveSpeed Model Assignment ────────────────────────────────────────────────
+// Enum for WaveSpeed model selection per scene
+export type WaveSpeedModelType = "seedance-2.0" | "hailuo-minimax";
 
 export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   id: int("id").autoincrement().primaryKey(),

@@ -1274,3 +1274,11 @@
 - [x] Added startSceneRenderAtlasCloud and pollSceneStatusAtlasCloud to music-video-service.ts
 - [x] Fallback chain is now: Hypereal → Atlas Cloud → fal.ai Seedance
 - [x] ATLAS_CLOUD_API_KEY validated (85/85 tests passing)
+
+
+## Session 15 - WaveSpeed AI Integration
+- [ ] Store WAVESPEED_API_KEY secret
+- [ ] Build WaveSpeed client with Seedance 2.0 and Hailuo Minimax support
+- [ ] Update storyboard LLM to assign models per scene (character-heavy → Seedance, wide/atmospheric → Hailuo)
+- [ ] Add WaveSpeed as primary provider in render fallback chain
+- [ ] Verify smart model-mixing reduces API costs by ~40%
