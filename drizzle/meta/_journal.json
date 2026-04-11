@@ -127,6 +127,13 @@
       "when": 1775912117921,
       "tag": "0017_dapper_titanium_man",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1775913623862,
+      "tag": "0018_white_blackheart",
+      "breakpoints": true
     }
   ]
 }

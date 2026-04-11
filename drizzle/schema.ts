@@ -243,6 +243,59 @@ export const videoCharacterPhotos = mysqlTable("videoCharacterPhotos", {
 export type VideoCharacterPhoto = typeof videoCharacterPhotos.$inferSelect;
 export type InsertVideoCharacterPhoto = typeof videoCharacterPhotos.$inferInsert;
 
+// ── AI Video Enhancement Studio (Phase 1 MVP) ──────────────────────────────────────
+// Enhancement Jobs table — tracks video enhancement requests
+export const enhancementJobs = mysqlTable("enhancementJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  
+  // Input video
+  inputVideoUrl: varchar("inputVideoUrl", { length: 1024 }).notNull(),
+  inputVideoKey: varchar("inputVideoKey", { length: 512 }).notNull(),
+  inputVideoDuration: int("inputVideoDuration").notNull(), // seconds
+  inputVideoSize: int("inputVideoSize").notNull(), // bytes
+  
+  // User selections
+  style: varchar("style", { length: 64 }).notNull(), // cinematic | emotional | upbeat | documentary | kids
+  musicEnabled: boolean("musicEnabled").default(true).notNull(),
+  captionsEnabled: boolean("captionsEnabled").default(true).notNull(),
+  
+  // Video analysis results
+  analysisStatus: mysqlEnum("analysisStatus", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  analysisData: longtext("analysisData"), // JSON: {speech_segments, scene_cuts, mood_tags, confidence}
+  speechSegments: longtext("speechSegments"), // JSON array of {start, end, confidence}
+  sceneSegments: longtext("sceneSegments"), // JSON array of {start, end, type}
+  detectedMood: varchar("detectedMood", { length: 128 }), // auto-detected mood
+  
+  // Music generation
+  musicGenerationStatus: mysqlEnum("musicGenerationStatus", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  musicUrl: varchar("musicUrl", { length: 1024 }), // Generated music file
+  musicKey: varchar("musicKey", { length: 512 }), // S3 key
+  sunoTaskId: varchar("sunoTaskId", { length: 255 }), // Suno API task ID
+  
+  // Captions
+  captionSegments: longtext("captionSegments"), // JSON array of {start, end, text}
+  
+  // Final export
+  renderStatus: mysqlEnum("renderStatus", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  outputUrl16x9: varchar("outputUrl16x9", { length: 1024 }), // 16:9 @ 1080p
+  outputKey16x9: varchar("outputKey16x9", { length: 512 }),
+  outputUrl9x16: varchar("outputUrl9x16", { length: 1024 }), // 9:16 @ 1080p
+  outputKey9x16: varchar("outputKey9x16", { length: 512 }),
+  
+  // Metadata
+  creditCost: int("creditCost").default(1).notNull(), // 1 credit per video
+  errorMessage: text("errorMessage"),
+  status: mysqlEnum("enhancementStatus", ["draft", "analyzing", "generating", "rendering", "completed", "failed"]).default("draft").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EnhancementJob = typeof enhancementJobs.$inferSelect;
+export type InsertEnhancementJob = typeof enhancementJobs.$inferInsert;
+
 // ── Showcase Items ─────────────────────────────────────────────────────────────
 // Pre-generated demo videos shown in the "See what creators are making" gallery.
 // Managed by admins; served publicly on the homepage.
