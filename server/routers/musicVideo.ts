@@ -1917,10 +1917,7 @@ Write the full visual brief now.`,
             eq(videoCharacters.userId, ctx.user.id),
             input.jobId ? eq(videoCharacters.jobId, input.jobId) : undefined,
             input.characterIds?.length
-              ? (() => {
-                  const { inArray } = require("drizzle-orm");
-                  return inArray(videoCharacters.id, input.characterIds);
-                })()
+              ? inArray(videoCharacters.id, input.characterIds)
               : undefined
           )
         );
