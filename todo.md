@@ -1342,3 +1342,8 @@
 - [x] Phase 4: Scene render: prepend frozen character description as first sentence of every prompt
 - [x] Phase 5: Fix stuck "Uploading song..." toast
 - [x] Phase 5: Fix "Loading song" spinner in bottom-left corner
+
+## Session 22 - Invented Character Consistency
+- [ ] Store AI-invented character descriptions in DB after roster generation (so Mike is the same person every scene)
+- [ ] Inject frozen invented character descriptions into every scene prompt verbatim
+- [ ] Remove [LOCKED APPEARANCE — match exactly] tag from visible scene prompt text

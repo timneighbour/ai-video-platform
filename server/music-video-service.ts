@@ -470,8 +470,8 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
       .map(name => {
         const char = rosterByName.get(name.toLowerCase());
         if (!char) return null;
-        const lockTag = char.isLocked ? " [LOCKED APPEARANCE — match exactly]" : "";
-        return `${char.name} (${char.role})${lockTag}: ${char.description}`;
+        // No lock tag in the stored prompt — it's internal LLM guidance only, not user-visible
+        return `${char.name} (${char.role}): ${char.description}`;
       })
       .filter(Boolean);
 

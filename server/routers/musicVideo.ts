@@ -306,12 +306,13 @@ Rules:
       }
 
       // Re-fetch characters after auto-locking to get updated locked descriptions
+      // This now includes any previously-frozen AI-invented characters (e.g. Mike the bassist)
       const refreshedCharacters = await db.select().from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
       const lockedCharacters = refreshedCharacters
         .filter((c) => c.isLocked && c.lockedDescription)
         .map((c) => ({ name: c.name, role: c.role, lockedDescription: c.lockedDescription! }));
-      console.log(`[MusicVideo] Locked characters for job ${input.jobId}: ${lockedCharacters.map(c => c.name).join(", ") || "none"}`);
+      console.log(`[MusicVideo] Locked characters for job ${input.jobId}: ${lockedCharacters.map(c => c.name).join(", ") || "none"} (includes AI-invented if previously frozen)`);
 
       // Generate scenes via LLM — lyrics-driven if available, theme-only otherwise
       // Include character image reference in theme prompt if provided
@@ -334,6 +335,47 @@ Rules:
       ));
 
       console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);
+
+      // ── Persist AI-invented characters to videoCharacters so their descriptions are frozen ──
+      // Invented characters (isLocked=false in roster) need a stable description stored in the DB.
+      // On subsequent storyboard regenerations, we check if they already exist and reuse the frozen description.
+      const inventedInRoster = roster.filter(c => !c.isLocked);
+      for (const invented of inventedInRoster) {
+        // Check if this invented character already exists in videoCharacters for this job
+        const existing = await db.select().from(videoCharacters)
+          .where(and(
+            eq(videoCharacters.jobId, input.jobId),
+            eq(videoCharacters.userId, ctx.user.id)
+          ));
+        const alreadyExists = existing.find(c => c.name.toLowerCase() === invented.name.toLowerCase());
+        if (alreadyExists) {
+          // Already exists — update the description only if not already locked
+          if (!alreadyExists.isLocked) {
+            await db.update(videoCharacters)
+              .set({ lockedDescription: invented.description, isLocked: true, lockedAt: new Date(), updatedAt: new Date() })
+              .where(eq(videoCharacters.id, alreadyExists.id));
+            console.log(`[MusicVideo] Updated invented character ${invented.name} description in DB`);
+          } else {
+            console.log(`[MusicVideo] Invented character ${invented.name} already locked in DB — keeping frozen description`);
+          }
+        } else {
+          // New invented character — insert with locked description so it's frozen for future runs
+          const nextSlot = existing.length; // use next available slot index
+          await db.insert(videoCharacters).values({
+            jobId: input.jobId,
+            userId: ctx.user.id,
+            name: invented.name,
+            role: invented.role,
+            slotIndex: nextSlot,
+            lockedDescription: invented.description,
+            isLocked: true,
+            lockedAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+          console.log(`[MusicVideo] Persisted new invented character ${invented.name} (${invented.role}) to DB`);
+        }
+      }
 
       // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
