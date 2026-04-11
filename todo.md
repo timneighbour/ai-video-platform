@@ -1347,3 +1347,10 @@
 - [ ] Store AI-invented character descriptions in DB after roster generation (so Mike is the same person every scene)
 - [ ] Inject frozen invented character descriptions into every scene prompt verbatim
 - [ ] Remove [LOCKED APPEARANCE — match exactly] tag from visible scene prompt text
+
+## Character Consistency & Prompt Fixes
+- [x] Fix prompt duplication bug: LLM copies character description into prompt, then post-processing prepends it again
+- [x] Change LLM scene prompt to NOT include character descriptions — only scene direction (camera, lighting, action, setting)
+- [x] Post-processing injects character descriptions mechanically — guaranteed correct, no duplication
+- [x] Clean up user-visible prompt text: strip verbose character description prefix from displayed prompt in storyboard UI
+- [x] Ensure new forensic descriptions for Tim and Greg are used after storyboard regeneration

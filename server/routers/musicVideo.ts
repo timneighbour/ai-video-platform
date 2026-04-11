@@ -381,13 +381,15 @@ Rules:
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
 
       // Insert new scenes
+      // Store the CLEAN prompt (scene direction only) in the DB — this is what users see.
+      // The full render prompt (with character descriptions prepended) is built on-the-fly at render time.
       for (const scene of scenes) {
         await db.insert(musicVideoScenes).values({
           jobId: input.jobId,
           sceneIndex: scene.sceneIndex,
           startTime: scene.startTime,
           duration: scene.duration,
-          prompt: scene.prompt,
+          prompt: scene.cleanPrompt || scene.prompt,
           lyrics: scene.lyrics || null,
           visualStyle: scene.visualStyle,
           characterAssignments: scene.characterAssignments && scene.characterAssignments.length > 0

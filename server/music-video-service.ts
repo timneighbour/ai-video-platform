@@ -133,7 +133,8 @@ export interface StoryboardResult {
     sceneIndex: number;
     startTime: number;
     duration: number;
-    prompt: string;
+    prompt: string;        // Full render prompt (with character descriptions prepended)
+    cleanPrompt: string;   // Scene direction only (for UI display, no character descriptions)
     visualStyle: string;
     lyrics: string;
     characterAssignments: string[];
@@ -351,13 +352,13 @@ ${lockedRoles || "No locked roles."}
 CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
 1. For every scene, decide which character(s) from the roster above appear
 2. List their exact names in "characterAssignments" — use ONLY names from the roster above
-3. Copy their FIXED APPEARANCE description verbatim into the scene prompt — do NOT paraphrase or summarise
-4. NEVER describe a character differently from their roster entry — not even minor variations in hair, clothing, or features
-5. NEVER invent characters not in the roster above
-6. NEVER put two characters in the same scene performing the same role (e.g. two guitarists, two singers)
-7. Each character must appear in at least 2 scenes
-8. Prefer solo scenes (one character) — they produce the most consistent results
-9. When a locked character appears, their description MUST be the FIRST thing in the scene prompt, before any setting or action description`;
+3. DO NOT include character appearance descriptions in the "prompt" field — character descriptions will be injected automatically by the system
+4. The "prompt" field should contain ONLY the scene direction: camera angle, lighting, setting, action, atmosphere, mood
+5. You may refer to characters by NAME (e.g. "Tim plays guitar centre stage") but do NOT describe their appearance
+6. NEVER invent characters not in the roster above
+7. NEVER put two characters in the same scene performing the same role (e.g. two guitarists, two singers)
+8. Each character must appear in at least 2 scenes
+9. Prefer solo scenes (one character) — they produce the most consistent results`;
 
   const systemPrompt = `You are a professional music video director.
 Your job is to create detailed, cinematic scene descriptions for AI video generation.
@@ -369,7 +370,8 @@ ${hasLyrics ? "- Visually inspired by the EMOTION and THEME of the lyrics — tr
 - Varied in camera angles, settings, and visual styles
 - Between 60-120 words each
 - CRITICAL: NEVER include text, words, captions, subtitles, or lyrics as visual elements in the video frame
-- CRITICAL: Copy each character's FIXED APPEARANCE description verbatim when they appear in a scene${rosterBlock}
+- CRITICAL: Do NOT include character appearance descriptions in the prompt — they are injected automatically by the system
+- Refer to characters by NAME only in the prompt (e.g. "Tim plays guitar") — never describe their looks${rosterBlock}
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 
@@ -394,7 +396,7 @@ ${sceneList}
 - sceneIndex: number (0-based)
 - startTime: number (seconds)
 - duration: number (seconds)
-- prompt: string (60-120 words. Copy the character's FIXED APPEARANCE verbatim. NO text, captions, or lyrics in the frame.)
+- prompt: string (60-120 words. Describe ONLY the scene direction: camera angle, lighting, setting, action, atmosphere. Refer to characters by NAME only — do NOT describe their appearance. NO text, captions, or lyrics in the frame.)
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime")
 - characterAssignments: array of character names from [${allCharacterNames}] who appear in this scene
 - modelAssignment: string, either "seedance-2.0" or "hailuo-minimax"
@@ -475,20 +477,23 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
       })
       .filter(Boolean);
 
-    // Prepend character descriptions to the scene prompt if not already present
+    // The LLM now writes ONLY scene direction (camera, lighting, action, setting).
+    // We ALWAYS prepend the exact character descriptions mechanically — this guarantees
+    // character consistency and avoids the duplication bug.
     let finalPrompt = scene.prompt as string;
+    
+    // Store the clean scene-direction-only prompt for UI display
+    const cleanPrompt = finalPrompt;
+    
+    // Build the full render prompt with character descriptions prepended
     if (characterPrefixes.length > 0) {
-      // Check if the prompt already starts with the character name to avoid duplication
-      const firstCharName = validAssignments[0]?.toLowerCase() ?? "";
-      const promptLower = finalPrompt.toLowerCase();
-      if (!promptLower.startsWith(firstCharName)) {
-        finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}`;
-      }
+      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}`;
     }
 
     return {
       ...scene,
-      prompt: finalPrompt,
+      prompt: finalPrompt,       // Full prompt with character descriptions (for rendering)
+      cleanPrompt: cleanPrompt,  // Scene direction only (for UI display)
       lyrics: sceneWindows[scene.sceneIndex]?.lyrics ?? "",
       characterAssignments: validAssignments,
     };
