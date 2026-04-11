@@ -210,53 +210,108 @@ export const musicVideoRouter = router({
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
 
-      // Use stored transcription text to build lyric segments — avoids re-transcribing the audio
-      // which would add 30-60 seconds and cause request timeouts.
+      // Use stored Whisper segments (with real timestamps) for accurate per-scene lyrics.
+      // Fall back to evenly-distributed text segments only if segments aren't available.
       let lyricsSegments: Array<{ start: number; end: number; text: string }> | undefined;
-      if (job.transcriptionStatus === "done" && job.transcription) {
-        // Build approximate time-aligned segments from stored transcription text.
-        // Split by sentence/phrase boundaries and distribute evenly across the audio duration.
-        const lines = job.transcription
-          .split(/[.!?\n]+/)
-          .map((l) => l.trim())
-          .filter((l) => l.length > 0);
-        if (lines.length > 0) {
-          const segDuration = job.audioDuration / lines.length;
-          lyricsSegments = lines.map((text, i) => ({
-            start: i * segDuration,
-            end: (i + 1) * segDuration,
-            text,
-          }));
+
+      const waitForTranscription = async (): Promise<typeof job | null> => {
+        if (job.transcriptionStatus === "done") return job;
+        if (job.transcriptionStatus === "processing") {
+          for (let attempt = 0; attempt < 3; attempt++) {
+            await new Promise((r) => setTimeout(r, 5000));
+            const [refreshed] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
+            if (refreshed?.transcriptionStatus === "done") return refreshed;
+          }
         }
-      } else if (job.transcriptionStatus === "processing") {
-        // Wait briefly for transcription to complete (up to 15s)
-        for (let attempt = 0; attempt < 3; attempt++) {
-          await new Promise((r) => setTimeout(r, 5000));
-          const [refreshed] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
-          if (refreshed?.transcriptionStatus === "done" && refreshed.transcription) {
-            const lines = refreshed.transcription
-              .split(/[.!?\n]+/)
-              .map((l) => l.trim())
-              .filter((l) => l.length > 0);
-            if (lines.length > 0) {
-              const segDuration = job.audioDuration / lines.length;
-              lyricsSegments = lines.map((text, i) => ({
-                start: i * segDuration,
-                end: (i + 1) * segDuration,
-                text,
-              }));
+        return null;
+      };
+
+      const transcribedJob = await waitForTranscription();
+      if (transcribedJob?.transcriptionStatus === "done") {
+        // PREFERRED: use real Whisper timestamps stored as JSON
+        if (transcribedJob.transcriptionSegments) {
+          try {
+            const parsed = JSON.parse(transcribedJob.transcriptionSegments) as Array<{ start: number; end: number; text: string }>;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              lyricsSegments = parsed;
+              console.log(`[MusicVideo] Using ${parsed.length} real Whisper segments for job ${input.jobId}`);
             }
-            break;
+          } catch { /* fall through to text-based fallback */ }
+        }
+        // FALLBACK: evenly distribute text lines if no segments stored (older jobs)
+        if (!lyricsSegments && transcribedJob.transcription) {
+          const lines = transcribedJob.transcription
+            .split(/[.!?\n🎵]+/)
+            .map((l) => l.trim())
+            .filter((l) => l.length > 0);
+          if (lines.length > 0) {
+            const segDuration = job.audioDuration / lines.length;
+            lyricsSegments = lines.map((text, i) => ({
+              start: i * segDuration,
+              end: (i + 1) * segDuration,
+              text,
+            }));
+            console.log(`[MusicVideo] Using ${lines.length} text-split segments (fallback) for job ${input.jobId}`);
           }
         }
       }
 
-      // Fetch locked characters for this job to enforce visual consistency
+      // Fetch ALL characters for this job — locked and unlocked
       const allCharacters = await db.select().from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
-      const lockedCharacters = allCharacters
+
+      // Auto-analyse and lock any characters that have photos but no locked description yet.
+      // This handles the case where photo upload completed but analysis was skipped on the frontend.
+      const { invokeLLM } = await import("../_core/llm");
+      for (const char of allCharacters) {
+        if (char.isLocked && char.lockedDescription) continue; // already locked
+        // Fetch primary photo for this character
+        const photos = await db.select().from(videoCharacterPhotos)
+          .where(eq(videoCharacterPhotos.characterId, char.id));
+        const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
+        if (!primaryPhoto?.photoUrl) continue; // no photo — skip
+        try {
+          console.log(`[MusicVideo] Auto-analysing character ${char.name} (id=${char.id}) for job ${input.jobId}`);
+          const analysisResponse = await invokeLLM({
+            messages: [
+              {
+                role: "system" as const,
+                content: `You are a forensic visual analyst writing character appearance briefs for AI video generation.
+Describe exactly what you see in the photo with maximum precision. This description will be used word-for-word in AI video prompts.
+Rules:
+- Describe ONLY what is visually observable. Do NOT guess or infer.
+- Be hyper-specific: exact hair colour, eye colour, skin tone, clothing.
+- Include: gender, apparent age range, ethnicity/skin tone, hair (colour, length, texture, style), eyes (colour and shape), face shape, build, clothing, distinctive features.
+- Output: A single dense paragraph of 80-120 words. No bullet points.`,
+              },
+              {
+                role: "user" as const,
+                content: [
+                  { type: "image_url" as const, image_url: { url: primaryPhoto.photoUrl, detail: "high" as const } },
+                  { type: "text" as const, text: `Analyse this photo and write a precise 80-120 word character appearance brief. Include: ${char.role ? `Role: ${char.role}. ` : ""}Be forensically specific about hair colour/texture/style, exact skin tone, eye colour and shape, face structure, build, clothing, and any distinctive features.` },
+                ],
+              },
+            ],
+          });
+          const description = analysisResponse.choices[0]?.message?.content;
+          if (description && typeof description === "string" && description.trim().length > 20) {
+            await db.update(videoCharacters)
+              .set({ isLocked: true, lockedDescription: description.trim(), updatedAt: new Date() })
+              .where(eq(videoCharacters.id, char.id));
+            console.log(`[MusicVideo] Auto-locked character ${char.name} with description (${description.trim().length} chars)`);
+          }
+        } catch (err) {
+          console.warn(`[MusicVideo] Failed to auto-analyse character ${char.name}:`, err);
+        }
+      }
+
+      // Re-fetch characters after auto-locking to get updated locked descriptions
+      const refreshedCharacters = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      const lockedCharacters = refreshedCharacters
         .filter((c) => c.isLocked && c.lockedDescription)
         .map((c) => ({ name: c.name, role: c.role, lockedDescription: c.lockedDescription! }));
+      console.log(`[MusicVideo] Locked characters for job ${input.jobId}: ${lockedCharacters.map(c => c.name).join(", ") || "none"}`);
 
       // Generate scenes via LLM — lyrics-driven if available, theme-only otherwise
       // Include character image reference in theme prompt if provided

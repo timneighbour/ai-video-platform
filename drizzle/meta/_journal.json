@@ -141,6 +141,13 @@
       "when": 1775923087507,
       "tag": "0019_tranquil_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1775928135927,
+      "tag": "0020_ancient_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }

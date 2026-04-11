@@ -1307,3 +1307,18 @@
 - [x] Fix musicVideoScenes INSERT: added missing modelAssignment column to DB
 - [x] Add back/home button to Music Video create page
 - [x] Add back/home button to Dashboard (Home link in sidebar)
+
+## Session 19 - Character Consistency & Overlay Fix
+- [ ] Fix storyboard overlay staying on screen after scenes load (isGeneratingStoryboard not cleared)
+- [ ] Fix character inconsistency: enforce locked character descriptions in ALL scene prompts
+- [ ] Fix character inconsistency: use photo analysis to lock Tim and Greg's appearance before storyboard generation
+- [ ] Fix character inconsistency: ensure character roster descriptions are injected into every scene prompt at render time
+- [ ] Fix character inconsistency: add explicit "do not change appearance" instruction to LLM storyboard prompt
+
+## Session 20 - Character Consistency Enforcement
+- [x] Fix: ensure ALL characters with photos get photo-analysed and locked before storyboard generation
+- [x] Fix: fetch character S3 URLs from server after saveCharacters if primaryPhotoUrl is null
+- [x] Fix: per-scene lyrics in storyboard card shows only that scene's lyrics (not full song)
+- [x] Fix: storyboard loading overlay toast dismissed properly when done
+- [x] Fix: regenerate storyboard toast also uses ID to dismiss properly
+- [x] Improve: server-side character description injection already done - verify it works end-to-end

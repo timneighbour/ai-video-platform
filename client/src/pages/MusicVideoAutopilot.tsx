@@ -562,19 +562,19 @@ export default function MusicVideoAutopilot() {
       }
 
       // Transcription was already started when the file was selected; no need to re-trigger;
-
       setStoryboardGenerating(true);
-      toast.loading("Generating storyboard...", { description: "Our AI director is crafting your scenes." });
-
+      const STORYBOARD_TOAST_ID = "storyboard-generating";
+      toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
       setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
-
-      // Dismiss the overlay immediately — scenes are ready
+      // Dismiss the loading toast and overlay — scenes are ready
+      toast.dismiss(STORYBOARD_TOAST_ID);
       setStoryboardGenerating(false);
       // Fetch actual scene IDs from server
       setStep("storyboard");
       toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
     } catch (err: any) {
+      toast.dismiss("storyboard-generating");
       setStoryboardGenerating(false);
       const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");
       if (isQuota) {
@@ -667,14 +667,17 @@ export default function MusicVideoAutopilot() {
 
   const handleRegenerateStoryboard = async () => {
     if (!jobId) return;
+    const REGEN_TOAST_ID = "storyboard-regenerating";
     try {
       setStoryboardGenerating(true);
-      toast.loading("Regenerating storyboard...");
+      toast.loading("Regenerating storyboard...", { id: REGEN_TOAST_ID, description: "Our AI director is crafting your scenes." });
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId });
       setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+      toast.dismiss(REGEN_TOAST_ID);
       setStoryboardGenerating(false);
-      toast.success("Storyboard regenerated!");
+      toast.success("Storyboard regenerated!", { description: `${storyboard.scenes.length} scenes ready.` });
     } catch (err: any) {
+      toast.dismiss(REGEN_TOAST_ID);
       setStoryboardGenerating(false);
       toast.error("Error", { description: err.message });
     }

@@ -104,6 +104,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   genre: varchar("genre", { length: 128 }),
   mood: varchar("mood", { length: 128 }),
   transcription: text("transcription"), // Full Whisper transcription text
+  transcriptionSegments: longtext("transcriptionSegments"), // JSON: Array<{start: number, end: number, text: string}> from Whisper
   transcriptionStatus: varchar("transcriptionStatus", { length: 32 }).default("pending"), // pending | processing | done | failed
   characterImageUrl: varchar("characterImageUrl", { length: 1024 }), // Optional character/face photo for AI to use
   characterImageKey: varchar("characterImageKey", { length: 512 }), // S3 key for character image

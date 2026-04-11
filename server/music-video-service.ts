@@ -80,10 +80,12 @@ export async function transcribeJobAudio(
       text: s.text.trim(),
     }));
 
-    // Save transcription to DB
+    // Save transcription + timestamped segments to DB
+    // Segments are stored as JSON so generateStoryboard can extract per-scene lyrics accurately
     await db.update(musicVideoJobs)
       .set({
         transcription: result.text,
+        transcriptionSegments: JSON.stringify(segments),
         transcriptionStatus: "done",
         updatedAt: new Date(),
       })
@@ -400,15 +402,42 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
   // Build a lookup of the full roster by name (lowercase) for validation
   const rosterByName = new Map(fullRoster.map(c => [c.name.toLowerCase(), c]));
 
-  // Merge lyrics and validate characterAssignments against the roster
+  // Merge lyrics, validate characterAssignments, and FORCIBLY INJECT character descriptions.
+  // We do NOT trust the LLM to copy descriptions verbatim — we do it ourselves here.
+  // This guarantees character consistency regardless of LLM paraphrasing.
   const scenes = parsed.scenes.map((scene: any) => {
     const assignments: string[] = scene.characterAssignments ?? [];
     // Validate assignments — remove any names not in the roster
     const validAssignments = assignments.filter(name =>
       rosterByName.has(name.toLowerCase())
     );
+
+    // Build a character identity prefix for the prompt.
+    // For each assigned character, prepend their EXACT description so the AI video model
+    // always receives the correct appearance — even if the LLM paraphrased it.
+    const characterPrefixes = validAssignments
+      .map(name => {
+        const char = rosterByName.get(name.toLowerCase());
+        if (!char) return null;
+        const lockTag = char.isLocked ? " [LOCKED APPEARANCE — match exactly]" : "";
+        return `${char.name} (${char.role})${lockTag}: ${char.description}`;
+      })
+      .filter(Boolean);
+
+    // Prepend character descriptions to the scene prompt if not already present
+    let finalPrompt = scene.prompt as string;
+    if (characterPrefixes.length > 0) {
+      // Check if the prompt already starts with the character name to avoid duplication
+      const firstCharName = validAssignments[0]?.toLowerCase() ?? "";
+      const promptLower = finalPrompt.toLowerCase();
+      if (!promptLower.startsWith(firstCharName)) {
+        finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}`;
+      }
+    }
+
     return {
       ...scene,
+      prompt: finalPrompt,
       lyrics: sceneWindows[scene.sceneIndex]?.lyrics ?? "",
       characterAssignments: validAssignments,
     };
