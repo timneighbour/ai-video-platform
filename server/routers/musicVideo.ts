@@ -1543,48 +1543,38 @@ Rules:
 
       let imageUrl: string;
       if (photos.length > 0) {
-        // Use Flux PuLID for face-consistent preview — upload photo to fal.ai storage for reliable access
+        // Use Flux PuLID for face-consistent preview.
+        // The storage proxy URLs are not publicly accessible to fal.ai's servers,
+        // so we fetch the photo on our server and convert it to a base64 data URL
+        // which is passed directly to Flux PuLID as reference_image_url.
         const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
         try {
-          const { fal } = await import("@fal-ai/client");
-          fal.config({ credentials: process.env.FAL_AI_API_KEY! });
-
-          // Fetch the photo from S3 and upload to fal.ai storage so it's accessible to the model
+          // Fetch the photo from our storage proxy (accessible from server)
           const photoResponse = await fetch(primaryPhoto.photoUrl);
-          if (!photoResponse.ok) throw new Error(`Failed to fetch photo: ${photoResponse.status}`);
-          const photoBuffer = await photoResponse.arrayBuffer();
-          const mimeType = primaryPhoto.photoUrl.match(/\.(png)$/i) ? "image/png" :
-                           primaryPhoto.photoUrl.match(/\.(webp)$/i) ? "image/webp" : "image/jpeg";
-          const photoFile = new File([photoBuffer], "reference.jpg", { type: mimeType });
-          const falPhotoUrl = await fal.storage.upload(photoFile);
+          if (!photoResponse.ok) throw new Error(`Failed to fetch reference photo: ${photoResponse.status} ${photoResponse.statusText}`);
+          const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
+          const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                           primaryPhoto.photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+          // Convert to base64 data URL — fal.ai Flux PuLID accepts data: URLs as reference_image_url
+          const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
+
+          console.log(`[previewCharacter] Using base64 reference for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
 
           const result = await generateFaceConsistentImage({
             prompt: previewPrompt,
-            referenceImageUrl: falPhotoUrl,
+            referenceImageUrl: base64DataUrl,
             idWeight: 1.4, // High weight for maximum face likeness
             guidanceScale: 4,
             imageSize: "portrait_4_3",
             negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
           });
           imageUrl = result.url;
+          console.log(`[previewCharacter] Flux PuLID success for ${char.name}`);
         } catch (pulidErr) {
-          console.warn(`[previewCharacter] Flux PuLID failed for ${char.name}, falling back to standard gen:`, pulidErr);
-          // Fallback: use the S3 URL directly (may work if bucket is public)
-          try {
-            const primaryPhoto2 = photos.find(p => p.isPrimary) ?? photos[0];
-            const fallbackResult = await generateFaceConsistentImage({
-              prompt: previewPrompt,
-              referenceImageUrl: primaryPhoto2.photoUrl,
-              idWeight: 1.2,
-              guidanceScale: 4,
-              imageSize: "portrait_4_3",
-              negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
-            });
-            imageUrl = fallbackResult.url;
-          } catch {
-            const fallback = await generateImage({ prompt: previewPrompt });
-            imageUrl = fallback.url ?? "";
-          }
+          console.warn(`[previewCharacter] Flux PuLID failed for ${char.name}:`, pulidErr instanceof Error ? pulidErr.message : pulidErr);
+          // Final fallback: generic image generation from description only
+          const fallback = await generateImage({ prompt: previewPrompt });
+          imageUrl = fallback.url ?? "";
         }
       } else {
         // No photos — use generic image generation (AI-described character)
