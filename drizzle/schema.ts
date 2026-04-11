@@ -126,7 +126,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   captionHighlightColour: varchar("captionHighlightColour", { length: 7 }).default("#FFD700"), // Hex colour for karaoke highlight
   captionKaraokeMode: boolean("captionKaraokeMode").default(false).notNull(), // Word-by-word highlight mode
   captionSafeArea: varchar("captionSafeArea", { length: 32 }).default("bottom_center"), // bottom_center | top_center | custom
-  status: mysqlEnum("mvJobStatus", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
   finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
