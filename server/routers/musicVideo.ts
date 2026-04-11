@@ -1531,10 +1531,10 @@ Rules:
       const description = char.lockedDescription?.trim() ?? "";
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
 
-      // Build a neutral portrait prompt for the preview
+      // Build a neutral portrait prompt for the preview — always head-and-shoulders, face clearly visible
       const previewPrompt = description.length > 20
-        ? `Portrait photo of ${characterLabel}. ${description}. Looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail.`
-        : `Portrait photo of ${characterLabel}, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail.`;
+        ? `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera. ${description}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
+        : `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`;
 
       // Fetch all photos for Flux PuLID
       const photos = await db.select().from(videoCharacterPhotos)
@@ -1543,25 +1543,51 @@ Rules:
 
       let imageUrl: string;
       if (photos.length > 0) {
-        // Use Flux PuLID for face-consistent preview — use primary photo as reference
+        // Use Flux PuLID for face-consistent preview — upload photo to fal.ai storage for reliable access
         const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
         try {
+          const { fal } = await import("@fal-ai/client");
+          fal.config({ credentials: process.env.FAL_AI_API_KEY! });
+
+          // Fetch the photo from S3 and upload to fal.ai storage so it's accessible to the model
+          const photoResponse = await fetch(primaryPhoto.photoUrl);
+          if (!photoResponse.ok) throw new Error(`Failed to fetch photo: ${photoResponse.status}`);
+          const photoBuffer = await photoResponse.arrayBuffer();
+          const mimeType = primaryPhoto.photoUrl.match(/\.(png)$/i) ? "image/png" :
+                           primaryPhoto.photoUrl.match(/\.(webp)$/i) ? "image/webp" : "image/jpeg";
+          const photoFile = new File([photoBuffer], "reference.jpg", { type: mimeType });
+          const falPhotoUrl = await fal.storage.upload(photoFile);
+
           const result = await generateFaceConsistentImage({
             prompt: previewPrompt,
-            referenceImageUrl: primaryPhoto.photoUrl,
-            idWeight: 1.3, // Slightly higher for preview — maximise likeness
+            referenceImageUrl: falPhotoUrl,
+            idWeight: 1.4, // High weight for maximum face likeness
             guidanceScale: 4,
             imageSize: "portrait_4_3",
-            negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration",
+            negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
           });
           imageUrl = result.url;
         } catch (pulidErr) {
-          console.warn(`[previewCharacter] Flux PuLID failed for ${char.name}, falling back:`, pulidErr);
-          const fallback = await generateImage({ prompt: previewPrompt });
-          imageUrl = fallback.url ?? "";
+          console.warn(`[previewCharacter] Flux PuLID failed for ${char.name}, falling back to standard gen:`, pulidErr);
+          // Fallback: use the S3 URL directly (may work if bucket is public)
+          try {
+            const primaryPhoto2 = photos.find(p => p.isPrimary) ?? photos[0];
+            const fallbackResult = await generateFaceConsistentImage({
+              prompt: previewPrompt,
+              referenceImageUrl: primaryPhoto2.photoUrl,
+              idWeight: 1.2,
+              guidanceScale: 4,
+              imageSize: "portrait_4_3",
+              negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
+            });
+            imageUrl = fallbackResult.url;
+          } catch {
+            const fallback = await generateImage({ prompt: previewPrompt });
+            imageUrl = fallback.url ?? "";
+          }
         }
       } else {
-        // No photos — use generic image generation
+        // No photos — use generic image generation (AI-described character)
         const result = await generateImage({ prompt: previewPrompt });
         imageUrl = result.url ?? "";
       }
@@ -1677,14 +1703,14 @@ Write the full visual brief now.`,
 
       const visualBrief = (briefResponse.choices[0]?.message?.content as string | undefined)?.trim() ?? input.description;
 
-      // Step 2: Generate preview image using the expanded brief
+      // Step 2: Generate preview image — always portrait/head-and-shoulders so face is clearly visible
       const imagePrompt = input.style === "realistic"
-        ? `Portrait of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. Looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
-        : `${styleLabel} style character portrait of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render.`;
+        ? `Close-up portrait photo of ${input.name}${input.role ? `, ${input.role}` : ""}, head and shoulders, face clearly visible, looking directly at camera. ${visualBrief}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
+        : `${styleLabel} style character portrait of ${input.name}${input.role ? `, ${input.role}` : ""}, head and shoulders, face clearly visible, looking directly at camera. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render.`;
 
       const negativePrompt = input.style === "realistic"
-        ? "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, watermark"
-        : "photorealistic, photograph, ugly, distorted, low quality, watermark";
+        ? "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, watermark, full body shot, wide shot, no face"
+        : "photorealistic, photograph, ugly, distorted, low quality, watermark, full body shot, wide shot, no face";
 
       let imageUrl: string;
       try {

@@ -1460,3 +1460,9 @@
 - [x] AI Generate tab content (style selector, description input, Generate button, preview image) not visible to user — investigate and fix
 - [x] Make AI Generate mode the default for new character slots (or at least make the tab more prominent)
 - [x] Add a standalone "AI Character Builder" section that is always visible without needing to click a tab
+
+## Character Confirmation — Face-Consistent Preview Fix
+- [x] Fix previewCharacter procedure: photo-mode characters must use Flux PuLID with the actual uploaded photo as face reference (not generic image generation)
+- [x] Ensure the primary photo base64/URL is passed to the previewCharacter call from CharacterConfirmationStep
+- [x] AI-generated characters (no photo) continue to use standard image generation from their visual brief
+- [x] Fix AI-generated character preview: enforce portrait/head-and-shoulders framing in the image generation prompt so the face is always visible
