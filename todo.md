@@ -1359,3 +1359,4 @@
 - [x] Pass ALL uploaded photos per character to preview image generation (not just 1 per character) for better likeness from multiple angles
 - [x] Fix Greg's likeness not captured in drum scenes — AI generates generic drummer instead of matching Greg's photos
 - [x] Fix random extra musicians appearing in preview images — add explicit character count constraint to prompt
+- [x] Fix storyboard LLM writing scene directions that contradict character locked descriptions (e.g. 'hair flying' for short-haired Greg)

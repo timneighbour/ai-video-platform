@@ -371,7 +371,8 @@ ${hasLyrics ? "- Visually inspired by the EMOTION and THEME of the lyrics — tr
 - Between 60-120 words each
 - CRITICAL: NEVER include text, words, captions, subtitles, or lyrics as visual elements in the video frame
 - CRITICAL: Do NOT include character appearance descriptions in the prompt — they are injected automatically by the system
-- Refer to characters by NAME only in the prompt (e.g. "Tim plays guitar") — never describe their looks${rosterBlock}
+- Refer to characters by NAME only in the prompt (e.g. "Tim plays guitar") — never describe their looks
+- CRITICAL: Scene directions MUST NOT contradict a character's actual physical appearance from the roster. For example, if a character has SHORT hair, do NOT write "hair flying" or "long hair flowing". If a character is clean-shaven, do NOT write "stroking his beard". Always respect the character's real physical features when writing action descriptions.${rosterBlock}
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 
