@@ -1,6 +1,6 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs } from "../drizzle/schema";
 import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem } from "../drizzle/schema";
 import { ENV } from './_core/env';
 

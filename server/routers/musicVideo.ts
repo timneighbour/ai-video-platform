@@ -415,7 +415,7 @@ export const musicVideoRouter = router({
           const scene = scenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           // Use modelAssignment from scene if available, otherwise fall back to router decision
-          const renderer = (scene.modelAssignment as string) ? "wavespeed" : (rendererMap.get(scene.sceneIndex) ?? "seedance");
+          const rendererType = (scene.modelAssignment as string) ? "wavespeed" : (rendererMap.get(scene.sceneIndex) ?? "seedance");
 
           // Parse the per-scene character assignments stored by generateStoryboard
           let assignedNames: string[] = [];
@@ -463,7 +463,8 @@ export const musicVideoRouter = router({
               scene.duration,
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
-              "wavespeed" as any // Route through WaveSpeed primary renderer
+              "wavespeed" as any, // Route through WaveSpeed primary renderer
+              modelAssignment as any
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
