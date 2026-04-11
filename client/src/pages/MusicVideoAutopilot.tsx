@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CreditBalance from "@/components/CreditBalance";
+import { Link } from "wouter";
 import {
   Music,
   Upload,
@@ -48,6 +49,8 @@ import {
   Layers,
   Wand2,
   Zap,
+  ArrowLeft,
+  LayoutDashboard,
 } from "lucide-react";
 
 type Step = "upload" | "storyboard" | "render";
@@ -909,6 +912,17 @@ export default function MusicVideoAutopilot() {
       {/* Header */}
       <div className="border-b border-zinc-800 bg-zinc-950">
         <div className="max-w-5xl mx-auto px-4 py-6">
+          {/* Top nav row: Home + Dashboard links */}
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              <span>Home</span>
+            </Link>
+            <Link href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
+            </Link>
+          </div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
               <Music className="w-5 h-5 text-white" />

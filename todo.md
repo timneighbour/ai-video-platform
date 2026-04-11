@@ -1302,3 +1302,8 @@
 - [x] Added splitLink in tRPC client: long-running AI procedures use non-batched httpLink
 - [x] Added onError logging to tRPC middleware for production error visibility
 - [x] Added generateStoryboard and createJob to AI rate limiter
+
+## Session 18 - Scene Insert Fix & Navigation
+- [x] Fix musicVideoScenes INSERT: added missing modelAssignment column to DB
+- [x] Add back/home button to Music Video create page
+- [x] Add back/home button to Dashboard (Home link in sidebar)
