@@ -1,6 +1,6 @@
 import { Music, Youtube, Baby, Wand2, ArrowRight, Headphones, Home } from "lucide-react";
-import React from "react";
-import { Link } from "wouter";
+import React, { useState } from "react";
+import { Link, useLocation } from "wouter";
 
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
 
@@ -29,6 +29,15 @@ const CREATOR_TYPES: {
 ];
 
 export default function Onboarding() {
+  const [, navigate] = useLocation();
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
+  const handleCardClick = (href: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(href);
+  };
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center px-4 sm:px-6 py-12 font-sans">
 
@@ -65,10 +74,20 @@ export default function Onboarding() {
       {/* ── Video type cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
         {CREATOR_TYPES.map((ct) => (
-          <Link
+          <div
             key={ct.id}
-            href={ct.href}
-            className={`group relative overflow-hidden rounded-2xl border border-white/10 hover:border-white/30 hover:scale-[1.01] text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-48 sm:h-52 cursor-pointer block ${ct.wide ? "sm:col-span-2" : ""}`}
+            onClick={(e) => handleCardClick(ct.href, e)}
+            onMouseEnter={() => setHoveredCard(ct.id)}
+            onMouseLeave={() => setHoveredCard(null)}
+            className={`group relative overflow-hidden rounded-2xl border border-white/10 ${hoveredCard === ct.id ? 'border-white/30 scale-[1.01]' : ''} text-left transition-all focus:outline-none focus:ring-2 focus:ring-white/20 h-48 sm:h-52 cursor-pointer block ${ct.wide ? "sm:col-span-2" : ""}`}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate(ct.href);
+              }
+            }}
           >
             {/* Background image */}
             <img
@@ -76,14 +95,14 @@ export default function Onboarding() {
               alt={ct.title}
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
             />
             {/* Gradient overlay */}
             <div className={`absolute inset-0 bg-gradient-to-br ${ct.accent} opacity-80`} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
             {/* Content */}
-            <div className="relative z-10 h-full flex flex-col justify-between p-5">
+            <div className="relative z-10 h-full flex flex-col justify-between p-5 pointer-events-none">
               {/* Icon badge */}
               <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white">
                 {ct.icon}
@@ -98,7 +117,7 @@ export default function Onboarding() {
                 <p className="text-white/70 text-xs leading-relaxed">{ct.desc}</p>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
