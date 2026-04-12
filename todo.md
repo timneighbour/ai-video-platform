@@ -2281,3 +2281,8 @@
 ## WizSound™ Auto-Select Sound Effect
 - [x] Generate subtle chime/confirmation sound effect via FFmpeg and upload to CDN
 - [x] Play sound effect when tier is auto-selected after preview ends in RenderPaywallModal
+
+## WizSound™ Preview Volume Slider
+- [x] Add volume state (default 80%) shared across all tier previews
+- [x] Add volume slider UI with mute/unmute icon in the audio section header
+- [x] Apply volume to all preview audio elements and the chime SFX in real-time

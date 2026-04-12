@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause, Volume2 } from "lucide-react";
+import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Quality = "standard" | "hd" | "4k";
@@ -91,6 +91,7 @@ export function RenderPaywallModal({
   const [previewProgress, setPreviewProgress] = useState<Record<AudioTier, number>>({ standard: 0, enhanced: 0, cinematic: 0 });
   const [justListened, setJustListened] = useState<AudioTier | null>(null);
   const justListenedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [previewVolume, setPreviewVolume] = useState(0.8); // 0–1, default 80%
   const audioRefs = useRef<Record<AudioTier, HTMLAudioElement | null>>({ standard: null, enhanced: null, cinematic: null });
   // Subtle confirmation chime played when a tier is auto-selected after preview
   const selectChimeRef = useRef<HTMLAudioElement | null>(null);
@@ -113,6 +114,14 @@ export function RenderPaywallModal({
     }
   }, [open]);
 
+  // Sync volume to all audio elements whenever previewVolume changes
+  useEffect(() => {
+    Object.values(audioRefs.current).forEach((el) => {
+      if (el) el.volume = previewVolume;
+    });
+    if (selectChimeRef.current) selectChimeRef.current.volume = Math.min(previewVolume, 0.5);
+  }, [previewVolume]);
+
   function togglePreview(tier: AudioTier, url: string) {
     // Stop any other playing tier
     Object.entries(audioRefs.current).forEach(([t, el]) => {
@@ -130,6 +139,7 @@ export function RenderPaywallModal({
       setPlayingTier(null);
     } else {
       audio.src = url;
+      audio.volume = previewVolume;
       audio.play().catch(() => {});
       setPlayingTier(tier);
     }
@@ -289,6 +299,32 @@ export function RenderPaywallModal({
                   <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
                 </div>
                 <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
+              </div>
+              {/* Preview volume control */}
+              <div className="flex items-center gap-1.5 ml-3">
+                <button
+                  type="button"
+                  onClick={() => setPreviewVolume((v) => v > 0 ? 0 : 0.8)}
+                  className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0"
+                  aria-label={previewVolume === 0 ? "Unmute preview" : "Mute preview"}
+                >
+                  {previewVolume === 0
+                    ? <VolumeX className="w-3.5 h-3.5" />
+                    : <Volume2 className="w-3.5 h-3.5" />}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.02}
+                  value={previewVolume}
+                  onChange={(e) => setPreviewVolume(parseFloat(e.target.value))}
+                  className="w-16 h-1 accent-violet-400 cursor-pointer"
+                  aria-label="Preview volume"
+                />
+                <span className="text-[9px] text-white/30 w-5 text-right tabular-nums">
+                  {Math.round(previewVolume * 100)}%
+                </span>
               </div>
             </div>
             {/* Hidden chime SFX for auto-select confirmation */}
