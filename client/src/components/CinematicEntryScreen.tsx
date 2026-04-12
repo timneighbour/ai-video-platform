@@ -82,11 +82,27 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
   const handleCTA = () => {
     setExiting(true);
     sessionStorage.setItem(SESSION_KEY, "1");
-    setTimeout(() => {
-      setVisible(false);
-      onDismiss?.();
-      navigate("/onboarding");
-    }, 700);
+    // Use requestAnimationFrame to ensure the exit animation starts before navigation
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setVisible(false);
+        onDismiss?.();
+        navigate("/onboarding");
+      }, 700);
+    });
+  };
+
+  const handleSkip = () => {
+    setExiting(true);
+    sessionStorage.setItem(SESSION_KEY, "1");
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setVisible(false);
+        onDismiss?.();
+        // Skip navigates to homepage, not onboarding
+        navigate("/");
+      }, 500);
+    });
   };
 
   if (!visible) return null;
@@ -97,10 +113,14 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
   return (
     <div
       ref={containerRef}
-      className={`fixed inset-0 z-[9999] overflow-hidden bg-black transition-all duration-700 ${
-        exiting ? "scale-110 opacity-0" : "scale-100 opacity-100"
+      className={`fixed inset-0 z-[9999] overflow-hidden bg-black ${
+        exiting ? "opacity-0" : "opacity-100"
       }`}
-      style={{ willChange: "transform, opacity" }}
+      style={{
+        willChange: "transform, opacity",
+        transform: exiting ? "scale(1.15)" : "scale(1)",
+        transition: "transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease-out",
+      }}
     >
       {/* ── Background video layer ── */}
       <video
@@ -309,7 +329,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
           {/* Skip link */}
           <div className="mt-5">
             <button
-              onClick={handleCTA}
+              onClick={handleSkip}
               className="text-white/30 hover:text-white/60 text-sm transition-colors duration-200 underline underline-offset-4"
             >
               Skip intro

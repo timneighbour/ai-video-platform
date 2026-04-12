@@ -28,6 +28,7 @@ import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } fro
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
+import { getCharacterDefaults } from "../../shared/characterDefaults";
 
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
@@ -1037,13 +1038,36 @@ Rules:
           if (c.characterVisualDetails) {
             try { details = JSON.parse(c.characterVisualDetails!); } catch {}
           }
+          // Fallback to canonical defaults if no visual details stored in DB
+          const charDefaults = getCharacterDefaults(c.name);
+          if (!details.instrument && !details.outfit && !details.position && charDefaults) {
+            details = charDefaults.characterVisualDetails;
+          }
           const parts: string[] = [];
           // Dual-constraint outfit block (positive + negative, repeated twice)
           const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit);
           if (outfitConstraintBlock) parts.push(outfitConstraintBlock);
-          if (details.instrument) parts.push(`Instrument: ${details.instrument} — MUST hold/play this instrument. NO other instruments.`);
+          if (details.instrument) parts.push(`Instrument: ${details.instrument} -- MUST hold/play this instrument. NO other instruments.`);
           if (details.position) parts.push(`Position: ${details.position}`);
           if (details.props) parts.push(`Props: ${details.props}`);
+
+          // Inject lockedRules from DB or canonical defaults
+          let rules: { role?: string; mustHave?: string[]; forbidden?: string[] } | null = null;
+          if (c.lockedRules) {
+            try { rules = typeof c.lockedRules === "string" ? JSON.parse(c.lockedRules) : c.lockedRules; } catch {}
+          }
+          if (!rules && charDefaults) {
+            rules = charDefaults.lockedRules;
+          }
+          if (rules) {
+            if (rules.mustHave && rules.mustHave.length > 0) {
+              parts.push(`MUST HAVE: ${rules.mustHave.join(", ")}`);
+            }
+            if (rules.forbidden && rules.forbidden.length > 0) {
+              parts.push(`FORBIDDEN: ${rules.forbidden.join(", ")}`);
+            }
+          }
+
           return parts.length > 0 ? `${c.name}:\n${parts.join("\n")}` : null;
         })
         .filter(Boolean);
@@ -1097,10 +1121,14 @@ Rules:
 
       // ── BLOCK 3: Role Block (role, defaultState, constraints) ─────────────────
       const roleLines = resolvedSceneChars.map(c => {
+        const charDefs = getCharacterDefaults(c.name);
         const parts: string[] = [`${c.name}:`];
-        if (c.role) parts.push(`Role: ${c.role}`);
-        if (c.characterDefaultState) parts.push(`Default State: ${c.characterDefaultState}`);
-        if (c.characterConstraints) parts.push(`Constraints: ${c.characterConstraints}`);
+        const role = c.role || charDefs?.lockedRole;
+        if (role) parts.push(`Role: ${role}`);
+        const defaultState = c.characterDefaultState || charDefs?.characterDefaultState;
+        if (defaultState) parts.push(`Default State: ${defaultState}`);
+        const constraints = c.characterConstraints || charDefs?.characterConstraints;
+        if (constraints) parts.push(`Constraints: ${constraints}`);
         return parts.join("\n");
       });
 

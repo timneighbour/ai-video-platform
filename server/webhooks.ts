@@ -43,6 +43,33 @@ async function handleCheckoutSessionCompleted(session: any) {
   const metadata = session.metadata ?? {};
 
   try {
+    // Detect upsell purchase: billing router sends metadata.type === 'upsell'
+    if (metadata.type === "upsell") {
+      const jobId = parseInt(metadata.job_id, 10);
+      const cinematicScenes = metadata.cinematic_scenes === "true";
+      const upgrade4K = metadata.upgrade_4k === "true";
+      const removeWatermark = metadata.remove_watermark === "true";
+
+      const addons: string[] = [];
+      if (cinematicScenes) addons.push("Cinematic Scenes");
+      if (upgrade4K) addons.push("4K Upgrade");
+      if (removeWatermark) addons.push("Remove Watermark");
+
+      console.log(`[Stripe Webhook] Upsell purchase for user ${userId}, job ${jobId}: ${addons.join(", ")}`);
+
+      // Notify owner about the upsell purchase
+      await notifyOwner({
+        title: "New Upsell Purchase",
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased upsells for job #${jobId}: ${addons.join(", ")} (\u00a3${(session.amount_total ?? 0) / 100})`,
+      }).catch(() => {}); // non-fatal
+
+      // TODO: Trigger actual re-render / enhancement pipeline based on purchased add-ons
+      // For now, the purchase is recorded via Stripe and the owner is notified.
+      // Future: update musicVideoJobs with upsell flags and trigger re-processing.
+
+      return { success: true, type: "upsell", addons };
+    }
+
     // Detect credit purchase: billing router sends metadata.pack + metadata.credits
     // Also support legacy metadata.type === 'credit_purchase' + metadata.pack_id
     const isCreditPurchase = metadata.pack || metadata.type === "credit_purchase";

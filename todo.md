@@ -1879,15 +1879,15 @@
 
 ## Feature: Premium Immersive Entry Screen (Apr 12 2026)
 - [x] Fullscreen video background with cinematic loop (autoplay, muted, loop) — implemented as CSS animated cinematic background
-- [ ] 6-frame visual sequence: dark intro → beat drop → character close-up → lyric sync → band/environment → CTA fade
-- [ ] Soft grain overlay + cinematic blur vignette on edges
-- [ ] Mouse move parallax on video layers
-- [ ] Beat-pulse visual animation (gives illusion of sound even muted)
+- [x] 6-frame visual sequence: dark intro → beat drop → character close-up → lyric sync → band/environment → CTA fade
+- [x] Soft grain overlay + cinematic blur vignette on edges
+- [x] Mouse move parallax on video layers
+- [x] Beat-pulse visual animation (gives illusion of sound even muted)
 - [x] CTA button: gradient glow, soft shadow, animated border pulse, scale 1.05 on hover
 - [x] CTA text: "Create Your First Video"
 - [x] Headline: "Your lyrics don't just play — they come to life"
 - [x] Subheadline: "Create cinematic AI music videos with story, characters, and emotion"
-- [ ] Click CTA: smooth zoom transition to onboarding (no hard cut)
+- [x] Click CTA: smooth zoom transition to onboarding (no hard cut)
 - [x] Fallback static image if video fails to load — CSS animated background serves as fallback
 - [x] Mobile: vertical-friendly crop, same immersive feel
 - [x] Fade-in animation on load
@@ -1903,14 +1903,14 @@
 
 ## Feature: Post-Completion Upsell Panel (Apr 12 2026)
 - [x] After video is ready, show celebration screen with gradient animation
-- [ ] Upsell panel with upgrade options:
-  - [ ] "Add cinematic scenes" (+£5)
-  - [ ] "Upgrade to 4K" (+£3)
-  - [ ] "Remove watermark" (+£2)
-- [ ] Each option is a Stripe checkout trigger
-- [ ] Options can be combined (multi-select)
-- [ ] "Download as-is" option to skip upsell
-- [ ] Upsell panel uses same cinematic dark style as rest of app
+- [x] Upsell panel with upgrade options:
+  - [x] "Add cinematic scenes" (+£5)
+  - [x] "Upgrade to 4K" (+£3)
+  - [x] "Remove watermark" (+£2)
+- [x] Each option is a Stripe checkout trigger
+- [x] Options can be combined (multi-select)
+- [x] "Download as-is" option to skip upsell
+- [x] Upsell panel uses same cinematic dark style as rest of app
 
 ## Feature: Completion Screen (Apr 12 2026)
 - [x] "Your story just came to life" headline on completion
@@ -1925,3 +1925,20 @@
 - [x] Character cards feed directly into lockedOutfit, lockedProps, lockedRules in DB
 - [x] Add/remove character buttons (max 4 characters)
 - [x] Photo upload per character with preview
+
+## Tim/Greg/Monica Default lockedRules Seeding (Apr 12 2026)
+- [x] Create shared/characterDefaults.ts with canonical Tim/Greg/Monica lockedRules, lockedOutfit, lockedProps, lockedPosition
+- [x] Auto-apply defaults when characters named Tim/Greg/Monica are created (saveCharacters)
+- [x] Integrate defaults into prompt pipeline so they are always available even without manual normalisation
+- [x] Add tests for character defaults module
+
+## Upsell Stripe Integration (Apr 12 2026)
+- [x] Create upsell products in billing router (Cinematic Scenes +5, 4K +3, Remove Watermark +2)
+- [x] Create createUpsellCheckout procedure that accepts combination of upsell options
+- [x] Wire completion screen upsell panel to Stripe checkout
+- [x] Handle upsell payment success (webhook handler + owner notification)
+- [x] Add "Download as-is" option that skips upsell
+
+## CinematicEntryScreen Minor Fixes (Apr 12 2026)
+- [x] Skip intro button should dismiss to homepage (/) not just hide
+- [x] Smoother zoom transition on CTA click

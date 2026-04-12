@@ -10,6 +10,7 @@ import { getDb } from "../db";
 import { videoCharacters, videoCharacterPhotos, musicVideoJobs } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { storagePut } from "../storage";
+import { getCharacterDefaults } from "../../shared/characterDefaults";
 
 const photoInputSchema = z.object({
   photoBase64: z.string(),
@@ -89,22 +90,49 @@ export const charactersRouter = router({
       // Insert new characters and their photos
       const savedCharacters = [];
       for (const charInput of input.characters) {
+        // ─── Auto-apply canonical defaults for known band members ─────────
+        // If the character matches Tim/Greg/Monica by name and no explicit
+        // lockedRules were provided by the frontend, seed with canonical defaults.
+        const defaults = getCharacterDefaults(charInput.name);
+        const resolvedOutfit = charInput.lockedOutfit
+          ? JSON.stringify(charInput.lockedOutfit)
+          : defaults ? JSON.stringify(defaults.lockedOutfit) : null;
+        const resolvedProps = charInput.lockedProps
+          ? JSON.stringify(charInput.lockedProps)
+          : defaults ? JSON.stringify(defaults.lockedProps) : null;
+        const resolvedRole = charInput.lockedRole ?? charInput.role ?? (defaults?.lockedRole ?? null);
+        const resolvedRules = charInput.lockedRules
+          ? JSON.stringify(charInput.lockedRules)
+          : defaults ? JSON.stringify(defaults.lockedRules) : null;
+        const resolvedVisualDetails = charInput.visualDetails
+          ? charInput.visualDetails
+          : defaults ? JSON.stringify(defaults.characterVisualDetails) : null;
+        const resolvedDefaultState = defaults?.characterDefaultState ?? null;
+        const resolvedConstraints = defaults?.characterConstraints ?? null;
+
+        if (defaults) {
+          console.log(`[saveCharacters] Auto-applying canonical defaults for known band member: ${charInput.name}`);
+        }
+
         const [result] = await db.insert(videoCharacters).values({
           jobId: input.jobId,
           userId: ctx.user.id,
           name: charInput.name,
-          role: charInput.role ?? null,
+          role: charInput.role ?? (defaults?.lockedRole ?? null),
           enableLipSync: charInput.enableLipSync,
           slotIndex: charInput.slotIndex,
           previewImageUrl: charInput.aiGeneratedImageUrl ?? null,
           lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
           isLocked: charInput.isLocked ?? false,
-          characterVisualDetails: charInput.visualDetails ? charInput.visualDetails : null,
+          characterVisualDetails: resolvedVisualDetails,
+          characterDefaultState: resolvedDefaultState,
+          characterConstraints: resolvedConstraints,
           // ─── Unified Character Pipeline Fields ───────────────────────────
-          lockedOutfit: charInput.lockedOutfit ? JSON.stringify(charInput.lockedOutfit) : null,
-          lockedProps: charInput.lockedProps ? JSON.stringify(charInput.lockedProps) : null,
-          lockedRole: charInput.lockedRole ?? charInput.role ?? null,
-          lockedRules: charInput.lockedRules ? JSON.stringify(charInput.lockedRules) : null,
+          lockedOutfit: resolvedOutfit,
+          lockedProps: resolvedProps,
+          lockedRole: resolvedRole,
+          lockedRules: resolvedRules,
+          normalisedAt: defaults ? new Date() : null,
           characterMode: charInput.mode ?? "photo",
           isRealPerson: charInput.isRealPerson ?? (charInput.photos.length > 0),
         });

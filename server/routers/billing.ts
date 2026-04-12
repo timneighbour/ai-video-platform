@@ -75,6 +75,106 @@ export const billingRouter = router({
     }),
 
   /**
+   * Create a Stripe checkout session for post-completion upsells.
+   * Supports combining multiple add-ons: cinematic scenes, 4K upgrade, watermark removal.
+   * Each add-on becomes a separate line item in the checkout.
+   */
+  createUpsellCheckout: protectedProcedure
+    .input(
+      z.object({
+        jobId: z.number().int(),
+        addons: z.object({
+          cinematicScenes: z.boolean().default(false),
+          upgrade4K: z.boolean().default(false),
+          removeWatermark: z.boolean().default(false),
+        }),
+        origin: z.string().url(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Build line items from selected add-ons
+        const lineItems: Array<{ price_data: { currency: string; product_data: { name: string; description?: string }; unit_amount: number }; quantity: number }> = [];
+
+        if (input.addons.cinematicScenes) {
+          lineItems.push({
+            price_data: {
+              currency: "gbp",
+              product_data: {
+                name: "Cinematic Scenes Upgrade",
+                description: "Add premium cinematic rendering to all scenes in your video",
+              },
+              unit_amount: 500, // £5.00
+            },
+            quantity: 1,
+          });
+        }
+
+        if (input.addons.upgrade4K) {
+          lineItems.push({
+            price_data: {
+              currency: "gbp",
+              product_data: {
+                name: "4K Quality Upgrade",
+                description: "Upscale your video to 4K resolution",
+              },
+              unit_amount: 300, // £3.00
+            },
+            quantity: 1,
+          });
+        }
+
+        if (input.addons.removeWatermark) {
+          lineItems.push({
+            price_data: {
+              currency: "gbp",
+              product_data: {
+                name: "Remove Watermark",
+                description: "Download your video without the WizVid watermark",
+              },
+              unit_amount: 200, // £2.00
+            },
+            quantity: 1,
+          });
+        }
+
+        if (lineItems.length === 0) {
+          throw new Error("No add-ons selected");
+        }
+
+        const session = await stripe.checkout.sessions.create({
+          customer_email: ctx.user.email || undefined,
+          payment_method_types: ["card", "paypal"],
+          line_items: lineItems,
+          mode: "payment",
+          success_url: `${input.origin}/onboarding?upsell_success=true&job_id=${input.jobId}`,
+          cancel_url: `${input.origin}/onboarding?upsell_canceled=true&job_id=${input.jobId}`,
+          client_reference_id: ctx.user.id.toString(),
+          metadata: {
+            user_id: ctx.user.id.toString(),
+            customer_email: ctx.user.email || "",
+            customer_name: ctx.user.name || "",
+            type: "upsell",
+            job_id: input.jobId.toString(),
+            cinematic_scenes: input.addons.cinematicScenes ? "true" : "false",
+            upgrade_4k: input.addons.upgrade4K ? "true" : "false",
+            remove_watermark: input.addons.removeWatermark ? "true" : "false",
+          },
+          allow_promotion_codes: true,
+        });
+
+        return { checkoutUrl: session.url };
+      } catch (error) {
+        console.error("Upsell checkout error:", error);
+        throw new Error(
+          error instanceof Error
+            ? error.message
+            : "Failed to create upsell checkout session"
+        );
+      }
+    }),
+
+  /**
    * Generate a video using AI
    */
   generateVideo: protectedProcedure

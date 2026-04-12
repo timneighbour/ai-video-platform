@@ -256,6 +256,31 @@ export default function MusicVideoAutopilot() {
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
 
+  // Upsell checkout state
+  const [upsellAddons, setUpsellAddons] = useState({ cinematicScenes: false, upgrade4K: false, removeWatermark: false });
+  const [isUpsellCheckingOut, setIsUpsellCheckingOut] = useState(false);
+  const upsellCheckoutMutation = trpc.billing.createUpsellCheckout.useMutation();
+  const upsellTotal = (upsellAddons.cinematicScenes ? 5 : 0) + (upsellAddons.upgrade4K ? 3 : 0) + (upsellAddons.removeWatermark ? 2 : 0);
+  const handleUpsellCheckout = async () => {
+    if (!jobId || upsellTotal === 0) return;
+    setIsUpsellCheckingOut(true);
+    try {
+      const result = await upsellCheckoutMutation.mutateAsync({
+        jobId,
+        addons: upsellAddons,
+        origin: window.location.origin,
+      });
+      if (result.checkoutUrl) {
+        toast.info("Redirecting to checkout...", { description: "A new tab will open for payment." });
+        window.open(result.checkoutUrl, "_blank");
+      }
+    } catch (err: any) {
+      toast.error("Checkout failed", { description: err.message || "Please try again." });
+    } finally {
+      setIsUpsellCheckingOut(false);
+    }
+  };
+
   // Style Lock
   const lockStyleMutation = trpc.musicVideo.lockStyle.useMutation();
   const unlockStyleMutation = trpc.musicVideo.unlockStyle.useMutation();
@@ -2153,47 +2178,97 @@ export default function MusicVideoAutopilot() {
                       </Button>
                     </div>
 
-                    {/* Upsell panel */}
+                    {/* Upsell panel — multi-select with Stripe checkout */}
                     <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-zinc-900 p-6">
                       <h3 className="text-lg font-semibold text-amber-300 mb-1">Want to upgrade it?</h3>
-                      <p className="text-sm text-zinc-400 mb-4">Take your video to the next level</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <p className="text-sm text-zinc-400 mb-4">Select add-ons and checkout — or download as-is</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                        {/* Cinematic Scenes */}
                         <button
-                          className="flex items-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-purple-500/30 p-3 transition-all text-left group"
-                          onClick={() => { setShowCinematicUpsell(true); }}
+                          className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
+                            upsellAddons.cinematicScenes
+                              ? "border-purple-500/60 bg-purple-500/15 ring-1 ring-purple-500/30"
+                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-purple-500/30"
+                          }`}
+                          onClick={() => setUpsellAddons(prev => ({ ...prev, cinematicScenes: !prev.cinematicScenes }))}
                         >
-                          <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                            upsellAddons.cinematicScenes ? "bg-purple-500/30" : "bg-purple-500/20 group-hover:bg-purple-500/30"
+                          }`}>
                             <Film className="w-5 h-5 text-purple-400" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-sm font-medium text-white">Cinematic Scenes</p>
-                            <p className="text-xs text-zinc-500">Upgrade key scenes</p>
+                            <p className="text-xs text-zinc-500">+\u00a35</p>
                           </div>
+                          {upsellAddons.cinematicScenes && <Check className="w-4 h-4 text-purple-400" />}
                         </button>
+                        {/* 4K Upgrade */}
                         <button
-                          className="flex items-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-amber-500/30 p-3 transition-all text-left group"
-                          onClick={() => toast.info("4K upgrade coming soon!", { description: "This feature is under development." })}
+                          className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
+                            upsellAddons.upgrade4K
+                              ? "border-amber-500/60 bg-amber-500/15 ring-1 ring-amber-500/30"
+                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-amber-500/30"
+                          }`}
+                          onClick={() => setUpsellAddons(prev => ({ ...prev, upgrade4K: !prev.upgrade4K }))}
                         >
-                          <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/30 transition-colors">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                            upsellAddons.upgrade4K ? "bg-amber-500/30" : "bg-amber-500/20 group-hover:bg-amber-500/30"
+                          }`}>
                             <Zap className="w-5 h-5 text-amber-400" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-sm font-medium text-white">Upgrade to 4K</p>
-                            <p className="text-xs text-zinc-500">Coming soon</p>
+                            <p className="text-xs text-zinc-500">+\u00a33</p>
                           </div>
+                          {upsellAddons.upgrade4K && <Check className="w-4 h-4 text-amber-400" />}
                         </button>
+                        {/* Remove Watermark */}
                         <button
-                          className="flex items-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-emerald-500/30 p-3 transition-all text-left group"
-                          onClick={() => toast.info("Watermark removal coming soon!", { description: "This feature is under development." })}
+                          className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
+                            upsellAddons.removeWatermark
+                              ? "border-emerald-500/60 bg-emerald-500/15 ring-1 ring-emerald-500/30"
+                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-emerald-500/30"
+                          }`}
+                          onClick={() => setUpsellAddons(prev => ({ ...prev, removeWatermark: !prev.removeWatermark }))}
                         >
-                          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/30 transition-colors">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                            upsellAddons.removeWatermark ? "bg-emerald-500/30" : "bg-emerald-500/20 group-hover:bg-emerald-500/30"
+                          }`}>
                             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-sm font-medium text-white">Remove Watermark</p>
-                            <p className="text-xs text-zinc-500">Coming soon</p>
+                            <p className="text-xs text-zinc-500">+\u00a32</p>
                           </div>
+                          {upsellAddons.removeWatermark && <Check className="w-4 h-4 text-emerald-400" />}
                         </button>
+                      </div>
+                      {/* Total + Checkout / Download as-is */}
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-zinc-400">
+                          {upsellTotal > 0 ? (
+                            <span>Total: <span className="text-amber-300 font-semibold">\u00a3{upsellTotal}</span></span>
+                          ) : (
+                            <span className="text-zinc-500">Select add-ons above</span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <a href={finalVideoUrl} download target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800 text-xs">
+                              Download as-is
+                            </Button>
+                          </a>
+                          <Button
+                            size="sm"
+                            disabled={upsellTotal === 0 || isUpsellCheckingOut}
+                            className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white text-xs disabled:opacity-50"
+                            onClick={handleUpsellCheckout}
+                          >
+                            {isUpsellCheckingOut ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
+                            Checkout \u00a3{upsellTotal}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
