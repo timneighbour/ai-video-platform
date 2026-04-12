@@ -416,7 +416,10 @@ Rules:
           visualStyle: scene.visualStyle,
           characterAssignments: scene.characterAssignments && scene.characterAssignments.length > 0
             ? JSON.stringify(scene.characterAssignments)
-            : null,
+            // Fallback: if LLM omitted assignments (common for first/last scenes), assign all roster members
+            : roster.length > 0
+              ? JSON.stringify(roster.map((c: { name: string }) => c.name))
+              : null,
           status: "pending",
         });
       }
@@ -843,8 +846,12 @@ Rules:
       // Log character resolution for debugging
       console.log(`[generateScenePreview] Scene ${input.sceneId}: assigned names=[${sceneCharNames.join(", ")}] resolved=[${sceneChars.map(c => `${c.name}(id=${c.id})`).join(", ")}]`);
 
-      // BLOCK: if no characters are assigned, refuse to generate — do NOT fall back to generic
-      if (sceneChars.length === 0) {
+      // If no characters are assigned (LLM omitted them for first/last scenes), fall back to all locked characters.
+      // This prevents scenes 1 and 20 from failing with "Please assign characters".
+      const resolvedSceneChars: typeof allJobCharacters = sceneChars.length > 0
+        ? sceneChars
+        : allJobCharacters.filter(c => c.isLocked);
+      if (resolvedSceneChars.length === 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Please assign characters before generating this scene preview.",
@@ -857,7 +864,7 @@ Rules:
         .orderBy(desc(videoCharacterPhotos.isPrimary));
 
       // Build a set of character IDs that appear in this scene
-      const sceneCharIds = new Set(sceneChars.map(c => c.id));
+      const sceneCharIds = new Set(resolvedSceneChars.map(c => c.id));
 
       // Collect ALL reference photos for scene-assigned characters (multiple angles help AI with likeness)
       // Primary photos come first (already sorted by isPrimary desc), then additional angles/styles
@@ -870,7 +877,7 @@ Rules:
       // REMOVED: legacy job.characterImageUrl fallback — it always pointed to Tim's photo
       // and caused Tim's face to appear in Greg/Monica scenes. No fallback: if a scene
       // has no assigned character with a photo, it generates without a face anchor.
-      const sceneHasLockedChar = sceneChars.some(c => c.isLocked && c.lockedDescription);
+      const sceneHasLockedChar = resolvedSceneChars.some(c => c.isLocked && c.lockedDescription);
 
       // ─── Prompt Builder V3: 5-Block Architecture ─────────────────────────────
       // Block order (highest weight first):
@@ -895,17 +902,17 @@ Rules:
         return s;
       };
 
-      const charCount = sceneChars.length;
-      const primaryCharForScene = sceneChars[0] ?? null;
+      const charCount = resolvedSceneChars.length;
+      const primaryCharForScene = resolvedSceneChars[0] ?? null;
       const hasPhotos = referenceImages.length > 0;
 
       // ── BLOCK 1: Identity Block ───────────────────────────────────────────────
-      const identityLines = sceneChars
+      const identityLines = resolvedSceneChars
         .filter(c => c.isLocked && c.lockedDescription)
         .map((c, idx) => {
           const cleanDesc = sanitiseDescription(c.lockedDescription!);
           const baseDescription = `${c.name} (${c.role || "musician"}): ${cleanDesc}`;
-          if (sceneChars.length > 1) {
+          if (resolvedSceneChars.length > 1) {
             const positions = ["LEFT", "CENTER", "RIGHT"];
             return `${baseDescription} [POSITION: ${positions[idx % positions.length]}]`;
           }
@@ -917,7 +924,7 @@ Rules:
           `The main subject is ${primaryCharForScene!.name}. This person must be clearly visible and is the focus of the scene. ` +
           `No additional people. No background characters. No extra musicians. No other band members visible. No silhouettes.`
         : charCount > 1
-          ? `EXACTLY ${charCount} people in this image — ${sceneChars.map(c => c.name).join(", ")}. ` +
+          ? `EXACTLY ${charCount} people in this image — ${resolvedSceneChars.map(c => c.name).join(", ")}. ` +
             `No more than ${charCount} people. No additional musicians. No background performers. No silhouettes. No extra band members. ` +
             `Medium shot. Clear view of faces. Not wide angle. No distant silhouettes. ` +
             `Each person must be clearly identifiable by face.`
@@ -936,10 +943,10 @@ Rules:
               `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
               `Same hair colour. Same facial hair. No variation in hair or appearance. ` +
               `This is a real person — the generated face MUST be recognisable as the same individual.`;
-            if (sceneChars.length > 1) {
+            if (resolvedSceneChars.length > 1) {
               return `${subjectLine} ${baseInstruction} CRITICAL: Each character MUST match their reference photo EXACTLY. ` +
                 `Do NOT mix up faces between characters. ` +
-                `${sceneChars.map(c => `${c.name} has UNIQUE features that MUST be preserved`).join(". ")}. ` +
+                `${resolvedSceneChars.map(c => `${c.name} has UNIQUE features that MUST be preserved`).join(". ")}. ` +
                 `${charCountConstraint}`;
             }
             return `${subjectLine} ${baseInstruction} ${charCountConstraint}`;
@@ -950,14 +957,20 @@ Rules:
 
       // ── BLOCK 2: Visual Block (CHARACTER VISUAL DETAILS — ABSOLUTE TRUTH) ────
       // These OVERRIDE any scene assumptions. Injected after identity, before role.
-      const visualLines = sceneChars
+      const visualLines = resolvedSceneChars
         .filter(c => c.characterVisualDetails)
         .map(c => {
           let details: { instrument?: string; outfit?: string; props?: string; position?: string } = {};
           try { details = JSON.parse(c.characterVisualDetails!); } catch {}
           const parts: string[] = [];
-          if (details.outfit) parts.push(`Outfit: ${details.outfit}`);
-          if (details.instrument) parts.push(`Instrument: ${details.instrument}`);
+          const charNameLower = c.name.toLowerCase();
+          const outfitExclusion = charNameLower === 'greg'
+            ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind. NO blazer. NO coat. NO hoodie. ONLY a torn t-shirt. CRITICAL: Greg is NEVER wearing a leather jacket.`
+            : charNameLower === 'monica'
+            ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind.`
+            : ` — MUST wear this EXACT outfit. NO substitutions.`;
+          if (details.outfit) parts.push(`Outfit: ${details.outfit}${outfitExclusion}`);
+          if (details.instrument) parts.push(`Instrument: ${details.instrument} — MUST hold/play this instrument. NO other instruments.`);
           if (details.position) parts.push(`Position: ${details.position}`);
           if (details.props) parts.push(`Props: ${details.props}`);
           return parts.length > 0 ? `${c.name}:\n${parts.join("\n")}` : null;
@@ -967,16 +980,57 @@ Rules:
       const visualBlock = visualLines.length > 0
         ? `CHARACTER VISUAL DETAILS (ABSOLUTE TRUTH — OVERRIDES ALL SCENE ASSUMPTIONS):\n\n` +
           `${visualLines.join("\n\n")}\n\n` +
-          `RULES:\n` +
-          `- These define outfit, props, and appearance\n` +
-          `- MUST be followed exactly\n` +
-          `- OVERRIDE any scene interpretation\n` +
+          `CRITICAL OUTFIT RULES:\n` +
+          `- Each character MUST wear ONLY their specified outfit\n` +
+          `- Greg MUST wear black torn t-shirt ONLY — NEVER a leather jacket, NEVER any jacket, NEVER a blazer or coat\n` +
+          `- Monica MUST wear fitted dark outfit ONLY — NEVER a leather jacket, NEVER any jacket\n` +
+          `- Tim is the ONLY character who may wear a leather jacket\n` +
+          `- DO NOT swap outfits between characters\n` +
           `- DO NOT invent or replace props\n` +
-          `- DO NOT change outfits between scenes`
+          `- These definitions OVERRIDE any scene interpretation`
+        : "";
+
+      // ── PERFORMANCE ENERGY BLOCK ──────────────────────────────────────────────────
+      // Per-character performance states: energy, movement, expression in sync with music
+      const PERFORMANCE_STATES: Record<string, string[]> = {
+        tim: [
+          "singing passionately with mouth wide open, leaning into microphone, intense expression, eyes closed",
+          "belting out vocals, head thrown back, gripping microphone stand, raw emotion",
+          "pointing at crowd, powerful vocal delivery, body swaying, electric energy",
+          "crouching at microphone, intense focused expression, fist clenched, mid-chorus power",
+          "stepping forward, commanding stage presence, voice projected, jaw set with conviction",
+        ],
+        greg: [
+          "arms raised mid-strike, drumsticks blurred with speed, teeth clenched, explosive energy",
+          "leaning forward over kit, both arms driving downward, sweat on brow, intense focus",
+          "head nodding hard in rhythm, cymbal crash mid-strike, body fully committed to the beat",
+          "standing slightly off seat, full-body drum strike, hair flying, raw power",
+          "locked in the groove, steady powerful strokes, intense gaze, rhythmic body movement",
+        ],
+        monica: [
+          "body swaying with the bass groove, eyes half-closed, bass guitar angled, deep in the music",
+          "stepping forward, plucking bass strings hard, hair moving, focused and powerful",
+          "head nodding to the rhythm, fingers working the bass neck, intense expression",
+          "leaning back slightly, bass guitar low-slung, commanding stage right, locked in the pocket",
+          "eyes closed, feeling the music, bass guitar vibrating, subtle smile of pure performance",
+        ],
+      };
+      const performanceLines = resolvedSceneChars.map(c => {
+        const states = PERFORMANCE_STATES[c.name.toLowerCase()];
+        if (!states) return null;
+        const state = states[scene.sceneIndex % states.length];
+        return `${c.name}: ${state}`;
+      }).filter(Boolean);
+      const performanceBlock = performanceLines.length > 0
+        ? `PERFORMANCE ENERGY (CAPTURED MID-PERFORMANCE):\n\n` +
+          `${performanceLines.join("\n")}\n\n` +
+          `STYLE: Dynamic action shot. Motion blur on instruments and drumsticks. ` +
+          `Captured at peak of musical expression. High energy, visceral, authentic rock performance. ` +
+          `NOT a static posed photo — MUST show movement, expression, and musical timing.`
         : "";
 
       // ── BLOCK 3: Role Block (role, defaultState, constraints) ─────────────────
-      const roleLines = sceneChars.map(c => {
+      const roleLines = resolvedSceneChars.map(c => {
         const parts: string[] = [`${c.name}:`];
         if (c.role) parts.push(`Role: ${c.role}`);
         if (c.characterDefaultState) parts.push(`Default State: ${c.characterDefaultState}`);
@@ -1035,7 +1089,7 @@ Rules:
       }
 
       // ── BLOCK 5: Constraint Block (global rules, adapts to scene char count) ──
-      const sceneCharNamesStr = sceneChars.map(c => c.name).join(", ");
+      const sceneCharNamesStr = resolvedSceneChars.map(c => c.name).join(", ");
       const peopleCountRule = charCount === 1
         ? `ONLY ONE PERSON on stage — ${primaryCharForScene?.name ?? "the character"} ONLY. NO other people. NO background musicians. NO silhouettes.`
         : charCount === 3
@@ -1054,10 +1108,26 @@ Rules:
         `- NO wide crowd shots unless explicitly stated`;
 
       // ── BLOCK 4: Scene Block ──────────────────────────────────────────────────
+      // Camera angle rotation: cycle through varied angles based on scene index
+      // Ensures visual diversity across the storyboard
+      const CAMERA_ANGLES = [
+        "medium close-up shot, waist-up framing, faces clearly visible, eye-level angle",
+        "close-up shot, face and upper chest, dramatic lighting, eye-level",
+        "wide shot, full stage visible, all performers in frame, low angle looking up at stage",
+        "medium shot, three-quarter angle, slight low angle, dynamic perspective",
+        "close-up shot on vocalist, tight framing, faces clearly visible",
+        "wide establishing shot, full band on stage, audience in foreground, low angle",
+        "medium close-up, side angle (90 degrees), profile view, faces visible",
+        "over-the-shoulder shot from drummer perspective, vocalist and bassist in frame",
+        "low angle wide shot, looking up at performers, dramatic stage lighting",
+        "medium shot, front-facing, all characters waist-up, faces clearly visible",
+      ];
+      const cameraAngle = CAMERA_ANGLES[scene.sceneIndex % CAMERA_ANGLES.length];
       const sceneBlock =
         `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\n` +
         `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\n` +
-        `CAMERA: medium close-up, faces clearly visible, waist-up framing`;
+        `CAMERA: ${cameraAngle}\n` +
+        `RULE: Faces of all characters MUST be clearly visible regardless of shot type`;
 
       // ── Identity Anchor ───────────────────────────────────────────────────────
       const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? null;
@@ -1089,6 +1159,8 @@ Rules:
         extraPeopleNegative,
         "nsfw", "lowres", "bad anatomy", "extra limbs", "blurry", "low quality", "cartoon", "anime",
         "deformed", "ugly", "disfigured",
+        "static pose", "standing still", "no expression", "posed photo", "stiff pose", "lifeless", "mannequin",
+        "bored expression", "neutral expression", "arms at sides", "hands in pockets",
         "text", "words", "caption", "subtitle", "lyrics text", "text overlay", "words in frame",
         "logo", "signage", "typography", "neon sign", "banner", "watermark",
         "band name", "venue name", "stage backdrop text",
@@ -1110,23 +1182,21 @@ Rules:
         : charCount === 1
           ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. ` +
             `NO other people. NO background musicians. NO silhouettes.`
-          : "";
-
-      // ── V3 Final Prompt Assembly: 5 blocks ───────────────────────────────────
-      // Order: hardCount → identity → visual (OVERRIDE) → role → scene → constraints → style
+          : ""      // ── V3 Final Prompt Assembly: 6 blocks ───────────────────────────────────────────
+      // Order: hardCount → identity → visual (OVERRIDE) → role → performance → scene → constraints → style
       const finalImagePrompt = [
         hardCountPrefix,
         characterBlock,
         visualBlock,
         roleBlock,
+        performanceBlock,
         sceneBlock,
         constraintBlock,
         styleDescriptor,
         styleLockSuffix ? `STYLE LOCK: ${styleLockSuffix}` : "",
         moodContext ? `Mood: ${moodContext}` : "",
-        "16:9 widescreen, high quality, professional photography",
-      ].filter(Boolean).join("\n\n");
-      console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, masterPortrait=${!!masterPortraitUrl}, seed=${masterSeed}, prompt length: ${finalImagePrompt.length}`);
+        "16:9 widescreen, high quality, professional photography, concert photography",
+      ].filter(Boolean).join("\n\n");  console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, masterPortrait=${!!masterPortraitUrl}, seed=${masterSeed}, prompt length: ${finalImagePrompt.length}`);
 
       // V2: Choose face reference: master portrait > primary reference photo > none
       const faceReferenceUrl = masterPortraitUrl ?? (referenceImages.length > 0 ? referenceImages[0].url : null);
@@ -1172,22 +1242,28 @@ Rules:
             console.warn(`[generateScenePreview] Could not fetch face reference for scene ${input.sceneId}:`, fetchErr);
           }
 
-          // Photo Mode V2: Use Forge API with reference photo for face-anchored generation
-          // (fal.ai / InstantID / Flux PuLID are unreachable from this server environment)
-          console.log(`[generateScenePreview] Using Forge API for ${primaryCharName} (scene ${input.sceneId}, masterPortrait=${!!masterPortraitUrl})`);
-          // Build reference images list: master portrait first (highest priority), then original photo
+          // Photo Mode V2: Use Forge API with reference photo for face-consistent generation
+          // Photo Mode V3: Use Forge API with ALL scene characters' reference photos
+          // CRITICAL FIX: include one portrait per scene character so ALL faces are anchored.
+          // Previously only Tim's masterPortraitUrl was passed — Greg and Monica were invented.
+          console.log(`[generateScenePreview] Using Forge API for scene ${input.sceneId} (${resolvedSceneChars.map(c => c.name).join(", ")})`);
           const forgeRefs: Array<{ url: string; mimeType: string }> = [];
-          if (masterPortraitUrl) {
-            const masterMime = masterPortraitUrl.match(/\.png(\?|$)/i) ? "image/png" :
-                               masterPortraitUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
-            forgeRefs.push({ url: masterPortraitUrl, mimeType: masterMime });
-          } else if (faceReferenceUrl) {
-            const refMime = faceReferenceUrl.match(/\.png(\?|$)/i) ? "image/png" :
-                            faceReferenceUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
-            forgeRefs.push({ url: faceReferenceUrl, mimeType: refMime });
+          for (const char of resolvedSceneChars) {
+            // Prefer masterPortraitUrl (clean AI portrait), fall back to primary reference photo
+            const charPrimaryPhoto = allPhotos.find(p => p.characterId === char.id && p.isPrimary) ??
+                                     allPhotos.find(p => p.characterId === char.id);
+            const charRefUrl = char.masterPortraitUrl ?? charPrimaryPhoto?.photoUrl ?? null;
+            if (charRefUrl) {
+              const mime = charRefUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                           charRefUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+              forgeRefs.push({ url: charRefUrl, mimeType: mime });
+              console.log(`[generateScenePreview] Face ref for ${char.name}: ${char.masterPortraitUrl ? 'masterPortrait' : 'primaryPhoto'}`);
+            } else {
+              console.warn(`[generateScenePreview] No face reference for ${char.name} — face will not be anchored`);
+            }
           }
-          // V2 Step 6: Chained Reference — also include previous scene as secondary anchor
-          if (input.previousSceneImageUrl && forgeRefs.length < 2) {
+          // Chained Reference — also include previous scene as secondary anchor (only if space)
+          if (input.previousSceneImageUrl && forgeRefs.length < 4) {
             const prevMime = input.previousSceneImageUrl.match(/\.png(\?|$)/i) ? "image/png" :
                              input.previousSceneImageUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
             forgeRefs.push({ url: input.previousSceneImageUrl, mimeType: prevMime });
@@ -1216,7 +1292,7 @@ Rules:
           if (job.characterLockEnabled !== false) {
             try {
               const lockCharacters: CharacterLockData[] = [];
-              for (const char of sceneChars) {
+              for (const char of resolvedSceneChars) {
                 if (!char.isLocked || !char.lockedDescription) continue;
                 const primaryPhoto = allPhotos.find(p => p.characterId === char.id);
                 if (!primaryPhoto) continue;
@@ -2153,12 +2229,32 @@ Return ONLY valid JSON, no markdown.`,
         updateFields.rolePriority = input.rolePriority;
       }
 
-      await db.update(videoCharacters)
+        await db.update(videoCharacters)
         .set(updateFields)
         .where(eq(videoCharacters.id, input.characterId));
-
       console.log(`[updateCharacterVisualDetails] Character ${input.characterId} (${char.name}) updated visual details`);
       return { success: true, characterId: input.characterId };
     }),
 
+  // Delete a job and all its scenes/characters (owner-only)
+  deleteJob: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      // Delete in dependency order: photos → characters → scenes → job
+      const jobChars = await db.select({ id: videoCharacters.id }).from(videoCharacters)
+        .where(eq(videoCharacters.jobId, input.jobId));
+      for (const char of jobChars) {
+        await db.delete(videoCharacterPhotos).where(eq(videoCharacterPhotos.characterId, char.id));
+      }
+      await db.delete(videoCharacters).where(eq(videoCharacters.jobId, input.jobId));
+      await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
+      await db.delete(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[deleteJob] Job ${input.jobId} deleted by user ${ctx.user.id}`);
+      return { success: true };
+    }),
 });

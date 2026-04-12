@@ -1666,3 +1666,103 @@
 - [x] Add updateCharacterVisualDetails tRPC mutation (instrument, outfit, position, props)
 - [x] Style Lock UI: heart button on each scene card
 - [x] Style Lock UI: banner in storyboard header with unlock button
+
+## Bug: Greg Face Identity Not Applied in Multi-Character Scenes (Apr 12 2026)
+- [ ] Diagnose why Greg's face is not being used — generic rock drummer appearing instead
+- [ ] Check if Greg has a referenceImageUrl / masterPortraitUrl in the DB
+- [ ] Check if buildIdentityBlock() correctly includes ALL scene characters (not just primary)
+- [ ] Check if InstantID / face lock is only applied to the first/primary character
+- [ ] Check if the scene character assignment for Greg is correct in the DB
+- [ ] Fix identity block to include Greg's lockedDescription and referenceImage in multi-char scenes
+- [ ] Verify Monica's face is also correctly applied (not just Tim)
+- [ ] Add negative prompt entries: "blond drummer", "bald drummer", "tattooed drummer", "sleeveless vest"
+
+## Bug: Tim Not Wearing Black Leather Jacket / Visual Details Not Applied (Apr 12 2026)
+- [ ] Verify DB query in generateScenePreview fetches characterVisualDetails, characterConstraints, characterDefaultState columns
+- [ ] Verify buildVisualBlock() and buildRoleBlock() are receiving non-null data from DB
+- [ ] Check if characterVisualDetails column is being selected in getCharactersForJob DB query
+- [ ] Add console.log to confirm visualBlock and roleBlock content before image generation
+- [ ] Strengthen outfit language: "MUST wear black leather jacket — NO t-shirts, NO other outfits"
+- [ ] Add negative prompt: "t-shirt, grey shirt, casual wear, no jacket"
+
+## Bug: Face Identity Only Applied to Tim, Not Greg/Monica (Apr 12 2026)
+- [ ] Confirm buildIdentityBlock() includes ALL scene characters' lockedDescription, not just primary
+- [ ] Fix identity block to inject Greg's and Monica's face descriptors in multi-character scenes
+- [ ] Verify Monica's masterPortraitUrl is set in DB (needed for InstantID face lock)
+- [ ] Verify Greg's masterPortraitUrl is set in DB
+- [ ] "BRANDED" band name appearing as neon sign in background — sanitiseDescription not stripping it
+- [ ] Strengthen sanitiseDescription to replace band name with empty string before prompt assembly
+- [ ] Add "no text, no signs, no neon signs, no band name" to negative prompt
+
+## Bug: Greg Face Identity Not Applied in Any Multi-Character Scene (Apr 12 2026)
+- [ ] Fix buildIdentityBlock() to include ALL scene characters' face descriptors, not just primary
+- [ ] Ensure Greg's lockedDescription is injected into every scene he appears in
+- [ ] Ensure Monica's lockedDescription is injected into every scene she appears in
+- [ ] Check if masterPortraitUrl for Greg and Monica is set in DB (required for face lock)
+- [ ] If masterPortraitUrl is null for Greg/Monica, add fallback to lockedDescription-only identity block
+
+## Fix: Greg Outfit Override — Black Torn T-Shirt (Apr 12 2026)
+- [ ] Strengthen buildVisualBlock() to include explicit exclusions per character: "NO leather jacket" for Greg
+- [ ] Add per-character negative prompt injection: Greg → "leather jacket, jacket, blazer, coat, hoodie"
+- [ ] Update Greg's characterVisualDetails in DB: "Black torn t-shirt — NO jacket, NO leather jacket"
+- [ ] Update Greg's characterConstraints in DB: add "NEVER wearing leather jacket or any jacket"
+- [ ] Add "leather jacket on drummer" to global negative prompt
+- [ ] Update Greg's lockedDescription to specify "short hair" explicitly to prevent hair drift
+
+## Bug: Scene 1 and Scene 20 Preview Generation Failing (Apr 12 2026)
+- [ ] Check server logs for errors on generateScenePreview for scenes 1 and 20
+- [ ] Check if "Please assign characters" error is being thrown (sceneChars.length === 0)
+- [ ] Check if characterAssignments is null/empty for scenes 1 and 20
+- [ ] Check if the duplicate sceneCharNames declaration (line 1038 esbuild error) is causing server crash
+- [ ] Fix duplicate sceneCharNames declaration in musicVideo.ts if still present
+- [ ] Verify regenerate button calls generateScenePreview correctly with sceneId
+
+## Feature: Varied Camera Angles Per Scene (Apr 12 2026)
+- [ ] Add camera angle rotation logic: cycle through close-up, medium, wide, low-angle, over-shoulder per scene index
+- [ ] Inject camera angle into buildSceneBlock() based on scene index or scene type
+- [ ] Ensure faces remain visible even in wide/low-angle shots (add "faces clearly visible" constraint)
+- [ ] Allow scene-level camera override (if scene.camera is set, use it; otherwise auto-rotate)
+
+## Feature: Character Energy, Movement and Musical Expression (Apr 12 2026)
+- [ ] Add performanceEnergyBlock to prompt: per-character performance state (mid-strum, drum strike, singing with expression)
+- [ ] Tim: mouth open singing, intense expression, leaning into mic, body movement
+- [ ] Greg: arms raised mid-strike, intense drumming expression, sweat, energy
+- [ ] Monica: body swaying, bass guitar angled, focused expression
+- [ ] Add energy level to scene block: "HIGH ENERGY", "INTENSE", "EMOTIONAL" based on scene index/type
+- [ ] Inject "captured mid-performance, dynamic action, motion blur on instruments" into positive prompt
+- [ ] Add "static pose, standing still, no expression, posed photo" to negative prompt
+
+## Bug: No Back Navigation from Storyboard (Apr 12 2026)
+- [ ] Add back button to storyboard header to navigate back to the previous step
+- [ ] Ensure back button works from both the storyboard view and the scene editor
+
+## Feature: Dashboard Home Link (Apr 12 2026)
+- [ ] Add "Home" link to dashboard sidebar/header that navigates to the homepage (/)
+- [ ] Add back button to storyboard header to navigate back to the previous wizard step
+
+## Feature: My Projects Page (Apr 12 2026)
+- [ ] Create /projects page listing all user's past music video jobs
+- [ ] Show job title, song name, created date, status (draft/complete), thumbnail (first scene preview)
+- [ ] Add "Open" button to re-open a job in the music video autopilot wizard
+- [ ] Add "Download Video" button for completed jobs (links to finalVideoUrl)
+- [ ] Add "Download Audio" button for jobs with generated audio (links to audioUrl)
+- [ ] Add "Delete" button with confirmation dialog
+- [ ] Add "My Projects" link to dashboard sidebar navigation
+- [ ] Add tRPC procedure: getUserJobs — returns all jobs for the current user with metadata
+- [ ] Add tRPC procedure: deleteJob — soft-delete a job by id
+- [ ] Show empty state when user has no projects yet
+- [ ] Show job status badge: Draft, In Progress, Complete
+- [ ] Add storyboard back button to navigate back to the previous wizard step
+
+## Feature: My Projects — Music Videos Tab (Apr 12 2026)
+- [x] Update Projects.tsx to add "Music Videos" tab using trpc.musicVideo.listJobs
+- [x] Show job title, status badge, scene count, created date, thumbnail (first scene preview)
+- [x] Add "Continue" button to re-open job in MusicVideoAutopilot (/wizvid?jobId=X)
+- [x] Add "Download Video" button for completed jobs (finalVideoUrl)
+- [x] Add "Download Audio" button (audioUrl)
+- [x] Add "Delete" button with confirmation dialog using deleteJob mutation
+- [x] Remove MyProjects.tsx (dead file, not registered in App.tsx)
+
+## Bug: Scenes 1 and 20 Preview Failure (Apr 12 2026)
+- [x] Fix generateStoryboard to ensure all scenes get characterAssignments (LLM sometimes omits first/last)
+- [x] Add fallback: if characterAssignments is empty after LLM, assign all locked characters
