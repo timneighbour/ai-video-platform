@@ -1566,3 +1566,13 @@
 - [ ] Basic face consistency check: regenerate if face diverges significantly
 - [ ] Character Lock Mode UI toggle (default ON)
 - [ ] Fix LSP errors: extract batch + master portrait procedures into separate router file
+
+## Photo Mode Pipeline V2 — Character Identity Fixes (Session 3)
+- [x] Fix primarySceneChar bug: each scene uses its own assigned character's masterPortraitUrl (not always Tim's)
+- [x] Log characterId + reference image URL per scene before generation
+- [x] Fix extra musicians: add strict "ONLY these N people" constraint to every scene prompt
+- [x] Fix multi-character scenes: use primary (first) assigned character as face anchor, list all by name
+- [x] Fix Monica: AI characters without photos generate without face anchor (no wrong-face bleed)
+- [x] Strengthen character lock prompt: same hairstyle, same hair length, same hair colour, same facial hair, no variation in hair or appearance
+- [x] Strengthen negative prompt: different hairstyle, shorter hair, longer hair, different colour, variation in appearance, different facial hair
+- [x] Remove legacy job.characterImageUrl fallback that bleeds Tim's face into non-Tim scenes

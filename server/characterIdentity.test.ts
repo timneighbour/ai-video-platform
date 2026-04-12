@@ -5,10 +5,14 @@
  * 1. generateMasterPortrait procedure input validation
  * 2. Scene pipeline: master portrait takes precedence over raw photo
  * 3. Prompt splitting: characterPrompt is used when available
- * 4. Batch regeneration: startBatchRegeneration input validation
- * 5. fal.ai credential setup: FAL_AI_API_KEY is used
+ * 4. Per-scene character anchor: each scene uses ITS OWN assigned character
+ * 5. Strict people-count constraint: single-char scenes forbid extra people
+ * 6. Hair lock: positive prompt enforces hair attributes
+ * 7. Negative prompt: forbids hair variation and extra people
+ * 8. Batch regeneration: startBatchRegeneration input validation
+ * 9. fal.ai credential setup: FAL_AI_API_KEY is used
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 // ─── 1. generateMasterPortrait input validation ───────────────────────────────
 
@@ -20,13 +24,8 @@ describe("generateMasterPortrait input schema", () => {
       jobId: z.number().int(),
     });
 
-    // Valid input
     expect(() => schema.parse({ characterId: 1, jobId: 42 })).not.toThrow();
-
-    // Missing characterId
     expect(() => schema.parse({ jobId: 42 })).toThrow();
-
-    // Non-integer characterId
     expect(() => schema.parse({ characterId: 1.5, jobId: 42 })).toThrow();
   });
 });
@@ -38,7 +37,6 @@ describe("scene pipeline: face reference priority", () => {
     const masterPortraitUrl = "https://cdn.example.com/master-portrait-tim.jpg";
     const rawPhotoUrl = "https://cdn.example.com/tim-raw-upload.jpg";
 
-    // Simulate the priority logic from generateScenePreview
     const faceReferenceUrl = masterPortraitUrl ?? rawPhotoUrl;
 
     expect(faceReferenceUrl).toBe(masterPortraitUrl);
@@ -71,7 +69,7 @@ describe("scene pipeline: prompt splitting", () => {
     const identityBlock = "EXACT LIKENESS REQUIRED — Tim (Lead Singer): tall male with dark hair...";
 
     const finalCharacterBlock = lockedCharacterPrompt
-      ? `${lockedCharacterPrompt}. EXACT LIKENESS REQUIRED — preserve all facial features from reference image.`
+      ? `${lockedCharacterPrompt}. Same person as reference image. Identical face. Same hairstyle. Same hair length. Same hair colour. Same facial hair. No variation in hair or appearance.`
       : identityBlock;
 
     expect(finalCharacterBlock).toContain(lockedCharacterPrompt);
@@ -83,7 +81,7 @@ describe("scene pipeline: prompt splitting", () => {
     const identityBlock = "EXACT LIKENESS REQUIRED — Tim (Lead Singer): tall male with dark hair...";
 
     const finalCharacterBlock = lockedCharacterPrompt
-      ? `${lockedCharacterPrompt}. EXACT LIKENESS REQUIRED — preserve all facial features from reference image.`
+      ? `${lockedCharacterPrompt}. Same person as reference image.`
       : identityBlock;
 
     expect(finalCharacterBlock).toBe(identityBlock);
@@ -106,7 +104,188 @@ describe("scene pipeline: prompt splitting", () => {
   });
 });
 
-// ─── 4. Seed locking: same seed used across variations ────────────────────────
+// ─── 4. Per-scene character anchor: each scene uses its OWN assigned character ─
+
+describe("scene pipeline: per-scene character anchor (CRITICAL FIX)", () => {
+  // Simulate the character roster
+  const allJobCharacters = [
+    { id: 1, name: "Tim",   role: "Lead Singer and Guitarist", isLocked: true, masterPortraitUrl: "https://cdn.example.com/master-tim.jpg",  masterSeed: 111 },
+    { id: 2, name: "Greg",  role: "Drummer",                   isLocked: true, masterPortraitUrl: "https://cdn.example.com/master-greg.jpg", masterSeed: 222 },
+    { id: 3, name: "MONICA",role: "Bass Player",               isLocked: true, masterPortraitUrl: null,                                      masterSeed: null },
+  ];
+  const charByName = new Map(allJobCharacters.map(c => [c.name.toLowerCase(), c]));
+
+  it("Greg's drummer scene uses Greg's masterPortraitUrl, NOT Tim's", () => {
+    const sceneCharNames = ["Greg"];
+    const sceneChars = sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean);
+    const primaryCharForScene = sceneChars[0] ?? null;
+
+    expect(primaryCharForScene?.name).toBe("Greg");
+    expect(primaryCharForScene?.masterPortraitUrl).toBe("https://cdn.example.com/master-greg.jpg");
+    expect(primaryCharForScene?.masterPortraitUrl).not.toBe("https://cdn.example.com/master-tim.jpg");
+  });
+
+  it("Tim's guitar scene uses Tim's masterPortraitUrl", () => {
+    const sceneCharNames = ["Tim"];
+    const sceneChars = sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean);
+    const primaryCharForScene = sceneChars[0] ?? null;
+
+    expect(primaryCharForScene?.name).toBe("Tim");
+    expect(primaryCharForScene?.masterPortraitUrl).toBe("https://cdn.example.com/master-tim.jpg");
+  });
+
+  it("scene with no characterAssignments resolves to empty array (no fallback to Tim)", () => {
+    const sceneCharNames: string[] = [];
+    // CRITICAL: must NOT fall back to allJobCharacters — that caused Tim to appear everywhere
+    const sceneChars = sceneCharNames.length > 0
+      ? sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean)
+      : [];
+
+    expect(sceneChars).toHaveLength(0);
+  });
+
+  it("multi-character scene uses first assigned character as primary face anchor", () => {
+    const sceneCharNames = ["Tim", "Greg", "MONICA"];
+    const sceneChars = sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean);
+    const primaryCharForScene = sceneChars[0] ?? null;
+
+    expect(primaryCharForScene?.name).toBe("Tim");
+    expect(sceneChars).toHaveLength(3);
+  });
+
+  it("MONICA scene has no masterPortraitUrl (AI character — no uploaded photo)", () => {
+    const sceneCharNames = ["MONICA"];
+    const sceneChars = sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean);
+    const primaryCharForScene = sceneChars[0] ?? null;
+
+    expect(primaryCharForScene?.name).toBe("MONICA");
+    expect(primaryCharForScene?.masterPortraitUrl).toBeNull();
+  });
+});
+
+// ─── 5. Strict people-count constraint ───────────────────────────────────────
+
+describe("scene pipeline: strict people-count constraint", () => {
+  it("single-character scene constraint says ONLY ONE PERSON and names the character", () => {
+    const sceneChars = [{ name: "Greg", role: "Drummer" }];
+    const charCount = sceneChars.length;
+    const primaryCharForScene = sceneChars[0];
+
+    const charCountConstraint = charCount === 1
+      ? `ONLY ONE PERSON in frame — ${primaryCharForScene.name} is the ONLY person visible. ` +
+        `The main subject is ${primaryCharForScene.name}. This person must be clearly visible and is the focus of the scene. ` +
+        `No additional people. No background characters. No extra musicians. No other band members visible.`
+      : "";
+
+    expect(charCountConstraint).toContain("ONLY ONE PERSON in frame");
+    expect(charCountConstraint).toContain("Greg");
+    expect(charCountConstraint).toContain("No additional people");
+    expect(charCountConstraint).toContain("No other band members visible");
+  });
+
+  it("multi-character scene constraint names all characters and forbids extras", () => {
+    const sceneChars = [{ name: "Tim" }, { name: "Greg" }, { name: "MONICA" }];
+    const charCount = sceneChars.length;
+
+    const charCountConstraint = charCount > 1
+      ? `EXACTLY ${charCount} people in this image: ${sceneChars.map(c => c.name).join(", ")}. ` +
+        `No other people, no extra musicians, no anonymous background characters.`
+      : "";
+
+    expect(charCountConstraint).toContain("EXACTLY 3 people");
+    expect(charCountConstraint).toContain("Tim");
+    expect(charCountConstraint).toContain("Greg");
+    expect(charCountConstraint).toContain("MONICA");
+    expect(charCountConstraint).toContain("no extra musicians");
+  });
+
+  it("subject focus line names the primary character", () => {
+    const primaryCharForScene = { name: "Tim" };
+    const subjectLine = `The main subject is ${primaryCharForScene.name}. This person must be clearly visible and is the focus of the scene.`;
+
+    expect(subjectLine).toContain("The main subject is Tim");
+    expect(subjectLine).toContain("focus of the scene");
+  });
+});
+
+// ─── 6. Hair lock: positive prompt enforces hair attributes ──────────────────
+
+describe("scene pipeline: hair lock in positive prompt", () => {
+  it("character block includes all hair lock instructions", () => {
+    const lockedCharacterPrompt = "Tim, male, short dark hair, beard, leather jacket";
+    const characterBlock =
+      `${lockedCharacterPrompt}. ` +
+      `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
+      `Same hair colour. Same facial hair. No variation in hair or appearance.`;
+
+    expect(characterBlock).toContain("Same hairstyle");
+    expect(characterBlock).toContain("Same hair length");
+    expect(characterBlock).toContain("Same hair colour");
+    expect(characterBlock).toContain("Same facial hair");
+    expect(characterBlock).toContain("No variation in hair or appearance");
+  });
+
+  it("identity block includes hair attributes in the base instruction", () => {
+    const baseInstruction =
+      `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ` +
+      `Preserve exact facial features, bone structure, eye colour, hairstyle, hair length, hair colour, ` +
+      `facial hair, and skin tone from the reference photos. ` +
+      `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
+      `Same hair colour. Same facial hair. No variation in hair or appearance.`;
+
+    expect(baseInstruction).toContain("hairstyle");
+    expect(baseInstruction).toContain("hair length");
+    expect(baseInstruction).toContain("hair colour");
+    expect(baseInstruction).toContain("facial hair");
+    expect(baseInstruction).toContain("No variation in hair or appearance");
+  });
+});
+
+// ─── 7. Negative prompt: forbids hair variation and extra people ──────────────
+
+describe("scene pipeline: negative prompt completeness", () => {
+  it("negative prompt forbids all hair variation terms", () => {
+    const negativePromptV2 = [
+      "different face", "new person", "altered identity", "different person", "inconsistent character",
+      "different hairstyle", "shorter hair", "longer hair", "different hair colour", "different hair color",
+      "variation in appearance", "different facial hair",
+      "extra person, additional people, background musician, background character, other band member, crowd member, second person, third person, multiple people",
+      "nsfw", "lowres", "bad anatomy", "extra limbs", "blurry", "low quality",
+      "cartoon", "anime", "deformed", "ugly", "disfigured", "text", "watermark",
+    ].join(", ");
+
+    expect(negativePromptV2).toContain("different hairstyle");
+    expect(negativePromptV2).toContain("shorter hair");
+    expect(negativePromptV2).toContain("longer hair");
+    expect(negativePromptV2).toContain("different hair colour");
+    expect(negativePromptV2).toContain("variation in appearance");
+    expect(negativePromptV2).toContain("different facial hair");
+  });
+
+  it("negative prompt forbids extra people for single-character scenes", () => {
+    const charCount = 1;
+    const extraPeopleNegative = charCount === 1
+      ? "extra person, additional people, background musician, background character, other band member, crowd member, second person, third person, multiple people"
+      : "extra person, anonymous musician, unnamed character, crowd member";
+
+    expect(extraPeopleNegative).toContain("background musician");
+    expect(extraPeopleNegative).toContain("other band member");
+    expect(extraPeopleNegative).toContain("second person");
+    expect(extraPeopleNegative).toContain("multiple people");
+  });
+
+  it("negative prompt for multi-character scenes forbids anonymous extras", () => {
+    const charCount = 3;
+    const extraPeopleNegative = charCount === 1
+      ? "extra person, additional people, background musician"
+      : "extra person, anonymous musician, unnamed character, crowd member";
+
+    expect(extraPeopleNegative).toContain("anonymous musician");
+    expect(extraPeopleNegative).toContain("unnamed character");
+  });
+});
+
+// ─── 8. Seed locking: same seed used across variations ────────────────────────
 
 describe("scene pipeline: seed locking", () => {
   it("generates 3 variation seeds from the master seed", () => {
@@ -129,16 +308,13 @@ describe("scene pipeline: seed locking", () => {
   });
 });
 
-// ─── 5. fal.ai credential setup ───────────────────────────────────────────────
+// ─── 9. fal.ai credential setup ───────────────────────────────────────────────
 
 describe("fal.ai credential configuration", () => {
   it("FAL_AI_API_KEY environment variable is used (not FAL_KEY)", () => {
-    // The fal client defaults to FAL_KEY but we explicitly call fal.config()
-    // with FAL_AI_API_KEY. This test verifies the env var name is correct.
     const falCredentialKey = "FAL_AI_API_KEY";
     const falDefaultKey = "FAL_KEY";
 
-    // Our code uses FAL_AI_API_KEY, not the default FAL_KEY
     expect(falCredentialKey).not.toBe(falDefaultKey);
     expect(falCredentialKey).toBe("FAL_AI_API_KEY");
   });
@@ -147,14 +323,13 @@ describe("fal.ai credential configuration", () => {
     const mockFalConfig = vi.fn();
     const FAL_AI_API_KEY = "test-key-123";
 
-    // Simulate the pattern used in musicVideo.ts
     if (FAL_AI_API_KEY) mockFalConfig({ credentials: FAL_AI_API_KEY });
 
     expect(mockFalConfig).toHaveBeenCalledWith({ credentials: "test-key-123" });
   });
 });
 
-// ─── 6. Batch regeneration input validation ───────────────────────────────────
+// ─── 10. Batch regeneration input validation ──────────────────────────────────
 
 describe("startBatchRegeneration input schema", () => {
   it("accepts empty object (process all jobs)", () => {

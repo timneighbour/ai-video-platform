@@ -825,10 +825,16 @@ Rules:
       // Build a map of character name -> character record for quick lookup
       const charByName = new Map(allJobCharacters.map(c => [c.name.toLowerCase(), c]));
 
-      // Get the specific characters assigned to this scene (or all if none specified)
+      // Get the specific characters assigned to THIS scene only.
+      // CRITICAL: never fall back to "all locked characters" — that caused Tim's face
+      // to appear in Greg's drummer scenes. If no assignments exist, generate with no
+      // face anchor (generic scene) rather than using the wrong person.
       const sceneChars = sceneCharNames.length > 0
         ? sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean) as typeof allJobCharacters
-        : allJobCharacters.filter(c => c.isLocked && c.lockedDescription);
+        : [];
+
+      // Log character resolution for debugging
+      console.log(`[generateScenePreview] Scene ${input.sceneId}: assigned names=[${sceneCharNames.join(", ")}] resolved=[${sceneChars.map(c => `${c.name}(id=${c.id})`).join(", ")}]`);
 
       // --- Gather reference photos for scene-assigned characters ONLY ---
       const allPhotos = await db.select().from(videoCharacterPhotos)
@@ -846,57 +852,62 @@ Rules:
           referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
         }
       }
-      // Fall back to legacy single character image ONLY if the scene has a locked (user-uploaded) character
-      // Do NOT fall back for AI-invented characters — they have no photos and should not inherit Tim/Greg's face
+      // REMOVED: legacy job.characterImageUrl fallback — it always pointed to Tim's photo
+      // and caused Tim's face to appear in Greg/Monica scenes. No fallback: if a scene
+      // has no assigned character with a photo, it generates without a face anchor.
       const sceneHasLockedChar = sceneChars.some(c => c.isLocked && c.lockedDescription);
-      if (referenceImages.length === 0 && job.characterImageUrl && sceneHasLockedChar) {
-        referenceImages.push({ url: job.characterImageUrl, mimeType: "image/jpeg" });
-      }
 
       // --- Build character identity block (FIRST in prompt for maximum weight) ---
       // The image model weights the beginning of the prompt most heavily.
       // Character identity must come BEFORE scene description.
-      // For multi-character scenes, add spatial positioning to help AI place characters correctly
       const identityLines = sceneChars
         .filter(c => c.isLocked && c.lockedDescription)
         .map((c, idx) => {
-          // Use the full locked description for maximum likeness fidelity
           const baseDescription = `${c.name} (${c.role || "musician"}): ${c.lockedDescription!}`;
-          
-          // For multi-character scenes, add spatial positioning hints
-          // This helps the AI place each character in the right position and use the right reference photo
           if (sceneChars.length > 1) {
             const positions = ["LEFT", "CENTER", "RIGHT"];
-            const position = positions[idx % positions.length];
-            return `${baseDescription} [POSITION: ${position}]`;
+            return `${baseDescription} [POSITION: ${positions[idx % positions.length]}]`;
           }
-          
           return baseDescription;
         });
 
       const hasPhotos = referenceImages.length > 0;
 
-      // Character count constraint — prevent AI from inventing extra people
+      // ── Strict people-count constraint ──────────────────────────────────────
+      // For single-character scenes: ONLY that person, no background band members.
+      // For multi-character scenes: ONLY the named members, no extras.
       const charCount = sceneChars.length;
+      const primaryCharForScene = sceneChars[0] ?? null; // first assigned = primary subject
       const charCountConstraint = charCount === 1
-        ? `EXACTLY ONE person in this image — only ${sceneChars[0]?.name || "the character"}. No other people, no crowd members, no extra musicians.`
+        ? `ONLY ONE PERSON in frame — ${primaryCharForScene!.name} is the ONLY person visible. ` +
+          `The main subject is ${primaryCharForScene!.name}. This person must be clearly visible and is the focus of the scene. ` +
+          `No additional people. No background characters. No extra musicians. No other band members visible.`
         : charCount > 1
-          ? `EXACTLY ${charCount} people in this image: ${sceneChars.map(c => c.name).join(", ")}. No other people, no extra musicians, no crowd members visible.`
-          : allJobCharacters.length > 0
-            ? `The band has exactly ${allJobCharacters.length} members: ${allJobCharacters.map(c => c.name).join(", ")}. Show only these people, no extras.`
-            : "";
+          ? `EXACTLY ${charCount} people in this image: ${sceneChars.map(c => c.name).join(", ")}. ` +
+            `No other people, no extra musicians, no anonymous background characters.`
+          : "";
 
-      // Build the identity block with enhanced instructions for multi-character consistency
+      // ── Identity block ──────────────────────────────────────────────────────
       const identityBlock = identityLines.length > 0
         ? (() => {
-            const baseInstruction = `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hair style, and skin tone from the reference photos. This is a real person — the generated face MUST be recognisable as the same individual.`;
-            
-            // For multi-character scenes, add extra guidance to prevent character mixing
+            const subjectLine = primaryCharForScene
+              ? `The main subject is ${primaryCharForScene.name}. This person must be clearly visible and is the focus of the scene.`
+              : "";
+            const baseInstruction =
+              `EXACT LIKENESS REQUIRED — generate the SAME person shown in the reference photo(s). ` +
+              `${identityLines.join(" | ")}. ` +
+              `Preserve exact facial features, bone structure, eye colour, hairstyle, hair length, hair colour, ` +
+              `facial hair, and skin tone from the reference photos. ` +
+              `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
+              `Same hair colour. Same facial hair. No variation in hair or appearance. ` +
+              `This is a real person — the generated face MUST be recognisable as the same individual.`;
             if (sceneChars.length > 1) {
-              return `${baseInstruction} CRITICAL: Each character MUST match their reference photo EXACTLY. Do NOT mix up faces between characters. ${sceneChars.map(c => `${c.name} has UNIQUE features that MUST be preserved`).join(". ")}. ${charCountConstraint}`;
+              return `${subjectLine} ${baseInstruction} CRITICAL: Each character MUST match their reference photo EXACTLY. ` +
+                `Do NOT mix up faces between characters. ` +
+                `${sceneChars.map(c => `${c.name} has UNIQUE features that MUST be preserved`).join(". ")}. ` +
+                `${charCountConstraint}`;
             }
-            
-            return `${baseInstruction} ${charCountConstraint}`;
+            return `${subjectLine} ${baseInstruction} ${charCountConstraint}`;
           })()
         : hasPhotos
           ? `Generate the SAME person shown in the reference photo(s). Preserve exact facial features, bone structure, and appearance. ${charCountConstraint}`
@@ -942,13 +953,15 @@ Rules:
         "16:9 widescreen, high quality, professional photography",
       ].filter(Boolean).join(". ");
 
-      // --- Identity Anchor: use master portrait if available ---
-      // The master portrait is a pre-generated, high-fidelity portrait from the reference photo.
-      // Using it as the face anchor is more consistent than re-inferring from the raw upload each time.
-      const primarySceneChar = sceneChars.find(c => c.isLocked && c.lockedDescription);
+      // --- Identity Anchor: use the PRIMARY ASSIGNED character's master portrait ---
+      // CRITICAL FIX: use primaryCharForScene (the first character explicitly assigned to THIS scene)
+      // NOT sceneChars.find(c => c.isLocked) which could return Tim for every scene.
+      // Log the exact character + reference being used so we can verify in server logs.
+      const primarySceneChar = primaryCharForScene;
       const masterPortraitUrl = primarySceneChar?.masterPortraitUrl ?? null;
       const masterSeed = primarySceneChar?.masterSeed ?? null;
       const lockedCharacterPrompt = primarySceneChar?.characterPrompt ?? null;
+      console.log(`[generateScenePreview] Scene ${input.sceneId}: PRIMARY CHARACTER = ${primarySceneChar?.name ?? "none"} (id=${primarySceneChar?.id ?? "none"}), masterPortrait=${!!masterPortraitUrl}, masterPortraitUrl=${masterPortraitUrl ?? "null"}, seed=${masterSeed ?? "null"}`);
 
       // ─── Photo Mode Pipeline V2: Strict Prompt Split ────────────────────────
       // A) CHARACTER BLOCK (LOCKED — never changes between scenes)
@@ -956,24 +969,41 @@ Rules:
       //    otherwise falls back to the vision-LLM analysed lockedDescription.
       //    Appended with identity enforcement instruction.
       const characterBlock = lockedCharacterPrompt
-        ? `${lockedCharacterPrompt}. same person as reference image, identical face, same hair, same identity, no variation`
+        ? `${lockedCharacterPrompt}. ` +
+          `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
+          `Same hair colour. Same facial hair. No variation in hair or appearance.`
         : identityBlock
-          ? `${identityBlock}. same person as reference image, identical face, same hair, same identity, no variation`
+          ? `${identityBlock}. ` +
+            `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
+            `Same hair colour. Same facial hair. No variation in hair or appearance.`
           : null;
 
       // B) SCENE BLOCK (CHANGES PER SCENE — environment/action/lighting only)
       //    Strip any character identity text that may have leaked into the scene prompt.
       const sceneOnlyPrompt = cleanScenePrompt;
 
-      // C) NEGATIVE PROMPT (injected into all InstantID/PuLID calls)
-      //    Explicitly forbids face drift.
+      // C) NEGATIVE PROMPT — forbids face drift, hair variation, and extra people
+      const extraPeopleNegative = charCount === 1
+        ? "extra person, additional people, background musician, background character, other band member, crowd member, second person, third person, multiple people"
+        : "extra person, anonymous musician, unnamed character, crowd member";
       const negativePromptV2 = [
+        // Identity drift
         "different face",
         "new person",
         "altered identity",
         "different person",
-        "different hair",
         "inconsistent character",
+        // Hair variation
+        "different hairstyle",
+        "shorter hair",
+        "longer hair",
+        "different hair colour",
+        "different hair color",
+        "variation in appearance",
+        "different facial hair",
+        // Extra people
+        extraPeopleNegative,
+        // Quality
         "nsfw",
         "lowres",
         "bad anatomy",
@@ -1025,8 +1055,8 @@ Rules:
         if (hasFaceReference) {
           // --- Photo Mode Pipeline V2: Identity-Anchored Generation ---
           // InstantID (primary) or Flux PuLID (fallback). 3 variations, pick best.
-          const primaryCharName = primarySceneChar?.name || "the character";
-          // Use the V2 negative prompt (forbids face drift explicitly)
+          const primaryCharName = primarySceneChar?.name ?? "the character";
+          // Use the V2 negative prompt (forbids face drift + hair variation + extra people)
           const negativePrompt = negativePromptV2;
 
           // Fetch the face reference as base64 for InstantID
