@@ -2245,3 +2245,8 @@
 
 ## Audio Tooltip Enhancement
 - [x] Add 'i' icon with tooltip next to each audio upgrade option in RenderPaywallModal (Standard, Enhanced, Cinematic)
+
+## BUTTON SELECTION BUG FIX
+- [x] Fix RenderPaywallModal quality card selection (Standard/HD/4K) — clicks not registering
+- [x] Fix RenderPaywallModal audio tier selection (Standard/Enhanced/Cinematic) — clicks not registering
+- [x] Audit and fix all other interactive buttons/selections across the platform

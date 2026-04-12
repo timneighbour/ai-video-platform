@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Quality = "standard" | "hd" | "4k";
 type AudioTier = "standard" | "enhanced" | "cinematic";
@@ -235,8 +235,7 @@ export function RenderPaywallModal({
           {/* Audio tier selection */}
           <div>
             <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Audio Quality</h3>
-            <TooltipProvider delayDuration={200}>
-              <div className="space-y-2">
+            <div className="space-y-2">
                 {AUDIO_OPTIONS.map((a) => (
                   <button
                     key={a.id}
@@ -260,19 +259,16 @@ export function RenderPaywallModal({
                             {a.badge}
                           </span>
                         )}
-                        {/* Info tooltip */}
-                        <Tooltip>
+                        {/* Info tooltip — uses a div (not span with role=button) to avoid nested interactive elements inside <button> */}
+                        <Tooltip delayDuration={400}>
                           <TooltipTrigger asChild>
-                            <span
-                              role="button"
-                              tabIndex={0}
+                            <div
                               onClick={(e) => e.stopPropagation()}
-                              onKeyDown={(e) => e.stopPropagation()}
                               className="inline-flex items-center justify-center w-4 h-4 rounded-full text-white/30 hover:text-white/70 hover:bg-white/10 transition-colors cursor-help flex-shrink-0"
                               aria-label={`Learn more about ${a.label} audio`}
                             >
                               <Info className="w-3 h-3" />
-                            </span>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent
                             side="top"
@@ -297,8 +293,7 @@ export function RenderPaywallModal({
                     </div>
                   </button>
                 ))}
-              </div>
-            </TooltipProvider>
+            </div>
           </div>
         </div>
 

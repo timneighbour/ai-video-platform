@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
@@ -2124,7 +2124,6 @@ export default function MusicVideoAutopilot() {
 
                       {/* Style selector — only shown when lip sync is ON */}
                       {scene.lipSync && (
-                        <TooltipProvider delayDuration={200}>
                           <div className="space-y-1">
                             <p className="text-[10px] text-zinc-500 uppercase tracking-wide font-medium">Style</p>
                             <ToggleGroup
@@ -2163,7 +2162,6 @@ export default function MusicVideoAutopilot() {
                               ))}
                             </ToggleGroup>
                           </div>
-                        </TooltipProvider>
                       )}
                     </div>
                   </CardContent>
