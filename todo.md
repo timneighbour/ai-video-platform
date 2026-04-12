@@ -2389,3 +2389,14 @@
 
 ## WizSound™ Demo Integration
 - [x] Add WizSound™ animated overlay into DemoVideoModal — dedicated scene at 22–26s with full-screen purple bloom, large EQ waveform, WizSound™ wordmark glow, corner badge on output scene, mini badge in controls bar
+
+## Demo Video Production - COMPLETED ✅
+- [x] Build 23-second high-converting sales demo video (1920×1080, 30fps)
+- [x] Section 1 Hook (0–3s): "This entire video was made with AI" on black + cinematic output frame
+- [x] Section 2 Problem→Solution (3–8s): fake NLE timeline → WizVid UI with "No editing. No complicated tools."
+- [x] Section 3 Product Flow (8–18s): 3 UI mockup frames — Describe idea / Preview scenes / Render video
+- [x] Section 4 Result (18–22s): musicians / Pixar / fantasy fast-cut with "Full videos. Not clips."
+- [x] Section 5 CTA (22–25s): animated logo + "Create your first video now" + "Create Your Video →" button
+- [x] Audio: cinema sting soundtrack with fade-out
+- [x] Upload to CDN: wizvid_demo_cd4e1b19.mp4
+- [x] Wire DEMO_VIDEO_URL into DemoVideoModal — real video now plays on click

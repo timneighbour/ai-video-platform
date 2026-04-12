@@ -5,8 +5,8 @@ import { X, Play, Pause, Subtitles, Maximize2, Volume2, VolumeX } from "lucide-r
 const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
 
-// Final demo video URL — replace with real render when ready
-const DEMO_VIDEO_URL = "";
+// Final demo video URL
+const DEMO_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid_demo_cd4e1b19.mp4";
 
 /* ── Proxy scene data ────────────────────────────────────────────────── */
 interface ProxyScene {
