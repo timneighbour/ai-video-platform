@@ -86,7 +86,7 @@ const resources = {
       },
       pricing: {
         title: "Simple, transparent pricing",
-        subtitle: "Start free. Upgrade when you're ready.",
+        subtitle: "Create for free. Only pay when you render.",
         starter: {
           name: "Starter",
           price: "£19",
@@ -128,7 +128,7 @@ const resources = {
         title: "Ready to create your first AI video?",
         subtitle: "No editing. No experience needed. Just upload your audio or idea and let WizVid do the rest.",
         button: "Create Your First Video Now",
-        note: "No credit card required • Start free today",
+        note: "No credit card required • Create free • Only pay when you render",
       },
       footer: {
         tagline: "AI Music Video Generator • Create Videos in Minutes",

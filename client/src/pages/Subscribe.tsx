@@ -175,7 +175,7 @@ export default function Subscribe() {
         <div className="container">
           <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-sm text-purple-300 mb-6">
             <Gift className="h-3.5 w-3.5" />
-            Start free — no credit card required
+            Create for free. Only pay when you render.
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl mb-4">
             Simple, Transparent{" "}

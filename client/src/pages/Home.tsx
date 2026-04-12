@@ -307,8 +307,7 @@ function Hero() {
           className="text-white/72 max-w-xl mb-10 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
           style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)" }}
         >
-          From idea to finished video — no editing skills needed.
-          Music videos, social clips, kids animations — in under 2 minutes.
+          From idea to full video — no editing, no tools, no experience needed.
         </p>
 
         {/* Primary CTA — dominant, unmissable */}

@@ -2350,3 +2350,14 @@
 ## Bug Fixes
 - [ ] Fix missing audio on CinematicEntryScreen intro (WizSound sting not playing)
 - [ ] Add mute/unmute toggle on intro screen so user can disable audio
+
+## Intro, Hero & Demo 4K Upgrade + Final Copy Pass - COMPLETED ✅
+- [x] Generate 4K cinematic intro background image (POSTER_URL in CinematicEntryScreen)
+- [x] Update CinematicEntryScreen with new 4K poster, floating particles, bloom glow, improved logo scale-in, light sweep animation
+- [x] Update DemoVideoModal storyboard and output scene images to use 4K poster
+- [x] Update hero subtext to: "From idea to full video — no editing, no tools, no experience needed."
+- [x] Remove "Start free — no credit card required" badge from Subscribe page → "Create for free. Only pay when you render."
+- [x] Update i18n.ts pricing subtitle → "Create for free. Only pay when you render."
+- [x] Update i18n.ts CTA note → "No credit card required • Create free • Only pay when you render"
+- [x] All 333 tests passing after changes
+- [x] TypeScript: no errors

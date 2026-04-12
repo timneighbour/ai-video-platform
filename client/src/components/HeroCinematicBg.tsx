@@ -10,12 +10,12 @@ const ASSETS = {
   // Video B — subtle 8s dark loop: prompt typed → storyboard → cinematic output
   videoMP4:
     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hero-bg-v2_737633d7.mp4",
-  // Poster: shown before video loads (LCP-safe)
+  // Poster: 4K cinematic background (LCP-safe, shown before video loads)
   poster:
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/scene-fire-Rz5UrKEXzVWkjfUVCFPRXH.webp",
-  // Reduced-motion static (dark cinematic still)
+    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp",
+  // Reduced-motion static (4K dark cinematic still)
   staticBg:
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/scene-fire-Rz5UrKEXzVWkjfUVCFPRXH.webp",
+    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp",
 };
 
 const LS_KEY = "wizvid_motion_paused";

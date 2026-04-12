@@ -9,8 +9,9 @@ const INTRO_VIDEO_MP4 =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/intro-sequence_8f81fbfd.mp4";
 const LOGO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
+// 4K cinematic intro background poster
 const POSTER_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/poster-intro-desktop_b8b0b3a0.webp";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-intro-bg-4k-S9fuvpjGgLio3Y2rzSEUfh.webp";
 
 export const INTRO_SESSION_KEY = "wizvid_intro_seen";
 
@@ -21,9 +22,9 @@ interface Props {
 /**
  * CinematicEntryScreen — 5-stage WizSound™ intro sequence.
  *
- * Stage 1 (0–2s):   Black + subtle waveform ripple
- * Stage 2 (2–3s):   "Powered by WizSound™" flash with purple glow
- * Stage 3 (3–5s):   Energy streak + WizVid logo reveal
+ * Stage 1 (0–2s):   Black + subtle waveform ripple + floating particles
+ * Stage 2 (2–3s):   "Powered by WizSound™" flash with purple glow + EQ bars
+ * Stage 3 (3–5s):   Energy streak + WizVid logo reveal with bloom
  * Stage 4 (5–6s):   WizVid logo + "Create. Imagine. Animate." tagline
  * Stage 5 (6s+):    Smooth 700ms fade to homepage
  *
@@ -36,6 +37,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const [stage, setStage] = useState<1 | 2 | 3 | 4>(1);
   const [progress, setProgress] = useState(0);
   const [ctaPulse, setCtaPulse] = useState(false);
+  const [logoScale, setLogoScale] = useState(0.85);
   const exitingRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [muted, setMuted] = useState<boolean>(() => {
@@ -78,7 +80,12 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     const t3 = setTimeout(() => setStage(3), 3000);   // Energy streak + logo
     const t4 = setTimeout(() => setStage(4), 5000);   // Final frame
     const tCta = setTimeout(() => setCtaPulse(true), 3500); // CTA pulse
-    return () => { clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(tCta); };
+    // Logo scale-in push effect at stage 3
+    const tLogoScale = setTimeout(() => setLogoScale(1.0), 3200);
+    return () => {
+      clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+      clearTimeout(tCta); clearTimeout(tLogoScale);
+    };
   }, []);
 
   /* ── Attempt autoplay ────────────────────────────────────────────── */
@@ -146,7 +153,20 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       aria-modal="true"
       aria-label="WizVid intro experience"
     >
-      {/* ── Background video ──────────────────────────────────────── */}
+      {/* ── 4K Background poster (always present as base layer) ──── */}
+      <div
+        className="absolute inset-0"
+        style={{
+          zIndex: 0,
+          backgroundImage: `url(${POSTER_URL})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: stage >= 3 ? 1 : 0,
+          transition: "opacity 1000ms ease-in",
+        }}
+      />
+
+      {/* ── Background video (plays over poster when loaded) ─────── */}
       {!videoFailed && (
         <video
           ref={videoRef}
@@ -165,15 +185,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         />
       )}
 
-      {/* ── Fallback: static cinematic poster ────────────────────── */}
-      {videoFailed && stage >= 3 && (
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${POSTER_URL})`, zIndex: 0 }}
-        />
-      )}
-
-      {/* ── Stage 1: Pure black + waveform ripple (0–2s) ─────────── */}
+      {/* ── Stage 1: Pure black + waveform ripple + particles ────── */}
       <div
         className="absolute inset-0 bg-black pointer-events-none"
         style={{
@@ -188,31 +200,70 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           viewBox="0 0 1440 900"
           preserveAspectRatio="xMidYMid slice"
           aria-hidden="true"
-          style={{ opacity: 0.12 }}
+          style={{ opacity: 0.15 }}
         >
-          {[0, 1, 2, 3, 4].map((i) => (
+          {[0, 1, 2, 3, 4, 5].map((i) => (
             <ellipse
               key={i}
               cx="720"
               cy="450"
-              rx={120 + i * 80}
-              ry={30 + i * 20}
+              rx={100 + i * 90}
+              ry={25 + i * 22}
               fill="none"
-              stroke="rgba(139,92,246,0.6)"
-              strokeWidth="1"
+              stroke="rgba(139,92,246,0.7)"
+              strokeWidth="1.2"
               style={{
-                animation: `waveRipple ${1.4 + i * 0.2}s ease-out ${i * 0.18}s infinite`,
+                animation: `waveRipple ${1.3 + i * 0.22}s ease-out ${i * 0.16}s infinite`,
                 transformOrigin: "720px 450px",
               }}
             />
           ))}
         </svg>
-        {/* Bass pulse vignette */}
+        {/* Floating dust particles */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 1440 900"
+          preserveAspectRatio="xMidYMid slice"
+          aria-hidden="true"
+        >
+          {[
+            { cx: 360, cy: 200, r: 1.5, delay: 0 },
+            { cx: 720, cy: 150, r: 1, delay: 0.4 },
+            { cx: 1080, cy: 280, r: 2, delay: 0.8 },
+            { cx: 240, cy: 500, r: 1.2, delay: 1.2 },
+            { cx: 960, cy: 600, r: 1.8, delay: 0.6 },
+            { cx: 480, cy: 700, r: 1, delay: 1.0 },
+            { cx: 1200, cy: 400, r: 1.5, delay: 0.2 },
+            { cx: 600, cy: 350, r: 1, delay: 1.4 },
+            { cx: 840, cy: 750, r: 1.2, delay: 0.9 },
+            { cx: 120, cy: 300, r: 1.8, delay: 0.3 },
+          ].map((p, i) => (
+            <circle
+              key={i}
+              cx={p.cx}
+              cy={p.cy}
+              r={p.r}
+              fill="rgba(167,139,250,0.6)"
+              style={{
+                animation: `particleFloat ${3 + i * 0.4}s ease-in-out ${p.delay}s infinite alternate`,
+              }}
+            />
+          ))}
+        </svg>
+        {/* Bass pulse vignette — background glow layer */}
         <div
           className="absolute inset-0"
           style={{
-            background: "radial-gradient(ellipse at 50% 50%, rgba(88,28,235,0.08) 0%, transparent 65%)",
+            background: "radial-gradient(ellipse at 50% 50%, rgba(88,28,235,0.12) 0%, transparent 60%)",
             animation: "bassPulse 1.2s ease-in-out infinite",
+          }}
+        />
+        {/* Foreground glow — tighter, brighter */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.06) 0%, transparent 35%)",
+            animation: "bassPulse 0.9s ease-in-out 0.3s infinite alternate",
           }}
         />
       </div>
@@ -226,33 +277,45 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           transition: stage === 2 ? "opacity 200ms ease-in" : "opacity 300ms ease-out",
         }}
       >
-        {/* Purple glow backdrop */}
+        {/* Purple glow backdrop — background layer */}
         <div
           className="absolute inset-0"
           style={{
-            background: "radial-gradient(ellipse at 50% 50%, rgba(109,40,217,0.22) 0%, transparent 60%)",
+            background: "radial-gradient(ellipse at 50% 50%, rgba(109,40,217,0.28) 0%, transparent 65%)",
           }}
         />
-        {/* Waveform bars */}
-        <div className="relative flex items-end gap-[3px] mb-4" aria-hidden="true" style={{ height: 28 }}>
-          {[10, 18, 24, 28, 22, 28, 24, 18, 10].map((h, i) => (
+        {/* Foreground bloom ring */}
+        <div
+          className="absolute"
+          style={{
+            width: "min(60vw, 400px)",
+            height: "min(60vw, 400px)",
+            borderRadius: "50%",
+            background: "radial-gradient(ellipse at center, rgba(167,139,250,0.12) 0%, transparent 70%)",
+            animation: "bloomPulse 0.8s ease-in-out infinite alternate",
+          }}
+        />
+        {/* Waveform bars — enhanced height and contrast */}
+        <div className="relative flex items-end gap-[3px] mb-5" aria-hidden="true" style={{ height: 36 }}>
+          {[8, 14, 22, 32, 36, 32, 22, 14, 8].map((h, i) => (
             <div
               key={i}
               className="rounded-full"
               style={{
-                width: 3,
+                width: 4,
                 height: h,
-                background: "linear-gradient(to top, #7c3aed, #c084fc)",
-                animation: `eqBar ${0.55 + i * 0.06}s ease-in-out ${i * 0.04}s infinite alternate`,
-                opacity: 0.85,
+                background: "linear-gradient(to top, #5b21b6, #a78bfa, #e879f9)",
+                animation: `eqBar ${0.45 + i * 0.07}s ease-in-out ${i * 0.04}s infinite alternate`,
+                opacity: 0.92,
+                boxShadow: "0 0 6px rgba(167,139,250,0.5)",
               }}
             />
           ))}
         </div>
         {/* WizSound™ text */}
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-1.5">
           <span
-            className="text-white/40 uppercase tracking-[0.3em] font-light"
+            className="text-white/45 uppercase tracking-[0.35em] font-light"
             style={{ fontSize: "clamp(0.6rem, 1.2vw, 0.75rem)" }}
           >
             Powered by
@@ -260,13 +323,13 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           <span
             className="font-bold tracking-wide"
             style={{
-              fontSize: "clamp(1.1rem, 2.8vw, 1.6rem)",
+              fontSize: "clamp(1.2rem, 3vw, 1.8rem)",
               background: "linear-gradient(90deg, #a78bfa, #e879f9, #a78bfa)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-              filter: "drop-shadow(0 0 18px rgba(167,139,250,0.7))",
-              animation: "wizSoundGlow 0.8s ease-in-out infinite alternate",
+              filter: "drop-shadow(0 0 20px rgba(167,139,250,0.8))",
+              animation: "wizSoundGlow 0.7s ease-in-out infinite alternate",
             }}
           >
             WizSound™
@@ -286,6 +349,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           overflow: "hidden",
         }}
       >
+        {/* Primary streak */}
         <div
           style={{
             position: "absolute",
@@ -295,11 +359,11 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
             height: 2,
             background: "linear-gradient(90deg, transparent, #7c3aed, #e879f9, #7c3aed, transparent)",
             transform: "translateY(-50%)",
-            animation: "energyStreak 0.7s ease-out forwards",
-            boxShadow: "0 0 20px 4px rgba(167,139,250,0.5)",
+            animation: "energyStreak 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+            boxShadow: "0 0 24px 6px rgba(167,139,250,0.6)",
           }}
         />
-        {/* Secondary streak */}
+        {/* Secondary streak — offset */}
         <div
           style={{
             position: "absolute",
@@ -307,9 +371,22 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
             left: "-10%",
             width: "120%",
             height: 1,
-            background: "linear-gradient(90deg, transparent, rgba(232,121,249,0.4), transparent)",
-            transform: "translateY(8px)",
-            animation: "energyStreak 0.7s ease-out 0.1s forwards",
+            background: "linear-gradient(90deg, transparent, rgba(232,121,249,0.5), transparent)",
+            transform: "translateY(10px)",
+            animation: "energyStreak 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.08s forwards",
+            opacity: 0,
+          }}
+        />
+        {/* Light sweep across logo area */}
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            left: "-20%",
+            width: "40%",
+            height: "40%",
+            background: "linear-gradient(90deg, transparent, rgba(167,139,250,0.08), transparent)",
+            animation: "lightSweep 0.9s ease-out 0.2s forwards",
             opacity: 0,
           }}
         />
@@ -323,7 +400,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           opacity: stage >= 3 ? 1 : 0,
           transition: "opacity 800ms ease-in",
           background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0.88) 100%)",
+            "linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.12) 35%, rgba(0,0,0,0.12) 55%, rgba(0,0,0,0.9) 100%)",
         }}
       />
 
@@ -332,14 +409,26 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         className="absolute inset-0 pointer-events-none"
         style={{
           zIndex: 2,
-          background: "radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.65) 100%)",
+          background: "radial-gradient(ellipse at 50% 50%, transparent 28%, rgba(0,0,0,0.7) 100%)",
+        }}
+      />
+
+      {/* ── Purple bloom glow at centre (stages 3+) ──────────────── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 2,
+          opacity: stage >= 3 ? 1 : 0,
+          transition: "opacity 1000ms ease-in",
+          background: "radial-gradient(ellipse at 50% 45%, rgba(109,40,217,0.18) 0%, transparent 55%)",
+          animation: stage >= 3 ? "bloomPulse 3s ease-in-out infinite alternate" : "none",
         }}
       />
 
       {/* ── Film grain ───────────────────────────────────────────── */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ zIndex: 3, opacity: 0.03 }}
+        style={{ zIndex: 3, opacity: 0.035 }}
         aria-hidden="true"
       >
         <filter id="cine-grain">
@@ -372,8 +461,8 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         style={{
           zIndex: 7,
           opacity: stage >= 3 ? 1 : 0,
-          transform: stage >= 3 ? "translateY(0)" : "translateY(12px)",
-          transition: "opacity 600ms ease-out, transform 600ms ease-out",
+          transform: stage >= 3 ? `translateY(0) scale(${logoScale})` : "translateY(16px) scale(0.85)",
+          transition: "opacity 600ms cubic-bezier(0.22, 1, 0.36, 1), transform 800ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       >
         <img
@@ -382,9 +471,9 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           draggable={false}
           className="w-auto object-contain mb-5 select-none"
           style={{
-            height: "clamp(3.5rem, 9vw, 7.5rem)",
+            height: "clamp(4rem, 10vw, 8.5rem)",
             filter:
-              "drop-shadow(0 0 28px rgba(139,92,246,0.9)) drop-shadow(0 0 56px rgba(139,92,246,0.45))",
+              "drop-shadow(0 0 32px rgba(139,92,246,1)) drop-shadow(0 0 64px rgba(139,92,246,0.55)) drop-shadow(0 0 120px rgba(109,40,217,0.3))",
             animation: stage >= 3 ? "logoPulse 3s ease-in-out infinite" : "none",
           }}
         />
@@ -477,29 +566,46 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       {/* ── Keyframes ────────────────────────────────────────────── */}
       <style>{`
         @keyframes waveRipple {
-          0%   { transform: scale(0.6); opacity: 0.8; }
-          100% { transform: scale(1.4); opacity: 0; }
+          0%   { transform: scale(0.55); opacity: 0.9; }
+          100% { transform: scale(1.5); opacity: 0; }
         }
         @keyframes bassPulse {
-          0%, 100% { opacity: 0.4; }
+          0%, 100% { opacity: 0.35; }
           50%       { opacity: 1; }
         }
         @keyframes eqBar {
-          0%   { transform: scaleY(0.4); }
+          0%   { transform: scaleY(0.3); }
           100% { transform: scaleY(1); }
         }
         @keyframes wizSoundGlow {
-          0%   { filter: drop-shadow(0 0 12px rgba(167,139,250,0.5)); }
-          100% { filter: drop-shadow(0 0 28px rgba(232,121,249,0.9)); }
+          0%   { filter: drop-shadow(0 0 14px rgba(167,139,250,0.6)); }
+          100% { filter: drop-shadow(0 0 32px rgba(232,121,249,1)); }
         }
         @keyframes energyStreak {
           0%   { transform: translateY(-50%) scaleX(0); opacity: 0; transform-origin: left center; }
-          40%  { opacity: 1; }
+          35%  { opacity: 1; }
           100% { transform: translateY(-50%) scaleX(1); opacity: 0; transform-origin: left center; }
         }
+        @keyframes lightSweep {
+          0%   { transform: translateX(0); opacity: 0; }
+          20%  { opacity: 1; }
+          100% { transform: translateX(200%); opacity: 0; }
+        }
         @keyframes logoPulse {
-          0%, 100% { filter: drop-shadow(0 0 28px rgba(139,92,246,0.9)) drop-shadow(0 0 56px rgba(139,92,246,0.45)); }
-          50%       { filter: drop-shadow(0 0 40px rgba(139,92,246,1))   drop-shadow(0 0 80px rgba(139,92,246,0.6)); }
+          0%, 100% {
+            filter: drop-shadow(0 0 32px rgba(139,92,246,1)) drop-shadow(0 0 64px rgba(139,92,246,0.55)) drop-shadow(0 0 120px rgba(109,40,217,0.3));
+          }
+          50% {
+            filter: drop-shadow(0 0 48px rgba(139,92,246,1)) drop-shadow(0 0 96px rgba(139,92,246,0.7)) drop-shadow(0 0 160px rgba(109,40,217,0.45));
+          }
+        }
+        @keyframes bloomPulse {
+          0%   { opacity: 0.7; }
+          100% { opacity: 1; }
+        }
+        @keyframes particleFloat {
+          0%   { transform: translateY(0) scale(1); opacity: 0.5; }
+          100% { transform: translateY(-18px) scale(1.3); opacity: 0.9; }
         }
         @keyframes intro-cta-pulse {
           0%, 100% { box-shadow: 0 0 28px rgba(255,255,255,0.18), 0 0 0 0 rgba(255,255,255,0.12); }

@@ -3,7 +3,7 @@ import { X, Play, Pause, Subtitles, Maximize2, Volume2, VolumeX } from "lucide-r
 
 /* ── Asset URLs ──────────────────────────────────────────────────────── */
 const POSTER_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-jVJHMuemSsPijMUuBVpm6X.webp";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
 
 // Final demo video URL — replace with real render when ready
 const DEMO_VIDEO_URL = "";
@@ -57,7 +57,7 @@ const PROXY_SCENES: ProxyScene[] = [
     sublabel: "Scenes, characters, lighting — all AI.",
     bg: "bg-gradient-to-br from-[#0a0d1a] to-[#0a0a0a]",
     image:
-      "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-jVJHMuemSsPijMUuBVpm6X.webp",
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp",
     type: "storyboard",
   },
   {
@@ -67,7 +67,7 @@ const PROXY_SCENES: ProxyScene[] = [
     sublabel: "No editing. No timeline. Just results.",
     bg: "bg-gradient-to-br from-[#0a0a0a] to-[#0d0a1a]",
     image:
-      "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-jVJHMuemSsPijMUuBVpm6X.webp",
+      "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp",
     type: "output",
   },
 ];
