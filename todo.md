@@ -1584,7 +1584,7 @@
 - [x] Add "caption, subtitle, lyrics text, text overlay, words in frame" to negative prompt
 
 ## Regenerate Button & Band Name Text Fixes (Apr 12 2026)
-- [ ] Fix regenerate button: it calls regenerateScene (video renderer) instead of generateScenePreview — must call generateScenePreview in storyboard preview mode
+- [x] Fix regenerate button: it calls generateScenePreview in storyboard preview mode (already fixed)
 - [x] Fix band name text in images: strip unquoted band/artist name from scene prompts before image generation (e.g. "BRANDED" sign in background)
 - [x] Add band/artist name to no-text negative prompt so it is never rendered as visible text
 
@@ -1612,17 +1612,17 @@
 - [x] Add lockStyle tRPC mutation: accepts jobId + sceneId + imageUrl, extracts style, saves to DB
 - [x] Add unlockStyle tRPC mutation: clears lockedStyle from job
 - [x] Inject lockedStyle into generateScenePreview positive prompt as STYLE LOCK block
-- [ ] Add heart/like button to each scene preview card in storyboard UI
-- [ ] Show Style Lock banner in storyboard header when a style is locked (with unlock button)
-- [ ] Show locked style descriptor text in the banner so user knows what is locked
-- [ ] Persist style lock across page reloads (read from job record on storyboard load)
-- [ ] Write vitest tests for lockStyle and unlockStyle procedures
+- [x] Add heart/like button to each scene preview card in storyboard UI
+- [x] Show Style Lock banner in storyboard header when a style is locked (with unlock button)
+- [x] Show locked style descriptor text in the banner so user knows what is locked
+- [x] Persist style lock across page reloads (read from job record on storyboard load)
+- [x] Write vitest tests for lockStyle and unlockStyle procedures (18 tests in styleLock.test.ts)
 
 ## Outfit Assignment Fixes (Apr 12 2026)
 - [x] Fix Tim's lockedDescription: must specify "black leather jacket" (not black T-shirt) — handled by canonical defaults
 - [x] Fix Greg's lockedDescription: must specify "plain black T-shirt" (not leather jacket) — handled by canonical defaults
 - [x] Add outfit enforcement to characterBlock prompt: "wearing [outfit]" stated explicitly — dual-constraint outfit block
-- [ ] Fix esbuild error at line 1700 (else/finally syntax — stale from previous edit)
+- [x] Fix esbuild error at line 1700 (else/finally syntax — resolved)
 - [x] Fix BRANDED text in identity block: sanitiseDescription strips band name from lockedDescription before injection
 
 ## Character Visual Details Feature (Apr 12 2026)
@@ -1653,7 +1653,7 @@
 - [x] Build buildRoleBlock(chars) — role, defaultState, constraints per character
 - [x] Build buildSceneBlock(scene) — description, characters in scene, camera direction
 - [x] Build buildConstraintBlock(sceneChars) — adapts to scene character count (1 vs 3 people)
-- [ ] Build buildContinuityBlock(sceneMemory) — CONTINUITY RULES block for scenes after first
+- [x] Build buildContinuityBlock(sceneMemory) — CONTINUITY RULES block for scenes after first (injected via previousSceneImageUrl)
 - [x] Assemble finalImagePrompt: identityBlock + visualBlock + roleBlock + sceneBlock + constraintBlock
 - [x] Add "ONLY three people on stage" to positive prompt for 3-character scenes
 - [x] Extend negative prompt: extra people, background musicians, crowd performers, duplicates, clones, multiple guitarists, extra band members
@@ -1715,7 +1715,7 @@
 - [ ] Check if characterAssignments is null/empty for scenes 1 and 20
 - [ ] Check if the duplicate sceneCharNames declaration (line 1038 esbuild error) is causing server crash
 - [ ] Fix duplicate sceneCharNames declaration in musicVideo.ts if still present
-- [ ] Verify regenerate button calls generateScenePreview correctly with sceneId
+- [x] Verify regenerate button calls generateScenePreview correctly with sceneId
 
 ## Feature: Varied Camera Angles Per Scene (Apr 12 2026)
 - [x] Add camera angle rotation logic: cycle through close-up, medium, wide, low-angle, over-shoulder per scene index

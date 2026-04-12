@@ -1320,8 +1320,22 @@ Rules:
         : charCount === 1
           ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. ` +
             `NO other people. NO background musicians. NO silhouettes.`
-          : ""      // ── V3 Final Prompt Assembly: 6 blocks ───────────────────────────────────────────
-      // Order: hardCount → identity → visual (OVERRIDE) → role → performance → scene → constraints → style
+          : ""      // ── CONTINUITY BLOCK (scenes after the first) ──────────────────────────
+      // When a previous scene image is provided, instruct the model to maintain
+      // visual consistency: same lighting temperature, colour grading, stage setup,
+      // and character positioning relative to the previous frame.
+      const continuityBlock = input.previousSceneImageUrl
+        ? `CONTINUITY RULES (maintain consistency with previous scene):\n` +
+          `- The reference image from the previous scene is provided as an additional input.\n` +
+          `- MAINTAIN the same lighting temperature, colour grading, and stage setup.\n` +
+          `- MAINTAIN the same character outfits, hairstyles, and accessories — NO changes between scenes.\n` +
+          `- MAINTAIN the same stage/set design, instrument placement, and prop positions.\n` +
+          `- The camera angle may change, but the overall visual style MUST remain consistent.\n` +
+          `- If the previous scene showed a specific background (e.g. red lighting, smoke), keep it unless the scene description explicitly changes it.`
+        : "";
+
+      // ── V3 Final Prompt Assembly: 7 blocks ───────────────────────────────────────────
+      // Order: hardCount → identity → visual (OVERRIDE) → role → performance → scene → continuity → constraints → style
       const finalImagePrompt = [
         hardCountPrefix,
         characterBlock,
@@ -1329,6 +1343,7 @@ Rules:
         roleBlock,
         performanceBlock,
         sceneBlock,
+        continuityBlock,
         constraintBlock,
         styleDescriptor,
         styleLockSuffix ? `STYLE LOCK: ${styleLockSuffix}` : "",
