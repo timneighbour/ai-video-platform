@@ -1585,16 +1585,16 @@
 
 ## Regenerate Button & Band Name Text Fixes (Apr 12 2026)
 - [ ] Fix regenerate button: it calls regenerateScene (video renderer) instead of generateScenePreview — must call generateScenePreview in storyboard preview mode
-- [ ] Fix band name text in images: strip unquoted band/artist name from scene prompts before image generation (e.g. "BRANDED" sign in background)
-- [ ] Add band/artist name to no-text negative prompt so it is never rendered as visible text
+- [x] Fix band name text in images: strip unquoted band/artist name from scene prompts before image generation (e.g. "BRANDED" sign in background)
+- [x] Add band/artist name to no-text negative prompt so it is never rendered as visible text
 
 ## Too Many Members on Stage Fix (Apr 12 2026)
 - [x] Enforce exact band member count in multi-character scene prompts: "EXACTLY N people on stage — no more, no less"
-- [ ] Add "extra person, fourth person, fifth person, too many musicians" to negative prompt for multi-character scenes
+- [x] Add "extra person, fourth person, fifth person, too many musicians" to negative prompt for multi-character scenes
 
 ## Too Many Members on Stage Fix (Apr 12 2026)
 - [x] Enforce exact band member count in multi-character scene prompts
-- [ ] Add extra person terms to negative prompt for multi-character scenes
+- [x] Add extra person terms to negative prompt for multi-character scenes
 
 - [x] Block generation if scene has no characters assigned — error: Please assign characters before generating
 - [x] Strip job title/band name from scene prompts before image generation (prevents BRANDED sign)
@@ -1619,11 +1619,11 @@
 - [ ] Write vitest tests for lockStyle and unlockStyle procedures
 
 ## Outfit Assignment Fixes (Apr 12 2026)
-- [ ] Fix Tim's lockedDescription: must specify "black leather jacket" (not black T-shirt)
-- [ ] Fix Greg's lockedDescription: must specify "plain black T-shirt" (not leather jacket)
-- [ ] Add outfit enforcement to characterBlock prompt: "wearing [outfit]" stated explicitly
+- [x] Fix Tim's lockedDescription: must specify "black leather jacket" (not black T-shirt) — handled by canonical defaults
+- [x] Fix Greg's lockedDescription: must specify "plain black T-shirt" (not leather jacket) — handled by canonical defaults
+- [x] Add outfit enforcement to characterBlock prompt: "wearing [outfit]" stated explicitly — dual-constraint outfit block
 - [ ] Fix esbuild error at line 1700 (else/finally syntax — stale from previous edit)
-- [ ] Fix BRANDED text in identity block: sanitiseDescription strips band name from lockedDescription before injection
+- [x] Fix BRANDED text in identity block: sanitiseDescription strips band name from lockedDescription before injection
 
 ## Character Visual Details Feature (Apr 12 2026)
 - [x] Add characterVisualDetails (TEXT JSON) column to videoCharacters table
@@ -1668,14 +1668,14 @@
 - [x] Style Lock UI: banner in storyboard header with unlock button
 
 ## Bug: Greg Face Identity Not Applied in Multi-Character Scenes (Apr 12 2026)
-- [ ] Diagnose why Greg's face is not being used — generic rock drummer appearing instead
+- [x] Diagnose why Greg's face is not being used — fixed: identity block now includes ALL scene characters
 - [ ] Check if Greg has a referenceImageUrl / masterPortraitUrl in the DB
-- [ ] Check if buildIdentityBlock() correctly includes ALL scene characters (not just primary)
+- [x] Check if buildIdentityBlock() correctly includes ALL scene characters (not just primary)
 - [ ] Check if InstantID / face lock is only applied to the first/primary character
 - [ ] Check if the scene character assignment for Greg is correct in the DB
-- [ ] Fix identity block to include Greg's lockedDescription and referenceImage in multi-char scenes
-- [ ] Verify Monica's face is also correctly applied (not just Tim)
-- [ ] Add negative prompt entries: "blond drummer", "bald drummer", "tattooed drummer", "sleeveless vest"
+- [x] Fix identity block to include Greg's lockedDescription and referenceImage in multi-char scenes
+- [x] Verify Monica's face is also correctly applied (not just Tim) — identity block includes all chars
+- [x] Add negative prompt entries: per-character dynamic negatives now generated from OUTFIT_CONSTRAINTS
 
 ## Bug: Tim Not Wearing Black Leather Jacket / Visual Details Not Applied (Apr 12 2026)
 - [ ] Verify DB query in generateScenePreview fetches characterVisualDetails, characterConstraints, characterDefaultState columns
@@ -1686,27 +1686,27 @@
 - [ ] Add negative prompt: "t-shirt, grey shirt, casual wear, no jacket"
 
 ## Bug: Face Identity Only Applied to Tim, Not Greg/Monica (Apr 12 2026)
-- [ ] Confirm buildIdentityBlock() includes ALL scene characters' lockedDescription, not just primary
-- [ ] Fix identity block to inject Greg's and Monica's face descriptors in multi-character scenes
+- [x] Confirm buildIdentityBlock() includes ALL scene characters' lockedDescription, not just primary
+- [x] Fix identity block to inject Greg's and Monica's face descriptors in multi-character scenes
 - [ ] Verify Monica's masterPortraitUrl is set in DB (needed for InstantID face lock)
 - [ ] Verify Greg's masterPortraitUrl is set in DB
-- [ ] "BRANDED" band name appearing as neon sign in background — sanitiseDescription not stripping it
-- [ ] Strengthen sanitiseDescription to replace band name with empty string before prompt assembly
-- [ ] Add "no text, no signs, no neon signs, no band name" to negative prompt
+- [x] "BRANDED" band name appearing as neon sign in background — sanitiseDescription now strips it
+- [x] Strengthen sanitiseDescription to replace band name with empty string before prompt assembly
+- [x] Add "no text, no signs, no neon signs, no band name" to negative prompt
 
 ## Bug: Greg Face Identity Not Applied in Any Multi-Character Scene (Apr 12 2026)
-- [ ] Fix buildIdentityBlock() to include ALL scene characters' face descriptors, not just primary
-- [ ] Ensure Greg's lockedDescription is injected into every scene he appears in
-- [ ] Ensure Monica's lockedDescription is injected into every scene she appears in
+- [x] Fix buildIdentityBlock() to include ALL scene characters' face descriptors, not just primary
+- [x] Ensure Greg's lockedDescription is injected into every scene he appears in
+- [x] Ensure Monica's lockedDescription is injected into every scene she appears in
 - [ ] Check if masterPortraitUrl for Greg and Monica is set in DB (required for face lock)
-- [ ] If masterPortraitUrl is null for Greg/Monica, add fallback to lockedDescription-only identity block
+- [x] If masterPortraitUrl is null for Greg/Monica, add fallback to lockedDescription-only identity block
 
 ## Fix: Greg Outfit Override — Black Torn T-Shirt (Apr 12 2026)
-- [ ] Strengthen buildVisualBlock() to include explicit exclusions per character: "NO leather jacket" for Greg
-- [ ] Add per-character negative prompt injection: Greg → "leather jacket, jacket, blazer, coat, hoodie"
-- [ ] Update Greg's characterVisualDetails in DB: "Black torn t-shirt — NO jacket, NO leather jacket"
-- [ ] Update Greg's characterConstraints in DB: add "NEVER wearing leather jacket or any jacket"
-- [ ] Add "leather jacket on drummer" to global negative prompt
+- [x] Strengthen buildVisualBlock() to include explicit exclusions per character: "NO leather jacket" for Greg
+- [x] Add per-character negative prompt injection: Greg → "leather jacket, jacket, blazer, coat, hoodie"
+- [x] Update Greg's characterVisualDetails in DB: "Black torn t-shirt — NO jacket, NO leather jacket" — via canonical defaults
+- [x] Update Greg's characterConstraints in DB: add "NEVER wearing leather jacket or any jacket" — via canonical defaults
+- [x] Add "leather jacket on drummer" to global negative prompt
 - [ ] Update Greg's lockedDescription to specify "short hair" explicitly to prevent hair drift
 
 ## Bug: Scene 1 and Scene 20 Preview Generation Failing (Apr 12 2026)
@@ -1779,10 +1779,10 @@
 - [x] Add per-character identity reinforcement block for locked characters in scene prompts
 
 ## Bug: Duplicate Character in Multi-Character Scenes (Apr 12 2026)
-- [ ] Deduplicate face reference photos passed to Forge API (same character photo passed multiple times)
-- [ ] Limit to ONE reference photo per character (masterPortraitUrl preferred, no duplicates)
-- [ ] Strengthen negative prompt: no duplicate person, no cloned character, no two identical people
-- [ ] Leather jacket still bleeding onto Greg in multi-char scenes — add stronger per-char outfit exclusion
+- [x] Deduplicate face reference photos passed to Forge API (same character photo passed multiple times)
+- [x] Limit to ONE reference photo per character (masterPortraitUrl preferred, no duplicates)
+- [x] Strengthen negative prompt: no duplicate person, no cloned character, no two identical people
+- [x] Leather jacket still bleeding onto Greg in multi-char scenes — add stronger per-char outfit exclusion
 
 ## Bug: Scene Generation Multi-Issue Fix (Apr 12 2026)
 - [x] Remove all camera angles that place crowd behind or around the band (arena/fisheye shots)

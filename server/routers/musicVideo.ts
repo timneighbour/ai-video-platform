@@ -898,7 +898,12 @@ Rules:
           s = s.replace(new RegExp(`(?:of|for)\\s+${escapedTitle}`, "gi"), "");
           s = s.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "");
         }
+        // Strip the literal word "BRANDED" which AI models render as neon text
+        s = s.replace(/\bBRANDED\b/g, "");
+        // Strip quoted text that AI renders literally
         s = s.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "");
+        // Strip neon sign / text references
+        s = s.replace(/neon\s+sign\s+(?:reading|saying|with)\s+[^,.]+/gi, "");
         s = s.replace(/\s{2,}/g, " ").trim();
         return s;
       };
@@ -945,9 +950,16 @@ Rules:
               `Same hair colour. Same facial hair. No variation in hair or appearance. ` +
               `This is a real person — the generated face MUST be recognisable as the same individual.`;
             if (resolvedSceneChars.length > 1) {
+              // Build per-character distinguishing features for identity enforcement
+              const charDistinguishers = resolvedSceneChars.map(c => {
+                const defaults = getCharacterDefaults(c.name);
+                const role = defaults?.lockedRules?.role ?? c.role ?? "musician";
+                const keyOutfit = defaults?.lockedOutfit?.jacket || defaults?.lockedOutfit?.shirt || "";
+                return `${c.name} is the ${role}${keyOutfit ? ` wearing ${keyOutfit}` : ""} — UNIQUE face, do NOT swap with other characters`;
+              });
               return `${subjectLine} ${baseInstruction} CRITICAL: Each character MUST match their reference photo EXACTLY. ` +
-                `Do NOT mix up faces between characters. ` +
-                `${resolvedSceneChars.map(c => `${c.name} has UNIQUE features that MUST be preserved`).join(". ")}. ` +
+                `Do NOT mix up faces between characters. Do NOT duplicate any person. ` +
+                `${charDistinguishers.join(". ")}. ` +
                 `${charCountConstraint}`;
             }
             return `${subjectLine} ${baseInstruction} ${charCountConstraint}`;
@@ -1246,6 +1258,21 @@ Rules:
       const extraPeopleNegative = charCount === 1
         ? "extra person, additional people, background musician, background character, other band member, crowd member, second person, third person, multiple people"
         : `extra person, anonymous musician, unnamed character, crowd member, fourth person, fifth person, additional guitarist, background band members, silhouette, extra band member, ${charCount + 1} people, ${charCount + 2} people, wrong outfit, outfit swap, different clothing, background performers, crowd performers, duplicates, clones, multiple guitarists, extra band members`;
+      // ── Per-character negative prompt injection ─────────────────────────────
+      // Build dynamic per-character outfit exclusions from OUTFIT_CONSTRAINTS
+      const perCharNegatives: string[] = [];
+      for (const c of resolvedSceneChars) {
+        const key = c.name.toLowerCase();
+        const constraints = OUTFIT_CONSTRAINTS[key];
+        if (constraints) {
+          // Convert "NOT a leather jacket" → "leather jacket on CharName"
+          for (const neg of constraints.negative) {
+            const cleaned = neg.replace(/^NOT\s+(?:a\s+|any\s+)?/i, "").trim();
+            if (cleaned) perCharNegatives.push(`${cleaned} on ${c.name}`);
+          }
+        }
+      }
+
       const negativePromptV2 = [
         "different face", "new person", "altered identity", "different person", "inconsistent character",
         "different hairstyle", "shorter hair", "longer hair", "different hair colour", "different hair color",
@@ -1259,9 +1286,17 @@ Rules:
         "logo", "signage", "typography", "neon sign", "banner", "watermark",
         "band name", "venue name", "stage backdrop text", "neon text on backdrop", "BRANDED", "band name in lights",
         "text on backdrop", "illuminated band name", "glowing letters", "neon sign with words",
-        "wrong outfit", "outfit swap", "different clothing",
+        "wrong outfit", "outfit swap", "different clothing", "mismatched outfits",
+        // Per-character outfit exclusions (dynamic)
+        ...perCharNegatives,
+        // Hardcoded fallbacks for known characters
         "leather jacket on drummer", "leather jacket on Greg", "leather jacket on Monica",
+        "jacket on Greg", "blazer on Greg", "coat on Greg", "hoodie on Greg",
         "tank top on drummer", "sleeveless shirt on Greg", "vest on Greg",
+        "jacket on Monica", "plain clothing on Monica",
+        // Duplicate person / clone prevention
+        "duplicate person", "cloned character", "two identical people", "twin characters",
+        "same face twice", "repeated character", "mirror image of person",
         // Crowd in BACKGROUND is allowed and looks great (like a real concert).
         // Only block crowd in FOREGROUND obscuring the band, or arena wide shots where band is tiny.
         "crowd in foreground blocking band", "audience obscuring performers", "crowd pushing in front of band",
@@ -1368,18 +1403,22 @@ Rules:
           // Previously only Tim's masterPortraitUrl was passed — Greg and Monica were invented.
           console.log(`[generateScenePreview] Using Forge API for scene ${input.sceneId} (${resolvedSceneChars.map(c => c.name).join(", ")})`);
           const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+          const seenRefUrls = new Set<string>(); // Deduplicate: one reference per unique URL
           for (const char of resolvedSceneChars) {
             // Prefer masterPortraitUrl (clean AI portrait), fall back to primary reference photo
             const charPrimaryPhoto = allPhotos.find(p => p.characterId === char.id && p.isPrimary) ??
                                      allPhotos.find(p => p.characterId === char.id);
             const charRefUrl = char.masterPortraitUrl ?? charPrimaryPhoto?.photoUrl ?? null;
-            if (charRefUrl) {
+            if (charRefUrl && !seenRefUrls.has(charRefUrl)) {
+              seenRefUrls.add(charRefUrl);
               const mime = charRefUrl.match(/\.png(\?|$)/i) ? "image/png" :
                            charRefUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
               forgeRefs.push({ url: charRefUrl, mimeType: mime });
               console.log(`[generateScenePreview] Face ref for ${char.name}: ${char.masterPortraitUrl ? 'masterPortrait' : 'primaryPhoto'}`);
-            } else {
+            } else if (!charRefUrl) {
               console.warn(`[generateScenePreview] No face reference for ${char.name} — face will not be anchored`);
+            } else {
+              console.log(`[generateScenePreview] Skipping duplicate face ref for ${char.name} (already included)`);
             }
           }
           // Chained Reference — also include previous scene as secondary anchor (only if space)

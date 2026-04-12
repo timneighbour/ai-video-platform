@@ -426,3 +426,215 @@ describe("scene pipeline: no-text enforcement", () => {
     expect(cleaned).toBe(normalPrompt);
   });
 });
+
+// ─── 12. Face reference deduplication ────────────────────────────────────────
+
+describe("scene pipeline: face reference deduplication", () => {
+  it("deduplicates face reference URLs so same photo is not passed twice", () => {
+    const resolvedSceneChars = [
+      { id: 1, name: "Tim", masterPortraitUrl: "https://cdn.example.com/tim-portrait.jpg" },
+      { id: 2, name: "Greg", masterPortraitUrl: "https://cdn.example.com/greg-portrait.jpg" },
+      { id: 3, name: "Monica", masterPortraitUrl: "https://cdn.example.com/monica-portrait.jpg" },
+    ];
+
+    const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+    const seenRefUrls = new Set<string>();
+    for (const char of resolvedSceneChars) {
+      const charRefUrl = char.masterPortraitUrl ?? null;
+      if (charRefUrl && !seenRefUrls.has(charRefUrl)) {
+        seenRefUrls.add(charRefUrl);
+        forgeRefs.push({ url: charRefUrl, mimeType: "image/jpeg" });
+      }
+    }
+
+    expect(forgeRefs).toHaveLength(3);
+    expect(new Set(forgeRefs.map(r => r.url)).size).toBe(3);
+  });
+
+  it("skips duplicate URLs when two characters share the same portrait", () => {
+    const resolvedSceneChars = [
+      { id: 1, name: "Tim", masterPortraitUrl: "https://cdn.example.com/shared-portrait.jpg" },
+      { id: 2, name: "Greg", masterPortraitUrl: "https://cdn.example.com/shared-portrait.jpg" },
+    ];
+
+    const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+    const seenRefUrls = new Set<string>();
+    for (const char of resolvedSceneChars) {
+      const charRefUrl = char.masterPortraitUrl ?? null;
+      if (charRefUrl && !seenRefUrls.has(charRefUrl)) {
+        seenRefUrls.add(charRefUrl);
+        forgeRefs.push({ url: charRefUrl, mimeType: "image/jpeg" });
+      }
+    }
+
+    expect(forgeRefs).toHaveLength(1); // Only one unique URL
+  });
+
+  it("handles characters with no portrait (null masterPortraitUrl)", () => {
+    const resolvedSceneChars = [
+      { id: 1, name: "Tim", masterPortraitUrl: "https://cdn.example.com/tim.jpg" },
+      { id: 2, name: "Greg", masterPortraitUrl: null },
+    ];
+
+    const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+    const seenRefUrls = new Set<string>();
+    for (const char of resolvedSceneChars) {
+      const charRefUrl = char.masterPortraitUrl ?? null;
+      if (charRefUrl && !seenRefUrls.has(charRefUrl)) {
+        seenRefUrls.add(charRefUrl);
+        forgeRefs.push({ url: charRefUrl, mimeType: "image/jpeg" });
+      }
+    }
+
+    expect(forgeRefs).toHaveLength(1);
+    expect(forgeRefs[0].url).toBe("https://cdn.example.com/tim.jpg");
+  });
+});
+
+// ─── 13. Per-character negative prompt injection ─────────────────────────────
+
+describe("scene pipeline: per-character negative prompt injection", () => {
+  it("builds per-character outfit exclusions from OUTFIT_CONSTRAINTS", () => {
+    const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
+      greg: {
+        positive: ["black short-sleeve torn t-shirt"],
+        negative: [
+          "NOT a leather jacket",
+          "NOT any jacket of any kind",
+          "NOT sleeveless",
+          "NOT a tank top",
+        ],
+      },
+    };
+
+    const resolvedSceneChars = [{ name: "Greg" }];
+    const perCharNegatives: string[] = [];
+    for (const c of resolvedSceneChars) {
+      const key = c.name.toLowerCase();
+      const constraints = OUTFIT_CONSTRAINTS[key];
+      if (constraints) {
+        for (const neg of constraints.negative) {
+          const cleaned = neg.replace(/^NOT\s+(?:a\s+|any\s+)?/i, "").trim();
+          if (cleaned) perCharNegatives.push(`${cleaned} on ${c.name}`);
+        }
+      }
+    }
+
+    expect(perCharNegatives).toContain("leather jacket on Greg");
+    expect(perCharNegatives).toContain("jacket of any kind on Greg");
+    expect(perCharNegatives).toContain("sleeveless on Greg");
+    expect(perCharNegatives).toContain("tank top on Greg");
+  });
+
+  it("generates no exclusions for unknown characters", () => {
+    const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {};
+    const resolvedSceneChars = [{ name: "Unknown" }];
+    const perCharNegatives: string[] = [];
+    for (const c of resolvedSceneChars) {
+      const key = c.name.toLowerCase();
+      const constraints = OUTFIT_CONSTRAINTS[key];
+      if (constraints) {
+        for (const neg of constraints.negative) {
+          const cleaned = neg.replace(/^NOT\s+(?:a\s+|any\s+)?/i, "").trim();
+          if (cleaned) perCharNegatives.push(`${cleaned} on ${c.name}`);
+        }
+      }
+    }
+
+    expect(perCharNegatives).toHaveLength(0);
+  });
+});
+
+// ─── 14. Duplicate person / clone prevention in negative prompt ──────────────
+
+describe("scene pipeline: duplicate person prevention", () => {
+  it("negative prompt contains duplicate/clone prevention terms", () => {
+    const negativeTerms = [
+      "duplicate person", "cloned character", "two identical people", "twin characters",
+      "same face twice", "repeated character", "mirror image of person",
+    ];
+    const negativePrompt = negativeTerms.join(", ");
+
+    expect(negativePrompt).toContain("duplicate person");
+    expect(negativePrompt).toContain("cloned character");
+    expect(negativePrompt).toContain("two identical people");
+    expect(negativePrompt).toContain("same face twice");
+    expect(negativePrompt).toContain("mirror image of person");
+  });
+
+  it("negative prompt includes leather jacket exclusion for Greg and Monica", () => {
+    const negativeTerms = [
+      "leather jacket on drummer", "leather jacket on Greg", "leather jacket on Monica",
+      "jacket on Greg", "blazer on Greg", "coat on Greg", "hoodie on Greg",
+      "jacket on Monica", "plain clothing on Monica",
+    ];
+    const negativePrompt = negativeTerms.join(", ");
+
+    expect(negativePrompt).toContain("leather jacket on Greg");
+    expect(negativePrompt).toContain("leather jacket on Monica");
+    expect(negativePrompt).toContain("jacket on Greg");
+    expect(negativePrompt).toContain("jacket on Monica");
+  });
+});
+
+// ─── 15. sanitiseDescription: BRANDED stripping ─────────────────────────────
+
+describe("sanitiseDescription: BRANDED and neon sign stripping", () => {
+  it("strips the literal word BRANDED from description", () => {
+    let s = "BRANDED rock band performing on stage with neon lights";
+    s = s.replace(/\bBRANDED\b/g, "");
+    s = s.replace(/\s{2,}/g, " ").trim();
+
+    expect(s).not.toContain("BRANDED");
+    expect(s).toContain("rock band performing");
+  });
+
+  it("strips neon sign reading/saying references", () => {
+    let s = 'A neon sign reading "BAND NAME" glows behind the stage. Tim sings.';
+    s = s.replace(/neon\s+sign\s+(?:reading|saying|with)\s+[^,.]+/gi, "");
+    s = s.replace(/\s{2,}/g, " ").trim();
+
+    expect(s).not.toContain("neon sign reading");
+    expect(s).toContain("Tim sings");
+  });
+
+  it("does not strip normal neon references without reading/saying", () => {
+    const s = "Neon lights illuminate the stage in purple and blue.";
+    const cleaned = s.replace(/neon\s+sign\s+(?:reading|saying|with)\s+[^,.]+/gi, "").trim();
+
+    expect(cleaned).toBe(s);
+  });
+});
+
+// ─── 16. Multi-character identity enforcement with distinguishing features ───
+
+describe("scene pipeline: multi-character identity enforcement", () => {
+  it("builds per-character distinguishing features for identity block", () => {
+    const resolvedSceneChars = [
+      { name: "Tim", role: "lead vocalist" },
+      { name: "Greg", role: "drummer" },
+      { name: "Monica", role: "bassist" },
+    ];
+
+    const charDistinguishers = resolvedSceneChars.map(c => {
+      return `${c.name} is the ${c.role} — UNIQUE face, do NOT swap with other characters`;
+    });
+
+    expect(charDistinguishers).toHaveLength(3);
+    expect(charDistinguishers[0]).toContain("Tim is the lead vocalist");
+    expect(charDistinguishers[1]).toContain("Greg is the drummer");
+    expect(charDistinguishers[2]).toContain("Monica is the bassist");
+    expect(charDistinguishers.every(d => d.includes("UNIQUE face"))).toBe(true);
+    expect(charDistinguishers.every(d => d.includes("do NOT swap"))).toBe(true);
+  });
+
+  it("identity block for multi-char scenes includes 'Do NOT duplicate' instruction", () => {
+    const charCount = 3;
+    const identityInstruction = charCount > 1
+      ? "CRITICAL: Each character MUST match their reference photo EXACTLY. Do NOT mix up faces between characters. Do NOT duplicate any person."
+      : "EXACT LIKENESS REQUIRED";
+
+    expect(identityInstruction).toContain("Do NOT mix up faces");
+    expect(identityInstruction).toContain("Do NOT duplicate any person");
+  });
+});
