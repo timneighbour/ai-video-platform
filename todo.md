@@ -2113,3 +2113,42 @@
 - [x] Write replacement instructions for final video files
 - [x] Write QA checklist (performance + accessibility + cross-browser)
 - [x] Write handoff notes
+
+## REVENUE-FIRST: CONVERSION CRITICAL
+
+### Phase 1 — Homepage Hero Polish
+- [ ] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
+- [ ] Hero headline: single bold statement, max 2 lines, no competing elements
+- [ ] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
+- [ ] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
+- [ ] Remove distracting badge/pill elements that compete with CTA
+- [ ] Mobile hero: headline font size, CTA button size, no horizontal overflow
+- [ ] Sticky CTA bar on mobile: fixed bottom bar with primary CTA when hero is scrolled past
+
+### Phase 1 — Pricing Section
+- [ ] Lead with "2 free videos — no card required" at top of pricing section
+- [ ] Each plan: one-line value statement (what you get, not features list)
+- [ ] Highlight recommended plan visually (border, badge, scale)
+- [ ] Add urgency/friction reducer: "Join 500+ creators already using WizVid"
+- [ ] Remove pricing confusion: simplify plan names and feature bullets
+- [ ] Add annual/monthly toggle with savings callout
+- [ ] CTA on each plan card: clear, action-oriented label
+
+### Phase 1 — Trust Elements
+- [ ] "No credit card required" text directly below primary CTA
+- [ ] Social proof bar: "Used by musicians, YouTubers, agencies and kids creators"
+- [ ] Add 3 placeholder testimonial cards with avatar, name, role, quote
+- [ ] Add "Free to start" badge in nav or hero badge area
+- [ ] Creator type icons/labels: Musicians · YouTubers · Agencies · Kids Creators
+
+### Phase 2 — Signup / Onboarding
+- [ ] Audit onboarding page: count steps, remove any non-essential step
+- [ ] First screen: single input (prompt or upload) — no choices, no config
+- [ ] Progress indicator: show user they are 1 step away from seeing their video
+- [ ] After first video: clear success state with share/download CTA
+
+### Phase 3 — Performance & CTA Visibility
+- [ ] Ensure CTA is visible without scrolling on 1280px, 768px, 375px viewports
+- [ ] Verify no broken images or videos on homepage load
+- [ ] Verify hero background loads poster immediately (no blank flash)
+- [ ] Verify no layout shift when video loads

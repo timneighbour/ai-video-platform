@@ -263,8 +263,6 @@ function useIsDesktop() {
 }
 
 function Hero() {
-  const logoVideoRef = useRef<HTMLVideoElement>(null);
-  const [logoMuted, setLogoMuted] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [introOpen, setIntroOpen] = useState(false);
 
@@ -272,145 +270,88 @@ function Hero() {
     setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
   }, []);
 
-  // Force-play logo video on mount
-  useEffect(() => {
-    const v = logoVideoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.play().catch(() => {});
-  }, []);
-
-  const handleLogoClick = () => {
-    if (!logoVideoRef.current) return;
-    const newMuted = !logoMuted;
-    setLogoMuted(newMuted);
-    logoVideoRef.current.muted = newMuted;
-    logoVideoRef.current.play().catch(() => {});
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#080810]" onMouseMove={handleMouseMove}>
-      {/* Premium 4-scene animated background */}
+    <section
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black"
+      onMouseMove={handleMouseMove}
+    >
+      {/* ── Full-bleed cinematic background ── */}
       <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-20 w-full">
-        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 lg:gap-10 items-center">
-          {/* Left: text */}
-          <div>
-            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-[#a1a1aa] mb-8 font-medium">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              Music · Social · Kids · Cinematic
+      {/* ── Centered hero content ── */}
+      <div className="relative z-10 flex flex-col items-center text-center px-6 pt-24 pb-10 w-full max-w-5xl mx-auto">
+
+        {/* Headline */}
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.02] tracking-tight text-white mb-6 drop-shadow-[0_2px_32px_rgba(0,0,0,0.9)]">
+          Turn your ideas into<br />
+          <span
+            className="bg-gradient-to-r from-violet-300 via-purple-300 to-blue-300 bg-clip-text text-transparent"
+            style={{ textShadow: "none" }}
+          >
+            cinematic video.
+          </span>
+        </h1>
+
+        {/* Sub-headline */}
+        <p className="text-lg sm:text-xl text-white/75 max-w-2xl mb-10 leading-relaxed font-medium drop-shadow-[0_1px_8px_rgba(0,0,0,0.8)]">
+          AI that understands your lyrics, story, and style.
+          Music videos, social clips, kids animations — in under 2 minutes.
+        </p>
+
+        {/* Primary CTA */}
+        <a
+          href="/onboarding"
+          className="inline-flex items-center gap-2.5 bg-white text-black font-bold text-lg px-10 py-4 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.25)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] hover:bg-white/95 transition-all duration-300 mb-4"
+        >
+          <Sparkles className="w-5 h-5" />
+          Create Your First Video — Free
+        </a>
+
+        {/* No card callout */}
+        <p className="text-sm text-white/50 mb-10">No credit card required · 2 free videos included</p>
+
+        {/* Watch film ghost CTA */}
+        <button
+          onClick={() => setIntroOpen(true)}
+          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white/90 transition-colors mb-16"
+        >
+          <span className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center hover:border-white/60 transition-colors">
+            <Play className="w-3 h-3 ml-0.5" />
+          </span>
+          Watch how it works
+        </button>
+
+        {/* Social proof strip */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-white/50 text-sm">
+          {/* Avatar stack */}
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {[
+                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp",
+                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp",
+                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp",
+                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp",
+              ].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt=""
+                  className="w-8 h-8 rounded-full border-2 border-black object-cover"
+                />
+              ))}
             </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-4 text-white">
-              Create viral videos<br />
-              <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                without editing.
-              </span>
-            </h1>
-
-            <p className="text-base font-semibold text-violet-300 mb-5 tracking-wide">
-              From idea to full video — in under 2 minutes.
-            </p>
-
-            <p className="text-lg text-[#a1a1aa] leading-relaxed mb-5 max-w-lg">
-              Turn any idea — lyrics, a prompt, a story, or an audio track — into a fully visualised video. Music videos, social clips, kids animations, cinematic stories. No editing required.
-            </p>
-
-            <div className="flex flex-wrap gap-2.5 mb-6">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-300 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1">⚡ Create your video in under 2 minutes</span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1">🎬 Instant storyboard preview</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <Button
-                className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
-                asChild
-              >
-                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
-              </Button>
-              <button
-                onClick={() => setIntroOpen(true)}
-                className="inline-flex items-center gap-2 text-base px-7 py-3 rounded-xl font-medium border border-white/15 text-white hover:bg-white/5 transition-all"
-              >
-                <Play className="w-4 h-4" />Watch the Film
-              </button>
-            </div>
-
-            <p className="text-sm text-[#a1a1aa] mb-1">No editing. No experience needed. Just your idea.</p>
-            <p className="text-xs text-[#a1a1aa]/60 mb-8">Free to start · No credit card · 2 free videos included</p>
+            <span className="text-white/60 text-sm font-medium">Trusted by musicians, YouTubers &amp; creators</span>
           </div>
-
-          {/* Right: logo video — large cinematic */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative cursor-pointer group w-full" onClick={handleLogoClick}>
-              {/* Outer ambient glow — large and dramatic */}
-              <div className="absolute -inset-8 bg-gradient-to-br from-purple-600/30 via-violet-500/20 to-blue-600/25 rounded-[2rem] blur-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-500" aria-hidden="true" />
-              <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/15 to-blue-500/10 rounded-[2rem] blur-xl opacity-60" aria-hidden="true" />
-              {/* Video container — full-width 16:9 */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/12 shadow-[0_0_80px_rgba(139,92,246,0.25)] group-hover:shadow-[0_0_120px_rgba(139,92,246,0.4)] group-hover:border-purple-500/40 transition-all duration-500">
-                <video
-                  ref={logoVideoRef}
-                  src={WIZVID_LOGO_VIDEO}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  onCanPlay={(e) => { const v = e.currentTarget; v.muted = true; v.play().catch(() => {}); }}
-                  className="absolute inset-0 w-full h-full object-cover bg-black"
-                  aria-label="WizVid animated logo"
-                >
-                  <track kind="captions" srcLang="en" label="English" default />
-                </video>
-              </div>
-              {/* Mute toggle */}
-              <button
-                className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/15 flex items-center justify-center shadow-lg hover:bg-white/10 transition-colors"
-                aria-label={logoMuted ? "Unmute logo video" : "Mute logo video"}
-                onClick={(e) => { e.stopPropagation(); handleLogoClick(); }}
-              >
-                {logoMuted ? <VolumeX className="w-3.5 h-3.5 text-[#a1a1aa]" /> : <Volume2 className="w-3.5 h-3.5 text-white" />}
-              </button>
-            </div>
+          {/* Stars */}
+          <div className="flex items-center gap-1.5">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+            ))}
+            <span className="ml-1 text-white/50">Free to start</span>
           </div>
-        </div>
-
-        {/* Prompt → Video transformation block */}
-        <div className="mt-14 p-6 rounded-2xl bg-white/3 border border-white/8 reveal">
-          <p className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4 text-center">🎬 Example transformation</p>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex-1 p-4 rounded-xl bg-[#171717] border border-white/8">
-              <p className="text-xs text-[#a1a1aa] uppercase tracking-widest mb-2 font-semibold">Prompt</p>
-              <p className="text-white font-medium">"Kids pirate adventure song"</p>
-            </div>
-            <div className="flex-shrink-0 text-2xl text-[#a1a1aa]">→</div>
-            <div className="flex-1 p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
-              <p className="text-xs text-violet-300 uppercase tracking-widest mb-2 font-semibold">Result</p>
-              <p className="text-white font-medium">Full animated video in under 2 minutes</p>
-              <div className="flex gap-2 mt-2">
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Scenes</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Characters</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Storytelling</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Trust row */}
-        <div className="mt-16 pt-10 border-t border-white/8 flex flex-wrap gap-8 md:gap-16">
-          {[
-            { num: "< 5 min", label: "Average creation time" },
-            { num: "Full videos", label: "Not just clips — complete, ready-to-post" },
-            { num: "Free", label: "Start with no card required" },
-            { num: "Early access", label: "Used by early creators" },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div className="text-2xl font-bold text-white">{stat.num}</div>
-              <div className="text-sm text-[#a1a1aa] mt-0.5">{stat.label}</div>
-            </div>
-          ))}
         </div>
       </div>
+
       {/* Intro Film Modal */}
       <IntroFilmModal open={introOpen} onClose={() => setIntroOpen(false)} />
     </section>

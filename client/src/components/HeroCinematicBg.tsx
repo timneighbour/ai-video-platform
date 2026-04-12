@@ -4,9 +4,9 @@ import { Pause, Play } from "lucide-react";
 /* ── Asset URLs ─────────────────────────────────────────────────────── */
 const ASSETS = {
   // Background loop video — replace these with final rendered assets
-  bgVideoAV1: "", // e.g. /assets/hero-bg-loop.av1.webm
-  bgVideoVP9: "", // e.g. /assets/hero-bg-loop.vp9.webm
-  bgVideoMP4: "", // e.g. /assets/hero-bg-loop.mp4
+  bgVideoAV1: "",
+  bgVideoVP9: "",
+  bgVideoMP4: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hero-bg-loop_f96b1288.mp4",
   // Posters
   posterDesktop:
     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/poster-bg-desktop-PbmdiBCY44BQqDVNBMG4cu.webp",
