@@ -184,6 +184,7 @@ export default function MusicVideosLanding() {
                   { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
                   { icon: <Wand2 className="w-5 h-5" />, title: "AI lip-sync characters", desc: "Up to 4 characters with realistic AI lip-sync — real artists or animated." },
                   { icon: <Zap className="w-5 h-5" />, title: "Full video, not clips", desc: "WizBeat delivers a complete, ready-to-publish music video — not a 10-second clip." },
+                  { icon: <Sparkles className="w-5 h-5" />, title: "Powered by WizSound™", desc: "Proprietary audio enhancement. Choose WizSound Enhance or WizSound Cinematic for richer, more immersive sound." },
                 ].map((f) => (
                   <div key={f.title} className="flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all">
                     <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[#a1a1aa] flex-shrink-0">

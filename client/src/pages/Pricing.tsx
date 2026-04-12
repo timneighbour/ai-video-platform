@@ -120,7 +120,7 @@ const FAQS = [
   },
   {
     q: "What audio tiers are available?",
-    a: "Standard audio is included free with every render. Enhanced audio (+£1) adds stereo widening and EQ mastering. Cinematic audio (+£3) applies full professional mastering with spatial depth and dynamic range — recommended for music videos.",
+    a: "Standard Audio is included free with every render. WizSound Enhance (+£1) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+£3) applies our full proprietary mastering pipeline with immersive depth and dynamic range — recommended for music videos.",
   },
   {
     q: "Is there a free trial?",
@@ -331,16 +331,24 @@ export default function Pricing() {
 
           {/* Audio add-ons */}
           <div className="rounded-2xl border border-white/8 bg-white/2 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Music className="w-4 h-4 text-violet-400" />
-              <h3 className="text-sm font-semibold text-white">Audio add-ons</h3>
-              <span className="text-xs text-white/35 ml-1">Optional — add to any render</span>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4 text-violet-400" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-white">Powered by WizSound™</h3>
+                    <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
+                  </div>
+                  <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
+                </div>
+              </div>
+              <span className="text-xs text-white/35">Optional — add to any render</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: "Standard", price: 0, desc: "Original audio mix", features: ["Stereo output", "Original mix"] },
-                { label: "Enhanced", price: 1, desc: "Polished sound", features: ["Stereo widening", "EQ mastering", "Noise reduction"] },
-                { label: "Cinematic", price: 3, desc: "Full professional mastering", features: ["Full mastering", "Spatial depth", "Dynamic range"], badge: "RECOMMENDED" },
+                { label: "Standard Audio", price: 0, desc: "Original audio, used as-is", features: ["Stereo output", "Original mix"] },
+                { label: "WizSound Enhance", price: 1, desc: "Polished, fuller sound", features: ["Stereo widening", "Frequency EQ", "Noise reduction"] },
+                { label: "WizSound Cinematic", price: 3, desc: "Full proprietary mastering pipeline", features: ["Full mastering", "Immersive depth", "Dynamic range", "Streaming loudness"], badge: "RECOMMENDED" },
               ].map((audio) => (
                 <div
                   key={audio.label}

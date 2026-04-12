@@ -23,6 +23,7 @@ const BENEFITS = [
   { icon: <Video className="w-4 h-4 text-blue-400" />,     text: "Full cinematic music videos in minutes" },
   { icon: <Music className="w-4 h-4 text-pink-400" />,     text: "AI music generation with lyric-aware scenes" },
   { icon: <Star className="w-4 h-4 text-yellow-400" />,    text: "Only pay when you're ready to render & download" },
+  { icon: <Music className="w-4 h-4 text-violet-300" />,   text: "Powered by WizSound™ — proprietary audio enhancement" },
 ];
 
 export default function AuthGate({ open, onClose, featureName = "use this feature" }: AuthGateProps) {

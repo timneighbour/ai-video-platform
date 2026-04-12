@@ -51,28 +51,28 @@ const AUDIO_OPTIONS: Array<{
 }> = [
   {
     id: "standard",
-    label: "Standard",
+    label: "Standard Audio",
     price: 0,
-    description: "Original audio",
+    description: "Original audio, used as-is",
     features: ["Original mix", "Stereo output"],
     tooltip: "Your original audio track is used as-is — no processing applied. Best when your mix is already mastered or you prefer full control over the final sound.",
   },
   {
     id: "enhanced",
-    label: "Enhanced",
+    label: "WizSound Enhance",
     price: 1,
-    description: "Polished sound",
-    features: ["Stereo widening", "EQ mastering", "Noise reduction"],
-    tooltip: "We apply stereo widening to make your track feel bigger, frequency EQ to balance the mix, and light noise reduction to clean up any background hiss. Great for tracks recorded at home or on mobile.",
+    description: "Polished, fuller sound",
+    features: ["Stereo widening", "Frequency EQ", "Noise reduction"],
+    tooltip: "WizSound Enhance applies stereo widening to make your track feel bigger, frequency EQ to balance the mix, and light noise reduction to clean up background hiss. Great for tracks recorded at home or on mobile.",
   },
   {
     id: "cinematic",
-    label: "Cinematic",
+    label: "WizSound Cinematic",
     price: 3,
     badge: "RECOMMENDED",
-    description: "Full audio mastering",
-    features: ["Full cinematic mastering", "Dynamic range", "Spatial depth", "Professional mix"],
-    tooltip: "Full professional-grade mastering pipeline: dynamic range compression, spatial depth (reverb tail), stereo widening, and loudness normalisation to streaming standards. Recommended for music videos — makes your track sound like it was mixed in a studio.",
+    description: "Full professional mastering pipeline",
+    features: ["Full mastering", "Dynamic range", "Immersive depth", "Streaming loudness"],
+    tooltip: "WizSound Cinematic applies our full proprietary mastering pipeline: dynamic range compression, immersive spatial depth, stereo widening, and loudness normalisation to streaming standards. Makes your track sound like it was mixed in a professional studio.",
   },
 ];
 
@@ -234,7 +234,16 @@ export function RenderPaywallModal({
 
           {/* Audio tier selection */}
           <div>
-            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Audio Quality</h3>
+            {/* WizSound™ branding header */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-violet-300 uppercase tracking-widest">Powered by WizSound™</span>
+                  <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
+                </div>
+                <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
+              </div>
+            </div>
             <div className="space-y-2">
                 {AUDIO_OPTIONS.map((a) => (
                   <button

@@ -2253,3 +2253,8 @@
 
 ## CRITICAL BUG: MusicVideoAutopilot import error
 - [x] Fix "Failed to fetch dynamically imported module" error on /music-video/create (JSX structure broken by tooltip edit)
+
+## WizSound™ Audio Branding
+- [x] Update RenderPaywallModal: rename audio options to WizSound™ branding, add "Powered by WizSound™" header
+- [x] Update Pricing page audio section with WizSound™ branding
+- [x] Update all marketing copy (Home, MusicVideosLanding, AuthGate, SeoLandingPage, Help) with WizSound™ branding
