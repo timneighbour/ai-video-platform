@@ -6,12 +6,12 @@
  * Shows dynamic total, subscription render status, and bundle options.
  * Triggers Stripe checkout for paid renders, or uses free subscription/bundle renders.
  */
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info } from "lucide-react";
+import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause, Volume2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Quality = "standard" | "hd" | "4k";
@@ -87,6 +87,47 @@ export function RenderPaywallModal({
   const [quality, setQuality] = useState<Quality>("hd");
   const [audioTier, setAudioTier] = useState<AudioTier>("cinematic");
   const [isLoading, setIsLoading] = useState(false);
+  const [playingTier, setPlayingTier] = useState<AudioTier | null>(null);
+  const [previewProgress, setPreviewProgress] = useState<Record<AudioTier, number>>({ standard: 0, enhanced: 0, cinematic: 0 });
+  const audioRefs = useRef<Record<AudioTier, HTMLAudioElement | null>>({ standard: null, enhanced: null, cinematic: null });
+
+  const wizSoundPreviews = trpc.render.getWizSoundPreviews.useQuery(undefined, {
+    staleTime: Infinity, // CDN URLs never change
+    enabled: open,
+  });
+
+  // Stop all preview audio when modal closes
+  useEffect(() => {
+    if (!open) {
+      Object.values(audioRefs.current).forEach((el) => {
+        if (el) { el.pause(); el.currentTime = 0; }
+      });
+      setPlayingTier(null);
+      setPreviewProgress({ standard: 0, enhanced: 0, cinematic: 0 });
+    }
+  }, [open]);
+
+  function togglePreview(tier: AudioTier, url: string) {
+    // Stop any other playing tier
+    Object.entries(audioRefs.current).forEach(([t, el]) => {
+      if (t !== tier && el) { el.pause(); el.currentTime = 0; }
+    });
+    if (playingTier !== tier) {
+      setPreviewProgress((p) => ({ ...p, ...Object.fromEntries(Object.keys(p).filter((k) => k !== tier).map((k) => [k, 0])) }));
+    }
+
+    const audio = audioRefs.current[tier];
+    if (!audio) return;
+
+    if (playingTier === tier) {
+      audio.pause();
+      setPlayingTier(null);
+    } else {
+      audio.src = url;
+      audio.play().catch(() => {});
+      setPlayingTier(tier);
+    }
+  }
 
   const renderStatus = trpc.render.getRenderStatus.useQuery(undefined, {
     enabled: open,
@@ -244,8 +285,30 @@ export function RenderPaywallModal({
                 <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
               </div>
             </div>
+            {/* Hidden audio elements for each tier */}
+            {AUDIO_OPTIONS.map((a) => (
+              <audio
+                key={`audio-${a.id}`}
+                ref={(el) => { audioRefs.current[a.id] = el; }}
+                preload="none"
+                onTimeUpdate={() => {
+                  const el = audioRefs.current[a.id];
+                  if (el && el.duration) {
+                    setPreviewProgress((p) => ({ ...p, [a.id]: (el.currentTime / el.duration) * 100 }));
+                  }
+                }}
+                onEnded={() => {
+                  setPlayingTier(null);
+                  setPreviewProgress((p) => ({ ...p, [a.id]: 0 }));
+                }}
+              />
+            ))}
             <div className="space-y-2">
-                {AUDIO_OPTIONS.map((a) => (
+                {AUDIO_OPTIONS.map((a) => {
+                  const previewUrl = wizSoundPreviews.data?.[a.id as keyof typeof wizSoundPreviews.data];
+                  const isPlaying = playingTier === a.id;
+                  const progress = previewProgress[a.id];
+                  return (
                   <button
                     key={a.id}
                     onClick={() => setAudioTier(a.id)}
@@ -268,7 +331,7 @@ export function RenderPaywallModal({
                             {a.badge}
                           </span>
                         )}
-                        {/* Info tooltip — uses a div (not span with role=button) to avoid nested interactive elements inside <button> */}
+                        {/* Info tooltip */}
                         <Tooltip delayDuration={400}>
                           <TooltipTrigger asChild>
                             <div
@@ -299,9 +362,41 @@ export function RenderPaywallModal({
                           </span>
                         ))}
                       </div>
+                      {/* Preview player */}
+                      {previewUrl && (
+                        <div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => togglePreview(a.id, previewUrl)}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all duration-200 border ${
+                              isPlaying
+                                ? "bg-violet-500/20 border-violet-500/40 text-violet-300"
+                                : "bg-white/5 border-white/15 text-white/50 hover:text-white/80 hover:bg-white/10 hover:border-white/25"
+                            }`}
+                            aria-label={isPlaying ? `Pause ${a.label} preview` : `Preview ${a.label} audio`}
+                          >
+                            {isPlaying ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5" />}
+                            <Volume2 className="w-2.5 h-2.5" />
+                            {isPlaying ? "Pause" : "Preview"}
+                          </button>
+                          {/* Progress bar */}
+                          {isPlaying && (
+                            <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-violet-500 rounded-full transition-all duration-100"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          )}
+                          {!isPlaying && progress === 0 && (
+                            <span className="text-[9px] text-white/25">10s sample</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </button>
-                ))}
+                  );
+                })}
             </div>
           </div>
         </div>

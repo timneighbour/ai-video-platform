@@ -692,4 +692,16 @@ export const renderRouter = router({
 
       return { used: false, renderJobId: null, source: "none" as const };
     }),
+
+  /**
+   * Return CDN URLs for the 10-second WizSound™ tier preview audio samples.
+   * These are pre-generated static files — no auth required.
+   */
+  getWizSoundPreviews: publicProcedure.query(() => {
+    return {
+      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-standard_955bb422.mp3",
+      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-enhanced_fe580439.mp3",
+      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-cinematic_281fea93.mp3",
+    };
+  }),
 });

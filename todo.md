@@ -2265,3 +2265,11 @@
 - [x] Wire WizSound into all other video assembly functions (kids video, text-to-video, WizPilot) — confirmed only music video uses local FFmpeg assembly; others use external AI APIs
 - [x] Pass audioTier from render job through to assembly functions
 - [x] Write vitest tests for WizSound module (7 tests passing)
+
+## WizSound™ Tier Audio Preview
+- [x] Generate 10-second demo audio samples for Standard, WizSound Enhance, WizSound Cinematic tiers
+- [x] Upload demo samples to CDN via manus-upload-file --webdev
+- [x] Add tRPC procedure render.getWizSoundPreviews returning CDN URLs for all 3 tiers
+- [x] Build WizSoundPreviewPlayer inline component (play/pause, progress bar, tier label)
+- [x] Wire preview player into RenderPaywallModal audio tier buttons
+- [x] Write vitest tests for the preview procedure (7 tests passing, CDN reachability confirmed)
