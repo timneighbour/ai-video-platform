@@ -2386,3 +2386,6 @@
 - [x] Logo reveal (3.8–5s): WizVid logo with glowSweep bar, cinematic bloom, logoPulse animation, "Powered by WizSound™" + animated EQ waveform
 - [x] Audio: no autoplay, "Enable Sound" button top-left with pulse animation, on click plays cinema sting audio
 - [x] Style: IMAX anamorphic letterbox bars, deep contrast, purple/black theme, scanline texture, film grain, high energy pacing
+
+## WizSound™ Demo Integration
+- [x] Add WizSound™ animated overlay into DemoVideoModal — dedicated scene at 22–26s with full-screen purple bloom, large EQ waveform, WizSound™ wordmark glow, corner badge on output scene, mini badge in controls bar
