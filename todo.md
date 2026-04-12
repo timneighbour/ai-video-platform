@@ -2400,3 +2400,14 @@
 - [x] Audio: cinema sting soundtrack with fade-out
 - [x] Upload to CDN: wizvid_demo_cd4e1b19.mp4
 - [x] Wire DEMO_VIDEO_URL into DemoVideoModal — real video now plays on click
+
+## Hero Section Elite Upgrade - COMPLETED ✅
+- [x] Headline: "Create Cinematic AI Music Videos in Minutes"
+- [x] Subheadline: "Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place."
+- [x] Speed strip: "⚡ From idea to finished video in under 5 minutes"
+- [x] Primary CTA: "Create Your First Video"
+- [x] Secondary CTA: "Watch 20-sec Demo"
+- [x] Trust line: "Free to create · No credit card · Only pay when you render"
+- [x] Hero visual: HeroProductPreview component — 2-column layout, browser chrome frame, 4 phases auto-cycling every 2.2s
+- [x] Overlay text cycling: "MUSIC VIDEOS" / "CINEMATIC FILMS" / "PIXAR ANIMATION" every 1.5s with fade
+- [x] Style: purple glow ring, dark chrome frame, step dots, progress bar, LIVE indicator, film-quality overlays

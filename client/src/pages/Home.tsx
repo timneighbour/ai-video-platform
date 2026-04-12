@@ -263,6 +263,195 @@ function useIsDesktop() {
   return isDesktop;
 }
 
+/* ── Hero product preview panel ──────────────────────────────────────── */
+const HERO_PREVIEW_PHASES = [
+  {
+    id: "prompt",
+    label: "Describe your idea",
+    badge: "Step 1",
+    badgeColor: "border-violet-500/40 bg-violet-500/15 text-violet-300",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp",
+    prompt: '"Walking through fire, cinematic, epic"',
+  },
+  {
+    id: "storyboard",
+    label: "AI builds storyboard",
+    badge: "Generating…",
+    badgeColor: "border-blue-500/40 bg-blue-500/15 text-blue-300",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step2-style-collage-P6HWeTbd9g6UsLFLRWYJEi.webp",
+    prompt: null,
+  },
+  {
+    id: "scenes",
+    label: "Preview every scene",
+    badge: "Preview",
+    badgeColor: "border-amber-500/40 bg-amber-500/15 text-amber-300",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp",
+    prompt: null,
+  },
+  {
+    id: "output",
+    label: "Render final video",
+    badge: "✓ Ready",
+    badgeColor: "border-emerald-500/40 bg-emerald-500/15 text-emerald-300",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp",
+    prompt: null,
+  },
+];
+
+const CATEGORY_LABELS = ["MUSIC VIDEOS", "CINEMATIC FILMS", "PIXAR ANIMATION"];
+
+function HeroProductPreview() {
+  const [phase, setPhase] = useState(0);
+  const [catIdx, setCatIdx] = useState(0);
+  const [catVisible, setCatVisible] = useState(true);
+
+  // Cycle through product phases every 2.2s
+  useEffect(() => {
+    const t = setInterval(() => {
+      setPhase((p) => (p + 1) % HERO_PREVIEW_PHASES.length);
+    }, 2200);
+    return () => clearInterval(t);
+  }, []);
+
+  // Cycle category labels every 1.5s with fade
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCatVisible(false);
+      setTimeout(() => {
+        setCatIdx((i) => (i + 1) % CATEGORY_LABELS.length);
+        setCatVisible(true);
+      }, 220);
+    }, 1500);
+    return () => clearInterval(t);
+  }, []);
+
+  const current = HERO_PREVIEW_PHASES[phase];
+
+  return (
+    <div className="relative w-full max-w-[520px] mx-auto lg:mx-0">
+      {/* Outer glow ring */}
+      <div
+        className="absolute -inset-3 rounded-3xl pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at 50% 50%, rgba(109,40,217,0.22) 0%, transparent 70%)",
+          animation: "heroPulse 3s ease-in-out infinite alternate",
+        }}
+      />
+
+      {/* Browser chrome frame */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/12 shadow-[0_0_60px_rgba(109,40,217,0.25)]" style={{ background: "rgba(8,4,20,0.92)" }}>
+        {/* Chrome bar */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-white/8" style={{ background: "rgba(12,6,28,0.95)" }}>
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-red-500/70" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+            <div className="w-3 h-3 rounded-full bg-green-500/70" />
+          </div>
+          <div className="flex-1 mx-3 h-6 rounded-md flex items-center px-3" style={{ background: "rgba(255,255,255,0.05)" }}>
+            <span className="text-white/35 text-xs font-mono">wizvid.ai/create</span>
+          </div>
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-emerald-400/70 text-[10px] font-mono">LIVE</span>
+          </div>
+        </div>
+
+        {/* Main image area */}
+        <div className="relative" style={{ aspectRatio: "16/10" }}>
+          {HERO_PREVIEW_PHASES.map((p, i) => (
+            <img
+              key={p.id}
+              src={p.image}
+              alt={p.label}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+              style={{ opacity: i === phase ? 1 : 0 }}
+            />
+          ))}
+
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.05) 100%)" }} />
+
+          {/* Category cycling text — top centre */}
+          <div className="absolute top-4 left-0 right-0 flex justify-center">
+            <div
+              className="px-4 py-1.5 rounded-full border border-white/15 bg-black/50 backdrop-blur-sm"
+              style={{
+                transition: "opacity 0.22s ease",
+                opacity: catVisible ? 1 : 0,
+              }}
+            >
+              <span
+                className="font-black tracking-[0.22em] text-sm"
+                style={{
+                  background: "linear-gradient(90deg, #c4b5fd, #e879f9)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  filter: "drop-shadow(0 0 8px rgba(167,139,250,0.7))",
+                }}
+              >
+                {CATEGORY_LABELS[catIdx]}
+              </span>
+            </div>
+          </div>
+
+          {/* Step badge — top right */}
+          <div className="absolute top-4 right-4">
+            <span className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold font-mono tracking-wide ${current.badgeColor}`}>
+              {current.badge}
+            </span>
+          </div>
+
+          {/* Prompt box (step 1 only) */}
+          {current.prompt && (
+            <div className="absolute bottom-14 left-4 right-4">
+              <div className="rounded-xl border border-white/10 bg-black/70 backdrop-blur-sm px-4 py-2.5">
+                <p className="text-orange-300 font-mono text-sm">{current.prompt}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Step label — bottom */}
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+            <span className="text-white font-semibold text-sm">{current.label}</span>
+            {/* Step dots */}
+            <div className="flex gap-1.5">
+              {HERO_PREVIEW_PHASES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPhase(i)}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === phase ? "w-5 h-2 bg-violet-400" : "w-2 h-2 bg-white/25 hover:bg-white/50"
+                  }`}
+                  aria-label={`Step ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-0.5 bg-white/8">
+          <div
+            className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300"
+            style={{ width: `${((phase + 1) / HERO_PREVIEW_PHASES.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Keyframe for outer glow pulse */}
+      <style>{`
+        @keyframes heroPulse {
+          0%   { opacity: 0.6; transform: scale(0.98); }
+          100% { opacity: 1;   transform: scale(1.02); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function Hero() {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [demoOpen, setDemoOpen] = useState(false);
@@ -273,110 +462,127 @@ function Hero() {
 
   return (
     <section
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black"
+      className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-black"
       onMouseMove={handleMouseMove}
     >
       {/* ── Full-bleed cinematic background ── */}
       <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
-      {/* ── Centered hero content ── */}
-      <div className="relative z-10 flex flex-col items-center text-center px-5 pt-28 pb-12 w-full max-w-5xl mx-auto">
+      {/* ── Two-column hero layout ── */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-16">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-        {/* Eyebrow badge */}
-        <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-          AI Music Video Creator
-        </div>
+          {/* ── LEFT: Copy + CTAs ── */}
+          <div className="flex flex-col items-start text-left">
 
-        {/* Headline — maximum size, maximum impact */}
-        <h1
-          className="font-extrabold leading-[1.0] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
-          style={{ fontSize: "clamp(2.8rem, 8vw, 6.5rem)" }}
-        >
-          Create Cinematic AI Music Videos<br />
-          <span
-            className="bg-gradient-to-r from-violet-300 via-purple-200 to-blue-300 bg-clip-text text-transparent"
-            style={{ textShadow: "none" }}
-          >
-            in Minutes
-          </span>
-        </h1>
+            {/* Eyebrow badge */}
+            <div className="mb-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              AI Music Video Creator
+            </div>
 
-        {/* Sub-headline — clear, specific, benefit-led */}
-        <p
-          className="text-white/75 max-w-2xl mb-4 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
-          style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}
-        >
-          Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place.
-        </p>
-
-        {/* Urgency line */}
-        <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-300 text-sm font-semibold">
-          <Zap className="w-3.5 h-3.5 flex-shrink-0" />
-          Go from idea to finished video in under 5 minutes
-        </div>
-
-        {/* CTA row — primary + secondary */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
-          <a
-            href={isAuthenticated ? "/music-video/create" : "/onboarding"}
-            className="inline-flex items-center gap-3 bg-white text-black font-bold px-10 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
-            style={{ fontSize: "clamp(1rem, 2vw, 1.15rem)" }}
-          >
-            <Sparkles className="w-5 h-5 flex-shrink-0" />
-            {isAuthenticated ? "Open Creator" : "Create Your First Video"}
-          </a>
-          <button
-            onClick={() => setDemoOpen(true)}
-            className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300"
-            style={{ fontSize: "clamp(0.9rem, 1.8vw, 1.05rem)" }}
-          >
-            <span className="relative w-6 h-6 flex-shrink-0">
-              <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" style={{ animationDuration: "2s" }} />
-              <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center">
-                <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
+            {/* Headline */}
+            <h1
+              className="font-extrabold leading-[1.05] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
+              style={{ fontSize: "clamp(2.4rem, 5.5vw, 5rem)" }}
+            >
+              Create Cinematic AI<br />
+              Music Videos<br />
+              <span
+                className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
+                style={{ textShadow: "none" }}
+              >
+                in Minutes
               </span>
-            </span>
-            Watch 20-sec Demo
-          </button>
+            </h1>
+
+            {/* Subheadline */}
+            <p
+              className="text-white/70 max-w-xl mb-4 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
+              style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)" }}
+            >
+              Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place.
+            </p>
+
+            {/* Speed strip */}
+            <div className="mb-7 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-300 text-sm font-semibold">
+              <Zap className="w-3.5 h-3.5 flex-shrink-0" />
+              ⚡ From idea to finished video in under 5 minutes
+            </div>
+
+            {/* CTA row */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+              <a
+                href={isAuthenticated ? "/music-video/create" : "/onboarding"}
+                className="inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
+                style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)" }}
+              >
+                <Sparkles className="w-5 h-5 flex-shrink-0" />
+                {isAuthenticated ? "Open Creator" : "Create Your First Video"}
+              </a>
+              <button
+                onClick={() => setDemoOpen(true)}
+                className="group inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300"
+                style={{ fontSize: "clamp(0.9rem, 1.6vw, 1rem)" }}
+              >
+                <span className="relative w-6 h-6 flex-shrink-0">
+                  <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" style={{ animationDuration: "2s" }} />
+                  <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center">
+                    <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
+                  </span>
+                </span>
+                Watch 20-sec Demo
+              </button>
+            </div>
+
+            {/* Trust line */}
+            <p className="text-sm text-white/40 font-medium">
+              Free to create · No credit card · Only pay when you render
+            </p>
+
+            {/* Trust strip */}
+            <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {[
+                    WHO_IMAGES.musicians,
+                    WHO_IMAGES.youtubers,
+                    WHO_IMAGES.aiCreators,
+                    WHO_IMAGES.kidsCreators,
+                  ].map((src, i) => (
+                    <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-black object-cover" />
+                  ))}
+                </div>
+                <span className="text-white/50 text-xs font-medium">Trusted by musicians, YouTubers &amp; creators</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <p className="text-white font-bold text-sm">5 min</p>
+                  <p className="text-white/35 text-[10px]">avg. creation</p>
+                </div>
+                <div className="h-4 w-px bg-white/15" />
+                <div className="text-center">
+                  <p className="text-white font-bold text-sm">Full video</p>
+                  <p className="text-white/35 text-[10px]">not just clips</p>
+                </div>
+                <div className="h-4 w-px bg-white/15" />
+                <div className="text-center">
+                  <p className="text-white font-bold text-sm">Free to create</p>
+                  <p className="text-white/35 text-[10px]">pay to render only</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── RIGHT: Animated product preview ── */}
+          <div className="hidden lg:flex items-center justify-center">
+            <HeroProductPreview />
+          </div>
         </div>
 
-        {/* Trust micro-copy */}
-        <p className="text-sm text-white/45 mb-10 font-medium">No credit card required · Create for free · Only pay when you render</p>
-
-        {/* Trust strip */}
-        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-10">
-          {/* Avatar stack + label */}
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {[
-                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp",
-                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp",
-                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp",
-                "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp",
-              ].map((src, i) => (
-                <img key={i} src={src} alt="" className="w-9 h-9 rounded-full border-2 border-black object-cover" />
-              ))}
-            </div>
-            <span className="text-white/55 text-sm font-medium">Trusted by musicians, YouTubers &amp; creators</span>
-          </div>
-          <div className="h-px w-px sm:h-5 sm:w-px bg-white/15" aria-hidden="true" />
-          <div className="flex items-center gap-5">
-            <div className="text-center">
-              <p className="text-white font-bold text-base">5 min</p>
-              <p className="text-white/40 text-xs">avg. creation time</p>
-            </div>
-            <div className="h-5 w-px bg-white/15" aria-hidden="true" />
-            <div className="text-center">
-              <p className="text-white font-bold text-base">Full video</p>
-              <p className="text-white/40 text-xs">not just clips</p>
-            </div>
-            <div className="h-5 w-px bg-white/15" aria-hidden="true" />
-            <div className="text-center">
-              <p className="text-white font-bold text-base">Free to create</p>
-              <p className="text-white/40 text-xs">pay to render only</p>
-            </div>
-          </div>
+        {/* Mobile: product preview below CTAs */}
+        <div className="lg:hidden mt-10">
+          <HeroProductPreview />
         </div>
       </div>
 
