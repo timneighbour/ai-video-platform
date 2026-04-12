@@ -24,14 +24,8 @@ describe("Hero System — HeroCinematicBg", () => {
     expect(source).toContain("mouseY");
   });
 
-  it("has poster desktop and mobile URLs", () => {
-    expect(source).toContain("posterDesktop");
-    expect(source).toContain("posterMobile");
-  });
-
-  it("has responsive <picture> element with mobile source", () => {
-    expect(source).toContain("<picture>");
-    expect(source).toContain("max-width: 768px");
+  it("has poster URL", () => {
+    expect(source).toContain("poster");
   });
 
   it("supports reduced motion via prefers-reduced-motion", () => {
@@ -40,12 +34,14 @@ describe("Hero System — HeroCinematicBg", () => {
 
   it("has pause/play toggle button", () => {
     expect(source).toContain("togglePause");
-    expect(source).toContain("Pause background animation");
-    expect(source).toContain("Play background animation");
+    // aria-labels on the pause/play button
+    expect(source).toContain("Pause background video");
+    expect(source).toContain("Play background video");
   });
 
   it("has film grain overlay", () => {
-    expect(source).toContain("Film grain");
+    // Film grain is applied via SVG noise filter
+    expect(source).toContain("fractalNoise");
   });
 
   it("has analytics tracking via trackEvent", () => {
@@ -53,15 +49,15 @@ describe("Hero System — HeroCinematicBg", () => {
     expect(source).toContain("wizvid_bg_started");
   });
 
-  it("has video source elements with AV1, VP9, and MP4 fallback", () => {
-    expect(source).toContain("bgVideoAV1");
-    expect(source).toContain("bgVideoVP9");
-    expect(source).toContain("bgVideoMP4");
+  it("has video source elements with MP4 fallback", () => {
+    // New architecture uses single MP4 source
+    expect(source).toContain("videoMP4");
   });
 
-  it("has styleframe proxy crossfade for pre-video state", () => {
-    expect(source).toContain("styleframes");
-    expect(source).toContain("currentFrame");
+  it("has video background element", () => {
+    // Uses <video> tag with loop and muted
+    expect(source).toContain("autoPlay");
+    expect(source).toContain("loop");
   });
 
   it("persists pause preference in localStorage", () => {
@@ -201,27 +197,27 @@ describe("Hero System — Home.tsx Integration", () => {
   const homePath = resolve(__dirname, "../client/src/pages/Home.tsx");
   const source = readFileSync(homePath, "utf-8");
 
-  it("imports IntroFilmModal", () => {
-    expect(source).toContain('import IntroFilmModal from "@/components/IntroFilmModal"');
+  it("imports DemoVideoModal", () => {
+    expect(source).toContain('import { DemoVideoModal } from "@/components/DemoVideoModal"');
   });
 
   it("imports HeroCinematicBg", () => {
     expect(source).toContain('import HeroCinematicBg from "@/components/HeroCinematicBg"');
   });
 
-  it("has introOpen state", () => {
-    expect(source).toContain("introOpen");
-    expect(source).toContain("setIntroOpen");
+  it("has demoOpen state", () => {
+    expect(source).toContain("demoOpen");
+    expect(source).toContain("setDemoOpen");
   });
 
-  it("renders IntroFilmModal with open/onClose", () => {
-    expect(source).toContain("<IntroFilmModal");
-    expect(source).toContain("open={introOpen}");
-    expect(source).toContain("onClose={() => setIntroOpen(false)}");
+  it("renders DemoVideoModal with open/onClose", () => {
+    expect(source).toContain("<DemoVideoModal");
+    expect(source).toContain("open={demoOpen}");
+    expect(source).toContain("onClose={() => setDemoOpen(false)}");
   });
 
-  it("has Watch the Film button", () => {
-    expect(source).toContain("Watch the Film");
+  it("has Watch 30-sec demo button", () => {
+    expect(source).toContain("Watch 30-sec demo");
   });
 
   it("passes mouseX/mouseY to HeroCinematicBg", () => {

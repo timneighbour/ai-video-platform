@@ -2167,3 +2167,12 @@
 - [ ] Restore CinematicEntryScreen to App.tsx
 - [ ] Update HeroCinematicBg: 3-state text overlays on moving background video
 - [ ] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
+
+## TWO-VIDEO ARCHITECTURE REBUILD
+- [ ] Generate Video B: 6-8s subtle homepage background loop (prompt→storyboard→output)
+- [ ] Upload Video B to CDN
+- [ ] Build IntroSplashScreen: fullscreen entry layer, 8-scene story, Enter WizVid CTA
+- [ ] IntroSplashScreen: poster-first, skip button, mobile-safe, reduced-motion fallback
+- [ ] IntroSplashScreen: wire into App.tsx as separate entry before homepage
+- [ ] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop
+- [ ] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile

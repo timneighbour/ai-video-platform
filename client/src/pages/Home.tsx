@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// Premium transparent logo — violet glow, transparent background
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
-const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
-const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
-const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
+// Official WizVid logo — transparent background, violet glow
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
+const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
+const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
+const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
 const HERO_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
@@ -118,7 +118,7 @@ function Nav() {
             alt="WizVid"
             width={320}
             height={180}
-            className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_12px_rgba(139,92,246,0.6)]"
+            className="h-24 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
           />
         </a>
 
@@ -280,61 +280,74 @@ function Hero() {
       <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
       {/* ── Centered hero content ── */}
-      <div className="relative z-10 flex flex-col items-center text-center px-6 pt-24 pb-10 w-full max-w-5xl mx-auto">
+      <div className="relative z-10 flex flex-col items-center text-center px-5 pt-28 pb-12 w-full max-w-5xl mx-auto">
 
-        {/* Headline */}
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.02] tracking-tight text-white mb-6 drop-shadow-[0_2px_32px_rgba(0,0,0,0.9)]">
+        {/* Eyebrow badge */}
+        <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+          AI Video Creation
+        </div>
+
+        {/* Headline — maximum size, maximum impact */}
+        <h1
+          className="font-extrabold leading-[1.0] tracking-tight text-white mb-6 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
+          style={{ fontSize: "clamp(2.8rem, 8vw, 6.5rem)" }}
+        >
           Turn your ideas into<br />
           <span
-            className="bg-gradient-to-r from-violet-300 via-purple-300 to-blue-300 bg-clip-text text-transparent"
+            className="bg-gradient-to-r from-violet-300 via-purple-200 to-blue-300 bg-clip-text text-transparent"
             style={{ textShadow: "none" }}
           >
             cinematic video.
           </span>
         </h1>
 
-        {/* Sub-headline */}
-        <p className="text-lg sm:text-xl text-white/75 max-w-2xl mb-10 leading-relaxed font-medium drop-shadow-[0_1px_8px_rgba(0,0,0,0.8)]">
-          AI that understands your lyrics, story, and style.
+        {/* Sub-headline — clear, specific, benefit-led */}
+        <p
+          className="text-white/72 max-w-xl mb-10 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
+          style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)" }}
+        >
+          Type a prompt. WizVid builds your storyboard, scenes, and final video.
           Music videos, social clips, kids animations — in under 2 minutes.
         </p>
 
-        {/* Primary CTA */}
+        {/* Primary CTA — dominant, unmissable */}
         <a
           href="/onboarding"
-          className="inline-flex items-center gap-2.5 bg-white text-black font-bold text-lg px-10 py-4 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.25)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] hover:bg-white/95 transition-all duration-300 mb-4"
+          className="inline-flex items-center gap-3 bg-white text-black font-bold px-12 py-5 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300 mb-3"
+          style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)" }}
         >
-          <Sparkles className="w-5 h-5" />
+          <Sparkles className="w-5 h-5 flex-shrink-0" />
           Create Your First Video — Free
         </a>
 
-        {/* No card callout + trust micro-copy */}
-        <p className="text-sm text-white/50 mb-2">No credit card required · 2 free videos included</p>
-        <p className="text-sm text-white/40 mb-10 font-medium tracking-wide">Built for creators, musicians &amp; agencies</p>
+        {/* Trust micro-copy — stacked for clarity */}
+        <p className="text-sm text-white/50 mb-1.5 font-medium">No credit card required · 2 free videos included</p>
+        <p className="text-sm text-white/38 mb-10 tracking-wide">Built for creators, musicians &amp; agencies</p>
 
         {/* Demo video trigger — large pulsing play button */}
         <button
           onClick={() => setDemoOpen(true)}
-          className="group flex flex-col items-center gap-3 mb-16 focus:outline-none"
+          className="group flex flex-col items-center gap-3 mb-14 focus:outline-none"
           aria-label="Watch 30-second demo"
         >
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20">
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24">
             {/* Outer pulse rings */}
-            <span className="absolute inset-0 rounded-full bg-white/15 animate-ping" />
-            <span className="absolute inset-1 rounded-full bg-white/10 animate-ping [animation-delay:0.4s]" />
+            <span className="absolute inset-0 rounded-full bg-white/12 animate-ping" style={{ animationDuration: "2s" }} />
+            <span className="absolute inset-2 rounded-full bg-white/8 animate-ping" style={{ animationDuration: "2s", animationDelay: "0.5s" }} />
             {/* Inner button */}
-            <span className="absolute inset-0 rounded-full bg-white/20 border border-white/30 group-hover:bg-white/30 group-hover:border-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
-              <Play className="w-6 h-6 sm:w-7 sm:h-7 text-white ml-0.5" fill="white" />
+            <span className="absolute inset-0 rounded-full bg-white/18 border border-white/35 group-hover:bg-white/28 group-hover:border-white/55 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
+              <Play className="w-7 h-7 sm:w-8 sm:h-8 text-white ml-1" fill="white" />
             </span>
           </div>
-          <span className="text-sm text-white/60 group-hover:text-white/90 transition-colors font-medium tracking-wide">
+          <span className="text-sm text-white/55 group-hover:text-white/85 transition-colors font-medium tracking-wide">
             Watch 30-sec demo
           </span>
         </button>
 
         {/* Social proof strip */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-white/50 text-sm">
-          {/* Avatar stack */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+          {/* Avatar stack + label */}
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
               {[
@@ -347,18 +360,18 @@ function Hero() {
                   key={i}
                   src={src}
                   alt=""
-                  className="w-8 h-8 rounded-full border-2 border-black object-cover"
+                  className="w-9 h-9 rounded-full border-2 border-black object-cover"
                 />
               ))}
             </div>
-            <span className="text-white/60 text-sm font-medium">Trusted by musicians, YouTubers &amp; creators</span>
+            <span className="text-white/55 text-sm font-medium">Trusted by musicians, YouTubers &amp; creators</span>
           </div>
-          {/* Stars */}
+          {/* Star rating */}
           <div className="flex items-center gap-1.5">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
             ))}
-            <span className="ml-1 text-white/50">Free to start</span>
+            <span className="ml-1.5 text-white/50 text-sm">Free to start</span>
           </div>
         </div>
       </div>
