@@ -11,6 +11,7 @@ import { sunoRouter } from "./routers/suno";
 import { kidsVideoAndCaptionsRouter } from "./routers/kidsVideoAndCaptions";
 import { enhancementRouter } from "./routers/enhancement";
 import { batchRegenRouter } from "./routers/batchRegen";
+import { blogRouter } from "./routers/blog";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -24,6 +25,7 @@ export const appRouter = router({
   suno: sunoRouter,
   kidsVideoAndCaptions: kidsVideoAndCaptionsRouter,
   enhancement: enhancementRouter,
+  blog: blogRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -225,6 +225,13 @@
       "when": 1776028152415,
       "tag": "0031_clear_blazing_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1776032609258,
+      "tag": "0032_gorgeous_power_man",
+      "breakpoints": true
     }
   ]
 }

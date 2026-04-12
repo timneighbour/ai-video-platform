@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, longtext } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, longtext, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -496,3 +496,24 @@ export const inAppNotifications = mysqlTable("inAppNotifications", {
 
 export type InAppNotification = typeof inAppNotifications.$inferSelect;
 export type InsertInAppNotification = typeof inAppNotifications.$inferInsert;
+
+// ── Blog Posts ────────────────────────────────────────────────────────────────
+export const blogPosts = mysqlTable("blogPosts", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 512 }).notNull(),
+  excerpt: text("excerpt"),
+  content: longtext("content").notNull(),
+  coverImage: varchar("coverImage", { length: 1024 }),
+  author: varchar("author", { length: 255 }).default("WizVid Team").notNull(),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
+  tags: text("tags"), // JSON-encoded string array
+  metaTitle: varchar("metaTitle", { length: 512 }),
+  metaDescription: text("metaDescription"),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;

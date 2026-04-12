@@ -2411,3 +2411,53 @@
 - [x] Hero visual: HeroProductPreview component — 2-column layout, browser chrome frame, 4 phases auto-cycling every 2.2s
 - [x] Overlay text cycling: "MUSIC VIDEOS" / "CINEMATIC FILMS" / "PIXAR ANIMATION" every 1.5s with fade
 - [x] Style: purple glow ring, dark chrome frame, step dots, progress bar, LIVE indicator, film-quality overlays
+
+## Above-the-Fold IMAX Visual Upgrade
+- [ ] Looping cinematic video sequence: prompt → storyboard → scene → output (3–5s loop)
+- [ ] Multi-genre cycling text overlay: MUSIC VIDEOS / CINEMATIC FILMS / PIXAR ANIMATION (1–1.5s, glow)
+- [ ] Perceived audio visuals: waveform animation, pulsing glow, light flashes for bass hits
+- [ ] Cinematic depth: background particles, lighting bloom, motion blur, layered depth
+- [ ] CTA readability: gradient behind text, no blocking of animation
+- [ ] Performance: fast load, no lag, mobile responsive
+
+## Blog System
+- [ ] Blog schema: posts table (id, slug, title, excerpt, content, coverImage, author, publishedAt, status, tags, metaTitle, metaDescription)
+- [ ] DB migration for blog_posts table
+- [ ] tRPC procedures: blog.list (public), blog.getBySlug (public), blog.create (admin), blog.update (admin), blog.delete (admin)
+- [ ] Public /blog page: grid layout, SEO meta, article cards with cover image, title, excerpt, date, tags
+- [ ] Public /blog/:slug page: full article, SEO meta (title/description/og), structured data, breadcrumbs
+- [ ] Admin /admin/blog page: list posts, create/edit/delete, publish/draft toggle
+- [ ] SEO-friendly slugs: auto-generated from title, unique constraint
+- [ ] Nav link to /blog
+- [ ] Seed 3 sample blog posts
+
+## Intro Cinematic Refinement
+- [ ] Slow down clips: max 3–4 clips, each 0.8–1.2s, smooth fade transitions (no rapid flashing)
+- [ ] Cinematic flow: black + glow → clips → genre text (fade) → logo reveal (slow) → final hold
+- [ ] Final hold frame: show "WIZVID" + "Powered by WizSound™" + "Enter Site →" button (no auto-enter)
+- [ ] Cinematic audio: bass rumble start → rising synth → impact at logo → atmospheric tail
+- [ ] "Enable Sound" button (no autoplay)
+- [ ] Visual: IMAX lighting, deep contrast, particles, soft bloom, smooth camera motion
+- [ ] Total timing: 6–8 seconds, controlled pacing
+
+## WizSound Homepage Section
+- [ ] Section title: "Cinematic sound. Not just visuals."
+- [ ] Subheadline: "WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video."
+- [ ] 3 feature cards: Immersive Depth / Cinematic Mastering / Built for Video
+- [ ] Waveform animation (animated EQ bars synced to rhythm)
+- [ ] Pulsing glow synced to rhythm
+- [ ] Subtle 3D depth effect on the waveform visual
+- [ ] Callout: "Simulated cinematic spatial audio experience"
+- [ ] Placement: directly below demo section, before pricing
+
+## WizSound Premium Upsell Finalisation
+- [ ] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero
+- [ ] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards)
+- [ ] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label
+- [ ] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended"
+- [ ] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages
+- [ ] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience"
+
+## Intro Audio Fix
+- [ ] Fix intro audio: sound button not playing audio — investigate CDN URL, audio element creation, and browser autoplay policy
+- [ ] Make "Enable Sound" button more prominent and test audio playback

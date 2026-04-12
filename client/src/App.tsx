@@ -40,6 +40,9 @@ const TextToVideoCreator = lazy(() => import("@/pages/TextToVideoCreator"));
 const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
 const EnhancementStudio = lazy(() => import("@/pages/EnhancementStudio"));
 const BatchRegeneration = lazy(() => import("@/pages/BatchRegeneration"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const BlogAdmin = lazy(() => import("@/pages/BlogAdmin"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -114,11 +117,15 @@ function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
     '/terms',
     '/refunds',
     '/404',
+    '/blog',
+    '/blog/admin',
   ];
+  // Also allow /blog/:slug dynamic routes
+  const isDynamicBlogRoute = location.startsWith('/blog/');
 
   useEffect(() => {
     // Check if current location is valid
-    const isValidRoute = validRoutes.some(route => {
+    const isValidRoute = isDynamicBlogRoute || validRoutes.some(route => {
       if (route === '/seo/:slug') return location.startsWith('/seo/');
       return location === route;
     });
@@ -167,6 +174,9 @@ function Router() {
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />
+        <Route path={"/blog"} component={Blog} />
+        <Route path={"/blog/admin"} component={BlogAdmin} />
+        <Route path={"/blog/:slug"} component={BlogPost} />
         <Route path={"/seo/:slug"} component={SeoLandingPage} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}

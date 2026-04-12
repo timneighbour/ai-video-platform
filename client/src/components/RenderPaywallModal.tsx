@@ -72,9 +72,9 @@ const AUDIO_OPTIONS: Array<{
     id: "cinematic",
     label: "WizSound Cinematic",
     price: 3,
-    badge: "RECOMMENDED",
-    description: "Full professional mastering pipeline",
-    features: ["Full mastering", "Dynamic range", "Immersive depth", "Streaming loudness"],
+    badge: "✦ RECOMMENDED",
+    description: "Immersive, studio-quality mastered audio",
+    features: ["Full mastering pipeline", "Immersive spatial depth", "Streaming loudness (−14 LUFS)", "Cinematic dynamic range"],
     tooltip: "WizSound Cinematic applies our full proprietary mastering pipeline: dynamic range compression, immersive spatial depth, stereo widening, and loudness normalisation to streaming standards. Makes your track sound like it was mixed in a professional studio.",
   },
 ];
@@ -242,10 +242,10 @@ export function RenderPaywallModal({
               </span>
             </div>
             <DialogTitle className="text-xl font-bold text-white">
-              Your video is ready to download
+              Make your video cinematic
             </DialogTitle>
             <p className="text-sm text-white/55 mt-1">
-              Complete your render to unlock your final video
+              Choose your quality and audio — only pay when you render.
             </p>
           </DialogHeader>
 
@@ -399,8 +399,12 @@ export function RenderPaywallModal({
                     className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-300 text-left ${
                       isJustListened
                         ? "border-emerald-400 bg-emerald-500/10 shadow-[0_0_20px_rgba(52,211,153,0.25)]"
+                        : audioTier === a.id && a.id === "cinematic"
+                        ? "border-fuchsia-500 bg-fuchsia-500/12 shadow-[0_0_25px_rgba(217,70,239,0.25)] ring-1 ring-fuchsia-500/30"
                         : audioTier === a.id
                         ? "border-violet-500 bg-violet-500/15 shadow-[0_0_15px_rgba(139,92,246,0.15)]"
+                        : a.id === "cinematic"
+                        ? "border-fuchsia-500/30 bg-fuchsia-500/5 hover:border-fuchsia-500/50 hover:bg-fuchsia-500/10"
                         : "border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5"
                     }`}
                   >
@@ -423,7 +427,11 @@ export function RenderPaywallModal({
                           </div>
                         )}
                         {a.badge && (
-                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold tracking-wider">
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider ${
+                            a.id === "cinematic"
+                              ? "bg-fuchsia-500/25 border border-fuchsia-400/40 text-fuchsia-300"
+                              : "bg-amber-500/20 border border-amber-400/30 text-amber-300"
+                          }`}>
                             {a.badge}
                           </span>
                         )}

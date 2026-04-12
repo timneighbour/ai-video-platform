@@ -1,7 +1,7 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances } from "../drizzle/schema";
-import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts } from "../drizzle/schema";
+import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -448,4 +448,75 @@ export function getRendersForPlan(plan: string): number {
     case "studio": return 40;
     default: return 0;
   }
+}
+
+// ── Blog helpers ──────────────────────────────────────────────────────────────
+
+/** Generate a URL-safe slug from a title */
+export function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim()
+    .slice(0, 200);
+}
+
+/** List published blog posts (newest first) */
+export async function listPublishedBlogPosts() {
+  const db = await getDb();
+  if (!db) return [];
+  const { desc } = await import("drizzle-orm");
+  return db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.status, "published"))
+    .orderBy(desc(blogPosts.publishedAt));
+}
+
+/** List all blog posts for admin (newest first) */
+export async function listAllBlogPosts() {
+  const db = await getDb();
+  if (!db) return [];
+  const { desc } = await import("drizzle-orm");
+  return db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+}
+
+/** Get a single post by slug */
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  return rows[0] ?? null;
+}
+
+/** Get a single post by id */
+export async function getBlogPostById(id: number): Promise<BlogPost | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(blogPosts).where(eq(blogPosts.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+/** Create a new blog post */
+export async function createBlogPost(data: InsertBlogPost): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(blogPosts).values(data);
+  return (result[0] as any).insertId as number;
+}
+
+/** Update a blog post */
+export async function updateBlogPost(id: number, data: Partial<InsertBlogPost>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(blogPosts).set(data).where(eq(blogPosts.id, id));
+}
+
+/** Delete a blog post */
+export async function deleteBlogPost(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(blogPosts).where(eq(blogPosts.id, id));
 }
