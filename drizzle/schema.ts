@@ -460,3 +460,39 @@ export const renderBundles = mysqlTable("renderBundles", {
 
 export type RenderBundle = typeof renderBundles.$inferSelect;
 export type InsertRenderBundle = typeof renderBundles.$inferInsert;
+
+// --- Re-engagement Reminders ------------------------------------------------
+// Tracks which reminder emails have been sent for incomplete render jobs,
+// preventing duplicate sends and allowing per-user suppression.
+export const reEngagementReminders = mysqlTable("reEngagementReminders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  // The job that triggered this reminder (music video, text-to-video, etc.)
+  jobId: int("jobId").notNull(),
+  jobType: mysqlEnum("reEngJobType", ["music_video", "text_to_video", "kids_video", "wizpilot"]).notNull().default("music_video"),
+  // Which reminder in the sequence (1 = 24h, 2 = 3-day)
+  reminderNumber: int("reminderNumber").notNull(), // 1 or 2
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  channel: mysqlEnum("reEngChannel", ["in_app", "email", "owner_notify"]).notNull().default("in_app"),
+});
+
+export type ReEngagementReminder = typeof reEngagementReminders.$inferSelect;
+export type InsertReEngagementReminder = typeof reEngagementReminders.$inferInsert;
+
+// --- In-app Notifications ---------------------------------------------------
+// Lightweight notification inbox for each user (re-engagement, system alerts, etc.)
+export const inAppNotifications = mysqlTable("inAppNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  type: mysqlEnum("notifType", ["reminder", "system", "promo"]).notNull().default("reminder"),
+  // Link to navigate to when notification is clicked
+  actionUrl: varchar("actionUrl", { length: 512 }),
+  actionLabel: varchar("actionLabel", { length: 64 }),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InAppNotification = typeof inAppNotifications.$inferSelect;
+export type InsertInAppNotification = typeof inAppNotifications.$inferInsert;

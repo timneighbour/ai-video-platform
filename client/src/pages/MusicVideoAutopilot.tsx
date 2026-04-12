@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge, WizBrandPostBadge } from "@/components/WizBrand";
+import PostRenderUpgradePanel from "@/components/PostRenderUpgradePanel";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CharacterConfirmationStep from "@/components/CharacterConfirmationStep";
 import CreditBalance from "@/components/CreditBalance";
@@ -110,6 +111,28 @@ function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
+/** Small connector component that fetches the render job for a given source job and renders the upgrade panel. */
+function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
+  const renderJobQuery = trpc.render.getRenderJobForSource.useQuery(
+    { sourceJobId: jobId, sourceJobType: "music_video" },
+    { staleTime: 30000 }
+  );
+  if (!renderJobQuery.data) return null;
+  const rj = renderJobQuery.data;
+  const qualityOrder = ["standard", "hd", "4k"];
+  const audioOrder = ["standard", "enhanced", "cinematic"];
+  const canUpgradeQuality = qualityOrder.indexOf(rj.quality) < qualityOrder.length - 1;
+  const canUpgradeAudio = audioOrder.indexOf(rj.audioTier) < audioOrder.length - 1;
+  if (!canUpgradeQuality && !canUpgradeAudio) return null;
+  return (
+    <PostRenderUpgradePanel
+      renderJobId={rj.id}
+      currentQuality={rj.quality as "standard" | "hd" | "4k"}
+      currentAudioTier={rj.audioTier as "standard" | "enhanced" | "cinematic"}
+    />
+  );
 }
 
 export default function MusicVideoAutopilot() {
@@ -2365,11 +2388,13 @@ export default function MusicVideoAutopilot() {
                             onClick={handleUpsellCheckout}
                           >
                             {isUpsellCheckingOut ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
-                            Checkout \u00a3{upsellTotal}
+                            Checkout £{upsellTotal}
                           </Button>
                         </div>
                       </div>
                     </div>
+                    {/* Quality / WizSound upgrade panel */}
+                    {jobId && <PostRenderUpgradeConnector jobId={jobId} />}
                   </div>
                 ) : renderStatus === "failed" ? (
                   <div className="text-center">

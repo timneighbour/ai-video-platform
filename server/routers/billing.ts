@@ -471,6 +471,8 @@ import {
   getRenderAllowance,
   getRenderBundleRemaining,
   createRenderJob,
+  getRenderJob,
+  getUserRenderJobs,
   consumeSubscriptionRender,
   consumeBundleRender,
   getRendersForPlan,
@@ -691,6 +693,195 @@ export const renderRouter = router({
       }
 
       return { used: false, renderJobId: null, source: "none" as const };
+    }),
+
+  /**
+   * List all render jobs for the current user.
+   * Returns quality, audioTier, renderStatus, and downloadUrl for each job.
+   */
+  getMyRenderJobs: protectedProcedure.query(async ({ ctx }) => {
+    const jobs = await getUserRenderJobs(ctx.user.id);
+    return jobs.map((j) => ({
+      id: j.id,
+      sourceJobId: j.sourceJobId,
+      sourceJobType: j.sourceJobType,
+      quality: j.quality,
+      audioTier: j.audioTier,
+      totalPrice: j.totalPrice,
+      paymentStatus: j.paymentStatus,
+      renderStatus: j.renderStatus,
+      downloadUrl: j.downloadUrl,
+      createdAt: j.createdAt,
+    }));
+  }),
+
+  /**
+   * Get the most recent completed render job for a given source job.
+   * Used by PostRenderUpgradePanel to find the render job ID.
+   */
+  getRenderJobForSource: protectedProcedure
+    .input(z.object({ sourceJobId: z.number().int(), sourceJobType: z.enum(["music_video", "text_to_video", "kids_video", "wizpilot"]) }))
+    .query(async ({ ctx, input }) => {
+      const jobs = await getUserRenderJobs(ctx.user.id);
+      const match = jobs
+        .filter(
+          (j) =>
+            j.sourceJobId === input.sourceJobId &&
+            j.sourceJobType === input.sourceJobType &&
+            j.renderStatus === "completed"
+        )
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
+      if (!match) return null;
+      return {
+        id: match.id,
+        quality: match.quality,
+        audioTier: match.audioTier,
+        totalPrice: match.totalPrice,
+        downloadUrl: match.downloadUrl,
+      };
+    }),
+
+  /**
+   * Create a Stripe checkout session for upgrading an existing completed render.
+   * Charges only the price difference between the current tier and the desired upgrade.
+   * Supported upgrades:
+   *   - quality: standard → hd, standard → 4k, hd → 4k
+   *   - audioTier: standard/enhanced → cinematic
+   */
+  createUpgradeCheckout: protectedProcedure
+    .input(
+      z.object({
+        renderJobId: z.number().int(),
+        upgradeQuality: z.enum(["standard", "hd", "4k"]).optional(),
+        upgradeAudioTier: z.enum(["standard", "enhanced", "cinematic"]).optional(),
+        origin: z.string().url(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Fetch the existing render job
+      const existingJob = await getRenderJob(input.renderJobId);
+      if (!existingJob) throw new Error("Render job not found");
+      if (existingJob.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        throw new Error("Unauthorised");
+      }
+      if (existingJob.renderStatus !== "completed") {
+        throw new Error("Can only upgrade a completed render");
+      }
+
+      // Price tables (in pence)
+      const qualityPrices: Record<string, { priceId: string; amount: number; label: string; resolution: string }> = {
+        standard: { priceId: process.env.STRIPE_RENDER_STANDARD_PRICE_ID || "", amount: 200, label: "Standard Render", resolution: "720p" },
+        hd:       { priceId: process.env.STRIPE_RENDER_HD_PRICE_ID || "",       amount: 400, label: "HD Render",       resolution: "1080p" },
+        "4k":     { priceId: process.env.STRIPE_RENDER_4K_PRICE_ID || "",       amount: 600, label: "4K Render",       resolution: "2160p" },
+      };
+      const audioPrices: Record<string, { priceId: string; amount: number; label: string }> = {
+        standard:  { priceId: "",                                                              amount: 0,   label: "Standard Audio" },
+        enhanced:  { priceId: process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID || "",               amount: 100, label: "WizSound Enhance" },
+        cinematic: { priceId: process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID || "",              amount: 300, label: "WizSound Cinematic" },
+      };
+
+      const currentQualityAmount  = qualityPrices[existingJob.quality]?.amount  ?? 0;
+      const currentAudioAmount    = audioPrices[existingJob.audioTier]?.amount   ?? 0;
+
+      const targetQuality   = input.upgradeQuality   ?? existingJob.quality;
+      const targetAudioTier = input.upgradeAudioTier ?? existingJob.audioTier;
+
+      const targetQualityAmount = qualityPrices[targetQuality]?.amount  ?? 0;
+      const targetAudioAmount   = audioPrices[targetAudioTier]?.amount   ?? 0;
+
+      // Validate upgrades are actually upgrades
+      const qualityOrder = ["standard", "hd", "4k"];
+      if (qualityOrder.indexOf(targetQuality) < qualityOrder.indexOf(existingJob.quality)) {
+        throw new Error("Cannot downgrade quality");
+      }
+      if (targetAudioAmount < currentAudioAmount) {
+        throw new Error("Cannot downgrade audio tier");
+      }
+
+      const qualityDiff = Math.max(0, targetQualityAmount - currentQualityAmount);
+      const audioDiff   = Math.max(0, targetAudioAmount   - currentAudioAmount);
+      const totalDiff   = qualityDiff + audioDiff;
+
+      if (totalDiff === 0) throw new Error("No upgrade selected or already at this tier");
+
+      // Build line items for the difference only
+      const lineItems: Array<{ price: string; quantity: number }> = [];
+      if (qualityDiff > 0 && qualityPrices[targetQuality].priceId) {
+        // We charge the full target quality price and credit back the original via metadata
+        // Stripe doesn't support partial charges on existing price IDs, so we use a
+        // custom amount via price_data
+        lineItems.push({
+          // @ts-expect-error price_data is valid but not in narrow type
+          price_data: {
+            currency: "gbp",
+            unit_amount: qualityDiff,
+            product_data: {
+              name: `Upgrade to ${qualityPrices[targetQuality].label} (${qualityPrices[targetQuality].resolution})`,
+              description: `Upgrade from ${qualityPrices[existingJob.quality].label} — you pay only the difference`,
+            },
+          },
+          quantity: 1,
+        });
+      }
+      if (audioDiff > 0 && audioPrices[targetAudioTier].priceId) {
+        lineItems.push({
+          // @ts-expect-error price_data is valid but not in narrow type
+          price_data: {
+            currency: "gbp",
+            unit_amount: audioDiff,
+            product_data: {
+              name: `Upgrade to ${audioPrices[targetAudioTier].label}`,
+              description: `Audio upgrade from ${audioPrices[existingJob.audioTier].label} — you pay only the difference`,
+            },
+          },
+          quantity: 1,
+        });
+      }
+
+      // Create a new pending render job for the upgraded render
+      const upgradeJobId = await createRenderJob({
+        userId: ctx.user.id,
+        sourceJobId: existingJob.sourceJobId ?? undefined,
+        sourceJobType: existingJob.sourceJobType,
+        quality: targetQuality,
+        audioTier: targetAudioTier,
+        basePrice: targetQualityAmount,
+        audioAddon: targetAudioAmount,
+        totalPrice: totalDiff,
+        paymentStatus: "pending",
+        renderStatus: "queued",
+        usedSubscriptionRender: false,
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        customer_email: ctx.user.email || undefined,
+        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        line_items: lineItems as any,
+        mode: "payment",
+        success_url: `${input.origin}/render/success?render_job_id=${upgradeJobId}&session_id={CHECKOUT_SESSION_ID}&upgrade=true`,
+        cancel_url: `${input.origin}/render/history?upgrade_canceled=true`,
+        client_reference_id: ctx.user.id.toString(),
+        metadata: {
+          user_id: ctx.user.id.toString(),
+          render_job_id: upgradeJobId.toString(),
+          original_render_job_id: input.renderJobId.toString(),
+          job_id: (existingJob.sourceJobId ?? 0).toString(),
+          job_type: existingJob.sourceJobType,
+          quality: targetQuality,
+          audio_tier: targetAudioTier,
+          type: "render_upgrade",
+        },
+        allow_promotion_codes: true,
+      });
+
+      return {
+        checkoutUrl: session.url,
+        upgradeJobId,
+        qualityDiff,
+        audioDiff,
+        totalDiff,
+      };
     }),
 
   /**

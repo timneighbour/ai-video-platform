@@ -2332,3 +2332,10 @@
 - [x] WizRender™ badge in Autopilot and TextToVideoCreator generating step headers
 - [x] WizBrandPostBadge (Rendered with WizRender™) on completed jobs in RenderHistory
 - [x] WizBrandPostBadge (Rendered with WizRender™ + Enhanced with WizSound™) on MusicVideoAutopilot post-render screen
+
+## Post-Render Upsell System - COMPLETED ✅
+- [x] PostRenderUpgradePanel component with quality and audio tier selection
+- [x] createUpgradeCheckout procedure (differential pricing — charges only the difference)
+- [x] getMyRenderJobs and getRenderJobForSource tRPC procedures
+- [x] PostRenderUpgradeConnector sub-component wired into MusicVideoAutopilot completed screen
+- [x] "Upgrade your video" panel shown after render completes with HD/4K and WizSound Cinematic options
