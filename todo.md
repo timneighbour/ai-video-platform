@@ -2152,3 +2152,11 @@
 - [ ] Verify no broken images or videos on homepage load
 - [ ] Verify hero background loads poster immediately (no blank flash)
 - [ ] Verify no layout shift when video loads
+
+## DEMO VIDEO MODAL SYSTEM
+- [x] Generate cinematic poster frame for demo modal
+- [x] Build DemoVideoModal component with poster, lazy video, play/pause, captions, close, ESC
+- [x] Add pulsing circular play button above fold in hero section
+- [x] Wire proxy video flow: 6 scenes (0-30s) with animated transitions
+- [x] Lazy-load video only on click
+- [x] Mobile-optimised lighter version

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
-import IntroFilmModal from "@/components/IntroFilmModal";
+import { DemoVideoModal } from "@/components/DemoVideoModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -264,7 +264,7 @@ function useIsDesktop() {
 
 function Hero() {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  const [introOpen, setIntroOpen] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
@@ -310,15 +310,24 @@ function Hero() {
         {/* No card callout */}
         <p className="text-sm text-white/50 mb-10">No credit card required · 2 free videos included</p>
 
-        {/* Watch film ghost CTA */}
+        {/* Demo video trigger — large pulsing play button */}
         <button
-          onClick={() => setIntroOpen(true)}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white/90 transition-colors mb-16"
+          onClick={() => setDemoOpen(true)}
+          className="group flex flex-col items-center gap-3 mb-16 focus:outline-none"
+          aria-label="Watch 30-second demo"
         >
-          <span className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center hover:border-white/60 transition-colors">
-            <Play className="w-3 h-3 ml-0.5" />
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20">
+            {/* Outer pulse rings */}
+            <span className="absolute inset-0 rounded-full bg-white/15 animate-ping" />
+            <span className="absolute inset-1 rounded-full bg-white/10 animate-ping [animation-delay:0.4s]" />
+            {/* Inner button */}
+            <span className="absolute inset-0 rounded-full bg-white/20 border border-white/30 group-hover:bg-white/30 group-hover:border-white/50 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
+              <Play className="w-6 h-6 sm:w-7 sm:h-7 text-white ml-0.5" fill="white" />
+            </span>
+          </div>
+          <span className="text-sm text-white/60 group-hover:text-white/90 transition-colors font-medium tracking-wide">
+            Watch 30-sec demo
           </span>
-          Watch how it works
         </button>
 
         {/* Social proof strip */}
@@ -352,8 +361,8 @@ function Hero() {
         </div>
       </div>
 
-      {/* Intro Film Modal */}
-      <IntroFilmModal open={introOpen} onClose={() => setIntroOpen(false)} />
+      {/* Demo Video Modal */}
+      <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
   );
 }
