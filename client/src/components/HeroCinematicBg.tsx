@@ -277,6 +277,8 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
           ref={videoRef}
           autoPlay muted loop playsInline preload="none"
           onCanPlay={handleVideoCanPlay}
+          width={1920}
+          height={1080}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1500 ${videoReady ? "opacity-100" : "opacity-0"}`}
           style={{
             transform: `translate(${px}px, ${py}px) scale(1.04)`,

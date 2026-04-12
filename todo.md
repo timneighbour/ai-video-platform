@@ -2469,3 +2469,13 @@
 - [ ] All three routes registered in App.tsx with validRoutes
 - [ ] All three use same design system (fonts, colours, purple/black theme, WizSound branding)
 - [ ] Server-side domain detection middleware to auto-route based on Host header
+
+## Hero Background Video
+- [ ] Produce 8-second cinematic looping hero background video (neon city / stage performance)
+- [ ] Compress to H.264 web-optimised, upload to CDN
+- [ ] Extract first frame as poster image, upload to CDN
+- [ ] Replace HeroCinematicBg static background with autoplay muted loop playsinline video
+- [ ] Add semi-transparent dark overlay for text readability
+- [ ] Add "Enter WizVid Studio" button with id="enter-site-btn", aria-label, scrolls to main content
+- [ ] Fallback: show poster image if video fails to load / autoplay blocked
+- [ ] Performance: loading="lazy", width/height attributes, aria-hidden="true" on video
