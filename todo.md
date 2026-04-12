@@ -1763,6 +1763,11 @@
 - [x] Add "Delete" button with confirmation dialog using deleteJob mutation
 - [x] Remove MyProjects.tsx (dead file, not registered in App.tsx)
 
+## Bug: Character Portrait Full-Body Fix (Apr 12 2026)
+- [x] Update character portrait generation to produce full-body shots (head to toe)
+- [x] Add full-body framing keywords to both the previewCharacter and generateCharacterPortrait prompts
+- [x] Ensure negative prompt excludes bust/portrait/cropped framing
+
 ## Bug: Scenes 1 and 20 Preview Failure (Apr 12 2026)
 - [x] Fix generateStoryboard to ensure all scenes get characterAssignments (LLM sometimes omits first/last)
 - [x] Add fallback: if characterAssignments is empty after LLM, assign all locked characters

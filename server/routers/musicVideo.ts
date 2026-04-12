@@ -1862,10 +1862,10 @@ Rules:
       const description = char.lockedDescription?.trim() ?? "";
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
 
-      // Build a neutral portrait prompt for the preview — always head-and-shoulders, face clearly visible
+      // Build a full-body portrait prompt — show complete outfit from head to toe
       const previewPrompt = description.length > 20
-        ? `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera. ${description}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
-        : `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`;
+        ? `Full-body photo of ${characterLabel}, standing, full-length shot showing complete outfit from head to toe, face clearly visible. ${description}. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K.`
+        : `Full-body photo of ${characterLabel}, standing, full-length shot showing complete outfit from head to toe, face clearly visible, neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K.`;
 
       // Fetch all photos for Flux PuLID
       const photos = await db.select().from(videoCharacterPhotos)
@@ -2005,10 +2005,12 @@ Rules:
           {
             role: "system" as const,
             content: `You are a character designer writing precise visual briefs for AI video generation.
-Expand the user's short character description into a detailed 80-120 word visual brief.
+Expand the user's short character description into a detailed 80-120 word visual brief for a FULL-BODY standing shot.
 Style: ${styleLabel} (${styleGuide[input.style]}).
 Rules:
 - Be hyper-specific: exact colours, clothing details, hair style, body type, age, expression.
+- MUST describe the COMPLETE outfit from head to toe: top, bottom/trousers/skirt, footwear, accessories.
+- Include legs, feet, and shoes/boots explicitly so the AI renders the full body.
 - For animated styles: describe the character AS IF they are that animation style (e.g. "Pixar-style character with large expressive eyes...").
 - For realistic: describe as a real person with precise physical details.
 - Output: A single dense paragraph. No bullet points. No preamble.`,
@@ -2024,14 +2026,14 @@ Write the full visual brief now.`,
 
       const visualBrief = (briefResponse.choices[0]?.message?.content as string | undefined)?.trim() ?? input.description;
 
-      // Step 2: Generate preview image — always portrait/head-and-shoulders so face is clearly visible
+      // Step 2: Generate preview image — full-body shot showing complete outfit from head to toe
       const imagePrompt = input.style === "realistic"
-        ? `Close-up portrait photo of ${input.name}${input.role ? `, ${input.role}` : ""}, head and shoulders, face clearly visible, looking directly at camera. ${visualBrief}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
-        : `${styleLabel} style character portrait of ${input.name}${input.role ? `, ${input.role}` : ""}, head and shoulders, face clearly visible, looking directly at camera. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render.`;
+        ? `Full-body photo of ${input.name}${input.role ? `, ${input.role}` : ""}, standing, full-length shot showing complete outfit from head to toe, face clearly visible. ${visualBrief}. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K.`
+        : `${styleLabel} style full-body character art of ${input.name}${input.role ? `, ${input.role}` : ""}, standing, full-length showing complete outfit from head to toe, face clearly visible. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render.`;
 
       const negativePrompt = input.style === "realistic"
-        ? "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, watermark, full body shot, wide shot, no face"
-        : "photorealistic, photograph, ugly, distorted, low quality, watermark, full body shot, wide shot, no face";
+        ? "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, watermark, cropped, bust shot, portrait crop, cut off feet, cut off legs"
+        : "photorealistic, photograph, ugly, distorted, low quality, watermark, cropped, bust shot, portrait crop, cut off feet, cut off legs";
 
       let imageUrl: string;
       try {
