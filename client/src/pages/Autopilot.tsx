@@ -167,25 +167,42 @@ export default function Autopilot() {
   const utils = trpc.useUtils();
 
   const startPolling = useCallback((pid: number) => {
-    pollIntervalRef.current = setInterval(async () => {
-      try {
-        const result = await utils.billing.checkVideoStatus.fetch({ projectId: pid });
-        if (result.status === "completed" && result.videoUrl) {
-          stopProgressAnimation();
-          setProgressPct(100);
-          setGeneratedVideoUrl(result.videoUrl);
-          setStep("done");
-          toast.success("🎬 Your video is ready!");
-        } else if (result.status === "failed") {
-          stopProgressAnimation();
-          setGenerationError(result.error || "Video generation failed. Please try again.");
-          setStep("storyboard");
-          toast.error(result.error || "Video generation failed. Please try again.");
+    let pollBackoffMs = 8000;
+    const MAX_POLL_BACKOFF_MS = 60000;
+    const schedulePoll = () => {
+      if (pollIntervalRef.current) clearTimeout(pollIntervalRef.current);
+      pollIntervalRef.current = setTimeout(async () => {
+        try {
+          const result = await utils.billing.checkVideoStatus.fetch({ projectId: pid });
+          if (result.status === "completed" && result.videoUrl) {
+            stopProgressAnimation();
+            setProgressPct(100);
+            setGeneratedVideoUrl(result.videoUrl);
+            setStep("done");
+            toast.success("🎬 Your video is ready!");
+            return;
+          } else if (result.status === "failed") {
+            stopProgressAnimation();
+            setGenerationError(result.error || "Video generation failed. Please try again.");
+            setStep("storyboard");
+            toast.error(result.error || "Video generation failed. Please try again.");
+            return;
+          }
+          // Still processing — reset backoff and continue
+          pollBackoffMs = 8000;
+          schedulePoll();
+        } catch (err: any) {
+          const is429 = String(err?.message).includes("429") || String(err?.message).toLowerCase().includes("rate limit");
+          if (is429) {
+            pollBackoffMs = Math.min(pollBackoffMs * 2, MAX_POLL_BACKOFF_MS);
+            console.warn(`[WizPilot] Rate limited. Backing off to ${pollBackoffMs}ms`);
+          }
+          // network hiccup or rate limit — keep polling with backoff
+          schedulePoll();
         }
-      } catch {
-        // network hiccup — keep polling silently
-      }
-    }, 8000);
+      }, pollBackoffMs) as unknown as ReturnType<typeof setInterval>;
+    };
+    schedulePoll();
   }, [utils, stopProgressAnimation]);
 
   // tRPC mutations

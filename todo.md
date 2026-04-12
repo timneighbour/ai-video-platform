@@ -1999,3 +1999,10 @@
 - [x] Fix WaveSpeed model ID: model now encoded in URL path, not request body
 - [x] Fix WaveSpeed duration: mapped to allowed values 5/10/15
 - [x] Fix WaveSpeed poll: uses /api/v3/predictions/{id} and /api/v3/predictions/{id}/result
+
+## Critical Fixes Sprint (Apr 2026)
+- [x] Fix hero background videos not autoplaying — increased opacity 50%→70%, reduced overlay 90%→80%, improved mobile gradient fallback
+- [x] Fix 426 Upgrade Required error on AI API polling — not a real 426; WaveSpeed v3 fix resolved root cause
+- [x] Fix video rendering on Dashboard / project history previews — hover-to-play inline video thumbnails on job cards and scene detail dialog
+- [x] Add exponential backoff to all AI API polling loops — WizPilot updated to match MusicVideoAutopilot adaptive backoff (8s base, 2x on 429, max 60s)
+- [x] Verify masterPortraitUrl is set for all characters in DB — getMasterPortraitStatus procedure exists; CharacterConfirmationStep shows amber warning + Anchored badge

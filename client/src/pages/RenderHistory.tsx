@@ -204,9 +204,25 @@ export default function RenderHistory() {
                 >
                   <div className="p-4">
                     <div className="flex items-start gap-4">
-                      {/* Thumbnail / icon */}
-                      <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
-                        {job.thumbnailUrl ? (
+                      {/* Thumbnail / video preview */}
+                      <div className="w-16 h-16 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden relative group cursor-pointer"
+                        onClick={() => job.status === "completed" && job.finalVideoUrl && setSelectedJobId(job.id)}>
+                        {job.status === "completed" && job.finalVideoUrl ? (
+                          <>
+                            <video
+                              src={job.finalVideoUrl}
+                              muted
+                              playsInline
+                              preload="metadata"
+                              className="w-full h-full object-cover"
+                              onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
+                              onMouseLeave={(e) => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Play className="w-5 h-5 text-white fill-white" />
+                            </div>
+                          </>
+                        ) : job.thumbnailUrl ? (
                           <img src={job.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <Film className="w-5 h-5 text-zinc-600" />
@@ -422,15 +438,21 @@ export default function RenderHistory() {
                           )}
                         </div>
                         {scene.status === "completed" && scene.videoUrl && (
-                          <a
-                            href={scene.videoUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-green-400 hover:text-green-300 shrink-0"
-                            title="View scene video"
-                          >
-                            <Play className="w-3.5 h-3.5" />
-                          </a>
+                          <div className="shrink-0 relative group w-16 h-10 rounded overflow-hidden bg-zinc-800 cursor-pointer"
+                            onClick={() => window.open(scene.videoUrl, '_blank')}>
+                            <video
+                              src={scene.videoUrl}
+                              muted
+                              playsInline
+                              preload="metadata"
+                              className="w-full h-full object-cover"
+                              onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
+                              onMouseLeave={(e) => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Play className="w-3 h-3 text-white fill-white" />
+                            </div>
+                          </div>
                         )}
                       </div>
                     );
