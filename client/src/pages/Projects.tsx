@@ -742,6 +742,7 @@ export default function Projects() {
                 controls
                 autoPlay
                 loop
+                playsInline
                 className="w-full h-full object-contain"
               />
             </div>

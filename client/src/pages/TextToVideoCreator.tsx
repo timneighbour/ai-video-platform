@@ -715,6 +715,7 @@ export default function TextToVideoCreator() {
                   controls
                   autoPlay
                   loop
+                  playsInline
                   className="w-full"
                   style={{ maxHeight: "400px" }}
                 />
