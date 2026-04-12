@@ -252,3 +252,7 @@ async function startServer() {
 }
 
 startServer().catch(console.error);
+
+// Start re-engagement cron job (hourly check for incomplete renders → in-app reminders)
+import { startReEngagementJob } from "../reEngagementJob";
+startReEngagementJob();

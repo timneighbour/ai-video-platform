@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /* ── Assets ─────────────────────────────────────────────────────────── */
+const CINEMA_STING_URL =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid_cinema_sting_afce8fbc.mp3";
+
+const MUTE_STORAGE_KEY = "wizvid_intro_muted";
 const INTRO_VIDEO_MP4 =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/intro-sequence_8f81fbfd.mp4";
 const LOGO_URL =
@@ -33,6 +37,40 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const [progress, setProgress] = useState(0);
   const [ctaPulse, setCtaPulse] = useState(false);
   const exitingRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [muted, setMuted] = useState<boolean>(() => {
+    try { return localStorage.getItem(MUTE_STORAGE_KEY) === "1"; } catch { return false; }
+  });
+  const mutedRef = useRef(muted);
+
+  /* ── Cinema sting audio ─────────────────────────────────────────── */
+  useEffect(() => {
+    const audio = new Audio(CINEMA_STING_URL);
+    audio.preload = "auto";
+    audio.volume = 0.88;
+    audio.muted = mutedRef.current;
+    audioRef.current = audio;
+    // Attempt autoplay — browsers may block without user gesture
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay blocked — audio will stay silent; mute button still works
+      });
+    }
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Sync mute state to audio element ───────────────────────────── */
+  useEffect(() => {
+    mutedRef.current = muted;
+    if (audioRef.current) audioRef.current.muted = muted;
+    try { localStorage.setItem(MUTE_STORAGE_KEY, muted ? "1" : "0"); } catch { /* noop */ }
+  }, [muted]);
+
+  const toggleMute = () => setMuted((m) => !m);
 
   /* ── Stage timeline ──────────────────────────────────────────────── */
   useEffect(() => {
@@ -78,6 +116,18 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const dismiss = () => {
     if (exitingRef.current) return;
     exitingRef.current = true;
+    // Fade audio out over 600ms
+    if (audioRef.current && !audioRef.current.muted) {
+      const audio = audioRef.current;
+      const fadeInterval = setInterval(() => {
+        if (audio.volume > 0.05) {
+          audio.volume = Math.max(0, audio.volume - 0.12);
+        } else {
+          audio.pause();
+          clearInterval(fadeInterval);
+        }
+      }, 40);
+    }
     setExiting(true);
     try { sessionStorage.setItem(INTRO_SESSION_KEY, "true"); } catch { /* noop */ }
     setTimeout(onComplete, 700);
@@ -354,6 +404,30 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           Create. Imagine. Animate.
         </p>
       </div>
+
+      {/* ── Mute toggle ──────────────────────────────────────────── */}
+      <button
+        onClick={toggleMute}
+        aria-label={muted ? "Unmute intro audio" : "Mute intro audio"}
+        className="absolute top-5 right-5 flex items-center justify-center w-9 h-9 rounded-full bg-white/8 border border-white/12 text-white/50 hover:text-white/80 hover:bg-white/14 transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20 }}
+      >
+        {muted ? (
+          /* Speaker off */
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+            <path d="M11 5L6 9H2v6h4l5 4V5z" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        ) : (
+          /* Speaker on */
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+          </svg>
+        )}
+      </button>
 
       {/* ── Bottom: Enter Experience CTA + progress ───────────────── */}
       <div

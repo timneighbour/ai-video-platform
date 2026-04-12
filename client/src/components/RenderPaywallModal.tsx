@@ -15,6 +15,7 @@ import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause,
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { WizBrandBadge } from "@/components/WizBrand";
 import SubscriptionUpgradeNudge from "@/components/SubscriptionUpgradeNudge";
+import BundlePromoBanner from "@/components/BundlePromoBanner";
 
 type Quality = "standard" | "hd" | "4k";
 type AudioTier = "standard" | "enhanced" | "cinematic";
@@ -579,6 +580,8 @@ export function RenderPaywallModal({
             Your video will start rendering instantly after payment
           </p>
 
+          {/* Bundle promo — shown when render balance is low */}
+          <BundlePromoBanner threshold={2} className="mb-2" />
           {/* Subscription upgrade nudge — shown to active pay-per-render users */}
           <SubscriptionUpgradeNudge />
           {/* Trust signals */}

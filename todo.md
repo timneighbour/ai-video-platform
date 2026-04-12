@@ -2346,3 +2346,7 @@
 - [x] Wired into RenderPaywallModal (above trust signals, shown during checkout flow)
 - [x] Wired into RenderHistory page (shown at top of page for qualifying users)
 - [x] Session-once dismissal via sessionStorage
+
+## Bug Fixes
+- [ ] Fix missing audio on CinematicEntryScreen intro (WizSound sting not playing)
+- [ ] Add mute/unmute toggle on intro screen so user can disable audio

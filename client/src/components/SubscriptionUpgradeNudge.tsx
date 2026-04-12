@@ -16,7 +16,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 
 const DISMISS_KEY = "wizvid_upgrade_nudge_dismissed_v1";
 
-export default function SubscriptionUpgradeNudge() {
+export default function SubscriptionUpgradeNudge({ className = "" }: { className?: string }) {
   const { isAuthenticated } = useAuth();
   const [dismissed, setDismissed] = useState(() => {
     try {
@@ -59,7 +59,7 @@ export default function SubscriptionUpgradeNudge() {
 
   return (
     <div
-      className="relative flex items-start gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 to-purple-950/40 px-4 py-3 shadow-lg shadow-violet-900/20 backdrop-blur-sm"
+      className={`relative flex items-start gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 to-purple-950/40 px-4 py-3 shadow-lg shadow-violet-900/20 backdrop-blur-sm ${className}`}
       role="status"
       aria-live="polite"
     >

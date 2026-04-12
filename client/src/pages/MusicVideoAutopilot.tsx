@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge, WizBrandPostBadge } from "@/components/WizBrand";
+import HabitLoopPanel from "@/components/HabitLoopPanel";
 import PostRenderUpgradePanel from "@/components/PostRenderUpgradePanel";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CharacterConfirmationStep from "@/components/CharacterConfirmationStep";
@@ -2395,6 +2396,8 @@ export default function MusicVideoAutopilot() {
                     </div>
                     {/* Quality / WizSound upgrade panel */}
                     {jobId && <PostRenderUpgradeConnector jobId={jobId} />}
+                    {/* Habit loop — encourage next creation */}
+                    <HabitLoopPanel className="mt-4" />
                   </div>
                 ) : renderStatus === "failed" ? (
                   <div className="text-center">
