@@ -2049,3 +2049,14 @@
 - [x] Text always readable (dark overlay, low visual noise)
 - [x] Integrate into Home.tsx hero section, replacing static gradient
 - [x] Remove unused HERO_VIDEOS, bgVideoRefs, isDesktop state from Hero function
+
+## Feature: Pure Cinematic Intro Rebuild (Apr 2026)
+- [x] Scrap UI-heavy CinematicEntryScreen, rebuild as pure text→visual transformation
+- [x] Scene 1: Black screen, "Your ideas..." fades in
+- [x] Scene 2: "...become real" — light pulse, camera push
+- [x] Scene 3: "Walking through fire" → flames ignite, sparks fly, environment reacts (NO delay)
+- [x] Scene 4: Same character in 2 environments — identical face/outfit, no UI graphics
+- [x] Scene 5: 3 rapid visual cuts — cinematic / vertical / kids (no text labels)
+- [x] Scene 6: Zoom out to polished scene, overlay headline + CTA fades in
+- [x] Remove ALL: icons, feature cards, UI explanations, "consistency engine" graphics
+- [x] Style: cinematic, emotional, reactive, immersive

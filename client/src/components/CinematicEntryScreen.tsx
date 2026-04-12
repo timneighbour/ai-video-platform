@@ -1,16 +1,16 @@
 /**
- * CinematicEntryScreen — Premium Netflix-Style Immersive Intro
+ * CinematicEntryScreen — Pure Text → Visual Transformation
  *
- * 6-scene cinematic experience built entirely in CSS/canvas.
- * No video file required. Under 3MB. Seamlessly looping.
+ * No UI cards. No icons. No feature explanations.
+ * Just text appearing and the world reacting around it.
  *
- * Scene 1 (0–1.5s):  Black fade-in, particles, "Your ideas..."
- * Scene 2 (1.5–3s):  "...come to life" + beat-pulse light
- * Scene 3 (3–5s):    CAUSE→EFFECT USP: "Walking through fire" → flames react
- * Scene 4 (5–7s):    Character consistency: same face/outfit across 2 cuts
- * Scene 5 (7–9s):    Use-case montage: cinematic / vertical / kids
- * Scene 6 (9–11s):   Zoom-out to polished final output
- * Loop:              Fades seamlessly back to Scene 1
+ * Scene 1 (0–2s):   Black. "Your ideas..." fades in.
+ * Scene 2 (2–4s):   "...become real" — light pulse, camera push
+ * Scene 3 (4–7s):   "Walking through fire" → flames ignite, sparks fly (NO delay)
+ * Scene 4 (7–9s):   Same character, 2 environments — no UI, just visual proof
+ * Scene 5 (9–11s):  3 rapid visual cuts — cinematic / vertical / kids
+ * Scene 6 (11–13s): Zoom out to polished scene, headline + CTA fades in
+ * Loop:             Fades seamlessly back to Scene 1
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -18,119 +18,122 @@ import { useLocation } from "wouter";
 
 const SESSION_KEY = "wizvid_entry_shown";
 
-// ─── Particle system ────────────────────────────────────────────────────────
+// ─── Particle types ──────────────────────────────────────────────────────────
 interface Particle {
   x: number; y: number; vx: number; vy: number;
   size: number; opacity: number; color: string; life: number; maxLife: number;
 }
 
-function createParticle(w: number, h: number, type: "ambient" | "fire" | "spark" = "ambient"): Particle {
-  if (type === "fire") {
-    return {
-      x: w * 0.5 + (Math.random() - 0.5) * w * 0.6,
-      y: h * 0.8 + Math.random() * h * 0.2,
-      vx: (Math.random() - 0.5) * 1.5,
-      vy: -(Math.random() * 3 + 1.5),
-      size: Math.random() * 6 + 2,
-      opacity: Math.random() * 0.8 + 0.2,
-      color: Math.random() > 0.5 ? "#ff6b35" : "#ffd700",
-      life: 0, maxLife: Math.random() * 80 + 40,
-    };
-  }
-  if (type === "spark") {
-    return {
-      x: w * 0.5 + (Math.random() - 0.5) * w * 0.8,
-      y: h * 0.6 + (Math.random() - 0.5) * h * 0.4,
-      vx: (Math.random() - 0.5) * 4,
-      vy: (Math.random() - 0.5) * 4 - 1,
-      size: Math.random() * 3 + 1,
-      opacity: 1,
-      color: Math.random() > 0.5 ? "#fff" : "#ffd700",
-      life: 0, maxLife: Math.random() * 30 + 15,
-    };
-  }
+function mkParticle(w: number, h: number, type: "ambient" | "fire" | "spark" | "rain" = "ambient"): Particle {
+  if (type === "fire") return {
+    x: w * 0.5 + (Math.random() - 0.5) * w * 0.7,
+    y: h * 0.85 + Math.random() * h * 0.15,
+    vx: (Math.random() - 0.5) * 2,
+    vy: -(Math.random() * 4 + 2),
+    size: Math.random() * 8 + 3,
+    opacity: Math.random() * 0.9 + 0.1,
+    color: Math.random() > 0.4 ? "#ff6b35" : Math.random() > 0.5 ? "#ffd700" : "#ff3300",
+    life: 0, maxLife: Math.random() * 60 + 30,
+  };
+  if (type === "spark") return {
+    x: w * 0.5 + (Math.random() - 0.5) * w * 0.9,
+    y: h * 0.5 + (Math.random() - 0.5) * h * 0.5,
+    vx: (Math.random() - 0.5) * 6,
+    vy: (Math.random() - 0.5) * 6 - 2,
+    size: Math.random() * 2.5 + 0.5,
+    opacity: 1,
+    color: Math.random() > 0.5 ? "#fff" : "#ffd700",
+    life: 0, maxLife: Math.random() * 25 + 10,
+  };
+  if (type === "rain") return {
+    x: Math.random() * w,
+    y: -10,
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: Math.random() * 8 + 6,
+    size: Math.random() * 1 + 0.3,
+    opacity: Math.random() * 0.4 + 0.1,
+    color: "#93c5fd",
+    life: 0, maxLife: h / 7,
+  };
   return {
     x: Math.random() * w,
     y: Math.random() * h,
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: -(Math.random() * 0.5 + 0.1),
-    size: Math.random() * 2 + 0.5,
-    opacity: Math.random() * 0.4 + 0.05,
+    vx: (Math.random() - 0.5) * 0.2,
+    vy: -(Math.random() * 0.3 + 0.05),
+    size: Math.random() * 1.5 + 0.3,
+    opacity: Math.random() * 0.3 + 0.03,
     color: Math.random() > 0.6 ? "#a78bfa" : Math.random() > 0.5 ? "#60a5fa" : "#fff",
-    life: 0, maxLife: Math.random() * 200 + 100,
+    life: 0, maxLife: Math.random() * 300 + 150,
   };
 }
 
-interface CinematicEntryScreenProps {
-  onDismiss?: () => void;
-}
+interface Props { onDismiss?: () => void; }
 
-export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreenProps) {
+export default function CinematicEntryScreen({ onDismiss }: Props) {
   const [, navigate] = useLocation();
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [sceneIndex, setSceneIndex] = useState(0); // 0–5
-  const [beatPulse, setBeatPulse] = useState(false);
-  const [loopCount, setLoopCount] = useState(0);
+  const [scene, setScene] = useState(0);
+  const [textPhase, setTextPhase] = useState(0); // sub-phase within scene
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
-  const animFrameRef = useRef<number>(0);
-  const sceneTimerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const loopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animRef = useRef<number>(0);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // Scene durations (ms)
-  const SCENE_DURATIONS = [1500, 1500, 2000, 2000, 2000, 2000];
-  const TOTAL_DURATION = SCENE_DURATIONS.reduce((a, b) => a + b, 0); // 11000ms
+  // ─── Check session ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      setVisible(false);
+    }
+  }, []);
 
-  // ── Scene sequencer ──────────────────────────────────────────────────────
-  const startSequence = useCallback(() => {
-    sceneTimerRef.current.forEach(clearTimeout);
-    sceneTimerRef.current = [];
-    setSceneIndex(0);
-    let elapsed = 0;
-    SCENE_DURATIONS.forEach((dur, i) => {
-      elapsed += dur;
-      const t = setTimeout(() => setSceneIndex(i + 1 < 6 ? i + 1 : 5), elapsed - dur);
-      sceneTimerRef.current.push(t);
-    });
+  // ─── Scene timeline ────────────────────────────────────────────────────────
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
+
+  const addTimer = useCallback((fn: () => void, ms: number) => {
+    const t = setTimeout(fn, ms);
+    timersRef.current.push(t);
+    return t;
+  }, []);
+
+  const runTimeline = useCallback(() => {
+    clearTimers();
+    setScene(0); setTextPhase(0);
+    // Scene 1: "Your ideas..."
+    addTimer(() => { setScene(1); setTextPhase(1); }, 400);
+    // Scene 2: "...become real"
+    addTimer(() => { setScene(2); setTextPhase(0); }, 2400);
+    addTimer(() => setTextPhase(1), 2700);
+    // Scene 3: "Walking through fire" → world reacts
+    addTimer(() => { setScene(3); setTextPhase(0); }, 4600);
+    addTimer(() => setTextPhase(1), 4900); // text appears
+    addTimer(() => setTextPhase(2), 5100); // FIRE ignites immediately
+    // Scene 4: character consistency
+    addTimer(() => { setScene(4); setTextPhase(0); }, 7800);
+    addTimer(() => setTextPhase(1), 8100);
+    // Scene 5: rapid cuts
+    addTimer(() => { setScene(5); setTextPhase(0); }, 9800);
+    addTimer(() => setTextPhase(1), 10000);
+    addTimer(() => setTextPhase(2), 10600);
+    addTimer(() => setTextPhase(3), 11200);
+    // Scene 6: zoom out + CTA
+    addTimer(() => { setScene(6); setTextPhase(0); }, 12400);
+    addTimer(() => setTextPhase(1), 13000);
     // Loop
-    if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
-    loopTimerRef.current = setTimeout(() => {
-      setLoopCount(c => c + 1);
-    }, TOTAL_DURATION);
-  }, []);
+    addTimer(() => runTimeline(), 16000);
+  }, [clearTimers, addTimer]);
 
   useEffect(() => {
-    startSequence();
-    return () => {
-      sceneTimerRef.current.forEach(clearTimeout);
-      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
-    };
-  }, [loopCount, startSequence]);
+    if (!visible) return;
+    runTimeline();
+    return clearTimers;
+  }, [visible, runTimeline, clearTimers]);
 
-  // ── Beat pulse (100bpm illusion) ─────────────────────────────────────────
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setBeatPulse(true);
-      setTimeout(() => setBeatPulse(false), 100);
-    }, 600);
-    return () => clearInterval(interval);
-  }, []);
-
-  // ── Mouse parallax ───────────────────────────────────────────────────────
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    setMousePos({
-      x: (e.clientX / window.innerWidth - 0.5) * 2,
-      y: (e.clientY / window.innerHeight - 0.5) * 2,
-    });
-  }, []);
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [handleMouseMove]);
-
-  // ── Canvas particle system ───────────────────────────────────────────────
+  // ─── Canvas particle engine ────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -146,570 +149,670 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
 
     // Seed ambient particles
     for (let i = 0; i < 80; i++) {
-      particlesRef.current.push(createParticle(canvas.width, canvas.height, "ambient"));
+      particlesRef.current.push(mkParticle(canvas.width, canvas.height, "ambient"));
     }
 
     let frame = 0;
     const draw = () => {
-      const w = canvas.width;
-      const h = canvas.height;
+      animRef.current = requestAnimationFrame(draw);
+      frame++;
+      const w = canvas.width, h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      const currentScene = sceneIndex;
-      const isFireScene = currentScene === 2;
-      const isSparkScene = currentScene === 2 || currentScene === 3;
+      // Spawn particles based on current scene
+      const currentScene = parseInt(canvas.dataset.scene || "0");
+      const currentPhase = parseInt(canvas.dataset.phase || "0");
 
-      // Spawn fire/spark particles in scene 3
-      if (isFireScene && frame % 2 === 0) {
-        particlesRef.current.push(createParticle(w, h, "fire"));
-        if (frame % 4 === 0) particlesRef.current.push(createParticle(w, h, "spark"));
+      if (currentScene === 3 && currentPhase >= 2) {
+        // Fire scene — heavy spawn
+        if (frame % 2 === 0) {
+          for (let i = 0; i < 4; i++) particlesRef.current.push(mkParticle(w, h, "fire"));
+          for (let i = 0; i < 2; i++) particlesRef.current.push(mkParticle(w, h, "spark"));
+        }
+      } else if (currentScene === 2) {
+        // Rain scene
+        if (frame % 3 === 0) {
+          for (let i = 0; i < 3; i++) particlesRef.current.push(mkParticle(w, h, "rain"));
+        }
+      } else {
+        // Ambient
+        if (frame % 8 === 0) particlesRef.current.push(mkParticle(w, h, "ambient"));
       }
 
-      // Update and draw particles
-      particlesRef.current = particlesRef.current.filter(p => p.life < p.maxLife);
-      for (const p of particlesRef.current) {
+      // Update + draw particles
+      particlesRef.current = particlesRef.current.filter(p => {
         p.life++;
         p.x += p.vx;
         p.y += p.vy;
-        const progress = p.life / p.maxLife;
-        const alpha = p.opacity * (1 - progress);
+        const t = p.life / p.maxLife;
+        const alpha = p.opacity * (t < 0.2 ? t / 0.2 : t > 0.7 ? (1 - t) / 0.3 : 1);
+        ctx.globalAlpha = Math.max(0, alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * (1 - t * 0.5), 0, Math.PI * 2);
+        ctx.fill();
+        return p.life < p.maxLife && p.x > -20 && p.x < w + 20 && p.y < h + 20;
+      });
 
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        if (p.color === "#ff6b35" || p.color === "#ffd700") {
-          // Fire glow
-          const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
-          gradient.addColorStop(0, p.color);
-          gradient.addColorStop(1, "transparent");
-          ctx.fillStyle = gradient;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = p.color;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size * (1 - progress * 0.5), 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-
-        // Respawn ambient particles
-        if (p.life >= p.maxLife && !isFireScene) {
-          Object.assign(p, createParticle(w, h, "ambient"));
-        }
-      }
-
-      // Keep ambient particle count stable
-      while (particlesRef.current.filter(p => p.color !== "#ff6b35" && p.color !== "#ffd700" && p.color !== "#fff").length < 60) {
-        particlesRef.current.push(createParticle(w, h, "ambient"));
-      }
-
-      frame++;
-      animFrameRef.current = requestAnimationFrame(draw);
+      ctx.globalAlpha = 1;
     };
-    animFrameRef.current = requestAnimationFrame(draw);
+    draw();
 
     return () => {
-      cancelAnimationFrame(animFrameRef.current);
+      cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [sceneIndex]);
+  }, []);
 
-  // ── CTA handlers ─────────────────────────────────────────────────────────
-  const handleCTA = () => {
+  // Sync scene/phase to canvas dataset for particle engine
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current.dataset.scene = String(scene);
+      canvasRef.current.dataset.phase = String(textPhase);
+    }
+  }, [scene, textPhase]);
+
+  // ─── Mouse parallax ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 12,
+      });
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  // ─── Dismiss ───────────────────────────────────────────────────────────────
+  const dismiss = useCallback(() => {
     setExiting(true);
     sessionStorage.setItem(SESSION_KEY, "1");
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        setVisible(false);
-        onDismiss?.();
-        navigate("/onboarding");
-      }, 700);
-    });
-  };
-
-  const handleSkip = () => {
-    setExiting(true);
-    sessionStorage.setItem(SESSION_KEY, "1");
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        setVisible(false);
-        onDismiss?.();
-        navigate("/");
-      }, 500);
-    });
-  };
+    setTimeout(() => {
+      setVisible(false);
+      onDismiss?.();
+      navigate("/music-video");
+    }, 800);
+  }, [navigate, onDismiss]);
 
   if (!visible) return null;
 
-  const px = mousePos.x;
-  const py = mousePos.y;
+  // ─── Scene backgrounds ─────────────────────────────────────────────────────
+  const sceneBg: Record<number, string> = {
+    0: "radial-gradient(ellipse at 50% 50%, #0a0a0f 0%, #000 100%)",
+    1: "radial-gradient(ellipse at 50% 50%, #0d0a1a 0%, #000 100%)",
+    2: "radial-gradient(ellipse at 50% 60%, #0a0f1a 0%, #000 100%)",
+    3: "radial-gradient(ellipse at 50% 80%, #1a0800 0%, #0d0500 40%, #000 100%)",
+    4: "radial-gradient(ellipse at 30% 50%, #0a0a1a 0%, #000 80%)",
+    5: "radial-gradient(ellipse at 50% 50%, #050510 0%, #000 100%)",
+    6: "radial-gradient(ellipse at 50% 40%, #0a0a18 0%, #000 100%)",
+  };
 
-  // ── Scene-specific colours ───────────────────────────────────────────────
-  const sceneAccent = [
-    "rgba(139,92,246,0.3)",   // 0: purple ambient
-    "rgba(99,102,241,0.4)",   // 1: indigo burst
-    "rgba(251,146,60,0.5)",   // 2: fire orange
-    "rgba(139,92,246,0.35)",  // 3: character purple
-    "rgba(59,130,246,0.3)",   // 4: montage blue
-    "rgba(167,139,250,0.4)",  // 5: final violet
-  ];
-
-  const isFireScene = sceneIndex === 2;
+  const fireActive = scene === 3 && textPhase >= 2;
+  const rainActive = scene === 2;
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] overflow-hidden bg-black ${exiting ? "opacity-0 scale-110" : "opacity-100 scale-100"}`}
-      style={{ transition: "transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease-out", willChange: "transform, opacity" }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
+      style={{
+        background: sceneBg[scene] || sceneBg[0],
+        transition: "background 1.2s ease",
+        opacity: exiting ? 0 : 1,
+        transform: exiting ? "scale(1.05)" : "scale(1)",
+        transitionProperty: "opacity, transform, background",
+        transitionDuration: exiting ? "0.8s" : "1.2s",
+      }}
     >
-      {/* ── Canvas particle layer ── */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-
-      {/* ── Parallax ambient glow — shifts with mouse ── */}
-      <div
+      {/* Canvas — particles */}
+      <canvas
+        ref={canvasRef}
         className="absolute inset-0 pointer-events-none"
-        style={{ transform: `translate(${px * 25}px, ${py * 18}px)`, transition: "transform 0.2s ease-out" }}
-      >
+        style={{ zIndex: 1 }}
+      />
+
+      {/* Fire glow overlay */}
+      {fireActive && (
         <div
-          className="absolute top-1/4 left-1/4 w-[700px] h-[700px] rounded-full"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: `radial-gradient(circle, ${sceneAccent[sceneIndex]} 0%, transparent 70%)`,
-            filter: "blur(80px)",
-            transition: "background 1s ease",
+            background: "radial-gradient(ellipse at 50% 90%, rgba(255,107,53,0.35) 0%, rgba(255,50,0,0.15) 40%, transparent 70%)",
+            zIndex: 2,
+            animation: "fireGlow 0.4s ease-in-out infinite alternate",
           }}
         />
-      </div>
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ transform: `translate(${px * -18}px, ${py * 12}px)`, transition: "transform 0.25s ease-out" }}
-      >
+      )}
+
+      {/* Lightning flash */}
+      {scene === 3 && textPhase === 2 && (
         <div
-          className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] rounded-full"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: `radial-gradient(circle, ${sceneAccent[(sceneIndex + 2) % 6]} 0%, transparent 70%)`,
-            filter: "blur(60px)",
-            transition: "background 1s ease",
+            background: "rgba(255,200,100,0.08)",
+            zIndex: 3,
+            animation: "lightningFlash 2.5s ease-in-out infinite",
           }}
         />
-      </div>
+      )}
 
-      {/* ── Fire scene: volumetric flame glow ── */}
+      {/* Rain overlay */}
+      {rainActive && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(180deg, rgba(30,60,100,0.15) 0%, transparent 100%)",
+            zIndex: 2,
+          }}
+        />
+      )}
+
+      {/* Vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse at 50% 80%, rgba(251,146,60,0.35) 0%, rgba(239,68,68,0.2) 30%, transparent 65%)",
-          opacity: isFireScene ? 1 : 0,
-          transition: "opacity 0.8s ease",
+          background: "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.85) 100%)",
+          zIndex: 4,
         }}
       />
 
-      {/* ── Beat burst radial ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse at center, ${sceneAccent[sceneIndex].replace("0.3", "0.1").replace("0.4", "0.12").replace("0.5", "0.15").replace("0.35", "0.1").replace("0.4", "0.12")} 0%, transparent 60%)`,
-          opacity: beatPulse ? 1 : 0,
-          transition: "opacity 0.08s ease",
-        }}
-      />
-
-      {/* ── Dark cinematic overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/25 to-black/40 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 pointer-events-none" />
-
-      {/* ── Vignette ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.75) 100%)" }}
-      />
-
-      {/* ── Film grain ── */}
+      {/* Film grain */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.04]"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")",
           backgroundSize: "128px 128px",
+          zIndex: 5,
         }}
       />
 
-      {/* ── Scene-specific background layers ── */}
-
-      {/* Scene 4: Character consistency — two-cut grid */}
+      {/* Main content — parallax layer */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ opacity: sceneIndex === 3 ? 0.18 : 0, transition: "opacity 0.8s ease" }}
+        className="relative flex flex-col items-center justify-center w-full h-full"
+        style={{
+          transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)`,
+          transition: "transform 0.3s ease-out",
+          zIndex: 10,
+        }}
       >
-        <div className="absolute inset-0 grid grid-cols-2 gap-1">
-          <div className="bg-gradient-to-br from-violet-900/60 to-purple-950/80 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-400/40 to-purple-600/40 border border-violet-400/30" />
-          </div>
-          <div className="bg-gradient-to-br from-violet-900/60 to-purple-950/80 flex items-center justify-center">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-400/40 to-purple-600/40 border border-violet-400/30" />
-          </div>
-        </div>
-      </div>
-
-      {/* Scene 5: Use-case montage — three-panel */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ opacity: sceneIndex === 4 ? 0.15 : 0, transition: "opacity 0.8s ease" }}
-      >
-        <div className="absolute inset-0 grid grid-cols-3 gap-1">
-          <div className="bg-gradient-to-br from-blue-900/60 to-blue-950/80" />
-          <div className="bg-gradient-to-br from-pink-900/60 to-pink-950/80" style={{ aspectRatio: "9/16" }} />
-          <div className="bg-gradient-to-br from-yellow-900/60 to-amber-950/80" />
-        </div>
-      </div>
-
-      {/* ── Main content ── */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center">
-
         {/* ── SCENE 1: "Your ideas..." ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-          style={{
-            opacity: sceneIndex === 0 ? 1 : 0,
-            transition: "opacity 0.8s ease",
-            pointerEvents: sceneIndex === 0 ? "auto" : "none",
-          }}
-        >
+        {scene <= 1 && (
           <div
-            className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-white/90 tracking-tight"
+            className="text-center px-8"
             style={{
-              textShadow: "0 0 60px rgba(139,92,246,0.5), 0 0 120px rgba(139,92,246,0.2)",
-              animation: "fadeSlideUp 0.8s ease forwards",
+              opacity: textPhase >= 1 ? 1 : 0,
+              transform: textPhase >= 1 ? "translateY(0)" : "translateY(20px)",
+              transition: "opacity 1.2s ease, transform 1.2s ease",
             }}
           >
-            Your ideas...
-          </div>
-        </div>
-
-        {/* ── SCENE 2: "...come to life" ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-          style={{
-            opacity: sceneIndex === 1 ? 1 : 0,
-            transition: "opacity 0.8s ease",
-            pointerEvents: sceneIndex === 1 ? "auto" : "none",
-          }}
-        >
-          <div
-            className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight"
-            style={{
-              background: "linear-gradient(135deg, #a78bfa 0%, #818cf8 40%, #60a5fa 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              textShadow: "none",
-              boxShadow: beatPulse ? "0 0 80px rgba(139,92,246,0.6)" : "none",
-              filter: beatPulse ? "brightness(1.3)" : "brightness(1)",
-              transition: "filter 0.08s ease",
-              animation: "fadeSlideUp 0.8s ease forwards",
-            }}
-          >
-            ...come to life
-          </div>
-          {/* Beat-pulse ring */}
-          <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            style={{ opacity: beatPulse ? 1 : 0, transition: "opacity 0.08s ease" }}
-          >
-            <div
-              className="rounded-full border border-violet-400/30"
-              style={{ width: "60vw", height: "60vw", maxWidth: 500, maxHeight: 500 }}
-            />
-          </div>
-        </div>
-
-        {/* ── SCENE 3: CAUSE→EFFECT USP ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-          style={{
-            opacity: sceneIndex === 2 ? 1 : 0,
-            transition: "opacity 0.6s ease",
-            pointerEvents: sceneIndex === 2 ? "auto" : "none",
-          }}
-        >
-          {/* Input text */}
-          <div
-            className="inline-flex items-center gap-3 bg-black/50 border border-white/10 backdrop-blur-sm rounded-xl px-6 py-3 mb-6"
-            style={{ animation: sceneIndex === 2 ? "fadeSlideUp 0.5s ease forwards" : "none" }}
-          >
-            <span className="text-white/40 text-sm font-mono">✎</span>
-            <span className="text-white/80 text-base sm:text-lg font-medium italic">"Walking through fire"</span>
-          </div>
-
-          {/* Arrow */}
-          <div
-            className="text-orange-400 text-3xl mb-6"
-            style={{
-              animation: sceneIndex === 2 ? "arrowPulse 0.6s ease 0.3s forwards" : "none",
-              opacity: 0,
-            }}
-          >
-            ↓
-          </div>
-
-          {/* Visual reaction label */}
-          <div
-            className="inline-flex items-center gap-2 bg-orange-500/15 border border-orange-500/30 rounded-full px-5 py-2.5"
-            style={{ animation: sceneIndex === 2 ? "fadeSlideUp 0.5s ease 0.5s forwards" : "none", opacity: 0 }}
-          >
-            <span className="text-2xl">🔥</span>
-            <span className="text-orange-300 font-semibold text-sm sm:text-base">Flames · Sparks · Heat</span>
-            <span className="text-2xl">⚡</span>
-          </div>
-
-          <p
-            className="mt-4 text-white/40 text-xs tracking-widest uppercase"
-            style={{ animation: sceneIndex === 2 ? "fadeSlideUp 0.5s ease 0.8s forwards" : "none", opacity: 0 }}
-          >
-            AI understands your content → generates matching visuals
-          </p>
-        </div>
-
-        {/* ── SCENE 4: Character consistency ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-          style={{
-            opacity: sceneIndex === 3 ? 1 : 0,
-            transition: "opacity 0.8s ease",
-            pointerEvents: sceneIndex === 3 ? "auto" : "none",
-          }}
-        >
-          <div
-            className="mb-4 text-white/40 text-xs tracking-widest uppercase"
-            style={{ animation: sceneIndex === 3 ? "fadeSlideUp 0.5s ease forwards" : "none" }}
-          >
-            Consistency Engine
-          </div>
-          <div
-            className="flex items-center gap-4 sm:gap-8"
-            style={{ animation: sceneIndex === 3 ? "fadeSlideUp 0.5s ease 0.2s forwards" : "none", opacity: 0 }}
-          >
-            {/* Cut 1 */}
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl border-2 border-violet-400/40 flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(99,102,241,0.15) 100%)" }}
-              >
-                <span className="text-4xl sm:text-5xl">👤</span>
-              </div>
-              <span className="text-white/30 text-xs">Scene 1</span>
-            </div>
-
-            {/* Same indicator */}
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-8 h-px bg-violet-400/50" />
-              <span className="text-violet-300 text-xs font-medium">Same</span>
-              <div className="w-8 h-px bg-violet-400/50" />
-            </div>
-
-            {/* Cut 2 */}
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl border-2 border-violet-400/40 flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(99,102,241,0.15) 100%)" }}
-              >
-                <span className="text-4xl sm:text-5xl">👤</span>
-              </div>
-              <span className="text-white/30 text-xs">Scene 8</span>
-            </div>
-          </div>
-
-          <div
-            className="mt-5 flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-2"
-            style={{ animation: sceneIndex === 3 ? "fadeSlideUp 0.5s ease 0.5s forwards" : "none", opacity: 0 }}
-          >
-            <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-            <span className="text-violet-300 text-sm font-medium">Same face · Same outfit · Every scene</span>
-          </div>
-        </div>
-
-        {/* ── SCENE 5: Use-case montage ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-          style={{
-            opacity: sceneIndex === 4 ? 1 : 0,
-            transition: "opacity 0.8s ease",
-            pointerEvents: sceneIndex === 4 ? "auto" : "none",
-          }}
-        >
-          <div
-            className="mb-6 text-white/40 text-xs tracking-widest uppercase"
-            style={{ animation: sceneIndex === 4 ? "fadeSlideUp 0.5s ease forwards" : "none" }}
-          >
-            One platform · Every format
-          </div>
-          <div
-            className="flex items-end gap-3 sm:gap-5"
-            style={{ animation: sceneIndex === 4 ? "fadeSlideUp 0.5s ease 0.2s forwards" : "none", opacity: 0 }}
-          >
-            {/* Cinematic 16:9 */}
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="rounded-xl border border-blue-400/30 flex items-center justify-center"
-                style={{ width: 100, height: 56, background: "linear-gradient(135deg, rgba(30,58,138,0.6) 0%, rgba(59,130,246,0.2) 100%)" }}
-              >
-                <span className="text-2xl">🎬</span>
-              </div>
-              <span className="text-blue-300 text-xs font-medium">Cinematic</span>
-            </div>
-
-            {/* Vertical 9:16 */}
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="rounded-xl border-2 border-pink-400/40 flex items-center justify-center"
-                style={{ width: 56, height: 100, background: "linear-gradient(180deg, rgba(131,24,67,0.6) 0%, rgba(236,72,153,0.2) 100%)" }}
-              >
-                <span className="text-2xl">📱</span>
-              </div>
-              <span className="text-pink-300 text-xs font-medium">Social</span>
-            </div>
-
-            {/* Kids animated */}
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="rounded-xl border border-yellow-400/30 flex items-center justify-center"
-                style={{ width: 100, height: 56, background: "linear-gradient(135deg, rgba(120,53,15,0.6) 0%, rgba(234,179,8,0.2) 100%)" }}
-              >
-                <span className="text-2xl">✨</span>
-              </div>
-              <span className="text-yellow-300 text-xs font-medium">Kids</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── SCENE 6: Polished final output + CTA ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-          style={{
-            opacity: sceneIndex === 5 ? 1 : 0,
-            transition: "opacity 0.8s ease",
-            pointerEvents: sceneIndex === 5 ? "auto" : "none",
-          }}
-        >
-          {/* WizVid badge */}
-          <div
-            className="mb-6"
-            style={{ animation: sceneIndex === 5 ? "fadeSlideUp 0.5s ease forwards" : "none" }}
-          >
-            <span className="inline-flex items-center gap-2 bg-white/5 border border-white/10 backdrop-blur-md rounded-full px-5 py-2 text-sm text-purple-300 font-medium tracking-wide">
-              <span
-                className="w-2 h-2 rounded-full bg-purple-400"
-                style={{
-                  boxShadow: beatPulse ? "0 0 8px 3px rgba(167,139,250,0.8)" : "0 0 4px 1px rgba(167,139,250,0.4)",
-                  transition: "box-shadow 0.08s ease",
-                }}
-              />
-              WizVid · AI Video Creator
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-4 max-w-3xl"
-            style={{
-              animation: sceneIndex === 5 ? "fadeSlideUp 0.5s ease 0.1s forwards" : "none",
-              opacity: 0,
-            }}
-          >
-            <span className="text-white">Turn your ideas into</span>
-            <br />
-            <span
+            <p
+              className="font-light tracking-[0.3em] uppercase text-sm text-white/40 mb-6"
+              style={{ letterSpacing: "0.4em" }}
+            >
+              WizVid
+            </p>
+            <h1
+              className="text-5xl md:text-7xl lg:text-8xl font-thin text-white"
               style={{
-                background: "linear-gradient(135deg, #a78bfa 0%, #818cf8 40%, #60a5fa 100%)",
+                fontFamily: "'Bebas Neue', 'Arial Narrow', sans-serif",
+                letterSpacing: "0.05em",
+                textShadow: "0 0 80px rgba(167,139,250,0.3)",
+              }}
+            >
+              Your ideas...
+            </h1>
+          </div>
+        )}
+
+        {/* ── SCENE 2: "...become real" ── */}
+        {scene === 2 && (
+          <div
+            className="text-center px-8"
+            style={{
+              opacity: textPhase >= 1 ? 1 : 0,
+              transform: textPhase >= 1 ? "scale(1)" : "scale(0.95)",
+              transition: "opacity 0.8s ease, transform 1.4s ease",
+            }}
+          >
+            <h1
+              className="text-5xl md:text-7xl lg:text-8xl font-thin"
+              style={{
+                fontFamily: "'Bebas Neue', 'Arial Narrow', sans-serif",
+                letterSpacing: "0.05em",
+                background: "linear-gradient(135deg, #fff 0%, #a78bfa 50%, #60a5fa 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
+                textShadow: "none",
+                filter: "drop-shadow(0 0 40px rgba(167,139,250,0.5))",
               }}
             >
-              cinematic video
-            </span>
-          </h1>
+              ...become real
+            </h1>
+            {/* Beat pulse light */}
+            {textPhase >= 1 && (
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: "radial-gradient(ellipse at 50% 50%, rgba(167,139,250,0.12) 0%, transparent 60%)",
+                  animation: "beatPulse 1.2s ease-in-out infinite",
+                  zIndex: -1,
+                }}
+              />
+            )}
+          </div>
+        )}
 
-          {/* Subheadline */}
-          <p
-            className="text-base sm:text-lg text-white/55 max-w-xl leading-relaxed mb-8"
-            style={{
-              animation: sceneIndex === 5 ? "fadeSlideUp 0.5s ease 0.2s forwards" : "none",
-              opacity: 0,
-            }}
-          >
-            AI that understands your content, lyrics and story
-          </p>
-
-          {/* CTA */}
-          <div
-            style={{
-              animation: sceneIndex === 5 ? "fadeSlideUp 0.5s ease 0.35s forwards" : "none",
-              opacity: 0,
-            }}
-          >
-            <button
-              onClick={handleCTA}
-              className="group relative inline-flex items-center gap-3 text-white font-bold text-lg px-10 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105"
+        {/* ── SCENE 3: "Walking through fire" → world reacts ── */}
+        {scene === 3 && (
+          <div className="text-center px-8 relative">
+            {/* The lyric text */}
+            <div
               style={{
-                background: "linear-gradient(135deg, rgba(139,92,246,0.95) 0%, rgba(99,102,241,0.95) 50%, rgba(59,130,246,0.95) 100%)",
-                boxShadow: beatPulse
-                  ? "0 0 50px rgba(139,92,246,0.8), 0 0 100px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
-                  : "0 0 25px rgba(139,92,246,0.45), 0 0 50px rgba(139,92,246,0.18), inset 0 1px 0 rgba(255,255,255,0.15)",
-                transition: "box-shadow 0.08s ease, transform 0.3s ease",
+                opacity: textPhase >= 1 ? 1 : 0,
+                transform: textPhase >= 1 ? "translateY(0)" : "translateY(16px)",
+                transition: "opacity 0.5s ease, transform 0.5s ease",
               }}
             >
-              <span className="absolute inset-0 rounded-2xl pointer-events-none" style={{ border: "1px solid rgba(167,139,250,0.5)", animation: "ctaBorderPulse 2s ease-in-out infinite" }} />
-              <span className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%)", backgroundSize: "200% 100%", animation: "shimmerSweep 1.5s ease infinite" }} />
-              <svg className="w-5 h-5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-              </svg>
-              <span className="relative z-10">Create Your First Video</span>
-              <svg className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </button>
+              <p
+                className="text-white/30 text-sm tracking-[0.4em] uppercase mb-4"
+              >
+                {textPhase < 2 ? "input" : "reacting..."}
+              </p>
+              <h2
+                className="text-4xl md:text-6xl lg:text-7xl font-thin text-white"
+                style={{
+                  fontFamily: "'Bebas Neue', 'Arial Narrow', sans-serif",
+                  letterSpacing: "0.06em",
+                  textShadow: textPhase >= 2
+                    ? "0 0 60px rgba(255,107,53,0.8), 0 0 120px rgba(255,50,0,0.4)"
+                    : "0 0 40px rgba(255,255,255,0.1)",
+                  transition: "text-shadow 0.3s ease",
+                  color: textPhase >= 2 ? "#ffb347" : "#fff",
+                }}
+              >
+                Walking through fire
+              </h2>
+            </div>
 
-            <div className="mt-5">
-              <button onClick={handleSkip} className="text-white/30 hover:text-white/60 text-sm transition-colors duration-200 underline underline-offset-4">
-                Skip intro
-              </button>
+            {/* Reaction indicator — appears immediately with fire */}
+            {textPhase >= 2 && (
+              <div
+                className="mt-8 flex items-center justify-center gap-3"
+                style={{
+                  opacity: 1,
+                  animation: "fadeInUp 0.3s ease forwards",
+                }}
+              >
+                <div className="w-8 h-px bg-orange-400/60" />
+                <span
+                  className="text-orange-300/70 text-xs tracking-[0.3em] uppercase"
+                >
+                  AI understood
+                </span>
+                <div className="w-8 h-px bg-orange-400/60" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── SCENE 4: Character consistency — pure visual, no UI ── */}
+        {scene === 4 && (
+          <div
+            className="flex items-center justify-center gap-0 w-full max-w-2xl px-8"
+            style={{
+              opacity: textPhase >= 1 ? 1 : 0,
+              transition: "opacity 0.8s ease",
+            }}
+          >
+            {/* Scene A — forest/dark */}
+            <div
+              className="relative overflow-hidden"
+              style={{
+                width: "42%",
+                aspectRatio: "9/16",
+                background: "linear-gradient(160deg, #0d1a0d 0%, #1a2a1a 40%, #0a0f0a 100%)",
+                borderRadius: "12px 0 0 12px",
+                boxShadow: "inset 0 0 40px rgba(0,0,0,0.8)",
+              }}
+            >
+              {/* Character silhouette */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div style={{ position: "relative" }}>
+                  {/* Head */}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%",
+                    background: "linear-gradient(135deg, #c8a882 0%, #a07850 100%)",
+                    margin: "0 auto 4px",
+                    boxShadow: "0 0 20px rgba(200,168,130,0.3)",
+                  }} />
+                  {/* Body — dark jacket */}
+                  <div style={{
+                    width: 56, height: 70,
+                    background: "linear-gradient(180deg, #1a1a1a 0%, #111 100%)",
+                    borderRadius: "8px 8px 4px 4px",
+                    margin: "0 auto",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+                  }} />
+                </div>
+              </div>
+              {/* Scene label */}
+              <div className="absolute bottom-3 left-0 right-0 text-center">
+                <span className="text-white/20 text-[10px] tracking-widest uppercase">Scene 1</span>
+              </div>
+              {/* Forest atmosphere */}
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "radial-gradient(ellipse at 50% 0%, rgba(30,60,30,0.4) 0%, transparent 60%)",
+                pointerEvents: "none",
+              }} />
+            </div>
+
+            {/* Divider */}
+            <div style={{
+              width: 2, height: "60%", alignSelf: "center",
+              background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.15), transparent)",
+            }} />
+
+            {/* Scene B — city/neon */}
+            <div
+              className="relative overflow-hidden"
+              style={{
+                width: "42%",
+                aspectRatio: "9/16",
+                background: "linear-gradient(160deg, #0a0a1a 0%, #0d0d2a 40%, #050510 100%)",
+                borderRadius: "0 12px 12px 0",
+                boxShadow: "inset 0 0 40px rgba(0,0,0,0.8)",
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div style={{ position: "relative" }}>
+                  {/* Same head */}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%",
+                    background: "linear-gradient(135deg, #c8a882 0%, #a07850 100%)",
+                    margin: "0 auto 4px",
+                    boxShadow: "0 0 20px rgba(167,139,250,0.4)",
+                  }} />
+                  {/* Same dark jacket */}
+                  <div style={{
+                    width: 56, height: 70,
+                    background: "linear-gradient(180deg, #1a1a1a 0%, #111 100%)",
+                    borderRadius: "8px 8px 4px 4px",
+                    margin: "0 auto",
+                    boxShadow: "0 4px 20px rgba(167,139,250,0.3)",
+                  }} />
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-0 right-0 text-center">
+                <span className="text-white/20 text-[10px] tracking-widest uppercase">Scene 8</span>
+              </div>
+              {/* City neon atmosphere */}
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "radial-gradient(ellipse at 50% 0%, rgba(167,139,250,0.2) 0%, transparent 60%)",
+                pointerEvents: "none",
+              }} />
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ── Scene progress dots (always visible) ── */}
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2 pointer-events-none">
-          {[0,1,2,3,4,5].map(i => (
+        {/* ── SCENE 5: 3 rapid visual cuts ── */}
+        {scene === 5 && (
+          <div
+            className="flex items-center justify-center gap-3 w-full max-w-3xl px-8"
+            style={{
+              opacity: textPhase >= 1 ? 1 : 0,
+              transition: "opacity 0.4s ease",
+            }}
+          >
+            {/* Cinematic 16:9 */}
+            <div
+              className="relative overflow-hidden flex-1"
+              style={{
+                aspectRatio: "16/9",
+                background: "linear-gradient(135deg, #0a0a18 0%, #1a1030 50%, #0d0820 100%)",
+                borderRadius: 8,
+                opacity: textPhase >= 1 ? 1 : 0,
+                transform: textPhase >= 1 ? "scale(1)" : "scale(0.9)",
+                transition: "opacity 0.4s ease, transform 0.4s ease",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)",
+              }}
+            >
+              {/* Letterbox bars */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "10%", background: "#000" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "10%", background: "#000" }} />
+              {/* Cinematic light */}
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "radial-gradient(ellipse at 30% 50%, rgba(167,139,250,0.25) 0%, transparent 60%)",
+              }} />
+              {/* Character silhouette */}
+              <div style={{
+                position: "absolute", bottom: "15%", left: "25%",
+                width: 20, height: 40,
+                background: "rgba(0,0,0,0.8)",
+                borderRadius: "4px 4px 2px 2px",
+              }} />
+            </div>
+
+            {/* Vertical 9:16 */}
+            <div
+              className="relative overflow-hidden"
+              style={{
+                width: "18%",
+                aspectRatio: "9/16",
+                background: "linear-gradient(160deg, #1a0a1a 0%, #2a1030 50%, #0d0820 100%)",
+                borderRadius: 8,
+                opacity: textPhase >= 2 ? 1 : 0,
+                transform: textPhase >= 2 ? "scale(1)" : "scale(0.9)",
+                transition: "opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)",
+              }}
+            >
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "radial-gradient(ellipse at 50% 30%, rgba(236,72,153,0.3) 0%, transparent 60%)",
+              }} />
+              {/* TikTok-style UI hint */}
+              <div style={{
+                position: "absolute", right: 6, top: "30%",
+                display: "flex", flexDirection: "column", gap: 8,
+              }}>
+                {[1, 2, 3].map(i => (
+                  <div key={i} style={{
+                    width: 16, height: 16, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.15)",
+                  }} />
+                ))}
+              </div>
+            </div>
+
+            {/* Kids / animated */}
+            <div
+              className="relative overflow-hidden flex-1"
+              style={{
+                aspectRatio: "16/9",
+                background: "linear-gradient(135deg, #0a1a0a 0%, #1a2a10 50%, #0d1808 100%)",
+                borderRadius: 8,
+                opacity: textPhase >= 3 ? 1 : 0,
+                transform: textPhase >= 3 ? "scale(1)" : "scale(0.9)",
+                transition: "opacity 0.4s ease 0.4s, transform 0.4s ease 0.4s",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)",
+              }}
+            >
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "radial-gradient(ellipse at 50% 80%, rgba(250,204,21,0.2) 0%, transparent 60%)",
+              }} />
+              {/* Cartoon-style sun */}
+              <div style={{
+                position: "absolute", top: "15%", right: "20%",
+                width: 24, height: 24, borderRadius: "50%",
+                background: "radial-gradient(circle, #fde68a 0%, #f59e0b 100%)",
+                boxShadow: "0 0 20px rgba(245,158,11,0.6)",
+              }} />
+            </div>
+          </div>
+        )}
+
+        {/* ── SCENE 6: Zoom out + headline + CTA ── */}
+        {scene === 6 && (
+          <div
+            className="text-center px-8 flex flex-col items-center"
+            style={{
+              opacity: textPhase >= 1 ? 1 : 0,
+              transform: textPhase >= 1 ? "scale(1)" : "scale(1.08)",
+              transition: "opacity 1s ease, transform 1.5s ease",
+            }}
+          >
+            {/* Polished video frame */}
+            <div
+              className="relative mb-10 overflow-hidden"
+              style={{
+                width: "min(560px, 80vw)",
+                aspectRatio: "16/9",
+                background: "linear-gradient(135deg, #0a0a18 0%, #1a1030 50%, #0d0820 100%)",
+                borderRadius: 12,
+                boxShadow: "0 0 0 1px rgba(255,255,255,0.08), 0 24px 80px rgba(0,0,0,0.8), 0 0 60px rgba(167,139,250,0.15)",
+              }}
+            >
+              {/* Letterbox */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "8%", background: "#000", zIndex: 2 }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "8%", background: "#000", zIndex: 2 }} />
+              {/* Cinematic scene */}
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "radial-gradient(ellipse at 30% 60%, rgba(167,139,250,0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 40%, rgba(96,165,250,0.2) 0%, transparent 50%)",
+              }} />
+              {/* Character */}
+              <div style={{
+                position: "absolute", bottom: "15%", left: "50%", transform: "translateX(-50%)",
+              }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%",
+                  background: "linear-gradient(135deg, #c8a882 0%, #a07850 100%)",
+                  margin: "0 auto 3px",
+                  boxShadow: "0 0 15px rgba(200,168,130,0.4)",
+                }} />
+                <div style={{
+                  width: 44, height: 55,
+                  background: "linear-gradient(180deg, #1a1a1a 0%, #111 100%)",
+                  borderRadius: "6px 6px 3px 3px",
+                  margin: "0 auto",
+                }} />
+              </div>
+              {/* Scan line */}
+              <div style={{
+                position: "absolute", inset: 0, zIndex: 3,
+                backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px)",
+              }} />
+            </div>
+
+            {/* Headline */}
+            <h1
+              className="text-3xl md:text-5xl font-thin text-white mb-4"
+              style={{
+                fontFamily: "'Bebas Neue', 'Arial Narrow', sans-serif",
+                letterSpacing: "0.06em",
+                textShadow: "0 0 60px rgba(167,139,250,0.3)",
+              }}
+            >
+              Turn your ideas into cinematic video
+            </h1>
+            <p className="text-white/40 text-sm tracking-widest uppercase mb-10">
+              AI that understands your content, lyrics and story
+            </p>
+
+            {/* CTA */}
+            <button
+              onClick={dismiss}
+              className="relative px-10 py-4 text-sm font-medium tracking-[0.2em] uppercase text-white overflow-hidden group"
+              style={{
+                background: "linear-gradient(135deg, rgba(167,139,250,0.2) 0%, rgba(96,165,250,0.2) 100%)",
+                border: "1px solid rgba(167,139,250,0.5)",
+                borderRadius: 4,
+                boxShadow: "0 0 30px rgba(167,139,250,0.2), inset 0 0 20px rgba(167,139,250,0.05)",
+                animation: "ctaPulse 3s ease-in-out infinite",
+              }}
+            >
+              <span className="relative z-10">Create Your First Video</span>
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: "linear-gradient(135deg, rgba(167,139,250,0.3) 0%, rgba(96,165,250,0.3) 100%)",
+                }}
+              />
+            </button>
+
+            {/* Skip */}
+            <button
+              onClick={dismiss}
+              className="mt-6 text-white/20 text-xs tracking-[0.3em] uppercase hover:text-white/40 transition-colors"
+            >
+              Skip intro
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Scene progress dots */}
+      {scene < 6 && (
+        <div
+          className="absolute bottom-8 left-0 right-0 flex justify-center gap-2"
+          style={{ zIndex: 20 }}
+        >
+          {[1, 2, 3, 4, 5, 6].map(i => (
             <div
               key={i}
-              className="rounded-full transition-all duration-500"
               style={{
-                width: sceneIndex === i ? 20 : 6,
-                height: 6,
-                background: sceneIndex === i ? "rgba(167,139,250,0.9)" : "rgba(255,255,255,0.15)",
+                width: i === scene ? 20 : 4,
+                height: 2,
+                borderRadius: 2,
+                background: i === scene ? "rgba(167,139,250,0.8)" : "rgba(255,255,255,0.15)",
+                transition: "width 0.4s ease, background 0.4s ease",
               }}
             />
           ))}
         </div>
-      </div>
+      )}
 
-      {/* ── Keyframes ── */}
+      {/* Skip button (always visible in early scenes) */}
+      {scene < 6 && (
+        <button
+          onClick={dismiss}
+          className="absolute top-6 right-6 text-white/20 text-xs tracking-[0.3em] uppercase hover:text-white/40 transition-colors"
+          style={{ zIndex: 20 }}
+        >
+          Skip
+        </button>
+      )}
+
+      {/* Keyframe styles */}
       <style>{`
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
+        @keyframes fireGlow {
+          from { opacity: 0.6; }
+          to { opacity: 1; }
         }
-        @keyframes arrowPulse {
-          0%   { opacity: 0; transform: translateY(-8px); }
-          60%  { opacity: 1; transform: translateY(0); }
-          100% { opacity: 1; transform: translateY(0); }
+        @keyframes lightningFlash {
+          0%, 100% { opacity: 0; }
+          8% { opacity: 1; }
+          12% { opacity: 0; }
+          16% { opacity: 0.7; }
+          20% { opacity: 0; }
+          55% { opacity: 0; }
+          58% { opacity: 0.5; }
+          62% { opacity: 0; }
         }
-        @keyframes ctaBorderPulse {
-          0%, 100% { opacity: 0.5; transform: scale(1); }
-          50%       { opacity: 1;   transform: scale(1.01); }
+        @keyframes beatPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
         }
-        @keyframes shimmerSweep {
-          0%   { background-position: -200% 0; }
-          100% { background-position:  200% 0; }
+        @keyframes ctaPulse {
+          0%, 100% { box-shadow: 0 0 30px rgba(167,139,250,0.2), inset 0 0 20px rgba(167,139,250,0.05); }
+          50% { box-shadow: 0 0 50px rgba(167,139,250,0.4), inset 0 0 30px rgba(167,139,250,0.1); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
