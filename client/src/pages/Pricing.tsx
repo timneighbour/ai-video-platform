@@ -31,10 +31,11 @@ const PLANS = [
     icon: <Zap className="w-4 h-4" />,
     monthlyPrice: 19,
     label: "Try it out",
-    desc: "5 renders included every month. Great for testing ideas and occasional projects.",
+    desc: "Create music videos, animations, and faceless content. 5 renders included every month.",
     popular: false,
     badge: null as string | null,
     rendersPerMonth: 5,
+    perRender: "£3.80",
     features: [
       { text: "5 renders/month included", included: true },
       { text: "All video styles", included: true },
@@ -52,10 +53,12 @@ const PLANS = [
     icon: <Star className="w-4 h-4" />,
     monthlyPrice: 39,
     label: "Most popular",
-    desc: "15 renders included every month. Perfect for active creators and growing channels.",
+    desc: "Create music videos, animations, and faceless content. 15 renders included every month.",
     popular: true,
     badge: "Most popular",
     rendersPerMonth: 15,
+    perRender: "£2.60",
+    bestValue: true,
     features: [
       { text: "15 renders/month included", included: true },
       { text: "All video styles", included: true },
@@ -73,10 +76,11 @@ const PLANS = [
     icon: <Crown className="w-4 h-4" />,
     monthlyPrice: 99,
     label: "Professional",
-    desc: "40 renders included every month. Full creative control for studios and agencies.",
+    desc: "Create music videos, animations, and faceless content at scale. 40 renders included every month.",
     popular: false,
     badge: null as string | null,
     rendersPerMonth: 40,
+    perRender: "£2.47",
     features: [
       { text: "40 renders/month included", included: true },
       { text: "All video styles", included: true },
@@ -265,7 +269,7 @@ export default function Pricing() {
                 step: "01",
                 icon: <Sparkles className="w-5 h-5 text-violet-400" />,
                 title: "Create for free",
-                desc: "Upload your audio, generate your storyboard, and build your video. No credit card needed.",
+                desc: "Upload your audio, generate your storyboard, and build your video. No credit card needed to start creating.",
               },
               {
                 step: "02",
@@ -298,7 +302,7 @@ export default function Pricing() {
         <div className="max-w-5xl mx-auto px-6 mb-20" id="render-pricing">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Pay per render</h2>
-            <p className="text-sm text-white/45">No subscription needed. Pay only when you download.</p>
+            <p className="text-sm text-white/45">Pay per render, or save with monthly plans.</p>
           </div>
 
           {/* Quality tiers */}
@@ -340,14 +344,14 @@ export default function Pricing() {
                     <h3 className="text-sm font-semibold text-white">Powered by WizSound™</h3>
                     <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
                   </div>
-                  <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
+                  <p className="text-[10px] text-white/45 mt-0.5">Make your videos sound as good as they look</p>
                 </div>
               </div>
               <span className="text-xs text-white/35">Optional — add to any render</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: "Standard Audio", price: 0, desc: "Original audio, used as-is", features: ["Stereo output", "Original mix"] },
+                { label: "Standard Audio (included)", price: 0, desc: "Original audio, used as-is", features: ["Stereo output", "Original mix"] },
                 { label: "WizSound Enhance", price: 1, desc: "Polished, fuller sound", features: ["Stereo widening", "Frequency EQ", "Noise reduction"] },
                 { label: "WizSound Cinematic", price: 3, desc: "Full proprietary mastering pipeline", features: ["Full mastering", "Immersive depth", "Dynamic range", "Streaming loudness"], badge: "RECOMMENDED" },
               ].map((audio) => (
@@ -428,6 +432,11 @@ export default function Pricing() {
                     <Zap className="w-3 h-3" />
                     {plan.rendersPerMonth} renders/month included
                   </div>
+                  <div className={`mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium ${
+                    (plan as any).bestValue ? "text-amber-300" : "text-white/35"
+                  }`}>
+                    {(plan as any).perRender} per render{(plan as any).bestValue && <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>}
+                  </div>
                 </div>
 
                 <p className="text-xs text-white/45 mb-5 leading-relaxed">{plan.desc}</p>
@@ -460,12 +469,14 @@ export default function Pricing() {
                       Loading…
                     </span>
                   ) : (
-                    `Subscribe — £${plan.monthlyPrice}/mo`
+                    `Get ${plan.name} Plan — £${plan.monthlyPrice}/mo`
                   )}
                 </Button>
               </div>
             ))}
           </div>
+          {/* Trust messaging */}
+          <p className="text-center text-xs text-white/30 mt-6 tracking-wide">No hidden fees • Full control before checkout</p>
         </div>
 
         {/* ── Render bundles ── */}
@@ -473,6 +484,7 @@ export default function Pricing() {
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Render bundles</h2>
             <p className="text-sm text-white/45">Buy renders in bulk and save. Bundles never expire.</p>
+            <p className="text-xs text-emerald-400/80 mt-1 font-medium">Save up to 30% vs pay-per-render</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
