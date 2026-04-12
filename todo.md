@@ -2273,3 +2273,7 @@
 - [x] Build WizSoundPreviewPlayer inline component (play/pause, progress bar, tier label)
 - [x] Wire preview player into RenderPaywallModal audio tier buttons
 - [x] Write vitest tests for the preview procedure (7 tests passing, CDN reachability confirmed)
+
+## WizSound™ Post-Preview Auto-Highlight
+- [x] After preview ends: auto-select that audio tier and show a 3s emerald glow highlight on the tier card
+- [x] Show a "✓ Selected" emerald nudge label that fades out after 3s

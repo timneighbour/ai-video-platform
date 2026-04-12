@@ -89,6 +89,8 @@ export function RenderPaywallModal({
   const [isLoading, setIsLoading] = useState(false);
   const [playingTier, setPlayingTier] = useState<AudioTier | null>(null);
   const [previewProgress, setPreviewProgress] = useState<Record<AudioTier, number>>({ standard: 0, enhanced: 0, cinematic: 0 });
+  const [justListened, setJustListened] = useState<AudioTier | null>(null);
+  const justListenedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioRefs = useRef<Record<AudioTier, HTMLAudioElement | null>>({ standard: null, enhanced: null, cinematic: null });
 
   const wizSoundPreviews = trpc.render.getWizSoundPreviews.useQuery(undefined, {
@@ -104,6 +106,8 @@ export function RenderPaywallModal({
       });
       setPlayingTier(null);
       setPreviewProgress({ standard: 0, enhanced: 0, cinematic: 0 });
+      setJustListened(null);
+      if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current);
     }
   }, [open]);
 
@@ -300,6 +304,11 @@ export function RenderPaywallModal({
                 onEnded={() => {
                   setPlayingTier(null);
                   setPreviewProgress((p) => ({ ...p, [a.id]: 0 }));
+                  // Auto-select this tier and show highlight nudge for 3s
+                  setAudioTier(a.id);
+                  setJustListened(a.id);
+                  if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current);
+                  justListenedTimerRef.current = setTimeout(() => setJustListened(null), 3000);
                 }}
               />
             ))}
@@ -308,12 +317,15 @@ export function RenderPaywallModal({
                   const previewUrl = wizSoundPreviews.data?.[a.id as keyof typeof wizSoundPreviews.data];
                   const isPlaying = playingTier === a.id;
                   const progress = previewProgress[a.id];
+                  const isJustListened = justListened === a.id;
                   return (
                   <button
                     key={a.id}
-                    onClick={() => setAudioTier(a.id)}
-                    className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200 text-left ${
-                      audioTier === a.id
+                    onClick={() => { setAudioTier(a.id); setJustListened(null); if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current); }}
+                    className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-300 text-left ${
+                      isJustListened
+                        ? "border-emerald-400 bg-emerald-500/10 shadow-[0_0_20px_rgba(52,211,153,0.25)]"
+                        : audioTier === a.id
                         ? "border-violet-500 bg-violet-500/15 shadow-[0_0_15px_rgba(139,92,246,0.15)]"
                         : "border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5"
                     }`}
@@ -388,8 +400,13 @@ export function RenderPaywallModal({
                               />
                             </div>
                           )}
-                          {!isPlaying && progress === 0 && (
+                          {!isPlaying && progress === 0 && !isJustListened && (
                             <span className="text-[9px] text-white/25">10s sample</span>
+                          )}
+                          {isJustListened && (
+                            <span className="text-[9px] text-emerald-400 font-semibold animate-pulse">
+                              ✓ Selected
+                            </span>
                           )}
                         </div>
                       )}
