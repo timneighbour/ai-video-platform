@@ -15,6 +15,7 @@ const CLIP_MUSIC   = `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`;
 const BG_POSTER = `${CDN}/wizvid-intro-bg-4k-S9fuvpjGgLio3Y2rzSEUfh.webp`;
 
 export const INTRO_SESSION_KEY = "wizvid_intro_seen";
+const SOUND_PREF_KEY = "wizvid_sound_enabled";
 
 interface Props {
   onComplete: () => void;
@@ -48,8 +49,10 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const [wizsoundVisible, setWizsoundVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  // Audio
-  const [soundEnabled, setSoundEnabled] = useState(false);
+  // Audio — restore localStorage preference
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try { return localStorage.getItem(SOUND_PREF_KEY) === "true"; } catch { return false; }
+  });
   const [soundButtonVisible, setSoundButtonVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUnlockedRef = useRef(false);
@@ -171,6 +174,8 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const enableSound = useCallback(() => {
     if (soundEnabled) return;
     setSoundEnabled(true);
+    // Persist preference
+    try { localStorage.setItem(SOUND_PREF_KEY, "true"); } catch { /* noop */ }
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = false;
@@ -184,25 +189,49 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         freshAudio.volume = 0;
         audioRef.current = freshAudio;
         freshAudio.play().catch(() => {});
-        // Fade in fresh audio
+        // Slow fade-in: build from quiet over ~2s (0.03 per 60ms)
         let v = 0;
         const fi = setInterval(() => {
-          v = Math.min(0.9, v + 0.06);
+          v = Math.min(0.9, v + 0.03);
           freshAudio.volume = v;
           if (v >= 0.9) clearInterval(fi);
-        }, 50);
+        }, 60);
       });
     }
-    // Fade in
+    // Slow fade-in: build from quiet over ~2s (0.03 per 60ms)
     let vol = 0;
     const fadeIn = setInterval(() => {
       const a = audioRef.current;
       if (!a) { clearInterval(fadeIn); return; }
-      vol = Math.min(0.9, vol + 0.06);
+      vol = Math.min(0.9, vol + 0.03);
       a.volume = vol;
       if (vol >= 0.9) clearInterval(fadeIn);
-    }, 50);
+    }, 60);
   }, [soundEnabled]);
+
+  /* ── Auto-play sound if preference is saved ─────────────────────────── */
+  useEffect(() => {
+    if (!soundEnabled) return;
+    // User previously enabled sound — start playing as soon as audio is ready
+    const tryPlay = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.muted = false;
+      audio.volume = 0;
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        let vol = 0;
+        const fadeIn = setInterval(() => {
+          vol = Math.min(0.9, vol + 0.03);
+          audio.volume = vol;
+          if (vol >= 0.9) clearInterval(fadeIn);
+        }, 60);
+      }).catch(() => {});
+    };
+    // Delay slightly to ensure audio element is primed
+    const t = setTimeout(tryPlay, 1200);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Keyboard skip (only at logo stage) ─────────────────────────────── */
   useEffect(() => {
@@ -521,10 +550,11 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 32px rgba(109,40,217,0.4), 0 4px 16px rgba(0,0,0,0.4)";
                 (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
               }}
-              aria-label="Enter WizVid"
+              id="enter-site-btn"
+              aria-label="Enter WizVid Studio"
             >
               <span className="relative z-10 flex items-center gap-2">
-                Enter Site
+                ▶ Enter WizVid Studio
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -571,7 +601,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
             cursor: "pointer",
             animation: "soundPulse 2s ease-in-out infinite",
           }}
-          aria-label="Enable cinematic sound"
+          aria-label="Enable sound"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />

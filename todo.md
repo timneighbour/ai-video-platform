@@ -2479,3 +2479,12 @@
 - [ ] Add "Enter WizVid Studio" button with id="enter-site-btn", aria-label, scrolls to main content
 - [ ] Fallback: show poster image if video fails to load / autoplay blocked
 - [ ] Performance: loading="lazy", width/height attributes, aria-hidden="true" on video
+
+## Intro Refinement (v3) - COMPLETED ✅
+- [x] Final frame: no auto-dismiss — user must click CTA (already correct, no change needed)
+- [x] CTA: "▶ Enter WizVid Studio" with id="enter-site-btn" and aria-label="Enter WizVid Studio"
+- [x] Audio: slow fade-in over ~2s (0.03 vol per 60ms tick), builds from quiet
+- [x] Persist sound preference in localStorage (wizvid_sound_enabled key)
+- [x] Auto-play on next visit if preference is saved (with 1.2s delay for audio priming)
+- [x] Skip button: calls dismiss() immediately — already working
+- [x] aria-label="Enable sound" on sound button
