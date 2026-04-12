@@ -459,31 +459,39 @@ export default function Pricing() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="flex items-baseline gap-1 transition-all duration-300">
+                  {/* Price block — fades between billing modes */}
+                  <div
+                    key={billingCycle}
+                    style={{ animation: "priceFadeIn 220ms ease-out" }}
+                  >
                     {billingCycle === "monthly" ? (
                       <>
-                        <span className="text-3xl font-extrabold text-white">£{plan.monthlyPrice}</span>
-                        <span className="text-sm text-white/40">/month</span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-extrabold text-white">£{plan.monthlyPrice}</span>
+                          <span className="text-sm text-white/40">/mo</span>
+                        </div>
+                        <p className="text-xs text-white/35 mt-0.5">billed monthly</p>
                       </>
                     ) : (
                       <>
-                        <span className="text-3xl font-extrabold text-white">£{Math.round((plan as any).annualPrice / 12)}</span>
-                        <span className="text-sm text-white/40">/month</span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-extrabold text-white">£{(plan as any).annualPrice}</span>
+                          <span className="text-sm text-white/40">/year</span>
+                        </div>
+                        <p className="text-xs text-emerald-400/80 mt-0.5 font-medium">Save 20% vs monthly</p>
                       </>
                     )}
                   </div>
-                  {billingCycle === "annual" && (
-                    <p className="text-xs text-emerald-400/70 mt-0.5">£{(plan as any).annualPrice}/year · save 20%</p>
-                  )}
-                  <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-400/20 text-emerald-300 text-xs font-semibold">
+                  <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-400/20 text-emerald-300 text-xs font-semibold">
                     <Zap className="w-3 h-3" />
                     {plan.rendersPerMonth} renders/month included
                   </div>
-                  <div className={`mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium ${
-                    (plan as any).bestValue ? "text-amber-300" : "text-white/35"
-                  }`}>
-                    {(plan as any).perRender} per render{(plan as any).bestValue && <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>}
-                  </div>
+                  {(plan as any).bestValue && (
+                    <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
+                      {(plan as any).perRender} per render
+                      <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>
+                    </div>
+                  )}
                 </div>
 
                 <p className="text-xs text-white/45 mb-5 leading-relaxed">{plan.desc}</p>
@@ -650,6 +658,13 @@ export default function Pricing() {
         </div>
       </div>
 
+      {/* Keyframes */}
+      <style>{`
+        @keyframes priceFadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       {/* ── Footer ── */}
       <footer className="border-t border-white/6 py-8 px-6 text-center text-xs text-white/25">
         <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain mx-auto mb-4 opacity-50" />
