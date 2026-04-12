@@ -183,18 +183,19 @@ function Router() {
 //   to keep consistent foreground/background color across components
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
-const INTRO_SESSION_KEY = "wizvid_intro_seen_v3";
+const INTRO_SESSION_KEY = "wizvid_intro_seen";
 
 function App() {
   // Show branded preloader on initial app mount, then fade out
   const [appReady, setAppReady] = useState(false);
 
-  // Show cinematic intro once per session (only on homepage)
+  // Show cinematic intro once per session
+  // Initialise synchronously so the intro renders on the FIRST paint — no flicker
   const [showIntro, setShowIntro] = useState(() => {
     try {
       return !sessionStorage.getItem(INTRO_SESSION_KEY);
     } catch {
-      return false;
+      return false; // sessionStorage unavailable (private mode edge case)
     }
   });
 
@@ -212,16 +213,22 @@ function App() {
         switchable
       >
         <TooltipProvider>
-          {/* Cinematic intro — shown once per session */}
+          {/* ── Cinematic intro gate ──────────────────────────────────────
+               Renders at z-[9999] and completely blocks all content below.
+               The Router / homepage is mounted but invisible behind it.
+               On dismiss the intro fades out and the homepage is revealed.
+          ──────────────────────────────────────────────────────────────── */}
           {showIntro && (
             <CinematicEntryScreen onComplete={() => setShowIntro(false)} />
           )}
-          {/* Branded preloader — fades out once app has mounted */}
-          <WizVidLoader done={appReady} minDuration={600} />
+          {/* Branded preloader — only shown when intro is NOT showing */}
+          {!showIntro && <WizVidLoader done={appReady} minDuration={400} />}
           <Toaster />
           <Suspense fallback={null}>
             <CrispChat />
           </Suspense>
+          {/* Homepage is always mounted so it loads in the background.
+              When intro is showing it is hidden behind z-[9999] overlay. */}
           <Router />
         </TooltipProvider>
       </ThemeProvider>

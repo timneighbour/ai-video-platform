@@ -2176,3 +2176,15 @@
 - [ ] IntroSplashScreen: wire into App.tsx as separate entry before homepage
 - [ ] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop
 - [ ] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile
+
+## INTRO GATE REBUILD (CRITICAL)
+- [x] Rebuild CinematicEntryScreen: fixed inset-0 z-[9999], blocks ALL content, no homepage visible behind
+- [x] Intro: auto-play video immediately on mount, muted by default
+- [x] Intro: "Enter Experience" CTA centred, large, prominent
+- [x] Intro: "Skip" top-right, small, subtle
+- [x] Intro: smooth fade-out transition into homepage (no hard cut, no flicker)
+- [x] Intro: sessionStorage key wizvid_intro_seen = true after dismiss
+- [x] Intro: fallback static splash if video fails to load
+- [x] Intro: mobile-safe, tappable CTA
+- [x] App.tsx: render intro BEFORE Router/homepage, homepage invisible while intro shows
+- [x] App.tsx: no WizVidLoader conflict with intro (sequence correctly)
