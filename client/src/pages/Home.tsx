@@ -285,12 +285,12 @@ function Hero() {
         {/* Eyebrow badge */}
         <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
           <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-          AI Video Creation
+          AI Music Video Creator
         </div>
 
         {/* Headline — maximum size, maximum impact */}
         <h1
-          className="font-extrabold leading-[1.0] tracking-tight text-white mb-6 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
+          className="font-extrabold leading-[1.0] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
           style={{ fontSize: "clamp(2.8rem, 8vw, 6.5rem)" }}
         >
           Create Cinematic AI Music Videos<br />
@@ -304,48 +304,48 @@ function Hero() {
 
         {/* Sub-headline — clear, specific, benefit-led */}
         <p
-          className="text-white/72 max-w-xl mb-10 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
-          style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)" }}
+          className="text-white/75 max-w-2xl mb-4 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
+          style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}
         >
-          From idea to full video — no editing, no tools, no experience needed.
+          Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place.
         </p>
 
-        {/* Primary CTA — dominant, unmissable */}
-        <a
-          href={isAuthenticated ? "/music-video/create" : "/onboarding"}
-          className="inline-flex items-center gap-3 bg-white text-black font-bold px-12 py-5 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300 mb-3"
-          style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)" }}
-        >
-          <Sparkles className="w-5 h-5 flex-shrink-0" />
-          {isAuthenticated ? "Open Creator" : "Create Your First Video — Free"}
-        </a>
+        {/* Urgency line */}
+        <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-300 text-sm font-semibold">
+          <Zap className="w-3.5 h-3.5 flex-shrink-0" />
+          Go from idea to finished video in under 5 minutes
+        </div>
 
-        {/* Trust micro-copy — stacked for clarity */}
-        <p className="text-sm text-white/50 mb-1.5 font-medium">No credit card required · Create free · Only pay when you render</p>
-        <p className="text-sm text-white/38 mb-10 tracking-wide">Built for creators, musicians &amp; agencies</p>
-
-        {/* Demo video trigger — large pulsing play button */}
-        <button
-          onClick={() => setDemoOpen(true)}
-          className="group flex flex-col items-center gap-3 mb-14 focus:outline-none"
-          aria-label="Watch 30-second demo"
-        >
-          <div className="relative w-20 h-20 sm:w-24 sm:h-24">
-            {/* Outer pulse rings */}
-            <span className="absolute inset-0 rounded-full bg-white/12 animate-ping" style={{ animationDuration: "2s" }} />
-            <span className="absolute inset-2 rounded-full bg-white/8 animate-ping" style={{ animationDuration: "2s", animationDelay: "0.5s" }} />
-            {/* Inner button */}
-            <span className="absolute inset-0 rounded-full bg-white/18 border border-white/35 group-hover:bg-white/28 group-hover:border-white/55 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
-              <Play className="w-7 h-7 sm:w-8 sm:h-8 text-white ml-1" fill="white" />
+        {/* CTA row — primary + secondary */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
+          <a
+            href={isAuthenticated ? "/music-video/create" : "/onboarding"}
+            className="inline-flex items-center gap-3 bg-white text-black font-bold px-10 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
+            style={{ fontSize: "clamp(1rem, 2vw, 1.15rem)" }}
+          >
+            <Sparkles className="w-5 h-5 flex-shrink-0" />
+            {isAuthenticated ? "Open Creator" : "Create Your First Video"}
+          </a>
+          <button
+            onClick={() => setDemoOpen(true)}
+            className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300"
+            style={{ fontSize: "clamp(0.9rem, 1.8vw, 1.05rem)" }}
+          >
+            <span className="relative w-6 h-6 flex-shrink-0">
+              <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" style={{ animationDuration: "2s" }} />
+              <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center">
+                <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
+              </span>
             </span>
-          </div>
-          <span className="text-sm text-white/55 group-hover:text-white/85 transition-colors font-medium tracking-wide">
-            See how it works in 20 seconds
-          </span>
-        </button>
+            Watch 20-sec Demo
+          </button>
+        </div>
 
-        {/* Social proof strip */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+        {/* Trust micro-copy */}
+        <p className="text-sm text-white/45 mb-10 font-medium">No credit card required · Create for free · Only pay when you render</p>
+
+        {/* Trust strip */}
+        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-10">
           {/* Avatar stack + label */}
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
@@ -355,22 +355,27 @@ function Hero() {
                 "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp",
                 "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp",
               ].map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt=""
-                  className="w-9 h-9 rounded-full border-2 border-black object-cover"
-                />
+                <img key={i} src={src} alt="" className="w-9 h-9 rounded-full border-2 border-black object-cover" />
               ))}
             </div>
             <span className="text-white/55 text-sm font-medium">Trusted by musicians, YouTubers &amp; creators</span>
           </div>
-          {/* Star rating */}
-          <div className="flex items-center gap-1.5">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-            ))}
-            <span className="ml-1.5 text-white/50 text-sm">Free to start</span>
+          <div className="h-px w-px sm:h-5 sm:w-px bg-white/15" aria-hidden="true" />
+          <div className="flex items-center gap-5">
+            <div className="text-center">
+              <p className="text-white font-bold text-base">5 min</p>
+              <p className="text-white/40 text-xs">avg. creation time</p>
+            </div>
+            <div className="h-5 w-px bg-white/15" aria-hidden="true" />
+            <div className="text-center">
+              <p className="text-white font-bold text-base">Full video</p>
+              <p className="text-white/40 text-xs">not just clips</p>
+            </div>
+            <div className="h-5 w-px bg-white/15" aria-hidden="true" />
+            <div className="text-center">
+              <p className="text-white font-bold text-base">Free to create</p>
+              <p className="text-white/40 text-xs">pay to render only</p>
+            </div>
           </div>
         </div>
       </div>
@@ -449,6 +454,59 @@ function ImmediateValue() {
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+// ── Demo Section ───────────────────────────────────────────────────────────
+function DemoSection() {
+  const [demoOpen, setDemoOpen] = useState(false);
+  return (
+    <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-4xl mx-auto text-center">
+        <div className="reveal mb-8">
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Demo</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            🎬 See how it works in 20 seconds
+          </h2>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            Watch WizVid turn a simple idea into a complete cinematic video — live.
+          </p>
+        </div>
+        {/* Large central play button */}
+        <div className="reveal flex justify-center mb-6">
+          <button
+            onClick={() => setDemoOpen(true)}
+            className="group relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden border border-white/12 bg-[#171717] hover:border-violet-500/40 transition-all duration-300 shadow-2xl hover:shadow-violet-500/20 focus:outline-none"
+            aria-label="Watch 20-second demo"
+          >
+            {/* Poster image */}
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp"
+              alt="WizVid demo preview"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            {/* Play button */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <div className="relative w-20 h-20">
+                <span className="absolute inset-0 rounded-full bg-white/15 animate-ping" style={{ animationDuration: "2.5s" }} />
+                <span className="absolute inset-0 rounded-full bg-white/20 border-2 border-white/50 group-hover:bg-white/30 group-hover:border-white/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
+                  <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                </span>
+              </div>
+              <span className="text-white font-semibold text-lg drop-shadow-lg">Watch 20-sec Demo</span>
+            </div>
+            {/* Bottom label */}
+            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+              <span className="text-xs text-white/60 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">Prompt → Storyboard → Final Video</span>
+              <span className="text-xs text-white/60 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">20 seconds</span>
+            </div>
+          </button>
+        </div>
+        <p className="text-[#a1a1aa] text-base reveal">No editing. No tools. Just results.</p>
+      </div>
+      <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
   );
 }
@@ -599,28 +657,98 @@ function WhyWizVid() {
 
   return (
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14 reveal">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12 reveal">
           <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Why WizVid is different</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
             See it. Approve it.<br />
-            <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Then generate it.</span>
+            <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Then render it.</span>
           </h2>
-          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">Most AI tools give you clips. WizVid gives you a complete, consistent music video — and lets you preview every scene before you spend a single credit.</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {reasons.map((r, i) => (
-            <div
-              key={r.title}
-              className={`flex flex-col gap-4 p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-violet-500/30 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
-            >
-              <div className="text-3xl">{r.icon}</div>
+        {/* 4 core value bullets */}
+        <div className="grid sm:grid-cols-2 gap-4 mb-10 reveal">
+          {[
+            { icon: "🎨", title: "AI builds full storyboard instantly", desc: "Every scene written and visualised in under 30 seconds." },
+            { icon: "👁️", title: "Preview every scene before paying", desc: "Edit any prompt, swap styles, approve before rendering." },
+            { icon: "🎬", title: "Full video, not clips", desc: "A complete, ready-to-publish video — not fragments." },
+            { icon: "✅", title: "No editing required", desc: "WizVid handles everything. You just describe your idea." },
+          ].map((item, i) => (
+            <div key={item.title} className={`flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
+              <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
               <div>
-                <h3 className="font-semibold text-white mb-2 text-lg">{r.title}</h3>
-                <p className="text-[#a1a1aa] text-sm leading-relaxed">{r.desc}</p>
+                <h3 className="font-semibold text-white mb-1">{item.title}</h3>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
+        </div>
+        {/* Differentiation callout */}
+        <div className="p-7 rounded-2xl bg-gradient-to-r from-violet-500/8 via-blue-500/5 to-violet-500/8 border border-violet-500/20 text-center reveal">
+          <h3 className="text-2xl font-extrabold text-white mb-2">Not just clips. Full videos.</h3>
+          <p className="text-[#a1a1aa] max-w-xl mx-auto">Most AI tools generate fragments. WizVid creates complete, ready-to-publish videos.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Speed Section ────────────────────────────────────────────────────────────
+function SpeedSection() {
+  const [activeStep, setActiveStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setActiveStep((p) => (p + 1) % 4), 1800);
+    return () => clearInterval(t);
+  }, []);
+  const steps = [
+    { num: "01", label: "Describe your idea", sub: "Type a prompt or upload your song", icon: "💡", color: "violet" },
+    { num: "02", label: "AI builds storyboard", sub: "Every scene written in seconds", icon: "🎨", color: "blue" },
+    { num: "03", label: "Preview scenes", sub: "Approve before spending a credit", icon: "👁️", color: "purple" },
+    { num: "04", label: "Render final video", sub: "Full video, ready to publish", icon: "🎬", color: "green" },
+  ];
+  const colorMap: Record<string, { border: string; bg: string; text: string; dot: string }> = {
+    violet: { border: "border-violet-500/40", bg: "bg-violet-500/10", text: "text-violet-300", dot: "bg-violet-500" },
+    blue:   { border: "border-blue-500/40",   bg: "bg-blue-500/10",   text: "text-blue-300",   dot: "bg-blue-500" },
+    purple: { border: "border-purple-500/40", bg: "bg-purple-500/10", text: "text-purple-300", dot: "bg-purple-500" },
+    green:  { border: "border-green-500/40",  bg: "bg-green-500/10",  text: "text-green-300",  dot: "bg-green-500" },
+  };
+  return (
+    <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12 reveal">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Speed</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            From idea to full video
+            <br />
+            <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">in under 5 minutes</span>
+          </h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 reveal">
+          {steps.map((step, i) => {
+            const c = colorMap[step.color];
+            const isActive = activeStep === i;
+            return (
+              <div
+                key={step.num}
+                onMouseEnter={() => setActiveStep(i)}
+                className={`relative p-6 rounded-2xl border transition-all duration-500 cursor-default ${
+                  isActive ? `${c.border} ${c.bg}` : "border-white/6 bg-[#171717]"
+                }`}
+              >
+                <div className={`absolute top-4 right-4 w-2 h-2 rounded-full transition-all duration-300 ${isActive ? c.dot : "bg-white/15"}`} />
+                <div className={`text-3xl mb-3 transition-transform duration-300 ${isActive ? "scale-110" : ""}`}>{step.icon}</div>
+                <div className={`text-xs font-bold tracking-widest mb-1 ${isActive ? c.text : "text-white/30"}`}>{step.num}</div>
+                <h3 className={`font-bold text-sm mb-1 transition-colors ${isActive ? "text-white" : "text-white/60"}`}>{step.label}</h3>
+                <p className="text-xs text-[#a1a1aa] leading-relaxed">{step.sub}</p>
+              </div>
+            );
+          })}
+        </div>
+        {/* Progress bar */}
+        <div className="mt-6 h-0.5 bg-white/6 rounded-full overflow-hidden reveal">
+          <div
+            className="h-full bg-gradient-to-r from-violet-500 via-blue-500 to-green-500 rounded-full transition-all duration-[1800ms] ease-linear"
+            style={{ width: `${((activeStep + 1) / 4) * 100}%` }}
+          />
         </div>
       </div>
     </section>
@@ -685,7 +813,7 @@ function WhoItsFor() {
       img: WHO_IMAGES.musicians,
       imgAlt: "Musician performing on stage with purple stage lighting",
       title: "Musicians",
-      desc: "Create music videos instantly — no director, no studio, no budget needed.",
+      desc: "Create full music videos instantly — no director, no studio, no budget needed.",
       cta: "Make a music video",
       href: "/music-video",
       accent: "from-violet-500/20 to-purple-500/5",
@@ -695,7 +823,7 @@ function WhoItsFor() {
       img: WHO_IMAGES.youtubers,
       imgAlt: "YouTuber recording in a professional studio setup",
       title: "YouTubers & Podcasters",
-      desc: "Boost CTR with AI animation. Stand out in a crowded feed without editing.",
+      desc: "Boost CTR with animated content. Stand out in a crowded feed without editing.",
       cta: "Create YouTube content",
       href: "/wizpilot",
       accent: "from-red-500/20 to-orange-500/5",
@@ -715,7 +843,7 @@ function WhoItsFor() {
       img: WHO_IMAGES.kidsCreators,
       imgAlt: "Cute Pixar-style 3D animated child character in a colorful world",
       title: "Kids Content Creators",
-      desc: "Safe, fun, fully automated. Perfect for animated channels and family content.",
+      desc: "Generate full animated videos in minutes — safe, fun, and fully automated.",
       cta: "Create kids content",
       href: "/kids-video",
       accent: "from-pink-500/20 to-yellow-500/5",
@@ -1158,9 +1286,13 @@ function WizBeatSection() {
               Your music.<br />Your story.<br />
               <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Brought to life.</span>
             </h2>
-            <p className="text-[#a1a1aa] text-base leading-relaxed mb-8">
+            <p className="text-[#a1a1aa] text-base leading-relaxed mb-3">
               WizBeat is the world's first AI music video maker that syncs visuals to your lyrics automatically. Every line becomes a cinematic scene.
             </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-6">
+              <Volume2 className="w-3.5 h-3.5" />
+              Powered by WizSound™ — proprietary audio enhancement engine
+            </div>
             <div className="space-y-3 mb-9">
               {[
                 "Lyrics drive the visuals — every line becomes a scene",
@@ -1460,18 +1592,18 @@ function HomePricing() {
   );
 }
 
-// ── CTA ────────────────────────────────────────────────────────────────────────────────
+// ── CTAPush ────────────────────────────────────────────────────────────────────────────────
 function CTAPush() {
   return (
     <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-3xl mx-auto text-center reveal">
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-          Your first video is free.
+          Your first video is minutes away.
           <br />
-          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Start in 60 seconds.</span>
+          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Start creating for free.</span>
         </h2>
         <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-          No editing. No experience. Just describe your idea and WizVid creates the full video — storyboard, scenes, and final render.
+          Start creating for free. Only pay when you render.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Button
@@ -1488,7 +1620,7 @@ function CTAPush() {
             <a href="/pricing">View pricing</a>
           </Button>
         </div>
-        <p className="text-[#a1a1aa] text-sm">Free to create · No credit card · Only pay to render</p>
+        <p className="text-[#a1a1aa] text-sm">Create for free · No credit card · Only pay when you render</p>
       </div>
     </section>
   );
@@ -1617,15 +1749,16 @@ export default function Home() {
       <Nav />
       <main id="main-content">
         <Hero />
+        <DemoSection />
         <ImmediateValue />
-        <ProductDemo />
         <WhyWizVid />
+        <SpeedSection />
         <Features />
         <ContentEngine />
         <WhoItsFor />
         <WizBeatSection />
         <MadeWithWizVid />
-      <SocialProof />
+        <SocialProof />
         <PunchLine />
         <HomePricing />
         <CTAPush />

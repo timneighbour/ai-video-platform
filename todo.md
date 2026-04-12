@@ -2361,3 +2361,20 @@
 - [x] Update i18n.ts CTA note → "No credit card required • Create free • Only pay when you render"
 - [x] All 333 tests passing after changes
 - [x] TypeScript: no errors
+
+## Homepage Elite Conversion Rebuild - COMPLETED ✅
+- [x] Hero: update headline to "Create Cinematic AI Music Videos in Minutes"
+- [x] Hero: add subheadline "Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place."
+- [x] Hero: add urgency line "Go from idea to finished video in under 5 minutes"
+- [x] Hero: primary CTA "Create Your First Video", secondary CTA "Watch 20-sec Demo"
+- [x] Hero: remove any generic wording like "Turn your ideas into cinematic video"
+- [x] Above-fold: DemoSection added immediately after Hero showing prompt → storyboard → final video
+- [x] Demo section: added headline "🎬 See how it works in 20 seconds", large central play button, microcopy "No editing. No tools. Just results."
+- [x] Trust strip: "Trusted by musicians, YouTubers & creators" + stats (5 min / Full video / Free to create)
+- [x] Core value block: "See it. Approve it. Then render it." + 4 bullet points + differentiation callout
+- [x] Speed section: new SpeedSection with "From idea to full video in under 5 minutes" + 4 animated visual steps
+- [x] Differentiation section: "Not just clips. Full videos." callout embedded in WhyWizVid
+- [x] WizSound: "Powered by WizSound™ — proprietary audio enhancement engine" badge in WizBeatSection
+- [x] Use cases: shortened text for Musicians/YouTubers/Kids creators
+- [x] Final CTA: "Your first video is minutes away" + "Start creating for free. Only pay when you render." + "Create Your First Video"
+- [x] Copy cleanup: zero references to "2 free videos" or "free trial videos" confirmed
