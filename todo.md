@@ -2277,3 +2277,7 @@
 ## WizSound™ Post-Preview Auto-Highlight
 - [x] After preview ends: auto-select that audio tier and show a 3s emerald glow highlight on the tier card
 - [x] Show a "✓ Selected" emerald nudge label that fades out after 3s
+
+## WizSound™ Auto-Select Sound Effect
+- [x] Generate subtle chime/confirmation sound effect via FFmpeg and upload to CDN
+- [x] Play sound effect when tier is auto-selected after preview ends in RenderPaywallModal

@@ -92,6 +92,8 @@ export function RenderPaywallModal({
   const [justListened, setJustListened] = useState<AudioTier | null>(null);
   const justListenedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioRefs = useRef<Record<AudioTier, HTMLAudioElement | null>>({ standard: null, enhanced: null, cinematic: null });
+  // Subtle confirmation chime played when a tier is auto-selected after preview
+  const selectChimeRef = useRef<HTMLAudioElement | null>(null);
 
   const wizSoundPreviews = trpc.render.getWizSoundPreviews.useQuery(undefined, {
     staleTime: Infinity, // CDN URLs never change
@@ -289,6 +291,12 @@ export function RenderPaywallModal({
                 <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
               </div>
             </div>
+            {/* Hidden chime SFX for auto-select confirmation */}
+            <audio
+              ref={selectChimeRef}
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/select-chime_fba7f83d.mp3"
+              preload="auto"
+            />
             {/* Hidden audio elements for each tier */}
             {AUDIO_OPTIONS.map((a) => (
               <audio
@@ -304,11 +312,16 @@ export function RenderPaywallModal({
                 onEnded={() => {
                   setPlayingTier(null);
                   setPreviewProgress((p) => ({ ...p, [a.id]: 0 }));
-                  // Auto-select this tier and show highlight nudge for 3s
+                  // Auto-select this tier, play chime, and show highlight nudge for 3s
                   setAudioTier(a.id);
                   setJustListened(a.id);
                   if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current);
                   justListenedTimerRef.current = setTimeout(() => setJustListened(null), 3000);
+                  // Play the subtle confirmation chime
+                  if (selectChimeRef.current) {
+                    selectChimeRef.current.currentTime = 0;
+                    selectChimeRef.current.play().catch(() => {});
+                  }
                 }}
               />
             ))}
