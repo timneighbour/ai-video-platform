@@ -39,6 +39,7 @@ import {
 import { toast } from "sonner";
 import { Link } from "wouter";
 import BackButton from "@/components/BackButton";
+import { WizBrandPostBadge } from "@/components/WizBrand";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -236,6 +237,9 @@ export default function RenderHistory() {
                             {job.title || `Video #${job.id}`}
                           </p>
                           <StatusBadge status={job.status} />
+                          {job.status === "completed" && (
+                            <WizBrandPostBadge layer="render" />
+                          )}
                           {hasFailures && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
                               <AlertCircle className="w-3 h-3" />{job.failedScenes} failed

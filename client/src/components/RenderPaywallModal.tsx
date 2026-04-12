@@ -13,6 +13,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { WizBrandBadge } from "@/components/WizBrand";
 
 type Quality = "standard" | "hd" | "4k";
 type AudioTier = "standard" | "enhanced" | "cinematic";
@@ -256,7 +257,10 @@ export function RenderPaywallModal({
         <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
           {/* Quality selection */}
           <div>
-            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Video Quality</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest">Video Quality</h3>
+              <WizBrandBadge layer="render" size="sm" />
+            </div>
             <div className="grid grid-cols-3 gap-2.5">
               {QUALITY_OPTIONS.map((q) => (
                 <button

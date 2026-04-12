@@ -17,6 +17,7 @@ import CreditBalance from "@/components/CreditBalance";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
+import { WizBrandBadge } from "@/components/WizBrand";
 
 const VIDEO_STYLES = [
   { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "🎬" },
@@ -47,13 +48,13 @@ const ASPECT_RATIOS = [
 ];
 
 const PROGRESS_STAGES = [
-  { label: "Submitting your request…",       pct: 8  },
-  { label: "Analysing your prompt…",         pct: 18 },
-  { label: "Building scene composition…",    pct: 32 },
-  { label: "Generating video frames…",       pct: 52 },
-  { label: "Applying style & effects…",      pct: 68 },
-  { label: "Rendering final video…",         pct: 82 },
-  { label: "Finalising & uploading…",        pct: 94 },
+  { label: "Submitting your request…",                        pct: 8  },
+  { label: "WizCreate™ is analysing your prompt…",           pct: 18 },
+  { label: "WizCreate™ is building scene composition…",      pct: 32 },
+  { label: "WizRender™ is generating video frames…",         pct: 52 },
+  { label: "WizRender™ is applying style & effects…",        pct: 68 },
+  { label: "WizRender™ is rendering final video…",           pct: 82 },
+  { label: "Finalising & uploading…",                        pct: 94 },
 ];
 
 const EXAMPLE_PROMPTS = [
@@ -666,9 +667,12 @@ export default function TextToVideoCreator() {
               </div>
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Generating Your Video…</h2>
+              <div className="flex justify-center mb-3">
+                <WizBrandBadge layer="render" size="md" animated />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Rendering with WizRender™…</h2>
               <p className="text-muted-foreground text-sm">
-                AI is rendering your video. This usually takes 2–5 minutes.
+                WizRender™ is generating your video. This usually takes 2–5 minutes.
               </p>
             </div>
             <div className="w-full max-w-md space-y-3">

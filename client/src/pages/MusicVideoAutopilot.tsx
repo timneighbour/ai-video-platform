@@ -22,6 +22,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
+import { WizBrandBadge, WizBrandPostBadge } from "@/components/WizBrand";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CharacterConfirmationStep from "@/components/CharacterConfirmationStep";
 import CreditBalance from "@/components/CreditBalance";
@@ -1025,11 +1026,14 @@ export default function MusicVideoAutopilot() {
       {isGeneratingStoryboard && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm">
           <div className="w-full max-w-md px-6 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mx-auto mb-6">
-              <Film className="w-10 h-10 text-white animate-pulse" />
+            <div className="w-20 h-20 rounded-full bg-violet-500/20 border-2 border-violet-500/40 flex items-center justify-center mx-auto mb-4" style={{boxShadow:"0 0 24px rgba(139,92,246,0.35)"}}>
+              <Sparkles className="w-9 h-9 text-violet-300 animate-pulse" />
+            </div>
+            <div className="flex justify-center mb-3">
+              <WizBrandBadge layer="create" size="md" animated />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Creating Your Storyboard</h2>
-            <p className="text-zinc-400 text-sm mb-8">Our AI director is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
+            <p className="text-zinc-400 text-sm mb-8">WizCreate™ is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
             <div className="w-full bg-zinc-800 rounded-full h-2 mb-8 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-[5000ms] ease-out"
@@ -2230,7 +2234,11 @@ export default function MusicVideoAutopilot() {
                     </div>
 
                     <h2 className="text-3xl font-bold text-white mb-2">Your story just came to life</h2>
-                    <p className="text-zinc-400 mb-8 text-lg">All {totalScenes} scenes rendered and assembled with your audio track.</p>
+                    <p className="text-zinc-400 mb-3 text-lg">All {totalScenes} scenes rendered and assembled with your audio track.</p>
+                    <div className="flex items-center justify-center gap-2 mb-6 flex-wrap">
+                      <WizBrandPostBadge layer="render" />
+                      <WizBrandPostBadge layer="sound" />
+                    </div>
 
                     {/* Video player */}
                     <div className="relative rounded-xl overflow-hidden mb-8 ring-1 ring-purple-500/20">
@@ -2384,7 +2392,7 @@ export default function MusicVideoAutopilot() {
                     {(() => {
                       const stages = [
                         { key: "queued",     label: "Queued",           icon: <Clock className="w-4 h-4" /> },
-                        { key: "rendering",  label: "Generating",       icon: <Clapperboard className="w-4 h-4" /> },
+                        { key: "rendering",  label: "WizRender™",     icon: <Clapperboard className="w-4 h-4" /> },
                         { key: "assembling", label: "Assembling",       icon: <Layers className="w-4 h-4" /> },
                         { key: "wizsound",   label: "WizSound™",        icon: <Music2 className="w-4 h-4" /> },
                         { key: "completed",  label: "Complete",         icon: <CheckCircle2 className="w-4 h-4" /> },
@@ -2435,17 +2443,22 @@ export default function MusicVideoAutopilot() {
                           ? <Wand2 className="w-7 h-7 text-purple-400 animate-pulse" />
                           : <Film className="w-7 h-7 text-purple-400 animate-pulse" />}
                       </div>
+                      <div className="flex justify-center mb-2">
+                        {renderStatus === "wizsound"
+                          ? <WizBrandBadge layer="sound" size="sm" animated />
+                          : <WizBrandBadge layer="render" size="sm" animated />}
+                      </div>
                       <h2 className="text-xl font-bold text-white mb-1">
-                        {renderStatus === "wizsound" ? "Applying WizSound™ Processing..."
+                        {renderStatus === "wizsound" ? "Enhancing audio with WizSound™..."
                           : renderStatus === "assembling" ? "Assembling Your Video..."
-                          : "Rendering Scenes..."}
+                          : "Rendering with WizRender™..."}
                       </h2>
                       <p className="text-zinc-400 text-sm mb-3">
                         {renderStatus === "wizsound"
-                          ? "Applying proprietary audio mastering to your final video..."
+                          ? "WizSound™ is applying proprietary audio mastering to your final video..."
                           : renderStatus === "assembling"
                           ? "All scenes done! Stitching clips together with your audio track..."
-                          : `Generating ${totalScenes} cinematic scenes — this takes 5–15 minutes.`}
+                          : `WizRender™ is generating ${totalScenes} cinematic scenes — this takes 5–15 minutes.`}
                       </p>
                       {/* Quality & audio tier badges */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">

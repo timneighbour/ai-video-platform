@@ -17,6 +17,7 @@ import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
+import { WizBrandBadge } from "@/components/WizBrand";
 
 // YouTube brand colour
 const YT_RED = "#FF0000";
@@ -53,11 +54,11 @@ const ASPECT_RATIOS = [
 
 const PROGRESS_STAGES = [
   { label: "Submitting your request…", pct: 8 },
-  { label: "Analysing your prompt…", pct: 18 },
-  { label: "Building scene composition…", pct: 32 },
-  { label: "Generating frames…", pct: 52 },
-  { label: "Applying style & colour grading…", pct: 68 },
-  { label: "Rendering final video…", pct: 82 },
+  { label: "WizCreate™ is analysing your prompt…", pct: 18 },
+  { label: "WizCreate™ is building scene composition…", pct: 32 },
+  { label: "WizRender™ is generating frames…", pct: 52 },
+  { label: "WizRender™ is applying style & colour grading…", pct: 68 },
+  { label: "WizRender™ is rendering final video…", pct: 82 },
   { label: "Finalising & uploading…", pct: 94 },
 ];
 
@@ -928,9 +929,12 @@ export default function Autopilot() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-600/20 border border-purple-500/40 mb-6">
                 <Clapperboard className="h-10 w-10 text-purple-400 animate-pulse" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Rendering Your Video</h2>
+              <div className="flex justify-center mb-3">
+                <WizBrandBadge layer="render" size="md" animated />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Rendering with WizRender™</h2>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Our AI engines are building your video. Sit tight — this usually takes 1–5 minutes.
+                WizRender™ is building your video. Sit tight — this usually takes 1–5 minutes.
               </p>
             </div>
             <div className="space-y-3">
