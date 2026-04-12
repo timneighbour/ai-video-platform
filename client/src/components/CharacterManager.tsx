@@ -38,6 +38,13 @@ export interface CharacterPhoto {
 export type CharacterMode = "photo" | "ai_generated";
 export type AnimationStyle = "realistic" | "pixar3d" | "anime" | "cartoon";
 
+export interface LockedRules {
+  role?: string;
+  mustHave?: string[];
+  allowedProps?: string[];
+  forbidden?: string[];
+}
+
 export interface Character {
   slotIndex: number;
   name: string;
@@ -57,6 +64,11 @@ export interface Character {
   isLocked: boolean;
   /** Visual details: outfit, instrument, position, props — overrides scene assumptions */
   visualDetails: string;
+  // Structured locked fields (unified pipeline)
+  lockedOutfit: string;
+  lockedProps: string;
+  lockedPosition: string;
+  lockedRules: LockedRules;
 }
 
 interface CharacterManagerProps {
@@ -139,6 +151,10 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
     lockedDescription: "",
     isLocked: false,
     visualDetails: "",
+    lockedOutfit: "",
+    lockedProps: "",
+    lockedPosition: "",
+    lockedRules: {},
   };
 }
 
@@ -367,18 +383,109 @@ export function CharacterManager({
                 </div>
               </div>
 
-              {/* ── Props / Outfit / Visual Details ── */}
-              <div>
-                <Label className="text-zinc-400 text-xs mb-1 block">Props / Outfit / Visual Details</Label>
-                <Textarea
-                  value={char.visualDetails || ""}
-                  onChange={(e) => updateCharacter(char.slotIndex, { visualDetails: e.target.value })}
-                  placeholder="Describe what this character wears and holds (e.g. Black leather jacket, red Gibson Les Paul guitar, microphone)"
-                  className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[60px]"
-                  disabled={disabled}
-                  rows={2}
-                />
-                <p className="text-zinc-600 text-xs mt-1">These details override scene assumptions — outfit, instrument, position, and props.</p>
+              {/* ── Structured Character Details ── */}
+              <div className="space-y-3">
+                {/* Free-text visual details (legacy, still used) */}
+                <div>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Visual Details (free text)</Label>
+                  <Textarea
+                    value={char.visualDetails || ""}
+                    onChange={(e) => updateCharacter(char.slotIndex, { visualDetails: e.target.value })}
+                    placeholder="Describe what this character wears and holds (e.g. Black leather jacket, red Gibson Les Paul guitar, microphone)"
+                    className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[60px]"
+                    disabled={disabled}
+                    rows={2}
+                  />
+                </div>
+
+                {/* Structured locked fields */}
+                <div className="rounded-xl border border-zinc-700/70 bg-zinc-900/50 p-3 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-amber-300 text-xs font-semibold uppercase tracking-wider">Locked Character Constraints</span>
+                  </div>
+
+                  {/* Outfit */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
+                      <Label className="text-zinc-300 text-xs font-medium">Outfit</Label>
+                    </div>
+                    <Input
+                      value={char.lockedOutfit}
+                      onChange={(e) => updateCharacter(char.slotIndex, { lockedOutfit: e.target.value })}
+                      placeholder="e.g. Black leather jacket, jeans with key chain"
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      disabled={disabled || isLocked}
+                    />
+                  </div>
+
+                  {/* Props */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
+                      <Label className="text-zinc-300 text-xs font-medium">Props / Instruments</Label>
+                    </div>
+                    <Input
+                      value={char.lockedProps}
+                      onChange={(e) => updateCharacter(char.slotIndex, { lockedProps: e.target.value })}
+                      placeholder="e.g. Sunburst Gibson Les Paul, microphone"
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      disabled={disabled || isLocked}
+                    />
+                  </div>
+
+                  {/* Position */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
+                      <Label className="text-zinc-300 text-xs font-medium">Position</Label>
+                    </div>
+                    <Input
+                      value={char.lockedPosition}
+                      onChange={(e) => updateCharacter(char.slotIndex, { lockedPosition: e.target.value })}
+                      placeholder="e.g. Standing at microphone, seated behind drum kit"
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      disabled={disabled || isLocked}
+                    />
+                  </div>
+
+                  {/* Rules — must have */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Badge className="text-[10px] px-1.5 py-0 bg-emerald-900/50 text-emerald-300 border-emerald-800">MUST HAVE</Badge>
+                      <Label className="text-zinc-300 text-xs font-medium">Mandatory Rules</Label>
+                    </div>
+                    <Input
+                      value={(char.lockedRules?.mustHave || []).join(', ')}
+                      onChange={(e) => updateCharacter(char.slotIndex, {
+                        lockedRules: { ...char.lockedRules, mustHave: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }
+                      })}
+                      placeholder="e.g. standing at microphone, black leather jacket"
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      disabled={disabled || isLocked}
+                    />
+                    <p className="text-zinc-600 text-[10px] mt-0.5">Comma-separated. These MUST appear in every scene.</p>
+                  </div>
+
+                  {/* Rules — forbidden */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Badge className="text-[10px] px-1.5 py-0 bg-red-900/50 text-red-300 border-red-800">FORBIDDEN</Badge>
+                      <Label className="text-zinc-300 text-xs font-medium">Forbidden</Label>
+                    </div>
+                    <Input
+                      value={(char.lockedRules?.forbidden || []).join(', ')}
+                      onChange={(e) => updateCharacter(char.slotIndex, {
+                        lockedRules: { ...char.lockedRules, forbidden: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }
+                      })}
+                      placeholder="e.g. holding drumsticks, wearing t-shirt only"
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      disabled={disabled || isLocked}
+                    />
+                    <p className="text-zinc-600 text-[10px] mt-0.5">Comma-separated. These must NEVER appear.</p>
+                  </div>
+                </div>
               </div>
 
               {/* ── Mode selector — prominent two-button toggle ── */}

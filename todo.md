@@ -1919,9 +1919,9 @@
 - [x] Cinematic dark style, celebration animation (pulsing gradient glow)
 
 ## Feature: Structured Character Setup UI (Apr 12 2026)
-- [ ] Character card with: Name, Role selector, Outfit (locked field), Props (locked field), Position (locked field)
-- [ ] "LOCKED" badge on outfit/props/position fields to show they are enforced
-- [ ] Tim mandatory rules displayed as read-only: "ALWAYS wearing black leather jacket", "ALWAYS at microphone unless specified"
-- [ ] Character cards feed directly into lockedOutfit, lockedProps, lockedRules in DB
-- [ ] Add/remove character buttons (max 4 characters)
-- [ ] Photo upload per character with preview
+- [x] Character card with: Name, Role selector, Outfit (locked field), Props (locked field), Position (locked field)
+- [x] "LOCKED" badge on outfit/props/position fields to show they are enforced
+- [x] Tim mandatory rules displayed as read-only: "ALWAYS wearing black leather jacket", "ALWAYS at microphone unless specified" (via MUST HAVE / FORBIDDEN fields)
+- [x] Character cards feed directly into lockedOutfit, lockedProps, lockedRules in DB
+- [x] Add/remove character buttons (max 4 characters)
+- [x] Photo upload per character with preview
