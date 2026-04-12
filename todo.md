@@ -2303,3 +2303,6 @@
 - [x] Show per-scene "AI regenerating scene..." blurred overlay while AI generates the new image
 - [x] Update the storyboard image in-place when regeneration completes
 - [x] Improved edit textarea with placeholder, prompt tips, loading state on Save button, and renamed to "Save & Regenerate"
+
+## CinematicEntryScreen WizSound™ Sequence Rebuild
+- [x] Rebuild CinematicEntryScreen with 5-stage sequence: black opening (0-2s), WizSound™ flash (2-3s), energy streak brand reveal (3-5s), WizVid final frame with tagline (5-6s), smooth fade to homepage
