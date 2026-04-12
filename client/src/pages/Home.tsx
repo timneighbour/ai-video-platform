@@ -521,7 +521,7 @@ function Hero() {
               className="text-white/70 max-w-xl mb-4 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
               style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)" }}
             >
-              Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place.
+              Type a prompt or upload your song. WizVid generates a full storyboard and delivers your final music video — in under 5 minutes.
             </p>
 
             {/* Speed strip */}
@@ -556,8 +556,9 @@ function Hero() {
             </div>
 
             {/* Trust line */}
-            <p className="relative z-10 text-sm text-white/40 font-medium">
-              Free to create · No credit card · Only pay when you render
+            <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium">
+              <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
+              No credit card required · Free to create · Only pay when you render.
             </p>
 
             {/* Trust strip */}
@@ -1727,7 +1728,8 @@ function MadeWithWizVid() {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
           >
             <Sparkles className="w-4 h-4" />
-            Create Your First Video — Free
+              Create Your First Video
+
           </a>
         </div>
       </div>
