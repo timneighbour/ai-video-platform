@@ -36,6 +36,7 @@ const PLANS = [
     badge: null as string | null,
     rendersPerMonth: 5,
     perRender: "£3.80",
+    annualPrice: 190,
     features: [
       { text: "5 renders/month included", included: true },
       { text: "All video styles", included: true },
@@ -59,6 +60,7 @@ const PLANS = [
     rendersPerMonth: 15,
     perRender: "£2.60",
     bestValue: true,
+    annualPrice: 390,
     features: [
       { text: "15 renders/month included", included: true },
       { text: "All video styles", included: true },
@@ -81,6 +83,7 @@ const PLANS = [
     badge: null as string | null,
     rendersPerMonth: 40,
     perRender: "£2.47",
+    annualPrice: 990,
     features: [
       { text: "40 renders/month included", included: true },
       { text: "All video styles", included: true },
@@ -172,6 +175,7 @@ export default function Pricing() {
   const { isAuthenticated } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
 
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
   const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
@@ -394,8 +398,39 @@ export default function Pricing() {
         {/* ── Subscription plans ── */}
         <div className="max-w-5xl mx-auto px-6 mb-20">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Monthly plans</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Subscription plans</h2>
             <p className="text-sm text-white/45">Includes renders every month. Best value for regular creators.</p>
+            {/* Billing toggle */}
+            <div className="mt-6 inline-flex items-center gap-1 p-1 rounded-full bg-white/6 border border-white/10">
+              <button
+                onClick={() => setBillingCycle("monthly")}
+                className={`relative px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  billingCycle === "monthly"
+                    ? "bg-white text-black shadow-sm"
+                    : "text-white/55 hover:text-white/80"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingCycle("annual")}
+                className={`relative flex items-center gap-2 px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  billingCycle === "annual"
+                    ? "bg-white text-black shadow-sm"
+                    : "text-white/55 hover:text-white/80"
+                }`}
+              >
+                Yearly
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-all duration-200 ${
+                  billingCycle === "annual"
+                    ? "bg-emerald-500 text-white"
+                    : "bg-emerald-500/20 text-emerald-400"
+                }`}>Save 20%</span>
+              </button>
+            </div>
+            {billingCycle === "annual" && (
+              <p className="text-xs text-emerald-400/80 mt-3 font-medium">Save 20% with annual billing — billed as one payment</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -424,10 +459,22 @@ export default function Pricing() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-white">£{plan.monthlyPrice}</span>
-                    <span className="text-sm text-white/40">/month</span>
+                  <div className="flex items-baseline gap-1 transition-all duration-300">
+                    {billingCycle === "monthly" ? (
+                      <>
+                        <span className="text-3xl font-extrabold text-white">£{plan.monthlyPrice}</span>
+                        <span className="text-sm text-white/40">/month</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl font-extrabold text-white">£{Math.round((plan as any).annualPrice / 12)}</span>
+                        <span className="text-sm text-white/40">/month</span>
+                      </>
+                    )}
                   </div>
+                  {billingCycle === "annual" && (
+                    <p className="text-xs text-emerald-400/70 mt-0.5">£{(plan as any).annualPrice}/year · save 20%</p>
+                  )}
                   <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-400/20 text-emerald-300 text-xs font-semibold">
                     <Zap className="w-3 h-3" />
                     {plan.rendersPerMonth} renders/month included
@@ -469,7 +516,9 @@ export default function Pricing() {
                       Loading…
                     </span>
                   ) : (
-                    `Get ${plan.name} Plan — £${plan.monthlyPrice}/mo`
+                    billingCycle === "monthly"
+                      ? `Get ${plan.name} Plan — £${plan.monthlyPrice}/mo`
+                      : `Get ${plan.name} Plan — £${(plan as any).annualPrice}/yr`
                   )}
                 </Button>
               </div>
