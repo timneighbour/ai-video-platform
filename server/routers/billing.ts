@@ -144,7 +144,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
-          payment_method_types: ["card", "paypal"],
+          // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: lineItems,
           mode: "payment",
           success_url: `${input.origin}/onboarding?upsell_success=true&job_id=${input.jobId}`,
@@ -295,7 +295,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
-          payment_method_types: ["card", "paypal"],
+          // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: [
             {
               price: priceId,
@@ -399,7 +399,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
-          payment_method_types: ["card", "paypal"],
+          // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: [
             {
               price: packInfo.priceId,
@@ -559,7 +559,7 @@ export const renderRouter = router({
 
       const session = await stripe.checkout.sessions.create({
         customer_email: ctx.user.email || undefined,
-        payment_method_types: ["card", "paypal"],
+        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
         line_items: lineItems,
         mode: "payment",
         success_url: `${input.origin}/render/success?render_job_id=${renderJobId}&session_id={CHECKOUT_SESSION_ID}`,
@@ -602,7 +602,7 @@ export const renderRouter = router({
 
       const session = await stripe.checkout.sessions.create({
         customer_email: ctx.user.email || undefined,
-        payment_method_types: ["card", "paypal"],
+        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
         line_items: [{ price: bundleInfo.priceId, quantity: 1 }],
         mode: "payment",
         success_url: `${input.origin}/dashboard?bundle_purchased=true&renders=${bundleInfo.renders}`,

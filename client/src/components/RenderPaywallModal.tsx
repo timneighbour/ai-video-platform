@@ -213,6 +213,25 @@ export function RenderPaywallModal({
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />
+
+          {/* Video preview — blurred thumbnail shown above payment details */}
+          {previewImageUrl && (
+            <div className="relative mb-4 rounded-xl overflow-hidden border border-white/10 h-28 bg-black">
+              <img
+                src={previewImageUrl}
+                alt="Video preview"
+                className="w-full h-full object-cover blur-sm scale-105 opacity-70"
+              />
+              {/* Overlay with lock icon */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                <div className="w-8 h-8 rounded-full bg-white/15 border border-white/25 backdrop-blur-sm flex items-center justify-center">
+                  <Download className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-[10px] text-white/70 font-medium tracking-wide">Your video is ready</span>
+              </div>
+            </div>
+          )}
+
           <DialogHeader className="relative">
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-mono tracking-wider uppercase">
@@ -221,10 +240,10 @@ export function RenderPaywallModal({
               </span>
             </div>
             <DialogTitle className="text-xl font-bold text-white">
-              {videoTitle ? `Render "${videoTitle}"` : "Render & Download Your Video"}
+              Your video is ready to download
             </DialogTitle>
             <p className="text-sm text-white/55 mt-1">
-              Choose your quality and audio settings below.
+              Complete your render to unlock your final video
             </p>
           </DialogHeader>
 
@@ -242,12 +261,12 @@ export function RenderPaywallModal({
                   {subscriptionRemaining > 0 && `${subscriptionRemaining} subscription render${subscriptionRemaining !== 1 ? "s" : ""} remaining`}
                   {subscriptionRemaining > 0 && bundleRemaining > 0 && " · "}
                   {bundleRemaining > 0 && `${bundleRemaining} bundle render${bundleRemaining !== 1 ? "s" : ""}`}
-                  {" — this render is free"}
+                  {" — included in your plan"}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-xs text-amber-400">
+                <div className="flex items-center gap-2 text-xs text-amber-400/90">
                   <Sparkles className="w-3.5 h-3.5" />
-                  No free renders remaining — pay per render below
+                  One-time payment • No subscription required
                 </div>
               )}
             </div>
@@ -481,7 +500,7 @@ export function RenderPaywallModal({
           </div>
         </div>
 
-        {/* Footer — total + CTA */}
+        {/* Footer — order summary + CTA */}
         <div className="px-6 pb-6 pt-4 border-t border-white/8 bg-black/30">
           {/* Bundle upsell (only if no free renders) */}
           {!hasFreeRenders && !isAdmin && !renderStatus.isLoading && (
@@ -499,22 +518,40 @@ export function RenderPaywallModal({
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-4">
+          {/* Order summary */}
+          {!hasFreeRenders && !isAdmin && (
+            <div className="mb-4 rounded-xl bg-white/3 border border-white/8 divide-y divide-white/6 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className="text-xs text-white/60">{selectedQuality.label} Render ({selectedQuality.resolution})</span>
+                <span className="text-xs font-semibold text-white">£{selectedQuality.price.toFixed(2)}</span>
+              </div>
+              {selectedAudio.price > 0 && (
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-xs text-white/60">{selectedAudio.label}</span>
+                  <span className="text-xs font-semibold text-white">£{selectedAudio.price.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between px-4 py-2.5 bg-white/3">
+                <span className="text-xs font-bold text-white">Total</span>
+                <span className="text-sm font-extrabold text-white">£{totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Total + CTA */}
+          <div className="flex items-center justify-between mb-3">
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-bold text-white">
                   {hasFreeRenders || isAdmin ? "Free" : `£${totalPrice.toFixed(2)}`}
                 </span>
-                {!hasFreeRenders && !isAdmin && totalPrice > 0 && (
-                  <span className="text-xs text-white/40">
-                    {selectedQuality.label} + {selectedAudio.label} audio
-                  </span>
-                )}
               </div>
-              {(hasFreeRenders || isAdmin) && (
+              {(hasFreeRenders || isAdmin) ? (
                 <p className="text-xs text-emerald-400 mt-0.5">
-                  Using {isAdmin ? "admin" : subscriptionRemaining > 0 ? "subscription" : "bundle"} render
+                  Included in your {isAdmin ? "admin" : subscriptionRemaining > 0 ? "monthly plan" : "bundle"}
                 </p>
+              ) : (
+                <p className="text-[10px] text-white/35 mt-0.5">No hidden fees</p>
               )}
             </div>
             <Button
@@ -530,17 +567,22 @@ export function RenderPaywallModal({
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  {hasFreeRenders || isAdmin ? "Render & Download" : `Pay £${totalPrice.toFixed(2)} & Render`}
+                  Render &amp; Download
                 </>
               )}
             </Button>
           </div>
 
+          {/* Sub-CTA message */}
+          <p className="text-[10px] text-white/30 text-center mb-3">
+            Your video will start rendering instantly after payment
+          </p>
+
           {/* Trust signals */}
-          <div className="flex items-center gap-4 text-[10px] text-white/30">
+          <div className="flex items-center justify-center gap-5 text-[10px] text-white/30">
             <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> Secure payment</span>
-            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> Download in minutes</span>
-            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> No watermark</span>
+            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> No hidden fees</span>
+            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> Instant processing</span>
           </div>
         </div>
       </DialogContent>
