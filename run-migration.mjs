@@ -6,10 +6,17 @@ if (!DATABASE_URL) { console.error("DATABASE_URL not set"); process.exit(1); }
 const connection = await mysql.createConnection(DATABASE_URL);
 
 const statements = [
-  "ALTER TABLE `videoCharacters` ADD COLUMN `masterPortraitUrl` varchar(1024)",
-  "ALTER TABLE `videoCharacters` ADD COLUMN `masterSeed` int",
-  "ALTER TABLE `videoCharacters` ADD COLUMN `characterPrompt` text",
-  "ALTER TABLE `videoCharacters` ADD COLUMN `masterPortraitGeneratedAt` timestamp NULL",
+  "ALTER TABLE `musicVideoJobs` ADD COLUMN `enforceStrictMode` boolean DEFAULT true NOT NULL",
+  "ALTER TABLE `musicVideoJobs` ADD COLUMN `promptSnapshot` longtext",
+  "ALTER TABLE `musicVideoJobs` ADD COLUMN `negativePromptSnapshot` longtext",
+  "ALTER TABLE `musicVideoScenes` ADD COLUMN `strictCharacterCount` int DEFAULT 3",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `lockedOutfit` longtext",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `lockedProps` longtext",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `lockedRole` text",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `lockedRules` longtext",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `normalisedAt` timestamp NULL",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `isRealPerson` boolean DEFAULT false",
+  "ALTER TABLE `videoCharacters` ADD COLUMN `characterMode` enum('photo','ai_generated') DEFAULT 'photo'",
 ];
 
 for (const sql of statements) {

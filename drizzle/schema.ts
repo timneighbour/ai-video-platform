@@ -109,13 +109,13 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   characterImageUrl: varchar("characterImageUrl", { length: 1024 }), // Optional character/face photo for AI to use
   characterImageKey: varchar("characterImageKey", { length: 512 }), // S3 key for character image
   enableLipSync: boolean("enableLipSync").default(false), // Whether to apply lip sync to character scenes
-  // ─── Kids Video Mode ──────────────────────────────────────────────────
+  // --- Kids Video Mode --------------------------------------------------
   isKidsVideo: boolean("isKidsVideo").default(false).notNull(), // Enable Kids Video Mode
   kidsTargetAge: varchar("kidsTargetAge", { length: 32 }), // e.g., "3-5", "5-8", "8-12"
   kidsEducationalTheme: varchar("kidsEducationalTheme", { length: 128 }), // e.g., "counting", "colours", "animals", "letters", "friendship", "feelings", "routines", "adventure", "music_and_movement"
   kidsEnableSingalong: boolean("kidsEnableSingalong").default(true).notNull(), // Singalong captions in Kids Mode
   kidsFriendlyIntensity: mysqlEnum("kidsFriendlyIntensity", ["soft", "moderate", "vibrant"]).default("vibrant").notNull(), // Visual intensity level for kids
-  // ─── Captions & Lyrics ────────────────────────────────────────────────
+  // --- Captions & Lyrics ------------------------------------------------
   lyrics: longtext("lyrics"), // Full lyrics text (JSON array of {line, startTime, endTime})
   lyricsStatus: varchar("lyricsStatus", { length: 32 }).default("pending"), // pending | extracted | edited | approved
   captionsEnabled: boolean("captionsEnabled").default(true).notNull(), // Whether to include captions in final render
@@ -136,11 +136,15 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
   sceneSetting: varchar("sceneSetting", { length: 512 }), // User-chosen visual environment e.g. "concert venue", "desert", "rooftop"
   characterLockEnabled: boolean("characterLockEnabled").default(true).notNull(), // Whether to enforce face consistency validation across scenes
-  // ─── Style Lock ───────────────────────────────────────────────────────
+  // --- Style Lock -------------------------------------------------------
   lockedStyle: text("lockedStyle"), // JSON: { descriptor: string, lighting: string, colourPalette: string, cameraAngle: string, mood: string, rawPromptSuffix: string }
   likedSceneId: int("likedSceneId"), // sceneId that triggered the style lock
   likedSceneImageUrl: varchar("likedSceneImageUrl", { length: 1024 }), // image URL used for style extraction
   lyricsApproved: boolean("lyricsApproved").default(false).notNull(), // User has approved lyrics before render
+  // --- Strict Mode & Debugging -------
+  enforceStrictMode: boolean("enforceStrictMode").default(true).notNull(), // Full character+outfit+props constraints
+  promptSnapshot: longtext("promptSnapshot"), // Last full prompt sent to image gen (debugging)
+  negativePromptSnapshot: longtext("negativePromptSnapshot"), // Last full negative prompt (debugging)
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -148,7 +152,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
 export type MusicVideoJob = typeof musicVideoJobs.$inferSelect;
 export type InsertMusicVideoJob = typeof musicVideoJobs.$inferInsert;
 
-// ─── Kids Video Mode & Captions Types ──────────────────────────────────────
+// --- Kids Video Mode & Captions Types --------------------------------------
 export type KidsEducationalTheme = "counting" | "colours" | "animals" | "letters" | "friendship" | "feelings" | "routines" | "adventure" | "music_and_movement";
 export type KidsFriendlyIntensity = "soft" | "moderate" | "vibrant";
 export type CaptionStyle = "bottom" | "top" | "custom";
@@ -192,7 +196,8 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated storyboard preview image
   previewImageKey: varchar("previewImageKey", { length: 512 }),
   characterAssignments: text("characterAssignments"), // JSON array of character names assigned to this scene e.g. ["Singer","Drummer"]
-  // ─── Face Lock Validation ────────────────────────────────────────────────
+  strictCharacterCount: int("strictCharacterCount").default(3), // Exact number of people required in this scene
+  // --- Face Lock Validation ------------------------------------------------
   faceValidationStatus: mysqlEnum("faceValidationStatus", ["pending", "matched", "warning", "regenerated", "skipped"]).default("pending"), // Per-scene face validation result
   faceValidationScores: text("faceValidationScores"), // JSON: { characterName: confidenceScore } per assigned character
   faceValidationAttempts: int("faceValidationAttempts").default(0), // Number of regeneration attempts due to face mismatch
@@ -234,17 +239,17 @@ export const videoCharacters = mysqlTable("videoCharacters", {
    lockedAt: timestamp("lockedAt"), // When the lock was applied
   previewImageUrl: varchar("previewImageUrl", { length: 1024 }), // AI-generated test image for user approval before storyboard
   previewApproved: boolean("previewApproved").default(false), // User approved the character likeness
-  // ─── Face Lock System ────────────────────────────────────────────────────
+  // --- Face Lock System ----------------------------------------------------
   faceEmbedding: longtext("faceEmbedding"), // JSON: face embedding vector extracted from reference photo (for similarity comparison)
   referencePhotoBase64: longtext("referencePhotoBase64"), // Cached base64 of primary reference photo (avoids re-fetching from S3)
   lockedSeed: int("lockedSeed"), // Fixed seed used for generation to maintain consistency
   faceValidationThreshold: int("faceValidationThreshold").default(75), // Minimum Face++ confidence score (0-100) to pass validation
-  // ─── Master Character Identity (Identity Anchor System) ───────────────────────────────
+  // --- Master Character Identity (Identity Anchor System) -------------------------------
   masterPortraitUrl: varchar("masterPortraitUrl", { length: 1024 }), // Locked portrait generated from reference photo — used as face anchor in every scene
   masterSeed: int("masterSeed"), // Seed used when generating the master portrait — injected into all scene calls for determinism
   characterPrompt: text("characterPrompt"), // Locked identity prompt: "male, short dark hair, beard, leather jacket" — NEVER changes per scene
   masterPortraitGeneratedAt: timestamp("masterPortraitGeneratedAt"), // When the master portrait was last generated
-  // ─── Character Visual Details (OVERRIDE block in prompt) ─────────────────
+  // --- Character Visual Details (OVERRIDE block in prompt) -----------------
   // JSON: { instrument: string, outfit: string, props: string, position: string }
   // These OVERRIDE any scene assumptions — injected as a hard constraint block.
   characterVisualDetails: longtext("characterVisualDetails"),
@@ -252,6 +257,16 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   characterConstraints: longtext("characterConstraints"),
   // Default physical state when not overridden by scene (e.g. "Standing at mic, centre stage")
   characterDefaultState: text("characterDefaultState"),
+  // --- Unified Character Identity Fields (normalised for ALL characters) ----
+  // Set by normaliseCharacter() — used in EVERY scene generation regardless of photo/AI source.
+  // JSON columns store structured data for reliable prompt injection.
+  lockedOutfit: longtext("lockedOutfit"),   // JSON: { jacket, shirt, trousers, shoes, accessories }
+  lockedProps: longtext("lockedProps"),     // JSON: { instrument, mic, other }
+  lockedRole: text("lockedRole"),           // e.g. "Lead Singer and Guitarist"
+  lockedRules: longtext("lockedRules"),     // JSON: strict behavioural rules (NEVER wears X, ALWAYS holds Y)
+  normalisedAt: timestamp("normalisedAt"),  // When normaliseCharacter() last ran
+  isRealPerson: boolean("isRealPerson").default(false), // true = uploaded photo, false = AI-generated
+  characterMode: mysqlEnum("characterMode", ["photo", "ai_generated"]).default("photo"), // Source type
   // Whether this character is the primary focus (primary) or background (secondary)
   rolePriority: mysqlEnum("rolePriority", ["primary", "secondary"]).default("primary"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -275,7 +290,7 @@ export const videoCharacterPhotos = mysqlTable("videoCharacterPhotos", {
 export type VideoCharacterPhoto = typeof videoCharacterPhotos.$inferSelect;
 export type InsertVideoCharacterPhoto = typeof videoCharacterPhotos.$inferInsert;
 
-// ── AI Video Enhancement Studio (Phase 1 MVP) ──────────────────────────────────────
+// -- AI Video Enhancement Studio (Phase 1 MVP) --------------------------------------
 // Enhancement Jobs table — tracks video enhancement requests
 export const enhancementJobs = mysqlTable("enhancementJobs", {
   id: int("id").autoincrement().primaryKey(),
@@ -328,7 +343,7 @@ export const enhancementJobs = mysqlTable("enhancementJobs", {
 export type EnhancementJob = typeof enhancementJobs.$inferSelect;
 export type InsertEnhancementJob = typeof enhancementJobs.$inferInsert;
 
-// ── Showcase Items ─────────────────────────────────────────────────────────────
+// -- Showcase Items -------------------------------------------------------------
 // Pre-generated demo videos shown in the "See what creators are making" gallery.
 // Managed by admins; served publicly on the homepage.
 export const showcaseItems = mysqlTable("showcaseItems", {
@@ -346,9 +361,9 @@ export const showcaseItems = mysqlTable("showcaseItems", {
 export type ShowcaseItem = typeof showcaseItems.$inferSelect;
 export type InsertShowcaseItem = typeof showcaseItems.$inferInsert;
 
-// ─── Suno Music Generation ──────────────────────────────────────────────────
+// --- Suno Music Generation --------------------------------------------------
 
-// ─── WaveSpeed Model Assignment ────────────────────────────────────────────────
+// --- WaveSpeed Model Assignment ------------------------------------------------
 // Enum for WaveSpeed model selection per scene
 export type WaveSpeedModelType = "seedance-2.0" | "hailuo-minimax";
 

@@ -17,6 +17,27 @@ const photoInputSchema = z.object({
   isPrimary: z.boolean().optional().default(false),
 });
 
+const lockedOutfitSchema = z.object({
+  jacket: z.string().optional(),
+  shirt: z.string().optional(),
+  trousers: z.string().optional(),
+  shoes: z.string().optional(),
+  accessories: z.string().optional(),
+}).passthrough().optional();
+
+const lockedPropsSchema = z.object({
+  instrument: z.string().optional(),
+  mic: z.string().optional(),
+  other: z.string().optional(),
+}).passthrough().optional();
+
+const lockedRulesSchema = z.object({
+  role: z.string(),
+  mustHave: z.array(z.string()).optional(),
+  allowedProps: z.array(z.string()).optional(),
+  forbidden: z.array(z.string()).optional(),
+}).optional();
+
 const characterInputSchema = z.object({
   slotIndex: z.number().int().min(0).max(3),
   name: z.string().min(1).max(255).default("Character"),
@@ -31,6 +52,13 @@ const characterInputSchema = z.object({
   isLocked: z.boolean().optional().default(false),
   // Visual details: outfit, instrument, position, props (overrides scene assumptions)
   visualDetails: z.string().max(1000).optional(),
+  // ─── Unified Character Pipeline Fields ───────────────────────────────
+  lockedOutfit: lockedOutfitSchema,
+  lockedProps: lockedPropsSchema,
+  lockedRole: z.string().max(500).optional(),
+  lockedRules: lockedRulesSchema,
+  lockedPosition: z.string().max(500).optional(),
+  isRealPerson: z.boolean().optional().default(false),
 });
 
 export const charactersRouter = router({
@@ -72,6 +100,13 @@ export const charactersRouter = router({
           lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
           isLocked: charInput.isLocked ?? false,
           characterVisualDetails: charInput.visualDetails ? charInput.visualDetails : null,
+          // ─── Unified Character Pipeline Fields ───────────────────────────
+          lockedOutfit: charInput.lockedOutfit ? JSON.stringify(charInput.lockedOutfit) : null,
+          lockedProps: charInput.lockedProps ? JSON.stringify(charInput.lockedProps) : null,
+          lockedRole: charInput.lockedRole ?? charInput.role ?? null,
+          lockedRules: charInput.lockedRules ? JSON.stringify(charInput.lockedRules) : null,
+          characterMode: charInput.mode ?? "photo",
+          isRealPerson: charInput.isRealPerson ?? (charInput.photos.length > 0),
         });
         const characterId = (result as any).insertId as number;
 
@@ -299,6 +334,153 @@ This description will be copied verbatim into every AI video scene prompt — it
         .where(eq(videoCharacters.id, input.characterId));
 
       return { success: true, isLocked: false };
+    }),
+
+  // Normalise a character: auto-populate lockedOutfit, lockedProps, lockedRole, lockedRules from LLM analysis
+  // This runs for BOTH photo-uploaded and AI-generated characters (unified pipeline)
+  normaliseCharacter: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      // Optional overrides — if provided, skip LLM and use these directly
+      lockedOutfit: lockedOutfitSchema,
+      lockedProps: lockedPropsSchema,
+      lockedRole: z.string().max(500).optional(),
+      lockedRules: lockedRulesSchema,
+      lockedPosition: z.string().max(500).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // If overrides provided, use them directly
+      if (input.lockedOutfit || input.lockedProps || input.lockedRules) {
+        await db.update(videoCharacters)
+          .set({
+            lockedOutfit: input.lockedOutfit ? JSON.stringify(input.lockedOutfit) : char.lockedOutfit,
+            lockedProps: input.lockedProps ? JSON.stringify(input.lockedProps) : char.lockedProps,
+            lockedRole: input.lockedRole ?? char.lockedRole,
+            lockedRules: input.lockedRules ? JSON.stringify(input.lockedRules) : char.lockedRules,
+            normalisedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(videoCharacters.id, input.characterId));
+        return { success: true, method: "manual" };
+      }
+
+      // Otherwise, use LLM to extract structured data from the locked description
+      if (!char.lockedDescription) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Character must have a locked description before normalisation" });
+      }
+
+      const { invokeLLM } = await import("../_core/llm");
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system" as const,
+            content: `You are a character data extractor. Given a character description, extract structured outfit, props, role, position, and rules data. Return JSON only.`,
+          },
+          {
+            role: "user" as const,
+            content: `Extract structured data from this character description:
+
+Name: ${char.name}
+Role: ${char.role || "musician"}
+Description: ${char.lockedDescription}
+Visual Details: ${char.characterVisualDetails || "none"}
+
+Return JSON with this exact structure:
+{
+  "lockedOutfit": { "jacket": "...", "shirt": "...", "trousers": "...", "shoes": "...", "accessories": "..." },
+  "lockedProps": { "instrument": "...", "mic": "...", "other": "..." },
+  "lockedRole": "...",
+  "lockedPosition": "...",
+  "lockedRules": {
+    "role": "...",
+    "mustHave": ["..."],
+    "allowedProps": ["..."],
+    "forbidden": ["..."]
+  }
+}
+
+For forbidden items, include clothing that would conflict with their outfit (e.g. if they wear a leather jacket, forbid "t-shirt only without jacket").`,
+          },
+        ],
+        response_format: {
+          type: "json_schema" as const,
+          json_schema: {
+            name: "character_normalisation",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                lockedOutfit: {
+                  type: "object",
+                  properties: {
+                    jacket: { type: "string" },
+                    shirt: { type: "string" },
+                    trousers: { type: "string" },
+                    shoes: { type: "string" },
+                    accessories: { type: "string" },
+                  },
+                  required: ["jacket", "shirt", "trousers", "shoes", "accessories"],
+                  additionalProperties: false,
+                },
+                lockedProps: {
+                  type: "object",
+                  properties: {
+                    instrument: { type: "string" },
+                    mic: { type: "string" },
+                    other: { type: "string" },
+                  },
+                  required: ["instrument", "mic", "other"],
+                  additionalProperties: false,
+                },
+                lockedRole: { type: "string" },
+                lockedPosition: { type: "string" },
+                lockedRules: {
+                  type: "object",
+                  properties: {
+                    role: { type: "string" },
+                    mustHave: { type: "array", items: { type: "string" } },
+                    allowedProps: { type: "array", items: { type: "string" } },
+                    forbidden: { type: "array", items: { type: "string" } },
+                  },
+                  required: ["role", "mustHave", "allowedProps", "forbidden"],
+                  additionalProperties: false,
+                },
+              },
+              required: ["lockedOutfit", "lockedProps", "lockedRole", "lockedPosition", "lockedRules"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const rawContent = response.choices[0]?.message?.content;
+      const content = typeof rawContent === "string" ? rawContent : Array.isArray(rawContent) ? (rawContent as any[]).map((c: any) => c.text || "").join("") : null;
+      if (!content) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM returned empty response" });
+
+      let parsed;
+      try { parsed = JSON.parse(content); } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM returned invalid JSON" });
+      }
+
+      await db.update(videoCharacters)
+        .set({
+          lockedOutfit: JSON.stringify(parsed.lockedOutfit),
+          lockedProps: JSON.stringify(parsed.lockedProps),
+          lockedRole: parsed.lockedRole,
+          lockedRules: JSON.stringify(parsed.lockedRules),
+          normalisedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      return { success: true, method: "llm", data: parsed };
     }),
 
   // Delete a character and all its photos

@@ -956,20 +956,91 @@ Rules:
           : charCountConstraint;
 
       // ── BLOCK 2: Visual Block (CHARACTER VISUAL DETAILS — ABSOLUTE TRUTH) ────
-      // These OVERRIDE any scene assumptions. Injected after identity, before role.
+      // DUAL-CONSTRAINT OUTFIT ENFORCEMENT: positive (WEARS) + negative (NEVER WEARS)
+      // Repeated TWICE in the prompt to maximise model compliance.
+
+      // Per-character outfit constraint definitions
+      const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
+        tim: {
+          positive: [
+            "black leather jacket (MANDATORY — most important outfit element)",
+            "dark jeans with a key chain hanging from belt loop",
+            "dark t-shirt or shirt underneath the leather jacket",
+            "black boots or dark shoes",
+          ],
+          negative: [
+            "NOT wearing only a t-shirt without a jacket",
+            "NOT sleeveless",
+            "NOT a hoodie",
+            "NOT a vest",
+            "NOT a blazer",
+            "NOT a suit jacket",
+            "NOT a coat",
+          ],
+        },
+        greg: {
+          positive: [
+            "black short-sleeve torn t-shirt with VISIBLE SHORT SLEEVES",
+            "dark jeans or dark trousers",
+            "trainers or boots",
+          ],
+          negative: [
+            "NOT a leather jacket",
+            "NOT any jacket of any kind",
+            "NOT sleeveless",
+            "NOT a tank top",
+            "NOT a vest",
+            "NOT a long-sleeve shirt",
+            "NOT a blazer",
+            "NOT a coat",
+          ],
+        },
+        monica: {
+          positive: [
+            "form-fitting black leather trousers",
+            "distressed charcoal grey V-neck t-shirt cut low",
+            "black stiletto-heeled ankle boots",
+            "long silver chain necklace with prominent ornate silver cross pendant (VISIBLE)",
+            "full sleeve tattoos on both forearms (VISIBLE)",
+          ],
+          negative: [
+            "NOT a leather jacket",
+            "NOT any jacket of any kind",
+            "NOT generic plain clothing",
+            "NOT hiding the tattoos",
+            "NOT hiding the cross necklace",
+            "NOT jeans",
+            "NOT shorts",
+          ],
+        },
+      };
+
+      // Build dual-constraint outfit block for a character
+      const buildOutfitConstraintBlock = (charName: string, storedOutfit?: string): string => {
+        const key = charName.toLowerCase();
+        const constraints = OUTFIT_CONSTRAINTS[key];
+        if (!constraints) {
+          return storedOutfit ? `${charName} is wearing: ${storedOutfit}.` : "";
+        }
+        const positiveList = constraints.positive.map(p => `  + ${p}`).join("\n");
+        const negativeList = constraints.negative.map(n => `  ${n}`).join("\n");
+        // First statement
+        const block1 = `${charName} is wearing:\n${positiveList}\n${charName} is ABSOLUTELY NOT wearing:\n${negativeList}`;
+        // Second statement (reinforcement repetition)
+        const block2 = `CONFIRM: ${charName}'s outfit is EXACTLY: ${constraints.positive.join(", ")}. ${charName} is NEVER wearing: ${constraints.negative.join(", ")}.`;
+        return `${block1}\n\n${block2}`;
+      };
+
       const visualLines = resolvedSceneChars
-        .filter(c => c.characterVisualDetails)
         .map(c => {
           let details: { instrument?: string; outfit?: string; props?: string; position?: string } = {};
-          try { details = JSON.parse(c.characterVisualDetails!); } catch {}
+          if (c.characterVisualDetails) {
+            try { details = JSON.parse(c.characterVisualDetails!); } catch {}
+          }
           const parts: string[] = [];
-          const charNameLower = c.name.toLowerCase();
-          const outfitExclusion = charNameLower === 'greg'
-            ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind. NO blazer. NO coat. NO hoodie. NO tank top. NO sleeveless shirt. NO vest. ONLY a short-sleeve torn t-shirt. CRITICAL: Greg ALWAYS has sleeves. Greg is NEVER wearing a leather jacket or tank top.`
-            : charNameLower === 'monica'
-            ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind.`
-            : ` — MUST wear this EXACT outfit. NO substitutions.`;
-          if (details.outfit) parts.push(`Outfit: ${details.outfit}${outfitExclusion}`);
+          // Dual-constraint outfit block (positive + negative, repeated twice)
+          const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit);
+          if (outfitConstraintBlock) parts.push(outfitConstraintBlock);
           if (details.instrument) parts.push(`Instrument: ${details.instrument} — MUST hold/play this instrument. NO other instruments.`);
           if (details.position) parts.push(`Position: ${details.position}`);
           if (details.props) parts.push(`Props: ${details.props}`);
@@ -980,14 +1051,9 @@ Rules:
       const visualBlock = visualLines.length > 0
         ? `CHARACTER VISUAL DETAILS (ABSOLUTE TRUTH — OVERRIDES ALL SCENE ASSUMPTIONS):\n\n` +
           `${visualLines.join("\n\n")}\n\n` +
-          `CRITICAL OUTFIT RULES:\n` +
-          `- Each character MUST wear ONLY their specified outfit\n` +
-          `- Greg MUST wear black SHORT-SLEEVE torn t-shirt ONLY — NEVER a leather jacket, NEVER any jacket, NEVER a blazer, NEVER a tank top, NEVER sleeveless, NEVER a vest\n` +
-          `- Monica MUST wear fitted dark outfit ONLY — NEVER a leather jacket, NEVER any jacket\n` +
-          `- Tim is the ONLY character who may wear a leather jacket\n` +
-          `- DO NOT swap outfits between characters\n` +
-          `- DO NOT invent or replace props\n` +
-          `- These definitions OVERRIDE any scene interpretation`
+          `OUTFIT CONSISTENCY RULE: Outfits must remain consistent across ALL scenes. ` +
+          `DO NOT swap outfits between characters. DO NOT invent or replace props. ` +
+          `These outfit definitions OVERRIDE any scene interpretation or style suggestion.`
         : "";
 
       // ── PERFORMANCE ENERGY BLOCK ──────────────────────────────────────────────────
@@ -1168,15 +1234,17 @@ Rules:
         "wrong outfit", "outfit swap", "different clothing",
         "leather jacket on drummer", "leather jacket on Greg", "leather jacket on Monica",
         "tank top on drummer", "sleeveless shirt on Greg", "vest on Greg",
-        "crowd behind band", "audience behind performers", "crowd surrounding stage",
+        // Crowd in BACKGROUND is allowed and looks great (like a real concert).
+        // Only block crowd in FOREGROUND obscuring the band, or arena wide shots where band is tiny.
+        "crowd in foreground blocking band", "audience obscuring performers", "crowd pushing in front of band",
+        "arena wide shot with tiny band", "distant stage shot", "band barely visible",
         ...(charCount > 1 ? [
-          "extra people", "fourth person", "fifth person", "additional guitarist",
-          "crowd in background", "audience in background", "crowd behind band", "audience behind performers",
-          "background band members", "silhouette", "distant figures",
+          "extra people on stage", "fourth person on stage", "fifth person on stage", "additional guitarist on stage",
+          "extra band members on stage", "silhouette on stage",
           "aerial shot", "bird's eye view",
         ] : []),
         ...(charCount === 1 ? [
-          "crowd", "audience", "background audience", "concert crowd",
+          "crowd in foreground", "audience in foreground", "crowd blocking performer",
         ] : []),
       ].join(", ");
 
@@ -1224,6 +1292,23 @@ Rules:
           console.warn(`[generateScenePreview] Could not fetch previous scene for chained reference:`, prevErr);
         }
       }
+
+      // ── Save prompt snapshots for debugging ──────────────────────────────────
+      try {
+        await db.update(musicVideoJobs)
+          .set({
+            promptSnapshot: finalImagePrompt.slice(0, 65000),
+            negativePromptSnapshot: negativePromptV2.slice(0, 65000),
+          })
+          .where(eq(musicVideoJobs.id, input.jobId));
+      } catch (snapErr) {
+        console.warn(`[generateScenePreview] Could not save prompt snapshot:`, snapErr);
+      }
+
+      // ── generateWithRetry: retry up to 3 times if validation fails ────────
+      const MAX_RETRIES = 3;
+      let retryCount = 0;
+      let lastUrl: string | undefined;
 
       try {
         let url: string | undefined;
@@ -1868,11 +1953,39 @@ Rules:
 
       const description = char.lockedDescription?.trim() ?? "";
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
+      const charNameLower = char.name.toLowerCase();
 
-      // Build a full-body portrait prompt — show complete outfit from head to toe
-      const previewPrompt = description.length > 20
-        ? `Full-body photo of ${characterLabel}, standing, full-length shot showing complete outfit from head to toe, face clearly visible. ${description}. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K.`
-        : `Full-body photo of ${characterLabel}, standing, full-length shot showing complete outfit from head to toe, face clearly visible, neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K.`;
+      // Extract visual details (outfit, instrument, props) from stored JSON
+      let visualOutfit = "";
+      let visualInstrument = "";
+      let visualProps = "";
+      if (char.characterVisualDetails) {
+        try {
+          const vd = JSON.parse(char.characterVisualDetails) as { outfit?: string; instrument?: string; props?: string };
+          visualOutfit = vd.outfit?.trim() ?? "";
+          visualInstrument = vd.instrument?.trim() ?? "";
+          visualProps = vd.props?.trim() ?? "";
+        } catch { /* ignore parse errors */ }
+      }
+
+      // Per-character outfit enforcement — injected directly into the prompt
+      const outfitBlock = charNameLower === "tim"
+        ? `OUTFIT (MANDATORY): ${visualOutfit || "black leather jacket over dark t-shirt, black jeans, black boots"}. Tim MUST wear a BLACK LEATHER JACKET. The leather jacket is the most important outfit element. DO NOT replace the leather jacket with any other garment.`
+        : charNameLower === "greg"
+        ? `OUTFIT (MANDATORY): ${visualOutfit || "black short-sleeve torn t-shirt with visible sleeves, dark jeans, trainers"}. Greg MUST wear a SHORT-SLEEVE T-SHIRT WITH SLEEVES. ABSOLUTELY NO leather jacket. ABSOLUTELY NO jacket of any kind. ABSOLUTELY NO blazer. ABSOLUTELY NO coat. ABSOLUTELY NO tank top. ABSOLUTELY NO sleeveless shirt. ONLY a t-shirt with short sleeves.`
+        : charNameLower === "monica"
+        ? `OUTFIT (MANDATORY): ${visualOutfit || "form-fitting black leather trousers, distressed charcoal grey V-neck t-shirt, black stiletto-heeled ankle boots, silver cross necklace, full sleeve tattoos on both arms"}. Monica MUST wear LEATHER TROUSERS and ANKLE BOOTS. Both legs and feet must be fully visible showing the leather trousers and boots. ABSOLUTELY NO leather jacket.`
+        : visualOutfit ? `OUTFIT: ${visualOutfit}.` : "";
+
+      const instrumentBlock = visualInstrument ? `INSTRUMENT: ${visualInstrument}.` : "";
+      const propsBlock = visualProps ? `PROPS: ${visualProps}.` : "";
+
+      // Build a full-body portrait prompt — AGGRESSIVE full-length framing to override reference photo composition
+      // The reference photo may be a bust/waist-up shot, so we must dominate the framing with explicit full-body language
+      const fullBodyPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. LEGS VISIBLE. FEET AND SHOES VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up. NOT chest up. The entire body must be in frame.`;
+      const fullBodySuffix = `Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. 9:16 aspect ratio. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
+      const descriptionBlock = description.length > 20 ? description : characterLabel;
+      const previewPrompt = `${fullBodyPrefix} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
 
       // Fetch all photos for Flux PuLID
       const photos = await db.select().from(videoCharacterPhotos)
@@ -2012,13 +2125,16 @@ Rules:
           {
             role: "system" as const,
             content: `You are a character designer writing precise visual briefs for AI video generation.
-Expand the user's short character description into a detailed 80-120 word visual brief for a FULL-BODY standing shot.
+Expand the user's short character description into a detailed 80-120 word visual brief for a FULL-BODY STANDING SHOT.
 Style: ${styleLabel} (${styleGuide[input.style]}).
-Rules:
+CRITICAL RULES — ALL MUST BE FOLLOWED:
+- The brief MUST describe a FULL-BODY STANDING FIGURE visible from head to toe.
+- MUST explicitly mention: legs, knees, calves, ankles, feet, and footwear (shoes/boots/trainers).
+- MUST describe the bottom half of the outfit (trousers/jeans/skirt/shorts) AND the footwear.
+- MUST include the phrase "full-length standing figure" or "full body from head to feet" in the brief.
 - Be hyper-specific: exact colours, clothing details, hair style, body type, age, expression.
-- MUST describe the COMPLETE outfit from head to toe: top, bottom/trousers/skirt, footwear, accessories.
-- Include legs, feet, and shoes/boots explicitly so the AI renders the full body.
-- For animated styles: describe the character AS IF they are that animation style (e.g. "Pixar-style character with large expressive eyes...").
+- NEVER describe only the face, head, or upper body. ALWAYS include the complete lower body.
+- For animated styles: describe the character AS IF they are that animation style.
 - For realistic: describe as a real person with precise physical details.
 - Output: A single dense paragraph. No bullet points. No preamble.`,
           },
@@ -2033,14 +2149,13 @@ Write the full visual brief now.`,
 
       const visualBrief = (briefResponse.choices[0]?.message?.content as string | undefined)?.trim() ?? input.description;
 
-      // Step 2: Generate preview image — full-body shot showing complete outfit from head to toe
+      // Step 2: Generate preview image — AGGRESSIVE full-body framing with embedded negative instructions
+      // Forge API has no separate negative prompt field, so we embed DO NOT / NOT instructions directly
+      const fbPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. LEGS VISIBLE. FEET AND SHOES VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up. NOT chest up. The entire body must be in frame.`;
+      const fbSuffix = `Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. 9:16 aspect ratio. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
       const imagePrompt = input.style === "realistic"
-        ? `Full-body photo of ${input.name}${input.role ? `, ${input.role}` : ""}, standing, full-length shot showing complete outfit from head to toe, face clearly visible. ${visualBrief}. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K.`
-        : `${styleLabel} style full-body character art of ${input.name}${input.role ? `, ${input.role}` : ""}, standing, full-length showing complete outfit from head to toe, face clearly visible. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render.`;
-
-      const negativePrompt = input.style === "realistic"
-        ? "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, watermark, cropped, bust shot, portrait crop, cut off feet, cut off legs"
-        : "photorealistic, photograph, ugly, distorted, low quality, watermark, cropped, bust shot, portrait crop, cut off feet, cut off legs";
+        ? `${fbPrefix} Photorealistic full-body photo of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. ${fbSuffix}`
+        : `${fbPrefix} ${styleLabel} style full-body character art of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render. ${fbSuffix}`;
 
       let imageUrl: string;
       try {

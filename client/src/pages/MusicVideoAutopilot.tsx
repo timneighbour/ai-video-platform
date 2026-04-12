@@ -1055,10 +1055,10 @@ export default function MusicVideoAutopilot() {
         <div className="max-w-5xl mx-auto px-4 py-6">
           {/* Top nav row: Home + Dashboard links */}
           <div className="flex items-center justify-between mb-4">
-            <Link href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+            <a href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
               <span>Home</span>
-            </Link>
+            </a>
             <Link href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard</span>
@@ -1076,22 +1076,62 @@ export default function MusicVideoAutopilot() {
             </div>
           </div>
 
-          {/* Step indicators */}
-          <div className="flex items-center gap-2 mt-4">
-            {(["upload", "character_confirmation", "storyboard", "render"] as Step[]).map((s, i) => (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                  step === s ? "bg-purple-600 text-white" :
-                  (["upload", "character_confirmation", "storyboard", "render"].indexOf(step) > i) ? "bg-zinc-700 text-zinc-300" :
-                  "bg-zinc-900 text-zinc-500"
-                }`}>
-                  <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">{i + 1}</span>
-                  <span className="capitalize hidden sm:inline">{s === "upload" ? "Setup" : s === "character_confirmation" ? "Confirm Characters" : s === "storyboard" ? "Review Storyboard" : "Render & Download"}</span>
-                </div>
-                {i < 3 && <ChevronRight className="w-4 h-4 text-zinc-600" />}
+          {/* Step indicators — clickable based on progress */}
+          {(() => {
+            const STEPS: Step[] = ["upload", "character_confirmation", "storyboard", "render"];
+            const STEP_LABELS: Record<Step, string> = {
+              upload: "Setup",
+              character_confirmation: "Confirm Characters",
+              storyboard: "Review Storyboard",
+              render: "Render & Download",
+            };
+            const currentIdx = STEPS.indexOf(step);
+            // A step is accessible if: it's already been reached (index <= currentIdx)
+            // OR it has the required data to navigate to it
+            const canNavigateTo = (s: Step): boolean => {
+              const targetIdx = STEPS.indexOf(s);
+              if (targetIdx <= currentIdx) return true; // can always go back
+              if (s === "character_confirmation" && jobId) return true;
+              if (s === "storyboard" && scenes.length > 0) return true;
+              if (s === "render" && scenes.some(sc => sc.status === "completed")) return true;
+              return false;
+            };
+            return (
+              <div className="flex items-center gap-2 mt-4">
+                {STEPS.map((s, i) => {
+                  const isActive = step === s;
+                  const isCompleted = currentIdx > i;
+                  const isAccessible = canNavigateTo(s);
+                  return (
+                    <div key={s} className="flex items-center gap-2">
+                      <button
+                        onClick={() => isAccessible && setStep(s)}
+                        disabled={!isAccessible}
+                        title={!isAccessible ? "Complete previous steps first" : `Go to ${STEP_LABELS[s]}`}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                          isActive
+                            ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                            : isCompleted
+                            ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white cursor-pointer"
+                            : isAccessible
+                            ? "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white cursor-pointer"
+                            : "bg-zinc-900 text-zinc-600 cursor-not-allowed opacity-50"
+                        }`}
+                      >
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                          isCompleted ? "bg-green-500/30 text-green-400" : "bg-white/20"
+                        }`}>
+                          {isCompleted ? <Check className="w-3 h-3" /> : i + 1}
+                        </span>
+                        <span className="capitalize hidden sm:inline">{STEP_LABELS[s]}</span>
+                      </button>
+                      {i < 3 && <ChevronRight className="w-4 h-4 text-zinc-600" />}
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -1145,7 +1185,16 @@ export default function MusicVideoAutopilot() {
                               Duration: {formatDuration(audioDuration)}
                               {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
                             </p>
-                            <p className="text-zinc-500 text-xs mt-1">Click to change</p>
+                            {/* Audio Preview Player */}
+                            <div className="mt-3 px-4" onClick={(e) => e.stopPropagation()}>
+                              <audio
+                                controls
+                                src={URL.createObjectURL(audioFile)}
+                                className="w-full h-8 rounded-lg"
+                                style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.8)" }}
+                              />
+                              <p className="text-zinc-500 text-xs mt-1 text-center">Preview your track · Click outside to change file</p>
+                            </div>
                           </div>
                         )}
                       </div>

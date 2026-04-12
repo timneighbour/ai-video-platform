@@ -1794,3 +1794,134 @@
 ## Bug: Greg Outfit Tank Top (Apr 12 2026)
 - [x] Greg wearing sleeveless tank top — must be black short-sleeve torn t-shirt with sleeves
 - [x] Add "sleeveless", "tank top", "vest" to Greg's outfit exclusion in visual block and negative prompt
+
+## Bug: All Character Portraits Need Full Body + Outfit Fixes (Apr 12 2026)
+- [ ] Tim portrait: full-body shot from head to feet, black leather jacket MUST be visible
+- [ ] Greg portrait: full-body shot from head to feet, black short-sleeve torn t-shirt, NO leather jacket
+- [x] Monica portrait: full-body shot from head to feet, leather trousers and boots visible
+- [x] previewCharacter: when character has a photo reference, the prompt must STILL dominate framing (not the reference photo's crop)
+- [x] Tim characterVisualDetails: ensure leather jacket is the FIRST item in outfit description with CAPS emphasis
+- [x] Greg characterVisualDetails: add "ABSOLUTELY NO leather jacket" as first constraint
+- [x] All portrait prompts: move full-body framing keywords to the very START of the prompt string
+
+## Bug: Portrait + Scene Composition Fixes (Apr 12 2026 - Reference Image)
+- [x] previewCharacter: inject characterVisualDetails (outfit/instrument/props) into portrait prompt
+- [x] previewCharacter: add per-character outfit enforcement (Tim=leather jacket, Greg=torn t-shirt NO jacket, Monica=leather trousers+boots)
+- [x] Crowd rule: allow crowd in BACKGROUND — only block crowd in FOREGROUND obscuring band, or arena wide shots where band is tiny
+- [x] Camera angles: re-add "crowd cheering in background" style shots — these look great per reference image
+- [x] Scene negative prompts: change "crowd behind band" block to "crowd in foreground blocking band, audience obscuring performers"
+
+## Feature: Clickable Wizard Step Indicator (Apr 12 2026)
+- [x] Step indicator: make each step clickable based on progress (can go back to any completed step, can go forward to unlocked steps)
+- [x] Step 1 (Setup): always clickable
+- [x] Step 2 (Confirm Characters): clickable if characters have been saved (savedCharacterIds populated)
+- [x] Step 3 (Review Storyboard): clickable if storyboard has been generated (scenes exist)
+- [x] Step 4 (Render & Download): clickable if render has started or completed
+- [x] Visual: completed steps show filled/active style, current step highlighted, future locked steps show dimmed/disabled style
+- [x] Clicking a completed step navigates back without losing progress
+
+## Bug: Home Button Not Working on Music Video Page (Apr 12 2026)
+- [x] Find home/back button in MusicVideoAutopilot.tsx and fix navigation
+- [x] Ensure home button uses wouter Link or navigate() to go to "/" (fixed: uses window.location.href)
+
+## Feature: Dual-Constraint Outfit Enforcement (Apr 12 2026)
+- [x] Build per-character outfit constraint map with positive (WEARS) and negative (NEVER WEARS) lists
+- [x] Inject outfit constraints TWICE in scene prompt (first in visual block, again in constraints block)
+- [x] Tim: WEARS black leather jacket + jeans with key chain; NEVER wears t-shirt only, sleeveless, hoodie, vest
+- [x] Greg: WEARS black short-sleeve torn t-shirt; NEVER wears leather jacket, sleeveless, tank top, vest, long sleeve
+- [x] Monica: WEARS boots + visible tattoos + visible cross necklace; NEVER wears leather jacket, generic/plain outfit
+- [x] Add "Outfits must remain consistent across all scenes" reinforcement line to every scene prompt
+- [ ] Outfit auto-retry: after generation, check if outfit violation keywords appear in scene metadata; if so, retry up to 2 times
+- [x] Add outfit violation keywords to negative prompt list (already partially done, strengthen)
+
+## Feature: Unified Character Pipeline (Apr 12 2026)
+- [x] Schema: add lockedIdentity, lockedOutfit, lockedProps, lockedRole fields to videoCharacters table
+- [x] normaliseCharacter(): single function that runs for BOTH photo-uploaded and AI-generated characters
+- [x] normaliseCharacter(): generates masterPortrait, assigns masterSeed, stores lockedIdentity/lockedOutfit/lockedProps/lockedRole
+- [ ] Remove dual code paths in scene generation (photo-mode vs AI-mode)
+- [x] Scene injection: ALL characters use IDENTITY + OUTFIT + PROPS + ROLE format regardless of source
+- [ ] Failsafe: after generation, check identity/outfit consistency; retry up to 2x with stronger constraints if drift detected
+- [ ] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
+- [ ] AI-generated characters: use aiGeneratedImageUrl as masterPortraitUrl if no photo
+
+## Feature: Audio Preview Player on Upload Step (Apr 12 2026)
+- [x] After audio file is selected/uploaded, show an inline audio player so user can verify it's the correct track
+- [x] Player shows: track title, duration, play/pause button, seek bar, waveform or progress bar
+- [x] Player appears immediately after upload completes (before proceeding to next step)
+- [x] Allow user to remove/replace the audio file from the player UI
+
+## Schema: characterScenes Junction Table (Apr 12 2026)
+- [ ] Add characterScenes table: id, sceneId (fk), characterId (fk), isPrimary (boolean), positionOrder (int)
+- [ ] Migrate scene generation to use characterScenes for per-scene character assignment
+- [ ] Update scene prompt builder to read characters from characterScenes join
+
+## Schema: Full Unified Pipeline Changes (Apr 12 2026)
+- [x] videoCharacters: add lockedOutfit (JSON), lockedProps (JSON), lockedRole, lockedRules (JSON), normalisedAt, isRealPerson, characterMode
+- [x] lockedRules JSON format: { role, mustHave[], allowedProps[], forbidden[] }
+- [ ] characterScenes junction table: id, sceneId, characterId, isPrimary, positionOrder
+- [x] videoScenes: add strictCharacterCount (int DEFAULT 3)
+- [x] musicVideoJobs: add enforceStrictMode (boolean DEFAULT true), promptSnapshot (longtext), negativePromptSnapshot (longtext)
+- [x] Run pnpm drizzle-kit generate and apply migration SQL
+- [x] normaliseCharacter(): populate lockedRules from characterVisualDetails + characterConstraints
+- [x] Scene prompt builder: read lockedRules.mustHave as positive constraints, lockedRules.forbidden as negative constraints
+- [x] Scene prompt builder: inject lockedRules.forbidden directly into negative prompt
+- [x] Store promptSnapshot + negativePromptSnapshot on every scene generation for debugging
+
+## Spec: Strict Scene Generation Rules (Apr 12 2026)
+- [x] strictMode: true — no fallbacks that bypass character constraints
+- [x] Prompt block priority order: identity(10) > outfit(9) > props(8) > scene(5)
+- [x] Prompt assembly: identity block FIRST, outfit block SECOND, props block THIRD, scene description LAST
+- [x] Hardcoded negative prompt master list: extra people, duplicate people, crowd, audience, wrong character, different face, identity drift, wrong outfit, costume change, text, logo, signage, watermark, missing instruments, incorrect roles
+- [ ] Tim lockedRules: { role: "lead vocalist", mustHave: ["standing at microphone", "black leather jacket"], allowedProps: ["sunburst Gibson Les Paul"], forbidden: ["holding drumsticks", "wearing t-shirt only", "being in background"] }
+- [ ] Greg lockedRules: { role: "drummer", mustHave: ["seated behind drum kit", "black torn short-sleeve t-shirt"], forbidden: ["leather jacket", "standing", "holding guitar"] }
+- [ ] Monica lockedRules: { role: "bassist", mustHave: ["playing bass guitar", "black outfit with boots"], forbidden: ["leather jacket", "holding drumsticks", "seated at drum kit"] }
+- [ ] strictCharacterCount: 3 (Tim + Greg + Monica) — enforced in every scene
+
+## Feature: Premium Immersive Entry Screen (Apr 12 2026)
+- [x] Fullscreen video background with cinematic loop (autoplay, muted, loop) — implemented as CSS animated cinematic background
+- [ ] 6-frame visual sequence: dark intro → beat drop → character close-up → lyric sync → band/environment → CTA fade
+- [ ] Soft grain overlay + cinematic blur vignette on edges
+- [ ] Mouse move parallax on video layers
+- [ ] Beat-pulse visual animation (gives illusion of sound even muted)
+- [x] CTA button: gradient glow, soft shadow, animated border pulse, scale 1.05 on hover
+- [x] CTA text: "Create Your First Video"
+- [x] Headline: "Your lyrics don't just play — they come to life"
+- [x] Subheadline: "Create cinematic AI music videos with story, characters, and emotion"
+- [ ] Click CTA: smooth zoom transition to onboarding (no hard cut)
+- [x] Fallback static image if video fails to load — CSS animated background serves as fallback
+- [x] Mobile: vertical-friendly crop, same immersive feel
+- [x] Fade-in animation on load
+
+## Feature: Lyrics Intelligence Panel (Apr 12 2026)
+- [ ] After audio upload, show detected lyrics in lyric blocks (one line per block)
+- [ ] For each lyric line, auto-tag: emotion, scene type, visual cues using LLM
+- [ ] Display tags inline: e.g. "Walking through fire" → Emotion: Intense → Scene: Cinematic flames → Visual: Sparks / heat distortion
+- [ ] Step 3: Show scene preview cards (before generation) based on lyric tags
+- [ ] Panel appears between upload step and character step
+- [ ] User can edit/override any tag before proceeding
+- [ ] "Looks good" CTA to confirm and proceed to character setup
+
+## Feature: Post-Completion Upsell Panel (Apr 12 2026)
+- [ ] After video is ready, show "🎉 Your video is ready" celebration screen
+- [ ] Upsell panel with upgrade options:
+  - [ ] "Add cinematic scenes" (+£5)
+  - [ ] "Upgrade to 4K" (+£3)
+  - [ ] "Remove watermark" (+£2)
+- [ ] Each option is a Stripe checkout trigger
+- [ ] Options can be combined (multi-select)
+- [ ] "Download as-is" option to skip upsell
+- [ ] Upsell panel uses same cinematic dark style as rest of app
+
+## Feature: Completion Screen (Apr 12 2026)
+- [ ] "Your story just came to life 🎬" headline on completion
+- [ ] Three CTAs: [Play Video], [Download], [Create Another]
+- [ ] Upsell panel below CTAs: Add cinematic scenes (+£5), Upgrade to 4K (+£3), Remove watermark (+£2)
+- [ ] Cinematic dark style, celebration animation (confetti or glow burst)
+
+## Feature: Structured Character Setup UI (Apr 12 2026)
+- [ ] Character card with: Name, Role selector, Outfit (locked field), Props (locked field), Position (locked field)
+- [ ] "LOCKED" badge on outfit/props/position fields to show they are enforced
+- [ ] Tim mandatory rules displayed as read-only: "ALWAYS wearing black leather jacket", "ALWAYS at microphone unless specified"
+- [ ] Character cards feed directly into lockedOutfit, lockedProps, lockedRules in DB
+- [ ] Add/remove character buttons (max 4 characters)
+- [ ] Photo upload per character with preview

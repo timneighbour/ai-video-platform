@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import CinematicEntryScreen from "@/components/CinematicEntryScreen";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -182,9 +183,18 @@ function Router() {
 //   to keep consistent foreground/background color across components
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
+const SESSION_ENTRY_KEY = "wizvid_entry_shown";
+
 function App() {
   // Show branded preloader on initial app mount, then fade out
   const [appReady, setAppReady] = useState(false);
+  // Show cinematic entry screen once per session, only on homepage
+  const [showEntry, setShowEntry] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const isHome = window.location.pathname === "/";
+    const alreadySeen = sessionStorage.getItem(SESSION_ENTRY_KEY) === "1";
+    return isHome && !alreadySeen;
+  });
   useEffect(() => {
     // Mark ready after first paint + a short settle delay
     const t = requestAnimationFrame(() => {
@@ -202,6 +212,15 @@ function App() {
         <TooltipProvider>
           {/* Branded preloader — fades out once app has mounted */}
           <WizVidLoader done={appReady} minDuration={600} />
+          {/* Cinematic entry screen — once per session on homepage */}
+          {showEntry && (
+            <CinematicEntryScreen
+              onDismiss={() => {
+                sessionStorage.setItem(SESSION_ENTRY_KEY, "1");
+                setShowEntry(false);
+              }}
+            />
+          )}
           <Toaster />
           <Suspense fallback={null}>
             <CrispChat />
