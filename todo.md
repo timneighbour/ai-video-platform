@@ -2242,3 +2242,6 @@
 - [x] Update storyboard header: replace CreditBalance badge with "Pay to render" badge
 - [x] Update Render button copy: "Render Video (X credits)" → "Render & Download"
 - [x] All 319 tests passing, zero TypeScript errors
+
+## Audio Tooltip Enhancement
+- [x] Add 'i' icon with tooltip next to each audio upgrade option in RenderPaywallModal (Standard, Enhanced, Cinematic)

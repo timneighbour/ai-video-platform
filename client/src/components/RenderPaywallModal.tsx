@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Check, Download, Zap, Crown, ChevronRight, Sparkles } from "lucide-react";
+import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Quality = "standard" | "hd" | "4k";
 type AudioTier = "standard" | "enhanced" | "cinematic";
@@ -46,6 +47,7 @@ const AUDIO_OPTIONS: Array<{
   badge?: string;
   description: string;
   features: string[];
+  tooltip: string;
 }> = [
   {
     id: "standard",
@@ -53,6 +55,7 @@ const AUDIO_OPTIONS: Array<{
     price: 0,
     description: "Original audio",
     features: ["Original mix", "Stereo output"],
+    tooltip: "Your original audio track is used as-is — no processing applied. Best when your mix is already mastered or you prefer full control over the final sound.",
   },
   {
     id: "enhanced",
@@ -60,6 +63,7 @@ const AUDIO_OPTIONS: Array<{
     price: 1,
     description: "Polished sound",
     features: ["Stereo widening", "EQ mastering", "Noise reduction"],
+    tooltip: "We apply stereo widening to make your track feel bigger, frequency EQ to balance the mix, and light noise reduction to clean up any background hiss. Great for tracks recorded at home or on mobile.",
   },
   {
     id: "cinematic",
@@ -68,6 +72,7 @@ const AUDIO_OPTIONS: Array<{
     badge: "RECOMMENDED",
     description: "Full audio mastering",
     features: ["Full cinematic mastering", "Dynamic range", "Spatial depth", "Professional mix"],
+    tooltip: "Full professional-grade mastering pipeline: dynamic range compression, spatial depth (reverb tail), stereo widening, and loudness normalisation to streaming standards. Recommended for music videos — makes your track sound like it was mixed in a studio.",
   },
 ];
 
@@ -230,47 +235,70 @@ export function RenderPaywallModal({
           {/* Audio tier selection */}
           <div>
             <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Audio Quality</h3>
-            <div className="space-y-2">
-              {AUDIO_OPTIONS.map((a) => (
-                <button
-                  key={a.id}
-                  onClick={() => setAudioTier(a.id)}
-                  className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200 text-left ${
-                    audioTier === a.id
-                      ? "border-violet-500 bg-violet-500/15 shadow-[0_0_15px_rgba(139,92,246,0.15)]"
-                      : "border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5"
-                  }`}
-                >
-                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
-                    audioTier === a.id ? "border-violet-500 bg-violet-500" : "border-white/30"
-                  }`}>
-                    {audioTier === a.id && <Check className="w-2.5 h-2.5 text-white" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-white">{a.label}</span>
-                      {a.badge && (
-                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold tracking-wider">
-                          {a.badge}
-                        </span>
-                      )}
-                      <span className="ml-auto text-sm font-semibold text-violet-300">
-                        {a.price === 0 ? "Included" : `+£${a.price}`}
-                      </span>
+            <TooltipProvider delayDuration={200}>
+              <div className="space-y-2">
+                {AUDIO_OPTIONS.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => setAudioTier(a.id)}
+                    className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200 text-left ${
+                      audioTier === a.id
+                        ? "border-violet-500 bg-violet-500/15 shadow-[0_0_15px_rgba(139,92,246,0.15)]"
+                        : "border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5"
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
+                      audioTier === a.id ? "border-violet-500 bg-violet-500" : "border-white/30"
+                    }`}>
+                      {audioTier === a.id && <Check className="w-2.5 h-2.5 text-white" />}
                     </div>
-                    <p className="text-xs text-white/45 mt-0.5">{a.description}</p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
-                      {a.features.map((f) => (
-                        <span key={f} className="text-[10px] text-white/35 flex items-center gap-1">
-                          <Check className="w-2.5 h-2.5 text-violet-400/70" />
-                          {f}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-white">{a.label}</span>
+                        {a.badge && (
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold tracking-wider">
+                            {a.badge}
+                          </span>
+                        )}
+                        {/* Info tooltip */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => e.stopPropagation()}
+                              className="inline-flex items-center justify-center w-4 h-4 rounded-full text-white/30 hover:text-white/70 hover:bg-white/10 transition-colors cursor-help flex-shrink-0"
+                              aria-label={`Learn more about ${a.label} audio`}
+                            >
+                              <Info className="w-3 h-3" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="max-w-[240px] text-xs leading-relaxed bg-[#1a1a2e] border border-violet-500/20 text-white/80 shadow-xl"
+                          >
+                            {a.tooltip}
+                          </TooltipContent>
+                        </Tooltip>
+                        <span className="ml-auto text-sm font-semibold text-violet-300">
+                          {a.price === 0 ? "Included" : `+£${a.price}`}
                         </span>
-                      ))}
+                      </div>
+                      <p className="text-xs text-white/45 mt-0.5">{a.description}</p>
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+                        {a.features.map((f) => (
+                          <span key={f} className="text-[10px] text-white/35 flex items-center gap-1">
+                            <Check className="w-2.5 h-2.5 text-violet-400/70" />
+                            {f}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  </button>
+                ))}
+              </div>
+            </TooltipProvider>
           </div>
         </div>
 
