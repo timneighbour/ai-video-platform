@@ -2250,3 +2250,6 @@
 - [x] Fix RenderPaywallModal quality card selection (Standard/HD/4K) — clicks not registering
 - [x] Fix RenderPaywallModal audio tier selection (Standard/Enhanced/Cinematic) — clicks not registering
 - [x] Audit and fix all other interactive buttons/selections across the platform
+
+## CRITICAL BUG: MusicVideoAutopilot import error
+- [x] Fix "Failed to fetch dynamically imported module" error on /music-video/create (JSX structure broken by tooltip edit)
