@@ -796,6 +796,7 @@ Rules:
       sceneId: z.number().int(),
       jobId: z.number().int(),
       previousSceneImageUrl: z.string().url().optional(), // V2: chained reference from previous scene
+      forceRegenerate: z.boolean().optional(), // bypass cached previewImageUrl
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -807,8 +808,14 @@ Rules:
       const [scene] = await db.select().from(musicVideoScenes)
         .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
       if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
-      // If already has a preview image, return it immediately
-      if (scene.previewImageUrl) return { imageUrl: scene.previewImageUrl };
+      // If already has a preview image, return it immediately (unless forceRegenerate)
+      if (scene.previewImageUrl && !input.forceRegenerate) return { imageUrl: scene.previewImageUrl };
+      // Clear the cached preview so a fresh image is generated
+      if (input.forceRegenerate && scene.previewImageUrl) {
+        await db.update(musicVideoScenes)
+          .set({ previewImageUrl: null })
+          .where(eq(musicVideoScenes.id, input.sceneId));
+      }
 
       // --- Gather ALL locked characters for this job ---
       const allJobCharacters = await db.select().from(videoCharacters)
@@ -835,6 +842,14 @@ Rules:
 
       // Log character resolution for debugging
       console.log(`[generateScenePreview] Scene ${input.sceneId}: assigned names=[${sceneCharNames.join(", ")}] resolved=[${sceneChars.map(c => `${c.name}(id=${c.id})`).join(", ")}]`);
+
+      // BLOCK: if no characters are assigned, refuse to generate — do NOT fall back to generic
+      if (sceneChars.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Please assign characters before generating this scene preview.",
+        });
+      }
 
       // --- Gather reference photos for scene-assigned characters ONLY ---
       const allPhotos = await db.select().from(videoCharacterPhotos)
@@ -875,16 +890,18 @@ Rules:
 
       // ── Strict people-count constraint ──────────────────────────────────────
       // For single-character scenes: ONLY that person, no background band members.
-      // For multi-character scenes: ONLY the named members, no extras.
+      // For multi-character scenes: ONLY the named members, no extras, medium shot.
       const charCount = sceneChars.length;
       const primaryCharForScene = sceneChars[0] ?? null; // first assigned = primary subject
       const charCountConstraint = charCount === 1
         ? `ONLY ONE PERSON in frame — ${primaryCharForScene!.name} is the ONLY person visible. ` +
           `The main subject is ${primaryCharForScene!.name}. This person must be clearly visible and is the focus of the scene. ` +
-          `No additional people. No background characters. No extra musicians. No other band members visible.`
+          `No additional people. No background characters. No extra musicians. No other band members visible. No silhouettes.`
         : charCount > 1
-          ? `EXACTLY ${charCount} people in this image: ${sceneChars.map(c => c.name).join(", ")}. ` +
-            `No other people, no extra musicians, no anonymous background characters.`
+          ? `EXACTLY ${charCount} people in this image — ${sceneChars.map(c => c.name).join(", ")}. ` +
+            `No more than ${charCount} people. No additional musicians. No background performers. No silhouettes. No extra band members. ` +
+            `Medium shot. Clear view of faces. Not wide angle. No distant silhouettes. ` +
+            `Each person must be clearly identifiable by face.`
           : "";
 
       // ── Identity block ──────────────────────────────────────────────────────
@@ -937,6 +954,16 @@ Rules:
       // Also strip lines that look like lyric fragments (short lines ending with no punctuation)
       cleanScenePrompt = cleanScenePrompt.replace(/\blyrics?:\s*[^.\n]*/gi, "").trim();
 
+      // Strip the job title / band name from the scene prompt.
+      // The storyboard LLM often writes the band name as a stage prop (e.g. "BRANDED neon sign").
+      // The AI image model renders it as visible text — strip it before generation.
+      if (job.title) {
+        // Escape special regex chars in the title, then remove all occurrences (case-insensitive)
+        const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const titleRegex = new RegExp(escapedTitle, "gi");
+        cleanScenePrompt = cleanScenePrompt.replace(titleRegex, "").replace(/\s{2,}/g, " ").trim();
+      }
+
       // --- Style and mood ---
       const styleMap: Record<string, string> = {
         cinematic: "cinematic film still, dramatic lighting, shallow depth of field",
@@ -958,7 +985,7 @@ Rules:
         styleDescriptor,
         moodContext ? `Mood: ${moodContext}` : "",
         "16:9 widescreen, high quality, professional photography",
-        "no text in frame, no words, no captions, no subtitles, no lyrics visible, no overlaid text",
+        "no text in frame, no words, no captions, no subtitles, no lyrics visible, no overlaid text, no logos, no signage, no visible words, no typography",
       ].filter(Boolean).join(". ");
 
       // --- Identity Anchor: use the PRIMARY ASSIGNED character's master portrait ---
@@ -1023,7 +1050,7 @@ Rules:
         "deformed",
         "ugly",
         "disfigured",
-        // Text / caption artefacts
+        // Text / caption / signage artefacts
         "text",
         "words",
         "caption",
@@ -1031,7 +1058,26 @@ Rules:
         "lyrics text",
         "text overlay",
         "words in frame",
+        "logo",
+        "signage",
+        "typography",
+        "neon sign",
+        "banner",
         "watermark",
+        // Extra people (multi-char scenes)
+        ...(charCount > 1 ? [
+          "extra people",
+          "fourth person",
+          "fifth person",
+          "additional guitarist",
+          "crowd",
+          "background band members",
+          "silhouette",
+          "distant figures",
+          "wide angle",
+          "aerial shot",
+          "bird's eye view",
+        ] : []),
       ].join(", ");
 
       // Final combined prompt: CHARACTER (locked) → SCENE → STYLE → QUALITY

@@ -1582,3 +1582,24 @@
 - [x] Strip "lyrics: ..." prefix lines from cleanScenePrompt
 - [x] Add "no text in frame, no words, no captions, no subtitles, no lyrics visible" to positive prompt
 - [x] Add "caption, subtitle, lyrics text, text overlay, words in frame" to negative prompt
+
+## Regenerate Button & Band Name Text Fixes (Apr 12 2026)
+- [ ] Fix regenerate button: it calls regenerateScene (video renderer) instead of generateScenePreview — must call generateScenePreview in storyboard preview mode
+- [ ] Fix band name text in images: strip unquoted band/artist name from scene prompts before image generation (e.g. "BRANDED" sign in background)
+- [ ] Add band/artist name to no-text negative prompt so it is never rendered as visible text
+
+## Too Many Members on Stage Fix (Apr 12 2026)
+- [x] Enforce exact band member count in multi-character scene prompts: "EXACTLY N people on stage — no more, no less"
+- [ ] Add "extra person, fourth person, fifth person, too many musicians" to negative prompt for multi-character scenes
+
+## Too Many Members on Stage Fix (Apr 12 2026)
+- [x] Enforce exact band member count in multi-character scene prompts
+- [ ] Add extra person terms to negative prompt for multi-character scenes
+
+- [x] Block generation if scene has no characters assigned — error: Please assign characters before generating
+- [x] Strip job title/band name from scene prompts before image generation (prevents BRANDED sign)
+- [x] Add no text/logos/signage/visible words/typography to positive and negative prompts
+- [x] Enforce exact band member count: exactly N people, no more than N people, no additional musicians, no background performers, no silhouettes, no extra band members
+- [x] Add to negative: extra people, fourth person, additional guitarist, crowd, background band members
+- [x] Override camera angle for multi-character scenes: medium shot, clear view of faces, not wide angle, no distant silhouettes
+- [x] Fix regenerate button: call generateScenePreview not regenerateScene during storyboard phase

@@ -311,13 +311,22 @@ export default function MusicVideoAutopilot() {
   const handleRegenerateScene = async (sceneId: number) => {
     if (!jobId) return;
     // Mark scene as regenerating
-    setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, regenerating: true, status: "generating" } : s));
+    setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, regenerating: true, status: "generating", previewImageUrl: undefined } : s));
     try {
-      await regenerateSceneMutation.mutateAsync({ sceneId, jobId });
-      toast.success("Scene regeneration started", { description: "This scene will be re-rendered independently." });
+      // In storyboard preview mode, always call generateScenePreview (not regenerateScene which
+      // starts a full video render). We clear the cached previewImageUrl first so the server
+      // doesn't return the old image immediately.
+      const result = await generateScenePreviewMutation.mutateAsync({ sceneId, jobId, forceRegenerate: true });
+      setScenes(prev => prev.map(s => s.id === sceneId
+        ? { ...s, regenerating: false, status: "preview_ready", previewImageUrl: result.imageUrl }
+        : s
+      ));
+      toast.success("Scene preview regenerated");
     } catch (err: any) {
       setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, regenerating: false, status: "failed" } : s));
-      toast.error("Failed to regenerate scene", { description: err.message });
+      // Surface the "Please assign characters" error clearly
+      const msg = err?.data?.message ?? err?.message ?? "Failed to regenerate scene";
+      toast.error("Cannot regenerate scene", { description: msg });
     }
   };
 
