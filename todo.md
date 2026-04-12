@@ -2488,3 +2488,21 @@
 - [x] Auto-play on next visit if preference is saved (with 1.2s delay for audio priming)
 - [x] Skip button: calls dismiss() immediately — already working
 - [x] aria-label="Enable sound" on sound button
+
+## Demo Video Audio Enhancements
+- [ ] Floating mute/unmute button on video frame with aria-label="Toggle sound"
+- [ ] Volume slider on hover (vertical, accent-violet)
+- [ ] Standard / WizSound comparison toggle with aria-label="Compare standard vs cinematic audio"
+- [ ] Caption above video: "Powered by WizSound™ – richer, more cinematic audio"
+- [ ] Canvas waveform overlay synced to WizSound mode
+- [ ] Default state: muted until user interacts
+
+## WizSound™ Feature Section (Homepage)
+- [ ] Section title: "Hear the difference with WizSound™"
+- [ ] Subheading: "Immersive cinematic audio for your videos."
+- [ ] Copy explaining WizSound Enhance and WizSound Cinematic
+- [ ] Audio demo with Standard/WizSound toggle (Play with WizSound checkbox)
+- [ ] Animated waveform background (canvas/SVG sound bars)
+- [ ] Upgrade CTA: "Add WizSound" button pre-selecting WizSound Cinematic
+- [ ] Accessible: aria-labels on all toggles
+- [ ] Placement: above pricing section on homepage
