@@ -2006,3 +2006,17 @@
 - [x] Fix video rendering on Dashboard / project history previews — hover-to-play inline video thumbnails on job cards and scene detail dialog
 - [x] Add exponential backoff to all AI API polling loops — WizPilot updated to match MusicVideoAutopilot adaptive backoff (8s base, 2x on 429, max 60s)
 - [x] Verify masterPortraitUrl is set for all characters in DB — getMasterPortraitStatus procedure exists; CharacterConfirmationStep shows amber warning + Anchored badge
+
+## Feature: Universal Intro Experience (Apr 2026)
+- [x] Remove fixed band scenes and specific characters (Tim/Greg/Monica) from intro
+- [x] Scene 1: Lyric appears → visual reacts (core USP demo)
+- [x] Scene 2: Short-form social clip (vertical format, TikTok/Reels style)
+- [x] Scene 3: Kids animation style scene (Pixar-style)
+- [x] Scene 4: Cinematic emotional scene
+- [x] Hero copy: remove band-specific messaging, broaden to all creator types
+- [x] Ensure no niche limitation — broad appeal across music, kids, social, cinematic creators
+- [x] Hero badge updated to "Music · Social · Kids · Cinematic"
+- [x] Hero description broadened to cover all creator types
+- [x] Gallery image labels updated to universal names (Music Video, Kids Animation, Social Clip, Cinematic)
+- [x] CTA changed to "Start Creating Free" (universal)
+- [x] Social proof updated to 4 creator type icons at bottom of intro screen

@@ -1,14 +1,12 @@
 /**
  * CinematicEntryScreen
  *
- * Premium fullscreen immersive entry experience shown once per session.
- * - CSS-animated cinematic background (no video file needed)
- * - 6-phase visual sequence with beat-pulse illusion
- * - Mouse parallax on background layers
- * - Animated gradient CTA with border pulse
- * - Smooth zoom-out transition on dismiss
- * - Grain overlay + cinematic vignette
- * - Mobile-friendly vertical crop
+ * Universal fullscreen immersive entry experience shown once per session.
+ * 4 rotating creator scenes — broad appeal across music, social, kids, cinematic.
+ * - Scene 1: Lyric appears → visual reacts (core USP)
+ * - Scene 2: Short-form social clip (vertical / TikTok/Reels style)
+ * - Scene 3: Kids animation (Pixar-style)
+ * - Scene 4: Cinematic emotional scene
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -16,13 +14,65 @@ import { useLocation } from "wouter";
 
 const SESSION_KEY = "wizvid_entry_shown";
 
-// CDN background images for the cinematic sequence
+// CDN background videos for the cinematic sequence
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const BG_IMAGES = [
+const BG_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
   `${CDN}/hero-concert-web_2f9db1a6.mp4`,
   `${CDN}/hero-abstract-web_ed099aea.mp4`,
 ];
+
+// 4 universal creator scenes
+const CREATOR_SCENES = [
+  {
+    id: "lyric-visual",
+    label: "Music Video",
+    tag: "Lyric → Visual",
+    tagColor: "text-purple-300",
+    tagBg: "bg-purple-500/10 border-purple-500/20",
+    lyric: '"Walking through fire, the world falls away..."',
+    description: "Your words become the scene",
+    accentColor: "rgba(139,92,246,0.9)",
+    accentGlow: "rgba(139,92,246,0.5)",
+    icon: "🎵",
+  },
+  {
+    id: "social-clip",
+    label: "Social Clip",
+    tag: "Vertical · 9:16",
+    tagColor: "text-pink-300",
+    tagBg: "bg-pink-500/10 border-pink-500/20",
+    lyric: '"This is my moment, I own the stage..."',
+    description: "Built for TikTok, Reels & Shorts",
+    accentColor: "rgba(236,72,153,0.9)",
+    accentGlow: "rgba(236,72,153,0.5)",
+    icon: "📱",
+  },
+  {
+    id: "kids-animation",
+    label: "Kids Animation",
+    tag: "Pixar-style",
+    tagColor: "text-yellow-300",
+    tagBg: "bg-yellow-500/10 border-yellow-500/20",
+    lyric: '"The stars are dancing, one two three..."',
+    description: "Magical animated worlds for children",
+    accentColor: "rgba(234,179,8,0.9)",
+    accentGlow: "rgba(234,179,8,0.5)",
+    icon: "✨",
+  },
+  {
+    id: "cinematic",
+    label: "Cinematic",
+    tag: "Emotional · 4K",
+    tagColor: "text-blue-300",
+    tagBg: "bg-blue-500/10 border-blue-500/20",
+    lyric: '"Every goodbye leaves a scar on the soul..."',
+    description: "Hollywood-grade emotional storytelling",
+    accentColor: "rgba(59,130,246,0.9)",
+    accentGlow: "rgba(59,130,246,0.5)",
+    icon: "🎬",
+  },
+] as const;
 
 interface CinematicEntryScreenProps {
   onDismiss?: () => void;
@@ -30,24 +80,26 @@ interface CinematicEntryScreenProps {
 
 export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreenProps) {
   const [, navigate] = useLocation();
-  const [phase, setPhase] = useState<0 | 1 | 2 | 3 | 4 | 5>(0); // 0=dark, 1=burst, 2=character, 3=lyric, 4=expand, 5=cta
+  const [phase, setPhase] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [beatPulse, setBeatPulse] = useState(false);
+  const [activeScene, setActiveScene] = useState(0);
+  const [sceneTransitioning, setSceneTransitioning] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Phase sequence timing (ms)
   const PHASE_TIMINGS = [600, 1200, 1800, 2400, 3200, 4000];
 
   // Advance through phases
   useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
     PHASE_TIMINGS.forEach((delay, i) => {
-      const t = setTimeout(() => setPhase(i as 0 | 1 | 2 | 3 | 4 | 5), delay);
-      return () => clearTimeout(t);
+      timers.push(setTimeout(() => setPhase(i as 0 | 1 | 2 | 3 | 4 | 5), delay));
     });
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   // Beat pulse illusion — fires every ~600ms to simulate a 100bpm beat
@@ -58,6 +110,19 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
     }, 600);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-cycle through scenes every 3.5 seconds
+  useEffect(() => {
+    if (phase < 3) return;
+    const interval = setInterval(() => {
+      setSceneTransitioning(true);
+      setTimeout(() => {
+        setActiveScene(prev => (prev + 1) % CREATOR_SCENES.length);
+        setSceneTransitioning(false);
+      }, 300);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [phase]);
 
   // Mouse parallax
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -82,7 +147,6 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
   const handleCTA = () => {
     setExiting(true);
     sessionStorage.setItem(SESSION_KEY, "1");
-    // Use requestAnimationFrame to ensure the exit animation starts before navigation
     requestAnimationFrame(() => {
       setTimeout(() => {
         setVisible(false);
@@ -99,7 +163,6 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
       setTimeout(() => {
         setVisible(false);
         onDismiss?.();
-        // Skip navigates to homepage, not onboarding
         navigate("/");
       }, 500);
     });
@@ -109,6 +172,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
 
   const px = mousePos.x;
   const py = mousePos.y;
+  const scene = CREATOR_SCENES[activeScene];
 
   return (
     <div
@@ -125,7 +189,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
       {/* ── Background video layer ── */}
       <video
         ref={videoRef}
-        src={BG_IMAGES[0]}
+        src={BG_VIDEOS[0]}
         autoPlay
         loop
         muted
@@ -135,13 +199,13 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
         style={{
           transform: `translate(${px * -12}px, ${py * -8}px) scale(1.08)`,
           transition: "transform 0.15s ease-out",
-          opacity: phase >= 1 ? 0.75 : 0,
+          opacity: phase >= 1 ? 0.7 : 0,
           transitionProperty: "transform, opacity",
           transitionDuration: "0.15s, 1.2s",
         }}
       />
 
-      {/* ── Parallax ambient layer 1 (purple) ── */}
+      {/* ── Parallax ambient layer — colour shifts with active scene ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -152,44 +216,25 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
         <div
           className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)",
+            background: `radial-gradient(circle, ${scene.accentGlow.replace("0.5", "0.2")} 0%, transparent 70%)`,
             filter: "blur(60px)",
             opacity: phase >= 1 ? 1 : 0,
-            transition: "opacity 1.5s ease",
+            transition: "opacity 1.5s ease, background 1s ease",
           }}
         />
       </div>
 
-      {/* ── Parallax ambient layer 2 (blue) ── */}
+      {/* ── Beat burst ── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          transform: `translate(${px * -15}px, ${py * 10}px)`,
-          transition: "transform 0.25s ease-out",
-        }}
-      >
-        <div
-          className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)",
-            filter: "blur(50px)",
-            opacity: phase >= 2 ? 1 : 0,
-            transition: "opacity 1.5s ease",
-          }}
-        />
-      </div>
-
-      {/* ── Beat burst (phase 1) ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse at center, rgba(139,92,246,0.15) 0%, transparent 60%)",
+          background: `radial-gradient(ellipse at center, ${scene.accentGlow.replace("0.5", "0.12")} 0%, transparent 60%)`,
           opacity: beatPulse && phase >= 1 ? 1 : 0,
           transition: "opacity 0.08s ease",
         }}
       />
 
-      {/* ── Dark gradient overlays ── reduced for better video visibility */}
+      {/* ── Dark gradient overlays ── */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/35 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
 
@@ -213,7 +258,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
       {/* ── Main content ── */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center">
 
-        {/* Phase 0-1: WizVid badge */}
+        {/* WizVid badge */}
         <div
           className="mb-8 transition-all duration-700"
           style={{
@@ -229,11 +274,11 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
                 transition: "box-shadow 0.08s ease",
               }}
             />
-            WizBeat · AI Music Video Maker
+            WizVid · AI Video Creator
           </span>
         </div>
 
-        {/* Phase 1+: Headline */}
+        {/* Universal headline */}
         <h1
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 max-w-4xl transition-all duration-1000"
           style={{
@@ -241,7 +286,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
             transform: phase >= 1 ? "translateY(0) scale(1)" : "translateY(30px) scale(0.97)",
           }}
         >
-          <span className="text-white">Your lyrics don't just play</span>
+          <span className="text-white">Your ideas don't just exist</span>
           <br />
           <span
             style={{
@@ -251,22 +296,51 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
               backgroundClip: "text",
             }}
           >
-            — they come to life
+            — they become videos
           </span>
         </h1>
 
-        {/* Phase 2+: Subheadline */}
+        {/* Universal subheadline */}
         <p
-          className="text-lg sm:text-xl text-white/60 max-w-2xl leading-relaxed mb-4 transition-all duration-1000"
+          className="text-lg sm:text-xl text-white/60 max-w-2xl leading-relaxed mb-6 transition-all duration-1000"
           style={{
             opacity: phase >= 2 ? 1 : 0,
             transform: phase >= 2 ? "translateY(0)" : "translateY(20px)",
           }}
         >
-          Create cinematic AI music videos with story, characters, and emotion
+          Music videos, social clips, kids animations, cinematic stories — all from your words
         </p>
 
-        {/* Phase 3+: Lyric preview line */}
+        {/* Scene type tabs */}
+        <div
+          className="mb-6 transition-all duration-1000"
+          style={{
+            opacity: phase >= 2 ? 1 : 0,
+            transform: phase >= 2 ? "translateY(0)" : "translateY(15px)",
+          }}
+        >
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            {CREATOR_SCENES.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => {
+                  setSceneTransitioning(true);
+                  setTimeout(() => { setActiveScene(i); setSceneTransitioning(false); }, 200);
+                }}
+                className={`inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1.5 border transition-all duration-300 ${
+                  activeScene === i
+                    ? `${s.tagBg} ${s.tagColor} border-current/30 scale-105`
+                    : "bg-white/5 border-white/10 text-white/40 hover:text-white/60"
+                }`}
+              >
+                <span>{s.icon}</span>
+                <span>{s.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Rotating scene preview */}
         <div
           className="mb-10 transition-all duration-1000"
           style={{
@@ -274,14 +348,32 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
             transform: phase >= 3 ? "translateY(0)" : "translateY(15px)",
           }}
         >
-          <div className="inline-flex items-center gap-3 bg-white/4 border border-white/8 backdrop-blur-sm rounded-2xl px-6 py-3">
+          <div
+            className="inline-flex items-center gap-3 bg-white/4 border border-white/8 backdrop-blur-sm rounded-2xl px-6 py-3 max-w-sm sm:max-w-md"
+            style={{
+              opacity: sceneTransitioning ? 0 : 1,
+              transform: sceneTransitioning ? "translateY(6px)" : "translateY(0)",
+              transition: "opacity 0.3s ease, transform 0.3s ease",
+            }}
+          >
             <span className="text-white/30 text-sm font-mono">♪</span>
-            <span className="text-white/70 text-sm italic">"Walking through fire, the world falls away..."</span>
-            <span className="text-purple-400 text-xs font-medium bg-purple-500/10 border border-purple-500/20 rounded-full px-2 py-0.5">Cinematic Flames</span>
+            <span className="text-white/70 text-sm italic truncate">{scene.lyric}</span>
+            <span className={`text-xs font-medium border rounded-full px-2 py-0.5 flex-shrink-0 ${scene.tagBg} ${scene.tagColor}`}>
+              {scene.tag}
+            </span>
           </div>
+          <p
+            className="mt-2 text-white/35 text-xs"
+            style={{
+              opacity: sceneTransitioning ? 0 : 1,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            {scene.description}
+          </p>
         </div>
 
-        {/* Phase 4+: CTA */}
+        {/* CTA */}
         <div
           className="transition-all duration-1000"
           style={{
@@ -320,7 +412,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
             <svg className="w-5 h-5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
             </svg>
-            <span className="relative z-10">Create Your First Video</span>
+            <span className="relative z-10">Start Creating Free</span>
             <svg className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
@@ -337,7 +429,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
           </div>
         </div>
 
-        {/* Phase 5: Social proof */}
+        {/* Phase 5: Universal social proof */}
         <div
           className="absolute bottom-8 left-0 right-0 flex justify-center transition-all duration-1000"
           style={{
@@ -345,10 +437,11 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
             transform: phase >= 5 ? "translateY(0)" : "translateY(10px)",
           }}
         >
-          <div className="flex items-center gap-6 text-white/25 text-xs">
-            <span>✦ Lyric-aware scenes</span>
-            <span>✦ Character consistency</span>
-            <span>✦ Cinematic AI</span>
+          <div className="flex items-center gap-4 sm:gap-6 text-white/25 text-xs flex-wrap justify-center px-4">
+            <span>🎵 Music Videos</span>
+            <span>📱 Social Clips</span>
+            <span>✨ Kids Animation</span>
+            <span>🎬 Cinematic Stories</span>
           </div>
         </div>
       </div>

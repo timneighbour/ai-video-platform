@@ -23,11 +23,11 @@ const HERO_VIDEOS = [
   `${CDN}/hero-concert-web_2f9db1a6.mp4`,
 ];
 const WIZBEAT_IMAGES = [
-  { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
-  { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Animated Character" },
-  { src: `${CDN}/wizbeat-animated-cat_81ffcf80.jpg`, label: "Animated Singer" },
-  { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "Solo Artist" },
-  { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "Hip-Hop Artist" },
+  { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Music Video" },
+  { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Kids Animation" },
+  { src: `${CDN}/wizbeat-animated-cat_81ffcf80.jpg`, label: "Animated Story" },
+  { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "Social Clip" },
+  { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "Cinematic" },
 ];
 // ── How It Works step images ────────────────────────────────────────────────
 const STEP_IMAGES = {
@@ -329,7 +329,7 @@ function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-[#a1a1aa] mb-8 font-medium">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              From idea to full video with AI
+              Music · Social · Kids · Cinematic
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-4 text-white">
@@ -344,7 +344,7 @@ function Hero() {
             </p>
 
             <p className="text-lg text-[#a1a1aa] leading-relaxed mb-5 max-w-lg">
-              Turn lyrics, ideas, or audio into fully visualised music videos and YouTube content — with AI storyboards, scene previews, and cinematic moments built in.
+              Turn any idea — lyrics, a prompt, a story, or an audio track — into a fully visualised video. Music videos, social clips, kids animations, cinematic stories. No editing required.
             </p>
 
             <div className="flex flex-wrap gap-2.5 mb-6">
