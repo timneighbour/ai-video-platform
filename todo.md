@@ -2020,3 +2020,32 @@
 - [x] Gallery image labels updated to universal names (Music Video, Kids Animation, Social Clip, Cinematic)
 - [x] CTA changed to "Start Creating Free" (universal)
 - [x] Social proof updated to 4 creator type icons at bottom of intro screen
+
+## Feature: Premium Netflix-Style Cinematic Intro (Apr 2026)
+- [ ] Build 6-scene cinematic intro component (pure CSS/canvas, no video file, <3MB)
+- [ ] Scene 1: Black fade-in, particles, "Your ideas..." text
+- [ ] Scene 2: "...come to life" text transition with beat-pulse light
+- [ ] Scene 3: Cause→effect USP moment ("Walking through fire" → flames/sparks react)
+- [ ] Scene 4: Character consistency demo (same face/outfit across 2 quick cuts)
+- [ ] Scene 5: Use case montage (cinematic / vertical / kids — no bands)
+- [ ] Scene 6: Zoom-out to polished final video output
+- [ ] Seamless loop (fade back to Scene 1, no hard cut)
+- [ ] Visual style: dark cinematic, high contrast, volumetric lighting, grain, vignette, depth of field
+- [ ] Motion: Ken Burns slow zoom, soft transitions, subtle parallax depth
+- [ ] Beat-pulse lighting illusion (visual rhythm even when muted)
+- [ ] Mouse parallax shift
+- [ ] Overlay UI: headline, subheadline, gradient CTA button with pulse
+- [ ] CTA: smooth zoom transition into onboarding on click
+- [ ] Performance: under 3MB, fast preload, static fallback
+- [ ] Replace existing CinematicEntryScreen with new premium intro
+
+## Feature: Premium Homepage Background Animation (Apr 2026)
+- [x] Build HeroCinematicBg component: 4-scene CSS-animated background (storyboard, scene gen, cinematic output, lyric→visual)
+- [x] Scene 1: Storyboard/UI preview — animated grid of scene cards with subtle glow
+- [x] Scene 2: Scene generation preview — animated progress bar, prompt text, image materialising
+- [x] Scene 3: Cinematic output shot — deep cinematic gradient with light rays
+- [x] Scene 4: Lyric→visual moment — text fades in, visual reacts with colour shift
+- [x] Seamless crossfade between scenes (no hard cuts)
+- [x] Text always readable (dark overlay, low visual noise)
+- [x] Integrate into Home.tsx hero section, replacing static gradient
+- [x] Remove unused HERO_VIDEOS, bgVideoRefs, isDesktop state from Hero function

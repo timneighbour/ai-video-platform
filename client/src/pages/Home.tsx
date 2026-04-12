@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -262,21 +263,7 @@ function useIsDesktop() {
 
 function Hero() {
   const logoVideoRef = useRef<HTMLVideoElement>(null);
-  const bgVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const [logoMuted, setLogoMuted] = useState(true);
-  const [currentBg, setCurrentBg] = useState(0);
-  const isDesktop = useIsDesktop();
-
-  // Force-play all background videos once the component mounts
-  useEffect(() => {
-    if (!isDesktop) return;
-    bgVideoRefs.current.forEach((v) => {
-      if (v) {
-        v.muted = true;
-        v.play().catch(() => {});
-      }
-    });
-  }, [isDesktop]);
 
   // Force-play logo video on mount
   useEffect(() => {
@@ -285,12 +272,6 @@ function Hero() {
     v.muted = true;
     v.play().catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (!isDesktop) return;
-    const timer = setInterval(() => setCurrentBg((prev) => (prev + 1) % HERO_VIDEOS.length), 8000);
-    return () => clearInterval(timer);
-  }, [isDesktop]);
 
   const handleLogoClick = () => {
     if (!logoVideoRef.current) return;
@@ -301,27 +282,9 @@ function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0f0f0f]">
-      {/* Background videos — desktop only to avoid 24MB download on mobile */}
-      {isDesktop && HERO_VIDEOS.map((src, i) => (
-        <video key={src} src={src} autoPlay loop muted playsInline preload={i === 0 ? "auto" : "none"}
-          ref={(el) => { bgVideoRefs.current[i] = el; }}
-          aria-hidden="true"
-          onCanPlay={(e) => { const v = e.currentTarget; v.muted = true; v.play().catch(() => {}); }}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-70" : "opacity-0"}`}
-        />
-      ))}
-      {/* Mobile background — animated gradient fallback */}
-      {!isDesktop && (
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-950/60 via-[#0f0f0f] to-blue-950/50" aria-hidden="true" />
-      )}
-      {/* Subtle gradient overlay — reduced to let video breathe */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f]/80 via-[#0f0f0f]/40 to-[#0f0f0f]/10" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f]/30 via-transparent to-[#0f0f0f]" />
-
-      {/* Ambient glow */}
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
-      <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#080810]">
+      {/* Premium 4-scene animated background */}
+      <HeroCinematicBg />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-20 w-full">
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 lg:gap-10 items-center">
