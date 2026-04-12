@@ -1893,16 +1893,16 @@
 - [x] Fade-in animation on load
 
 ## Feature: Lyrics Intelligence Panel (Apr 12 2026)
-- [ ] After audio upload, show detected lyrics in lyric blocks (one line per block)
-- [ ] For each lyric line, auto-tag: emotion, scene type, visual cues using LLM
-- [ ] Display tags inline: e.g. "Walking through fire" → Emotion: Intense → Scene: Cinematic flames → Visual: Sparks / heat distortion
+- [x] After audio upload, show detected lyrics in lyric blocks (one line per block)
+- [x] For each lyric line, auto-tag: emotion, scene type, visual cues using LLM
+- [x] Display tags inline: e.g. "Walking through fire" -> Emotion: Intense -> Scene: Cinematic flames -> Visual: Sparks / heat distortion
 - [ ] Step 3: Show scene preview cards (before generation) based on lyric tags
-- [ ] Panel appears between upload step and character step
-- [ ] User can edit/override any tag before proceeding
-- [ ] "Looks good" CTA to confirm and proceed to character setup
+- [x] Panel appears between upload step and character step (triggered via button)
+- [x] User can edit/override any tag before proceeding
+- [x] "Looks good" CTA to confirm and proceed to character setup
 
 ## Feature: Post-Completion Upsell Panel (Apr 12 2026)
-- [ ] After video is ready, show "🎉 Your video is ready" celebration screen
+- [x] After video is ready, show celebration screen with gradient animation
 - [ ] Upsell panel with upgrade options:
   - [ ] "Add cinematic scenes" (+£5)
   - [ ] "Upgrade to 4K" (+£3)
@@ -1913,10 +1913,10 @@
 - [ ] Upsell panel uses same cinematic dark style as rest of app
 
 ## Feature: Completion Screen (Apr 12 2026)
-- [ ] "Your story just came to life 🎬" headline on completion
-- [ ] Three CTAs: [Play Video], [Download], [Create Another]
-- [ ] Upsell panel below CTAs: Add cinematic scenes (+£5), Upgrade to 4K (+£3), Remove watermark (+£2)
-- [ ] Cinematic dark style, celebration animation (confetti or glow burst)
+- [x] "Your story just came to life" headline on completion
+- [x] Three CTAs: [Play Video], [Download], [Create Another]
+- [x] Upsell panel below CTAs: Cinematic Scenes, Upgrade to 4K, Remove Watermark
+- [x] Cinematic dark style, celebration animation (pulsing gradient glow)
 
 ## Feature: Structured Character Setup UI (Apr 12 2026)
 - [ ] Character card with: Name, Role selector, Outfit (locked field), Props (locked field), Position (locked field)

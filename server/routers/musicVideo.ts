@@ -2381,4 +2381,97 @@ Return ONLY valid JSON, no markdown.`,
       console.log(`[deleteJob] Job ${input.jobId} deleted by user ${ctx.user.id}`);
       return { success: true };
     }),
+
+  // Analyse lyrics — break into blocks with emotion, scene type, visual cues
+  analyseLyrics: protectedProcedure
+    .input(z.object({
+      lyrics: z.string(),
+      genre: z.string().optional(),
+      mood: z.string().optional(),
+      style: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const lines = input.lyrics.split("\n").map(l => l.trim()).filter(l => l.length > 0 && !l.startsWith("["));
+      // Group short lines together (max 2 lines per block)
+      const groupedLines: string[] = [];
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].length < 30 && i + 1 < lines.length && lines[i + 1].length < 30) {
+          groupedLines.push(`${lines[i]} / ${lines[i + 1]}`);
+          i++;
+        } else {
+          groupedLines.push(lines[i]);
+        }
+      }
+
+      const systemPrompt = `You are a music video director analysing song lyrics for visual storytelling.
+For each lyric line, provide:
+- emotion: one word (e.g. intense, passionate, melancholic, energetic, dreamy, powerful, tender, dark, hopeful, triumphant)
+- sceneType: short description of the visual scene (e.g. "Cinematic flames", "Rain-soaked street", "Neon-lit stage")
+- visualCues: array of 2-4 specific visual elements (e.g. ["sparks", "heat distortion", "slow-motion fire"])
+- intensity: number 1-10 representing emotional intensity
+
+Genre: ${input.genre || "rock"}
+Mood: ${input.mood || "energetic"}
+Style: ${input.style || "cinematic"}
+
+Return a JSON array of objects matching the lyric lines provided.`;
+
+      const userPrompt = `Analyse these lyric lines:\n${groupedLines.map((l, i) => `${i + 1}. "${l}"`).join("\n")}`;
+
+      try {
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "lyric_analysis",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  blocks: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        line: { type: "string" },
+                        emotion: { type: "string" },
+                        sceneType: { type: "string" },
+                        visualCues: { type: "array", items: { type: "string" } },
+                        intensity: { type: "number" },
+                      },
+                      required: ["line", "emotion", "sceneType", "visualCues", "intensity"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["blocks"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const rawContent = response.choices?.[0]?.message?.content;
+        if (!rawContent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "No response from AI" });
+        const content = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+        const parsed = JSON.parse(content);
+        // Ensure each block has the original line text
+        const blocks = parsed.blocks.map((b: any, i: number) => ({
+          line: b.line || groupedLines[i] || "",
+          emotion: b.emotion || "neutral",
+          sceneType: b.sceneType || "General",
+          visualCues: Array.isArray(b.visualCues) ? b.visualCues : [],
+          intensity: typeof b.intensity === "number" ? b.intensity : 5,
+        }));
+        return { blocks };
+      } catch (err: any) {
+        console.error("[analyseLyrics] Error:", err);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: err?.message ?? "Failed to analyse lyrics" });
+      }
+    }),
 });

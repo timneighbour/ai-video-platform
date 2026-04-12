@@ -224,7 +224,7 @@ export const apiKeys = mysqlTable("apiKeys", {
 
 export type ApiKey = typeof apiKeys.$inferSelect;
 export type InsertApiKey = typeof apiKeys.$inferInsert;
-// Video Characters table — up to 4 characters per job, each with a name and lip sync option
+// Video Characters table - up to 4 characters per job, each with a name and lip sync option
 export const videoCharacters = mysqlTable("videoCharacters", {
   id: int("id").autoincrement().primaryKey(),
   jobId: int("jobId").notNull(), // references musicVideoJobs.id
@@ -233,7 +233,7 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   role: varchar("role", { length: 255 }), // e.g. "Lead Singer", "Dancer"
   enableLipSync: boolean("enableLipSync").default(false),
   slotIndex: int("slotIndex").notNull().default(0), // 0-3 for up to 4 characters
-  // Character Lock — once locked, appearance is enforced across all scenes
+  // Character Lock - once locked, appearance is enforced across all scenes
   lockedDescription: text("lockedDescription"), // Full visual brief: clothing, hair, colours, accessories, etc.
   isLocked: boolean("isLocked").default(false), // When true, brief is enforced in every scene prompt
    lockedAt: timestamp("lockedAt"), // When the lock was applied
@@ -245,20 +245,20 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   lockedSeed: int("lockedSeed"), // Fixed seed used for generation to maintain consistency
   faceValidationThreshold: int("faceValidationThreshold").default(75), // Minimum Face++ confidence score (0-100) to pass validation
   // --- Master Character Identity (Identity Anchor System) -------------------------------
-  masterPortraitUrl: varchar("masterPortraitUrl", { length: 1024 }), // Locked portrait generated from reference photo — used as face anchor in every scene
-  masterSeed: int("masterSeed"), // Seed used when generating the master portrait — injected into all scene calls for determinism
-  characterPrompt: text("characterPrompt"), // Locked identity prompt: "male, short dark hair, beard, leather jacket" — NEVER changes per scene
+  masterPortraitUrl: varchar("masterPortraitUrl", { length: 1024 }), // Locked portrait generated from reference photo - used as face anchor in every scene
+  masterSeed: int("masterSeed"), // Seed used when generating the master portrait - injected into all scene calls for determinism
+  characterPrompt: text("characterPrompt"), // Locked identity prompt: "male, short dark hair, beard, leather jacket" - NEVER changes per scene
   masterPortraitGeneratedAt: timestamp("masterPortraitGeneratedAt"), // When the master portrait was last generated
   // --- Character Visual Details (OVERRIDE block in prompt) -----------------
   // JSON: { instrument: string, outfit: string, props: string, position: string }
-  // These OVERRIDE any scene assumptions — injected as a hard constraint block.
+  // These OVERRIDE any scene assumptions - injected as a hard constraint block.
   characterVisualDetails: longtext("characterVisualDetails"),
   // Hard constraints that must never be violated (e.g. "MUST be behind drum kit", "NEVER holding guitar")
   characterConstraints: longtext("characterConstraints"),
   // Default physical state when not overridden by scene (e.g. "Standing at mic, centre stage")
   characterDefaultState: text("characterDefaultState"),
   // --- Unified Character Identity Fields (normalised for ALL characters) ----
-  // Set by normaliseCharacter() — used in EVERY scene generation regardless of photo/AI source.
+  // Set by normaliseCharacter() - used in EVERY scene generation regardless of photo/AI source.
   // JSON columns store structured data for reliable prompt injection.
   lockedOutfit: longtext("lockedOutfit"),   // JSON: { jacket, shirt, trousers, shoes, accessories }
   lockedProps: longtext("lockedProps"),     // JSON: { instrument, mic, other }
@@ -275,7 +275,7 @@ export const videoCharacters = mysqlTable("videoCharacters", {
 export type VideoCharacter = typeof videoCharacters.$inferSelect;
 export type InsertVideoCharacter = typeof videoCharacters.$inferInsert;
 
-// Video Character Photos table — multiple reference photos per character
+// Video Character Photos table - multiple reference photos per character
 export const videoCharacterPhotos = mysqlTable("videoCharacterPhotos", {
   id: int("id").autoincrement().primaryKey(),
   characterId: int("characterId").notNull(), // references videoCharacters.id
@@ -291,7 +291,7 @@ export type VideoCharacterPhoto = typeof videoCharacterPhotos.$inferSelect;
 export type InsertVideoCharacterPhoto = typeof videoCharacterPhotos.$inferInsert;
 
 // -- AI Video Enhancement Studio (Phase 1 MVP) --------------------------------------
-// Enhancement Jobs table — tracks video enhancement requests
+// Enhancement Jobs table - tracks video enhancement requests
 export const enhancementJobs = mysqlTable("enhancementJobs", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -352,7 +352,7 @@ export const showcaseItems = mysqlTable("showcaseItems", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
   posterUrl: varchar("posterUrl", { length: 1024 }).notNull(), // CDN URL for thumbnail
-  videoUrl: varchar("videoUrl", { length: 1024 }), // CDN URL for MP4 (optional — poster shown if null)
+  videoUrl: varchar("videoUrl", { length: 1024 }), // CDN URL for MP4 (optional - poster shown if null)
   sortOrder: int("sortOrder").default(0).notNull(),
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -376,7 +376,7 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   style: varchar("style", { length: 200 }),
   instrumental: boolean("instrumental").default(false),
   status: mysqlEnum("status", ["pending", "processing", "complete", "failed"]).default("pending"),
-  /** Two tracks are returned per task — stored as JSON array */
+  /** Two tracks are returned per task - stored as JSON array */
   tracks: longtext("tracks"), // JSON: Array<{ audioUrl, imageUrl, title, tags, duration }>
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

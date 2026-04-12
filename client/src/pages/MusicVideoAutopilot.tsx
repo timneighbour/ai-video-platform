@@ -8,6 +8,7 @@ import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
+import LyricsIntelligencePanel from "@/components/LyricsIntelligencePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -238,6 +239,7 @@ export default function MusicVideoAutopilot() {
   const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
   const { checkLowCredits, checkCanAfford, balance: creditBalance } = useCreditGuard();
   const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
+  const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
   const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
   const cinematicUpgradeMutation = trpc.musicVideo.cinematicUpgrade.useMutation();
   const pollProgress = trpc.musicVideo.pollProgress.useMutation();
@@ -1050,6 +1052,21 @@ export default function MusicVideoAutopilot() {
           }
         }}
       />
+      {/* Lyrics Intelligence Panel — shown when user clicks Lyrics Intelligence button */}
+      {showLyricsIntelligence && transcriptionText && (
+        <LyricsIntelligencePanel
+          lyrics={transcriptionText}
+          genre={genre}
+          mood={mood}
+          style={selectedStyle}
+          onConfirm={(blocks) => {
+            console.log("[LyricsIntelligence] Confirmed blocks:", blocks.length);
+            setShowLyricsIntelligence(false);
+            toast.success(`${blocks.length} lyric blocks analysed`, { description: "AI has mapped emotions and visual cues for your lyrics." });
+          }}
+          onBack={() => setShowLyricsIntelligence(false)}
+        />
+      )}
       {/* Header */}
       <div className="border-b border-zinc-800 bg-zinc-950">
         <div className="max-w-5xl mx-auto px-4 py-6">
@@ -1285,15 +1302,25 @@ export default function MusicVideoAutopilot() {
                                   <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap font-mono bg-zinc-800/50 p-3 rounded">
                                     {transcriptionText}
                                   </p>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setIsEditingLyrics(true)}
-                                    className="w-full text-xs"
-                                  >
-                                    <Pencil className="w-3 h-3 mr-1" />
-                                    Edit Lyrics
-                                  </Button>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setIsEditingLyrics(true)}
+                                      className="flex-1 text-xs"
+                                    >
+                                      <Pencil className="w-3 h-3 mr-1" />
+                                      Edit Lyrics
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      className="flex-1 text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                                      onClick={() => setShowLyricsIntelligence(true)}
+                                    >
+                                      <Sparkles className="w-3 h-3 mr-1" />
+                                      Lyrics Intelligence
+                                    </Button>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="space-y-2">
@@ -2072,34 +2099,98 @@ export default function MusicVideoAutopilot() {
               <CardContent className="pt-8 pb-8">
                 {renderStatus === "completed" && finalVideoUrl ? (
                   <div className="text-center">
-                    <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-                      <Check className="w-8 h-8 text-green-400" />
+                    {/* Celebration animation */}
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+                      </div>
+                      <div className="relative w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30">
+                        <Clapperboard className="w-10 h-10 text-white" />
+                      </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Your Music Video is Ready!</h2>
-                    <p className="text-zinc-400 mb-6">All {totalScenes} scenes have been rendered and assembled with your audio track.</p>
 
-                    <video
-                      src={finalVideoUrl}
-                      controls
-                      autoPlay
-                      loop
-                      playsInline
-                      className="w-full rounded-xl mb-6 max-h-80 bg-black"
-                    />
+                    <h2 className="text-3xl font-bold text-white mb-2">Your story just came to life</h2>
+                    <p className="text-zinc-400 mb-8 text-lg">All {totalScenes} scenes rendered and assembled with your audio track.</p>
 
-                    <div className="flex gap-3 justify-center">
+                    {/* Video player */}
+                    <div className="relative rounded-xl overflow-hidden mb-8 ring-1 ring-purple-500/20">
+                      <video
+                        src={finalVideoUrl}
+                        controls
+                        autoPlay
+                        loop
+                        playsInline
+                        className="w-full max-h-80 bg-black"
+                      />
+                    </div>
+
+                    {/* Primary CTAs */}
+                    <div className="flex gap-3 justify-center mb-8">
+                      <Button
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 h-12 text-base"
+                        onClick={() => {
+                          const video = document.querySelector('video');
+                          if (video) { video.currentTime = 0; video.play(); }
+                        }}
+                      >
+                        <Play className="w-5 h-5 mr-2" /> Play Video
+                      </Button>
                       <a href={finalVideoUrl} download target="_blank" rel="noopener noreferrer">
-                        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8">
-                          <Download className="w-4 h-4 mr-2" /> Download Video
+                        <Button variant="outline" className="border-purple-500/30 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-6 h-12 text-base">
+                          <Download className="w-5 h-5 mr-2" /> Download
                         </Button>
                       </a>
                       <Button
                         variant="outline"
-                        className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
+                        className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800 px-6 h-12 text-base"
                         onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
                       >
-                        Create Another
+                        <Sparkles className="w-5 h-5 mr-2" /> Create Another
                       </Button>
+                    </div>
+
+                    {/* Upsell panel */}
+                    <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-zinc-900 p-6">
+                      <h3 className="text-lg font-semibold text-amber-300 mb-1">Want to upgrade it?</h3>
+                      <p className="text-sm text-zinc-400 mb-4">Take your video to the next level</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <button
+                          className="flex items-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-purple-500/30 p-3 transition-all text-left group"
+                          onClick={() => { setShowCinematicUpsell(true); }}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500/30 transition-colors">
+                            <Film className="w-5 h-5 text-purple-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-white">Cinematic Scenes</p>
+                            <p className="text-xs text-zinc-500">Upgrade key scenes</p>
+                          </div>
+                        </button>
+                        <button
+                          className="flex items-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-amber-500/30 p-3 transition-all text-left group"
+                          onClick={() => toast.info("4K upgrade coming soon!", { description: "This feature is under development." })}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/30 transition-colors">
+                            <Zap className="w-5 h-5 text-amber-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-white">Upgrade to 4K</p>
+                            <p className="text-xs text-zinc-500">Coming soon</p>
+                          </div>
+                        </button>
+                        <button
+                          className="flex items-center gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-emerald-500/30 p-3 transition-all text-left group"
+                          onClick={() => toast.info("Watermark removal coming soon!", { description: "This feature is under development." })}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/30 transition-colors">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-white">Remove Watermark</p>
+                            <p className="text-xs text-zinc-500">Coming soon</p>
+                          </div>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : renderStatus === "failed" ? (
