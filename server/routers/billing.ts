@@ -33,7 +33,7 @@ export const billingRouter = router({
       plan: sub?.plan ?? "free",
       status: sub?.status ?? "inactive",
       isActive: sub?.status === "active",
-      isPro: sub?.plan === "pro" || sub?.plan === "business",
+      isPro: sub?.plan === "creator" || sub?.plan === "studio" || sub?.plan === "pro" || sub?.plan === "business",
       isStarter: sub?.plan === "starter",
     };
   }),
@@ -45,7 +45,7 @@ export const billingRouter = router({
     // Admin/owner gets unlimited access for testing
     if (ctx.user.role === "admin") {
       return {
-        plan: "creator_plus" as const,
+        plan: "studio" as const,
         maxVideoSeconds: 99999,
         maxVideosPerMonth: 99999,
         maxPremiumScenesPerVideo: 99999,
@@ -266,24 +266,24 @@ export const billingRouter = router({
   createSubscriptionCheckout: protectedProcedure
     .input(
       z.object({
-        plan: z.enum(["starter", "pro", "business"]),
+        plan: z.enum(["starter", "creator", "studio"]),
         origin: z.string().url(),
         billingInterval: z.enum(["monthly", "annual"]).default("monthly"),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Monthly price IDs
+        // Monthly price IDs (new keys: starter/creator/studio)
         const monthlyPrices: Record<string, string> = {
           starter: process.env.STRIPE_STARTER_PRICE_ID || "",
-          pro: process.env.STRIPE_PRO_PRICE_ID || "",
-          business: process.env.STRIPE_BUSINESS_PRICE_ID || "",
+          creator: process.env.STRIPE_PRO_PRICE_ID || "",
+          studio: process.env.STRIPE_BUSINESS_PRICE_ID || "",
         };
-        // Annual price IDs (33% discount)
+        // Annual price IDs (2 months free)
         const annualPrices: Record<string, string> = {
           starter: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || monthlyPrices.starter,
-          pro: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || monthlyPrices.pro,
-          business: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || monthlyPrices.business,
+          creator: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || monthlyPrices.creator,
+          studio: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || monthlyPrices.studio,
         };
 
         const priceId = input.billingInterval === "annual"

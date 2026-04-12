@@ -1,25 +1,28 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, ArrowLeft, Zap, Gift } from "lucide-react";
-import { useState } from "react";
+import { Check, Sparkles, ArrowLeft, Zap, Gift, Crown, Star, Loader2, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
 
+// ── Plan data ────────────────────────────────────────────────────────────────
 const PLANS = [
   {
     id: "free",
     name: "Free",
+    icon: <Gift className="w-4 h-4" />,
     monthlyPrice: 0,
-    annualPrice: 0,
-    credits: 50,
+    annualMonthlyEquiv: 0,
+    annualTotal: 0,
+    annualSaving: 0,
     description: "Try WizVid with no commitment",
-    badge: null,
+    badge: null as string | null,
     features: [
       "50 trial credits (one-time)",
-      "Access to all 4 AI tools",
+      "Access to all AI tools",
       "Free storyboard generation",
       "Standard quality output",
       "Watermarked exports",
@@ -31,66 +34,69 @@ const PLANS = [
   {
     id: "starter",
     name: "Starter",
-    monthlyPrice: 19,
-    annualPrice: 13,
-    credits: 1000,
-    description: "Perfect for individual creators",
-    badge: null,
+    icon: <Zap className="w-4 h-4" />,
+    monthlyPrice: 9,
+    annualMonthlyEquiv: 6.58,
+    annualTotal: 79,
+    annualSaving: 29,
+    description: "5 min/month · 720p · Watermark",
+    badge: null as string | null,
     features: [
-      "1,000 credits/month",
-      "Access to all 4 AI tools",
-      "Free storyboard regeneration",
-      "Watermark-free exports",
-      "Standard quality output",
-      "Priority queue",
+      "5 minutes of video/month",
+      "Up to 60 seconds per video",
+      "720p quality",
+      "All AI video styles",
+      "WizBeat music video maker",
+      "WizPilot AI video creator",
       "Email support",
     ],
-    cta: "Get Started",
+    cta: "Get Starter",
     highlight: false,
   },
   {
-    id: "pro",
-    name: "Pro",
-    monthlyPrice: 49,
-    annualPrice: 33,
-    credits: 3000,
-    description: "For professional creators & studios",
-    badge: "Most Popular",
+    id: "creator",
+    name: "Creator",
+    icon: <Star className="w-4 h-4" />,
+    monthlyPrice: 29,
+    annualMonthlyEquiv: 19.33,
+    annualTotal: 232,
+    annualSaving: 116,
+    description: "20 min/month · 1080p · No watermark",
+    badge: "Most creators choose this plan",
     features: [
-      "3,000 credits/month",
-      "Access to all 4 AI tools",
-      "Free storyboard regeneration",
-      "Watermark-free exports",
-      "4K upscaling included",
-      "Commercial license",
-      "Priority queue",
-      "Early access to new models",
+      "20 minutes of video/month",
+      "Up to 2 minutes per video",
+      "1080p quality",
+      "Lyric-aware scene generation",
+      "Character consistency",
+      "2 cinematic scenes included",
+      "No watermark",
       "Priority support",
     ],
-    cta: "Go Pro",
+    cta: "Get Creator",
     highlight: true,
   },
   {
-    id: "business",
-    name: "Business",
-    monthlyPrice: 149,
-    annualPrice: 100,
-    credits: 10000,
-    description: "For teams, agencies & enterprises",
-    badge: "Best Value",
+    id: "studio",
+    name: "Studio",
+    icon: <Crown className="w-4 h-4" />,
+    monthlyPrice: 99,
+    annualMonthlyEquiv: 66,
+    annualTotal: 792,
+    annualSaving: 396,
+    description: "60 min/month · 4K · Full cinematic",
+    badge: null as string | null,
     features: [
-      "10,000 credits/month",
-      "Access to all 4 AI tools",
-      "Free storyboard regeneration",
-      "Watermark-free exports",
-      "4K upscaling included",
-      "Commercial license",
-      "API access & custom integrations",
-      "Team collaboration tools",
-      "Dedicated account manager",
-      "SLA support",
+      "60 minutes of video/month",
+      "Up to 3 minutes per video",
+      "4K quality",
+      "Full cinematic control",
+      "Priority rendering (2× faster)",
+      "All premium styles",
+      "API access",
+      "Dedicated account support",
     ],
-    cta: "Contact Sales",
+    cta: "Get Studio",
     highlight: false,
   },
 ];
@@ -98,7 +104,8 @@ const PLANS = [
 export default function Subscribe() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  // Default to yearly
+  const [billing, setBilling] = useState<"monthly" | "annual">("annual");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation({
@@ -132,14 +139,11 @@ export default function Subscribe() {
 
     setLoadingPlan(planId);
     createSubscriptionCheckout.mutate({
-      plan: planId as "starter" | "pro" | "business",
+      plan: planId as "starter" | "creator" | "studio",
       origin: window.location.origin,
       billingInterval: billing,
     });
   };
-
-  const annualSavings = (monthly: number, annual: number) =>
-    Math.round(((monthly - annual) / monthly) * 100);
 
   return (
     <div className="min-h-screen bg-background">
@@ -180,34 +184,46 @@ export default function Subscribe() {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Create stunning AI videos with credits that never expire. Storyboard generation is always free — you only pay when you render your final video.
+            Create videos from £1–£2 per minute. Storyboard generation is always free — you only pay when you render.
           </p>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
-            <button
-              onClick={() => setBilling("monthly")}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
-                billing === "monthly"
-                  ? "bg-white text-black shadow"
-                  : "text-muted-foreground hover:text-white"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBilling("annual")}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 ${
-                billing === "annual"
-                  ? "bg-white text-black shadow"
-                  : "text-muted-foreground hover:text-white"
-              }`}
-            >
-              Annual
-              <span className="rounded-full bg-green-500 px-2 py-0.5 text-xs font-bold text-white">
-                Save 33%
-              </span>
-            </button>
+          <div className="flex flex-col items-center gap-3 mb-2">
+            <div className="inline-flex items-center gap-4">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={`text-sm font-semibold transition-colors ${billing === "monthly" ? "text-white" : "text-muted-foreground hover:text-white"}`}
+              >
+                Monthly
+              </button>
+
+              {/* Animated pill toggle */}
+              <button
+                onClick={() => setBilling(billing === "monthly" ? "annual" : "monthly")}
+                role="switch"
+                aria-checked={billing === "annual"}
+                className={`relative w-14 h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${billing === "annual" ? "bg-purple-600" : "bg-white/15"}`}
+              >
+                <div className={`absolute top-1 w-5 h-5 rounded-full shadow-md transition-all duration-300 ${billing === "annual" ? "left-8 bg-white" : "left-1 bg-white"}`} />
+              </button>
+
+              <button
+                onClick={() => setBilling("annual")}
+                className={`text-sm font-semibold transition-colors flex items-center gap-2 ${billing === "annual" ? "text-white" : "text-muted-foreground hover:text-white"}`}
+              >
+                Yearly
+                <span className="rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-0.5 text-xs font-bold text-green-400">
+                  2 months free
+                </span>
+              </button>
+            </div>
+
+            {/* Social proof */}
+            <p className={`text-sm transition-all duration-300 ${billing === "annual" ? "text-green-400" : "text-muted-foreground"}`}>
+              {billing === "annual"
+                ? "✓ Most creators choose annual to save £116"
+                : "Switch to yearly and save up to £116/year"}
+            </p>
           </div>
         </div>
       </section>
@@ -217,12 +233,9 @@ export default function Subscribe() {
         <div className="container">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             {PLANS.map((plan) => {
-              const price = billing === "annual" && plan.annualPrice > 0
-                ? plan.annualPrice
+              const displayPrice = billing === "annual" && plan.annualMonthlyEquiv > 0
+                ? plan.annualMonthlyEquiv
                 : plan.monthlyPrice;
-              const savings = billing === "annual" && plan.monthlyPrice > 0
-                ? annualSavings(plan.monthlyPrice, plan.annualPrice)
-                : 0;
 
               return (
                 <div
@@ -236,13 +249,7 @@ export default function Subscribe() {
                   {/* Badge */}
                   {plan.badge && (
                     <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                          plan.highlight
-                            ? "bg-purple-500 text-white"
-                            : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                        }`}
-                      >
+                      <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-purple-500 text-white">
                         <Sparkles className="h-3 w-3" />
                         {plan.badge}
                       </span>
@@ -251,31 +258,37 @@ export default function Subscribe() {
 
                   {/* Plan Header */}
                   <div className="mb-6">
-                    <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${plan.highlight ? "bg-purple-500/20 text-purple-400" : "bg-white/8 text-muted-foreground"}`}>
+                        {plan.icon}
+                      </div>
+                      <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+                    </div>
                     <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
 
                     <div className="flex items-end gap-1">
                       <span className="text-4xl font-bold text-white">
-                        {price === 0 ? "Free" : `£${price}`}
+                        {displayPrice === 0 ? "Free" : `£${Math.floor(displayPrice)}`}
                       </span>
-                      {price > 0 && (
+                      {displayPrice > 0 && (
                         <span className="text-muted-foreground mb-1.5">/mo</span>
                       )}
                     </div>
 
-                    {billing === "annual" && savings > 0 && (
-                      <p className="mt-1 text-xs text-green-400">
-                        Save {savings}% · billed £{plan.annualPrice * 12}/year
+                    {billing === "annual" && plan.annualSaving > 0 && (
+                      <div className="mt-1.5 space-y-0.5">
+                        <p className="text-xs text-[#a1a1aa]">
+                          £{plan.annualTotal}/year{" "}
+                          <span className="text-green-400 font-semibold">(save £{plan.annualSaving})</span>
+                        </p>
+                      </div>
+                    )}
+                    {billing === "monthly" && plan.annualSaving > 0 && (
+                      <p className="mt-1 text-xs text-[#a1a1aa]">
+                        or £{plan.annualTotal}/year{" "}
+                        <span className="text-green-400 font-semibold">(save £{plan.annualSaving})</span>
                       </p>
                     )}
-
-                    <div className="mt-3 flex items-center gap-1.5 text-sm">
-                      <Zap className="h-3.5 w-3.5 text-yellow-400" />
-                      <span className="text-muted-foreground">
-                        {plan.credits.toLocaleString()}{" "}
-                        {plan.id === "free" ? "trial credits" : "credits/month"}
-                      </span>
-                    </div>
                   </div>
 
                   {/* CTA Button */}
@@ -291,7 +304,9 @@ export default function Subscribe() {
                     onClick={() => handlePlanSelect(plan.id)}
                     disabled={loadingPlan === plan.id}
                   >
-                    {loadingPlan === plan.id ? "Processing..." : plan.cta}
+                    {loadingPlan === plan.id
+                      ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" />Processing...</>
+                      : plan.cta}
                   </Button>
 
                   {/* Features */}
@@ -312,8 +327,17 @@ export default function Subscribe() {
             })}
           </div>
 
+          {/* Annual savings callout */}
+          {billing === "annual" && (
+            <div className="mt-8 max-w-md mx-auto p-4 rounded-xl bg-green-500/8 border border-green-500/20 text-center">
+              <p className="text-green-400 text-sm font-medium">
+                🎉 Creator plan annual billing saves you <strong>£116/year</strong> — 2 months completely free
+              </p>
+            </div>
+          )}
+
           {/* Free Storyboard Callout */}
-          <div className="mt-12 max-w-3xl mx-auto rounded-2xl border border-green-500/20 bg-green-500/5 p-6 text-center">
+          <div className="mt-10 max-w-3xl mx-auto rounded-2xl border border-green-500/20 bg-green-500/5 p-6 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Sparkles className="h-5 w-5 text-green-400" />
               <h3 className="font-bold text-white text-lg">Storyboard Generation is Always Free</h3>

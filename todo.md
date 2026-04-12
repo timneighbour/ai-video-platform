@@ -1958,3 +1958,28 @@
 ## WizVid Studio Branding
 - [x] Add "Powered by WizVid Studio" to the bottom of the homepage footer
 - [x] Update WizVid Studio footer link to point to www.wizvid.ai (owned domain)
+
+## Feature: Annual Billing with 2 Months Free (Apr 2026)
+- [ ] Add STRIPE_STARTER_YEARLY_PRICE_ID, STRIPE_CREATOR_YEARLY_PRICE_ID, STRIPE_STUDIO_YEARLY_PRICE_ID secrets (pending Stripe dashboard setup)
+- [x] Update products.ts: add yearly price IDs and annual pricing (Starter £79/yr, Creator £232/yr, Studio £792/yr)
+- [x] Update createSubscriptionCheckout billing router procedure to accept billingInterval (monthly|yearly) param
+- [x] Update webhook handler to recognise annual subscriptions (same event, different price ID)
+- [x] Add monthly/yearly toggle to Subscribe.tsx (animated pill switch, Yearly highlighted/default)
+- [x] Add monthly/yearly toggle to Home.tsx pricing section (same component)
+- [x] Show monthly price + annual equivalent + savings in green (e.g. "£29/mo or £232/year (save £116)")
+- [x] Smooth animated price number transition on toggle switch
+- [x] Add "Best Value" badge on yearly Creator plan
+- [x] Add "2 months free" label on yearly toggle pill
+- [ ] Post-purchase: show "You saved £116 with annual billing 🎉" on success/redirect page (pending Stripe annual price IDs)
+- [x] Add social proof copy near toggle: "Most creators choose annual to save £116"
+
+## Feature: Production Landing Page & Funnel (Apr 2026)
+- [x] Update plan names: Starter (£9/mo, £79/yr), Creator (£29/mo, £232/yr), Studio (£99/mo, £792/yr)
+- [x] Update products.ts with correct plan names (starter/creator/studio) and annual prices
+- [x] Update billing router plan enum to include "creator" and "studio"
+- [x] Rebuild Pricing.tsx: yearly-default toggle, new plan names/prices, savings in green, "Most creators choose this plan" badge on Creator, "2 months free when billed annually" label
+- [x] Rebuild Subscribe.tsx: match same pricing and toggle as Pricing.tsx
+- [x] Add social proof copy near toggle: "Most creators choose annual to save £116"
+- [ ] Post-purchase: show "You saved £116 with annual billing 🎉" on success page (pending Stripe annual price IDs)
+- [x] Home.tsx: add "Create videos from £1–2 per minute" value clarity block with 3-plan cards
+- [ ] Request STRIPE_STARTER_ANNUAL_PRICE_ID, STRIPE_PRO_ANNUAL_PRICE_ID (Creator), STRIPE_BUSINESS_ANNUAL_PRICE_ID (Studio) secrets (pending Stripe dashboard setup)

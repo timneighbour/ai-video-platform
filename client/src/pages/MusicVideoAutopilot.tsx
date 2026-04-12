@@ -1278,7 +1278,7 @@ export default function MusicVideoAutopilot() {
                         <p className="text-amber-200/70 text-xs mt-1">
                           WizVid will use the first {formatDuration(maxVideoSeconds)} of your track.
                           {planLimits?.plan === "starter" && " Upgrade to Pro for 2-minute videos, or Creator+ for 3-minute videos."}
-                          {planLimits?.plan === "pro" && " Upgrade to Creator+ for 3-minute videos."}
+                          {planLimits?.plan === "creator" && " Upgrade to Studio for 3-minute videos."}
                         </p>
                         <a
                           href="/pricing"

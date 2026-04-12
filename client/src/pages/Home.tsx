@@ -1449,6 +1449,76 @@ function PunchLine() {
   );
 }
 
+// ── Value Clarity Pricing Block ─────────────────────────────────────────────
+function HomePricing() {
+  return (
+    <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
+      <div className="max-w-4xl mx-auto reveal">
+        <div className="text-center mb-12">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Pricing</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
+            Create videos from{" "}
+            <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+              £1–£2 per minute
+            </span>
+          </h2>
+          <p className="text-[#a1a1aa] max-w-lg mx-auto">
+            Storyboard generation is always free. Credits only deduct when you render your final video.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
+          {([
+            { name: "Starter", price: "£9", period: "/mo", annual: "£79/yr", saving: "save £29", desc: "5 min · 720p · Watermark", highlight: false },
+            { name: "Creator", price: "£29", period: "/mo", annual: "£232/yr", saving: "save £116", desc: "20 min · 1080p · No watermark", highlight: true },
+            { name: "Studio", price: "£99", period: "/mo", annual: "£792/yr", saving: "save £396", desc: "60 min · 4K · Full cinematic", highlight: false },
+          ] as const).map((plan) => (
+            <a
+              key={plan.name}
+              href="/pricing"
+              className={`block rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
+                plan.highlight
+                  ? "border-violet-500/50 bg-violet-500/8 shadow-lg shadow-violet-500/10"
+                  : "border-white/8 bg-white/3 hover:border-white/15"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-bold text-white text-base">{plan.name}</span>
+                {plan.highlight && (
+                  <span className="text-xs font-semibold text-violet-400 bg-violet-500/15 border border-violet-500/25 px-2 py-0.5 rounded-full">
+                    Most popular
+                  </span>
+                )}
+              </div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-extrabold text-white">{plan.price}</span>
+                <span className="text-[#a1a1aa] text-sm">{plan.period}</span>
+              </div>
+              <p className="text-xs text-[#a1a1aa] mb-1">
+                {plan.annual}{" "}
+                <span className="text-green-400 font-semibold">({plan.saving})</span>
+              </p>
+              <p className="text-xs text-[#a1a1aa]/70 mt-2">{plan.desc}</p>
+            </a>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <p className="text-sm text-green-400 font-medium mb-4">
+            ✓ Annual billing gives you 2 months free — most creators save £116/year on Creator
+          </p>
+          <a
+            href="/pricing"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white border border-white/15 rounded-xl px-5 py-2.5 hover:bg-white/5 transition-all"
+          >
+            See full pricing &amp; compare plans →
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── CTA ────────────────────────────────────────────────────────────────────────────────
 function CTAPush() {
   return (
@@ -1616,6 +1686,7 @@ export default function Home() {
         <MadeWithWizVid />
       <SocialProof />
         <PunchLine />
+        <HomePricing />
         <CTAPush />
       </main>
       <Footer />

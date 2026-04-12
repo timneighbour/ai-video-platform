@@ -96,10 +96,14 @@ export async function getUserByOpenId(openId: string) {
  */
 export function mapDbPlanToProductPlan(
   dbPlan: string | null | undefined
-): "free" | "starter" | "pro" | "creator_plus" {
+): "free" | "starter" | "creator" | "studio" {
   if (!dbPlan) return "free";
-  if (dbPlan === "business" || dbPlan === "creator_plus") return "creator_plus";
-  if (dbPlan === "pro") return "pro";
+  // New plan keys
+  if (dbPlan === "studio") return "studio";
+  if (dbPlan === "creator") return "creator";
+  // Legacy keys mapped forward
+  if (dbPlan === "business" || dbPlan === "creator_plus") return "studio";
+  if (dbPlan === "pro") return "creator";
   if (dbPlan === "starter") return "starter";
   return "free";
 }

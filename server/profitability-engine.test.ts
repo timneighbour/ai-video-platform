@@ -96,19 +96,19 @@ describe("buildRoutingPlan — Pro plan", () => {
       makeScene(2, "narrative"),
       makeScene(3, "narrative"),
     ];
-    const plan = buildRoutingPlan(scenes, "pro");
+    const plan = buildRoutingPlan(scenes, "creator");
     const heroDecisions = plan.decisions.filter((d) => d.sceneIndex === 0 || d.sceneIndex === 1);
     expect(heroDecisions.every((d) => d.renderer === "kling_standard")).toBe(true);
   });
 
   it("falls back to Seedance when premium allocation exhausted", () => {
-    // Pro allows maxPremiumScenesPerVideo = 4
+    // Creator allows maxPremiumScenesPerVideo = 2
     const scenes: ClassifiedScene[] = Array.from({ length: 8 }, (_, i) => makeScene(i, "hero"));
-    const plan = buildRoutingPlan(scenes, "pro");
-    expect(plan.premiumScenesUsed).toBe(SUBSCRIPTION_PLANS.pro.maxPremiumScenesPerVideo);
+    const plan = buildRoutingPlan(scenes, "creator");
+    expect(plan.premiumScenesUsed).toBe(SUBSCRIPTION_PLANS.creator.maxPremiumScenesPerVideo);
     // Remaining scenes should be Seedance
     const seedanceCount = plan.decisions.filter((d) => d.renderer === "seedance").length;
-    expect(seedanceCount).toBe(8 - SUBSCRIPTION_PLANS.pro.maxPremiumScenesPerVideo);
+    expect(seedanceCount).toBe(8 - SUBSCRIPTION_PLANS.creator.maxPremiumScenesPerVideo);
   });
 
   it("narrative and filler scenes always use Seedance", () => {
@@ -117,16 +117,16 @@ describe("buildRoutingPlan — Pro plan", () => {
       makeScene(1, "filler"),
       makeScene(2, "narrative"),
     ];
-    const plan = buildRoutingPlan(scenes, "pro");
+    const plan = buildRoutingPlan(scenes, "creator");
     expect(plan.decisions.every((d) => d.renderer === "seedance")).toBe(true);
   });
 });
 
-describe("buildRoutingPlan — Creator+ plan", () => {
-  it("allows up to 8 premium scenes", () => {
-    const scenes: ClassifiedScene[] = Array.from({ length: 10 }, (_, i) => makeScene(i, "hero"));
-    const plan = buildRoutingPlan(scenes, "creator_plus");
-    expect(plan.premiumScenesUsed).toBe(SUBSCRIPTION_PLANS.creator_plus.maxPremiumScenesPerVideo);
+describe("buildRoutingPlan — Studio plan", () => {
+  it("allows up to 10 premium scenes", () => {
+    const scenes: ClassifiedScene[] = Array.from({ length: 12 }, (_, i) => makeScene(i, "hero"));
+    const plan = buildRoutingPlan(scenes, "studio");
+    expect(plan.premiumScenesUsed).toBe(SUBSCRIPTION_PLANS.studio.maxPremiumScenesPerVideo);
   });
 });
 
@@ -191,28 +191,28 @@ describe("estimateVideoCostGBP", () => {
 
 describe("isWithinMonthlyLimit", () => {
   it("allows creation when under limit", () => {
-    expect(isWithinMonthlyLimit(9, "starter")).toBe(true); // starter: max 10
+    expect(isWithinMonthlyLimit(4, "starter")).toBe(true); // starter: max 5
     expect(isWithinMonthlyLimit(0, "free")).toBe(true);    // free: max 2
   });
 
   it("blocks creation when at or over limit", () => {
-    expect(isWithinMonthlyLimit(10, "starter")).toBe(false); // starter: max 10
+    expect(isWithinMonthlyLimit(5, "starter")).toBe(false); // starter: max 5
     expect(isWithinMonthlyLimit(2, "free")).toBe(false);     // free: max 2
-    expect(isWithinMonthlyLimit(25, "pro")).toBe(false);     // pro: max 25
+    expect(isWithinMonthlyLimit(20, "creator")).toBe(false);  // creator: max 20
   });
 });
 
 describe("isWithinLengthLimit", () => {
   it("allows audio within plan length", () => {
     expect(isWithinLengthLimit(60, "starter")).toBe(true);      // starter: max 60s
-    expect(isWithinLengthLimit(120, "pro")).toBe(true);         // pro: max 120s
-    expect(isWithinLengthLimit(180, "creator_plus")).toBe(true); // creator+: max 180s
+    expect(isWithinLengthLimit(120, "creator")).toBe(true);    // creator: max 120s
+    expect(isWithinLengthLimit(180, "studio")).toBe(true);      // studio: max 180s
   });
 
   it("blocks audio exceeding plan length", () => {
     expect(isWithinLengthLimit(61, "starter")).toBe(false);
-    expect(isWithinLengthLimit(121, "pro")).toBe(false);
-    expect(isWithinLengthLimit(181, "creator_plus")).toBe(false);
+    expect(isWithinLengthLimit(121, "creator")).toBe(false);
+    expect(isWithinLengthLimit(181, "studio")).toBe(false);
   });
 });
 

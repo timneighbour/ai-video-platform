@@ -1,6 +1,6 @@
 /**
  * Stripe Products & Pricing Configuration
- * WizVid GBP pricing: Starter £19 | Pro £49 (Most Popular) | Creator+ £99
+ * WizVid GBP pricing: Starter £9/mo £79/yr | Creator £29/mo £232/yr (Most Popular) | Studio £99/mo £792/yr
  *
  * Profitability Control System integrated — see PLAN_COST_TARGETS and RENDERER_COSTS.
  */
@@ -56,10 +56,10 @@ export const LOW_CREDIT_THRESHOLD = 20;
  * If estimated cost exceeds the hard stop, generation is blocked and scenes are downgraded.
  */
 export const PLAN_COST_TARGETS = {
-  free:         { targetGBP: 0.50, hardStopGBP: 0.75 },
-  starter:      { targetGBP: 0.75, hardStopGBP: 1.25 },
-  pro:          { targetGBP: 2.00, hardStopGBP: 3.50 },
-  creator_plus: { targetGBP: 4.50, hardStopGBP: 7.00 },
+  free:    { targetGBP: 0.50, hardStopGBP: 0.75 },
+  starter: { targetGBP: 0.75, hardStopGBP: 1.25 },
+  creator: { targetGBP: 2.00, hardStopGBP: 3.50 },
+  studio:  { targetGBP: 4.50, hardStopGBP: 7.00 },
 } as const;
 
 /**
@@ -113,81 +113,81 @@ export const SUBSCRIPTION_PLANS = {
   },
   starter: {
     name: "Starter",
-    pricePerMonth: 19,
-    pricePerYear: 152, // £19 × 8 = £152/yr (save 33%)
-    credits: 600,
-    videosPerMonth: 10,
-    maxVideosPerMonth: 10,
+    pricePerMonth: 9,
+    pricePerYear: 79, // £9 × 12 = £108 → save £29 (2+ months free)
+    credits: 300,
+    videosPerMonth: 5,         // ~5 min total video at 1 min each
+    maxVideosPerMonth: 5,
     maxVideoSeconds: 60,       // 1-minute max per video
     maxPremiumScenesPerVideo: 0, // Seedance only — no Kling/Runway
     has4K: false,
     hasApiAccess: false,
     popular: false,
     features: [
-      "Up to 10 videos per month",
+      "5 minutes of video per month",
       "Up to 60 seconds per video",
-      "All 6 AI video styles",
+      "720p quality",
+      "All AI video styles",
       "WizBeat music video maker",
       "WizPilot AI video creator",
-      "Standard generation speed",
       "Watermark on videos",
       "Cancel anytime",
     ],
     stripePriceId: process.env.STRIPE_STARTER_PRICE_ID || "price_starter_placeholder",
-    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || "price_starter_annual_placeholder",
+    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || "",
   },
-  pro: {
-    name: "Pro",
-    pricePerMonth: 49,
-    pricePerYear: 392, // £49 × 8 = £392/yr (save 33%)
-    credits: 99999,
-    videosPerMonth: 25,
-    maxVideosPerMonth: 25,
+  creator: {
+    name: "Creator",
+    pricePerMonth: 29,
+    pricePerYear: 232, // £29 × 12 = £348 → save £116 (2 months free)
+    credits: 1200,
+    videosPerMonth: 20,        // ~20 min total video
+    maxVideosPerMonth: 20,
     maxVideoSeconds: 120,      // 2-minute max per video
-    maxPremiumScenesPerVideo: 4, // Up to 4 Kling scenes per video (hero + key moments)
-    has4K: true,
+    maxPremiumScenesPerVideo: 2, // 2 cinematic scenes included
+    has4K: false,
     hasApiAccess: false,
     popular: true,
     features: [
-      "Up to 25 videos per month",
+      "20 minutes of video per month",
       "Up to 2 minutes per video",
+      "1080p quality",
+      "Lyric-aware scene generation",
+      "Character consistency across scenes",
+      "2 cinematic scenes included",
       "No watermark",
-      "Faster generation speed",
-      "4K quality export",
-      "All 6 AI video styles + premium styles",
-      "MuseTalk lip-sync for characters",
       "Priority support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_PRO_PRICE_ID || "price_pro_placeholder",
-    stripeAnnualPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || "price_pro_annual_placeholder",
+    stripePriceId: process.env.STRIPE_PRO_PRICE_ID || "price_creator_placeholder",
+    stripeAnnualPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || "",
   },
-  creator_plus: {
-    name: "Creator+",
+  studio: {
+    name: "Studio",
     pricePerMonth: 99,
-    pricePerYear: 792, // £99 × 8 = £792/yr (save 33%)
+    pricePerYear: 792, // £99 × 12 = £1188 → save £396 (4 months free)
     credits: 99999,
-    videosPerMonth: 50,
-    maxVideosPerMonth: 50,
+    videosPerMonth: 60,        // ~60 min total video
+    maxVideosPerMonth: 60,
     maxVideoSeconds: 180,      // 3-minute max per video
-    maxPremiumScenesPerVideo: 8, // Up to 8 Kling scenes per video
+    maxPremiumScenesPerVideo: 10, // Full cinematic control
     has4K: true,
     hasApiAccess: true,
     popular: false,
     features: [
-      "Up to 50 videos per month",
+      "60 minutes of video per month",
       "Up to 3 minutes per video",
-      "Everything in Pro",
+      "4K quality",
+      "Full cinematic control",
       "Priority rendering (2× faster)",
-      "Premium exclusive styles",
-      "Early access to new features",
-      "Highest quality output",
+      "All premium styles",
       "API access for automation",
+      "Early access to new features",
       "Dedicated account support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_CREATOR_PLUS_PRICE_ID || "price_creator_plus_placeholder",
-    stripeAnnualPriceId: process.env.STRIPE_CREATOR_PLUS_ANNUAL_PRICE_ID || "price_creator_plus_annual_placeholder",
+    stripePriceId: process.env.STRIPE_BUSINESS_PRICE_ID || "price_studio_placeholder",
+    stripeAnnualPriceId: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || "",
   },
 } as const;
 
@@ -256,6 +256,12 @@ export const CINEMATIC_PACKS = {
 export type CinematicPack = keyof typeof CINEMATIC_PACKS;
 
 export type SubscriptionPlan = keyof typeof SUBSCRIPTION_PLANS;
+// Legacy aliases for backward compat
+export const PLAN_ALIAS: Record<string, SubscriptionPlan> = {
+  pro: "creator",
+  creator_plus: "studio",
+  business: "studio",
+};
 export type CreditPack = keyof typeof CREDIT_PACKS;
 
 export function getSubscriptionPlan(plan: SubscriptionPlan) {
