@@ -62,27 +62,32 @@ function drawFireClip(
 
   // Particles
   particles.forEach(p => {
-    const lr = p.life/p.maxLife;
+    const lr = Math.max(0, p.life/p.maxLife);
+    if (lr <= 0) return;
     if (p.type==="fire") {
       const r = lr>0.5 ? 255 : Math.floor(255*lr*2);
       const g = Math.floor(lr*155);
       const a = lr*0.92*intensity;
-      const fg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      const sz = Math.max(0.1, p.size);
+      const fg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
       fg.addColorStop(0, `rgba(255,255,${Math.floor(lr*190)},${a})`);
       fg.addColorStop(0.4, `rgba(${r},${g},0,${a*0.8})`);
       fg.addColorStop(1, `rgba(${r},0,0,0)`);
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI*2);
       ctx.fillStyle = fg; ctx.fill();
     } else if (p.type==="spark") {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*lr, 0, Math.PI*2);
+      const r = Math.max(0.1, p.size*lr);
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
       ctx.fillStyle = `rgba(255,220,80,${lr*intensity})`; ctx.fill();
       ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x-p.vx*4, p.y-p.vy*4);
-      ctx.strokeStyle = `rgba(255,180,40,${lr*0.5*intensity})`; ctx.lineWidth = p.size*0.5; ctx.stroke();
+      ctx.strokeStyle = `rgba(255,180,40,${lr*0.5*intensity})`; ctx.lineWidth = Math.max(0.1, p.size*0.5); ctx.stroke();
     } else if (p.type==="ember") {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*lr, 0, Math.PI*2);
+      const r = Math.max(0.1, p.size*lr);
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
       ctx.fillStyle = `rgba(255,100,20,${lr*0.75*intensity})`; ctx.fill();
     } else if (p.type==="smoke") {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*(1-lr*0.3), 0, Math.PI*2);
+      const r = Math.max(0.1, p.size*(1-lr*0.3));
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
       ctx.fillStyle = `rgba(40,30,20,${lr*0.13*intensity})`; ctx.fill();
     }
   });
@@ -193,8 +198,10 @@ function drawDragonClip(
   // Dragon dust particles
   particles.forEach(p => {
     if (p.type==="dust") {
-      const lr = p.life/p.maxLife;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*lr, 0, Math.PI*2);
+      const lr = Math.max(0, p.life/p.maxLife);
+      if (lr <= 0) return;
+      const r = Math.max(0.1, p.size*lr);
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2);
       ctx.fillStyle = `rgba(255,${80+Math.floor(lr*120)},0,${lr*0.6})`; ctx.fill();
     }
   });

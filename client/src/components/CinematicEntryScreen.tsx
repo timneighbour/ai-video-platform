@@ -25,7 +25,8 @@ function drawStarfield(ctx: CanvasRenderingContext2D, w: number, h: number, t: n
   ctx.fillStyle = bg; ctx.fillRect(0,0,w,h);
   stars.forEach(p => {
     const tw = 0.5 + 0.5*Math.sin(t*0.002 + p.x*0.1);
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.size*tw, 0, Math.PI*2);
+    const sr = Math.max(0.1, p.size*tw);
+    ctx.beginPath(); ctx.arc(p.x, p.y, sr, 0, Math.PI*2);
     ctx.fillStyle = `rgba(255,255,255,${p.life*tw})`; ctx.fill();
   });
   const neb = ctx.createRadialGradient(w*0.6, h*0.3, 0, w*0.6, h*0.3, w*0.4);
@@ -63,29 +64,34 @@ function drawFire(ctx: CanvasRenderingContext2D, w: number, h: number, t: number
 
   // Particles
   particles.forEach(p => {
-    const lr = p.life/p.maxLife;
+    const lr = Math.max(0, p.life/p.maxLife);
+    if (lr <= 0) return;
     if (p.type==="fire") {
       const r = lr>0.5 ? 255 : Math.floor(255*lr*2);
       const g = Math.floor(lr*150);
       const a = lr*0.9*intensity;
-      const fg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      const sz = Math.max(0.1, p.size);
+      const fg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
       fg.addColorStop(0, `rgba(255,255,${Math.floor(lr*180)},${a})`);
       fg.addColorStop(0.4, `rgba(${r},${g},0,${a*0.8})`);
       fg.addColorStop(1, `rgba(${r},0,0,0)`);
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI*2);
       ctx.fillStyle = fg; ctx.fill();
     } else if (p.type==="spark") {
       const a = lr*intensity;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*lr, 0, Math.PI*2);
+      const rr = Math.max(0.1, p.size*lr);
+      ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, Math.PI*2);
       ctx.fillStyle = `rgba(255,220,80,${a})`; ctx.fill();
       ctx.beginPath(); ctx.moveTo(p.x, p.y);
       ctx.lineTo(p.x-p.vx*4, p.y-p.vy*4);
-      ctx.strokeStyle = `rgba(255,180,40,${a*0.5})`; ctx.lineWidth = p.size*0.5; ctx.stroke();
+      ctx.strokeStyle = `rgba(255,180,40,${a*0.5})`; ctx.lineWidth = Math.max(0.1, p.size*0.5); ctx.stroke();
     } else if (p.type==="ember") {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*lr, 0, Math.PI*2);
+      const rr = Math.max(0.1, p.size*lr);
+      ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, Math.PI*2);
       ctx.fillStyle = `rgba(255,100,20,${lr*0.7*intensity})`; ctx.fill();
     } else if (p.type==="smoke") {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*(1-lr*0.3), 0, Math.PI*2);
+      const rr = Math.max(0.1, p.size*(1-lr*0.3));
+      ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, Math.PI*2);
       ctx.fillStyle = `rgba(40,30,20,${lr*0.12*intensity})`; ctx.fill();
     }
   });
