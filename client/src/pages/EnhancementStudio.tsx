@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Upload, CheckCircle2, Loader2, Download } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 type Step = "upload" | "style" | "generate" | "processing" | "complete";
 
@@ -168,7 +169,8 @@ export default function EnhancementStudio() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Video Enhancement Studio</h1>
+          <BackButton fallback="/dashboard" label="Back to Dashboard" />
+          <h1 className="text-4xl font-bold text-white mb-2 mt-3">Video Enhancement Studio</h1>
           <p className="text-slate-300">Transform your videos with AI-powered music and editing</p>
         </div>
 

@@ -1,9 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Zap, Video, Mic, Wand2, Plus, Settings, History, RefreshCw } from "lucide-react";
+import { Sparkles, Zap, Video, Mic, Wand2, Plus, Settings, History, RefreshCw, Home } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import BackButton from "@/components/BackButton";
 
 const AI_TOOLS = [
   {
@@ -54,15 +55,18 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border/40 bg-card/50 backdrop-blur">
-        <div className="container flex h-20 items-center justify-between">
+        <div className="container flex flex-col gap-2 py-4">
+          <div className="flex items-center justify-between">
+            <BackButton fallback="/" label="Home" />
+            <Button variant="outline" size="sm" onClick={() => setLocation("/account")} className="gap-2">
+              <Settings className="h-4 w-4" />
+              Account
+            </Button>
+          </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Welcome back, {user?.name || "Creator"}</h1>
             <p className="text-sm text-muted-foreground">Start creating amazing videos with AI</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setLocation("/account")} className="gap-2">
-            <Settings className="h-4 w-4" />
-            Account
-          </Button>
         </div>
       </div>
 

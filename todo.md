@@ -1718,41 +1718,41 @@
 - [ ] Verify regenerate button calls generateScenePreview correctly with sceneId
 
 ## Feature: Varied Camera Angles Per Scene (Apr 12 2026)
-- [ ] Add camera angle rotation logic: cycle through close-up, medium, wide, low-angle, over-shoulder per scene index
-- [ ] Inject camera angle into buildSceneBlock() based on scene index or scene type
-- [ ] Ensure faces remain visible even in wide/low-angle shots (add "faces clearly visible" constraint)
-- [ ] Allow scene-level camera override (if scene.camera is set, use it; otherwise auto-rotate)
+- [x] Add camera angle rotation logic: cycle through close-up, medium, wide, low-angle, over-shoulder per scene index
+- [x] Inject camera angle into buildSceneBlock() based on scene index or scene type
+- [x] Ensure faces remain visible even in wide/low-angle shots (add "faces clearly visible" constraint)
+- [x] Allow scene-level camera override (if scene.camera is set, use it; otherwise auto-rotate)
 
 ## Feature: Character Energy, Movement and Musical Expression (Apr 12 2026)
-- [ ] Add performanceEnergyBlock to prompt: per-character performance state (mid-strum, drum strike, singing with expression)
-- [ ] Tim: mouth open singing, intense expression, leaning into mic, body movement
-- [ ] Greg: arms raised mid-strike, intense drumming expression, sweat, energy
-- [ ] Monica: body swaying, bass guitar angled, focused expression
-- [ ] Add energy level to scene block: "HIGH ENERGY", "INTENSE", "EMOTIONAL" based on scene index/type
-- [ ] Inject "captured mid-performance, dynamic action, motion blur on instruments" into positive prompt
-- [ ] Add "static pose, standing still, no expression, posed photo" to negative prompt
+- [x] Add performanceEnergyBlock to prompt: per-character performance state (mid-strum, drum strike, singing with expression)
+- [x] Tim: mouth open singing, intense expression, leaning into mic, body movement
+- [x] Greg: arms raised mid-strike, intense drumming expression, sweat, energy
+- [x] Monica: body swaying, bass guitar angled, focused expression
+- [x] Add energy level to scene block: "HIGH ENERGY", "INTENSE", "EMOTIONAL" based on scene index/type
+- [x] Inject "captured mid-performance, dynamic action, motion blur on instruments" into positive prompt
+- [x] Add "static pose, standing still, no expression, posed photo" to negative prompt
 
 ## Bug: No Back Navigation from Storyboard (Apr 12 2026)
-- [ ] Add back button to storyboard header to navigate back to the previous step
-- [ ] Ensure back button works from both the storyboard view and the scene editor
+- [x] Add back button to storyboard header to navigate back to the previous step
+- [x] Ensure back button works from both the storyboard view and the scene editor
 
 ## Feature: Dashboard Home Link (Apr 12 2026)
-- [ ] Add "Home" link to dashboard sidebar/header that navigates to the homepage (/)
-- [ ] Add back button to storyboard header to navigate back to the previous wizard step
+- [x] Add "Home" link to dashboard sidebar/header that navigates to the homepage (/)
+- [x] Add back button to storyboard header to navigate back to the previous wizard step
 
 ## Feature: My Projects Page (Apr 12 2026)
-- [ ] Create /projects page listing all user's past music video jobs
-- [ ] Show job title, song name, created date, status (draft/complete), thumbnail (first scene preview)
-- [ ] Add "Open" button to re-open a job in the music video autopilot wizard
-- [ ] Add "Download Video" button for completed jobs (links to finalVideoUrl)
-- [ ] Add "Download Audio" button for jobs with generated audio (links to audioUrl)
-- [ ] Add "Delete" button with confirmation dialog
-- [ ] Add "My Projects" link to dashboard sidebar navigation
-- [ ] Add tRPC procedure: getUserJobs — returns all jobs for the current user with metadata
-- [ ] Add tRPC procedure: deleteJob — soft-delete a job by id
-- [ ] Show empty state when user has no projects yet
-- [ ] Show job status badge: Draft, In Progress, Complete
-- [ ] Add storyboard back button to navigate back to the previous wizard step
+- [x] Create /projects page listing all user's past music video jobs
+- [x] Show job title, song name, created date, status (draft/complete), thumbnail (first scene preview)
+- [x] Add "Open" button to re-open a job in the music video autopilot wizard
+- [x] Add "Download Video" button for completed jobs (links to finalVideoUrl)
+- [x] Add "Download Audio" button for jobs with generated audio (links to audioUrl)
+- [x] Add "Delete" button with confirmation dialog
+- [x] Add "My Projects" link to dashboard sidebar navigation
+- [x] Add tRPC procedure: getUserJobs — returns all jobs for the current user with metadata
+- [x] Add tRPC procedure: deleteJob — soft-delete a job by id
+- [x] Show empty state when user has no projects yet
+- [x] Show job status badge: Draft, In Progress, Complete
+- [x] Add storyboard back button to navigate back to the previous wizard step
 
 ## Feature: My Projects — Music Videos Tab (Apr 12 2026)
 - [x] Update Projects.tsx to add "Music Videos" tab using trpc.musicVideo.listJobs
@@ -1773,10 +1773,10 @@
 - [x] Add fallback: if characterAssignments is empty after LLM, assign all locked characters
 
 ## Bug: Scene Camera Angle and Drummer Identity (Apr 12 2026)
-- [ ] Fix scene prompt to enforce stage-facing camera (NO audience visible behind band)
-- [ ] Add explicit negative prompt: no crowd behind band, no audience in background, no concert hall POV
-- [ ] Strengthen Greg drummer identity in multi-character scenes (locked description not respected)
-- [ ] Add per-character identity reinforcement block for locked characters in scene prompts
+- [x] Fix scene prompt to enforce stage-facing camera (NO audience visible behind band)
+- [x] Add explicit negative prompt: no crowd behind band, no audience in background, no concert hall POV
+- [x] Strengthen Greg drummer identity in multi-character scenes (locked description not respected)
+- [x] Add per-character identity reinforcement block for locked characters in scene prompts
 
 ## Bug: Duplicate Character in Multi-Character Scenes (Apr 12 2026)
 - [ ] Deduplicate face reference photos passed to Forge API (same character photo passed multiple times)

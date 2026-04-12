@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "wouter";
+import BackButton from "@/components/BackButton";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -132,19 +133,22 @@ export default function RenderHistory() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Page header */}
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center">
-              <History className="w-4 h-4 text-purple-400" />
+        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-2">
+          <BackButton fallback="/projects" label="Back to Projects" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center">
+                <History className="w-4 h-4 text-purple-400" />
+              </div>
+              <div>
+                <h1 className="text-base font-semibold text-foreground">Render History</h1>
+                <p className="text-xs text-muted-foreground">{jobs.length} video{jobs.length !== 1 ? "s" : ""}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base font-semibold text-foreground">Render History</h1>
-              <p className="text-xs text-muted-foreground">{jobs.length} video{jobs.length !== 1 ? "s" : ""}</p>
-            </div>
+            <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-500 text-white">
+              <Link href="/music-video/create"><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
+            </Button>
           </div>
-          <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-500 text-white">
-            <Link href="/wizvid-autopilot"><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
-          </Button>
         </div>
       </div>
 
@@ -178,7 +182,7 @@ export default function RenderHistory() {
               <p className="text-zinc-500 text-sm">Create your first AI music video to see it here</p>
             </div>
             <Button asChild className="bg-purple-600 hover:bg-purple-500 text-white">
-              <Link href="/wizvid-autopilot"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
+              <Link href="/music-video/create"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
             </Button>
           </div>
         )}
@@ -279,7 +283,7 @@ export default function RenderHistory() {
                             className="h-7 px-2 text-xs bg-purple-600 hover:bg-purple-500 text-white"
                             asChild
                           >
-                            <Link href={`/wizvid-autopilot?jobId=${job.id}`}>
+                            <Link href={`/music-video/create?jobId=${job.id}`}>
                               <Play className="w-3 h-3 mr-1" />Resume
                             </Link>
                           </Button>

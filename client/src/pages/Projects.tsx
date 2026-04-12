@@ -274,7 +274,7 @@ export default function Projects() {
   };
 
   const handleContinueMusicJob = (job: MusicVideoJob) => {
-    setLocation(`/wizvid?jobId=${job.id}`);
+    setLocation(`/music-video/create?jobId=${job.id}`);
   };
 
   const pendingCount = projects?.filter((p) => p.status === "pending" || p.status === "processing").length ?? 0;
@@ -320,11 +320,11 @@ export default function Projects() {
                   Home Page
                 </button>
                 <button
-                  onClick={() => { setShowNavMenu(false); setLocation("/wizvid"); }}
+                  onClick={() => { setShowNavMenu(false); setLocation("/music-video/create"); }}
                   className="flex w-full items-center gap-2 px-4 py-3 text-sm text-white hover:bg-white/10 transition"
                 >
-                  <Wand2 className="h-4 w-4 text-pink-400" />
-                  WizPilot
+                  <Music className="h-4 w-4 text-pink-400" />
+                  New Music Video
                 </button>
               </div>
             )}
@@ -423,7 +423,7 @@ export default function Projects() {
                 </p>
               </div>
               <Button
-                onClick={() => setLocation("/wizvid")}
+                onClick={() => setLocation("/music-video/create")}
                 className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 text-sm"
               >
                 <Music className="h-4 w-4" />
@@ -459,7 +459,7 @@ export default function Projects() {
                   Create your first AI music video — storyboard generation is always free.
                 </p>
                 <Button
-                  onClick={() => setLocation("/wizvid")}
+                  onClick={() => setLocation("/music-video/create")}
                   className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0"
                 >
                   <Music className="h-4 w-4" />
@@ -586,7 +586,7 @@ export default function Projects() {
                 </p>
               </div>
               <Button
-                onClick={() => setLocation("/wizvid")}
+                onClick={() => setLocation("/music-video/create")}
                 className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 text-sm"
               >
                 <Wand2 className="h-4 w-4" />
@@ -622,7 +622,7 @@ export default function Projects() {
                   Create your first video with WizPilot — storyboard generation is always free.
                 </p>
                 <Button
-                  onClick={() => setLocation("/wizvid")}
+                  onClick={() => setLocation("/music-video/create")}
                   className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0"
                 >
                   <Wand2 className="h-4 w-4" />
@@ -698,7 +698,7 @@ export default function Projects() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setLocation("/wizvid")}
+                            onClick={() => setLocation("/music-video/create")}
                             className="gap-1.5 border-orange-500/30 text-orange-400 hover:bg-orange-500/10 flex-1 sm:flex-none"
                           >
                             <RefreshCw className="h-3.5 w-3.5" />

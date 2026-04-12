@@ -9,6 +9,7 @@
 import { useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -216,14 +217,8 @@ export default function BatchRegeneration() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Dashboard
-            </Button>
-          </Link>
-          <Separator orientation="vertical" className="h-5" />
+        <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col gap-2">
+          <BackButton fallback="/dashboard" label="Back to Dashboard" />
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-violet-400" />
             <h1 className="text-lg font-semibold">Batch InstantID Re-generation</h1>
