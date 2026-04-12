@@ -26,8 +26,8 @@ const Onboarding: React.FC = () => {
     {
       href: '/music-video/create',
       icon: Music,
-      title: 'Music Video Creator',
-      description: 'Transform your songs into stunning visual stories with AI characters and smart editing',
+      title: 'WizBeat · Music Video Creator',
+      description: 'Turn your lyrics and audio into a full cinematic music video — with AI storyboard, characters, and scenes',
       color: 'from-purple-600 to-pink-600',
       borderColor: 'hover:border-purple-500/50',
       isPopular: true,

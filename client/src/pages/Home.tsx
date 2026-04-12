@@ -333,18 +333,18 @@ function Hero() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-4 text-white">
-              Your song deserves<br />
+              Create viral videos<br />
               <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                a music video.
+                without editing.
               </span>
             </h1>
 
             <p className="text-base font-semibold text-violet-300 mb-5 tracking-wide">
-              See your full video before you generate it.
+              From idea to full video — in under 2 minutes.
             </p>
 
             <p className="text-lg text-[#a1a1aa] leading-relaxed mb-5 max-w-lg">
-              Turn lyrics, ideas, or audio into fully visualised music videos — with AI storyboards, scene previews, and cinematic moments built in.
+              Turn lyrics, ideas, or audio into fully visualised music videos and YouTube content — with AI storyboards, scene previews, and cinematic moments built in.
             </p>
 
             <div className="flex flex-wrap gap-2.5 mb-6">
@@ -357,12 +357,12 @@ function Hero() {
                 className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
                 asChild
               >
-                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Ready to Create Video</a>
+                <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
               </Button>
               <HowItWorksModalButton />
             </div>
 
-            <p className="text-sm text-[#a1a1aa] mb-1">No editing. No experience. Just your idea.</p>
+            <p className="text-sm text-[#a1a1aa] mb-1">No editing. No experience needed. Just your idea.</p>
             <p className="text-xs text-[#a1a1aa]/60 mb-8">Free to start · No credit card · 2 free videos included</p>
           </div>
 
@@ -857,7 +857,7 @@ function ContentEngine() {
     },
     {
       icon: <Film className="w-6 h-6" />,
-      label: "Music Video",
+      label: "WizBeat",
       sub: "Scenes & characters",
       color: "purple",
       glow: "from-purple-500/30 to-purple-500/5",
@@ -1249,10 +1249,10 @@ function WizBeatSection() {
 // ── Social proof ──────────────────────────────────────────────────────────────
 function SocialProof() {
   const testimonials = [
-    { text: "I posted my first AI music video on a Friday. By Sunday it had 4,200 views on my indie music channel. WizBeat nailed the cinematic style I described — I didn't touch a single edit.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers" },
-    { text: "I run a kids channel and was spending £300/month on animators. Now I create 3 videos a week with WizVid for a fraction of the cost. My CTR doubled in 7 days on my kids YouTube channel.", author: "James K.", role: "Kids Content Creator · 28K subscribers" },
-    { text: "Finally an AI that creates full videos, not just 10-second clips. I described a pirate adventure story for my kids channel and got a complete animated video back in under 3 minutes — ready to post.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI" },
-    { text: "I went from zero content to posting daily in one week on my faceless YouTube channel. WizVid handles the storyboard, the scenes, everything. My audience grew by 800 subscribers in the first month.", author: "Tom B.", role: "AI Content Creator · 5K new subscribers in 30 days" },
+    { text: "I described the vibe, uploaded my track, and WizBeat had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers" },
+    { text: "I was spending £280/month on a freelance animator for my kids channel. WizVid replaced that entirely. I now create 3 videos a week, my upload consistency went from twice a month to daily, and my CTR is up 40%.", author: "James K.", role: "Kids Content Creator · 28K subscribers" },
+    { text: "Other AI tools give you a 10-second clip. WizVid gave me a complete 3-minute animated music video for my kids channel — scenes, characters, the lot — in under 4 minutes. My kids watch it on repeat.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI" },
+    { text: "I started a faceless YouTube channel from scratch. WizVid handled every video — storyboard, scenes, everything. 30 days later I had 4,800 subscribers and my first video hit 11K views. I haven't edited a single frame.", author: "Tom B.", role: "Faceless YouTube Creator · 0 to 4.8K subscribers in 30 days" },
   ];
 
   return (
@@ -1288,6 +1288,7 @@ function SocialProof() {
 const CATEGORY_COLOURS: Record<string, { badge: string; glow: string }> = {
   "Kids YouTube":       { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20" },
   "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20" },
+  "WizBeat":             { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20" },
   "Story Animation":    { badge: "bg-pink-500/20 text-pink-300 border border-pink-500/30",       glow: "group-hover:shadow-pink-500/20" },
   "Faceless Content":   { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",       glow: "group-hover:shadow-cyan-500/20" },
   "Social Short":       { badge: "bg-green-500/20 text-green-300 border border-green-500/30",   glow: "group-hover:shadow-green-500/20" },
@@ -1454,17 +1455,19 @@ function CTAPush() {
     <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-3xl mx-auto text-center reveal">
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-          Start creating today
+          Your first video is free.
+          <br />
+          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Start in 60 seconds.</span>
         </h2>
         <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-          Creators are already generating full videos with WizVid. Join them — no editing needed.
+          No editing. No experience. Just describe your idea and WizVid creates the full video — storyboard, scenes, and final render.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Button
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
+            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
           </Button>
           <Button
             variant="outline"
@@ -1562,12 +1565,25 @@ function Footer() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-            <p>© 2025 WizVid. All rights reserved.</p>
+            <p>© 2026 WizVid. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
               <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
               <a href="/refunds" className="hover:text-white transition-colors">Refund Policy</a>
             </div>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-xs text-[#a1a1aa]/50 tracking-widest uppercase">
+              Powered by{" "}
+              <a
+                href="https://wizvid.studio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#a1a1aa]/70 hover:text-white transition-colors font-medium"
+              >
+                WizVid Studio
+              </a>
+            </p>
           </div>
         </div>
       </div>

@@ -229,7 +229,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
                 transition: "box-shadow 0.08s ease",
               }}
             />
-            AI Music Video Creator
+            WizBeat · AI Music Video Maker
           </span>
         </div>
 

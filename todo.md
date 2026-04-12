@@ -479,8 +479,8 @@
 - [x] Onboarding: sign-up / start creating CTA
 - [x] Rebuild Home.tsx with cinematic 9-section design
 - [x] Register /pricing, /onboarding, /help, /seo/:slug routes in App.tsx
-- [ ] Wire Pricing page CTAs to Stripe checkout (via /subscribe)
-- [ ] Add upgrade trigger modals when user hits video limit
+- [x] Wire Pricing page CTAs to Stripe checkout (via /subscribe) — now calls mutation directly
+- [x] Add upgrade trigger modals when user hits video limit — UpgradeModal in Dashboard
 - [ ] Add upgrade prompt on video download for free/starter users
 - [ ] Update Stripe products to match GBP pricing tiers
 
@@ -635,17 +635,17 @@
 - [x] Fix CTA on Pricing and MusicVideosLanding to go to /onboarding for unauthenticated users
 
 ## Conversion Optimisation Pass (Apr 2026)
-- [ ] Hero: new headline "Create viral YouTube videos in minutes"
-- [ ] Hero: new subheadline about prompt to video
-- [ ] Hero: add prompt→video transformation block below hero copy
-- [ ] Instant proof section: "See what creators are making with WizVid" with 3-6 example outputs
-- [ ] Pricing: add "What you can create each month" outcome framing above cards
-- [ ] Pricing: add clear ✔/✖ inclusions/exclusions to each plan
-- [ ] Pricing: add "Best for YouTubers, creators, agencies" badge to Pro plan
-- [ ] Testimonials: replace vague claims with specific believable ones
-- [ ] Trust section: "Made with WizVid" with real outputs and use cases
-- [ ] CTA standardisation: "Create Your First Video" primary, "Try WizVid Free" secondary
-- [ ] Positioning: replace "AI video generator" with "Create daily content without editing"
+- [x] Hero: new headline "Create viral videos without editing" (updated)
+- [x] Hero: new subheadline "From idea to full video — in under 2 minutes"
+- [x] Hero: prompt→video transformation block already in place
+- [x] Instant proof section: MadeWithWizVid showcase section already exists
+- [x] Pricing: "What you can create each month" outcome framing grid added
+- [x] Pricing: clear ✔/✖ inclusions/exclusions on each plan
+- [x] Pricing: "Most Popular — Best for creators" badge on Pro plan
+- [x] Testimonials: replaced with specific, believable claims with numbers
+- [x] Trust section: MadeWithWizVid section with real outputs and use cases
+- [x] CTA standardisation: "Create Your First Video" primary everywhere
+- [x] Positioning: "Create viral videos without editing" hero headline
 - [ ] Music video landing page: new headline, video preview, flow explanation, CTA before login
 - [ ] QA: verify all routes, links, no console errors
 - [ ] Fix LCP (18.7s): preload hero video/image, add fetchpriority=high to hero img
@@ -1954,3 +1954,6 @@
 - [x] Request STRIPE_STARTER_PRICE_ID, STRIPE_PRO_PRICE_ID, STRIPE_BUSINESS_PRICE_ID secrets
 - [x] Add upgrade trigger modal when user hits video limit in dashboard
 - [x] Add upgrade trigger modal when user tries to use premium feature on free plan
+
+## WizVid Studio Branding
+- [x] Add "Powered by WizVid Studio" to the bottom of the homepage footer
