@@ -2306,3 +2306,19 @@
 
 ## CinematicEntryScreen WizSound™ Sequence Rebuild
 - [x] Rebuild CinematicEntryScreen with 5-stage sequence: black opening (0-2s), WizSound™ flash (2-3s), energy streak brand reveal (3-5s), WizVid final frame with tagline (5-6s), smooth fade to homepage
+
+## WizSound™ Technical Showcase Section (Pricing Page)
+- [ ] Build WizSoundShowcase component: interactive tier selector, animated spectrum visualiser, technical spec cards, live audio preview buttons
+- [ ] Wire into Pricing page between audio add-ons and FAQ sections
+
+## WizSound™ Technical Showcase (Pricing Page) - COMPLETED ✅
+- [x] Build WizSoundShowcase component with tier selector (Standard / WizSound Enhance / WizSound Cinematic)
+- [x] Animated spectrum bar visualiser per tier (reactive to preview playback)
+- [x] Audio metrics panel with per-spec progress bars (stereo width, dynamic range, loudness, EQ)
+- [x] Processing pipeline list per tier (numbered steps with descriptions)
+- [x] Live 10-second audio preview per tier (play/pause with progress bar)
+- [x] Volume control (mute toggle + range slider) in footer
+- [x] Comparison table: 6 features × 3 tiers with active-tier highlighting
+- [x] Streaming-ready callout for WizSound Cinematic tier
+- [x] Wired into Pricing.tsx between comparison table and FAQ sections
+- [x] Zero TypeScript errors, 333 tests passing

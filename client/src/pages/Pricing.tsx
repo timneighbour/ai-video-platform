@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import {
   Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Film, Package
 } from "lucide-react";
+import WizSoundShowcase from "@/components/WizSoundShowcase";
 
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
@@ -560,6 +561,9 @@ export default function Pricing() {
             </div>
           </div>
         </div>
+
+        {/* ── WizSound™ Technical Showcase ── */}
+        <WizSoundShowcase />
 
         {/* ── FAQ ── */}
         <div className="max-w-2xl mx-auto px-6 mb-20">
