@@ -89,7 +89,7 @@ export default function MyProjects() {
   });
 
   function openProject(jobId: number) {
-    navigate(`/create?jobId=${jobId}`);
+    navigate(`/music-video/create?jobId=${jobId}`);
   }
 
   function downloadFile(url: string, filename: string) {
@@ -114,7 +114,7 @@ export default function MyProjects() {
               {jobs ? `${jobs.length} project${jobs.length !== 1 ? "s" : ""}` : "Loading your projects..."}
             </p>
           </div>
-          <Button onClick={() => navigate("/create")} className="flex items-center gap-2">
+          <Button onClick={() => navigate("/music-video/create")} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             New Project
           </Button>
@@ -135,7 +135,7 @@ export default function MyProjects() {
             <p className="text-muted-foreground mb-6 max-w-sm">
               Create your first AI music video to get started. Upload a song and let WizVid do the rest.
             </p>
-            <Button onClick={() => navigate("/create")}>
+            <Button onClick={() => navigate("/music-video/create")}>
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Video
             </Button>

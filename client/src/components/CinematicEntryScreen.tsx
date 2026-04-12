@@ -135,7 +135,7 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
         style={{
           transform: `translate(${px * -12}px, ${py * -8}px) scale(1.08)`,
           transition: "transform 0.15s ease-out",
-          opacity: phase >= 1 ? 0.45 : 0,
+          opacity: phase >= 1 ? 0.75 : 0,
           transitionProperty: "transform, opacity",
           transitionDuration: "0.15s, 1.2s",
         }}
@@ -189,9 +189,9 @@ export default function CinematicEntryScreen({ onDismiss }: CinematicEntryScreen
         }}
       />
 
-      {/* ── Dark gradient overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/60 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90 pointer-events-none" />
+      {/* ── Dark gradient overlays ── reduced for better video visibility */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/35 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
 
       {/* ── Cinematic vignette ── */}
       <div

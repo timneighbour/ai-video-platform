@@ -308,16 +308,16 @@ function Hero() {
           ref={(el) => { bgVideoRefs.current[i] = el; }}
           aria-hidden="true"
           onCanPlay={(e) => { const v = e.currentTarget; v.muted = true; v.play().catch(() => {}); }}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-20" : "opacity-0"}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === currentBg ? "opacity-50" : "opacity-0"}`}
         />
       ))}
       {/* Mobile background — CSS gradient instead of video */}
       {!isDesktop && (
         <div className="absolute inset-0 bg-gradient-to-br from-violet-950/40 via-[#0f0f0f] to-blue-950/30" aria-hidden="true" />
       )}
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-[#0f0f0f]/80 to-[#0f0f0f]/40" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f]/60 via-transparent to-[#0f0f0f]" />
+      {/* Subtle gradient overlay — reduced to let video breathe */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f]/90 via-[#0f0f0f]/50 to-[#0f0f0f]/20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f]/40 via-transparent to-[#0f0f0f]" />
 
       {/* Ambient glow */}
       <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />

@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import BackButton from "@/components/BackButton";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
-  Check, Sparkles, Zap, Crown, Star, ChevronDown, ChevronUp, X, ArrowRight
+  Check, Sparkles, Zap, Crown, Star, ChevronDown, ChevronUp, X, ArrowRight, Loader2
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -150,8 +152,36 @@ function useReveal() {
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
   useReveal();
+
+  const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation({
+    onSuccess: (data) => {
+      if (data?.checkoutUrl) {
+        toast.info("Redirecting to checkout...");
+        window.open(data.checkoutUrl, "_blank");
+      }
+      setLoadingPlan(null);
+    },
+    onError: (err) => {
+      toast.error(err.message || "Checkout failed. Please try again.");
+      setLoadingPlan(null);
+    },
+  });
+
+  const handlePlanSelect = (planId: string) => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl();
+      return;
+    }
+    setLoadingPlan(planId);
+    createSubscriptionCheckout.mutate({
+      plan: planId as "starter" | "pro" | "business",
+      origin: window.location.origin,
+      billingInterval: annual ? "annual" : "monthly",
+    });
+  };
 
   return (
     <div className="bg-[#0f0f0f] text-white min-h-screen overflow-x-hidden font-sans">
@@ -277,16 +307,21 @@ export default function Pricing() {
               <p className="text-[#a1a1aa] text-sm mb-6 leading-relaxed">{plan.desc}</p>
 
               <Button
+                disabled={loadingPlan === plan.id}
+                onClick={() => handlePlanSelect(plan.id)}
                 className={`w-full rounded-xl py-2.5 font-semibold mb-6 h-auto text-sm ${
                   plan.popular
                     ? "bg-white text-black hover:bg-white/90 shadow-md"
                     : "bg-white/8 hover:bg-white/12 text-white border border-white/10"
                 }`}
-                asChild
               >
-                <a href={isAuthenticated ? "/subscribe" : "/onboarding"}>
-                  {plan.popular ? <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create Your First Video</> : (plan.name === "Creator+" ? "Go Creator+" : "Get started free")}
-                </a>
+                {loadingPlan === plan.id ? (
+                  <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Redirecting...</>
+                ) : plan.popular ? (
+                  <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create Your First Video</>
+                ) : (
+                  plan.name === "Creator+" ? "Go Creator+" : "Get started free"
+                )}
               </Button>
 
               <div className="space-y-2.5">

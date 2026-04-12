@@ -1942,3 +1942,15 @@
 ## CinematicEntryScreen Minor Fixes (Apr 12 2026)
 - [x] Skip intro button should dismiss to homepage (/) not just hide
 - [x] Smoother zoom transition on CTA click
+
+## Bug: Hero/Intro Video Too Dark (Apr 12 2026)
+- [x] Reduce dark overlay opacity on hero background video (currently too dark to see video)
+- [x] Reduce dark overlay opacity on CinematicEntryScreen background video
+- [x] Ensure text remains readable against the lighter background
+
+## Pricing Page Stripe Wiring (Apr 12 2026)
+- [x] Wire Pricing page plan CTA buttons to createSubscriptionCheckout mutation
+- [x] Wire Pricing page add-on pack buttons to createCreditCheckout mutation
+- [x] Request STRIPE_STARTER_PRICE_ID, STRIPE_PRO_PRICE_ID, STRIPE_BUSINESS_PRICE_ID secrets
+- [x] Add upgrade trigger modal when user hits video limit in dashboard
+- [x] Add upgrade trigger modal when user tries to use premium feature on free plan

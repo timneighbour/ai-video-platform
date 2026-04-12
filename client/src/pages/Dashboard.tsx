@@ -1,10 +1,13 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Zap, Video, Mic, Wand2, Plus, Settings, History, RefreshCw, Home } from "lucide-react";
-import { useEffect } from "react";
+import { Sparkles, Zap, Video, Mic, Wand2, Plus, Settings, History, RefreshCw } from "lucide-react";
 import { useLocation } from "wouter";
 import BackButton from "@/components/BackButton";
+import UpgradeBanner from "@/components/UpgradeBanner";
+import UpgradeModal from "@/components/UpgradeModal";
+import { trpc } from "@/lib/trpc";
 
 const AI_TOOLS = [
   {
@@ -44,6 +47,17 @@ const AI_TOOLS = [
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  const creditBalance = creditData?.balance ?? 0;
+  const currentPlan = subData?.plan ? subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1) : "Free";
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -80,10 +94,17 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-foreground">2,500</span>
+                <span className="text-3xl font-bold text-foreground">{creditBalance.toLocaleString()}</span>
                 <span className="text-sm text-muted-foreground">credits</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Pro Plan • Resets on May 8, 2026</p>
+              {creditBalance < 100 && (
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="text-xs text-amber-400 mt-2 hover:underline"
+                >
+                  Low credits — upgrade or top up
+                </button>
+              )}
             </CardContent>
           </Card>
 
@@ -93,21 +114,32 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-foreground">Pro</span>
+                <span className="text-3xl font-bold text-foreground">{currentPlan}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">£49/month • 3,000 credits</p>
+              {currentPlan === "Free" && (
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="text-xs text-violet-400 mt-2 hover:underline"
+                >
+                  Upgrade for more videos
+                </button>
+              )}
             </CardContent>
           </Card>
 
           <Card className="border-border/40 bg-card/50 backdrop-blur">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Videos Created</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-foreground">12</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">This month</p>
+            <CardContent className="flex flex-col gap-2">
+              <Button size="sm" className="gap-2 w-full" onClick={() => setLocation("/music-video/create")}>
+                <Sparkles className="h-4 w-4" />
+                New Music Video
+              </Button>
+              <Button size="sm" variant="outline" className="gap-2 w-full" onClick={() => setLocation("/credits")}>
+                <Plus className="h-4 w-4" />
+                Buy Credits
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -194,7 +226,22 @@ export default function Dashboard() {
             })}
           </div>
         </div>
+
+        {/* Upgrade banner for free/low-credit users */}
+        {(currentPlan === "Free" || creditBalance < 100) && (
+          <UpgradeBanner
+            type={creditBalance < 100 ? "limit" : "milestone"}
+            className="mt-6"
+          />
+        )}
       </div>
+
+      {/* Upgrade modal */}
+      <UpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        trigger={creditBalance < 100 ? "limit" : "milestone"}
+      />
     </div>
   );
 }
