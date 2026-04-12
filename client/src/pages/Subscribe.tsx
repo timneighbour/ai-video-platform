@@ -42,9 +42,9 @@ const PLANS = [
     description: "5 min/month · 720p · Watermark",
     badge: null as string | null,
     features: [
-      "5 minutes of video/month",
-      "Up to 60 seconds per video",
-      "720p quality",
+      "5 min/month video allowance",
+      "720p export quality",
+      "WizVid watermark on exports",
       "All AI video styles",
       "WizBeat music video maker",
       "WizPilot AI video creator",
@@ -62,15 +62,13 @@ const PLANS = [
     annualTotal: 232,
     annualSaving: 116,
     description: "20 min/month · 1080p · No watermark",
-    badge: "Most creators choose this plan",
+    badge: "⭐ Most Popular",
     features: [
-      "20 minutes of video/month",
-      "Up to 2 minutes per video",
-      "1080p quality",
-      "Lyric-aware scene generation",
-      "Character consistency",
+      "15 min/month · 1080p quality",
+      "No watermark on exports",
+      "Lyric-sync scene generation",
       "2 cinematic scenes included",
-      "No watermark",
+      "Character consistency",
       "Priority support",
     ],
     cta: "Get Creator",
@@ -184,7 +182,7 @@ export default function Subscribe() {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Create videos from £1–£2 per minute. Storyboard generation is always free — you only pay when you render.
+            Create videos from <strong className="text-white">£1 per minute</strong> (HD video). Storyboard generation is always free — no credit card required.
           </p>
 
           {/* Billing Toggle */}
@@ -221,8 +219,7 @@ export default function Subscribe() {
             {/* Social proof */}
             <p className={`text-sm transition-all duration-300 ${billing === "annual" ? "text-green-400" : "text-muted-foreground"}`}>
               {billing === "annual"
-                ? "✓ Most creators choose annual to save £116"
-                : "Switch to yearly and save up to £116/year"}
+                ? <><strong className="text-green-300">✓ Save £116/year</strong> — equivalent to 2 months completely free</>                : <>Switch to yearly and <strong className="text-green-400">save up to £116/year</strong></>}
             </p>
           </div>
         </div>

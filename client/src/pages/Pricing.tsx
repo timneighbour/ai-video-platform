@@ -56,7 +56,7 @@ const PLANS = [
     label: "Most popular",
     desc: "Create music videos, animations, and faceless content. 15 renders included every month.",
     popular: true,
-    badge: "Most popular",
+    badge: "⭐ Most Popular",
     rendersPerMonth: 15,
     perRender: "£2.60",
     bestValue: true,
@@ -273,7 +273,7 @@ export default function Pricing() {
                 step: "01",
                 icon: <Sparkles className="w-5 h-5 text-violet-400" />,
                 title: "Create for free",
-                desc: "Upload your audio, generate your storyboard, and build your video. No credit card needed to start creating.",
+                desc: "Upload your audio, generate your storyboard, and build your video. No credit card required to start creating.",
               },
               {
                 step: "02",
@@ -652,7 +652,7 @@ export default function Pricing() {
         {/* ── Bottom CTA ── */}
         <div className="text-center px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready to create?</h2>
-          <p className="text-sm text-white/45 mb-6">Start building your video for free. No credit card required.</p>
+          <p className="text-sm text-white/45 mb-6">Start building your video for free — no credit card required.</p>
           <a
             href={isAuthenticated ? "/music-video/create" : "/onboarding"}
             className="inline-flex items-center gap-2 bg-white text-black font-bold px-8 py-3.5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:bg-white/95 transition-all duration-300 text-sm"

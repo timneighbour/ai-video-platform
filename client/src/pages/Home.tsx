@@ -1795,20 +1795,20 @@ function HomePricing() {
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Pricing</p>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Create videos from{" "}
+            Create videos from{" "}
             <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              £2 per render
+              £1 per minute
             </span>
           </h2>
           <p className="text-[#a1a1aa] max-w-lg mx-auto">
-            Storyboard generation is always free. Only pay when you render — from £2/render, upgrade packs available.
+            Storyboard generation is always free. Only pay when you render — from £1/min (HD video), upgrade packs available.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           {([
             { name: "Starter", price: "£9", period: "/mo", annual: "£79/yr", saving: "save £29", desc: "5 min · 720p · Watermark", highlight: false },
-            { name: "Creator", price: "£29", period: "/mo", annual: "£232/yr", saving: "save £116", desc: "20 min · 1080p · No watermark", highlight: true },
+            { name: "⭐ Creator", price: "£29", period: "/mo", annual: "£232/yr", saving: "save £116", desc: "20 min · 1080p · No watermark", highlight: true },
             { name: "Studio", price: "£99", period: "/mo", annual: "£792/yr", saving: "save £396", desc: "60 min · 4K · Full cinematic", highlight: false },
           ] as const).map((plan) => (
             <a
@@ -1824,7 +1824,7 @@ function HomePricing() {
                 <span className="font-bold text-white text-base">{plan.name}</span>
                 {plan.highlight && (
                   <span className="text-xs font-semibold text-violet-400 bg-violet-500/15 border border-violet-500/25 px-2 py-0.5 rounded-full">
-                    Most popular
+                    Most Popular
                   </span>
                 )}
               </div>
@@ -1859,8 +1859,9 @@ function HomePricing() {
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-green-400 font-medium mb-4">
-            ✓ Annual billing gives you 2 months free — most creators save £116/year on Creator
+          <p className="text-sm font-medium mb-4">
+            <strong className="text-green-400">✓ Save £116/year</strong>{" "}
+            <span className="text-[#a1a1aa]">on Creator with annual billing — equivalent to 2 months free</span>
           </p>
           <a
             href="/pricing"
@@ -1880,9 +1881,9 @@ function CTAPush() {
     <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-3xl mx-auto text-center reveal">
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-          Your first video is minutes away.
+          Your first video is <strong className="text-white">free</strong> – start creating in 60 seconds.
           <br />
-          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Start creating for free.</span>
+          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">No credit card required.</span>
         </h2>
         <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
           Start creating for free. Only pay when you render.
