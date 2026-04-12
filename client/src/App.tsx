@@ -43,6 +43,9 @@ const BatchRegeneration = lazy(() => import("@/pages/BatchRegeneration"));
 const Blog = lazy(() => import("@/pages/Blog"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const BlogAdmin = lazy(() => import("@/pages/BlogAdmin"));
+const LandingUK = lazy(() => import("@/pages/LandingUK"));
+const LandingApp = lazy(() => import("@/pages/LandingApp"));
+const LandingStudio = lazy(() => import("@/pages/LandingStudio"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -119,6 +122,9 @@ function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
     '/404',
     '/blog',
     '/blog/admin',
+    '/uk',
+    '/app',
+    '/studio',
   ];
   // Also allow /blog/:slug dynamic routes
   const isDynamicBlogRoute = location.startsWith('/blog/');
@@ -174,6 +180,9 @@ function Router() {
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />
+        <Route path={"/uk"} component={LandingUK} />
+        <Route path={"/app"} component={LandingApp} />
+        <Route path={"/studio"} component={LandingStudio} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/admin"} component={BlogAdmin} />
         <Route path={"/blog/:slug"} component={BlogPost} />

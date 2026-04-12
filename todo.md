@@ -2461,3 +2461,11 @@
 ## Intro Audio Fix
 - [ ] Fix intro audio: sound button not playing audio — investigate CDN URL, audio element creation, and browser autoplay policy
 - [ ] Make "Enable Sound" button more prominent and test audio playback
+
+## Domain Routing Strategy
+- [ ] wizvid.co.uk: UK landing page at /uk — consistent branding, UK-specific copy, redirects to wizvid.ai/music-video/create
+- [ ] wizvidapp.com: Ads conversion landing page at /app — no nav, single CTA, fast load, optimised for paid traffic
+- [ ] wizvidstudio.com: Premium placeholder at /studio — coming soon page with WizVid Studio branding
+- [ ] All three routes registered in App.tsx with validRoutes
+- [ ] All three use same design system (fonts, colours, purple/black theme, WizSound branding)
+- [ ] Server-side domain detection middleware to auto-route based on Host header

@@ -229,6 +229,28 @@ async function startServer() {
       },
     })
   );
+  // ── Domain-based routing: redirect to the correct SPA path based on Host header ──
+  // This allows wizvid.co.uk, wizvidapp.com, and wizvidstudio.com to serve
+  // their dedicated landing pages without separate deployments.
+  const DOMAIN_ROUTES: Record<string, string> = {
+    "wizvid.co.uk": "/uk",
+    "www.wizvid.co.uk": "/uk",
+    "wizvidapp.com": "/app",
+    "www.wizvidapp.com": "/app",
+    "wizvidstudio.com": "/studio",
+    "www.wizvidstudio.com": "/studio",
+  };
+  app.use((req, res, next) => {
+    const host = (req.headers.host || "").split(":")[0].toLowerCase();
+    const targetPath = DOMAIN_ROUTES[host];
+    // Only redirect if we're at the root (/) — preserve direct path access
+    if (targetPath && (req.path === "/" || req.path === "")) {
+      res.redirect(302, targetPath);
+      return;
+    }
+    next();
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
