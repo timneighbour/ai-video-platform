@@ -14,11 +14,7 @@ import {
   musicVideoJobs,
 } from "../../drizzle/schema";
 import { eq, and, inArray, desc } from "drizzle-orm";
-import { fal } from "@fal-ai/client";
-if (process.env.FAL_AI_API_KEY) {
-  fal.config({ credentials: process.env.FAL_AI_API_KEY });
-}
-import { generateFaceConsistentImage } from "../_core/fluxPuLID";
+import { generateImage } from "../_core/imageGeneration";
 
 // ─── Batch Regeneration State Machine ────────────────────────────────────────
 type BatchItemStatus = "pending" | "processing" | "done" | "failed" | "cancelled";
@@ -98,49 +94,15 @@ async function runBatchRegeneration(
         description.length > 20
           ? `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera. ${description}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
           : `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`;
-      // V2 settings: max identity weight, lower CFG
-      let newImageUrl: string;
-      try {
-        if (process.env.FAL_AI_API_KEY)
-          fal.config({ credentials: process.env.FAL_AI_API_KEY });
-        const instantIdResult = (await fal.subscribe("fal-ai/instantid", {
-          input: {
-            face_image_url: base64DataUrl,
-            prompt: previewPrompt,
-            style: "Headshot",
-            negative_prompt:
-              "different face, new person, altered identity, nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, deformed, ugly, disfigured",
-            num_inference_steps: 40,
-            guidance_scale: 3.0,
-            ip_adapter_scale: 1.0,
-            identity_controlnet_conditioning_scale: 1.0,
-            enhance_face_region: true,
-            enable_lcm: false,
-          },
-        })) as { data: { image: { url: string } } };
-        newImageUrl = instantIdResult.data.image.url;
-        console.log(
-          `[batchRegen] InstantID success for ${item.characterName}: ${newImageUrl}`
-        );
-      } catch (instantIdErr) {
-        console.warn(
-          `[batchRegen] InstantID failed for ${item.characterName}, falling back to Flux PuLID:`,
-          instantIdErr instanceof Error ? instantIdErr.message : instantIdErr
-        );
-        const pulidResult = await generateFaceConsistentImage({
-          prompt: previewPrompt,
-          referenceImageUrl: base64DataUrl,
-          idWeight: 1.8,
-          guidanceScale: 2.5,
-          imageSize: "portrait_4_3",
-          negativePrompt:
-            "different face, new person, altered identity, distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
-        });
-        newImageUrl = pulidResult.url;
-        console.log(
-          `[batchRegen] Flux PuLID fallback success for ${item.characterName}`
-        );
-      }
+      // Use built-in Forge image generation with reference photo for face consistency
+      console.log(`[batchRegen] Generating portrait for ${item.characterName} via Forge API`);
+      const forgeResult = await generateImage({
+        prompt: previewPrompt,
+        originalImages: [{ url: primaryPhoto.photoUrl, mimeType }],
+      });
+      if (!forgeResult.url) throw new Error("Image generation returned no URL");
+      const newImageUrl = forgeResult.url;
+      console.log(`[batchRegen] Forge success for ${item.characterName}: ${newImageUrl}`);
       await db
         .update(videoCharacters)
         .set({
@@ -408,66 +370,22 @@ export const batchRegenRouter = router({
         description.length > 20
           ? `Portrait of ${characterLabel}. ${description}. Same person as reference image, identical face, same hair, same identity, no variation. Clean studio lighting, front-facing, photorealistic, high detail.`
           : `Portrait of ${characterLabel}. Same person as reference image, identical face, same hair, same identity, no variation. Clean studio lighting, front-facing, photorealistic, high detail.`;
-      let masterPortraitUrl: string;
-      let engineUsed = "instantid";
-      if (process.env.FAL_AI_API_KEY)
-        fal.config({ credentials: process.env.FAL_AI_API_KEY });
-      try {
-        console.log(
-          `[masterPortrait] Generating for ${char.name} via InstantID (seed: ${masterSeed})`
-        );
-        const result = (await fal.subscribe("fal-ai/instantid", {
-          input: {
-            face_image_url: base64DataUrl,
-            prompt: characterPrompt,
-            style: "Headshot",
-            negative_prompt:
-              "different face, new person, altered identity, nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, deformed, ugly, disfigured, text, watermark",
-            num_inference_steps: 40,
-            guidance_scale: 3.0,
-            ip_adapter_scale: 1.0,
-            identity_controlnet_conditioning_scale: 1.0,
-            enhance_face_region: true,
-            enable_lcm: false,
-            seed: masterSeed,
-          },
-        })) as { data: { image: { url: string } } };
-        masterPortraitUrl = result.data.image.url;
-        console.log(
-          `[masterPortrait] InstantID success for ${char.name}: ${masterPortraitUrl}`
-        );
-      } catch (instantIdErr) {
-        console.warn(
-          `[masterPortrait] InstantID failed for ${char.name}, falling back to Flux PuLID:`,
-          instantIdErr instanceof Error ? instantIdErr.message : instantIdErr
-        );
-        engineUsed = "flux-pulid";
-        try {
-          const pulidResult = await generateFaceConsistentImage({
-            prompt: characterPrompt,
-            referenceImageUrl: base64DataUrl,
-            idWeight: 1.8,
-            guidanceScale: 2.5,
-            imageSize: "portrait_4_3",
-            negativePrompt:
-              "different face, new person, altered identity, distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, text, watermark",
-            seed: masterSeed,
-          });
-          masterPortraitUrl = pulidResult.url;
-          console.log(
-            `[masterPortrait] Flux PuLID success for ${char.name}: ${masterPortraitUrl}`
-          );
-        } catch (pulidErr) {
-          console.error(
-            `[masterPortrait] Both engines failed for ${char.name}:`,
-            pulidErr instanceof Error ? pulidErr.message : pulidErr
-          );
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to generate master portrait for ${char.name}. Please try again.`,
-          });
-        }
+      // Use built-in Forge image generation with reference photo for face consistency
+      // (fal.ai / InstantID is unreachable from this server environment)
+      const engineUsed = "forge";
+      console.log(`[masterPortrait] Generating for ${char.name} via Forge API (seed: ${masterSeed})`);
+      const forgeResult = await generateImage({
+        prompt: characterPrompt,
+        originalImages: [{ url: primaryPhoto.photoUrl, mimeType }],
+      });
+      if (!forgeResult.url) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to generate master portrait for ${char.name}. Please try again.`,
+        });
       }
+      const masterPortraitUrl = forgeResult.url;
+      console.log(`[masterPortrait] Forge success for ${char.name}: ${masterPortraitUrl}`);
       await db
         .update(videoCharacters)
         .set({

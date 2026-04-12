@@ -8,11 +8,7 @@ import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc, inArray } from "drizzle-orm";
-import { fal } from "@fal-ai/client";
-// Configure fal.ai credentials (uses FAL_AI_API_KEY env var, not the default FAL_KEY)
-if (process.env.FAL_AI_API_KEY) {
-  fal.config({ credentials: process.env.FAL_AI_API_KEY });
-}
+
 import { storagePut } from "../storage";
 import {
   generateStoryboard,
@@ -26,7 +22,7 @@ import {
 import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
-import { generateFaceConsistentImage } from "../_core/fluxPuLID";
+
 import { validateSceneFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
@@ -1047,76 +1043,32 @@ Rules:
             console.warn(`[generateScenePreview] Could not fetch face reference for scene ${input.sceneId}:`, fetchErr);
           }
 
-          if (process.env.FAL_AI_API_KEY) fal.config({ credentials: process.env.FAL_AI_API_KEY });
-
-          // Try InstantID first (best face fidelity), then Flux PuLID, then generic
-          if (faceBase64) {
-            console.log(`[generateScenePreview] Using InstantID for ${primaryCharName} (scene ${input.sceneId}, seed: ${masterSeed ?? "random"})`);
-            // Generate 3 variations with different seeds, pick the one with best face match
-            const baseSeed = masterSeed ?? Math.floor(Math.random() * 2147483647);
-            const seeds = [baseSeed, baseSeed + 1, baseSeed + 2];
-            const variations: string[] = [];
-            for (const seed of seeds) {
-              try {
-                const varResult = await fal.subscribe("fal-ai/instantid", {
-                  input: {
-                    face_image_url: faceBase64,
-                    prompt: finalImagePrompt,
-                    style: "Photorealistic",
-                    negative_prompt: negativePrompt,
-                    // V2 settings: lower CFG (less creative freedom) + max identity weight
-                    num_inference_steps: 40,
-                    guidance_scale: 3.0,          // lower = less deviation from reference
-                    ip_adapter_scale: 1.0,         // max IP-Adapter face conditioning
-                    identity_controlnet_conditioning_scale: 1.0, // max identity lock
-                    enhance_face_region: true,
-                    enable_lcm: false,             // full quality mode
-                    seed,
-                  },
-                }) as { data: { image: { url: string } } };
-                if (varResult.data?.image?.url) variations.push(varResult.data.image.url);
-              } catch (varErr) {
-                console.warn(`[generateScenePreview] InstantID variation (seed ${seed}) failed:`, varErr instanceof Error ? varErr.message : varErr);
-              }
-            }
-            if (variations.length > 0) {
-              // Pick the first successful variation (all use the same face conditioning, so any is good)
-              // In future: add face similarity scoring to pick the best one
-              url = variations[0];
-              console.log(`[generateScenePreview] InstantID success for scene ${input.sceneId} (${variations.length} variations generated)`);
-            }
+          // Photo Mode V2: Use Forge API with reference photo for face-anchored generation
+          // (fal.ai / InstantID / Flux PuLID are unreachable from this server environment)
+          console.log(`[generateScenePreview] Using Forge API for ${primaryCharName} (scene ${input.sceneId}, masterPortrait=${!!masterPortraitUrl})`);
+          // Build reference images list: master portrait first (highest priority), then original photo
+          const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+          if (masterPortraitUrl) {
+            const masterMime = masterPortraitUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                               masterPortraitUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+            forgeRefs.push({ url: masterPortraitUrl, mimeType: masterMime });
+          } else if (faceReferenceUrl) {
+            const refMime = faceReferenceUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                            faceReferenceUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+            forgeRefs.push({ url: faceReferenceUrl, mimeType: refMime });
           }
-
-          // Fallback: Flux PuLID
-          if (!url) {
-            console.log(`[generateScenePreview] Falling back to Flux PuLID for ${primaryCharName} (scene ${input.sceneId})`);
-            try {
-              const { url: fluxUrl } = await withQuotaGuard(() =>
-                generateFaceConsistentImage({
-                  prompt: finalImagePrompt,
-                  referenceImageUrl: faceReferenceUrl!,
-                  idWeight: 1.8,          // V2: higher identity weight
-                  guidanceScale: 2.5,     // V2: lower CFG for face accuracy
-                  imageSize: "landscape_4_3",
-                  negativePrompt,
-                  seed: masterSeed ?? undefined,
-                })
-              );
-              url = fluxUrl;
-            } catch (fluxErr) {
-              console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
-            }
+          // V2 Step 6: Chained Reference — also include previous scene as secondary anchor
+          if (input.previousSceneImageUrl && forgeRefs.length < 2) {
+            const prevMime = input.previousSceneImageUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                             input.previousSceneImageUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+            forgeRefs.push({ url: input.previousSceneImageUrl, mimeType: prevMime });
           }
-
-          // Final fallback: generic generation with reference images
-          if (!url) {
-            console.warn(`[generateScenePreview] All face-consistent engines failed for scene ${input.sceneId}, using generic generation`);
-            const { url: fallbackUrl } = await withQuotaGuard(() => generateImage({
-              prompt: finalImagePrompt,
-              originalImages: referenceImages.length > 0 ? referenceImages : undefined,
-            }));
-            url = fallbackUrl;
-          }
+          const { url: forgeUrl } = await withQuotaGuard(() => generateImage({
+            prompt: finalImagePrompt,
+            originalImages: forgeRefs.length > 0 ? forgeRefs : undefined,
+          }));
+          url = forgeUrl;
+          console.log(`[generateScenePreview] Forge success for scene ${input.sceneId}: ${url}`);
         } else {
           // For scenes without character photos (AI-invented characters), use generic image generation
           const { url: genericUrl } = await withQuotaGuard(() => generateImage({
@@ -1730,50 +1682,25 @@ Rules:
           // Convert to base64 data URL — InstantID accepts data: URIs as face_image_url
           const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
 
-          console.log(`[previewCharacter] Using InstantID for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
-          // Use fal.ai InstantID — highest face fidelity available
-          // Ensure credentials are set (FAL_AI_API_KEY, not the default FAL_KEY)
-          if (process.env.FAL_AI_API_KEY) fal.config({ credentials: process.env.FAL_AI_API_KEY });
-          const instantIdResult = await fal.subscribe("fal-ai/instantid", {
-            input: {
-              face_image_url: base64DataUrl,
-              prompt: previewPrompt,
-              style: "Headshot",
-              negative_prompt: "nsfw, lowres, bad anatomy, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot, deformed, ugly, disfigured",
-              num_inference_steps: 30,
-              guidance_scale: 5,
-              ip_adapter_scale: 0.8,
-              identity_controlnet_conditioning_scale: 0.9, // Maximum identity preservation
-              enhance_face_region: true,
-              enable_lcm: false, // Disable LCM for higher quality
-            },
-          }) as { data: { image: { url: string } } };
-          imageUrl = instantIdResult.data.image.url;
-          console.log(`[previewCharacter] InstantID success for ${char.name}: ${imageUrl}`);
-        } catch (instantIdErr) {
-          console.warn(`[previewCharacter] InstantID failed for ${char.name}:`, instantIdErr instanceof Error ? instantIdErr.message : instantIdErr);
-          // Fallback to Flux PuLID
+          // Use Forge API with reference photo for face-consistent portrait generation
+          // (fal.ai / InstantID / Flux PuLID are unreachable from this server environment)
+          console.log(`[previewCharacter] Using Forge API for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
           try {
-            const photoResponse2 = await fetch(photos[0].photoUrl);
-            const photoBuffer2 = Buffer.from(await photoResponse2.arrayBuffer());
-            const mimeType2 = photos[0].photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
-                              photos[0].photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
-            const base64DataUrl2 = `data:${mimeType2};base64,${photoBuffer2.toString("base64")}`;
-            const pulidResult = await generateFaceConsistentImage({
+            const forgeResult = await generateImage({
               prompt: previewPrompt,
-              referenceImageUrl: base64DataUrl2,
-              idWeight: 1.4,
-              guidanceScale: 4,
-              imageSize: "portrait_4_3",
-              negativePrompt: "distorted face, extra limbs, blurry, low quality, cartoon, anime, illustration, full body, wide shot",
+              originalImages: [{ url: photos[0].photoUrl, mimeType }],
             });
-            imageUrl = pulidResult.url;
-            console.log(`[previewCharacter] Flux PuLID fallback success for ${char.name}`);
-          } catch (pulidErr) {
-            console.warn(`[previewCharacter] Flux PuLID fallback also failed for ${char.name}:`, pulidErr instanceof Error ? pulidErr.message : pulidErr);
+            imageUrl = forgeResult.url ?? "";
+            console.log(`[previewCharacter] Forge success for ${char.name}: ${imageUrl}`);
+          } catch (forgeErr) {
+            console.warn(`[previewCharacter] Forge failed for ${char.name}:`, forgeErr instanceof Error ? forgeErr.message : forgeErr);
             const fallback = await generateImage({ prompt: previewPrompt });
             imageUrl = fallback.url ?? "";
           }
+        } catch (outerErr) {
+          console.warn(`[previewCharacter] Photo fetch failed for ${char.name}:`, outerErr instanceof Error ? outerErr.message : outerErr);
+          const fallback = await generateImage({ prompt: previewPrompt });
+          imageUrl = fallback.url ?? "";
         }
       } else {
         // No photos — use generic image generation (AI-described character)
