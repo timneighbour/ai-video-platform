@@ -2060,3 +2060,20 @@
 - [x] Scene 6: Zoom out to polished scene, overlay headline + CTA fades in
 - [x] Remove ALL: icons, feature cards, UI explanations, "consistency engine" graphics
 - [x] Style: cinematic, emotional, reactive, immersive
+
+## FULL REBUILD: Intro + Homepage Background (Apr 2026 — v3)
+- [x] Rebuild CinematicEntryScreen: Scene 1 — pure black, "Your ideas..." text fades in
+- [x] Rebuild CinematicEntryScreen: Scene 2 — "...become real", cinematic glow build
+- [x] Rebuild CinematicEntryScreen: Scene 3 — "Walking through fire" → INSTANT canvas fire/sparks/lighting
+- [x] Rebuild CinematicEntryScreen: Scene 4 — same character, two environments, identical face/outfit, NO UI
+- [x] Rebuild CinematicEntryScreen: Scene 5 — 3 rapid cuts: cinematic / vertical TikTok / kids, NO labels
+- [x] Rebuild CinematicEntryScreen: Scene 6 — zoom out, headline + subheadline + CTA fades in
+- [x] Rebuild CinematicEntryScreen: smooth fade-to-black loop
+- [x] Rebuild HeroCinematicBg: Clip 1 — "Walking through fire" prompt text → fire canvas
+- [x] Rebuild HeroCinematicBg: Clip 2 — "A dragon flying over a city" → dragon/skyline canvas
+- [x] Rebuild HeroCinematicBg: Clip 3 — "Cartoon animals dancing" → kids animation canvas
+- [x] Rebuild HeroCinematicBg: Clip 4 — character consistency (same face/outfit, two scenes)
+- [x] Rebuild HeroCinematicBg: seamless looping transitions, no hard cuts
+- [x] HeroCinematicBg: mouse parallax on all layers
+- [x] HeroCinematicBg: NO UI overlays, NO icons, NO feature text — only prompts + visual output
+- [x] Both: cinematic lighting, volumetric light, film grain, depth of field, high contrast

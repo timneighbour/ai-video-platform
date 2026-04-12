@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -264,6 +264,11 @@ function useIsDesktop() {
 function Hero() {
   const logoVideoRef = useRef<HTMLVideoElement>(null);
   const [logoMuted, setLogoMuted] = useState(true);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
+  }, []);
 
   // Force-play logo video on mount
   useEffect(() => {
@@ -282,9 +287,9 @@ function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#080810]">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#080810]" onMouseMove={handleMouseMove}>
       {/* Premium 4-scene animated background */}
-      <HeroCinematicBg />
+      <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-20 w-full">
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-8 lg:gap-10 items-center">
