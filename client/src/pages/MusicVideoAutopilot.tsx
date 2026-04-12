@@ -57,6 +57,9 @@ import {
   Heart,
   Lock,
   Unlock,
+  Cpu,
+  Music2,
+  Info,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -233,9 +236,22 @@ export default function MusicVideoAutopilot() {
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
   const [renderStartTime, setRenderStartTime] = useState<number | null>(null);
+  const [liveElapsed, setLiveElapsed] = useState(0); // seconds, ticks every 1s during render
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const elapsedTickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref guard to prevent double-click / React re-render duplicate render submissions
   const isRenderingRef = useRef(false);
+  // Live elapsed ticker — increments every second while rendering
+  useEffect(() => {
+    if (step === "render" && (renderStatus === "rendering" || renderStatus === "assembling" || renderStatus === "wizsound")) {
+      elapsedTickerRef.current = setInterval(() => {
+        setLiveElapsed(renderStartTime ? Math.floor((Date.now() - renderStartTime) / 1000) : 0);
+      }, 1000);
+    } else {
+      if (elapsedTickerRef.current) clearInterval(elapsedTickerRef.current);
+    }
+    return () => { if (elapsedTickerRef.current) clearInterval(elapsedTickerRef.current); };
+  }, [step, renderStatus, renderStartTime]);
 
   // Plan limits query — used to show length limit warning
   const { data: planLimits } = trpc.billing.getPlanLimits.useQuery(undefined, {
@@ -1898,9 +1914,16 @@ export default function MusicVideoAutopilot() {
                     {!scene.previewImageUrl && (
                       <div className="w-full h-full flex items-center justify-center">
                         {scene.previewImageLoading ? (
-                          <div className="flex flex-col items-center gap-2">
+                          <div className="flex flex-col items-center gap-2 px-3 text-center">
                             <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
-                            <span className="text-zinc-500 text-xs">Generating preview...</span>
+                            <span className="text-zinc-400 text-xs font-medium">
+                              {editingSceneId === scene.id ? "AI is regenerating your scene..." : "Generating preview..."}
+                            </span>
+                            {editingSceneId !== scene.id && scene.previewImageLoading && (
+                              <span className="text-zinc-600 text-[10px] leading-tight">
+                                Edit the description below to change this scene
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <div className="flex flex-col items-center gap-2">
@@ -1908,6 +1931,14 @@ export default function MusicVideoAutopilot() {
                             <span className="text-zinc-600 text-xs">No preview</span>
                           </div>
                         )}
+                      </div>
+                    )}
+                    {/* AI regenerating overlay — shown when image exists but is being regenerated */}
+                    {scene.previewImageUrl && scene.previewImageLoading && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 rounded-t-lg">
+                        <Loader2 className="w-7 h-7 text-purple-400 animate-spin" />
+                        <span className="text-white text-xs font-medium">AI regenerating scene...</span>
+                        <span className="text-zinc-400 text-[10px]">Applying your description</span>
                       </div>
                     )}
                     {/* Scene number overlay */}
@@ -1995,19 +2026,29 @@ export default function MusicVideoAutopilot() {
 
                     {editingSceneId === scene.id ? (
                       <div className="space-y-2">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Sparkles className="w-3 h-3 text-purple-400" />
+                          <span className="text-purple-400 text-xs font-medium">Describe the scene — AI will regenerate the image</span>
+                        </div>
                         <Textarea
                           value={editPrompt}
                           onChange={(e) => setEditPrompt(e.target.value)}
-                          className="bg-zinc-800 border-zinc-700 text-white text-sm min-h-[100px]"
+                          placeholder="e.g. A neon-lit rooftop at midnight, rain-soaked streets below, close-up on the singer's face..."
+                          className="bg-zinc-800 border-zinc-700 text-white text-sm min-h-[100px] placeholder:text-zinc-600"
                         />
+                        <p className="text-zinc-600 text-[10px] leading-tight">
+                          Tip: Include mood, lighting, setting, and character actions for best results.
+                        </p>
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             className="bg-purple-600 hover:bg-purple-700 text-white"
                             onClick={() => handleSaveEdit(scene.id)}
-                            disabled={updateScene.isPending}
+                            disabled={updateScene.isPending || !editPrompt.trim()}
                           >
-                            <Check className="w-3 h-3 mr-1" /> Save
+                            {updateScene.isPending
+                              ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving...</>
+                              : <><Sparkles className="w-3 h-3 mr-1" /> Save &amp; Regenerate</>}
                           </Button>
                           <Button
                             size="sm"
@@ -2339,28 +2380,30 @@ export default function MusicVideoAutopilot() {
                   </div>
                 ) : (
                   <div>
-                    {/* Stage pipeline */}
+                    {/* Enhanced 5-stage pipeline */}
                     {(() => {
                       const stages = [
                         { key: "queued",     label: "Queued",           icon: <Clock className="w-4 h-4" /> },
-                        { key: "rendering",  label: "Generating Scenes", icon: <Clapperboard className="w-4 h-4" /> },
-                        { key: "assembling", label: "Assembling",        icon: <Layers className="w-4 h-4" /> },
-                        { key: "completed",  label: "Complete",          icon: <CheckCircle2 className="w-4 h-4" /> },
+                        { key: "rendering",  label: "Generating",       icon: <Clapperboard className="w-4 h-4" /> },
+                        { key: "assembling", label: "Assembling",       icon: <Layers className="w-4 h-4" /> },
+                        { key: "wizsound",   label: "WizSound™",        icon: <Music2 className="w-4 h-4" /> },
+                        { key: "completed",  label: "Complete",         icon: <CheckCircle2 className="w-4 h-4" /> },
                       ];
-                      const stageOrder = ["queued", "rendering", "assembling", "completed"];
-                      const currentIdx = stageOrder.indexOf(renderStatus === "failed" ? "rendering" : renderStatus);
+                      const stageOrder = ["queued", "rendering", "assembling", "wizsound", "completed"];
+                      // Map legacy "assembling" to cover wizsound too until server emits it
+                      const effectiveStatus = renderStatus === "failed" ? "rendering" : renderStatus;
+                      const currentIdx = stageOrder.indexOf(effectiveStatus);
                       return (
                         <div className="flex items-center justify-between mb-8 px-2">
                           {stages.map((stage, i) => {
                             const isDone    = i < currentIdx;
                             const isCurrent = i === currentIdx;
-                            const isPending = i > currentIdx;
                             return (
                               <div key={stage.key} className="flex items-center flex-1">
                                 <div className="flex flex-col items-center gap-1">
                                   <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
                                     isDone    ? "bg-purple-600 text-white" :
-                                    isCurrent ? "bg-purple-500/30 text-purple-300 ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-900" :
+                                    isCurrent ? "bg-purple-500/30 text-purple-300 ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-900 animate-pulse" :
                                                 "bg-zinc-800 text-zinc-600"
                                   }`}>
                                     {isDone ? <Check className="w-4 h-4" /> : stage.icon}
@@ -2386,42 +2429,78 @@ export default function MusicVideoAutopilot() {
                     {/* Main status header */}
                     <div className="text-center mb-6">
                       <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
-                        {renderStatus === "assembling"
+                        {renderStatus === "wizsound"
+                          ? <Music2 className="w-7 h-7 text-violet-400 animate-pulse" />
+                          : renderStatus === "assembling"
                           ? <Wand2 className="w-7 h-7 text-purple-400 animate-pulse" />
                           : <Film className="w-7 h-7 text-purple-400 animate-pulse" />}
                       </div>
                       <h2 className="text-xl font-bold text-white mb-1">
-                        {renderStatus === "assembling" ? "Assembling Your Video..." : "Rendering Scenes..."}
+                        {renderStatus === "wizsound" ? "Applying WizSound™ Processing..."
+                          : renderStatus === "assembling" ? "Assembling Your Video..."
+                          : "Rendering Scenes..."}
                       </h2>
-                      <p className="text-zinc-400 text-sm">
-                        {renderStatus === "assembling"
+                      <p className="text-zinc-400 text-sm mb-3">
+                        {renderStatus === "wizsound"
+                          ? "Applying proprietary audio mastering to your final video..."
+                          : renderStatus === "assembling"
                           ? "All scenes done! Stitching clips together with your audio track..."
                           : `Generating ${totalScenes} cinematic scenes — this takes 5–15 minutes.`}
                       </p>
+                      {/* Quality & audio tier badges */}
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs">
+                          <Zap className="w-3 h-3 text-amber-400" />
+                          {totalScenes} scenes
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs">
+                          <Clock className="w-3 h-3 text-purple-400" />
+                          {liveElapsed < 60
+                            ? `${liveElapsed}s elapsed`
+                            : `${Math.floor(liveElapsed / 60)}m ${liveElapsed % 60}s elapsed`}
+                        </span>
+                        {completedScenes > 0 && totalScenes > 0 && renderStatus === "rendering" && (() => {
+                          const msPerScene = (liveElapsed * 1000) / completedScenes;
+                          const remaining = (totalScenes - completedScenes) * msPerScene;
+                          const remMin = Math.ceil(remaining / 60000);
+                          return (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-900/40 border border-purple-700/50 text-purple-300 text-xs">
+                              <Info className="w-3 h-3" />
+                              {remMin <= 1 ? "< 1 min left" : `~${remMin} min left`}
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </div>
 
                     {/* Progress bar */}
                     <div className="mb-5">
                       {(() => {
-                        const pct = renderStatus === "assembling"
+                        const pct = renderStatus === "wizsound" || renderStatus === "completed"
                           ? 100
-                          : totalScenes > 0 ? Math.round((completedScenes / totalScenes) * 100) : 0;
-                        const elapsedMs = renderStartTime ? Date.now() - renderStartTime : 0;
-                        const elapsedMin = Math.floor(elapsedMs / 60000);
-                        const elapsedSec = Math.floor((elapsedMs % 60000) / 1000);
+                          : renderStatus === "assembling"
+                          ? 95
+                          : totalScenes > 0 ? Math.min(90, Math.round((completedScenes / totalScenes) * 90)) : 0;
+                        const elapsedMin = Math.floor(liveElapsed / 60);
+                        const elapsedSec = liveElapsed % 60;
                         const etaText = (() => {
-                          if (completedScenes === 0 || totalScenes === 0) return null;
-                          const msPerScene = elapsedMs / completedScenes;
-                          const remaining = (totalScenes - completedScenes) * msPerScene;
-                          const remMin = Math.ceil(remaining / 60000);
+                          if (completedScenes === 0 || totalScenes === 0 || renderStatus !== "rendering") return null;
+                          const secPerScene = liveElapsed / completedScenes;
+                          const remaining = (totalScenes - completedScenes) * secPerScene;
+                          const remMin = Math.ceil(remaining / 60);
                           return remMin <= 1 ? "< 1 min remaining" : `~${remMin} min remaining`;
                         })();
+                        const barGradient = renderStatus === "wizsound"
+                          ? "linear-gradient(90deg, #7c3aed, #a855f7, #ec4899)"
+                          : renderStatus === "assembling"
+                          ? "linear-gradient(90deg, #7c3aed, #ec4899)"
+                          : "linear-gradient(90deg, #6d28d9, #7c3aed, #a855f7)";
                         return (
                           <>
                             <div className="flex justify-between items-center text-sm mb-2">
                               <span className="text-zinc-300 font-medium">
-                                {renderStatus === "assembling"
-                                  ? "Assembling final video"
+                                {renderStatus === "wizsound" ? "Applying WizSound™ mastering"
+                                  : renderStatus === "assembling" ? "Assembling final video"
                                   : `${completedScenes} / ${totalScenes} scenes`}
                                 {failedScenes > 0 && (
                                   <span className="ml-2 text-red-400 text-xs">({failedScenes} failed)</span>
@@ -2438,14 +2517,30 @@ export default function MusicVideoAutopilot() {
                                 className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
                                 style={{
                                   width: `${pct}%`,
-                                  background: renderStatus === "assembling"
-                                    ? "linear-gradient(90deg, #7c3aed, #ec4899, #7c3aed)"
-                                    : "linear-gradient(90deg, #7c3aed, #a855f7)",
+                                  background: barGradient,
                                   backgroundSize: "200% 100%",
                                   animation: pct < 100 ? "shimmer 2s linear infinite" : "none",
                                 }}
                               />
+                              {/* Shimmer highlight overlay */}
+                              {pct > 0 && pct < 100 && (
+                                <div
+                                  className="absolute inset-y-0 left-0 rounded-full pointer-events-none"
+                                  style={{
+                                    width: `${pct}%`,
+                                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)",
+                                    backgroundSize: "200% 100%",
+                                    animation: "shimmer 1.5s linear infinite",
+                                  }}
+                                />
+                              )}
                             </div>
+                            {/* Estimated file size */}
+                            {totalScenes > 0 && (
+                              <p className="text-zinc-600 text-xs mt-1.5 text-right">
+                                Est. file size: ~{Math.round(totalScenes * 4.5)}MB
+                              </p>
+                            )}
                           </>
                         );
                       })()}

@@ -2289,3 +2289,17 @@
 
 ## WizSound™ Equalizer Visualiser
 - [x] Add CSS keyframe animated equalizer bars (5 bars, staggered heights) that appear on the active preview tier card during playback
+
+## Render Progress Bar
+- [x] Build RenderProgressBar component with named stages (Queued, Generating, Assembling, WizSound™, Complete), animated fill, ETA countdown, elapsed ticker, and estimated file size
+- [x] Wire into MusicVideoAutopilot render step (5-stage pipeline with animated pulse on active stage)
+- [x] Add stage-specific icons and completion checkmarks
+- [x] Show file size estimate, scenes count, and live ETA badge during render
+- [x] Add shimmer highlight overlay on progress bar fill
+- [x] WizSound™ stage shows violet gradient and Music2 icon
+
+## Storyboard AI Scene Regeneration
+- [x] Wire storyboard scene description edits so saving triggers AI image regeneration for that scene
+- [x] Show per-scene "AI regenerating scene..." blurred overlay while AI generates the new image
+- [x] Update the storyboard image in-place when regeneration completes
+- [x] Improved edit textarea with placeholder, prompt tips, loading state on Save button, and renamed to "Save & Regenerate"
