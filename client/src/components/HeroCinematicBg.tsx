@@ -412,7 +412,7 @@ function applyGrain(ctx: CanvasRenderingContext2D, w: number, h: number, strengt
 }
 
 function applyVignette(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const v = ctx.createRadialGradient(w/2, h/2, h*0.25, w/2, h/2, Math.max(w,h)*0.78);
+  const v = ctx.createRadialGradient(w/2, h/2, Math.max(0, h*0.25), w/2, h/2, Math.max(0.1, Math.max(w,h)*0.78));
   v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,0.72)");
   ctx.fillStyle = v; ctx.fillRect(0,0,w,h);
 }

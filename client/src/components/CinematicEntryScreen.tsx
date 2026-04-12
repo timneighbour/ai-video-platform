@@ -259,7 +259,7 @@ function drawVerticalShot(ctx: CanvasRenderingContext2D, w: number, h: number, t
   for (let i=0; i<45; i++) {
     const bx2 = vx + Math.sin(i*2.3)*vw*0.44 + vw*0.5;
     const by2 = h*0.1 + Math.cos(i*1.7)*h*0.34 + h*0.18;
-    const br = 3+Math.sin(i*3.1)*9;
+    const br = Math.max(0.1, 3+Math.sin(i*3.1)*9);
     const hue = (i*47)%360;
     const bk = ctx.createRadialGradient(bx2, by2, 0, bx2, by2, br);
     bk.addColorStop(0, `hsla(${hue},90%,70%,0.8)`); bk.addColorStop(1, `hsla(${hue},90%,70%,0)`);
@@ -271,7 +271,7 @@ function drawVerticalShot(ctx: CanvasRenderingContext2D, w: number, h: number, t
   ctx.beginPath(); ctx.arc(sx, sy-h*0.18, h*0.07, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(sx, sy, h*0.06, h*0.12, 0, 0, Math.PI*2); ctx.fill();
   // Rim light
-  const rl = ctx.createRadialGradient(sx-vw*0.3, sy-h*0.1, 0, sx-vw*0.3, sy-h*0.1, vw*0.5);
+  const rl = ctx.createRadialGradient(sx-vw*0.3, sy-h*0.1, 0, sx-vw*0.3, sy-h*0.1, Math.max(0.1, vw*0.5));
   rl.addColorStop(0, "rgba(0,140,255,0.18)"); rl.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = rl; ctx.fillRect(vx, h*0.05, vw, h*0.9);
   ctx.restore();
@@ -332,7 +332,7 @@ function applyGrain(ctx: CanvasRenderingContext2D, w: number, h: number, strengt
 }
 
 function applyVignette(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const v = ctx.createRadialGradient(w/2, h/2, h*0.28, w/2, h/2, Math.max(w,h)*0.76);
+  const v = ctx.createRadialGradient(w/2, h/2, Math.max(0, h*0.28), w/2, h/2, Math.max(0.1, Math.max(w,h)*0.76));
   v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,0.68)");
   ctx.fillStyle = v; ctx.fillRect(0,0,w,h);
 }
