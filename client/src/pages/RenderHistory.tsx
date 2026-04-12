@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { Link } from "wouter";
 import BackButton from "@/components/BackButton";
 import { WizBrandPostBadge } from "@/components/WizBrand";
+import SubscriptionUpgradeNudge from "@/components/SubscriptionUpgradeNudge";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -154,6 +155,10 @@ export default function RenderHistory() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6">
+        {/* Subscription upgrade nudge */}
+        <div className="mb-4">
+          <SubscriptionUpgradeNudge />
+        </div>
         {/* Loading */}
         {jobsQuery.isLoading && (
           <div className="flex items-center justify-center py-20">

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { WizBrandBadge } from "@/components/WizBrand";
+import SubscriptionUpgradeNudge from "@/components/SubscriptionUpgradeNudge";
 
 type Quality = "standard" | "hd" | "4k";
 type AudioTier = "standard" | "enhanced" | "cinematic";
@@ -578,6 +579,8 @@ export function RenderPaywallModal({
             Your video will start rendering instantly after payment
           </p>
 
+          {/* Subscription upgrade nudge — shown to active pay-per-render users */}
+          <SubscriptionUpgradeNudge />
           {/* Trust signals */}
           <div className="flex items-center justify-center gap-5 text-[10px] text-white/30">
             <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> Secure payment</span>

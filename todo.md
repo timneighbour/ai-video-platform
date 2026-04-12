@@ -2339,3 +2339,10 @@
 - [x] getMyRenderJobs and getRenderJobForSource tRPC procedures
 - [x] PostRenderUpgradeConnector sub-component wired into MusicVideoAutopilot completed screen
 - [x] "Upgrade your video" panel shown after render completes with HD/4K and WizSound Cinematic options
+
+## Subscription Upgrade Nudge - COMPLETED ✅
+- [x] getUpgradeNudge tRPC procedure in renderRouter (triggers on 2+ paid renders OR 1+ bundle, suppressed for active subscribers)
+- [x] SubscriptionUpgradeNudge component — subtle dismissible banner with contextual copy and "See Creator Plan" CTA
+- [x] Wired into RenderPaywallModal (above trust signals, shown during checkout flow)
+- [x] Wired into RenderHistory page (shown at top of page for qualifying users)
+- [x] Session-once dismissal via sessionStorage

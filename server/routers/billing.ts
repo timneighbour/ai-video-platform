@@ -477,7 +477,10 @@ import {
   consumeBundleRender,
   getRendersForPlan,
   getUserSubscription as _getUserSubscription,
+  getDb,
 } from "../db";
+import { eq, and } from "drizzle-orm";
+import { renderJobs, renderBundles } from "../../drizzle/schema";
 
 // Re-export so we can use in this file (already imported above as getUserSubscription)
 // Note: getUserSubscription is already imported at top of file
@@ -883,6 +886,67 @@ export const renderRouter = router({
         totalDiff,
       };
     }),
+
+  /**
+   * Analyse user purchase behaviour and return a subscription upgrade nudge
+   * if the user has made multiple pay-per-render or bundle purchases without a subscription.
+   *
+   * Trigger thresholds:
+   *   - 2+ paid renders (no active subscription) → show nudge
+   *   - 1+ bundle purchase (no active subscription) → show nudge
+   *
+   * Returns null when the user already has an active subscription.
+   */
+  getUpgradeNudge: protectedProcedure.query(async ({ ctx }) => {
+    // If user already has an active subscription, never show the nudge
+    const sub = await getUserSubscription(ctx.user.id);
+    if (sub && sub.status === "active") return null;
+
+    const db = await getDb();
+    if (!db) return null;
+
+    // Count paid render jobs (not free/subscription renders)
+    const paidRenders = await db
+      .select({ id: renderJobs.id, totalPrice: renderJobs.totalPrice })
+      .from(renderJobs)
+      .where(
+        and(
+          eq(renderJobs.userId, ctx.user.id),
+          eq(renderJobs.paymentStatus, "paid")
+        )
+      );
+
+    // Count bundle purchases
+    const bundles = await db
+      .select({ id: renderBundles.id, bundleSize: renderBundles.bundleSize })
+      .from(renderBundles)
+      .where(eq(renderBundles.userId, ctx.user.id));
+
+    const paidRenderCount = paidRenders.length;
+    const bundleCount = bundles.length;
+    const totalSpentPence = paidRenders.reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
+
+    // Trigger: 2+ paid renders OR 1+ bundle
+    const shouldNudge = paidRenderCount >= 2 || bundleCount >= 1;
+    if (!shouldNudge) return null;
+
+    // Calculate potential savings: Creator plan = £39/mo, 15 renders/mo
+    // Average per-render cost from their history
+    const avgPerRender = paidRenderCount > 0 ? Math.round(totalSpentPence / paidRenderCount) : 400;
+    // Monthly equivalent spend at their current rate (assume 5 renders/mo as baseline)
+    const estimatedMonthlySavingPence = Math.max(0, avgPerRender * 15 - 3900); // Creator plan saves vs 15 pay-per-renders
+
+    return {
+      shouldNudge: true,
+      paidRenderCount,
+      bundleCount,
+      totalSpentPence,
+      estimatedMonthlySavingPence,
+      recommendedPlan: "creator" as const,
+      recommendedPlanPrice: 39,
+      recommendedPlanRendersPerMonth: 15,
+    };
+  }),
 
   /**
    * Return CDN URLs for the 10-second WizSound™ tier preview audio samples.
