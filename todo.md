@@ -871,14 +871,14 @@
 - [x] Remove language selector (EN flag dropdown) from the top navigation bar
 
 ## UX: Retry All Failed Confirmation Dialog
-- [ ] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory.tsx
-- [ ] Dialog shows job title, failed scene count, and a clear warning message
-- [ ] "Confirm Retry" button triggers the mutation; "Cancel" dismisses without action
+- [x] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory.tsx
+- [x] Dialog shows job title, failed scene count, and a clear warning message
+- [x] "Confirm Retry" button triggers the mutation; "Cancel" dismisses without action
 
-## UX: Retry All Failed Confirmation Dialog
-- [ ] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory.tsx
-- [ ] Dialog shows job title, failed scene count, and warning message
-- [ ] "Confirm Retry" triggers mutation; "Cancel" dismisses
+## UX: Retry All Failed Confirmation Dialog (duplicate)
+- [x] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory.tsx (already done above)
+- [x] Dialog shows job title, failed scene count, and warning message
+- [x] "Confirm Retry" triggers mutation; "Cancel" dismisses
 
 ## Final QA: Video Rendering Pipeline Audit
 - [ ] Verify startRender creates job record and fires scene renders correctly
@@ -1132,7 +1132,7 @@
 - [x] Add GA4 gtag.js snippet (G-YJD1MG144E) to index.html head
 
 ## Feature: GA4 Generate Video Event Tracking (Apr 2026)
-- [ ] Create shared analytics helper (client/src/lib/analytics.ts) with trackEvent() wrapper
+- [x] Create shared analytics helper (client/src/lib/analytics.ts) with trackEvent() wrapper
 - [ ] Fire generate_video_click event on every Generate Video button across all pages
 
 ## Feature: New Video Styles (Apr 2026)
@@ -1548,11 +1548,11 @@
 - [ ] Show warning badge on scene card if score < 0.65 after retries
 
 ### Step 8: Character Lock Mode UI
-- [ ] Add "Character Lock Mode" toggle to CharacterConfirmationStep (ON by default)
-- [ ] When ON: show "Identity Anchored" badge on each photo-mode character card
-- [ ] When ON: disable per-scene character prompt editing (scene prompt only)
-- [ ] Add tooltip explaining the feature
-- [ ] Store characterLockMode preference on musicVideoJobs table
+- [x] Add "Character Lock Mode" toggle to CharacterConfirmationStep (ON by default)
+- [x] When ON: show "Identity Anchored" badge on each photo-mode character card
+- [x] When ON: disable per-scene character prompt editing (scene prompt only)
+- [x] Add tooltip explaining the feature
+- [ ] Store characterLockMode preference on musicVideoJobs table (deferred — characterLockEnabled already in DB)
 
 ## Photo Mode Pipeline V2
 - [ ] Auto-generate master portrait on photo upload (InstantID, clean lighting, front-facing)
@@ -1564,8 +1564,8 @@
 - [ ] Chained reference: scene N uses masterPortrait + previous scene output
 - [ ] 3-variation generation per scene, pick best facial match
 - [ ] Basic face consistency check: regenerate if face diverges significantly
-- [ ] Character Lock Mode UI toggle (default ON)
-- [ ] Fix LSP errors: extract batch + master portrait procedures into separate router file
+- [x] Character Lock Mode UI toggle (default ON)
+- [x] Fix LSP errors: extract batch + master portrait procedures into separate router file (already done in batchRegen.ts)
 
 ## Photo Mode Pipeline V2 — Character Identity Fixes (Session 3)
 - [x] Fix primarySceneChar bug: each scene uses its own assigned character's masterPortraitUrl (not always Tim's)
@@ -1957,3 +1957,4 @@
 
 ## WizVid Studio Branding
 - [x] Add "Powered by WizVid Studio" to the bottom of the homepage footer
+- [x] Update WizVid Studio footer link to point to www.wizvid.ai (owned domain)

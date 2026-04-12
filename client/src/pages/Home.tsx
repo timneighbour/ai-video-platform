@@ -1576,7 +1576,7 @@ function Footer() {
             <p className="text-xs text-[#a1a1aa]/50 tracking-widest uppercase">
               Powered by{" "}
               <a
-                href="https://wizvid.studio"
+                href="https://www.wizvid.ai"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#a1a1aa]/70 hover:text-white transition-colors font-medium"
