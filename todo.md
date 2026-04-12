@@ -1771,3 +1771,26 @@
 ## Bug: Scenes 1 and 20 Preview Failure (Apr 12 2026)
 - [x] Fix generateStoryboard to ensure all scenes get characterAssignments (LLM sometimes omits first/last)
 - [x] Add fallback: if characterAssignments is empty after LLM, assign all locked characters
+
+## Bug: Scene Camera Angle and Drummer Identity (Apr 12 2026)
+- [ ] Fix scene prompt to enforce stage-facing camera (NO audience visible behind band)
+- [ ] Add explicit negative prompt: no crowd behind band, no audience in background, no concert hall POV
+- [ ] Strengthen Greg drummer identity in multi-character scenes (locked description not respected)
+- [ ] Add per-character identity reinforcement block for locked characters in scene prompts
+
+## Bug: Duplicate Character in Multi-Character Scenes (Apr 12 2026)
+- [ ] Deduplicate face reference photos passed to Forge API (same character photo passed multiple times)
+- [ ] Limit to ONE reference photo per character (masterPortraitUrl preferred, no duplicates)
+- [ ] Strengthen negative prompt: no duplicate person, no cloned character, no two identical people
+- [ ] Leather jacket still bleeding onto Greg in multi-char scenes — add stronger per-char outfit exclusion
+
+## Bug: Scene Generation Multi-Issue Fix (Apr 12 2026)
+- [x] Remove all camera angles that place crowd behind or around the band (arena/fisheye shots)
+- [x] Greg must always be seated behind drum kit — not standing with drumsticks
+- [x] Add "leather jacket" as hard negative in negativePromptV2 (not just in positive text)
+- [x] Add "band name text", "BRANDED", "neon sign text", "venue name on backdrop" to hard negatives
+- [x] Remove "audience in foreground" camera angle variant
+
+## Bug: Greg Outfit Tank Top (Apr 12 2026)
+- [x] Greg wearing sleeveless tank top — must be black short-sleeve torn t-shirt with sleeves
+- [x] Add "sleeveless", "tank top", "vest" to Greg's outfit exclusion in visual block and negative prompt

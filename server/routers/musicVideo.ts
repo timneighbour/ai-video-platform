@@ -965,7 +965,7 @@ Rules:
           const parts: string[] = [];
           const charNameLower = c.name.toLowerCase();
           const outfitExclusion = charNameLower === 'greg'
-            ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind. NO blazer. NO coat. NO hoodie. ONLY a torn t-shirt. CRITICAL: Greg is NEVER wearing a leather jacket.`
+            ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind. NO blazer. NO coat. NO hoodie. NO tank top. NO sleeveless shirt. NO vest. ONLY a short-sleeve torn t-shirt. CRITICAL: Greg ALWAYS has sleeves. Greg is NEVER wearing a leather jacket or tank top.`
             : charNameLower === 'monica'
             ? ` — MUST wear this EXACT outfit. NO leather jacket. NO jacket of ANY kind.`
             : ` — MUST wear this EXACT outfit. NO substitutions.`;
@@ -982,7 +982,7 @@ Rules:
           `${visualLines.join("\n\n")}\n\n` +
           `CRITICAL OUTFIT RULES:\n` +
           `- Each character MUST wear ONLY their specified outfit\n` +
-          `- Greg MUST wear black torn t-shirt ONLY — NEVER a leather jacket, NEVER any jacket, NEVER a blazer or coat\n` +
+          `- Greg MUST wear black SHORT-SLEEVE torn t-shirt ONLY — NEVER a leather jacket, NEVER any jacket, NEVER a blazer, NEVER a tank top, NEVER sleeveless, NEVER a vest\n` +
           `- Monica MUST wear fitted dark outfit ONLY — NEVER a leather jacket, NEVER any jacket\n` +
           `- Tim is the ONLY character who may wear a leather jacket\n` +
           `- DO NOT swap outfits between characters\n` +
@@ -1113,13 +1113,13 @@ Rules:
       const CAMERA_ANGLES = [
         "medium close-up shot, waist-up framing, faces clearly visible, eye-level angle",
         "close-up shot, face and upper chest, dramatic lighting, eye-level",
-        "wide shot, full stage visible, all performers in frame, low angle looking up at stage",
+        "wide shot, full stage visible, all performers in frame, low angle looking up at stage — NO audience visible",
         "medium shot, three-quarter angle, slight low angle, dynamic perspective",
         "close-up shot on vocalist, tight framing, faces clearly visible",
-        "wide establishing shot, full band on stage, audience in foreground, low angle",
+        "medium shot, full band on stage, stage-facing camera, NO crowd visible, low angle",
         "medium close-up, side angle (90 degrees), profile view, faces visible",
-        "over-the-shoulder shot from drummer perspective, vocalist and bassist in frame",
-        "low angle wide shot, looking up at performers, dramatic stage lighting",
+        "medium shot from front-of-stage, vocalist and bassist in frame, drummer visible behind",
+        "low angle wide shot, looking up at performers from stage level, dramatic stage lighting — NO audience",
         "medium shot, front-facing, all characters waist-up, faces clearly visible",
       ];
       const cameraAngle = CAMERA_ANGLES[scene.sceneIndex % CAMERA_ANGLES.length];
@@ -1163,13 +1163,20 @@ Rules:
         "bored expression", "neutral expression", "arms at sides", "hands in pockets",
         "text", "words", "caption", "subtitle", "lyrics text", "text overlay", "words in frame",
         "logo", "signage", "typography", "neon sign", "banner", "watermark",
-        "band name", "venue name", "stage backdrop text",
+        "band name", "venue name", "stage backdrop text", "neon text on backdrop", "BRANDED", "band name in lights",
+        "text on backdrop", "illuminated band name", "glowing letters", "neon sign with words",
         "wrong outfit", "outfit swap", "different clothing",
-        "leather jacket on drummer", "t-shirt on singer",
+        "leather jacket on drummer", "leather jacket on Greg", "leather jacket on Monica",
+        "tank top on drummer", "sleeveless shirt on Greg", "vest on Greg",
+        "crowd behind band", "audience behind performers", "crowd surrounding stage",
         ...(charCount > 1 ? [
           "extra people", "fourth person", "fifth person", "additional guitarist",
-          "crowd", "background band members", "silhouette", "distant figures",
-          "wide angle", "aerial shot", "bird's eye view",
+          "crowd in background", "audience in background", "crowd behind band", "audience behind performers",
+          "background band members", "silhouette", "distant figures",
+          "aerial shot", "bird's eye view",
+        ] : []),
+        ...(charCount === 1 ? [
+          "crowd", "audience", "background audience", "concert crowd",
         ] : []),
       ].join(", ");
 
