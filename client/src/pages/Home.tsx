@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
+import IntroFilmModal from "@/components/IntroFilmModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -265,6 +266,7 @@ function Hero() {
   const logoVideoRef = useRef<HTMLVideoElement>(null);
   const [logoMuted, setLogoMuted] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const [introOpen, setIntroOpen] = useState(false);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
@@ -327,7 +329,12 @@ function Hero() {
               >
                 <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
               </Button>
-              <HowItWorksModalButton />
+              <button
+                onClick={() => setIntroOpen(true)}
+                className="inline-flex items-center gap-2 text-base px-7 py-3 rounded-xl font-medium border border-white/15 text-white hover:bg-white/5 transition-all"
+              >
+                <Play className="w-4 h-4" />Watch the Film
+              </button>
             </div>
 
             <p className="text-sm text-[#a1a1aa] mb-1">No editing. No experience needed. Just your idea.</p>
@@ -404,6 +411,8 @@ function Hero() {
           ))}
         </div>
       </div>
+      {/* Intro Film Modal */}
+      <IntroFilmModal open={introOpen} onClose={() => setIntroOpen(false)} />
     </section>
   );
 }

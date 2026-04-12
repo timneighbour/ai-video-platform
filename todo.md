@@ -2077,3 +2077,39 @@
 - [x] HeroCinematicBg: mouse parallax on all layers
 - [x] HeroCinematicBg: NO UI overlays, NO icons, NO feature text — only prompts + visual output
 - [x] Both: cinematic lighting, volumetric light, film grain, depth of field, high contrast
+
+## VIDEO-BASED HERO SYSTEM REBUILD (Production-Grade)
+- [x] Generate intro film storyboard frames: Scene 1 (Problem), Scene 2 (Friction), Scene 3 (Reset), Scene 4 (Product Reveal), Scene 5 (Mechanism), Scene 6 (Payoff/CTA)
+- [x] Generate background loop styleframes: Beat 1 (dark reveal), Beat 2 (prompt), Beat 3 (storyboard cards), Beat 4 (final output), Beat 5 (loop reset)
+- [x] Generate desktop poster for background (1920w WebP)
+- [x] Generate mobile poster for background (1080w WebP)
+- [x] Generate desktop poster for intro film (1920w WebP)
+- [x] Generate mobile poster for intro film (1080w WebP)
+- [x] Generate reduced-motion static poster (background_static)
+- [x] Upload all assets to CDN
+- [x] Build HeroCinematicBg: video-based with video autoplay muted loop playsinline
+- [x] Build HeroCinematicBg: responsive picture poster behind video
+- [x] Build HeroCinematicBg: prefers-reduced-motion support (static poster + opt-in button)
+- [x] Build HeroCinematicBg: pause motion toggle with localStorage persistence
+- [x] Build HeroCinematicBg: poster-first loading (no LCP damage)
+- [x] Build HeroCinematicBg: source swap structure for AV1 > VP9 > MP4
+- [x] Build HeroCinematicBg: analytics hooks (wizvid_bg_started, wizvid_bg_paused)
+- [x] Build IntroFilmModal: poster card with Play button on hero
+- [x] Build IntroFilmModal: modal/lightbox with premium open/close transitions
+- [x] Build IntroFilmModal: lazy-load video sources only after click
+- [x] Build IntroFilmModal: captions support (.vtt)
+- [x] Build IntroFilmModal: transcript link/expandable
+- [x] Build IntroFilmModal: close stops/resets video
+- [x] Build IntroFilmModal: analytics (modal_open, play, pause, complete, mute_toggle)
+- [x] Update Hero copy: keep existing brand voice, align with intro film narrative
+- [x] Update Hero typography: Inter/system-ui, weights 600/500, tracking per brief
+- [x] Update Hero color palette: exact brand colors from brief
+- [x] Create intro.en.vtt captions file
+- [x] Create intro_transcript.txt
+- [x] Write vitest tests for new components
+- [x] Write storyboard table for intro film (timecodes, visuals, audio, purpose)
+- [x] Write storyboard table for background loop
+- [x] Write asset manifest with filenames, dimensions, formats, sizes
+- [x] Write replacement instructions for final video files
+- [x] Write QA checklist (performance + accessibility + cross-browser)
+- [x] Write handoff notes
