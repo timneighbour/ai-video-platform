@@ -514,8 +514,9 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
 /** Prompt modifiers for each lip-sync style */
 // Helper to map storyboard modelAssignment to WaveSpeed model enum
 function mapModelAssignmentToWaveSpeed(modelAssignment: string): WaveSpeedModel {
-  if (modelAssignment === "hailuo-minimax") return "hailuo-minimax";
-  return "seedance-2.0"; // default to seedance-2.0 for character scenes
+  // hailuo-minimax scenes (wide/atmospheric) → use fast seedance for speed/cost
+  if (modelAssignment === "hailuo-minimax") return "bytedance/seedance-2.0-fast/text-to-video";
+  return "bytedance/seedance-2.0/text-to-video"; // default: full quality for character scenes
 }
 
 const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
@@ -547,7 +548,7 @@ export async function startSceneRender(
   lipSync = true,
   lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural",
   renderer: RendererType | "wavespeed" = "fal_seedance",
-  modelAssignment: WaveSpeedModel = "seedance-2.0"
+  modelAssignment: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
@@ -1111,7 +1112,7 @@ async function startSceneRenderWaveSpeed(
   sceneId: number,
   prompt: string,
   duration: number,
-  model: WaveSpeedModel = "seedance-2.0"
+  model: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video"
 ): Promise<string> {
   // WaveSpeed has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
@@ -1119,14 +1120,19 @@ async function startSceneRenderWaveSpeed(
     ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
     : prompt;
 
+  // Map duration to WaveSpeed's allowed values: 5, 10, or 15
+  const wsDuration: 5 | 10 | 15 = duration <= 5 ? 5 : duration <= 10 ? 10 : 15;
+
   const trySubmit = async (p: string): Promise<string> => {
-    const taskId = await submitWaveSpeedVideo({
-      model,
-      prompt: p,
-      duration: duration <= 5 ? 5 : 8,
-      width: 1280,
-      height: 720,
-    });
+    const taskId = await submitWaveSpeedVideo(
+      {
+        prompt: p,
+        duration: wsDuration,
+        aspect_ratio: "16:9",
+        resolution: "720p",
+      },
+      model
+    );
     if (!taskId) throw new Error(`WaveSpeed: no task_id returned for scene ${sceneId}`);
     return taskId;
   };
@@ -1146,7 +1152,8 @@ async function startSceneRenderWaveSpeed(
   }
 
   // Prefix the task ID with model info for routing during polling
-  const prefix = model === "hailuo-minimax" ? WAVESPEED_HAILUO_PREFIX : WAVESPEED_SEEDANCE_PREFIX;
+  const isFast = model === "bytedance/seedance-2.0-fast/text-to-video";
+  const prefix = isFast ? WAVESPEED_HAILUO_PREFIX : WAVESPEED_SEEDANCE_PREFIX;
   console.log(`[MusicVideo] Scene ${sceneId} → WaveSpeed ${model} taskId=${taskId}`);
   return `${prefix}${taskId}`;
 }

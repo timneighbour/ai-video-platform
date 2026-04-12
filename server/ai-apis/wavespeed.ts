@@ -1,45 +1,61 @@
 import axios from "axios";
 
-const WAVESPEED_API_BASE = "https://api.wavespeed.ai/v1";
+const WAVESPEED_API_BASE = "https://api.wavespeed.ai/api/v3";
 const WAVESPEED_API_KEY = process.env.WAVESPEED_API_KEY;
 
-export type WaveSpeedModel = "seedance-2.0" | "hailuo-minimax";
+export type WaveSpeedModel =
+  | "bytedance/seedance-2.0/text-to-video"
+  | "bytedance/seedance-2.0-fast/text-to-video"
+  | "bytedance/seedance-v1.5-pro/text-to-video";
 
 export interface WaveSpeedVideoRequest {
-  model: WaveSpeedModel;
   prompt: string;
-  duration?: number; // seconds, default 5
-  width?: number; // default 1280
-  height?: number; // default 720
+  aspect_ratio?: "16:9" | "9:16" | "4:3" | "3:4" | "1:1" | "21:9";
+  duration?: 5 | 10 | 15;
+  resolution?: "480p" | "720p" | "1080p";
+  reference_images?: string[];
+  reference_videos?: string[];
+  reference_audios?: string[];
+  enable_web_search?: boolean;
 }
 
 export interface WaveSpeedVideoResponse {
-  task_id: string;
+  id: string;
+  model?: string;
   status: "pending" | "processing" | "completed" | "failed";
-  video_url?: string;
-  error?: string;
+  outputs?: string[]; // Array of output video URLs (when completed)
+  video_url?: string; // Legacy compat field
+  error?: string | null;
+  created_at?: string;
 }
 
 /**
- * Submit a video generation request to WaveSpeed AI
+ * Submit a video generation request to WaveSpeed AI (v3 API)
+ * Model is encoded in the URL path. Returns the prediction/task ID.
  */
 export async function submitWaveSpeedVideo(
-  request: WaveSpeedVideoRequest
+  request: WaveSpeedVideoRequest,
+  model: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video"
 ): Promise<string> {
   if (!WAVESPEED_API_KEY) {
     throw new Error("WAVESPEED_API_KEY not configured");
   }
 
+  const body: Record<string, unknown> = {
+    prompt: request.prompt,
+    aspect_ratio: request.aspect_ratio ?? "16:9",
+    duration: request.duration ?? 5,
+    resolution: request.resolution ?? "720p",
+    enable_web_search: request.enable_web_search ?? false,
+    reference_images: request.reference_images ?? [],
+    reference_videos: request.reference_videos ?? [],
+    reference_audios: request.reference_audios ?? [],
+  };
+
   try {
-    const response = await axios.post<{ task_id: string }>(
-      `${WAVESPEED_API_BASE}/video/generate`,
-      {
-        model: request.model,
-        prompt: request.prompt,
-        duration: request.duration || 5,
-        width: request.width || 1280,
-        height: request.height || 720,
-      },
+    const response = await axios.post<{ id: string; status: string }>(
+      `${WAVESPEED_API_BASE}/${model}`,
+      body,
       {
         headers: {
           Authorization: `Bearer ${WAVESPEED_API_KEY}`,
@@ -49,19 +65,29 @@ export async function submitWaveSpeedVideo(
       }
     );
 
-    return response.data.task_id;
+    const taskId = response.data?.id;
+    if (!taskId) {
+      throw new Error(
+        `WaveSpeed: no task id in response: ${JSON.stringify(response.data)}`
+      );
+    }
+    return taskId;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(
-        `WaveSpeed API error: ${error.response?.status} ${error.response?.data?.error || error.message}`
-      );
+      const status = error.response?.status;
+      const detail =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message;
+      throw new Error(`WaveSpeed API error: ${status} ${detail}`);
     }
     throw error;
   }
 }
 
 /**
- * Poll the status of a video generation task
+ * Poll the status of a WaveSpeed prediction (v3 API).
+ * Uses GET /api/v3/predictions/{id} and /api/v3/predictions/{id}/result
  */
 export async function pollWaveSpeedVideo(
   taskId: string
@@ -71,22 +97,55 @@ export async function pollWaveSpeedVideo(
   }
 
   try {
-    const response = await axios.get<WaveSpeedVideoResponse>(
-      `${WAVESPEED_API_BASE}/video/status/${taskId}`,
+    // Check status first
+    const statusResp = await axios.get<WaveSpeedVideoResponse>(
+      `${WAVESPEED_API_BASE}/predictions/${taskId}`,
       {
         headers: {
           Authorization: `Bearer ${WAVESPEED_API_KEY}`,
         },
-        timeout: 10000,
+        timeout: 15000,
       }
     );
 
-    return response.data;
+    const data = statusResp.data;
+
+    // If completed, fetch the result to get outputs array
+    if (data.status === "completed") {
+      try {
+        const resultResp = await axios.get<WaveSpeedVideoResponse>(
+          `${WAVESPEED_API_BASE}/predictions/${taskId}/result`,
+          {
+            headers: {
+              Authorization: `Bearer ${WAVESPEED_API_KEY}`,
+            },
+            timeout: 15000,
+          }
+        );
+        // Normalise: set video_url from outputs array for backward compat
+        const result = resultResp.data;
+        if (result.outputs && result.outputs.length > 0 && !result.video_url) {
+          result.video_url = result.outputs[0];
+        }
+        return result;
+      } catch {
+        // Fall back to status response
+        if (data.outputs && data.outputs.length > 0 && !data.video_url) {
+          data.video_url = data.outputs[0];
+        }
+        return data;
+      }
+    }
+
+    return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(
-        `WaveSpeed poll error: ${error.response?.status} ${error.response?.data?.error || error.message}`
-      );
+      const status = error.response?.status;
+      const detail =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message;
+      throw new Error(`WaveSpeed poll error: ${status} ${detail}`);
     }
     throw error;
   }

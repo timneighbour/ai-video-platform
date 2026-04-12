@@ -1983,3 +1983,19 @@
 - [ ] Post-purchase: show "You saved £116 with annual billing 🎉" on success page (pending Stripe annual price IDs)
 - [x] Home.tsx: add "Create videos from £1–2 per minute" value clarity block with 3-plan cards
 - [ ] Request STRIPE_STARTER_ANNUAL_PRICE_ID, STRIPE_PRO_ANNUAL_PRICE_ID (Creator), STRIPE_BUSINESS_ANNUAL_PRICE_ID (Studio) secrets (pending Stripe dashboard setup)
+
+## Bug: Seedance "Forbidden" Error on Scene Generation (Apr 2026)
+- [x] Investigate fal.ai Seedance 403 Forbidden error in scene generation (root cause: fal.ai credits exhausted)
+- [x] Check SEEDANCE_API_KEY / FAL_AI_API_KEY env var validity and correct header format
+- [x] Check fal.ai Seedance model ID — may have changed (e.g. seedance-1-lite vs seedance-2)
+- [x] Add graceful fallback: if Seedance fails with 403, retry with Kling standard (fallback chain already in place)
+- [x] Add clear error message in UI: "Scene generation failed — retrying with backup renderer"
+- [x] Ensure scene status shows "failed" with retry button rather than silent failure
+
+## Fix: Switch Primary Renderer to WaveSpeed (Apr 2026)
+- [x] Change default renderer from fal_seedance to wavespeed in startSceneRender()
+- [x] Ensure fallback chain: WaveSpeed → Hypereal → Atlas Cloud → fal.ai Seedance
+- [x] Fix WaveSpeed API: updated from v1 to v3 endpoint (/api/v3/bytedance/seedance-2.0/text-to-video)
+- [x] Fix WaveSpeed model ID: model now encoded in URL path, not request body
+- [x] Fix WaveSpeed duration: mapped to allowed values 5/10/15
+- [x] Fix WaveSpeed poll: uses /api/v3/predictions/{id} and /api/v3/predictions/{id}/result
