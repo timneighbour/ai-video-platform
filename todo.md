@@ -2286,3 +2286,6 @@
 - [x] Add volume state (default 80%) shared across all tier previews
 - [x] Add volume slider UI with mute/unmute icon in the audio section header
 - [x] Apply volume to all preview audio elements and the chime SFX in real-time
+
+## WizSound™ Equalizer Visualiser
+- [x] Add CSS keyframe animated equalizer bars (5 bars, staggered heights) that appear on the active preview tier card during playback

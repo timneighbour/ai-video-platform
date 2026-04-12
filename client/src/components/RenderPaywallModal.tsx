@@ -387,6 +387,16 @@ export function RenderPaywallModal({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold text-white">{a.label}</span>
+                        {/* Equalizer visualiser — only shown while this tier is playing */}
+                        {isPlaying && (
+                          <div className="flex items-end gap-[2px] h-4" aria-hidden="true">
+                            <div className="wizsound-eq-bar-1 w-[3px] rounded-sm bg-violet-400 min-h-[3px]" />
+                            <div className="wizsound-eq-bar-2 w-[3px] rounded-sm bg-violet-400 min-h-[3px]" />
+                            <div className="wizsound-eq-bar-3 w-[3px] rounded-sm bg-violet-300 min-h-[3px]" />
+                            <div className="wizsound-eq-bar-4 w-[3px] rounded-sm bg-violet-400 min-h-[3px]" />
+                            <div className="wizsound-eq-bar-5 w-[3px] rounded-sm bg-violet-400 min-h-[3px]" />
+                          </div>
+                        )}
                         {a.badge && (
                           <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold tracking-wider">
                             {a.badge}

@@ -294,3 +294,45 @@ h1, h2, h3, h4 {
   @media (width >= 640px)  { padding-inline: 2rem; }
   @media (width >= 1280px) { padding-inline: 3rem; }
 }
+
+/* ── WizSound™ Equalizer Visualiser ─────────────────────────────────────────────
+   Five bars with staggered bounce animations. Each bar has a unique height
+   range and animation duration to create an organic, music-reactive feel.
+   Used inside RenderPaywallModal when a tier preview is playing. */
+
+@keyframes eq-bar-1 {
+  0%, 100% { height: 3px;  }
+  25%       { height: 14px; }
+  50%       { height: 7px;  }
+  75%       { height: 11px; }
+}
+@keyframes eq-bar-2 {
+  0%, 100% { height: 10px; }
+  20%       { height: 4px;  }
+  45%       { height: 16px; }
+  70%       { height: 6px;  }
+}
+@keyframes eq-bar-3 {
+  0%, 100% { height: 16px; }
+  30%       { height: 5px;  }
+  55%       { height: 12px; }
+  80%       { height: 8px;  }
+}
+@keyframes eq-bar-4 {
+  0%, 100% { height: 6px;  }
+  15%       { height: 13px; }
+  40%       { height: 4px;  }
+  65%       { height: 15px; }
+}
+@keyframes eq-bar-5 {
+  0%, 100% { height: 11px; }
+  35%       { height: 3px;  }
+  60%       { height: 14px; }
+  85%       { height: 7px;  }
+}
+
+.wizsound-eq-bar-1 { animation: eq-bar-1 0.72s ease-in-out infinite; }
+.wizsound-eq-bar-2 { animation: eq-bar-2 0.61s ease-in-out infinite; }
+.wizsound-eq-bar-3 { animation: eq-bar-3 0.55s ease-in-out infinite; }
+.wizsound-eq-bar-4 { animation: eq-bar-4 0.68s ease-in-out infinite; }
+.wizsound-eq-bar-5 { animation: eq-bar-5 0.59s ease-in-out infinite; }
