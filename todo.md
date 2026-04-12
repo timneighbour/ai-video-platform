@@ -2378,3 +2378,11 @@
 - [x] Use cases: shortened text for Musicians/YouTubers/Kids creators
 - [x] Final CTA: "Your first video is minutes away" + "Start creating for free. Only pay when you render." + "Create Your First Video"
 - [x] Copy cleanup: zero references to "2 free videos" or "free trial videos" confirmed
+
+## IMAX Cinematic Intro Rebuild - COMPLETED ✅
+- [x] Opening (0–1.2s): black screen → fast-cut 4 clips (music video, Pixar animation, cinematic film, epic fantasy), 300ms each with white flash transitions
+- [x] Category text (1.2–2.5s): "MUSIC VIDEOS" / "CINEMATIC FILMS" / "PIXAR ANIMATION" with glow, catImpact scale animation, underline glow bar
+- [x] Product moment (2.5–3.8s): browser chrome mockup showing prompt → storyboard → final video with step dots
+- [x] Logo reveal (3.8–5s): WizVid logo with glowSweep bar, cinematic bloom, logoPulse animation, "Powered by WizSound™" + animated EQ waveform
+- [x] Audio: no autoplay, "Enable Sound" button top-left with pulse animation, on click plays cinema sting audio
+- [x] Style: IMAX anamorphic letterbox bars, deep contrast, purple/black theme, scanline texture, film grain, high energy pacing
