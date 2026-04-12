@@ -1603,3 +1603,66 @@
 - [x] Add to negative: extra people, fourth person, additional guitarist, crowd, background band members
 - [x] Override camera angle for multi-character scenes: medium shot, clear view of faces, not wide angle, no distant silhouettes
 - [x] Fix regenerate button: call generateScenePreview not regenerateScene during storyboard phase
+
+## Style Lock Feature (Apr 12 2026)
+- [x] Add lockedStyle (TEXT JSON) column to musicVideoJobs table
+- [x] Add likedSceneId (INT) column to musicVideoJobs table (which scene triggered the lock)
+- [x] Add likedSceneImageUrl (VARCHAR 1024) to musicVideoJobs (reference image for style extraction)
+- [x] Create LLM style-extraction helper: analyse liked image and return structured style descriptor
+- [x] Add lockStyle tRPC mutation: accepts jobId + sceneId + imageUrl, extracts style, saves to DB
+- [x] Add unlockStyle tRPC mutation: clears lockedStyle from job
+- [x] Inject lockedStyle into generateScenePreview positive prompt as STYLE LOCK block
+- [ ] Add heart/like button to each scene preview card in storyboard UI
+- [ ] Show Style Lock banner in storyboard header when a style is locked (with unlock button)
+- [ ] Show locked style descriptor text in the banner so user knows what is locked
+- [ ] Persist style lock across page reloads (read from job record on storyboard load)
+- [ ] Write vitest tests for lockStyle and unlockStyle procedures
+
+## Outfit Assignment Fixes (Apr 12 2026)
+- [ ] Fix Tim's lockedDescription: must specify "black leather jacket" (not black T-shirt)
+- [ ] Fix Greg's lockedDescription: must specify "plain black T-shirt" (not leather jacket)
+- [ ] Add outfit enforcement to characterBlock prompt: "wearing [outfit]" stated explicitly
+- [ ] Fix esbuild error at line 1700 (else/finally syntax — stale from previous edit)
+- [ ] Fix BRANDED text in identity block: sanitiseDescription strips band name from lockedDescription before injection
+
+## Character Visual Details Feature (Apr 12 2026)
+- [x] Add characterVisualDetails (TEXT JSON) column to videoCharacters table
+- [x] Pre-populate Tim: { instrument: "Gibson Les Paul (red)", outfit: "Black leather jacket", position: "Centre stage", props: "Microphone" }
+- [x] Pre-populate Greg: { instrument: "Large rock drum kit", outfit: "Black torn t-shirt", position: "Rear stage, seated", props: "Drumsticks" }
+- [x] Pre-populate MONICA: { instrument: "Black 4-string bass guitar", outfit: "Fitted dark outfit", position: "Stage right", props: null }
+- [x] Build visualBlock in generateScenePreview: structured per-character override block
+- [x] Inject visualBlock after identityBlock, before scenePrompt with "OVERRIDE" language
+- [x] Add editable visual detail fields to CharacterManager UI (Props/Outfit/Visual Details textarea)
+- [x] Add updateCharacterVisualDetails tRPC mutation
+- [x] Add visualDetails to characterInputSchema and saveCharacters mutation
+- [x] Pass visualDetails through saveCharacters call in MusicVideoAutopilot.tsx
+- [x] Style Lock UI: heart button on each scene card
+- [x] Style Lock UI: banner in storyboard header with unlock button
+- [x] Style Lock UI: persist lock state across page reloads via getLockedStyle query
+- [x] Write vitest tests for lockStyle and unlockStyle procedures (18 tests passing)
+
+## Prompt Builder V3 — 5-Block Architecture (Apr 12 2026)
+- [x] Add characterConstraints LONGTEXT column to videoCharacters (done in DB, schema.ts updated)
+- [x] Add characterDefaultState TEXT column to videoCharacters (done in DB, schema.ts updated)
+- [x] Add rolePriority ENUM('primary','secondary') column to videoCharacters (done in DB, schema.ts updated)
+- [ ] Add voiceProfile TEXT column to videoCharacters (placeholder for future lip sync voice matching)
+- [ ] Add focusCharacter VARCHAR to musicVideoScenes (lip sync applied to focus character only)
+- [ ] Add camera JSON field to musicVideoScenes: { shotType, angle, focus }
+- [x] Build buildIdentityBlock(chars) — face/InstantID anchor, sanitised lockedDescription
+- [x] Build buildVisualBlock(chars) — CHARACTER VISUAL DETAILS (ABSOLUTE TRUTH) with OVERRIDE rules
+- [x] Build buildRoleBlock(chars) — role, defaultState, constraints per character
+- [x] Build buildSceneBlock(scene) — description, characters in scene, camera direction
+- [x] Build buildConstraintBlock(sceneChars) — adapts to scene character count (1 vs 3 people)
+- [ ] Build buildContinuityBlock(sceneMemory) — CONTINUITY RULES block for scenes after first
+- [x] Assemble finalImagePrompt: identityBlock + visualBlock + roleBlock + sceneBlock + constraintBlock
+- [x] Add "ONLY three people on stage" to positive prompt for 3-character scenes
+- [x] Extend negative prompt: extra people, background musicians, crowd performers, duplicates, clones, multiple guitarists, extra band members
+- [ ] Post-generation validation: peopleCount > 3 → regenerate
+- [ ] Post-generation validation: wrong character detected → regenerate
+- [ ] Post-generation validation: missing instrument → regenerate
+- [ ] Apply lip sync only to scene focusCharacter (not all characters)
+- [x] CharacterManager UI: add Props/Outfit/Visual Details field with placeholder text
+- [x] CharacterManager UI: field order — Name, Role, Props/Outfit/Visual Details, Reference Image
+- [x] Add updateCharacterVisualDetails tRPC mutation (instrument, outfit, position, props)
+- [x] Style Lock UI: heart button on each scene card
+- [x] Style Lock UI: banner in storyboard header with unlock button

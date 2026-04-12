@@ -52,6 +52,9 @@ import {
   Zap,
   ArrowLeft,
   LayoutDashboard,
+  Heart,
+  Lock,
+  Unlock,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -250,6 +253,41 @@ export default function MusicVideoAutopilot() {
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+
+  // Style Lock
+  const lockStyleMutation = trpc.musicVideo.lockStyle.useMutation();
+  const unlockStyleMutation = trpc.musicVideo.unlockStyle.useMutation();
+  const lockedStyleQuery = trpc.musicVideo.getLockedStyle.useQuery(
+    { jobId: jobId! },
+    { enabled: !!jobId && step === "storyboard", staleTime: 10000 }
+  );
+  const lockedStyle = lockedStyleQuery.data;
+  const [lockingSceneId, setLockingSceneId] = useState<number | null>(null);
+
+  const handleLockStyle = async (sceneId: number, imageUrl: string) => {
+    if (!jobId) return;
+    setLockingSceneId(sceneId);
+    try {
+      await lockStyleMutation.mutateAsync({ jobId, sceneId, imageUrl });
+      await lockedStyleQuery.refetch();
+      toast.success("Style locked! Future scenes will match this look.");
+    } catch {
+      toast.error("Failed to lock style. Please try again.");
+    } finally {
+      setLockingSceneId(null);
+    }
+  };
+
+  const handleUnlockStyle = async () => {
+    if (!jobId) return;
+    try {
+      await unlockStyleMutation.mutateAsync({ jobId });
+      await lockedStyleQuery.refetch();
+      toast.success("Style lock removed.");
+    } catch {
+      toast.error("Failed to remove style lock.");
+    }
+  };
   // Character roster for storyboard @-tag display and per-scene assignment
   const jobCharactersQuery = trpc.musicVideo.getCharactersForJob.useQuery(
     { jobId: jobId! },
@@ -514,6 +552,7 @@ export default function MusicVideoAutopilot() {
               aiGeneratedBrief: c.aiGeneratedBrief || undefined,
               lockedDescription: c.lockedDescription || undefined,
               isLocked: c.isLocked,
+              visualDetails: c.visualDetails || undefined,
               photos: c.photos.map((p) => ({
                 photoBase64: p.base64,
                 photoMimeType: p.mimeType,
@@ -1653,6 +1692,31 @@ export default function MusicVideoAutopilot() {
               </div>
             </div>
 
+            {/* Style Lock Banner */}
+            {lockedStyle?.isLocked && lockedStyle.style && (
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-pink-500/30 bg-gradient-to-r from-pink-950/40 to-rose-950/20 px-4 py-3">
+                <Heart className="w-4 h-4 text-pink-400 flex-shrink-0 fill-pink-400" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-pink-200">Style Locked</p>
+                  <p className="text-xs text-pink-300/80 truncate">{lockedStyle.style.descriptor}</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 text-xs shrink-0 gap-1"
+                  onClick={handleUnlockStyle}
+                  disabled={unlockStyleMutation.isPending}
+                >
+                  {unlockStyleMutation.isPending ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Unlock className="w-3 h-3" />
+                  )}
+                  Unlock
+                </Button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scenes.map((scene) => (
                 <Card key={scene.id} className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors overflow-hidden">
@@ -1706,6 +1770,35 @@ export default function MusicVideoAutopilot() {
                         {formatTime(scene.startTime)} · {scene.duration}s
                       </span>
                     </div>
+                    {/* Style Lock heart button — only shown when scene has a preview image */}
+                    {scene.previewImageUrl && (
+                      <button
+                        className={`absolute bottom-2 left-2 flex items-center justify-center w-7 h-7 rounded-full backdrop-blur-sm transition-all ${
+                          lockedStyle?.likedSceneId === scene.id
+                            ? "bg-pink-500/90 text-white"
+                            : "bg-black/60 text-white/70 hover:bg-pink-500/80 hover:text-white"
+                        }`}
+                        title={lockedStyle?.likedSceneId === scene.id ? "Style locked from this scene" : "Lock style from this scene"}
+                        onClick={() => {
+                          if (lockedStyle?.likedSceneId === scene.id) {
+                            handleUnlockStyle();
+                          } else {
+                            handleLockStyle(scene.id, scene.previewImageUrl!);
+                          }
+                        }}
+                        disabled={lockingSceneId === scene.id || lockStyleMutation.isPending || unlockStyleMutation.isPending}
+                      >
+                        {lockingSceneId === scene.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Heart
+                            className={`w-3.5 h-3.5 ${
+                              lockedStyle?.likedSceneId === scene.id ? "fill-white" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    )}
                   </div>
                   <CardContent className="pt-3 pb-4">
                     <div className="flex items-start justify-between mb-2">

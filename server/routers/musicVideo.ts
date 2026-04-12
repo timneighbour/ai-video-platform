@@ -872,13 +872,39 @@ Rules:
       // has no assigned character with a photo, it generates without a face anchor.
       const sceneHasLockedChar = sceneChars.some(c => c.isLocked && c.lockedDescription);
 
-      // --- Build character identity block (FIRST in prompt for maximum weight) ---
-      // The image model weights the beginning of the prompt most heavily.
-      // Character identity must come BEFORE scene description.
+      // ─── Prompt Builder V3: 5-Block Architecture ─────────────────────────────
+      // Block order (highest weight first):
+      //   1. identityBlock   — face anchor, likeness enforcement
+      //   2. visualBlock     — CHARACTER VISUAL DETAILS (ABSOLUTE TRUTH, OVERRIDE)
+      //   3. roleBlock       — role, defaultState, constraints per character
+      //   4. sceneBlock      — scene description + camera direction
+      //   5. constraintBlock — global rules (people count, no text, camera)
+
+      // ── Helper: sanitise text before injecting into image prompt ──────────────
+      // Strips band name, logos, quoted text that the AI model renders literally.
+      const sanitiseDescription = (desc: string): string => {
+        let s = desc;
+        if (job.title) {
+          const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          s = s.replace(new RegExp(`(?:rock\\s+)?band\\s+${escapedTitle}`, "gi"), "rock band");
+          s = s.replace(new RegExp(`(?:of|for)\\s+${escapedTitle}`, "gi"), "");
+          s = s.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "");
+        }
+        s = s.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "");
+        s = s.replace(/\s{2,}/g, " ").trim();
+        return s;
+      };
+
+      const charCount = sceneChars.length;
+      const primaryCharForScene = sceneChars[0] ?? null;
+      const hasPhotos = referenceImages.length > 0;
+
+      // ── BLOCK 1: Identity Block ───────────────────────────────────────────────
       const identityLines = sceneChars
         .filter(c => c.isLocked && c.lockedDescription)
         .map((c, idx) => {
-          const baseDescription = `${c.name} (${c.role || "musician"}): ${c.lockedDescription!}`;
+          const cleanDesc = sanitiseDescription(c.lockedDescription!);
+          const baseDescription = `${c.name} (${c.role || "musician"}): ${cleanDesc}`;
           if (sceneChars.length > 1) {
             const positions = ["LEFT", "CENTER", "RIGHT"];
             return `${baseDescription} [POSITION: ${positions[idx % positions.length]}]`;
@@ -886,13 +912,6 @@ Rules:
           return baseDescription;
         });
 
-      const hasPhotos = referenceImages.length > 0;
-
-      // ── Strict people-count constraint ──────────────────────────────────────
-      // For single-character scenes: ONLY that person, no background band members.
-      // For multi-character scenes: ONLY the named members, no extras, medium shot.
-      const charCount = sceneChars.length;
-      const primaryCharForScene = sceneChars[0] ?? null; // first assigned = primary subject
       const charCountConstraint = charCount === 1
         ? `ONLY ONE PERSON in frame — ${primaryCharForScene!.name} is the ONLY person visible. ` +
           `The main subject is ${primaryCharForScene!.name}. This person must be clearly visible and is the focus of the scene. ` +
@@ -904,7 +923,6 @@ Rules:
             `Each person must be clearly identifiable by face.`
           : "";
 
-      // ── Identity block ──────────────────────────────────────────────────────
       const identityBlock = identityLines.length > 0
         ? (() => {
             const subjectLine = primaryCharForScene
@@ -930,41 +948,66 @@ Rules:
           ? `Generate the SAME person shown in the reference photo(s). Preserve exact facial features, bone structure, and appearance. ${charCountConstraint}`
           : charCountConstraint;
 
-      // --- Clean the stored scene prompt ---
-      // Old storyboards may have character descriptions baked into scene.prompt
-      // (e.g. "Tim, Rock Star, leather jacket and plays a sunburst Gibson Les Paul...")
-      // Strip these out since we now inject identity separately via identityBlock
+      // ── BLOCK 2: Visual Block (CHARACTER VISUAL DETAILS — ABSOLUTE TRUTH) ────
+      // These OVERRIDE any scene assumptions. Injected after identity, before role.
+      const visualLines = sceneChars
+        .filter(c => c.characterVisualDetails)
+        .map(c => {
+          let details: { instrument?: string; outfit?: string; props?: string; position?: string } = {};
+          try { details = JSON.parse(c.characterVisualDetails!); } catch {}
+          const parts: string[] = [];
+          if (details.outfit) parts.push(`Outfit: ${details.outfit}`);
+          if (details.instrument) parts.push(`Instrument: ${details.instrument}`);
+          if (details.position) parts.push(`Position: ${details.position}`);
+          if (details.props) parts.push(`Props: ${details.props}`);
+          return parts.length > 0 ? `${c.name}:\n${parts.join("\n")}` : null;
+        })
+        .filter(Boolean);
+
+      const visualBlock = visualLines.length > 0
+        ? `CHARACTER VISUAL DETAILS (ABSOLUTE TRUTH — OVERRIDES ALL SCENE ASSUMPTIONS):\n\n` +
+          `${visualLines.join("\n\n")}\n\n` +
+          `RULES:\n` +
+          `- These define outfit, props, and appearance\n` +
+          `- MUST be followed exactly\n` +
+          `- OVERRIDE any scene interpretation\n` +
+          `- DO NOT invent or replace props\n` +
+          `- DO NOT change outfits between scenes`
+        : "";
+
+      // ── BLOCK 3: Role Block (role, defaultState, constraints) ─────────────────
+      const roleLines = sceneChars.map(c => {
+        const parts: string[] = [`${c.name}:`];
+        if (c.role) parts.push(`Role: ${c.role}`);
+        if (c.characterDefaultState) parts.push(`Default State: ${c.characterDefaultState}`);
+        if (c.characterConstraints) parts.push(`Constraints: ${c.characterConstraints}`);
+        return parts.join("\n");
+      });
+
+      const roleBlock = roleLines.length > 0
+        ? `CHARACTER ROLE DEFINITIONS:\n\n${roleLines.join("\n\n")}`
+        : "";
+
+      // ── Clean scene prompt (BLOCK 4 source) ──────────────────────────────────
       let cleanScenePrompt = scene.prompt;
       for (const char of allJobCharacters) {
-        // Remove patterns like "CharName, old description text, " from the start or middle of prompts
-        // Also remove the old user-entered style notes that got duplicated
         const namePrefix = new RegExp(
           `${char.name}(?:,\\s*(?:Rock Star|Wears a|Woman in|Man in)[^.]*?\\.\\s*)?(?:${char.name})?`,
           "gi"
         );
         cleanScenePrompt = cleanScenePrompt.replace(namePrefix, char.name);
       }
-      // Remove any remaining duplicated old descriptions (e.g. repeated "leather jacket and plays...")
-      // by collapsing repeated phrases
       cleanScenePrompt = cleanScenePrompt.replace(/(\b\w{4,}\b[^.]{10,}?)\1+/g, "$1").trim();
-
-      // Strip any quoted lyrics text that the storyboard LLM may have included in the scene description.
-      // e.g. "You were ordinary" → removed. The AI image model renders quoted text literally.
       cleanScenePrompt = cleanScenePrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
-      // Also strip lines that look like lyric fragments (short lines ending with no punctuation)
       cleanScenePrompt = cleanScenePrompt.replace(/\blyrics?:\s*[^.\n]*/gi, "").trim();
-
-      // Strip the job title / band name from the scene prompt.
-      // The storyboard LLM often writes the band name as a stage prop (e.g. "BRANDED neon sign").
-      // The AI image model renders it as visible text — strip it before generation.
       if (job.title) {
-        // Escape special regex chars in the title, then remove all occurrences (case-insensitive)
         const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const titleRegex = new RegExp(escapedTitle, "gi");
-        cleanScenePrompt = cleanScenePrompt.replace(titleRegex, "").replace(/\s{2,}/g, " ").trim();
+        cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`${escapedTitle}\\s+(?:neon\\s+)?(?:sign|logo|banner|backdrop|screen|display|text|lettering|typography|name)`, "gi"), "");
+        cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "");
+        cleanScenePrompt = cleanScenePrompt.replace(/\s{2,}/g, " ").trim();
       }
 
-      // --- Style and mood ---
+      // ── Style and mood ────────────────────────────────────────────────────────
       const styleMap: Record<string, string> = {
         cinematic: "cinematic film still, dramatic lighting, shallow depth of field",
         anime: "anime illustration, vibrant colors, detailed line art",
@@ -977,32 +1020,52 @@ Rules:
       const styleDescriptor = styleMap[styleKey] || styleMap["cinematic"];
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 
-      // --- Final prompt: CHARACTER IDENTITY FIRST, then clean scene direction, then style ---
-      // CRITICAL: no text/words/captions in frame — the AI model renders quoted text literally
-      const imagePrompt = [
-        identityBlock,
-        cleanScenePrompt,
-        styleDescriptor,
-        moodContext ? `Mood: ${moodContext}` : "",
-        "16:9 widescreen, high quality, professional photography",
-        "no text in frame, no words, no captions, no subtitles, no lyrics visible, no overlaid text, no logos, no signage, no visible words, no typography",
-      ].filter(Boolean).join(". ");
+      // ── Style Lock suffix ─────────────────────────────────────────────────────
+      let styleLockSuffix: string | null = null;
+      if (job.lockedStyle) {
+        try {
+          const parsedStyle = JSON.parse(job.lockedStyle) as { rawPromptSuffix?: string; descriptor?: string };
+          if (parsedStyle.rawPromptSuffix) {
+            styleLockSuffix = parsedStyle.rawPromptSuffix;
+            console.log(`[generateScenePreview] Scene ${input.sceneId}: STYLE LOCK active — "${parsedStyle.descriptor ?? ""}", suffix: "${styleLockSuffix}"`);
+          }
+        } catch {
+          console.warn(`[generateScenePreview] Scene ${input.sceneId}: failed to parse lockedStyle JSON`);
+        }
+      }
 
-      // --- Identity Anchor: use the PRIMARY ASSIGNED character's master portrait ---
-      // CRITICAL FIX: use primaryCharForScene (the first character explicitly assigned to THIS scene)
-      // NOT sceneChars.find(c => c.isLocked) which could return Tim for every scene.
-      // Log the exact character + reference being used so we can verify in server logs.
-      const primarySceneChar = primaryCharForScene;
-      const masterPortraitUrl = primarySceneChar?.masterPortraitUrl ?? null;
-      const masterSeed = primarySceneChar?.masterSeed ?? null;
-      const lockedCharacterPrompt = primarySceneChar?.characterPrompt ?? null;
-      console.log(`[generateScenePreview] Scene ${input.sceneId}: PRIMARY CHARACTER = ${primarySceneChar?.name ?? "none"} (id=${primarySceneChar?.id ?? "none"}), masterPortrait=${!!masterPortraitUrl}, masterPortraitUrl=${masterPortraitUrl ?? "null"}, seed=${masterSeed ?? "null"}`);
+      // ── BLOCK 5: Constraint Block (global rules, adapts to scene char count) ──
+      const sceneCharNamesStr = sceneChars.map(c => c.name).join(", ");
+      const peopleCountRule = charCount === 1
+        ? `ONLY ONE PERSON on stage — ${primaryCharForScene?.name ?? "the character"} ONLY. NO other people. NO background musicians. NO silhouettes.`
+        : charCount === 3
+          ? `ONLY three people on stage. ONLY: ${sceneCharNamesStr}. NO extra musicians. NO duplicates. NO background silhouettes.`
+          : `EXACTLY ${charCount} people on stage — ${sceneCharNamesStr}. NO extra musicians. NO duplicates. NO background silhouettes.`;
 
-      // ─── Photo Mode Pipeline V2: Strict Prompt Split ────────────────────────
-      // A) CHARACTER BLOCK (LOCKED — never changes between scenes)
-      //    Uses the stored lockedPrompt from master portrait generation if available,
-      //    otherwise falls back to the vision-LLM analysed lockedDescription.
-      //    Appended with identity enforcement instruction.
+      const constraintBlock =
+        `GLOBAL CONSTRAINTS:\n` +
+        `- ${peopleCountRule}\n` +
+        `- NO extra musicians\n` +
+        `- NO duplicates or clones\n` +
+        `- NO background silhouettes\n` +
+        `- NO visible text, logos, or band names\n` +
+        `- NO neon signs, banners, or typography\n` +
+        `- Prefer medium or close shots — faces must be clearly visible\n` +
+        `- NO wide crowd shots unless explicitly stated`;
+
+      // ── BLOCK 4: Scene Block ──────────────────────────────────────────────────
+      const sceneBlock =
+        `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\n` +
+        `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\n` +
+        `CAMERA: medium close-up, faces clearly visible, waist-up framing`;
+
+      // ── Identity Anchor ───────────────────────────────────────────────────────
+      const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? null;
+      const masterSeed = primaryCharForScene?.masterSeed ?? null;
+      const lockedCharacterPrompt = primaryCharForScene?.characterPrompt ?? null;
+      console.log(`[generateScenePreview] Scene ${input.sceneId}: PRIMARY CHARACTER = ${primaryCharForScene?.name ?? "none"} (id=${primaryCharForScene?.id ?? "none"}), masterPortrait=${!!masterPortraitUrl}, masterPortraitUrl=${masterPortraitUrl ?? "null"}, seed=${masterSeed ?? "null"}`);
+
+      // ── Photo Mode Pipeline V2: Strict Prompt Split ────────────────────────
       const characterBlock = lockedCharacterPrompt
         ? `${lockedCharacterPrompt}. ` +
           `Same person as reference image. Identical face. Same hairstyle. Same hair length. ` +
@@ -1013,81 +1076,56 @@ Rules:
             `Same hair colour. Same facial hair. No variation in hair or appearance.`
           : null;
 
-      // B) SCENE BLOCK (CHANGES PER SCENE — environment/action/lighting only)
-      //    Strip any character identity text that may have leaked into the scene prompt.
       const sceneOnlyPrompt = cleanScenePrompt;
 
-      // C) NEGATIVE PROMPT — forbids face drift, hair variation, and extra people
+      // ── NEGATIVE PROMPT ───────────────────────────────────────────────────────
       const extraPeopleNegative = charCount === 1
         ? "extra person, additional people, background musician, background character, other band member, crowd member, second person, third person, multiple people"
-        : "extra person, anonymous musician, unnamed character, crowd member";
+        : `extra person, anonymous musician, unnamed character, crowd member, fourth person, fifth person, additional guitarist, background band members, silhouette, extra band member, ${charCount + 1} people, ${charCount + 2} people, wrong outfit, outfit swap, different clothing, background performers, crowd performers, duplicates, clones, multiple guitarists, extra band members`;
       const negativePromptV2 = [
-        // Identity drift
-        "different face",
-        "new person",
-        "altered identity",
-        "different person",
-        "inconsistent character",
-        // Hair variation
-        "different hairstyle",
-        "shorter hair",
-        "longer hair",
-        "different hair colour",
-        "different hair color",
-        "variation in appearance",
-        "different facial hair",
-        // Extra people
+        "different face", "new person", "altered identity", "different person", "inconsistent character",
+        "different hairstyle", "shorter hair", "longer hair", "different hair colour", "different hair color",
+        "variation in appearance", "different facial hair",
         extraPeopleNegative,
-        // Quality
-        "nsfw",
-        "lowres",
-        "bad anatomy",
-        "extra limbs",
-        "blurry",
-        "low quality",
-        "cartoon",
-        "anime",
-        "deformed",
-        "ugly",
-        "disfigured",
-        // Text / caption / signage artefacts
-        "text",
-        "words",
-        "caption",
-        "subtitle",
-        "lyrics text",
-        "text overlay",
-        "words in frame",
-        "logo",
-        "signage",
-        "typography",
-        "neon sign",
-        "banner",
-        "watermark",
-        // Extra people (multi-char scenes)
+        "nsfw", "lowres", "bad anatomy", "extra limbs", "blurry", "low quality", "cartoon", "anime",
+        "deformed", "ugly", "disfigured",
+        "text", "words", "caption", "subtitle", "lyrics text", "text overlay", "words in frame",
+        "logo", "signage", "typography", "neon sign", "banner", "watermark",
+        "band name", "venue name", "stage backdrop text",
+        "wrong outfit", "outfit swap", "different clothing",
+        "leather jacket on drummer", "t-shirt on singer",
         ...(charCount > 1 ? [
-          "extra people",
-          "fourth person",
-          "fifth person",
-          "additional guitarist",
-          "crowd",
-          "background band members",
-          "silhouette",
-          "distant figures",
-          "wide angle",
-          "aerial shot",
-          "bird's eye view",
+          "extra people", "fourth person", "fifth person", "additional guitarist",
+          "crowd", "background band members", "silhouette", "distant figures",
+          "wide angle", "aerial shot", "bird's eye view",
         ] : []),
       ].join(", ");
 
-      // Final combined prompt: CHARACTER (locked) → SCENE → STYLE → QUALITY
+      // ── Hard people-count prefix (FIRST in prompt for maximum model weight) ──
+      const hardCountPrefix = charCount > 1
+        ? `CRITICAL SCENE RULE: ONLY ${charCount} people on stage. ` +
+          `The ONLY people in this image are: ${sceneCharNamesStr}. ` +
+          `NO additional musicians. NO background band members. NO extra performers. ` +
+          `NO silhouettes. NO crowd on stage. EXACTLY ${charCount} people — not ${charCount + 1}, not ${charCount + 2}.`
+        : charCount === 1
+          ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. ` +
+            `NO other people. NO background musicians. NO silhouettes.`
+          : "";
+
+      // ── V3 Final Prompt Assembly: 5 blocks ───────────────────────────────────
+      // Order: hardCount → identity → visual (OVERRIDE) → role → scene → constraints → style
       const finalImagePrompt = [
+        hardCountPrefix,
         characterBlock,
-        sceneOnlyPrompt,
+        visualBlock,
+        roleBlock,
+        sceneBlock,
+        constraintBlock,
         styleDescriptor,
+        styleLockSuffix ? `STYLE LOCK: ${styleLockSuffix}` : "",
         moodContext ? `Mood: ${moodContext}` : "",
         "16:9 widescreen, high quality, professional photography",
-       ].filter(Boolean).join(". ");
+      ].filter(Boolean).join("\n\n");
       console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, masterPortrait=${!!masterPortraitUrl}, seed=${masterSeed}, prompt length: ${finalImagePrompt.length}`);
 
       // V2: Choose face reference: master portrait > primary reference photo > none
@@ -1116,7 +1154,7 @@ Rules:
         if (hasFaceReference) {
           // --- Photo Mode Pipeline V2: Identity-Anchored Generation ---
           // InstantID (primary) or Flux PuLID (fallback). 3 variations, pick best.
-          const primaryCharName = primarySceneChar?.name ?? "the character";
+          const primaryCharName = primaryCharForScene?.name ?? "the character";
           // Use the V2 negative prompt (forbids face drift + hair variation + extra people)
           const negativePrompt = negativePromptV2;
 
@@ -1933,6 +1971,194 @@ Write the full visual brief now.`,
         imageUrl,
         style: input.style,
       };
+    }),
+
+  // ─── Style Lock ───────────────────────────────────────────────────────────
+  // Lock the visual style of a liked scene preview image so all subsequent
+  // scene generations inherit the same lighting, colour palette, camera angle,
+  // and mood.
+
+  lockStyle: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      sceneId: z.number().int(),
+      imageUrl: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Use vision LLM to extract a structured style descriptor from the liked image
+      let styleData: {
+        descriptor: string;
+        lighting: string;
+        colourPalette: string;
+        cameraAngle: string;
+        mood: string;
+        rawPromptSuffix: string;
+      };
+
+      try {
+        const llmResponse = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: "You are a cinematography expert. Analyse the provided image and extract its visual style as a structured JSON object. Be concise and specific — your output will be injected directly into image generation prompts to ensure visual consistency across multiple scenes.",
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "image_url" as const,
+                  image_url: { url: input.imageUrl, detail: "high" as const },
+                },
+                {
+                  type: "text" as const,
+                  text: `Analyse this image and return a JSON object with these exact fields:
+- descriptor: a single sentence summarising the overall visual style (max 20 words)
+- lighting: describe the lighting setup (e.g. "dramatic side-lighting with deep shadows", "soft diffused blue-tinted stage lighting")
+- colourPalette: describe the dominant colours (e.g. "deep crimson and black with cyan laser accents")
+- cameraAngle: describe the camera framing (e.g. "medium close-up, slightly low angle", "wide establishing shot")
+- mood: the emotional atmosphere (e.g. "intense and confrontational", "ethereal and melancholic")
+- rawPromptSuffix: a concise prompt suffix (max 30 words) that can be appended to any image generation prompt to reproduce this style. Do NOT include character descriptions, only cinematography/lighting/colour/mood terms.
+
+Return ONLY valid JSON, no markdown.`,
+                },
+              ],
+            },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "style_descriptor",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  descriptor: { type: "string" },
+                  lighting: { type: "string" },
+                  colourPalette: { type: "string" },
+                  cameraAngle: { type: "string" },
+                  mood: { type: "string" },
+                  rawPromptSuffix: { type: "string" },
+                },
+                required: ["descriptor", "lighting", "colourPalette", "cameraAngle", "mood", "rawPromptSuffix"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const raw = llmResponse?.choices?.[0]?.message?.content ?? "{}";
+        styleData = typeof raw === "string" ? JSON.parse(raw) : raw;
+      } catch (err) {
+        console.error("[lockStyle] LLM style extraction failed:", err);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Style extraction failed. Please try again." });
+      }
+
+      // Persist the locked style to the job record
+      await db.update(musicVideoJobs)
+        .set({
+          lockedStyle: JSON.stringify(styleData),
+          likedSceneId: input.sceneId,
+          likedSceneImageUrl: input.imageUrl,
+        })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[lockStyle] Job ${input.jobId}: style locked from scene ${input.sceneId} — "${styleData.descriptor}"`);
+      return { success: true, style: styleData };
+    }),
+
+  unlockStyle: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoJobs)
+        .set({ lockedStyle: null, likedSceneId: null, likedSceneImageUrl: null })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[unlockStyle] Job ${input.jobId}: style lock cleared`);
+      return { success: true };
+    }),
+
+  getLockedStyle: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select({
+        lockedStyle: musicVideoJobs.lockedStyle,
+        likedSceneId: musicVideoJobs.likedSceneId,
+        likedSceneImageUrl: musicVideoJobs.likedSceneImageUrl,
+      }).from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const style = job.lockedStyle ? JSON.parse(job.lockedStyle) : null;
+      return {
+        isLocked: !!style,
+        style,
+        likedSceneId: job.likedSceneId ?? null,
+        likedSceneImageUrl: job.likedSceneImageUrl ?? null,
+      };
+    }),
+
+  // Update character visual details (instrument, outfit, position, props, constraints, defaultState)
+  updateCharacterVisualDetails: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      jobId: z.number().int(),
+      visualDetails: z.object({
+        instrument: z.string().optional(),
+        outfit: z.string().optional(),
+        position: z.string().optional(),
+        props: z.string().optional(),
+      }).optional(),
+      characterConstraints: z.string().optional(),
+      characterDefaultState: z.string().optional(),
+      rolePriority: z.enum(["primary", "secondary"]).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.jobId, input.jobId)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const updateFields: Partial<typeof videoCharacters.$inferInsert> = {
+        updatedAt: new Date(),
+      };
+      if (input.visualDetails !== undefined) {
+        updateFields.characterVisualDetails = JSON.stringify(input.visualDetails);
+      }
+      if (input.characterConstraints !== undefined) {
+        updateFields.characterConstraints = input.characterConstraints;
+      }
+      if (input.characterDefaultState !== undefined) {
+        updateFields.characterDefaultState = input.characterDefaultState;
+      }
+      if (input.rolePriority !== undefined) {
+        updateFields.rolePriority = input.rolePriority;
+      }
+
+      await db.update(videoCharacters)
+        .set(updateFields)
+        .where(eq(videoCharacters.id, input.characterId));
+
+      console.log(`[updateCharacterVisualDetails] Character ${input.characterId} (${char.name}) updated visual details`);
+      return { success: true, characterId: input.characterId };
     }),
 
 });

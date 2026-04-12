@@ -1,0 +1,1 @@
+ALTER TABLE `videoCharacters` ADD `characterVisualDetails` longtext;

@@ -136,6 +136,10 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
   sceneSetting: varchar("sceneSetting", { length: 512 }), // User-chosen visual environment e.g. "concert venue", "desert", "rooftop"
   characterLockEnabled: boolean("characterLockEnabled").default(true).notNull(), // Whether to enforce face consistency validation across scenes
+  // ─── Style Lock ───────────────────────────────────────────────────────
+  lockedStyle: text("lockedStyle"), // JSON: { descriptor: string, lighting: string, colourPalette: string, cameraAngle: string, mood: string, rawPromptSuffix: string }
+  likedSceneId: int("likedSceneId"), // sceneId that triggered the style lock
+  likedSceneImageUrl: varchar("likedSceneImageUrl", { length: 1024 }), // image URL used for style extraction
   lyricsApproved: boolean("lyricsApproved").default(false).notNull(), // User has approved lyrics before render
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -240,6 +244,16 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   masterSeed: int("masterSeed"), // Seed used when generating the master portrait — injected into all scene calls for determinism
   characterPrompt: text("characterPrompt"), // Locked identity prompt: "male, short dark hair, beard, leather jacket" — NEVER changes per scene
   masterPortraitGeneratedAt: timestamp("masterPortraitGeneratedAt"), // When the master portrait was last generated
+  // ─── Character Visual Details (OVERRIDE block in prompt) ─────────────────
+  // JSON: { instrument: string, outfit: string, props: string, position: string }
+  // These OVERRIDE any scene assumptions — injected as a hard constraint block.
+  characterVisualDetails: longtext("characterVisualDetails"),
+  // Hard constraints that must never be violated (e.g. "MUST be behind drum kit", "NEVER holding guitar")
+  characterConstraints: longtext("characterConstraints"),
+  // Default physical state when not overridden by scene (e.g. "Standing at mic, centre stage")
+  characterDefaultState: text("characterDefaultState"),
+  // Whether this character is the primary focus (primary) or background (secondary)
+  rolePriority: mysqlEnum("rolePriority", ["primary", "secondary"]).default("primary"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

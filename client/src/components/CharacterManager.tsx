@@ -55,6 +55,8 @@ export interface Character {
   // Shared
   lockedDescription: string;
   isLocked: boolean;
+  /** Visual details: outfit, instrument, position, props — overrides scene assumptions */
+  visualDetails: string;
 }
 
 interface CharacterManagerProps {
@@ -136,6 +138,7 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
     aiGeneratedBrief: "",
     lockedDescription: "",
     isLocked: false,
+    visualDetails: "",
   };
 }
 
@@ -362,6 +365,20 @@ export function CharacterManager({
                   <Input value={char.role} onChange={(e) => updateCharacter(char.slotIndex, { role: e.target.value })}
                     placeholder="e.g. Lead Singer, Dancer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
                 </div>
+              </div>
+
+              {/* ── Props / Outfit / Visual Details ── */}
+              <div>
+                <Label className="text-zinc-400 text-xs mb-1 block">Props / Outfit / Visual Details</Label>
+                <Textarea
+                  value={char.visualDetails || ""}
+                  onChange={(e) => updateCharacter(char.slotIndex, { visualDetails: e.target.value })}
+                  placeholder="Describe what this character wears and holds (e.g. Black leather jacket, red Gibson Les Paul guitar, microphone)"
+                  className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[60px]"
+                  disabled={disabled}
+                  rows={2}
+                />
+                <p className="text-zinc-600 text-xs mt-1">These details override scene assumptions — outfit, instrument, position, and props.</p>
               </div>
 
               {/* ── Mode selector — prominent two-button toggle ── */}

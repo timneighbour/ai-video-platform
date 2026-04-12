@@ -29,6 +29,8 @@ const characterInputSchema = z.object({
   aiGeneratedBrief: z.string().max(2000).optional(),
   lockedDescription: z.string().max(2000).optional(),
   isLocked: z.boolean().optional().default(false),
+  // Visual details: outfit, instrument, position, props (overrides scene assumptions)
+  visualDetails: z.string().max(1000).optional(),
 });
 
 export const charactersRouter = router({
@@ -69,6 +71,7 @@ export const charactersRouter = router({
           previewImageUrl: charInput.aiGeneratedImageUrl ?? null,
           lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
           isLocked: charInput.isLocked ?? false,
+          characterVisualDetails: charInput.visualDetails ? charInput.visualDetails : null,
         });
         const characterId = (result as any).insertId as number;
 
