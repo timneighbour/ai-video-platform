@@ -9,6 +9,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 // Home is eagerly loaded — it's the LCP page
 import Home from "./pages/Home";
 import { trpc } from "./lib/trpc";
+import CinematicEntryScreen from "./components/CinematicEntryScreen";
 
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -182,9 +183,21 @@ function Router() {
 //   to keep consistent foreground/background color across components
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
+const INTRO_SESSION_KEY = "wizvid_intro_seen_v3";
+
 function App() {
   // Show branded preloader on initial app mount, then fade out
   const [appReady, setAppReady] = useState(false);
+
+  // Show cinematic intro once per session (only on homepage)
+  const [showIntro, setShowIntro] = useState(() => {
+    try {
+      return !sessionStorage.getItem(INTRO_SESSION_KEY);
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
     const t = requestAnimationFrame(() => {
       setTimeout(() => setAppReady(true), 300);
@@ -199,6 +212,10 @@ function App() {
         switchable
       >
         <TooltipProvider>
+          {/* Cinematic intro — shown once per session */}
+          {showIntro && (
+            <CinematicEntryScreen onComplete={() => setShowIntro(false)} />
+          )}
           {/* Branded preloader — fades out once app has mounted */}
           <WizVidLoader done={appReady} minDuration={600} />
           <Toaster />

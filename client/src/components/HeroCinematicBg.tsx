@@ -26,6 +26,38 @@ const ASSETS = {
 const LS_KEY = "wizvid_motion_paused";
 const FRAME_DURATION = 3500; // ms per styleframe
 
+// 3-state product story overlays — cycle every 3.5s in sync with frames
+const PRODUCT_STATES = [
+  {
+    badge: "PROMPT",
+    badgeColor: "violet" as const,
+    text: '"Walking through fire"',
+    sub: "You type it.",
+    mono: true,
+  },
+  {
+    badge: "AI GENERATING",
+    badgeColor: "blue" as const,
+    text: "WizVid builds your scene.",
+    sub: "Storyboard. Characters. Lighting.",
+    mono: false,
+  },
+  {
+    badge: "READY",
+    badgeColor: "emerald" as const,
+    text: "Your cinematic video.",
+    sub: "No editing. No timeline.",
+    mono: false,
+  },
+  {
+    badge: "PROMPT",
+    badgeColor: "violet" as const,
+    text: '"A dragon flying over a city"',
+    sub: "You type it.",
+    mono: true,
+  },
+];
+
 /* ── Analytics helper ───────────────────────────────────────────────── */
 function trackEvent(
   name: string,
@@ -62,6 +94,7 @@ export default function HeroCinematicBg({
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [stateIndex, setStateIndex] = useState(0);
   const hasVideo =
     ASSETS.bgVideoAV1 || ASSETS.bgVideoVP9 || ASSETS.bgVideoMP4;
 
@@ -97,6 +130,15 @@ export default function HeroCinematicBg({
     });
     return () => clearInterval(interval);
   }, [hasVideo, prefersReducedMotion, paused]);
+
+  // Cycle product state overlays in sync with frame duration
+  useEffect(() => {
+    if (prefersReducedMotion || paused) return;
+    const interval = setInterval(() => {
+      setStateIndex((prev) => (prev + 1) % PRODUCT_STATES.length);
+    }, FRAME_DURATION);
+    return () => clearInterval(interval);
+  }, [prefersReducedMotion, paused]);
 
   // Video playback control
   useEffect(() => {
@@ -259,6 +301,47 @@ export default function HeroCinematicBg({
           backgroundSize: "128px 128px",
         }}
       />
+
+      {/* ── 3-state product story overlay ─────────────────────── */}
+      {!prefersReducedMotion && (
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          {PRODUCT_STATES.map((state, i) => {
+            const isActive = i === stateIndex;
+            const badgeClass =
+              state.badgeColor === "violet"
+                ? "border-violet-400/40 bg-violet-500/10 text-violet-300"
+                : state.badgeColor === "blue"
+                ? "border-blue-400/40 bg-blue-500/10 text-blue-300"
+                : "border-emerald-400/40 bg-emerald-500/10 text-emerald-300";
+            return (
+              <div
+                key={i}
+                className={`flex flex-col items-center gap-2 transition-all duration-700 absolute left-1/2 -translate-x-1/2 bottom-0 w-max max-w-[90vw] ${
+                  isActive
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4 pointer-events-none"
+                }`}
+              >
+                <div className={`px-3 py-1 rounded-full border text-[10px] font-mono tracking-[0.18em] uppercase font-semibold ${badgeClass}`}>
+                  {state.badge === "AI GENERATING" && (
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-400 mr-1.5 animate-pulse" />
+                  )}
+                  {state.badge}
+                </div>
+                <p
+                  className={`text-center font-bold text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)] ${
+                    state.mono ? "font-mono text-violet-100" : ""
+                  }`}
+                  style={{ fontSize: "clamp(1.1rem, 3vw, 1.75rem)" }}
+                >
+                  {state.text}
+                </p>
+                <p className="text-white/50 text-xs text-center">{state.sub}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* ── Pause / Play toggle ──────────────────────────────────── */}
       <button

@@ -14,10 +14,11 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png"; // cropped logo — no excess black padding
-const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-user_af377b10.png"; // brand logo (user-provided)
-const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-footer_0754d3d5.webp"; // footer logo optimised WebP
-const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
+// Premium transparent logo — violet glow, transparent background
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
+const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
+const WIZVID_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
+const WIZVID_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium_a0b936c5.png";
 const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
 const HERO_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
@@ -115,9 +116,9 @@ function Nav() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            width={230}
-            height={129}
-            className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
+            width={320}
+            height={180}
+            className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_12px_rgba(139,92,246,0.6)]"
           />
         </a>
 
@@ -307,8 +308,9 @@ function Hero() {
           Create Your First Video — Free
         </a>
 
-        {/* No card callout */}
-        <p className="text-sm text-white/50 mb-10">No credit card required · 2 free videos included</p>
+        {/* No card callout + trust micro-copy */}
+        <p className="text-sm text-white/50 mb-2">No credit card required · 2 free videos included</p>
+        <p className="text-sm text-white/40 mb-10 font-medium tracking-wide">Built for creators, musicians &amp; agencies</p>
 
         {/* Demo video trigger — large pulsing play button */}
         <button

@@ -2160,3 +2160,10 @@
 - [x] Wire proxy video flow: 6 scenes (0-30s) with animated transitions
 - [x] Lazy-load video only on click
 - [x] Mobile-optimised lighter version
+
+## CINEMATIC INTRO + BACKGROUND REBUILD
+- [ ] Generate intro sequence video (prompt→generate→output story)
+- [ ] Rebuild CinematicEntryScreen: fullscreen video intro, once per session, skip button
+- [ ] Restore CinematicEntryScreen to App.tsx
+- [ ] Update HeroCinematicBg: 3-state text overlays on moving background video
+- [ ] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
