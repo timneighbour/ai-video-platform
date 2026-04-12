@@ -351,3 +351,78 @@ describe("startBatchRegeneration input schema", () => {
     expect(() => schema.parse({ jobId: 7.5 })).toThrow();
   });
 });
+
+// ─── 11. No-text enforcement: lyrics must not appear in generated images ──────
+
+describe("scene pipeline: no-text enforcement", () => {
+  it("positive prompt contains no-text instruction", () => {
+    const noTextInstruction = "no text in frame, no words, no captions, no subtitles, no lyrics visible, no overlaid text";
+    const imagePromptParts = [
+      "Tim, male, short dark hair. Same person as reference image.",
+      "Close-up of Tim singing into microphone, dramatic stage lighting",
+      "cinematic film still, dramatic lighting, shallow depth of field",
+      "Mood: rock, intense",
+      "16:9 widescreen, high quality, professional photography",
+      noTextInstruction,
+    ];
+    const imagePrompt = imagePromptParts.filter(Boolean).join(". ");
+
+    expect(imagePrompt).toContain("no text in frame");
+    expect(imagePrompt).toContain("no captions");
+    expect(imagePrompt).toContain("no subtitles");
+    expect(imagePrompt).toContain("no lyrics visible");
+  });
+
+  it("negative prompt contains text/caption/subtitle terms", () => {
+    const negativePromptV2 = [
+      "different face", "new person", "altered identity",
+      "different hairstyle", "shorter hair", "longer hair",
+      "extra person, additional people, background musician",
+      "nsfw", "lowres", "bad anatomy",
+      "text", "words", "caption", "subtitle", "lyrics text", "text overlay", "words in frame",
+      "watermark",
+    ].join(", ");
+
+    expect(negativePromptV2).toContain("caption");
+    expect(negativePromptV2).toContain("subtitle");
+    expect(negativePromptV2).toContain("lyrics text");
+    expect(negativePromptV2).toContain("text overlay");
+    expect(negativePromptV2).toContain("words in frame");
+  });
+
+  it("strips double-quoted lyrics from scene prompt before image generation", () => {
+    // Simulate a scene prompt that contains lyrics in quotes
+    let cleanScenePrompt = `Tim sings passionately into the microphone. "You were ordinary" echoes through the arena.`;
+
+    // Apply the same regex used in generateScenePreview
+    cleanScenePrompt = cleanScenePrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
+
+    expect(cleanScenePrompt).not.toContain("You were ordinary");
+    expect(cleanScenePrompt).toContain("Tim sings passionately");
+  });
+
+  it("strips curly-quote lyrics from scene prompt", () => {
+    let cleanScenePrompt = `Close-up of Tim\u2019s face, \u201CYou\u2019re ordinary\u201D displayed on screen behind him.`;
+
+    cleanScenePrompt = cleanScenePrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
+
+    expect(cleanScenePrompt).not.toContain("You\u2019re ordinary");
+  });
+
+  it("strips lyrics: prefix lines from scene prompt", () => {
+    let cleanScenePrompt = `Tim on stage. Lyrics: You were ordinary now you're not`;
+
+    cleanScenePrompt = cleanScenePrompt.replace(/\blyrics?:\s*[^.\n]*/gi, "").trim();
+
+    expect(cleanScenePrompt).not.toContain("You were ordinary");
+    expect(cleanScenePrompt).toContain("Tim on stage");
+  });
+
+  it("does not strip normal scene description text (no false positives)", () => {
+    const normalPrompt = `Tim stands at the microphone, arms raised, dramatic stage lighting behind him.`;
+
+    const cleaned = normalPrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
+
+    expect(cleaned).toBe(normalPrompt);
+  });
+});

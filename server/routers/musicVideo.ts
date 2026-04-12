@@ -931,6 +931,12 @@ Rules:
       // by collapsing repeated phrases
       cleanScenePrompt = cleanScenePrompt.replace(/(\b\w{4,}\b[^.]{10,}?)\1+/g, "$1").trim();
 
+      // Strip any quoted lyrics text that the storyboard LLM may have included in the scene description.
+      // e.g. "You were ordinary" → removed. The AI image model renders quoted text literally.
+      cleanScenePrompt = cleanScenePrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
+      // Also strip lines that look like lyric fragments (short lines ending with no punctuation)
+      cleanScenePrompt = cleanScenePrompt.replace(/\blyrics?:\s*[^.\n]*/gi, "").trim();
+
       // --- Style and mood ---
       const styleMap: Record<string, string> = {
         cinematic: "cinematic film still, dramatic lighting, shallow depth of field",
@@ -945,12 +951,14 @@ Rules:
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 
       // --- Final prompt: CHARACTER IDENTITY FIRST, then clean scene direction, then style ---
+      // CRITICAL: no text/words/captions in frame — the AI model renders quoted text literally
       const imagePrompt = [
         identityBlock,
         cleanScenePrompt,
         styleDescriptor,
         moodContext ? `Mood: ${moodContext}` : "",
         "16:9 widescreen, high quality, professional photography",
+        "no text in frame, no words, no captions, no subtitles, no lyrics visible, no overlaid text",
       ].filter(Boolean).join(". ");
 
       // --- Identity Anchor: use the PRIMARY ASSIGNED character's master portrait ---
@@ -1015,7 +1023,14 @@ Rules:
         "deformed",
         "ugly",
         "disfigured",
+        // Text / caption artefacts
         "text",
+        "words",
+        "caption",
+        "subtitle",
+        "lyrics text",
+        "text overlay",
+        "words in frame",
         "watermark",
       ].join(", ");
 

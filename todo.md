@@ -1576,3 +1576,9 @@
 - [x] Strengthen character lock prompt: same hairstyle, same hair length, same hair colour, same facial hair, no variation in hair or appearance
 - [x] Strengthen negative prompt: different hairstyle, shorter hair, longer hair, different colour, variation in appearance, different facial hair
 - [x] Remove legacy job.characterImageUrl fallback that bleeds Tim's face into non-Tim scenes
+
+## No-Text Enforcement (Apr 12 2026)
+- [x] Strip double-quoted and curly-quoted lyrics from cleanScenePrompt before image generation
+- [x] Strip "lyrics: ..." prefix lines from cleanScenePrompt
+- [x] Add "no text in frame, no words, no captions, no subtitles, no lyrics visible" to positive prompt
+- [x] Add "caption, subtitle, lyrics text, text overlay, words in frame" to negative prompt
