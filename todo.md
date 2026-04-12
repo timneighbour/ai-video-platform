@@ -2258,3 +2258,10 @@
 - [x] Update RenderPaywallModal: rename audio options to WizSound™ branding, add "Powered by WizSound™" header
 - [x] Update Pricing page audio section with WizSound™ branding
 - [x] Update all marketing copy (Home, MusicVideosLanding, AuthGate, SeoLandingPage, Help) with WizSound™ branding
+
+## WizSound™ FFmpeg Audio Processing Pipeline
+- [x] Build server/wizsound.ts module with applyWizSound(inputPath, outputPath, tier) function
+- [x] Wire WizSound into assembleMusicVideo (music video assembly)
+- [x] Wire WizSound into all other video assembly functions (kids video, text-to-video, WizPilot) — confirmed only music video uses local FFmpeg assembly; others use external AI APIs
+- [x] Pass audioTier from render job through to assembly functions
+- [x] Write vitest tests for WizSound module (7 tests passing)

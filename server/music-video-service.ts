@@ -22,6 +22,7 @@ import { submitAtlasVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
 import { submitWaveSpeedVideo, pollWaveSpeedVideo, type WaveSpeedModel } from "./ai-apis/wavespeed";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
+import { applyWizSound, type AudioTier } from "./wizsound";
 
 const klingClient = initKlingAI();
 const seedanceClient = initSeedance();
@@ -1021,7 +1022,7 @@ export async function pollSceneStatus(
  * Assemble all scene videos + audio into a final music video using ffmpeg.
  * Returns the S3 URL of the final video.
  */
-export async function assembleMusicVideo(jobId: number): Promise<string> {
+export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "standard"): Promise<string> {
   const dbConn = await getDb();
   if (!dbConn) throw new Error("Database not available");
 
@@ -1049,10 +1050,15 @@ export async function assembleMusicVideo(jobId: number): Promise<string> {
       sceneFiles.push(sceneFile);
     }
 
-    const audioFile = path.join(tmpDir, "audio.mp3");
+    // Download original audio
+    const audioFileRaw = path.join(tmpDir, "audio-raw.mp3");
     const audioResp = await fetch(job.audioUrl);
     const audioBuf = Buffer.from(await audioResp.arrayBuffer());
-    fs.writeFileSync(audioFile, audioBuf);
+    fs.writeFileSync(audioFileRaw, audioBuf);
+
+    // Apply WizSound™ audio enhancement
+    const audioFile = path.join(tmpDir, "audio.mp3");
+    await applyWizSound(audioFileRaw, audioFile, audioTier);
 
     const concatFile = path.join(tmpDir, "concat.txt");
     const concatContent = sceneFiles.map(f => `file '${f}'`).join("\n");

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc, inArray } from "drizzle-orm";
 
@@ -739,7 +739,18 @@ Rules:
             .set({ status: "assembling", updatedAt: new Date() })
             .where(eq(musicVideoJobs.id, input.jobId));
 
-          assembleMusicVideo(input.jobId).catch(async (err) => {
+          // Look up the most recent paid/free render job for this music video to get the audioTier
+          const [latestRenderJob] = await db.select()
+            .from(renderJobs)
+            .where(and(
+              eq(renderJobs.sourceJobId, input.jobId),
+              eq(renderJobs.sourceJobType, "music_video")
+            ))
+            .orderBy(desc(renderJobs.createdAt))
+            .limit(1);
+          const audioTier = (latestRenderJob?.audioTier ?? "standard") as "standard" | "enhanced" | "cinematic";
+
+          assembleMusicVideo(input.jobId, audioTier).catch(async (err) => {
             console.error(`[MusicVideo] Assembly failed for job ${input.jobId}:`, err);
             await db!.update(musicVideoJobs)
               .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
