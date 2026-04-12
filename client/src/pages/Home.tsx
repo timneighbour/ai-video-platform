@@ -1797,11 +1797,11 @@ function HomePricing() {
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
             Create videos from{" "}
             <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              £1–£2 per minute
+              £2 per render
             </span>
           </h2>
           <p className="text-[#a1a1aa] max-w-lg mx-auto">
-            Storyboard generation is always free. Credits only deduct when you render your final video.
+            Storyboard generation is always free. Only pay when you render — from £2/render, upgrade packs available.
           </p>
         </div>
 
@@ -1839,6 +1839,23 @@ function HomePricing() {
               <p className="text-xs text-[#a1a1aa]/70 mt-2">{plan.desc}</p>
             </a>
           ))}
+        </div>
+
+        {/* Cinematic Pack teaser */}
+        <div className="mb-6 p-4 rounded-2xl border border-fuchsia-500/30 bg-gradient-to-r from-fuchsia-950/40 to-violet-950/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white text-[10px] font-bold tracking-wider">
+              ★ BEST VALUE
+            </span>
+            <div>
+              <p className="text-sm font-bold text-white">Cinematic Pack — £7</p>
+              <p className="text-xs text-fuchsia-300/70">4K video · WizSound Cinematic audio · Priority rendering</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-white/50">
+            <span className="line-through">£9 individually</span>
+            <span className="text-emerald-400 font-semibold">Save £2</span>
+          </div>
         </div>
 
         <div className="text-center">

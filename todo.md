@@ -2506,3 +2506,12 @@
 - [ ] Upgrade CTA: "Add WizSound" button pre-selecting WizSound Cinematic
 - [ ] Accessible: aria-labels on all toggles
 - [ ] Placement: above pricing section on homepage
+
+## Render Tier Pricing Update
+- [ ] Standard (720p) — £2
+- [ ] HD (1080p) — £4
+- [ ] 4K — £6
+- [ ] Cinematic Pack (4K + WizSound Cinematic) — £7 [RECOMMENDED ★]
+- [ ] Update RenderPaywallModal render tiers to match
+- [ ] Update products.ts Stripe price references
+- [ ] Update pricing page render tier display

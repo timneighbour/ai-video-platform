@@ -8,6 +8,7 @@ import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
+import PostRenderCinematicPackModal from "@/components/PostRenderCinematicPackModal";
 import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import LyricsIntelligencePanel from "@/components/LyricsIntelligencePanel";
 import { Button } from "@/components/ui/button";
@@ -295,6 +296,7 @@ export default function MusicVideoAutopilot() {
   const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
   const { checkLowCredits, checkCanAfford, balance: creditBalance } = useCreditGuard();
   const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
+  const [showCinematicPackModal, setShowCinematicPackModal] = useState(false);
   const [showRenderPaywall, setShowRenderPaywall] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
   const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
@@ -980,8 +982,10 @@ export default function MusicVideoAutopilot() {
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
-              // Show cinematic upsell modal after a short delay
-              setTimeout(() => setShowCinematicUpsell(true), 1500);
+              // Show Cinematic Pack upsell modal first (1s delay for celebration animation)
+              setTimeout(() => setShowCinematicPackModal(true), 1000);
+              // Scene-level cinematic upsell shown after user dismisses the pack modal
+              // (triggered from onSkip / onClose of PostRenderCinematicPackModal)
               // Check if credits are now low
               setTimeout(() => checkLowCredits(), 3000);
               return; // stop polling
@@ -1109,6 +1113,29 @@ export default function MusicVideoAutopilot() {
           jobId={jobId}
           jobType="music_video"
           videoTitle={title || undefined}
+        />
+      )}
+      {/* Post-Render Cinematic Pack Modal — shown immediately after render completes */}
+      {finalVideoUrl && jobId && (
+        <PostRenderCinematicPackModal
+          open={showCinematicPackModal}
+          onClose={() => setShowCinematicPackModal(false)}
+          jobId={jobId}
+          jobType="music_video"
+          finalVideoUrl={finalVideoUrl}
+          onSkip={(url) => {
+            // Trigger browser download of the standard video
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "";
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            // Show scene-level cinematic upsell after a short delay
+            setTimeout(() => setShowCinematicUpsell(true), 600);
+          }}
         />
       )}
       {/* Cinematic Upsell Modal — shown after render completes */}

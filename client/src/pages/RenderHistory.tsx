@@ -41,6 +41,7 @@ import { Link } from "wouter";
 import BackButton from "@/components/BackButton";
 import { WizBrandPostBadge } from "@/components/WizBrand";
 import SubscriptionUpgradeNudge from "@/components/SubscriptionUpgradeNudge";
+import PostRenderCinematicPackModal from "@/components/PostRenderCinematicPackModal";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -95,6 +96,7 @@ export default function RenderHistory() {
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [retryingJobId, setRetryingJobId] = useState<number | null>(null);
   const [confirmRetryJob, setConfirmRetryJob] = useState<{ id: number; title: string; failedCount: number } | null>(null);
+  const [cinematicPackJob, setCinematicPackJob] = useState<{ id: number; videoUrl: string } | null>(null);
 
   const jobsQuery = trpc.musicVideo.listJobs.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -287,17 +289,15 @@ export default function RenderHistory() {
                           <ChevronRight className="w-3.5 h-3.5 mr-1" />Details
                         </Button>
 
-                        {/* Download if completed */}
+                        {/* Download if completed — opens Cinematic Pack upsell first */}
                         {job.status === "completed" && job.finalVideoUrl && (
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-7 px-2 text-xs border-green-500/40 text-green-400 bg-transparent hover:bg-green-500/10"
-                            asChild
+                            onClick={() => setCinematicPackJob({ id: job.id, videoUrl: job.finalVideoUrl! })}
                           >
-                            <a href={job.finalVideoUrl} download target="_blank" rel="noreferrer">
-                              <Download className="w-3.5 h-3.5 mr-1" />Download
-                            </a>
+                            <Download className="w-3.5 h-3.5 mr-1" />Download
                           </Button>
                         )}
 
@@ -528,6 +528,28 @@ export default function RenderHistory() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Post-Render Cinematic Pack upsell modal */}
+      {cinematicPackJob && (
+        <PostRenderCinematicPackModal
+          open={cinematicPackJob !== null}
+          onClose={() => setCinematicPackJob(null)}
+          jobId={cinematicPackJob.id}
+          jobType="music_video"
+          finalVideoUrl={cinematicPackJob.videoUrl}
+          onSkip={(url) => {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "";
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setCinematicPackJob(null);
+          }}
+        />
+      )}
     </div>
   );
 }
