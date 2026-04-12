@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { billingRouter } from "./routers/billing";
+import { billingRouter, renderRouter } from "./routers/billing";
 import { musicVideoRouter } from "./routers/musicVideo";
 import { videoRouter } from "./routers/video";
 import { charactersRouter } from "./routers/characters";
@@ -16,6 +16,7 @@ export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   billing: billingRouter,
+  render: renderRouter,
   musicVideo: router({ ...musicVideoRouter._def.procedures, ...batchRegenRouter._def.procedures }),
   video: videoRouter,
   characters: charactersRouter,

@@ -19,10 +19,10 @@ interface AuthGateProps {
 }
 
 const BENEFITS = [
-  { icon: <Sparkles className="w-4 h-4 text-violet-400" />, text: "2 free videos — no credit card needed" },
-  { icon: <Music className="w-4 h-4 text-pink-400" />,     text: "AI music generation powered by Suno" },
+  { icon: <Sparkles className="w-4 h-4 text-violet-400" />, text: "Create videos completely free — no credit card needed" },
   { icon: <Video className="w-4 h-4 text-blue-400" />,     text: "Full cinematic music videos in minutes" },
-  { icon: <Star className="w-4 h-4 text-yellow-400" />,    text: "Preview every scene before you render" },
+  { icon: <Music className="w-4 h-4 text-pink-400" />,     text: "AI music generation with lyric-aware scenes" },
+  { icon: <Star className="w-4 h-4 text-yellow-400" />,    text: "Only pay when you're ready to render & download" },
 ];
 
 export default function AuthGate({ open, onClose, featureName = "use this feature" }: AuthGateProps) {
@@ -85,7 +85,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
           </a>
 
           <p className="text-center text-[#71717a] text-xs mt-4">
-            Free to start · 2 free videos included · No card required
+            Free to create · Only pay to render · No card required
           </p>
         </div>
       </div>

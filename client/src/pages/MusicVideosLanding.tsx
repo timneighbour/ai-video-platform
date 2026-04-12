@@ -122,7 +122,7 @@ export default function MusicVideosLanding() {
                   <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />View pricing</a>
                 </Button>
               </div>
-              <p className="text-sm text-[#a1a1aa]">Free to start · No credit card · 2 free videos included</p>
+              <p className="text-sm text-[#a1a1aa]">Free to create · No credit card · Only pay to render</p>
             </div>
 
             {/* Right: image grid */}
@@ -212,7 +212,7 @@ export default function MusicVideosLanding() {
                 <div className="p-4 border-t border-white/8 flex items-center justify-between">
                   <div className="flex gap-2">
                     <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Lyrics synced</span>
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-300">✓ No watermark on Pro</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-300">✓ No watermark</span>
                   </div>
                   <span className="text-xs text-[#a1a1aa]">Ready in ~4 min</span>
                 </div>
@@ -229,7 +229,7 @@ export default function MusicVideosLanding() {
             Upload your song. Get a full video.
           </h2>
           <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-            Storyboard generation is always free. You only pay when you render. Start with 2 free videos — no card required.
+            Storyboard generation is always free. You only pay when you're ready to render and download. From £2 per video.
           </p>
           <Button
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
@@ -237,7 +237,7 @@ export default function MusicVideosLanding() {
           >
             <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
           </Button>
-          <p className="text-[#a1a1aa] text-sm mt-4">Free to start · No credit card · 2 free videos included</p>
+          <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to render</p>
         </div>
       </section>
 

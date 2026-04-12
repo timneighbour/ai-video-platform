@@ -1,7 +1,7 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs } from "../drizzle/schema";
-import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances } from "../drizzle/schema";
+import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -293,4 +293,159 @@ export async function deleteShowcaseItem(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(showcaseItems).where(eq(showcaseItems.id, id));
+}
+
+// ── Render Job Helpers ──────────────────────────────────────────────────────
+
+/**
+ * Get the render allowance for a user's current subscription period.
+ * Returns null if no active subscription or no allowance record.
+ */
+export async function getRenderAllowance(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const now = new Date();
+  const rows = await db
+    .select()
+    .from(subscriptionRenderAllowances)
+    .where(
+      and(
+        eq(subscriptionRenderAllowances.userId, userId),
+        gte(subscriptionRenderAllowances.periodEnd, now)
+      )
+    )
+    .limit(1);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Get remaining render bundle credits for a user (sum of all active bundles).
+ */
+export async function getRenderBundleRemaining(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db
+    .select()
+    .from(renderBundles)
+    .where(and(eq(renderBundles.userId, userId)));
+  return rows.reduce((sum, b) => sum + b.remaining, 0);
+}
+
+/**
+ * Create a new render job record.
+ */
+export async function createRenderJob(data: InsertRenderJob): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(renderJobs).values(data);
+  return (result[0] as any).insertId as number;
+}
+
+/**
+ * Update a render job by ID.
+ */
+export async function updateRenderJob(id: number, data: Partial<RenderJob>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(renderJobs).set(data as any).where(eq(renderJobs.id, id));
+}
+
+/**
+ * Get a render job by ID.
+ */
+export async function getRenderJob(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(renderJobs).where(eq(renderJobs.id, id)).limit(1);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Get all render jobs for a user.
+ */
+export async function getUserRenderJobs(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(renderJobs).where(eq(renderJobs.userId, userId));
+}
+
+/**
+ * Consume one subscription render (increment used count).
+ * Returns true if successful, false if no allowance available.
+ */
+export async function consumeSubscriptionRender(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const allowance = await getRenderAllowance(userId);
+  if (!allowance || allowance.used >= allowance.totalAllowed) return false;
+  await db
+    .update(subscriptionRenderAllowances)
+    .set({ used: allowance.used + 1 })
+    .where(eq(subscriptionRenderAllowances.id, allowance.id));
+  return true;
+}
+
+/**
+ * Consume one render from a bundle (uses oldest bundle first).
+ * Returns true if successful, false if no bundles available.
+ */
+export async function consumeBundleRender(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const bundles = await db
+    .select()
+    .from(renderBundles)
+    .where(and(eq(renderBundles.userId, userId)));
+  const active = bundles.filter((b) => b.remaining > 0).sort((a, b) => a.id - b.id);
+  if (active.length === 0) return false;
+  const bundle = active[0];
+  await db
+    .update(renderBundles)
+    .set({ remaining: bundle.remaining - 1 })
+    .where(eq(renderBundles.id, bundle.id));
+  return true;
+}
+
+/**
+ * Create a render bundle record after successful purchase.
+ */
+export async function createRenderBundle(data: InsertRenderBundle) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(renderBundles).values(data);
+}
+
+/**
+ * Provision a subscription render allowance for a new billing period.
+ * Called from Stripe webhook when subscription is created/renewed.
+ */
+export async function provisionSubscriptionRenderAllowance(
+  userId: number,
+  subscriptionId: number,
+  totalAllowed: number,
+  periodStart: Date,
+  periodEnd: Date
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(subscriptionRenderAllowances).values({
+    userId,
+    subscriptionId,
+    totalAllowed,
+    used: 0,
+    periodStart,
+    periodEnd,
+  });
+}
+
+/**
+ * Returns the number of renders a subscription plan includes per month.
+ */
+export function getRendersForPlan(plan: string): number {
+  switch (plan) {
+    case "starter": return 5;
+    case "creator": return 15;
+    case "studio": return 40;
+    default: return 0;
+  }
 }

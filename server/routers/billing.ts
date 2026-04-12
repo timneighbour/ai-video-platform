@@ -464,3 +464,232 @@ export const billingRouter = router({
       return { imageUrl: url };
     }),
 });
+
+// ── Render Paywall Procedures ──────────────────────────────────────────────
+
+import {
+  getRenderAllowance,
+  getRenderBundleRemaining,
+  createRenderJob,
+  consumeSubscriptionRender,
+  consumeBundleRender,
+  getRendersForPlan,
+  getUserSubscription as _getUserSubscription,
+} from "../db";
+
+// Re-export so we can use in this file (already imported above as getUserSubscription)
+// Note: getUserSubscription is already imported at top of file
+
+/**
+ * Check how many renders a user has available (subscription + bundles).
+ */
+export const renderRouter = router({
+  getRenderStatus: protectedProcedure.query(async ({ ctx }) => {
+    // Admin gets unlimited
+    if (ctx.user.role === "admin") {
+      return { subscriptionRemaining: 999, bundleRemaining: 999, total: 999, isAdmin: true };
+    }
+    const allowance = await getRenderAllowance(ctx.user.id);
+    const bundleRemaining = await getRenderBundleRemaining(ctx.user.id);
+    const subscriptionRemaining = allowance
+      ? Math.max(0, allowance.totalAllowed - allowance.used)
+      : 0;
+    return {
+      subscriptionRemaining,
+      bundleRemaining,
+      total: subscriptionRemaining + bundleRemaining,
+      isAdmin: false,
+    };
+  }),
+
+  /**
+   * Create a Stripe checkout session for a render purchase.
+   * Supports: standard/hd/4k quality + enhanced/cinematic audio add-on.
+   */
+  createRenderCheckout: protectedProcedure
+    .input(
+      z.object({
+        jobId: z.number().int(),
+        jobType: z.enum(["music_video", "text_to_video", "kids_video", "wizpilot"]).default("music_video"),
+        quality: z.enum(["standard", "hd", "4k"]),
+        audioTier: z.enum(["standard", "enhanced", "cinematic"]).default("standard"),
+        origin: z.string().url(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const qualityPrices: Record<string, { priceId: string; amount: number; label: string }> = {
+        standard: { priceId: process.env.STRIPE_RENDER_STANDARD_PRICE_ID || "", amount: 200, label: "Standard Render (720p)" },
+        hd: { priceId: process.env.STRIPE_RENDER_HD_PRICE_ID || "", amount: 400, label: "HD Render (1080p)" },
+        "4k": { priceId: process.env.STRIPE_RENDER_4K_PRICE_ID || "", amount: 600, label: "4K Render (2160p)" },
+      };
+      const audioPrices: Record<string, { priceId: string; amount: number; label: string } | null> = {
+        standard: null,
+        enhanced: { priceId: process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID || "", amount: 100, label: "Enhanced Audio" },
+        cinematic: { priceId: process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID || "", amount: 300, label: "Cinematic Audio" },
+      };
+
+      const qualityInfo = qualityPrices[input.quality];
+      const audioInfo = audioPrices[input.audioTier];
+
+      if (!qualityInfo.priceId) throw new Error(`Render price not configured for quality: ${input.quality}`);
+
+      const lineItems: Array<{ price: string; quantity: number }> = [
+        { price: qualityInfo.priceId, quantity: 1 },
+      ];
+      if (audioInfo && audioInfo.priceId) {
+        lineItems.push({ price: audioInfo.priceId, quantity: 1 });
+      }
+
+      const totalAmount = qualityInfo.amount + (audioInfo?.amount ?? 0);
+
+      // Create a pending render job record
+      const renderJobId = await createRenderJob({
+        userId: ctx.user.id,
+        sourceJobId: input.jobId,
+        sourceJobType: input.jobType,
+        quality: input.quality,
+        audioTier: input.audioTier,
+        basePrice: qualityInfo.amount,
+        audioAddon: audioInfo?.amount ?? 0,
+        totalPrice: totalAmount,
+        paymentStatus: "pending",
+        renderStatus: "queued",
+        usedSubscriptionRender: false,
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        customer_email: ctx.user.email || undefined,
+        payment_method_types: ["card", "paypal"],
+        line_items: lineItems,
+        mode: "payment",
+        success_url: `${input.origin}/render/success?render_job_id=${renderJobId}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${input.origin}/music-video/create?render_canceled=true`,
+        client_reference_id: ctx.user.id.toString(),
+        metadata: {
+          user_id: ctx.user.id.toString(),
+          render_job_id: renderJobId.toString(),
+          job_id: input.jobId.toString(),
+          job_type: input.jobType,
+          quality: input.quality,
+          audio_tier: input.audioTier,
+          type: "render",
+        },
+        allow_promotion_codes: true,
+      });
+
+      return { checkoutUrl: session.url, renderJobId };
+    }),
+
+  /**
+   * Create a Stripe checkout session for a render bundle purchase.
+   */
+  createBundleCheckout: protectedProcedure
+    .input(
+      z.object({
+        bundle: z.enum(["6", "15", "40"]),
+        origin: z.string().url(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const bundlePrices: Record<string, { priceId: string; renders: number; label: string }> = {
+        "6": { priceId: process.env.STRIPE_BUNDLE_6_PRICE_ID || "", renders: 6, label: "6 Render Bundle" },
+        "15": { priceId: process.env.STRIPE_BUNDLE_15_PRICE_ID || "", renders: 15, label: "15 Render Bundle" },
+        "40": { priceId: process.env.STRIPE_BUNDLE_40_PRICE_ID || "", renders: 40, label: "40 Render Bundle" },
+      };
+
+      const bundleInfo = bundlePrices[input.bundle];
+      if (!bundleInfo.priceId) throw new Error(`Bundle price not configured: ${input.bundle}`);
+
+      const session = await stripe.checkout.sessions.create({
+        customer_email: ctx.user.email || undefined,
+        payment_method_types: ["card", "paypal"],
+        line_items: [{ price: bundleInfo.priceId, quantity: 1 }],
+        mode: "payment",
+        success_url: `${input.origin}/dashboard?bundle_purchased=true&renders=${bundleInfo.renders}`,
+        cancel_url: `${input.origin}/pricing?canceled=true`,
+        client_reference_id: ctx.user.id.toString(),
+        metadata: {
+          user_id: ctx.user.id.toString(),
+          type: "render_bundle",
+          bundle_size: input.bundle,
+          renders: bundleInfo.renders.toString(),
+        },
+        allow_promotion_codes: true,
+      });
+
+      return { checkoutUrl: session.url };
+    }),
+
+  /**
+   * Use a free render (subscription or bundle).
+   * Returns { used: true } if a render was consumed, or { used: false } if none available.
+   */
+  useFreeRender: protectedProcedure
+    .input(
+      z.object({
+        jobId: z.number().int(),
+        jobType: z.enum(["music_video", "text_to_video", "kids_video", "wizpilot"]).default("music_video"),
+        quality: z.enum(["standard", "hd", "4k"]).default("standard"),
+        audioTier: z.enum(["standard", "enhanced", "cinematic"]).default("standard"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Admin gets unlimited free renders
+      if (ctx.user.role === "admin") {
+        const renderJobId = await createRenderJob({
+          userId: ctx.user.id,
+          sourceJobId: input.jobId,
+          sourceJobType: input.jobType,
+          quality: input.quality,
+          audioTier: input.audioTier,
+          basePrice: 0,
+          audioAddon: 0,
+          totalPrice: 0,
+          paymentStatus: "free",
+          renderStatus: "queued",
+          usedSubscriptionRender: false,
+        });
+        return { used: true, renderJobId, source: "admin" as const };
+      }
+
+      // Try subscription render first
+      const usedSub = await consumeSubscriptionRender(ctx.user.id);
+      if (usedSub) {
+        const renderJobId = await createRenderJob({
+          userId: ctx.user.id,
+          sourceJobId: input.jobId,
+          sourceJobType: input.jobType,
+          quality: input.quality,
+          audioTier: input.audioTier,
+          basePrice: 0,
+          audioAddon: 0,
+          totalPrice: 0,
+          paymentStatus: "subscription",
+          renderStatus: "queued",
+          usedSubscriptionRender: true,
+        });
+        return { used: true, renderJobId, source: "subscription" as const };
+      }
+
+      // Try bundle render
+      const usedBundle = await consumeBundleRender(ctx.user.id);
+      if (usedBundle) {
+        const renderJobId = await createRenderJob({
+          userId: ctx.user.id,
+          sourceJobId: input.jobId,
+          sourceJobType: input.jobType,
+          quality: input.quality,
+          audioTier: input.audioTier,
+          basePrice: 0,
+          audioAddon: 0,
+          totalPrice: 0,
+          paymentStatus: "free",
+          renderStatus: "queued",
+          usedSubscriptionRender: false,
+        });
+        return { used: true, renderJobId, source: "bundle" as const };
+      }
+
+      return { used: false, renderJobId: null, source: "none" as const };
+    }),
+});

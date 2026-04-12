@@ -92,8 +92,8 @@ function TrustBar() {
       </span>
       <span className="text-white/20 hidden sm:inline">|</span>
       <span className="flex items-center gap-1.5">
-        <Clock className="w-4 h-4 text-pink-400" />
-        First video free
+          <Clock className="w-4 h-4 text-pink-400" />
+          Free to create
       </span>
     </div>
   );
@@ -190,7 +190,7 @@ export default function SeoLandingPage() {
       },
       {
         q: `Is ${page.keyword} free to try?`,
-        a: "Yes. WizVid offers a free plan with 2 videos included — no credit card required. Storyboard generation is always free.",
+        a: "Yes. WizVid is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
       },
     ];
 
@@ -282,7 +282,7 @@ export default function SeoLandingPage() {
     },
     {
       q: `Is ${page.keyword} free to try?`,
-      a: "Yes. WizVid offers a free plan with 2 videos included — no credit card required. Storyboard generation is always free.",
+      a: "Yes. WizVid is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
     },
   ];
 
@@ -369,7 +369,7 @@ export default function SeoLandingPage() {
         <div className="my-12 p-8 rounded-2xl bg-gradient-to-r from-pink-900/30 to-purple-900/30 border border-pink-500/20 text-center">
           <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
           <p className="text-white/60 mb-2">Join thousands of creators already using WizVid</p>
-          <p className="text-white/40 text-sm mb-6">No credit card required · First video free · Under 2 minutes</p>
+          <p className="text-white/40 text-sm mb-6">No credit card required · Free to create · Only pay to render</p>
           <CTAButton text="Create Your First AI Video — Free" keyword={page.keyword} className="justify-center" />
         </div>
 
@@ -483,7 +483,7 @@ export default function SeoLandingPage() {
             No editing. No experience needed. Just upload your audio or idea and let WizVid do the rest.
           </p>
           <CTAButton text="Create Your First AI Video Now — Free" keyword={page.keyword} className="justify-center" />
-          <p className="text-white/30 text-sm mt-4">No credit card required • Start free today • Cancel anytime</p>
+          <p className="text-white/30 text-sm mt-4">No credit card required • Free to create • Only pay to render</p>
         </div>
 
         {/* SEO paragraph */}

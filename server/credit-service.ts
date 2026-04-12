@@ -23,14 +23,23 @@ export async function getUserCredits(userId: number): Promise<number> {
     .limit(1);
 
   if (!userCredits.length) {
-    // Initialize credits for new user
+    // Initialize credits for new user — grant 100 free welcome credits
+    const WELCOME_CREDITS = 100;
     await db.insert(credits).values({
       userId: userId,
-      balance: 0,
-      totalEarned: 0,
+      balance: WELCOME_CREDITS,
+      totalEarned: WELCOME_CREDITS,
       totalSpent: 0,
     });
-    return 0;
+    // Log welcome grant transaction
+    await db.insert(creditTransactions).values({
+      userId: userId,
+      amount: WELCOME_CREDITS,
+      type: "subscription_grant",
+      description: "Welcome credits — create your first video free",
+      createdAt: new Date(),
+    });
+    return WELCOME_CREDITS;
   }
 
   return userCredits[0].balance;

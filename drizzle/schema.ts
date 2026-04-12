@@ -382,3 +382,81 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
+
+// --- Render Jobs (Pay-to-Render Model) -----------------------------------------
+// Tracks each render request: quality tier, audio tier, payment status, download URL.
+// Free creation → pay to render. Subscription plans include N renders/month.
+export const renderJobs = mysqlTable("renderJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+
+  // Source job reference (music video job, etc.)
+  sourceJobId: int("sourceJobId"), // references musicVideoJobs.id or other job tables
+  sourceJobType: mysqlEnum("sourceJobType", ["music_video", "text_to_video", "kids_video", "wizpilot"]).notNull().default("music_video"),
+
+  // Quality tier
+  quality: mysqlEnum("quality", ["standard", "hd", "4k"]).notNull().default("standard"),
+  // Audio tier
+  audioTier: mysqlEnum("audioTier", ["standard", "enhanced", "cinematic"]).notNull().default("standard"),
+
+  // Pricing (in pence, GBP)
+  basePrice: int("basePrice").notNull().default(0), // e.g. 200 = £2.00
+  audioAddon: int("audioAddon").notNull().default(0), // e.g. 100 = £1.00
+  totalPrice: int("totalPrice").notNull().default(0), // basePrice + audioAddon
+
+  // Payment
+  paymentStatus: mysqlEnum("paymentStatus", ["free", "pending", "paid", "failed", "subscription"]).notNull().default("pending"),
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }),
+
+  // Render output
+  renderStatus: mysqlEnum("renderStatus", ["queued", "processing", "completed", "failed"]).notNull().default("queued"),
+  downloadUrl: varchar("downloadUrl", { length: 1024 }),
+  downloadKey: varchar("downloadKey", { length: 512 }),
+  expiresAt: timestamp("expiresAt"), // Download link expiry
+
+  // Subscription render tracking
+  usedSubscriptionRender: boolean("usedSubscriptionRender").default(false).notNull(),
+
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RenderJob = typeof renderJobs.$inferSelect;
+export type InsertRenderJob = typeof renderJobs.$inferInsert;
+
+// --- Subscription Render Allowances -------------------------------------------
+// Tracks monthly render quota per subscription plan.
+// Reset each billing cycle. Starter=5, Creator=15, Studio=40.
+export const subscriptionRenderAllowances = mysqlTable("subscriptionRenderAllowances", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  subscriptionId: int("subscriptionId").notNull(), // references subscriptions.id
+  periodStart: timestamp("periodStart").notNull(),
+  periodEnd: timestamp("periodEnd").notNull(),
+  totalAllowed: int("totalAllowed").notNull(), // 5 | 15 | 40
+  used: int("used").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SubscriptionRenderAllowance = typeof subscriptionRenderAllowances.$inferSelect;
+export type InsertSubscriptionRenderAllowance = typeof subscriptionRenderAllowances.$inferInsert;
+
+// --- Render Bundles (Pay-per-render packs) ------------------------------------
+// Purchased packs of render credits: 6, 15, or 40 renders.
+export const renderBundles = mysqlTable("renderBundles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  bundleSize: int("bundleSize").notNull(), // 6 | 15 | 40
+  remaining: int("remaining").notNull(), // renders left in this bundle
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }),
+  purchasedAt: timestamp("purchasedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"), // Optional expiry
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RenderBundle = typeof renderBundles.$inferSelect;
+export type InsertRenderBundle = typeof renderBundles.$inferInsert;

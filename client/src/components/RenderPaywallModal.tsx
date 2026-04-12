@@ -1,0 +1,344 @@
+/**
+ * RenderPaywallModal — Premium unlock moment for the render paywall.
+ *
+ * Shown when a user wants to download their completed video.
+ * Lets them choose quality tier (Standard/HD/4K) and audio tier (Standard/Enhanced/Cinematic).
+ * Shows dynamic total, subscription render status, and bundle options.
+ * Triggers Stripe checkout for paid renders, or uses free subscription/bundle renders.
+ */
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { Check, Download, Zap, Crown, ChevronRight, Sparkles } from "lucide-react";
+
+type Quality = "standard" | "hd" | "4k";
+type AudioTier = "standard" | "enhanced" | "cinematic";
+type JobType = "music_video" | "text_to_video" | "kids_video" | "wizpilot";
+
+interface RenderPaywallModalProps {
+  open: boolean;
+  onClose: () => void;
+  jobId: number;
+  jobType?: JobType;
+  videoTitle?: string;
+  previewImageUrl?: string;
+}
+
+const QUALITY_OPTIONS: Array<{
+  id: Quality;
+  label: string;
+  resolution: string;
+  price: number;
+  badge?: string;
+  description: string;
+}> = [
+  { id: "standard", label: "Standard", resolution: "720p", price: 2, description: "Great for social media" },
+  { id: "hd", label: "HD", resolution: "1080p", price: 4, badge: "MOST POPULAR", description: "Perfect for YouTube & streaming" },
+  { id: "4k", label: "4K", resolution: "2160p", price: 6, description: "Cinema-grade quality" },
+];
+
+const AUDIO_OPTIONS: Array<{
+  id: AudioTier;
+  label: string;
+  price: number;
+  badge?: string;
+  description: string;
+  features: string[];
+}> = [
+  {
+    id: "standard",
+    label: "Standard",
+    price: 0,
+    description: "Original audio",
+    features: ["Original mix", "Stereo output"],
+  },
+  {
+    id: "enhanced",
+    label: "Enhanced",
+    price: 1,
+    description: "Polished sound",
+    features: ["Stereo widening", "EQ mastering", "Noise reduction"],
+  },
+  {
+    id: "cinematic",
+    label: "Cinematic",
+    price: 3,
+    badge: "RECOMMENDED",
+    description: "Full audio mastering",
+    features: ["Full cinematic mastering", "Dynamic range", "Spatial depth", "Professional mix"],
+  },
+];
+
+export function RenderPaywallModal({
+  open,
+  onClose,
+  jobId,
+  jobType = "music_video",
+  videoTitle,
+  previewImageUrl,
+}: RenderPaywallModalProps) {
+  const [quality, setQuality] = useState<Quality>("hd");
+  const [audioTier, setAudioTier] = useState<AudioTier>("cinematic");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const renderStatus = trpc.render.getRenderStatus.useQuery(undefined, {
+    enabled: open,
+    staleTime: 30_000,
+  });
+
+  const createRenderCheckout = trpc.render.createRenderCheckout.useMutation();
+  const useFreeRender = trpc.render.useFreeRender.useMutation();
+
+  const selectedQuality = QUALITY_OPTIONS.find((q) => q.id === quality)!;
+  const selectedAudio = AUDIO_OPTIONS.find((a) => a.id === audioTier)!;
+  const totalPrice = selectedQuality.price + selectedAudio.price;
+
+  const hasFreeRenders = (renderStatus.data?.total ?? 0) > 0;
+  const subscriptionRemaining = renderStatus.data?.subscriptionRemaining ?? 0;
+  const bundleRemaining = renderStatus.data?.bundleRemaining ?? 0;
+  const isAdmin = renderStatus.data?.isAdmin ?? false;
+
+  async function handleRender() {
+    setIsLoading(true);
+    try {
+      if (hasFreeRenders || isAdmin) {
+        // Use a free render (subscription or bundle)
+        const result = await useFreeRender.mutateAsync({
+          jobId,
+          jobType,
+          quality,
+          audioTier,
+        });
+        if (result.used) {
+      toast.success("Render started!", {
+        description: `Your ${selectedQuality.label} render is processing. We'll notify you when it's ready.`,
+      });
+          onClose();
+          return;
+        }
+      }
+
+      // No free renders — go to Stripe checkout
+      const result = await createRenderCheckout.mutateAsync({
+        jobId,
+        jobType,
+        quality,
+        audioTier,
+        origin: window.location.origin,
+      });
+
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      }
+    } catch (err) {
+      toast.error("Something went wrong", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-2xl bg-[#0a0a0a] border border-white/10 text-white p-0 overflow-hidden rounded-2xl">
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-violet-900/40 via-purple-900/20 to-black px-6 pt-6 pb-5 border-b border-white/8">
+          {/* Film grain overlay */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
+          />
+          <DialogHeader className="relative">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-mono tracking-wider uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                Ready to render
+              </span>
+            </div>
+            <DialogTitle className="text-xl font-bold text-white">
+              {videoTitle ? `Render "${videoTitle}"` : "Render & Download Your Video"}
+            </DialogTitle>
+            <p className="text-sm text-white/55 mt-1">
+              Choose your quality and audio settings below.
+            </p>
+          </DialogHeader>
+
+          {/* Render balance indicator */}
+          {!renderStatus.isLoading && (
+            <div className="mt-4 flex items-center gap-3">
+              {isAdmin ? (
+                <div className="flex items-center gap-2 text-xs text-violet-300">
+                  <Crown className="w-3.5 h-3.5" />
+                  Admin — unlimited renders
+                </div>
+              ) : hasFreeRenders ? (
+                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                  <Zap className="w-3.5 h-3.5" />
+                  {subscriptionRemaining > 0 && `${subscriptionRemaining} subscription render${subscriptionRemaining !== 1 ? "s" : ""} remaining`}
+                  {subscriptionRemaining > 0 && bundleRemaining > 0 && " · "}
+                  {bundleRemaining > 0 && `${bundleRemaining} bundle render${bundleRemaining !== 1 ? "s" : ""}`}
+                  {" — this render is free"}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs text-amber-400">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  No free renders remaining — pay per render below
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
+          {/* Quality selection */}
+          <div>
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Video Quality</h3>
+            <div className="grid grid-cols-3 gap-2.5">
+              {QUALITY_OPTIONS.map((q) => (
+                <button
+                  key={q.id}
+                  onClick={() => setQuality(q.id)}
+                  className={`relative flex flex-col items-center gap-1.5 p-3.5 rounded-xl border transition-all duration-200 text-center ${
+                    quality === q.id
+                      ? "border-violet-500 bg-violet-500/15 shadow-[0_0_20px_rgba(139,92,246,0.2)]"
+                      : "border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5"
+                  }`}
+                >
+                  {q.badge && (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-violet-500 text-white text-[9px] font-bold tracking-wider whitespace-nowrap">
+                      {q.badge}
+                    </span>
+                  )}
+                  <span className="text-base font-bold text-white">{q.label}</span>
+                  <span className="text-xs text-white/50">{q.resolution}</span>
+                  <span className="text-sm font-semibold text-violet-300">
+                    {q.price === 0 ? "Free" : `£${q.price}`}
+                  </span>
+                  <span className="text-[10px] text-white/40 leading-tight">{q.description}</span>
+                  {quality === q.id && (
+                    <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 text-white" />
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Audio tier selection */}
+          <div>
+            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Audio Quality</h3>
+            <div className="space-y-2">
+              {AUDIO_OPTIONS.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => setAudioTier(a.id)}
+                  className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200 text-left ${
+                    audioTier === a.id
+                      ? "border-violet-500 bg-violet-500/15 shadow-[0_0_15px_rgba(139,92,246,0.15)]"
+                      : "border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5"
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
+                    audioTier === a.id ? "border-violet-500 bg-violet-500" : "border-white/30"
+                  }`}>
+                    {audioTier === a.id && <Check className="w-2.5 h-2.5 text-white" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-white">{a.label}</span>
+                      {a.badge && (
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold tracking-wider">
+                          {a.badge}
+                        </span>
+                      )}
+                      <span className="ml-auto text-sm font-semibold text-violet-300">
+                        {a.price === 0 ? "Included" : `+£${a.price}`}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/45 mt-0.5">{a.description}</p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+                      {a.features.map((f) => (
+                        <span key={f} className="text-[10px] text-white/35 flex items-center gap-1">
+                          <Check className="w-2.5 h-2.5 text-violet-400/70" />
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer — total + CTA */}
+        <div className="px-6 pb-6 pt-4 border-t border-white/8 bg-black/30">
+          {/* Bundle upsell (only if no free renders) */}
+          {!hasFreeRenders && !isAdmin && !renderStatus.isLoading && (
+            <div className="mb-4 flex items-center justify-between p-3 rounded-xl bg-violet-500/8 border border-violet-500/20">
+              <div>
+                <p className="text-xs font-semibold text-violet-300">Save with a render bundle</p>
+                <p className="text-[10px] text-white/45 mt-0.5">6 renders for £10 · 15 for £20 · 40 for £50</p>
+              </div>
+              <a
+                href="/pricing#bundles"
+                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium whitespace-nowrap"
+              >
+                View bundles <ChevronRight className="w-3 h-3" />
+              </a>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-white">
+                  {hasFreeRenders || isAdmin ? "Free" : `£${totalPrice.toFixed(2)}`}
+                </span>
+                {!hasFreeRenders && !isAdmin && totalPrice > 0 && (
+                  <span className="text-xs text-white/40">
+                    {selectedQuality.label} + {selectedAudio.label} audio
+                  </span>
+                )}
+              </div>
+              {(hasFreeRenders || isAdmin) && (
+                <p className="text-xs text-emerald-400 mt-0.5">
+                  Using {isAdmin ? "admin" : subscriptionRemaining > 0 ? "subscription" : "bundle"} render
+                </p>
+              )}
+            </div>
+            <Button
+              onClick={handleRender}
+              disabled={isLoading}
+              className="bg-white text-black hover:bg-white/90 font-bold px-6 py-2.5 rounded-xl text-sm shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all duration-200 flex items-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Processing…
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  {hasFreeRenders || isAdmin ? "Render & Download" : `Pay £${totalPrice.toFixed(2)} & Render`}
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Trust signals */}
+          <div className="flex items-center gap-4 text-[10px] text-white/30">
+            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> Secure payment</span>
+            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> Download in minutes</span>
+            <span className="flex items-center gap-1"><Check className="w-2.5 h-2.5 text-emerald-500/70" /> No watermark</span>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default RenderPaywallModal;

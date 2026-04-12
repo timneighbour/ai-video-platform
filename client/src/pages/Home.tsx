@@ -266,7 +266,7 @@ function useIsDesktop() {
 function Hero() {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [demoOpen, setDemoOpen] = useState(false);
-
+  const { isAuthenticated } = useAuth();
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
   }, []);
@@ -313,16 +313,16 @@ function Hero() {
 
         {/* Primary CTA — dominant, unmissable */}
         <a
-          href="/onboarding"
+          href={isAuthenticated ? "/music-video/create" : "/onboarding"}
           className="inline-flex items-center gap-3 bg-white text-black font-bold px-12 py-5 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300 mb-3"
           style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)" }}
         >
           <Sparkles className="w-5 h-5 flex-shrink-0" />
-          Create Your First Video — Free
+          {isAuthenticated ? "Open Creator" : "Create Your First Video — Free"}
         </a>
 
         {/* Trust micro-copy — stacked for clarity */}
-        <p className="text-sm text-white/50 mb-1.5 font-medium">No credit card required · 2 free videos included</p>
+        <p className="text-sm text-white/50 mb-1.5 font-medium">No credit card required · Create free · Only pay when you render</p>
         <p className="text-sm text-white/38 mb-10 tracking-wide">Built for creators, musicians &amp; agencies</p>
 
         {/* Demo video trigger — large pulsing play button */}
@@ -413,7 +413,7 @@ function ImmediateValue() {
               <Sparkles className="w-4 h-4" />
               Create your first video
             </a>
-            <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · First video free · Under 2 minutes</p>
+            <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · Free to create · Only pay to render</p>
           </div>
           {/* Right: visual storyboard mockup */}
           <div className="reveal">
@@ -571,7 +571,7 @@ function ProductDemo() {
           >
             <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
           </Button>
-          <p className="text-[#a1a1aa] text-sm mt-3">Free to start · No credit card · 2 free videos included</p>
+          <p className="text-[#a1a1aa] text-sm mt-3">Free to create · No credit card · Only pay to render</p>
         </div>
       </div>
     </section>
@@ -1489,7 +1489,7 @@ function CTAPush() {
             <a href="/pricing">View pricing</a>
           </Button>
         </div>
-        <p className="text-[#a1a1aa] text-sm">Free to start · No credit card · 2 free videos included</p>
+        <p className="text-[#a1a1aa] text-sm">Free to create · No credit card · Only pay to render</p>
       </div>
     </section>
   );

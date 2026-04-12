@@ -8,6 +8,7 @@ import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
+import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import LyricsIntelligencePanel from "@/components/LyricsIntelligencePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -253,6 +254,7 @@ export default function MusicVideoAutopilot() {
   const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
   const { checkLowCredits, checkCanAfford, balance: creditBalance } = useCreditGuard();
   const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
+  const [showRenderPaywall, setShowRenderPaywall] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
   const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
   const cinematicUpgradeMutation = trpc.musicVideo.cinematicUpgrade.useMutation();
@@ -877,15 +879,17 @@ export default function MusicVideoAutopilot() {
       console.warn("[MusicVideo] Render already in progress, ignoring duplicate click");
       return;
     }
-    // Credit guard: check if user can afford this render
-    if (!checkCanAfford(creditCost, "render this video")) {
-      setShowInsufficientCredits(true);
-      return;
-    }
+    // Show render paywall modal — user chooses quality/audio and pays (or uses free render)
+    setShowRenderPaywall(true);
+  };
+
+  /** Called by RenderPaywallModal after payment/free render is confirmed to actually start the render */
+  const handleStartRenderInternal = async () => {
+    if (!jobId || isRenderingRef.current) return;
     isRenderingRef.current = true;
 
     try {
-      const result = await startRender.mutateAsync({ jobId });
+      const result = await startRender.mutateAsync({ jobId: jobId });
       setStep("render");
       setRenderStatus("rendering");
       if (!(result as any).duplicate) {
@@ -1053,6 +1057,16 @@ export default function MusicVideoAutopilot() {
         balance={creditBalance}
         canReduceQuality={false}
       />
+      {/* Render Paywall Modal — shown when user clicks Render Video */}
+      {jobId && (
+        <RenderPaywallModal
+          open={showRenderPaywall}
+          onClose={() => setShowRenderPaywall(false)}
+          jobId={jobId}
+          jobType="music_video"
+          videoTitle={title || undefined}
+        />
+      )}
       {/* Cinematic Upsell Modal — shown after render completes */}
       <CinematicUpsellModal
         open={showCinematicUpsell}
@@ -1639,19 +1653,23 @@ export default function MusicVideoAutopilot() {
                     </div>
                   )}
                   <div className="border-t border-zinc-800 pt-3 text-xs text-zinc-500">
-                    Storyboard generation is free &amp; unlimited. Credits are only used when you start rendering.
+                    Storyboard generation is always free. Pay only when you render &amp; download.
                   </div>
                 </CardContent>
               </Card>
 
-              <CreditBalance variant="card" cost={creditCost > 0 ? creditCost : undefined} />
-              {/* Low credit warning — shown when balance is low or insufficient for this video */}
-              <LowCreditBanner
-                balance={creditBalance}
-                estimatedCost={creditCost > 0 ? creditCost : undefined}
-                variant="inline"
-                dismissible
-              />
+              {/* Render paywall info — replaces legacy credit balance card */}
+              <Card className="bg-gradient-to-br from-violet-900/20 to-purple-900/10 border-violet-800/30">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Download className="w-4 h-4 text-violet-400" />
+                    <p className="text-violet-300 text-sm font-medium">Create free, pay to render</p>
+                  </div>
+                  <p className="text-zinc-400 text-xs leading-relaxed">
+                    Building your storyboard is completely free. You only pay when you're ready to render and download your finished video.
+                  </p>
+                </CardContent>
+              </Card>
               <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-800/50">
                 <CardContent className="pt-4 pb-4">
                   <p className="text-purple-300 text-sm font-medium mb-1">How it works</p>
@@ -1659,7 +1677,7 @@ export default function MusicVideoAutopilot() {
                     <li>Upload your song & describe your vision</li>
                     <li>AI transcribes lyrics & generates a free storyboard</li>
                     <li>Review & edit any scene prompts</li>
-                    <li>Render all scenes (credits charged here)</li>
+                    <li>Choose quality &amp; render (from £2)</li>
                     <li>Download your finished music video</li>
                   </ol>
                 </CardContent>
@@ -1734,7 +1752,10 @@ export default function MusicVideoAutopilot() {
                 <p className="text-zinc-400 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before rendering</p>
               </div>
               <div className="flex items-center gap-3">
-                <CreditBalance variant="badge" />
+                {/* Render status badge */}
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-400/20 text-violet-300 text-xs font-medium">
+                  <Download className="w-3 h-3" /> Pay to render
+                </span>
                 {scenes.some(sc => sc.status === "pending") && (
                   <Button
                     size="sm"
@@ -1768,7 +1789,7 @@ export default function MusicVideoAutopilot() {
                   {startRender.isPending ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Starting...</>
                   ) : (
-                    <><Film className="w-4 h-4 mr-2" /> Render Video ({creditCost} credits)</>
+                    <><Download className="w-4 h-4 mr-2" /> Render &amp; Download</>
                   )}
                 </Button>
               </div>

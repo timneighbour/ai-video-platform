@@ -2188,3 +2188,57 @@
 - [x] Intro: mobile-safe, tappable CTA
 - [x] App.tsx: render intro BEFORE Router/homepage, homepage invisible while intro shows
 - [x] App.tsx: no WizVidLoader conflict with intro (sequence correctly)
+
+## RENDER PAYWALL SYSTEM
+- [ ] Create 8 Stripe products: Standard £2, HD £4, 4K £6, Enhanced Sound +£1, Cinematic Audio +£3, Bundle 6 £10, Bundle 15 £20, Bundle 40 £50
+- [ ] Add renders table to DB schema (userId, quality, addons, stripePaymentIntentId, status, downloadUrl, createdAt)
+- [ ] Add render_credits table (userId, balance, used, resetAt for monthly subscription grants)
+- [ ] Backend: getRenderStatus procedure (check included renders remaining)
+- [ ] Backend: createRenderCheckout procedure (Stripe checkout for pay-per-render)
+- [ ] Backend: webhook handler for render payment → grant render credit → trigger render
+- [ ] Backend: getRenderHistory procedure
+- [ ] Build RenderPaywallModal component: preview, quality cards, audio add-ons, dynamic total, trust signals, upgrade suggestion
+- [ ] Update subscription webhook to grant monthly render credits (Starter=5, Creator=15, Studio=40)
+- [ ] Rebuild pricing page: free creation + per-render table + subscription bundles
+- [ ] Update homepage hero: remove credits/free videos, add "Create free. Pay to render."
+- [ ] Update all sitewide messaging: remove credit/free video language
+
+## AUDIO UPSELL SYSTEM
+- [ ] Audio upsell cards in RenderPaywallModal: Standard (included), Enhanced Sound (+£1), Cinematic Audio (+£3 highlighted)
+- [ ] Default selection: Standard Audio (not paid)
+- [ ] Visual emphasis on Cinematic Audio card (glow border, slightly larger, "Recommended for music videos" badge)
+- [ ] Dynamic total updates instantly when audio option changes
+- [ ] "Perfect for music videos" supporting line under audio section
+- [ ] Backend: FFmpeg audio pipeline for enhanced sound (stereo widening, EQ, light spatial)
+- [ ] Backend: FFmpeg audio pipeline for cinematic audio (stronger widening, reverb, mastering)
+- [ ] Store audio option in render job record
+- [ ] Pricing logic: if renders remaining, charge audio only; if no renders, charge render + audio
+- [ ] Future-proof audio pipeline interface for external API swap
+
+## BUTTON/CTA AUDIT & FIX
+- [ ] Audit all buttons/links on homepage (Create Video, Start Free, Watch Demo, nav links)
+- [ ] Fix Create Video / Start Free CTA — must route to /create or /dashboard
+- [ ] Fix Watch Demo button — must open DemoVideoModal
+- [ ] Audit Subscribe page plan CTAs — must open Stripe checkout
+- [ ] Audit nav links (Pricing, Features, etc.) — must route correctly
+- [ ] Audit dashboard Create Video button
+- [ ] Fix any buttons showing "Feature coming soon" that should be functional
+
+## RENDER PAYWALL PHASE 6 - COMPLETED ✅
+- [x] Create 8 Stripe render products: Standard £2, HD £4, 4K £6, Enhanced Audio +£1, Cinematic Audio +£3, Bundle 6 £10, Bundle 15 £20, Bundle 40 £50
+- [x] Wire all 9 Stripe price IDs as secrets (STRIPE_RENDER_STANDARD/HD/4K/AUDIO_ENHANCED/AUDIO_CINEMATIC/BUNDLE_6/15/40)
+- [x] Add renderJobs, renderBundles, subscriptionRenderAllowances tables to DB schema
+- [x] Add render DB helpers to server/db.ts
+- [x] Add createRenderCheckout and createBundleCheckout procedures to billing router
+- [x] Build RenderPaywallModal component (quality cards, audio add-ons, dynamic total, trust signals)
+- [x] Wire RenderPaywallModal into MusicVideoAutopilot (replaces credit guard on Render button)
+- [x] Rebuild Pricing page for render-based model (free creation + per-render + subscription bundles)
+- [x] Update AuthGate copy: remove "2 free videos", add "Only pay to render"
+- [x] Update MusicVideosLanding copy: remove "2 free videos included"
+- [x] Update Home.tsx copy: remove "2 free videos included", "First video free"
+- [x] Update SeoLandingPage.tsx copy: remove "2 videos included", update FAQ answers
+- [x] Update Help.tsx copy: remove "free trial credits"
+- [x] Update MusicVideoAutopilot storyboard sidebar: replace CreditBalance card with render paywall info card
+- [x] Update storyboard header: replace CreditBalance badge with "Pay to render" badge
+- [x] Update Render button copy: "Render Video (X credits)" → "Render & Download"
+- [x] All 319 tests passing, zero TypeScript errors

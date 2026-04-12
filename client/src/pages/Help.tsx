@@ -18,7 +18,7 @@ const FAQS = [
       { q: "How do I create my first video?", a: "Choose WizBeat for music videos or WizPilot for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
       { q: "Do I need any editing skills?", a: "No — WizVid is fully automated. The AI handles everything from storyboard creation to final rendering. You just provide the input and choose a style." },
       { q: "How long does it take to generate a video?", a: "Most videos are created within 2–5 minutes depending on length and complexity. You'll see a live progress bar while your video is being generated." },
-      { q: "Is there a free option?", a: "Yes! New accounts receive free trial credits to create your first video. No credit card required to get started." },
+      { q: "Is there a free option?", a: "Yes! WizVid is completely free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video." },
     ],
   },
   {
