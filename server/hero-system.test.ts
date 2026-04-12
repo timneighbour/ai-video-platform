@@ -217,7 +217,7 @@ describe("Hero System — Home.tsx Integration", () => {
   });
 
   it("has Watch 30-sec demo button", () => {
-    expect(source).toContain("Watch 30-sec demo");
+    expect(source).toContain("See how it works in 20 seconds");
   });
 
   it("passes mouseX/mouseY to HeroCinematicBg", () => {

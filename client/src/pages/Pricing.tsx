@@ -348,7 +348,7 @@ export default function Pricing() {
                     <h3 className="text-sm font-semibold text-white">Powered by WizSound™</h3>
                     <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
                   </div>
-                  <p className="text-[10px] text-white/45 mt-0.5">Make your videos sound as good as they look</p>
+                  <p className="text-[10px] text-white/45 mt-0.5">Proprietary audio enhancement engine</p>
                 </div>
               </div>
               <span className="text-xs text-white/35">Optional — add to any render</span>
@@ -487,9 +487,14 @@ export default function Pricing() {
                     {plan.rendersPerMonth} renders/month included
                   </div>
                   {(plan as any).bestValue && (
-                    <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
-                      {(plan as any).perRender} per render
-                      <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>
+                    <div className="mt-1.5 flex flex-col gap-0.5">
+                      <div className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
+                        {(plan as any).perRender} per render
+                        <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>
+                      </div>
+                      {billingCycle === "annual" && (
+                        <div className="text-[10px] text-emerald-400 font-semibold">Save £78 per year vs monthly</div>
+                      )}
                     </div>
                   )}
                 </div>

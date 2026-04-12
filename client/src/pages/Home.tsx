@@ -293,12 +293,12 @@ function Hero() {
           className="font-extrabold leading-[1.0] tracking-tight text-white mb-6 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
           style={{ fontSize: "clamp(2.8rem, 8vw, 6.5rem)" }}
         >
-          Turn your ideas into<br />
+          Create Cinematic AI Music Videos<br />
           <span
             className="bg-gradient-to-r from-violet-300 via-purple-200 to-blue-300 bg-clip-text text-transparent"
             style={{ textShadow: "none" }}
           >
-            cinematic video.
+            in Minutes
           </span>
         </h1>
 
@@ -307,7 +307,7 @@ function Hero() {
           className="text-white/72 max-w-xl mb-10 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
           style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)" }}
         >
-          Type a prompt. WizVid builds your storyboard, scenes, and final video.
+          From idea to finished video — no editing skills needed.
           Music videos, social clips, kids animations — in under 2 minutes.
         </p>
 
@@ -341,7 +341,7 @@ function Hero() {
             </span>
           </div>
           <span className="text-sm text-white/55 group-hover:text-white/85 transition-colors font-medium tracking-wide">
-            Watch 30-sec demo
+            See how it works in 20 seconds
           </span>
         </button>
 

@@ -2293,11 +2293,10 @@ export default function MusicVideoAutopilot() {
                         </Button>
                       </a>
                       <Button
-                        variant="outline"
-                        className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800 px-6 h-12 text-base"
+                        className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 h-12 text-base font-semibold shadow-lg shadow-violet-900/30"
                         onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
                       >
-                        <Sparkles className="w-5 h-5 mr-2" /> Create Another
+                        <Sparkles className="w-5 h-5 mr-2" /> Create Another Video
                       </Button>
                     </div>
 
