@@ -326,7 +326,7 @@
 - [ ] Animated characters use style-consistent generation prompts
 
 ## WizBeat Music Video Maker & Navigation
-- [ ] Rename Music Video Autopilot feature to "WizBeat" throughout the app
+- [x] Rename Music Video Autopilot feature to "WizBeat" throughout the app
 - [x] Add sticky top navigation to landing page with links: Home, WizBeat, Tools, Pricing, Sign In
 - [x] Add mobile hamburger menu to landing page navigation
 - [x] Build WizBeat landing section: cinematic hero with artist/band showcase images
@@ -646,14 +646,14 @@
 - [x] Trust section: MadeWithWizVid section with real outputs and use cases
 - [x] CTA standardisation: "Create Your First Video" primary everywhere
 - [x] Positioning: "Create viral videos without editing" hero headline
-- [ ] Music video landing page: new headline, video preview, flow explanation, CTA before login
+- [x] Music video landing page: new headline, video preview, flow explanation, CTA before login
 - [ ] QA: verify all routes, links, no console errors
-- [ ] Fix LCP (18.7s): preload hero video/image, add fetchpriority=high to hero img
-- [ ] Fix TBT (510ms): defer non-critical JS, split large bundles
+- [x] Fix LCP (18.7s): preload hero video/image, add fetchpriority=high to hero img (preload link + preload=auto on first video)
+- [x] Fix TBT (510ms): defer non-critical JS, split large bundles (28 lazy imports in App.tsx)
 - [x] Add font-display:swap to Google Fonts to eliminate render-blocking (already in index.html: display=swap + media=print onload)
 - [x] Add loading=lazy and explicit width/height to all below-fold images (Home.tsx has 4 lazy images + width/height)
 - [x] Add preconnect hints for CDN and API domains (already in index.html: preconnect + dns-prefetch)
-- [ ] Remove or defer render-blocking requests (440ms savings)
+- [x] Remove or defer render-blocking requests (440ms savings) — Google Fonts deferred with media=print onload
 
 ## Lighthouse Accessibility & SEO Fixes (Apr 2026)
 - [x] Remove maximum-scale=1 from viewport meta in index.html (blocks screen magnification)
@@ -733,15 +733,15 @@
 - [ ] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
 - [ ] Smooth animated transitions between steps
 - [ ] Loading/progress indicators during storyboard generation and video rendering with % complete
-- [ ] Scene type labels on storyboard cards (Intro, Verse, Chorus, Drop, Outro)
+- [x] Scene type labels on storyboard cards (Intro, Verse, Chorus, Drop, Outro)
 - [ ] Beat-sync timestamp on each storyboard scene card
-- [ ] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
+- [x] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
 - [ ] Style preset selection: clean visual card grid (6 presets), no prompt-heavy UI
 - [ ] Optional lyric/caption sync toggle per scene
 - [ ] Export format selection: YouTube 16:9, TikTok 9:16, Instagram 1:1 with aspect ratio preview
 - [ ] Final video preview screen with format badge and download/share buttons
 - [ ] Ensure every storyboard scene shows AI-generated visual thumbnail before render
-- [ ] Add scene-based generation labels: Intro, Verse, Chorus, Drop, Outro
+- [x] Add scene-based generation labels: Intro, Verse, Chorus, Drop, Outro
 
 ## Character Consistency System (Apr 2026)
 - [ ] Add characterLock fields to videoCharacters DB table: lockedDescription (full visual brief text), isLocked (bool), lockedAt

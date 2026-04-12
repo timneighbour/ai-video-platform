@@ -1,5 +1,6 @@
 import { } from "react";
 import { useLocation } from "wouter";
+import BackButton from "@/components/BackButton";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -107,6 +108,9 @@ export default function MyProjects() {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
+        <div className="mb-6">
+          <BackButton fallback="/dashboard" label="Back to Dashboard" className="mb-4" />
+        </div>
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">My Projects</h1>

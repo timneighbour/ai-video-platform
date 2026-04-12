@@ -86,6 +86,20 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+/** Infer a lyric section label from the lyrics text or prompt */
+function inferSceneType(lyrics?: string | null, prompt?: string): string {
+  const text = ((lyrics ?? "") + " " + (prompt ?? "")).toLowerCase();
+  if (text.includes("[intro]") || text.includes("intro")) return "Intro";
+  if (text.includes("[outro]") || text.includes("outro") || text.includes("fade out")) return "Outro";
+  if (text.includes("[bridge]") || text.includes("bridge")) return "Bridge";
+  if (text.includes("[chorus]") || text.includes("chorus") || text.includes("hook")) return "Chorus";
+  if (text.includes("[pre-chorus]") || text.includes("pre-chorus") || text.includes("pre chorus")) return "Pre-Chorus";
+  if (text.includes("[drop]") || text.includes("drop")) return "Drop";
+  if (text.includes("[verse]") || text.includes("verse")) return "Verse";
+  if (text.includes("[instrumental]") || text.includes("instrumental") || text.includes("solo")) return "Instrumental";
+  return "";
+}
+
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
   const m = Math.floor(seconds / 60);
@@ -1721,6 +1735,18 @@ export default function MusicVideoAutopilot() {
               </div>
               <div className="flex items-center gap-3">
                 <CreditBalance variant="badge" />
+                {scenes.some(sc => sc.status === "pending") && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-green-700 text-green-300 hover:bg-green-900/30 bg-transparent text-xs"
+                    onClick={handleStartRender}
+                    disabled={startRender.isPending}
+                    title="Approve all scenes and start rendering"
+                  >
+                    <Check className="w-3.5 h-3.5 mr-1" /> Approve All
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
@@ -1864,10 +1890,15 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
                     {/* Scene number overlay */}
-                    <div className="absolute top-2 left-2">
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5">
                       <Badge className="bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
                         Scene {scene.sceneIndex + 1}
                       </Badge>
+                      {inferSceneType(scene.lyrics, scene.prompt) && (
+                        <Badge className="bg-purple-900/80 text-purple-200 border-0 text-xs backdrop-blur-sm">
+                          {inferSceneType(scene.lyrics, scene.prompt)}
+                        </Badge>
+                      )}
                     </div>
                     {/* Duration overlay */}
                     <div className="absolute bottom-2 right-2">

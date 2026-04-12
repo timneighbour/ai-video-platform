@@ -304,7 +304,7 @@ function Hero() {
     <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0f0f0f]">
       {/* Background videos — desktop only to avoid 24MB download on mobile */}
       {isDesktop && HERO_VIDEOS.map((src, i) => (
-        <video key={src} src={src} autoPlay loop muted playsInline preload="none"
+        <video key={src} src={src} autoPlay loop muted playsInline preload={i === 0 ? "auto" : "none"}
           ref={(el) => { bgVideoRefs.current[i] = el; }}
           aria-hidden="true"
           onCanPlay={(e) => { const v = e.currentTarget; v.muted = true; v.play().catch(() => {}); }}
