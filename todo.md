@@ -3086,3 +3086,14 @@
 - [x] Verified: DemoVideoModal and WizSoundSection already have crossOrigin="anonymous"
 - [x] All 328 tests passing
 - [ ] Test on Chrome to verify intro/audio/CTAs now work
+
+
+## Chrome CTA/Link Issue (Apr 13 - CRITICAL)
+- [ ] CTAs using wouter Link component don't work on Chrome
+- [ ] Nav links don't work on Chrome (all use Link component)
+- [ ] Tools dropdown links don't work on Chrome (use Link component)
+- [ ] Button onClick handlers work fine (Tools dropdown toggle works)
+- [ ] Root cause: wouter Link component broken on Chrome
+- [ ] Solution: Replace Link with button + onClick + useLocation navigation
+- [ ] Replace all Link components in Home.tsx with button elements
+- [ ] Test all nav links and CTAs on Chrome after fix

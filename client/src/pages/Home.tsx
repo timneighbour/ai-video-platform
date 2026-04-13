@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
+import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
@@ -79,6 +80,7 @@ function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -120,7 +122,7 @@ function Nav() {
     }`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center group flex-shrink-0">
+        <button onClick={() => navigate("/")} className="flex items-center group flex-shrink-0 hover:opacity-80 transition-opacity">
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
@@ -128,18 +130,18 @@ function Nav() {
             height={180}
             className="h-24 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
           />
-        </Link>
+        </button>
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-0.5">
           {mainLinks.map((link) => (
-            <Link
+            <button
               key={link.label}
-              href={link.href}
+              onClick={() => navigate(link.href)}
               className="px-3 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block whitespace-nowrap"
             >
               {link.label}
-            </Link>
+            </button>
           ))}
 
           {/* Tools dropdown */}
@@ -167,18 +169,20 @@ function Nav() {
               >
                 <div className="p-2">
                   {toolLinks.map((tool) => (
-                    <Link
+                    <button
                       key={tool.label}
-                      href={tool.href}
-                      onClick={() => setTimeout(() => setToolsOpen(false), 50)}
-                      className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-white/6 transition-colors group"
+                      onClick={() => {
+                        navigate(tool.href);
+                        setTimeout(() => setToolsOpen(false), 50);
+                      }}
+                      className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-white/6 transition-colors group w-full text-left"
                     >
                       <span className="text-xl mt-0.5 flex-shrink-0">{tool.icon}</span>
                       <div>
                         <div className="text-sm font-medium text-white">{tool.label}</div>
                         <div className="text-xs text-[#a1a1aa] mt-0.5">{tool.sub}</div>
                       </div>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -191,7 +195,7 @@ function Nav() {
           <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
-              <Link href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</Link>
+              <button onClick={() => navigate("/dashboard")} className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</button>
             </Button>
           ) : (
             <>
@@ -199,7 +203,7 @@ function Nav() {
                 Sign in
               </a>
               <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm px-5 rounded-xl font-semibold h-9 shadow-sm shadow-violet-500/25" asChild>
-                <Link href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</Link>
+                <button onClick={() => navigate("/onboarding")} className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</button>
               </Button>
             </>
           )}
@@ -218,21 +222,21 @@ function Nav() {
         <div className="lg:hidden bg-[#0f0f0f]/98 backdrop-blur-xl border-t border-white/8 px-6 py-5 max-h-[80vh] overflow-y-auto">
           {/* Main links */}
           {mainLinks.map((link) => (
-            <Link
+            <NavLink
               key={link.label}
               href={link.href}
               className="block py-3 text-[#a1a1aa] hover:text-white font-medium border-b border-white/5 text-sm"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
-            </Link>
+            </NavLink>
           ))}
 
           {/* Tools section */}
           <div className="pt-4 pb-2">
             <p className="text-xs font-bold text-[#a1a1aa]/60 uppercase tracking-widest mb-3">Tools</p>
             {toolLinks.map((tool) => (
-              <Link
+              <NavLink
                 key={tool.label}
                 href={tool.href}
                 className="flex items-center gap-3 py-3 border-b border-white/5"
@@ -243,15 +247,15 @@ function Nav() {
                   <div className="text-sm font-medium text-white">{tool.label}</div>
                   <div className="text-xs text-[#a1a1aa]">{tool.sub}</div>
                 </div>
-              </Link>
+              </NavLink>
             ))}
           </div>
 
           <div className="pt-4 flex gap-3">
             <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
-            <Link href="/onboarding" className="flex-1">
+            <NavLink href="/onboarding" className="flex-1">
               <Button className="w-full bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl text-sm font-semibold h-10">Start Creating</Button>
-            </Link>
+            </NavLink>
           </div>
         </div>
       )}
@@ -553,7 +557,7 @@ function Hero() {
 
             {/* CTA row */}
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-              <Link
+              <NavLink
                 id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
                 className="inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
@@ -562,7 +566,7 @@ function Hero() {
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
                 {isAuthenticated ? "Open Creator" : "Create Your First Video"}
-              </Link>
+              </NavLink>
               <button
                 onClick={() => setDemoOpen(true)}
                 className="group inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300"
@@ -780,13 +784,13 @@ function ImmediateValue() {
                 </li>
               ))}
             </ul>
-            <Link
+            <NavLink
               href="/onboarding"
               className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
             >
               <Sparkles className="w-4 h-4" />
               Create your first video
-            </Link>
+            </NavLink>
             <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · Free to create · Only pay to render</p>
           </div>
           {/* Right: visual storyboard mockup */}
@@ -996,7 +1000,7 @@ function ProductDemo() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <Link href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</Link>
+            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</NavLink>
           </Button>
           <p className="text-[#a1a1aa] text-sm mt-3">Free to create · No credit card · Only pay to render</p>
         </div>
@@ -1252,9 +1256,9 @@ function WhoItsFor() {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-white mb-2">{a.title}</h3>
                 <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">{a.desc}</p>
-                <Link href={a.href} className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors">
+                <NavLink href={a.href} className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors">
                   {a.cta} <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                </NavLink>
               </div>
             </div>
           ))}
@@ -1452,7 +1456,7 @@ function ContentEngine() {
                   className="border-white/12 text-white hover:bg-white/5 bg-transparent text-sm rounded-xl font-medium h-auto py-2.5 mt-auto"
                   asChild
                 >
-                  <Link href={f.href}><ArrowRight className="w-3.5 h-3.5 mr-1.5" />{f.cta}</Link>
+                  <NavLink href={f.href}><ArrowRight className="w-3.5 h-3.5 mr-1.5" />{f.cta}</NavLink>
                 </Button>
               </div>
             ))}
@@ -1576,13 +1580,13 @@ function ContentEngine() {
               className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <Link href="/onboarding"><Video className="w-4 h-4 mr-2" />Create Your First AI Video</Link>
+              <NavLink href="/onboarding"><Video className="w-4 h-4 mr-2" />Create Your First AI Video</NavLink>
             </Button>
             <Button
               className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <Link href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Generate Your First Song</Link>
+              <NavLink href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Generate Your First Song</NavLink>
             </Button>
           </div>
         </div>
@@ -1594,12 +1598,12 @@ function ContentEngine() {
 // ── How It Works Modal ───────────────────────────────────────────────────────
 function HowItWorksModalButton() {
   return (
-    <Link
+    <NavLink
       href="/how-it-works"
       className="inline-flex items-center gap-1.5 text-base px-7 py-3 rounded-xl font-medium border border-white/15 text-white hover:bg-white/5 transition-all"
     >
       <ChevronRight className="w-4 h-4" />See How It Works
-    </Link>
+    </NavLink>
   );
 }
 
@@ -1680,7 +1684,7 @@ function WizBeatSection() {
               className="bg-white text-black hover:bg-white/90 text-sm px-6 py-2.5 rounded-xl font-semibold h-auto shadow-md hover:shadow-lg transition-all"
               asChild
             >
-              <Link href="/music-video"><Music className="w-4 h-4 mr-2" />Make a music video</Link>
+              <NavLink href="/music-video"><Music className="w-4 h-4 mr-2" />Make a music video</NavLink>
             </Button>
           </div>
         </div>
@@ -1935,13 +1939,13 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
         </div>
         <h3 className="font-bold text-white text-base mb-2 leading-snug group-hover:text-violet-200 transition-colors">{item.title}</h3>
         <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4 line-clamp-2">{item.description}</p>
-        <Link
+        <NavLink
           href="/onboarding"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors group/cta"
         >
           Create something like this
           <ArrowRight className="w-3 h-3 transition-transform group-hover/cta:translate-x-0.5" />
-        </Link>
+        </NavLink>
       </div>
     </div>
   );
@@ -2038,13 +2042,13 @@ function MadeWithWizVid() {
         {/* Bottom CTA */}
         <div className="text-center mt-14 reveal">
           <p className="text-[#a1a1aa] text-sm mb-5">Ready to create your own?</p>
-          <Link
+          <NavLink
             href="/onboarding"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 text-white text-sm font-semibold hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25"
           >
             <Sparkles className="w-4 h-4" />
             Create Your First Video →
-          </Link>
+          </NavLink>
         </div>
       </div>
     </section>
@@ -2166,15 +2170,15 @@ function HomePricing() {
               <p className="text-white/50 text-xs mt-0.5">10 renders · HD + 4K · WizSound included · No editing skills needed</p>
             </div>
           </div>
-          <Link href="/pricing?plan=creator" className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors">
+          <NavLink href="/pricing?plan=creator" className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors">
             <Sparkles className="w-3.5 h-3.5" />
             Start with Creator
-          </Link>
+          </NavLink>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           {plans.map((plan) => (
-            <Link
+            <NavLink
               key={plan.id}
               href={`/pricing?plan=${plan.id}`}
               className={`relative block rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
@@ -2214,7 +2218,7 @@ function HomePricing() {
               <div className={`w-full text-center text-xs font-semibold py-2 rounded-xl transition-all ${plan.ctaStyle}`}>
                 {plan.cta}
               </div>
-            </Link>
+            </NavLink>
           ))}
         </div>
 
@@ -2247,12 +2251,12 @@ function HomePricing() {
             <strong className="text-green-400">✓ Save up to £198/year</strong>{" "}
             <span className="text-[#a1a1aa]">with annual billing — equivalent to 2 months free on every plan</span>
           </p>
-          <Link
+          <NavLink
             href="/pricing"
             className="inline-flex items-center gap-2 text-sm font-semibold text-white border border-white/15 rounded-xl px-5 py-2.5 hover:bg-white/5 transition-all"
           >
             See full pricing &amp; compare plans →
-          </Link>
+          </NavLink>
         </div>
       </div>
     </section>
@@ -2277,14 +2281,14 @@ function CTAPush() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <Link href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</Link>
+            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</NavLink>
           </Button>
           <Button
             variant="outline"
             className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-8 py-3 rounded-xl font-medium h-auto"
             asChild
           >
-            <Link href="/pricing">View pricing</Link>
+            <NavLink href="/pricing">View pricing</NavLink>
           </Button>
         </div>
         <p className="text-[#a1a1aa] text-sm">Create for free · No credit card · Only pay when you render</p>
@@ -2374,7 +2378,7 @@ function EcosystemSection() {
         {/* Engine grid */}
         <div className="grid md:grid-cols-3 gap-6">
           {engines.map((engine) => (
-            <Link
+            <NavLink
               key={engine.name}
               href={engine.href}
               className={`group relative flex flex-col p-6 rounded-2xl border ${engine.border} ${engine.bg} ${engine.glow} transition-all duration-300 cursor-pointer`}
@@ -2400,7 +2404,7 @@ function EcosystemSection() {
               <div className={`mt-4 flex items-center gap-1.5 text-xs font-semibold ${engine.badge.split(" ")[0]} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
                 Explore {engine.name} <ArrowRight className="w-3 h-3" />
               </div>
-            </Link>
+            </NavLink>
           ))}
         </div>
       </div>
@@ -2473,13 +2477,13 @@ function Footer() {
                       {link.label}
                     </a>
                   ) : (
-                    <Link
+                    <NavLink
                       key={link.label}
                       href={link.href}
                       className="block text-[#a1a1aa] hover:text-white text-sm transition-colors"
                     >
                       {link.label}
-                    </Link>
+                    </NavLink>
                   )
                 ))}
               </div>
@@ -2502,9 +2506,9 @@ function Footer() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
             <p>© 2026 WizVid. All rights reserved.</p>
             <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-              <Link href="/refunds" className="hover:text-white transition-colors">Refund Policy</Link>
+              <NavLink href="/privacy" className="hover:text-white transition-colors">Privacy Policy</NavLink>
+              <NavLink href="/terms" className="hover:text-white transition-colors">Terms of Service</NavLink>
+              <NavLink href="/refunds" className="hover:text-white transition-colors">Refund Policy</NavLink>
             </div>
           </div>
           <div className="mt-6 text-center">
