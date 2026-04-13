@@ -2881,3 +2881,20 @@
 - [x] Static fallback data with 9 AI-generated poster images (3 per category)
 - [x] Integrate section into Home.tsx (upgraded existing MadeWithWizVid section)
 - [x] TypeScript: 0 errors, Tests: 335/335 passing
+
+## Dual-Video WizSound Demo System
+- [x] Audit existing WizSoundSection Web Audio API implementation
+- [x] Generate Standard audio track (flat, narrow stereo, muffled, dull — 25s)
+- [x] Generate WizSound audio track (wide stereo, deep bass, cinematic, immersive — 25s)
+- [x] Bake Standard audio into Video A (demo-video-standard.mp4) at 320kbps AAC
+- [x] Bake WizSound audio into Video B (demo-video-wizsound.mp4) at 320kbps AAC
+- [x] Upload both videos to CDN
+- [x] Rebuild WizSoundSection with dual-video approach: two stacked <video> elements
+- [x] Instant opacity toggle (0.08s) — no restart, no desync
+- [x] Playback sync: both videos always play in parallel, time-synced on switch
+- [x] Single audio rule: inactive video always muted, active video respects global mute
+- [x] WizSound Enabled badge with pulse animation when WizSound active
+- [x] Standard Audio badge when Standard active
+- [x] Seekable progress bar
+- [x] Preload both videos for instant switch
+- [x] TypeScript: 0 errors, Tests: 335/335 passing

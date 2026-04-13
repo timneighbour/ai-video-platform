@@ -1,471 +1,270 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones } from "lucide-react";
+import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 
-/* ── CDN audio source — single high-quality file processed in real-time ── */
-// One source file, two real-time processing chains. Guarantees perfect sync.
-const AUDIO_SOURCE =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-wizsound-cinematic_5e57de05.mp3";
+/* ── CDN video URLs — two identical visuals, different baked-in audio ── */
+const VIDEO_STANDARD =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-standard_32cb7c7a.mp4";
+const VIDEO_WIZSOUND =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-wizsound_d2f714ff.mp4";
 
-/* ── Web Audio processing chain builder ────────────────────────────────── */
-interface AudioChain {
-  input: GainNode;
-  output: GainNode;
-  analyser: AnalyserNode;
-}
-
-function buildStandardChain(ctx: AudioContext): AudioChain {
-  // Standard: narrow stereo, flat EQ, no spatial depth
-  const input = ctx.createGain();
-  input.gain.value = 1.0;
-
-  // Mono-ish: merge to mono then split back (narrow stereo)
-  const merger = ctx.createChannelMerger(2);
-  const splitter = ctx.createChannelSplitter(2);
-  input.connect(splitter);
-  splitter.connect(merger, 0, 0); // L → L (only left channel to both)
-  splitter.connect(merger, 0, 1); // L → R (mono-ish)
-
-  // Flat EQ: slight high-frequency roll-off (dull)
-  const hiShelf = ctx.createBiquadFilter();
-  hiShelf.type = "highshelf";
-  hiShelf.frequency.value = 4000;
-  hiShelf.gain.value = -4; // cut highs
-
-  // Slight bass reduction
-  const loShelf = ctx.createBiquadFilter();
-  loShelf.type = "lowshelf";
-  loShelf.frequency.value = 120;
-  loShelf.gain.value = -3; // cut bass
-
-  // Analyser
-  const analyser = ctx.createAnalyser();
-  analyser.fftSize = 256;
-  analyser.smoothingTimeConstant = 0.75;
-
-  // Output gain (volume-matched to WizSound)
-  const output = ctx.createGain();
-  output.gain.value = 0; // starts silent; toggled by switchMode
-
-  merger.connect(hiShelf);
-  hiShelf.connect(loShelf);
-  loShelf.connect(analyser);
-  analyser.connect(output);
-
-  return { input, output, analyser };
-}
-
-function buildWizSoundChain(ctx: AudioContext): AudioChain {
-  // WizSound: wide stereo (Haas), bass boost, presence boost, spatial reverb
-  const input = ctx.createGain();
-  input.gain.value = 1.0;
-
-  // Stereo widener: Haas effect — delay right channel by 20ms
-  const splitter = ctx.createChannelSplitter(2);
-  const merger = ctx.createChannelMerger(2);
-  input.connect(splitter);
-
-  // Left channel: direct
-  splitter.connect(merger, 0, 0);
-
-  // Right channel: delay 20ms (Haas effect creates wide stereo)
-  const delay = ctx.createDelay(0.05);
-  delay.delayTime.value = 0.02; // 20ms Haas delay
-  splitter.connect(delay, 1);
-  delay.connect(merger, 0, 1);
-
-  // Bass boost: +6dB at 80Hz
-  const bassBoost = ctx.createBiquadFilter();
-  bassBoost.type = "lowshelf";
-  bassBoost.frequency.value = 120;
-  bassBoost.gain.value = 6;
-
-  // Presence boost: +4dB at 3kHz (clarity/air)
-  const presenceBoost = ctx.createBiquadFilter();
-  presenceBoost.type = "peaking";
-  presenceBoost.frequency.value = 3000;
-  presenceBoost.Q.value = 0.8;
-  presenceBoost.gain.value = 4;
-
-  // High shelf: +2dB at 8kHz (air/sparkle)
-  const airBoost = ctx.createBiquadFilter();
-  airBoost.type = "highshelf";
-  airBoost.frequency.value = 8000;
-  airBoost.gain.value = 2;
-
-  // Convolver for spatial reverb (using a simple impulse response)
-  // We'll use a DynamicsCompressor as a gentle limiter instead of convolver
-  // (convolver requires a separate IR file)
-  const compressor = ctx.createDynamicsCompressor();
-  compressor.threshold.value = -18;
-  compressor.knee.value = 6;
-  compressor.ratio.value = 3;
-  compressor.attack.value = 0.003;
-  compressor.release.value = 0.25;
-
-  // Analyser
-  const analyser = ctx.createAnalyser();
-  analyser.fftSize = 256;
-  analyser.smoothingTimeConstant = 0.8;
-
-  // Output gain — slightly reduced to compensate for bass/presence boost (LUFS match)
-  const output = ctx.createGain();
-  output.gain.value = 1; // starts at full; toggled by switchMode
-
-  merger.connect(bassBoost);
-  bassBoost.connect(presenceBoost);
-  presenceBoost.connect(airBoost);
-  airBoost.connect(compressor);
-  compressor.connect(analyser);
-  analyser.connect(output);
-
-  return { input, output, analyser };
-}
-
-/* ── Real-time frequency waveform ──────────────────────────────────────── */
-function FrequencyWaveform({
-  analyser,
-  active,
-  wizsound,
-}: {
-  analyser: AnalyserNode | null;
-  active: boolean;
-  wizsound: boolean;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
-  const BAR_COUNT = 48;
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx2d = canvas.getContext("2d");
-    if (!ctx2d) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx2d.scale(dpr, dpr);
-    const W = rect.width;
-    const H = rect.height;
-
-    const draw = () => {
-      ctx2d.clearRect(0, 0, W, H);
-      const gap = 2;
-      const barW = Math.max(1, (W - (BAR_COUNT - 1) * gap) / BAR_COUNT);
-
-      if (!active || !analyser) {
-        // Idle bars
-        for (let i = 0; i < BAR_COUNT; i++) {
-          const x = i * (barW + gap);
-          const h = H * 0.12;
-          ctx2d.fillStyle = "rgba(255,255,255,0.08)";
-          ctx2d.beginPath();
-          ctx2d.roundRect(x, H / 2 - h / 2, barW, h, Math.max(0, barW / 2));
-          ctx2d.fill();
-        }
-        rafRef.current = requestAnimationFrame(draw);
-        return;
-      }
-
-      const bufferLength = analyser.frequencyBinCount;
-      const data = new Uint8Array(bufferLength);
-      analyser.getByteFrequencyData(data);
-      const step = Math.max(1, Math.floor(bufferLength / BAR_COUNT));
-
-      for (let i = 0; i < BAR_COUNT; i++) {
-        let sum = 0;
-        for (let j = 0; j < step; j++) sum += data[i * step + j] || 0;
-        const avg = sum / step;
-        const norm = avg / 255;
-        const h = Math.max(norm * H * 0.92, H * 0.04);
-        const x = i * (barW + gap);
-        const y = H / 2 - h / 2;
-
-        if (wizsound) {
-          const grad = ctx2d.createLinearGradient(x, y + h, x, y);
-          grad.addColorStop(0, "rgba(217,70,239,0.95)");
-          grad.addColorStop(0.5, "rgba(168,85,247,0.85)");
-          grad.addColorStop(1, "rgba(139,92,246,0.75)");
-          ctx2d.fillStyle = grad;
-          ctx2d.shadowColor = "rgba(217,70,239,0.5)";
-          ctx2d.shadowBlur = 6;
-        } else {
-          const grad = ctx2d.createLinearGradient(x, y + h, x, y);
-          grad.addColorStop(0, "rgba(255,255,255,0.15)");
-          grad.addColorStop(1, "rgba(255,255,255,0.35)");
-          ctx2d.fillStyle = grad;
-          ctx2d.shadowColor = "transparent";
-          ctx2d.shadowBlur = 0;
-        }
-        ctx2d.beginPath();
-        ctx2d.roundRect(x, y, barW, h, Math.max(0, barW / 2));
-        ctx2d.fill();
-      }
-      ctx2d.shadowColor = "transparent";
-      ctx2d.shadowBlur = 0;
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [analyser, active, wizsound]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="w-full"
-      style={{ height: 80 }}
-      aria-hidden="true"
-    />
-  );
-}
-
-/* ── Audio demo player ──────────────────────────────────────────────────── */
-function AudioDemoPlayer({ visible }: { visible: boolean }) {
+/* ── Dual-video sync player ─────────────────────────────────────────────── */
+function DualVideoPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [wizsound, setWizsound] = useState(true);
-  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus } = useGlobalAudio();
-  const wizSoundId = "wizsound-section";
-  const [progress, setProgress] = useState(0);
   const [switching, setSwitching] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [activeAnalyser, setActiveAnalyser] = useState<AnalyserNode | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [loaded, setLoaded] = useState({ std: false, wiz: false });
 
-  // Web Audio API refs
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const audioElRef = useRef<HTMLAudioElement | null>(null);
-  const stdChainRef = useRef<AudioChain | null>(null);
-  const wizChainRef = useRef<AudioChain | null>(null);
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus } = useGlobalAudio();
+  const PLAYER_ID = "wizsound-section";
+
+  const stdRef = useRef<HTMLVideoElement>(null);
+  const wizRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
-  // Track current wizsound state in a ref for use in callbacks
   const wizsoundRef = useRef(true);
 
-  // Initialise Web Audio API on first interaction (browser requires user gesture)
-  const initAudio = useCallback(async () => {
-    if (audioCtxRef.current) return; // already initialised
-
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new AudioContextClass();
-    audioCtxRef.current = ctx;
-
-    // Single audio element
-    const audio = new Audio(AUDIO_SOURCE);
-    audio.crossOrigin = "anonymous";
-    audio.loop = true;
-    audio.preload = "auto";
-    audioElRef.current = audio;
-
-    // Connect to Web Audio graph
-    const source = ctx.createMediaElementSource(audio);
-    sourceRef.current = source;
-
-    // Build both chains
-    const std = buildStandardChain(ctx);
-    const wiz = buildWizSoundChain(ctx);
-    stdChainRef.current = std;
-    wizChainRef.current = wiz;
-
-    // Source → both chain inputs
-    source.connect(std.input);
-    source.connect(wiz.input);
-
-    // Both outputs → destination
-    std.output.connect(ctx.destination);
-    wiz.output.connect(ctx.destination);
-
-    // Set initial gains: WizSound on, Standard off
-    std.output.gain.setValueAtTime(0, ctx.currentTime);
-    wiz.output.gain.setValueAtTime(isMuted ? 0 : 1, ctx.currentTime);
-
-    // Set active analyser
-    setActiveAnalyser(wiz.analyser);
-
-    // Wait for audio to be ready
-    audio.addEventListener("canplaythrough", () => setReady(true), { once: true });
-    setTimeout(() => setReady(true), 2000); // fallback
+  // Sync mute state to video elements
+  useEffect(() => {
+    if (stdRef.current) stdRef.current.muted = isMuted;
+    if (wizRef.current) wizRef.current.muted = isMuted;
   }, [isMuted]);
+
+  // Track progress on the active video
+  const trackProgress = useCallback(() => {
+    const active = wizsoundRef.current ? wizRef.current : stdRef.current;
+    if (active && active.duration) {
+      setProgress((active.currentTime / active.duration) * 100);
+    }
+    rafRef.current = requestAnimationFrame(trackProgress);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       cancelAnimationFrame(rafRef.current);
-      if (audioElRef.current) {
-        audioElRef.current.pause();
-        audioElRef.current.src = "";
-      }
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close().catch(() => {});
-      }
-      releaseAudioFocus(wizSoundId);
+      releaseAudioFocus(PLAYER_ID);
     };
   }, []);
 
-  // Sync global mute to Web Audio gain nodes
-  useEffect(() => {
-    const ctx = audioCtxRef.current;
-    const std = stdChainRef.current;
-    const wiz = wizChainRef.current;
-    if (!ctx || !std || !wiz) return;
-
-    if (isMuted) {
-      std.output.gain.setTargetAtTime(0, ctx.currentTime, 0.01);
-      wiz.output.gain.setTargetAtTime(0, ctx.currentTime, 0.01);
-    } else if (playing) {
-      const isWiz = wizsoundRef.current;
-      std.output.gain.setTargetAtTime(isWiz ? 0 : 1, ctx.currentTime, 0.01);
-      wiz.output.gain.setTargetAtTime(isWiz ? 1 : 0, ctx.currentTime, 0.01);
-    }
-  }, [isMuted, playing]);
-
-  // Progress tracker
-  const trackProgress = useCallback(() => {
-    const audio = audioElRef.current;
-    if (audio && audio.duration) {
-      setProgress((audio.currentTime / audio.duration) * 100);
-    }
-    rafRef.current = requestAnimationFrame(trackProgress);
-  }, []);
-
-  // Switch mode: instant crossfade via gain ramp (10ms)
-  const switchMode = useCallback(async (toCinematic: boolean) => {
-    if (toCinematic === wizsoundRef.current) return;
-    setSwitching(true);
-
-    // Initialise audio on first interaction if needed
-    if (!audioCtxRef.current) await initAudio();
-
-    const ctx = audioCtxRef.current;
-    const std = stdChainRef.current;
-    const wiz = wizChainRef.current;
-    if (!ctx || !std || !wiz) { setSwitching(false); return; }
-
-    const now = ctx.currentTime;
-    const ramp = 0.015; // 15ms crossfade — instant but click-free
-
-    if (toCinematic) {
-      std.output.gain.setTargetAtTime(0, now, ramp);
-      if (!isMuted) wiz.output.gain.setTargetAtTime(1, now, ramp);
-      setActiveAnalyser(wiz.analyser);
-    } else {
-      wiz.output.gain.setTargetAtTime(0, now, ramp);
-      if (!isMuted) std.output.gain.setTargetAtTime(1, now, ramp);
-      setActiveAnalyser(std.analyser);
-    }
-
-    wizsoundRef.current = toCinematic;
-    setWizsound(toCinematic);
-    setTimeout(() => setSwitching(false), 80);
-  }, [isMuted, initAudio]);
-
+  // Toggle play/pause — both videos always stay in sync
   const togglePlay = useCallback(async () => {
-    // Initialise Web Audio on first play (requires user gesture)
-    if (!audioCtxRef.current) await initAudio();
-
-    const ctx = audioCtxRef.current;
-    const audio = audioElRef.current;
-    if (!ctx || !audio) return;
-
-    // Resume suspended context (browser autoplay policy)
-    if (ctx.state === "suspended") await ctx.resume();
+    const std = stdRef.current;
+    const wiz = wizRef.current;
+    if (!std || !wiz) return;
 
     if (playing) {
-      audio.pause();
+      std.pause();
+      wiz.pause();
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
-      releaseAudioFocus(wizSoundId);
+      releaseAudioFocus(PLAYER_ID);
     } else {
-      if (!isMuted) requestAudioFocus(wizSoundId);
+      // Sync both to same time before playing
+      const syncTime = (wizsoundRef.current ? wiz : std).currentTime;
+      std.currentTime = syncTime;
+      wiz.currentTime = syncTime;
+
+      // Mute the inactive video
+      std.muted = wizsoundRef.current ? true : isMuted;
+      wiz.muted = wizsoundRef.current ? isMuted : true;
+
       try {
-        await audio.play();
+        await Promise.all([std.play(), wiz.play()]);
         setPlaying(true);
+        if (!isMuted) requestAudioFocus(PLAYER_ID);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
         setPlaying(false);
       }
     }
-  }, [playing, isMuted, trackProgress, requestAudioFocus, releaseAudioFocus, initAudio]);
+  }, [playing, isMuted, trackProgress, requestAudioFocus, releaseAudioFocus]);
 
-  const toggleMute = () => {
-    if (isMuted) requestAudioFocus(wizSoundId);
+  // Switch between Standard and WizSound — instant opacity toggle, no restart
+  const switchMode = useCallback((toWizSound: boolean) => {
+    if (toWizSound === wizsoundRef.current) return;
+    setSwitching(true);
+
+    const std = stdRef.current;
+    const wiz = wizRef.current;
+    if (!std || !wiz) { setSwitching(false); return; }
+
+    // Sync time from the currently active video to the incoming one
+    const currentTime = wizsoundRef.current ? wiz.currentTime : std.currentTime;
+
+    if (toWizSound) {
+      // Switch to WizSound: mute Standard, unmute WizSound
+      std.currentTime = currentTime;
+      std.muted = true;
+      wiz.currentTime = currentTime;
+      wiz.muted = isMuted;
+    } else {
+      // Switch to Standard: mute WizSound, unmute Standard
+      wiz.currentTime = currentTime;
+      wiz.muted = true;
+      std.currentTime = currentTime;
+      std.muted = isMuted;
+    }
+
+    wizsoundRef.current = toWizSound;
+    setWizsound(toWizSound);
+    setTimeout(() => setSwitching(false), 60);
+  }, [isMuted]);
+
+  const toggleMute = useCallback(() => {
+    if (isMuted) requestAudioFocus(PLAYER_ID);
     globalToggleMute();
-  };
+  }, [isMuted, globalToggleMute, requestAudioFocus]);
+
+  // Seek on progress bar click
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    const std = stdRef.current;
+    const wiz = wizRef.current;
+    if (!std || !wiz) return;
+    const t = ratio * (std.duration || 22);
+    std.currentTime = t;
+    wiz.currentTime = t;
+    setProgress(ratio * 100);
+  }, []);
+
+  const isReady = loaded.std && loaded.wiz;
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/3"
+      className="relative rounded-2xl overflow-hidden border bg-[#0c0c14] transition-all duration-700"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(24px)",
-        transition: "opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s",
+        transition: "opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s, border-color 0.5s, box-shadow 0.5s",
+        borderColor: wizsound ? "rgba(217,70,239,0.45)" : "rgba(255,255,255,0.1)",
         boxShadow: wizsound
-          ? "0 0 60px rgba(217,70,239,0.15), 0 0 120px rgba(139,92,246,0.08)"
+          ? "0 0 60px rgba(217,70,239,0.18), 0 0 120px rgba(139,92,246,0.10), inset 0 0 0 1px rgba(217,70,239,0.2)"
           : "none",
       }}
     >
-      {/* WizSound glow border */}
+      {/* WizSound active glow ring */}
       {wizsound && (
         <div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
-          style={{ boxShadow: "inset 0 0 0 1.5px rgba(217,70,239,0.4)" }}
+          className="absolute inset-0 rounded-2xl pointer-events-none z-10"
+          style={{
+            background: "linear-gradient(180deg, rgba(217,70,239,0.04) 0%, transparent 40%)",
+          }}
         />
       )}
 
-      {/* Caption */}
-      <div className="px-6 pt-5 pb-3 border-b border-white/6">
+      {/* ── Video stack — two videos, one visible at a time ── */}
+      <div className="relative w-full aspect-video bg-black overflow-hidden rounded-t-xl">
+        {/* Loading state */}
+        {!isReady && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black z-20">
+            <div className="w-8 h-8 rounded-full border-2 border-fuchsia-500/40 border-t-fuchsia-400 animate-spin" />
+          </div>
+        )}
+
+        {/* Video A — Standard audio */}
+        <video
+          ref={stdRef}
+          src={VIDEO_STANDARD}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: wizsound ? 0 : 1,
+            transition: "opacity 0.08s ease",
+            zIndex: wizsound ? 1 : 2,
+          }}
+          playsInline
+          loop
+          preload="auto"
+          muted={wizsound || isMuted}
+          onCanPlayThrough={() => setLoaded(p => ({ ...p, std: true }))}
+        />
+
+        {/* Video B — WizSound audio */}
+        <video
+          ref={wizRef}
+          src={VIDEO_WIZSOUND}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: wizsound ? 1 : 0,
+            transition: "opacity 0.08s ease",
+            zIndex: wizsound ? 2 : 1,
+          }}
+          playsInline
+          loop
+          preload="auto"
+          muted={!wizsound || isMuted}
+          onCanPlayThrough={() => setLoaded(p => ({ ...p, wiz: true }))}
+        />
+
+        {/* Play button overlay — only when paused */}
+        {!playing && isReady && (
+          <button
+            onClick={togglePlay}
+            className="absolute inset-0 flex items-center justify-center z-30 group"
+            aria-label="Play demo"
+          >
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 group-hover:scale-110 active:scale-95"
+              style={{
+                background: wizsound
+                  ? "linear-gradient(135deg, rgba(217,70,239,0.9), rgba(139,92,246,0.8))"
+                  : "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(8px)",
+                boxShadow: wizsound ? "0 0 40px rgba(217,70,239,0.5)" : "0 4px 20px rgba(0,0,0,0.4)",
+              }}
+            >
+              <Play className="w-7 h-7 text-white ml-1" />
+            </div>
+          </button>
+        )}
+
+        {/* WizSound active badge — top right */}
+        <div
+          className="absolute top-3 right-3 z-30 transition-all duration-300"
+          style={{ opacity: wizsound && playing ? 1 : 0, transform: wizsound && playing ? "scale(1)" : "scale(0.85)" }}
+        >
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-[11px] font-bold tracking-wide"
+            style={{
+              background: "linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))",
+              boxShadow: "0 0 20px rgba(217,70,239,0.4)",
+              animation: "pulse 2s ease-in-out infinite",
+            }}
+          >
+            <Sparkles className="w-3 h-3" />
+            WizSound™ Enabled
+          </div>
+        </div>
+
+        {/* Standard badge — top right when Standard active */}
+        <div
+          className="absolute top-3 right-3 z-30 transition-all duration-300"
+          style={{ opacity: !wizsound && playing ? 1 : 0, transform: !wizsound && playing ? "scale(1)" : "scale(0.85)" }}
+        >
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white/60 text-[11px] font-semibold tracking-wide bg-white/10 backdrop-blur-sm border border-white/15">
+            Standard Audio
+          </div>
+        </div>
+      </div>
+
+      {/* ── Headphones hint ── */}
+      <div className="px-5 pt-4 pb-2 border-b border-white/6">
         <div className="flex items-center justify-center gap-2">
           <Headphones className="w-3.5 h-3.5 text-fuchsia-400" />
-          <p className="text-white/50 text-xs font-mono tracking-widest uppercase text-center">
-            Use headphones for the full experience
+          <p className="text-white/45 text-xs font-mono tracking-widest uppercase text-center">
+            Use headphones for the full effect
           </p>
         </div>
       </div>
 
-      {/* Real-time frequency waveform */}
-      <div
-        className="px-6 py-6 relative"
-        style={{
-          background: wizsound
-            ? "linear-gradient(180deg, rgba(139,92,246,0.06) 0%, transparent 100%)"
-            : "transparent",
-          transition: "background 0.5s",
-        }}
-      >
-        <FrequencyWaveform
-          analyser={playing ? activeAnalyser : null}
-          active={playing}
-          wizsound={wizsound}
-        />
-
-        {/* Mode label */}
-        <div className="text-center mt-3">
-          {switching ? (
-            <span className="text-white/30 text-xs font-semibold tracking-wide">Switching…</span>
-          ) : wizsound ? (
-            <span className="inline-flex items-center gap-1.5 text-fuchsia-300 text-xs font-bold tracking-wide">
-              <span
-                className="w-1.5 h-1.5 rounded-full bg-fuchsia-400"
-                style={{ animation: "pulse 1.5s ease-in-out infinite" }}
-              />
-              WizSound™ Enabled
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 text-white/40 text-xs font-semibold tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-              Standard Audio
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="px-6 pb-5 flex items-center gap-4">
+      {/* ── Playback controls ── */}
+      <div className="px-5 py-4 flex items-center gap-4">
         {/* Play/pause */}
         <button
           onClick={togglePlay}
-          aria-label={playing ? "Pause demo" : "Play demo"}
+          aria-label={playing ? "Pause" : "Play"}
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:scale-105 active:scale-95"
           style={{
             background: wizsound
@@ -474,14 +273,18 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
             boxShadow: wizsound ? "0 0 20px rgba(217,70,239,0.4)" : "none",
           }}
         >
-          {playing
-            ? <Pause className="w-4 h-4 text-white" />
-            : <Play className="w-4 h-4 text-white ml-0.5" />
-          }
+          {playing ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
         </button>
 
         {/* Progress bar */}
-        <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+        <div
+          className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden cursor-pointer"
+          onClick={handleSeek}
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="h-full rounded-full transition-all duration-100"
             style={{
@@ -496,24 +299,24 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
         {/* Mute */}
         <button
           onClick={toggleMute}
-          aria-label="Toggle sound"
+          aria-label={isMuted ? "Unmute" : "Mute"}
           className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 transition-colors flex-shrink-0"
         >
           {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
         </button>
       </div>
 
-      {/* Standard / WizSound toggle — THE KEY A/B SWITCH */}
-      <div className="px-6 pb-5">
+      {/* ── A/B toggle ── */}
+      <div className="px-5 pb-5">
         <div
           className="flex items-center justify-between p-1 rounded-xl border border-white/8 bg-white/3"
           role="group"
-          aria-label="Compare standard vs cinematic audio"
+          aria-label="Compare standard vs WizSound audio"
         >
           <button
             onClick={() => switchMode(false)}
             disabled={switching}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 ${
+            className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-200 ${
               !wizsound
                 ? "bg-white/12 text-white shadow-sm"
                 : "text-white/35 hover:text-white/55"
@@ -525,24 +328,26 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
           <button
             onClick={() => switchMode(true)}
             disabled={switching}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 ${
-              wizsound
-                ? "text-white shadow-sm"
-                : "text-white/35 hover:text-white/55"
+            className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-200 ${
+              wizsound ? "text-white" : "text-white/35 hover:text-white/55"
             }`}
             style={wizsound ? {
-              background: "linear-gradient(135deg, rgba(217,70,239,0.8), rgba(139,92,246,0.7))",
-              boxShadow: "0 0 16px rgba(217,70,239,0.3)",
+              background: "linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))",
+              boxShadow: "0 0 16px rgba(217,70,239,0.35)",
             } : {}}
             aria-pressed={wizsound}
           >
-            WizSound™ Cinematic
+            ✦ WizSound™ Cinematic
           </button>
         </div>
-        <p className="text-white/30 text-[11px] text-center mt-2.5 leading-relaxed">
-          {wizsound
-            ? "Wide stereo field · Deep bass · Spatial reverb · 5-band EQ · 320kbps mastered"
-            : "Flat mix · Narrow stereo · No bass enhancement · No spatial processing"
+
+        {/* Descriptor */}
+        <p className="text-white/30 text-[11px] text-center mt-2.5 leading-relaxed transition-all duration-300">
+          {switching
+            ? "Switching…"
+            : wizsound
+            ? "Wide stereo · Deep bass · Spatial reverb · 320kbps mastered"
+            : "Flat mix · Narrow stereo · No bass · No spatial processing"
           }
         </p>
       </div>
@@ -612,7 +417,7 @@ export default function WizSoundSection() {
   useEffect(() => {
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      { threshold: 0.15 }
     );
     if (sectionRef.current) obs.observe(sectionRef.current);
     return () => obs.disconnect();
@@ -662,38 +467,38 @@ export default function WizSoundSection() {
           </h2>
 
           <p className="text-white/55 text-lg max-w-2xl mx-auto leading-relaxed">
-            Press play and toggle between Standard and WizSound Cinematic.
+            Press play, then toggle between Standard and WizSound Cinematic.
           </p>
           <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed mt-2">
             The difference is{" "}
             <span className="text-fuchsia-300 font-semibold">immediate</span>. WizSound™ transforms flat audio into a
-            rich, immersive cinematic soundscape with spatial depth, wide stereo imaging, and studio-grade mastering.
+            rich, immersive cinematic soundscape — wider stereo, deeper bass, and studio-grade mastering.
           </p>
         </div>
 
-        {/* Two-column: audio demo + feature cards */}
+        {/* Two-column: dual-video demo + feature cards */}
         <div className="grid lg:grid-cols-2 gap-10 mb-14 items-start">
-          <AudioDemoPlayer visible={visible} />
+          <DualVideoPlayer visible={visible} />
 
           <div className="flex flex-col gap-4">
             <FeatureCard
               icon={Volume2}
               title="Spatial Immersion"
-              description="Audio that surrounds the viewer — not flat stereo. WizSound™ applies Haas-effect stereo widening and spatial reverb to create a three-dimensional sound field that fills the room."
+              description="Audio that surrounds the viewer — not flat stereo. WizSound™ applies stereo widening and spatial reverb to create a three-dimensional sound field that fills the room."
               gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,50,200,0.6))"
               delay={0}
             />
             <FeatureCard
               icon={Zap}
               title="Studio-Grade Mastering"
-              description="5-band parametric EQ, dynamic compression, sub-bass enhancement, and loudness normalisation to broadcast standards. Every frequency is sculpted for maximum impact."
+              description="5-band parametric EQ, dynamic compression, sub-bass enhancement, and loudness normalisation to broadcast standards. Every frequency sculpted for maximum impact."
               gradient="linear-gradient(135deg, rgba(217,70,239,0.8), rgba(139,92,246,0.6))"
               delay={100}
             />
             <FeatureCard
               icon={Film}
               title="Cinematic by Design"
-              description="Tuned specifically for music videos, animation, and storytelling. WizSound™ adds the warmth, punch, and presence that makes your content sound like a cinema release."
+              description="Tuned for music videos, animation, and storytelling. WizSound™ adds the warmth, punch, and presence that makes your content sound like a cinema release."
               gradient="linear-gradient(135deg, rgba(236,72,153,0.8), rgba(217,70,239,0.6))"
               delay={200}
             />
