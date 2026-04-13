@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { WizVidLoader } from "./components/WizVidLoader";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react"; // useState used by App component
 import { identifyUser, resetIdentity } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -74,83 +74,12 @@ function PostLoginRedirect() {
 }
 
 /**
- * SAFETY FALLBACK ROUTING
- *
- * Catches any broken or invalid navigation attempts and redirects to a safe default.
- * This is a permanent safety net to ensure users never get stuck on 404 pages.
- *
- * Valid destinations:
- * - /music-video/create (Music Video Creator)
- * - /wizpilot (YouTube Video Creator)
- * - /kids-video (Kids Animation Creator)
- * - /text-to-video (Text to Video)
- * - /music-creator (AI Music Generator)
- * - / (Homepage)
- *
- * If any link fails or points to a non-existent route, redirect to /music-video/create
+ * Simple passthrough wrapper — the Switch/Route tree below handles all routing.
+ * The NotFound fallback route at the bottom of the Switch handles unknown paths.
+ * We intentionally do NOT redirect here so that hash links, query strings,
+ * and any future routes are never silently swallowed.
  */
 function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
-  const [location, navigate] = useLocation();
-  const [previousLocation, setPreviousLocation] = useState<string | null>(null);
-
-  // List of valid routes that should NOT trigger fallback
-  const validRoutes = [
-    '/',
-    '/subscribe',
-    '/credits',
-    '/dashboard',
-    '/projects',
-    '/account',
-    '/tools/text-to-video',
-    '/tools/lip-sync',
-    '/tools/video-to-video',
-    '/tools/voiceover',
-    '/wizpilot',
-    '/autopilot',
-    '/music-creator',
-    '/music-video',
-    '/music-video/create',
-    '/render-history',
-    '/kids-video',
-    '/text-to-video',
-    '/enhancement-studio',
-    '/batch-regeneration',
-    '/pricing',
-    '/onboarding',
-    '/help',
-    '/how-it-works',
-    '/privacy',
-    '/terms',
-    '/refunds',
-    '/404',
-    '/blog',
-    '/blog/admin',
-    '/uk',
-    '/app',
-    '/studio',
-    '/render/success',
-  ];
-  // Also allow /blog/:slug dynamic routes and /seo/:slug
-  const isDynamicBlogRoute = location.startsWith('/blog/');
-  const isDynamicSeoRoute = location.startsWith('/seo/');
-  const isDynamicRenderRoute = location.startsWith('/render/');
-
-  useEffect(() => {
-    // Check if current location is valid
-    const isValidRoute = isDynamicBlogRoute || isDynamicSeoRoute || isDynamicRenderRoute || validRoutes.some(route => {
-      if (route === '/seo/:slug') return location.startsWith('/seo/');
-      return location === route;
-    });
-
-    // If route is invalid and we're not already on a fallback, redirect to Music Video Creator
-    if (!isValidRoute && location !== '/404' && previousLocation !== location) {
-      console.warn(`[SafeFallbackRouter] Invalid route detected: ${location}. Redirecting to /music-video/create`);
-      navigate('/music-video/create');
-    }
-
-    setPreviousLocation(location);
-  }, [location, navigate, previousLocation]);
-
   return <>{children}</>;
 }
 
