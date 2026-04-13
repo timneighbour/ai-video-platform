@@ -2857,3 +2857,15 @@
 - [ ] Premium visual UI: depth, spacing, cinematic feel, animation style cards with hover effects
 - [ ] Character lock enforces consistent appearance across all scenes via prompt engineering
 - [ ] Lip sync compatibility note for audio uploads
+
+## Site-wide UX/Conversion Optimisation (Session 2)
+- [x] Update hero headline: "Create cinematic videos in minutes — music videos, animations & more"
+- [x] Add 3 value bullets below hero: "Full videos — not clips", "Preview before you pay", "Cinematic audio with WizSound™"
+- [x] Strengthen trust signals: stats bar (50K+ videos, 4.9★, <5min, £0 to start), improved testimonials with highlight badges
+- [x] Add credibility subheading: "Real creators. Real results." + supporting copy
+- [x] Improve pricing section: annual savings banner (🎁 Annual billing saves up to £198/year), clearer annual savings per plan
+- [x] Replace "Get Started" nav CTA with "Start Creating" (violet gradient, more action-oriented)
+- [x] Improve section contrast: alternating bg-[#0f0f0f] / bg-[#111] with stronger border-white/8 dividers
+- [x] Creator consistency audit: Autopilot (Cinematic) is intentionally simpler (text-to-video tool), Music Video and Kids Animation are consistent
+- [x] TypeScript check: 0 errors
+- [x] Tests: 335/335 passing

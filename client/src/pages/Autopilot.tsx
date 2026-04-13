@@ -18,6 +18,7 @@ import CreditBalance from "@/components/CreditBalance";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { WizBrandBadge } from "@/components/WizBrand";
+import AuthGate from "@/components/AuthGate";
 
 // YouTube brand colour
 const YT_RED = "#FF0000";

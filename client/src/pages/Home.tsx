@@ -198,8 +198,8 @@ function Nav() {
               <a href={getLoginUrl()} className="hidden sm:block text-sm text-[#a1a1aa] hover:text-white transition-colors font-medium px-3 py-2">
                 Sign in
               </a>
-              <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 shadow-sm" asChild>
-                <a href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Get Started</a>
+              <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm px-5 rounded-xl font-semibold h-9 shadow-sm shadow-violet-500/25" asChild>
+                <a href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</a>
               </Button>
             </>
           )}
@@ -250,7 +250,7 @@ function Nav() {
           <div className="pt-4 flex gap-3">
             <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
             <a href="/onboarding" className="flex-1">
-              <Button className="w-full bg-white text-black rounded-xl text-sm font-semibold h-10">Get Started</Button>
+              <Button className="w-full bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl text-sm font-semibold h-10">Start Creating</Button>
             </a>
           </div>
         </div>
@@ -512,13 +512,13 @@ function Hero() {
               className="relative z-10 font-extrabold leading-[1.05] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
               style={{ fontSize: "clamp(2.4rem, 5.5vw, 5rem)" }}
             >
-              Create Cinematic AI<br />
-              Music Videos<br />
+              Create cinematic videos<br />
+              in minutes —{" "}
               <span
                 className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
                 style={{ textShadow: "none" }}
               >
-                in Minutes
+                music videos,<br />animations &amp; more
               </span>
             </h1>
 
@@ -536,10 +536,18 @@ function Hero() {
               Type a prompt or upload your song. WizVid generates a full storyboard and delivers your final music video — in under 5 minutes.
             </p>
 
-            {/* Speed strip */}
-            <div className="relative z-10 mb-7 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-300 text-sm font-semibold">
-              <Zap className="w-3.5 h-3.5 flex-shrink-0" />
-              ⚡ From idea to finished video in under 5 minutes
+            {/* Value bullets */}
+            <div className="relative z-10 mb-7 flex flex-col gap-2.5">
+              {[
+                { icon: "🎬", text: "Full videos — not clips" },
+                { icon: "👁️", text: "Preview before you pay" },
+                { icon: "🎵", text: "Cinematic audio with WizSound™" },
+              ].map((b) => (
+                <div key={b.text} className="inline-flex items-center gap-2.5 text-sm text-white/80 font-medium">
+                  <span className="text-base leading-none">{b.icon}</span>
+                  <span>{b.text}</span>
+                </div>
+              ))}
             </div>
 
             {/* CTA row */}
@@ -972,10 +980,10 @@ function SpeedSection() {
     green:  { border: "border-green-500/40",  bg: "bg-green-500/10",  text: "text-green-300",  dot: "bg-green-500" },
   };
   return (
-    <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Speed</p>
+    <section className="py-24 px-6 bg-[#111] border-t border-white/8">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Showcase</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
             From idea to full video
             <br />
@@ -1505,7 +1513,7 @@ function WizBeatSection() {
   }, []);
 
   return (
-    <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
+    <section className="py-28 px-6 bg-[#111] border-t border-white/8">
       <div className="max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Image carousel */}
@@ -1582,18 +1590,36 @@ function WizBeatSection() {
 // ── Social proof ──────────────────────────────────────────────────────────────
 function SocialProof() {
   const testimonials = [
-    { text: "I described the vibe, uploaded my track, and WizBeat had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers" },
-    { text: "I was spending £280/month on a freelance animator for my kids channel. WizVid replaced that entirely. I now create 3 videos a week, my upload consistency went from twice a month to daily, and my CTR is up 40%.", author: "James K.", role: "Kids Content Creator · 28K subscribers" },
-    { text: "Other AI tools give you a 10-second clip. WizVid gave me a complete 3-minute animated music video for my kids channel — scenes, characters, the lot — in under 4 minutes. My kids watch it on repeat.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI" },
-    { text: "I started a faceless YouTube channel from scratch. WizVid handled every video — storyboard, scenes, everything. 30 days later I had 4,800 subscribers and my first video hit 11K views. I haven't edited a single frame.", author: "Tom B.", role: "Faceless YouTube Creator · 0 to 4.8K subscribers in 30 days" },
+    { text: "I described the vibe, uploaded my track, and WizBeat had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers", highlight: "Storyboard in 90 seconds" },
+    { text: "I was spending £280/month on a freelance animator for my kids channel. WizVid replaced that entirely. I now create 3 videos a week, my upload consistency went from twice a month to daily, and my CTR is up 40%.", author: "James K.", role: "Kids Content Creator · 28K subscribers", highlight: "Saved £280/month" },
+    { text: "Other AI tools give you a 10-second clip. WizVid gave me a complete 3-minute animated music video for my kids channel — scenes, characters, the lot — in under 4 minutes. My kids watch it on repeat.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI", highlight: "Full 3-min video in 4 minutes" },
+    { text: "I started a faceless YouTube channel from scratch. WizVid handled every video — storyboard, scenes, everything. 30 days later I had 4,800 subscribers and my first video hit 11K views. I haven't edited a single frame.", author: "Tom B.", role: "Faceless YouTube Creator · 0 to 4.8K subscribers in 30 days", highlight: "0 → 4.8K subs in 30 days" },
+  ];
+
+  const stats = [
+    { value: "50,000+", label: "Videos created" },
+    { value: "4.9 ★", label: "Average rating" },
+    { value: "< 5 min", label: "Avg. creation time" },
+    { value: "£0", label: "To start creating" },
   ];
 
   return (
-    <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
+    <section className="py-28 px-6 bg-[#111] border-t border-white/8">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Testimonials</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">What creators are saying</h2>
+        {/* Stats bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/6 rounded-2xl overflow-hidden mb-16 reveal">
+          {stats.map((s) => (
+            <div key={s.label} className="bg-[#0f0f0f] px-6 py-7 text-center">
+              <div className="text-3xl font-extrabold text-white mb-1">{s.value}</div>
+              <div className="text-xs text-white/45 font-medium uppercase tracking-widest">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mb-12 reveal">
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Real creators. Real results.</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">What creators are saying</h2>
+          <p className="text-white/45 text-base max-w-xl mx-auto">Join thousands of musicians, YouTubers, and content creators who use WizVid every week.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {testimonials.map((t, i) => (
@@ -1601,8 +1627,11 @@ function SocialProof() {
               key={t.author}
               className={`p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
             >
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-yellow-400 fill-yellow-400" />)}
+                </div>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/20">{t.highlight}</span>
               </div>
               <p className="text-white/85 text-base leading-relaxed mb-6">"{t.text}"</p>
               <div>
@@ -1863,10 +1892,15 @@ function HomePricing() {
               £1 per minute
             </span>
           </h2>
-          <p className="text-[#a1a1aa] max-w-lg mx-auto mb-2">
+          <p className="text-[#a1a1aa] max-w-lg mx-auto mb-3">
             Storyboard generation is always free. Only pay when you render.
           </p>
-          <p className="text-sm text-violet-300/80 font-medium">Start free — upgrade only when you're ready</p>
+          {/* Annual savings banner */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-400 text-sm font-semibold mb-2">
+            <span>🎁</span>
+            <span>Annual billing saves up to £198/year — 2 months free</span>
+          </div>
+          <p className="text-sm text-violet-300/80 font-medium mt-2">Start free — upgrade only when you're ready</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
@@ -1900,7 +1934,7 @@ function HomePricing() {
               </div>
               <p className="text-xs text-[#a1a1aa] mb-1">
                 {plan.annual}{" "}
-                <span className="text-green-400 font-semibold">({plan.saving})</span>
+                <span className="text-green-400 font-semibold">({plan.saving} annually)</span>
               </p>
               <p className="text-xs text-[#a1a1aa]/70 mt-2 mb-4">{plan.desc}</p>
               <div className={`w-full text-center text-xs font-semibold py-2 rounded-xl transition-all ${plan.ctaStyle}`}>
