@@ -3070,3 +3070,10 @@
 - [x] Fixed: Added crossOrigin="anonymous" to audio elements for better mobile compatibility
 - [x] Reduced sync threshold from 0.15s to 0.1s for tighter audio-video sync
 - [x] All 328 tests passing
+
+## Critical Bugs - Apr 13 (Live Site) - RESOLVED (PENDING PUBLISH)
+- [x] Root cause: Live site serving old bundle (index-CtoWOSgO.js), not latest (b592fee5)
+- [x] CTA blocking: Fixed with z-10 on Hero left column (z-index stacking)
+- [x] Audio issues: Fixed with 250ms sync interval + crossOrigin attribute
+- [x] All fixes verified in dev environment, ready to publish
+- [ ] AWAITING USER: Click Publish button in Management UI to deploy to wizvid.ai

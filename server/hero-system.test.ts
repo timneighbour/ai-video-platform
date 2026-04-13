@@ -104,8 +104,10 @@ describe("Hero System — WizVidIntro", () => {
     expect(source).toContain("Create Your First Video");
   });
 
-  it("sets localStorage key on close", () => {
-    expect(source).toContain("localStorage.setItem(INTRO_SEEN_KEY");
+  it("intro shows on every page load (no localStorage gating)", () => {
+    // Intro now shows every time — no localStorage.setItem to gate it
+    expect(source).toContain("INTRO_SEEN_KEY"); // Key is exported but not used for gating
+    expect(source).toContain("handleClose"); // Close handler exists
   });
 
   it("has cinematic background video clips", () => {
