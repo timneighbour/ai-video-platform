@@ -3010,3 +3010,27 @@
 ## CTA Click Blocking - CRITICAL (Session Apr 13 cont.)
 - [x] Find root cause: WizVidLoader (z-9999 full-screen overlay) was stuck with pointer-events:auto — appReady RAF was being cancelled on fast renders
 - [x] Fix: Removed WizVidLoader entirely from App.tsx — intro screen (CinematicEntryScreen) already handles the loading state; no separate loader needed
+
+## CTA + Intro Still Broken (Session Apr 13 - Round 3)
+- [ ] Definitively identify blocking element on live site via DOM inspection
+- [ ] Fix CTA buttons - still unclickable after WizVidLoader removal
+- [ ] Fix intro video - not showing at all
+
+## Intro Video Refactor (Apr 13 2026)
+- [ ] Remove CinematicEntryScreen as blocking overlay from App.tsx
+- [ ] Refactor CinematicEntryScreen to work as a closeable modal (not a page blocker)
+- [ ] Add "Watch Intro" button in Hero section that opens the intro modal
+- [ ] Keep optional first-visit auto-show logic (localStorage hasSeenIntro) but non-blocking
+- [ ] Ensure intro modal has a visible close/skip button
+- [ ] Verify all CTAs work with no overlay interference
+
+## Intro System Cleanup (Apr 13 2026)
+- [x] Audit all intro-related components and identify legacy/conflicting ones
+- [x] Remove all legacy intro components (CinematicIntroSequence, IntroFilmModal not imported anywhere — dead files)
+- [x] Remove all auto-trigger logic from App.tsx (no first-visit auto-play, no WizVidLoader blocking)
+- [x] Keep CinematicEntryScreen as the single intro component
+- [x] Wire CinematicEntryScreen as a modal: only opens when user clicks "Watch Intro" (isManualTrigger=true, no localStorage write)
+- [x] Add "Watch Intro" button to Hero section in Home.tsx (next to Watch 20-sec Demo)
+- [x] Ensure no intro overlay blocks homepage or CTAs after load (introOpen=false by default)
+- [x] Verify all CTAs navigate correctly (no blocking overlays on homepage)
+- [x] Run tests and save checkpoint (338/338 passing)

@@ -20,6 +20,8 @@ export const INTRO_SESSION_KEY = "wizvid_intro_seen_v2";
 
 interface Props {
   onComplete: () => void;
+  /** When true, dismiss does NOT write to localStorage (manual replay via Watch Intro button) */
+  isManualTrigger?: boolean;
 }
 
 /**
@@ -35,7 +37,7 @@ interface Props {
  * Total: ~7.8 seconds before user can click CTA.
  * NO auto-dismiss — user must click CTA.
  */
-export default function CinematicEntryScreen({ onComplete }: Props) {
+export default function CinematicEntryScreen({ onComplete, isManualTrigger = false }: Props) {
   // Stage
   const [stage, setStage] = useState<0 | 1 | 2 | 3>(0);
 
@@ -343,9 +345,11 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       }, 40);
     }
     setExiting(true);
-    // Write to localStorage AND cookie so intro never shows again across visits
-    try { localStorage.setItem(INTRO_SESSION_KEY, "true"); } catch { /* noop */ }
-    try { document.cookie = `${INTRO_SESSION_KEY}=true; max-age=31536000; path=/; SameSite=Lax`; } catch { /* noop */ }
+    // Only mark intro as seen when it's the automatic first-visit flow
+    if (!isManualTrigger) {
+      try { localStorage.setItem(INTRO_SESSION_KEY, "true"); } catch { /* noop */ }
+      try { document.cookie = `${INTRO_SESSION_KEY}=true; max-age=31536000; path=/; SameSite=Lax`; } catch { /* noop */ }
+    }
     setTimeout(onComplete, 800);
   }, [onComplete]);
 

@@ -2,14 +2,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { lazy, Suspense, useEffect, useState } from "react"; // useState used by App component
+import { lazy, Suspense, useEffect } from "react";
 import { identifyUser, resetIdentity } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Home is eagerly loaded — it's the LCP page
 import Home from "./pages/Home";
 import { trpc } from "./lib/trpc";
-import CinematicEntryScreen from "./components/CinematicEntryScreen";
 import GlobalMuteButton from "./components/GlobalMuteButton";
 
 // All other pages are lazy-loaded to reduce initial JS bundle
@@ -74,9 +73,6 @@ function PostLoginRedirect() {
 
 /**
  * Simple passthrough wrapper — the Switch/Route tree below handles all routing.
- * The NotFound fallback route at the bottom of the Switch handles unknown paths.
- * We intentionally do NOT redirect here so that hash links, query strings,
- * and any future routes are never silently swallowed.
  */
 function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
@@ -132,14 +128,6 @@ function Router() {
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
-// Use localStorage (not sessionStorage) so intro only shows once across all visits
-const INTRO_SESSION_KEY = "wizvid_intro_seen_v2";
-
 /** Fires identifyUser once the auth state is known */
 function MixpanelIdentity() {
   const { data: me } = trpc.auth.me.useQuery();
@@ -152,7 +140,6 @@ function MixpanelIdentity() {
         role: "Musician",
       });
     } else if (me === null) {
-      // Explicitly logged-out — reset so anonymous events aren't merged
       resetIdentity();
     }
   }, [me?.id]);
@@ -160,41 +147,14 @@ function MixpanelIdentity() {
 }
 
 function App() {
-  // Show cinematic intro only on the very first visit (localStorage + cookie fallback)
-  // Initialise synchronously so the intro renders on the FIRST paint — no flicker
-  const [showIntro, setShowIntro] = useState(() => {
-    try {
-      // Check localStorage first
-      if (localStorage.getItem(INTRO_SESSION_KEY)) return false;
-    } catch { /* localStorage unavailable */ }
-    // Cookie fallback for browsers that clear localStorage between sessions
-    try {
-      if (document.cookie.includes(INTRO_SESSION_KEY + "=true")) return false;
-    } catch { /* noop */ }
-    return true;
-  });
-
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="dark"
-        switchable
-      >
+      <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>
-          {/* ── Cinematic intro gate ──────────────────────────────────────
-               Renders at z-[9999] and completely blocks all content below.
-               The Router / homepage is mounted but invisible behind it.
-               On dismiss the intro fades out and the homepage is revealed.
-          ──────────────────────────────────────────────────────────────── */}
-          {showIntro && (
-            <CinematicEntryScreen onComplete={() => setShowIntro(false)} />
-          )}
           <Toaster />
           <Suspense fallback={null}>
             <CrispChat />
           </Suspense>
-          {/* Homepage is always mounted so it loads in the background.
-              When intro is showing it is hidden behind z-[9999] overlay. */}
           <MixpanelIdentity />
           <Router />
           <GlobalMuteButton />
