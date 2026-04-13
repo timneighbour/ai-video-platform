@@ -2539,3 +2539,17 @@
 - [x] Audio: bass hit + cinematic boom + spatial echo at impact
 - [x] Hold final frame 2–3s with WIZVID + tagline + Start Creating CTA
 - [x] IMAX lighting, depth layers, particles, motion blur, high contrast
+
+## V4 True Cinematic VIDEO Intro
+- [x] Generate Scene 1: Cinematic open from black (particles, camera forward, 4K+)
+- [x] Generate Scene 2: AI music video clip (performance, stage lighting, crowd, 4K+)
+- [x] Generate Scene 3: Cinematic film clip (dramatic lighting, slow motion, 4K+)
+- [x] Generate Scene 4: Creator video content (YouTube-style, handheld, 4K+)
+- [x] Generate Scene 5: Pixar-style animation clip (moving characters, 4K+)
+- [x] Generate Scene 6: Logo reveal clip (cinematic glow, push-in, 4K+)
+- [x] Upload all clips to CDN
+- [x] Rebuild CinematicIntroSequence as video player with scene transitions
+- [x] Add text overlays (genre labels, USP moment) synced to video
+- [x] Spatial audio engine synced to video (bass rumble, tension, impact, reverb)
+- [x] Autoplay muted, unmute on interaction
+- [x] Final frame hold with WIZVID + Enter Experience CTA
