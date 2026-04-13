@@ -489,7 +489,7 @@ function Hero() {
         <div className="grid lg:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
 
           {/* ── LEFT: Copy + CTAs ── */}
-          <div className="relative flex flex-col items-start text-left">
+          <div className="relative z-10 flex flex-col items-start text-left">
             {/* Extra dark backdrop behind text for guaranteed readability */}
             <div
               className="absolute -inset-x-4 -inset-y-6 rounded-2xl pointer-events-none"

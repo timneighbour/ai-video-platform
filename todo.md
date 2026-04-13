@@ -3058,3 +3058,8 @@
 - [x] Updated hero-system.test.ts to match new WizVidIntro component
 - [x] All CTAs now work — no blocking overlays on homepage
 - [x] Tests: 328/328 passing, 0 TypeScript errors
+
+## CTA Blocking Bug (Apr 13 - CRITICAL) - FIXED ✅
+- [x] Found root cause: Hero left column (CTAs) missing z-10, stacking behind right column on desktop
+- [x] Fix: Added z-10 to left column div to ensure it stacks above right column
+- [x] Verified: CTAs now work on desktop and mobile
