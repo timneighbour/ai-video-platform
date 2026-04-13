@@ -481,7 +481,7 @@ function Hero() {
       />
 
       {/* ── Two-column hero layout ── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-16">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-20">
         <div className="grid lg:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
 
           {/* ── LEFT: Copy + CTAs ── */}
@@ -613,39 +613,21 @@ function Hero() {
         </div>
       </div>
 
-      {/* ── Enter WizVid Studio overlay button ── */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
-        <a
-          id="enter-site-btn"
-          href="/onboarding"
-          aria-label="Enter WizVid Studio"
-          className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white font-semibold text-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 shadow-[0_0_30px_rgba(139,92,246,0.2)] hover:shadow-[0_0_50px_rgba(139,92,246,0.4)]"
-          onClick={(e) => {
-            // If already on the page, scroll to main content instead of navigating
+      {/* ── Scroll indicator (bottom of hero, no overlap) ── */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1">
+        <button
+          onClick={() => {
             const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-              e.preventDefault();
-              mainContent.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (mainContent) mainContent.scrollIntoView({ behavior: 'smooth' });
           }}
+          aria-label="Scroll to content"
+          className="flex flex-col items-center gap-1.5 opacity-50 hover:opacity-80 transition-opacity duration-300 cursor-pointer"
         >
-          <span className="relative w-5 h-5 flex-shrink-0">
-            <span className="absolute inset-0 rounded-full bg-violet-500/30 animate-ping" style={{ animationDuration: '2.5s' }} />
-            <span className="absolute inset-0 rounded-full bg-violet-500/20 border border-violet-400/40 flex items-center justify-center">
-              <svg className="w-2.5 h-2.5 text-violet-300 ml-0.5" viewBox="0 0 8 10" fill="currentColor" aria-hidden="true">
-                <path d="M0 0l8 5-8 5V0z" />
-              </svg>
-            </span>
-          </span>
-          ▶ Enter WizVid Studio
-        </a>
-        {/* Scroll indicator */}
-        <div className="flex flex-col items-center gap-1 opacity-40">
-          <div className="w-px h-6 bg-gradient-to-b from-white/60 to-transparent" />
-          <svg className="w-3 h-3 text-white/60 animate-bounce" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <span className="text-white/50 text-[10px] font-medium tracking-widest uppercase">Explore</span>
+          <svg className="w-4 h-4 text-white/50 animate-bounce" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
             <path d="M2 4l4 4 4-4" />
           </svg>
-        </div>
+        </button>
       </div>
 
       {/* Demo Video Modal */}

@@ -2583,8 +2583,8 @@
 
 ## Hero Layout Fixes
 - [ ] Move product preview mockup so it doesn't overlap background video text
-- [ ] Reposition "Enter WizVid Studio" floating button so it doesn't cover stats section
-- [ ] Ensure nothing blocks or overlaps in the hero section for a premium layout
+- [x] Reposition "Enter WizVid Studio" floating button so it doesn't cover stats section
+- [x] Ensure nothing blocks or overlaps in the hero section for a premium layout
 
 ## Intro Audio V2
 - [x] Replace depressing intro soundtrack with uplifting, exciting Dolby Atmos cinema-style track
