@@ -101,7 +101,7 @@ function Nav() {
     { label: "Home", href: "/" },
     { label: "Music Video", href: "/music-video" },
     { label: "WizCreate™", href: "/music-video" },
-    { label: "WizSound™", href: "/#wizsound" },
+    { label: "WizSound™", href: "#wizsound" },
     { label: "WizPilot™", href: "/wizpilot" },
     { label: "Pricing", href: "/pricing" },
     { label: "Help", href: "/help" },

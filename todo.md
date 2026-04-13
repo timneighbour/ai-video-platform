@@ -2898,3 +2898,22 @@
 - [x] Seekable progress bar
 - [x] Preload both videos for instant switch
 - [x] TypeScript: 0 errors, Tests: 335/335 passing
+
+## Critical UX/Routing/Pricing Fixes
+- [ ] Fix intro video: first-visit only (localStorage hasSeenIntro), skip on return visits
+- [ ] Fix "Back to Home" button: must route to / not trigger intro again
+- [ ] Fix intro: only show on explicit "Watch Intro" click after first visit
+- [ ] Fix all broken CTA buttons: Music Video Creator, Create Video, Pricing, Demo
+- [ ] Audit every nav link in Home.tsx and ensure no dead clicks
+- [ ] Add £19/month Starter plan to /pricing page
+- [ ] Align all plan names/prices across homepage, /pricing, and checkout
+- [ ] QA all routes, CTAs, back buttons, and pricing surfaces
+- [ ] TypeScript: 0 errors, Tests: 335/335 passing
+
+## Video Player Audio Fixes (Session Apr 13)
+- [x] Fix DemoVideoModal: register video with AudioContext, requestAudioFocus on play, mute/unmute working
+- [x] Fix DemoVideoModal: autoplay fallback (try muted first, then unmute) for browser autoplay policy
+- [x] Fix WizSoundSection: register both videos with AudioContext using separate IDs
+- [x] Fix WizSoundSection: inactive video always muted via ref, active video mute managed by AudioContext
+- [x] Fix WizSoundSection: switchMode correctly syncs time and swaps audio focus between std/wiz
+- [x] TypeScript: 0 errors, Tests: 335/335 passing

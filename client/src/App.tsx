@@ -204,7 +204,8 @@ function Router() {
 //   to keep consistent foreground/background color across components
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
-const INTRO_SESSION_KEY = "wizvid_intro_seen";
+// Use localStorage (not sessionStorage) so intro only shows once across all visits
+const INTRO_SESSION_KEY = "wizvid_intro_seen_v2";
 
 /** Fires identifyUser once the auth state is known */
 function MixpanelIdentity() {
@@ -229,13 +230,13 @@ function App() {
   // Show branded preloader on initial app mount, then fade out
   const [appReady, setAppReady] = useState(false);
 
-  // Show cinematic intro once per session
+  // Show cinematic intro only on the very first visit (localStorage persists across sessions)
   // Initialise synchronously so the intro renders on the FIRST paint — no flicker
   const [showIntro, setShowIntro] = useState(() => {
     try {
-      return !sessionStorage.getItem(INTRO_SESSION_KEY);
+      return !localStorage.getItem(INTRO_SESSION_KEY);
     } catch {
-      return false; // sessionStorage unavailable (private mode edge case)
+      return false; // localStorage unavailable (private mode edge case)
     }
   });
 

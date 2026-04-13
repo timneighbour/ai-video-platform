@@ -634,10 +634,10 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
                       background: `linear-gradient(to top, #7c3aed, #ec4899)`,
                       borderRadius: 2,
                       // Left-to-right wave: bars on the left animate faster, right slower
+                      // Use full animation shorthand including delay to avoid shorthand/longhand conflict
                       animation: wizsoundPulse
-                        ? `eqBarStereo ${0.5 + i * 0.06}s ease-in-out infinite alternate`
-                        : `eqBar ${0.6 + i * 0.07}s ease-in-out infinite alternate`,
-                      animationDelay: `${i * 0.06}s`,
+                        ? `eqBarStereo ${0.5 + i * 0.06}s ease-in-out ${i * 0.06}s infinite alternate`
+                        : `eqBar ${0.6 + i * 0.07}s ease-in-out ${i * 0.06}s infinite alternate`,
                       // Stereo widening: outer bars are slightly brighter
                       opacity: i === 0 || i === EQ_BARS.length - 1 ? 1 : 0.75 + (i / EQ_BARS.length) * 0.25,
                     }}

@@ -32,18 +32,42 @@ const PLANS = [
     icon: <Zap className="w-4 h-4" />,
     monthlyPrice: 9,
     label: "Try it out",
-    desc: "5 min/month video allowance, 720p quality, watermark on exports.",
+    desc: "2 renders/month included. 720p quality, watermark on exports.",
+    popular: false,
+    badge: null as string | null,
+    rendersPerMonth: 2,
+    perRender: "£4.50",
+    annualPrice: 79,
+    features: [
+      { text: "2 renders/month included", included: true },
+      { text: "All video styles", included: true },
+      { text: "Music video maker", included: true },
+      { text: "WizPilot AI creator", included: true },
+      { text: "Standard & HD quality", included: true },
+      { text: "4K quality", included: false },
+      { text: "Priority rendering", included: false },
+      { text: "API access", included: false },
+    ],
+  },
+  {
+    id: "basic" as const,
+    name: "Basic",
+    icon: <Film className="w-4 h-4" />,
+    monthlyPrice: 19,
+    label: "Great value",
+    desc: "5 renders/month included. 1080p HD quality, no watermark.",
     popular: false,
     badge: null as string | null,
     rendersPerMonth: 5,
-    perRender: "£1.80",
-    annualPrice: 79,
+    perRender: "£3.80",
+    annualPrice: 190,
     features: [
       { text: "5 renders/month included", included: true },
       { text: "All video styles", included: true },
       { text: "Music video maker", included: true },
       { text: "WizPilot AI creator", included: true },
       { text: "Standard & HD quality", included: true },
+      { text: "No watermark", included: true },
       { text: "4K quality", included: false },
       { text: "Priority rendering", included: false },
       { text: "API access", included: false },
@@ -181,7 +205,7 @@ export default function Pricing() {
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
   const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
 
-  async function handleSubscribe(planId: "starter" | "creator" | "studio") {
+  async function handleSubscribe(planId: "starter" | "basic" | "creator" | "studio") {
     mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), "monthly");
     if (!isAuthenticated) {
       window.location.href = getLoginUrl();

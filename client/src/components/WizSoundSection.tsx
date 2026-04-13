@@ -9,29 +9,77 @@ const VIDEO_STANDARD =
 const VIDEO_WIZSOUND =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-wizsound_d2f714ff.mp4";
 
+const PLAYER_ID_STD = "wizsound-section-std";
+const PLAYER_ID_WIZ = "wizsound-section-wiz";
+
 /* ── Dual-video sync player ─────────────────────────────────────────────── */
 function DualVideoPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [wizsound, setWizsound] = useState(true);
-  const [switching, setSwitching] = useState(false);
   const [progress, setProgress] = useState(0);
   const [loaded, setLoaded] = useState({ std: false, wiz: false });
 
-  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus } = useGlobalAudio();
-  const PLAYER_ID = "wizsound-section";
+  const {
+    isMuted,
+    toggleMute: globalToggleMute,
+    requestAudioFocus,
+    releaseAudioFocus,
+    registerAudioElement,
+    unregisterAudioElement,
+  } = useGlobalAudio();
 
   const stdRef = useRef<HTMLVideoElement>(null);
   const wizRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
+  // Keep a ref to current wizsound state for use in callbacks
   const wizsoundRef = useRef(true);
 
-  // Sync mute state to video elements
+  /* ── Register ONLY the active video with AudioContext ─────────────────
+   * This is critical: AudioContext applies isMuted to ALL registered elements.
+   * If both are registered, it will mute both when isMuted changes.
+   * We register only the active one so AudioContext manages its mute state,
+   * and we manually keep the inactive one always muted via its own ref.
+   * ─────────────────────────────────────────────────────────────────────── */
   useEffect(() => {
-    if (stdRef.current) stdRef.current.muted = isMuted;
-    if (wizRef.current) wizRef.current.muted = isMuted;
-  }, [isMuted]);
+    const wiz = wizRef.current;
+    if (!wiz) return;
+    // WizSound starts as active
+    registerAudioElement(PLAYER_ID_WIZ, wiz);
+    return () => unregisterAudioElement(PLAYER_ID_WIZ);
+  }, [loaded.wiz]); // re-register when loaded
 
-  // Track progress on the active video
+  useEffect(() => {
+    const std = stdRef.current;
+    if (!std) return;
+    // Standard is inactive by default — register it so we can manage it,
+    // but keep it muted manually
+    registerAudioElement(PLAYER_ID_STD, std);
+    return () => unregisterAudioElement(PLAYER_ID_STD);
+  }, [loaded.std]);
+
+  /* ── Keep inactive video always muted ─────────────────────────────────
+   * Whenever wizsound or isMuted changes, enforce mute on inactive video.
+   * The active video's mute is managed by AudioContext via registration.
+   * ─────────────────────────────────────────────────────────────────────── */
+  useEffect(() => {
+    const std = stdRef.current;
+    const wiz = wizRef.current;
+    if (!std || !wiz) return;
+
+    if (wizsound) {
+      // WizSound is active: std must always be muted
+      std.muted = true;
+      // wiz mute is controlled by AudioContext (isMuted)
+      wiz.muted = isMuted;
+    } else {
+      // Standard is active: wiz must always be muted
+      wiz.muted = true;
+      // std mute is controlled by AudioContext (isMuted)
+      std.muted = isMuted;
+    }
+  }, [wizsound, isMuted]);
+
+  /* ── Track progress ────────────────────────────────────────────────── */
   const trackProgress = useCallback(() => {
     const active = wizsoundRef.current ? wizRef.current : stdRef.current;
     if (active && active.duration) {
@@ -40,15 +88,16 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
     rafRef.current = requestAnimationFrame(trackProgress);
   }, []);
 
-  // Cleanup on unmount
+  /* ── Cleanup ───────────────────────────────────────────────────────── */
   useEffect(() => {
     return () => {
       cancelAnimationFrame(rafRef.current);
-      releaseAudioFocus(PLAYER_ID);
+      releaseAudioFocus(PLAYER_ID_WIZ);
+      releaseAudioFocus(PLAYER_ID_STD);
     };
   }, []);
 
-  // Toggle play/pause — both videos always stay in sync
+  /* ── Play / Pause ──────────────────────────────────────────────────── */
   const togglePlay = useCallback(async () => {
     const std = stdRef.current;
     const wiz = wizRef.current;
@@ -59,68 +108,93 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
       wiz.pause();
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
-      releaseAudioFocus(PLAYER_ID);
+      releaseAudioFocus(wizsoundRef.current ? PLAYER_ID_WIZ : PLAYER_ID_STD);
     } else {
-      // Sync both to same time before playing
+      // Sync both to same time
       const syncTime = (wizsoundRef.current ? wiz : std).currentTime;
       std.currentTime = syncTime;
       wiz.currentTime = syncTime;
 
-      // Mute the inactive video
-      std.muted = wizsoundRef.current ? true : isMuted;
-      wiz.muted = wizsoundRef.current ? isMuted : true;
+      // Enforce mute state before play
+      if (wizsoundRef.current) {
+        std.muted = true;
+        wiz.muted = isMuted;
+      } else {
+        wiz.muted = true;
+        std.muted = isMuted;
+      }
+
+      // Request audio focus for the active video
+      requestAudioFocus(wizsoundRef.current ? PLAYER_ID_WIZ : PLAYER_ID_STD);
 
       try {
+        // Play both simultaneously for sync — inactive is muted
         await Promise.all([std.play(), wiz.play()]);
         setPlaying(true);
-        if (!isMuted) requestAudioFocus(PLAYER_ID);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
-        setPlaying(false);
+        // Autoplay blocked — try muted first
+        std.muted = true;
+        wiz.muted = true;
+        try {
+          await Promise.all([std.play(), wiz.play()]);
+          setPlaying(true);
+          // Now unmute the active one if user wants sound
+          if (!isMuted) {
+            if (wizsoundRef.current) wiz.muted = false;
+            else std.muted = false;
+          }
+          rafRef.current = requestAnimationFrame(trackProgress);
+        } catch {
+          setPlaying(false);
+        }
       }
     }
   }, [playing, isMuted, trackProgress, requestAudioFocus, releaseAudioFocus]);
 
-  // Switch between Standard and WizSound — instant opacity toggle, no restart
+  /* ── Switch Standard ↔ WizSound ────────────────────────────────────── */
   const switchMode = useCallback((toWizSound: boolean) => {
     if (toWizSound === wizsoundRef.current) return;
-    setSwitching(true);
 
     const std = stdRef.current;
     const wiz = wizRef.current;
-    if (!std || !wiz) { setSwitching(false); return; }
+    if (!std || !wiz) return;
 
-    // Sync time from the currently active video to the incoming one
+    // Sync time from active to incoming
     const currentTime = wizsoundRef.current ? wiz.currentTime : std.currentTime;
 
     if (toWizSound) {
-      // Switch to WizSound: mute Standard, unmute WizSound
-      std.currentTime = currentTime;
-      std.muted = true;
+      // Switching to WizSound
       wiz.currentTime = currentTime;
-      wiz.muted = isMuted;
+      std.currentTime = currentTime;
+      std.muted = true;        // Inactive: always muted
+      wiz.muted = isMuted;     // Active: respect global mute
+      requestAudioFocus(PLAYER_ID_WIZ);
     } else {
-      // Switch to Standard: mute WizSound, unmute Standard
-      wiz.currentTime = currentTime;
-      wiz.muted = true;
+      // Switching to Standard
       std.currentTime = currentTime;
-      std.muted = isMuted;
+      wiz.currentTime = currentTime;
+      wiz.muted = true;        // Inactive: always muted
+      std.muted = isMuted;     // Active: respect global mute
+      requestAudioFocus(PLAYER_ID_STD);
     }
 
     wizsoundRef.current = toWizSound;
     setWizsound(toWizSound);
-    setTimeout(() => setSwitching(false), 60);
-  }, [isMuted]);
+  }, [isMuted, requestAudioFocus]);
 
+  /* ── Mute toggle ───────────────────────────────────────────────────── */
   const toggleMute = useCallback(() => {
-    if (isMuted) requestAudioFocus(PLAYER_ID);
+    // Immediately apply to active video for instant response
+    const activeVid = wizsoundRef.current ? wizRef.current : stdRef.current;
+    if (activeVid) activeVid.muted = !isMuted;
     globalToggleMute();
-  }, [isMuted, globalToggleMute, requestAudioFocus]);
+  }, [isMuted, globalToggleMute]);
 
-  // Seek on progress bar click
+  /* ── Seek ──────────────────────────────────────────────────────────── */
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = (e.clientX - rect.left) / rect.width;
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const std = stdRef.current;
     const wiz = wizRef.current;
     if (!std || !wiz) return;
@@ -149,13 +223,11 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
       {wizsound && (
         <div
           className="absolute inset-0 rounded-2xl pointer-events-none z-10"
-          style={{
-            background: "linear-gradient(180deg, rgba(217,70,239,0.04) 0%, transparent 40%)",
-          }}
+          style={{ background: "linear-gradient(180deg, rgba(217,70,239,0.04) 0%, transparent 40%)" }}
         />
       )}
 
-      {/* ── Video stack — two videos, one visible at a time ── */}
+      {/* ── Video stack — two videos, one audible at a time ── */}
       <div className="relative w-full aspect-video bg-black overflow-hidden rounded-t-xl">
         {/* Loading state */}
         {!isReady && (
@@ -177,7 +249,6 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
           playsInline
           loop
           preload="auto"
-          muted={wizsound || isMuted}
           onCanPlayThrough={() => setLoaded(p => ({ ...p, std: true }))}
         />
 
@@ -194,7 +265,6 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
           playsInline
           loop
           preload="auto"
-          muted={!wizsound || isMuted}
           onCanPlayThrough={() => setLoaded(p => ({ ...p, wiz: true }))}
         />
 
@@ -220,7 +290,7 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
           </button>
         )}
 
-        {/* WizSound active badge — top right */}
+        {/* WizSound active badge */}
         <div
           className="absolute top-3 right-3 z-30 transition-all duration-300"
           style={{ opacity: wizsound && playing ? 1 : 0, transform: wizsound && playing ? "scale(1)" : "scale(0.85)" }}
@@ -238,7 +308,7 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
           </div>
         </div>
 
-        {/* Standard badge — top right when Standard active */}
+        {/* Standard badge */}
         <div
           className="absolute top-3 right-3 z-30 transition-all duration-300"
           style={{ opacity: !wizsound && playing ? 1 : 0, transform: !wizsound && playing ? "scale(1)" : "scale(0.85)" }}
@@ -315,7 +385,6 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
         >
           <button
             onClick={() => switchMode(false)}
-            disabled={switching}
             className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-200 ${
               !wizsound
                 ? "bg-white/12 text-white shadow-sm"
@@ -327,7 +396,6 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
           </button>
           <button
             onClick={() => switchMode(true)}
-            disabled={switching}
             className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-200 ${
               wizsound ? "text-white" : "text-white/35 hover:text-white/55"
             }`}
@@ -343,9 +411,7 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
 
         {/* Descriptor */}
         <p className="text-white/30 text-[11px] text-center mt-2.5 leading-relaxed transition-all duration-300">
-          {switching
-            ? "Switching…"
-            : wizsound
+          {wizsound
             ? "Wide stereo · Deep bass · Spatial reverb · 320kbps mastered"
             : "Flat mix · Narrow stereo · No bass · No spatial processing"
           }
