@@ -3000,3 +3000,9 @@
 ## WizSound Audio Differential
 - [x] Ensure WizSound demo player on Home page has clear audible difference between Standard and WizSound modes
 - [x] Check MusicVideosLanding player (DemoVideoModal) for same audio differential issue — FIXED with Web Audio API
+
+## Critical Issues - Session Apr 13
+
+- [ ] Fix: No sound on both WizSound players (WizSoundSection + DemoVideoModal) — Web Audio engine not producing output
+- [ ] Fix: CTA buttons still not navigating after hard refresh — identify remaining blocker
+- [ ] Fix: Intro screen video not playing — going straight to homepage, video source may be missing or auto-dismissed too early

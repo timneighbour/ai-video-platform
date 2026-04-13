@@ -233,23 +233,22 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
     } else {
+      // CRITICAL: video.muted must be FALSE BEFORE createMediaElementSource() is called
+      // Once Web Audio takes over, video.muted=true kills the entire audio pipeline
+      v.muted = false;
       initEngine();
       engineRef.current?.resume();
-      // CRITICAL: video.muted must be FALSE for Web Audio to receive the signal
-      // Muting is handled by the outputGain node in the Web Audio graph
-      v.muted = false;
       setIsMuted(false);
       try {
         await v.play();
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
-        // Autoplay blocked — try muted first, then unmute
-        v.muted = true;
+        // Autoplay blocked — mute via Web Audio gain (NOT video.muted) and try again
+        engineRef.current?.setMuted(true);
+        setIsMuted(true);
         try {
           await v.play();
-          // Unmute after play succeeds
-          v.muted = false;
           setPlaying(true);
           rafRef.current = requestAnimationFrame(trackProgress);
         } catch {

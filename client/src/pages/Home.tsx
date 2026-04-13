@@ -553,7 +553,7 @@ function Hero() {
 
             {/* CTA row */}
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-              <a
+              <Link
                 id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
                 className="inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
@@ -562,7 +562,7 @@ function Hero() {
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
                 {isAuthenticated ? "Open Creator" : "Create Your First Video"}
-              </a>
+              </Link>
               <button
                 onClick={() => setDemoOpen(true)}
                 className="group inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300"
@@ -778,13 +778,13 @@ function ImmediateValue() {
                 </li>
               ))}
             </ul>
-            <a
+            <Link
               href="/onboarding"
               className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
             >
               <Sparkles className="w-4 h-4" />
               Create your first video
-            </a>
+            </Link>
             <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · Free to create · Only pay to render</p>
           </div>
           {/* Right: visual storyboard mockup */}
@@ -1933,13 +1933,13 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
         </div>
         <h3 className="font-bold text-white text-base mb-2 leading-snug group-hover:text-violet-200 transition-colors">{item.title}</h3>
         <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4 line-clamp-2">{item.description}</p>
-        <a
+        <Link
           href="/onboarding"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors group/cta"
         >
           Create something like this
           <ArrowRight className="w-3 h-3 transition-transform group-hover/cta:translate-x-0.5" />
-        </a>
+        </Link>
       </div>
     </div>
   );
@@ -2036,13 +2036,13 @@ function MadeWithWizVid() {
         {/* Bottom CTA */}
         <div className="text-center mt-14 reveal">
           <p className="text-[#a1a1aa] text-sm mb-5">Ready to create your own?</p>
-          <a
+          <Link
             href="/onboarding"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 text-white text-sm font-semibold hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25"
           >
             <Sparkles className="w-4 h-4" />
             Create Your First Video →
-          </a>
+          </Link>
         </div>
       </div>
     </section>
@@ -2172,7 +2172,7 @@ function HomePricing() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           {plans.map((plan) => (
-            <a
+            <Link
               key={plan.id}
               href={`/pricing?plan=${plan.id}`}
               className={`relative block rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
@@ -2212,7 +2212,7 @@ function HomePricing() {
               <div className={`w-full text-center text-xs font-semibold py-2 rounded-xl transition-all ${plan.ctaStyle}`}>
                 {plan.cta}
               </div>
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -2245,12 +2245,12 @@ function HomePricing() {
             <strong className="text-green-400">✓ Save up to £198/year</strong>{" "}
             <span className="text-[#a1a1aa]">with annual billing — equivalent to 2 months free on every plan</span>
           </p>
-          <a
+          <Link
             href="/pricing"
             className="inline-flex items-center gap-2 text-sm font-semibold text-white border border-white/15 rounded-xl px-5 py-2.5 hover:bg-white/5 transition-all"
           >
             See full pricing &amp; compare plans →
-          </a>
+          </Link>
         </div>
       </div>
     </section>
@@ -2372,7 +2372,7 @@ function EcosystemSection() {
         {/* Engine grid */}
         <div className="grid md:grid-cols-3 gap-6">
           {engines.map((engine) => (
-            <a
+            <Link
               key={engine.name}
               href={engine.href}
               className={`group relative flex flex-col p-6 rounded-2xl border ${engine.border} ${engine.bg} ${engine.glow} transition-all duration-300 cursor-pointer`}
@@ -2398,7 +2398,7 @@ function EcosystemSection() {
               <div className={`mt-4 flex items-center gap-1.5 text-xs font-semibold ${engine.badge.split(" ")[0]} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
                 Explore {engine.name} <ArrowRight className="w-3 h-3" />
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

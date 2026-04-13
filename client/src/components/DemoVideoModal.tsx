@@ -351,21 +351,22 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
+      // CRITICAL: set video.muted=false BEFORE createMediaElementSource() is called
+      // Once Web Audio takes over, video.muted=true kills the entire audio pipeline
+      vid.muted = false;
       initEngine();
       engineRef.current?.resume();
-      // CRITICAL: video.muted must be FALSE for Web Audio to receive the signal
-      vid.muted = false;
       setIsMuted(false);
       try {
         await vid.play();
         setPlaying(true);
         mp.demoVideoPlayed();
       } catch {
-        // Autoplay blocked — try muted first, then unmute
-        vid.muted = true;
+        // Autoplay blocked — mute via Web Audio gain (NOT video.muted)
+        engineRef.current?.setMuted(true);
+        setIsMuted(true);
         try {
           await vid.play();
-          vid.muted = false;
           setPlaying(true);
           mp.demoVideoPlayed();
         } catch {
