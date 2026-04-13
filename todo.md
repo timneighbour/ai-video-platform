@@ -2803,3 +2803,22 @@
 - [x] Render bundles section: "Save with render bundles" with best value highlighted
 - [x] Minimal comparison table
 - [x] Bottom CTA: "Start building your video for free" + "Start Creating →" button
+
+## Unify Kids Video Creator with Music Video Creator
+- [x] Read MusicCreator.tsx to understand full creation flow (WizPilot, storyboard, scenes, render)
+- [x] Remove current simple form structure from KidsVideo.tsx
+- [x] Rebuild KidsVideo.tsx using same core creation system as MusicCreator
+- [x] Pre-select kids animation styles (Pixar 3D, Cartoon, Storybook, Claymation)
+- [x] Use animated character presets relative to animation styles (not generic/human characters)
+- [x] Add AI-generated animated characters (same CharacterManager system as MusicVideoAutopilot)
+- [x] Copy exact MusicVideoAutopilot format: upload → character_confirmation → storyboard → render
+- [x] Match layout, spacing, buttons, typography, animations exactly
+- [x] Update positioning: "Create a Kids Animation Video" headline
+- [x] Integrate style selection into main flow (not separate section)
+- [x] Ensure same WizPilot prompt, storyboard preview, editable scenes, refinement, render workflow
+
+## AI Generated Characters Feature (Kids Video)
+- [x] Add AI Generated Characters section to Kids Video (same format as Music Video Creator)
+- [x] Use CharacterManager component with animated-only presets (Pixar 3D, Anime, Cartoon)
+- [x] Default character mode to ai_generated (not photo) for kids video
+- [x] Wire characters into kidsVideo storyboard generation
