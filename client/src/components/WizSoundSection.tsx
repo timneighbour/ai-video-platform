@@ -40,13 +40,13 @@ function FrequencyWaveform({
       if (!active || !analyser) {
         // Idle bars
         const gap = 2;
-        const barW = (W - (BAR_COUNT - 1) * gap) / BAR_COUNT;
+        const barW = Math.max(1, (W - (BAR_COUNT - 1) * gap) / BAR_COUNT);
         for (let i = 0; i < BAR_COUNT; i++) {
           const x = i * (barW + gap);
           const h = H * 0.12;
           ctx.fillStyle = "rgba(255,255,255,0.08)";
           ctx.beginPath();
-          ctx.roundRect(x, H / 2 - h / 2, barW, h, barW / 2);
+          ctx.roundRect(x, H / 2 - h / 2, barW, h, Math.max(0, barW / 2));
           ctx.fill();
         }
         rafRef.current = requestAnimationFrame(draw);
@@ -58,8 +58,8 @@ function FrequencyWaveform({
       analyser.getByteFrequencyData(data);
 
       const gap = 2;
-      const barW = (W - (BAR_COUNT - 1) * gap) / BAR_COUNT;
-      const step = Math.floor(bufferLength / BAR_COUNT);
+      const barW = Math.max(1, (W - (BAR_COUNT - 1) * gap) / BAR_COUNT);
+      const step = Math.max(1, Math.floor(bufferLength / BAR_COUNT));
 
       for (let i = 0; i < BAR_COUNT; i++) {
         // Average a range of frequency bins for each bar
@@ -93,7 +93,7 @@ function FrequencyWaveform({
         }
 
         ctx.beginPath();
-        ctx.roundRect(x, y, barW, h, barW / 2);
+        ctx.roundRect(x, y, barW, h, Math.max(0, barW / 2));
         ctx.fill();
       }
 

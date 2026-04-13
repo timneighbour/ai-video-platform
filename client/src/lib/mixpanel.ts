@@ -26,10 +26,11 @@ export function initMixpanel() {
     ignore_dnt: false,
     // EU data residency — matches the api_host in Tim's snippet
     api_host: "https://api-eu.mixpanel.com",
-    // Autocapture clicks, form submissions, page views automatically
-    autocapture: true,
-    // Record 100% of sessions for session replay
-    record_sessions_percent: 100,
+    // Autocapture disabled — requires project-level enablement in Mixpanel dashboard.
+    // All key events are tracked explicitly via mp.* helpers instead.
+    autocapture: false,
+    // Session replay — enable once project is on a Growth/Enterprise plan
+    // record_sessions_percent: 100,
   });
   initialised = true;
 }

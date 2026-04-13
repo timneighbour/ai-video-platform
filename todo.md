@@ -2576,3 +2576,7 @@
 - [ ] Compose new video with crossfade transitions
 - [ ] Rebuild component with clean single text overlays, premium logo reveal, real audio
 - [ ] Ensure overall experience feels beyond premium — IMAX cinema quality
+
+## Bug Fixes
+- [x] Fix Mixpanel autocapture implementation error (trackDomEvent failing)
+- [x] Fix WizSoundSection canvas roundRect negative radius error
