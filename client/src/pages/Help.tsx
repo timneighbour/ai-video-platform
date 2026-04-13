@@ -176,7 +176,7 @@ export default function Help() {
           {[
             { icon: <Music className="w-4 h-4" />, label: "Music Video", href: "/music-video" },
             { icon: <Video className="w-4 h-4" />, label: "WizPilot", href: "/wizpilot" },
-            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/kids-video" },
+            { icon: <Baby className="w-4 h-4" />, label: "Kids Animation", href: "/kids-video" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
               <div className="p-4 rounded-xl bg-[#171717] border border-white/8 hover:border-white/15 transition-all cursor-pointer text-center card-hover">

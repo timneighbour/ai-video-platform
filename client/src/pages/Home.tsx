@@ -110,7 +110,7 @@ function Nav() {
   const toolLinks = [
     { label: "AI Music Generator", sub: "Powered by Suno", href: "/music-creator", icon: "🎵" },
     { label: "YouTube Video Creator", sub: "WizPilot for YouTube", href: "/wizpilot", icon: "🎥" },
-    { label: "Kids Video", sub: "Safe animated content", href: "/kids-video", icon: "🧒" },
+    { label: "Kids Animation Creator", sub: "Animated kids videos", href: "/kids-video", icon: "🧒" },
     { label: "Text to Video", sub: "Prompt to full video", href: "/text-to-video", icon: "✨" },
   ];
 

@@ -43,8 +43,8 @@ const Onboarding: React.FC = () => {
     {
       href: '/kids-video',
       icon: Sparkles,
-      title: 'Kids Video Maker',
-      description: 'Create safe, fun, and educational videos designed specifically for children',
+      title: 'Kids Animation Creator',
+      description: 'Create stunning animated kids videos in Pixar, cartoon, or storybook styles',
       color: 'from-pink-600 to-rose-600',
       borderColor: 'hover:border-pink-500/50',
     },

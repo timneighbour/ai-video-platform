@@ -80,7 +80,7 @@ function PostLoginRedirect() {
  * Valid destinations:
  * - /music-video/create (Music Video Creator)
  * - /wizpilot (YouTube Video Creator)
- * - /kids-video (Kids Video Maker)
+ * - /kids-video (Kids Animation Creator)
  * - /text-to-video (Text to Video)
  * - /music-creator (AI Music Generator)
  * - / (Homepage)

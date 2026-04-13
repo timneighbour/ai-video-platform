@@ -1,5 +1,5 @@
 /**
- * Kids Video Creator
+ * Kids Animation Creator
  * Unified creation flow matching MusicVideoAutopilot:
  *   concept → story_input → characters → storyboard → render
  *
@@ -415,7 +415,7 @@ export default function KidsVideo() {
 
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🧒</span>
-            <span className="font-bold text-white text-sm sm:text-base">Kids Video Creator</span>
+            <span className="font-bold text-white text-sm sm:text-base">Kids Animation Creator</span>
             <Badge className="bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs hidden sm:inline-flex">
               Child-Safe AI
             </Badge>
@@ -484,10 +484,13 @@ export default function KidsVideo() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
                 Turn Any Story Into a
                 <span className="block bg-gradient-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                  Magical Kids Video
+                  Magical Kids Animation
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg font-medium text-white/80 max-w-2xl mx-auto mb-3 leading-relaxed">
+                Create stunning animated kids videos in Pixar, cartoon, or storybook styles.
+              </p>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
                 Describe your story, design your characters with AI, and watch a beautiful animated storyboard appear — completely free. Render the full video when you're ready.
               </p>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10 text-sm">
@@ -647,7 +650,7 @@ export default function KidsVideo() {
                 className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 px-12 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
               >
                 <Wand2 className="h-5 w-5" />
-                Create Your Kids Video →
+                Create Your Kids Animation →
               </Button>
               <p className="text-xs text-muted-foreground mt-4">Powered by WizCreate™ · WizSound™ · Child-Safe AI</p>
             </div>
@@ -1188,7 +1191,7 @@ export default function KidsVideo() {
                   onClick={handleReset}
                   className="text-sm text-muted-foreground hover:text-white transition underline underline-offset-4"
                 >
-                  Create another kids video 🌈
+                  Create another kids animation 🌈
                 </button>
               </div>
             </div>

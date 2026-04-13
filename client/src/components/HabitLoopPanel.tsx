@@ -50,8 +50,8 @@ const TEMPLATES: Template[] = [
   {
     id: "kids-story",
     icon: <BookOpen className="w-4 h-4" />,
-    title: "Kids Story",
-    description: "Colourful animated stories for young audiences",
+    title: "Kids Animation",
+    description: "Colourful animated videos for young audiences",
     href: "/kids-video",
     gradient: "from-amber-500/20 to-orange-600/10",
   },

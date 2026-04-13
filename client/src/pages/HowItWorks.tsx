@@ -18,10 +18,10 @@ const WALKTHROUGH_STEPS = [
     step: "01",
     icon: "🎬",
     title: "Choose your video type",
-    desc: "Pick from Music Video, YouTube/WizPilot, Kids Video, or Text to Video. Each has a tailored flow built for your content.",
+    desc: "Pick from Music Video, YouTube/WizPilot, Kids Animation, or Text to Video. Each has a tailored flow built for your content.",
     visual: (
       <div className="flex flex-wrap gap-2 mt-3">
-        {["🎤 Music Video", "🎥 WizPilot", "🧒 Kids Video", "✨ Text to Video"].map((t) => (
+        {["🎤 Music Video", "🎥 WizPilot", "🧒 Kids Animation", "✨ Text to Video"].map((t) => (
           <span key={t} className="text-xs bg-white/8 border border-white/10 rounded-full px-3 py-1 text-white/80">{t}</span>
         ))}
       </div>
