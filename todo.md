@@ -3099,13 +3099,22 @@
 - [ ] Test all nav links and CTAs on Chrome after fix
 
 ## Cinematic Intro Rebuild
-- [ ] Process all video clips with unified cinematic colour grade (FFmpeg)
-- [ ] Upload all graded clips and WizVid logo to CDN
-- [ ] Build CinematicHeroIntro component: crossfading video loop (Pixar, singer, band, cinematic, creator)
-- [ ] Add WizVid logo overlay (mix-blend-mode: screen for clean display over video)
-- [ ] Add sound toggle (auto-play muted, user can enable)
+- [x] Process all video clips with unified cinematic colour grade (FFmpeg)
+- [x] Upload all graded clips and WizVid logo to CDN
+- [x] Build CinematicHeroIntro component: crossfading video loop (Pixar, singer, band, cinematic, creator)
+- [x] Add WizVid logo overlay (mix-blend-mode: screen for clean display over video)
+- [x] Add sound toggle (auto-play muted, user can enable)
 - [x] Add strapline "Create without limits" (3–6s, fade in/out, centred, white with glow)
 - [x] Add strapline "See it. Hear it. Feel it" (9–12s, fade in/out, centred, white with glow)
 - [x] Add strapline "From imagination to immersion" (15–18s, fade in/out, centred, white with glow)
 - [x] Ensure CTA button always clickable (pointer-events on overlays)
-- [ ] Wire CinematicHeroIntro into App.tsx replacing old WizVidIntro
+- [x] Wire CinematicHeroIntro into App.tsx replacing old WizVidIntro
+
+- [x] Replace old nightclub/concert/abstract intro videos with new Pixar/band/singer/creator/cinematic clips
+
+## Chrome Autoplay Policy Fixes
+- [x] Intro video: autoplay muted, no attempt to autoplay sound
+- [x] Sound toggle: visible mute/unmute button, session-persistent state
+- [x] Demo video: no autoplay with sound, require user interaction for audio
+- [x] WizSound: add visual cues (pulse/glow) and "Enable Sound Experience" prompt (already built into WizSoundSection)
+- [x] Cross-browser compatibility: Chrome, Safari, mobile
