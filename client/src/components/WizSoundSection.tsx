@@ -2,193 +2,41 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
 
-/* ── Single demo video — audio processed in real-time via Web Audio API ── */
-// demo-clean_b6ec4737.mp4 — stereo AAC 48kHz, confirmed audio track present
+/* ── CDN assets ── */
 const VIDEO_SRC =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-clean_b6ec4737.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
+const AUDIO_STANDARD =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-standard_31845db2.m4a";
+const AUDIO_ENHANCED =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-enhanced_9f37b387.m4a";
 
-/* ──────────────────────────────────────────────────────────────────────────
-   WizSoundEngine
-   Builds a Web Audio API graph with TWO dramatically different paths.
-
-   CRITICAL: Once createMediaElementSource() is called, the video element's
-   audio is routed EXCLUSIVELY through Web Audio. The video.muted property
-   must stay FALSE — muting is handled by a gain node at the end of the graph.
-
-   Standard path:  source → standardGain (0.7) → outputGain → destination
-                   Deliberately quieter, flat, narrow — "before" quality.
-
-   WizSound path:  source → bassBoost (+18 dB shelf at 100 Hz)
-                          → subBass (+10 dB shelf at 60 Hz)
-                          → presenceBoost (+8 dB peak at 3.2 kHz)
-                          → airBoost (+5 dB high-shelf at 10 kHz)
-                          → splitter → Haas stereo widening (30ms)
-                          → compressor → masterGain (2.0 = +6 dB)
-                          → outputGain → destination
-                   Loud, wide, punchy, spatial — cinema-grade.
-
-   outputGain: used for mute/unmute (0 or 1) — replaces video.muted
-   ─────────────────────────────────────────────────────────────────────── */
-class WizSoundEngine {
-  private ctx: AudioContext;
-  private source: MediaElementAudioSourceNode;
-  private standardGain: GainNode;
-  private masterGain: GainNode;
-  private outputGain: GainNode; // Mute control
-  private bassBoost: BiquadFilterNode;
-  private subBass: BiquadFilterNode;
-  private presenceBoost: BiquadFilterNode;
-  private airBoost: BiquadFilterNode;
-  private compressor: DynamicsCompressorNode;
-  private haasDelay: DelayNode;
-  private haasGainL: GainNode;
-  private haasGainR: GainNode;
-  private panLeft: StereoPannerNode;
-  private panRight: StereoPannerNode;
-  private merger: ChannelMergerNode;
-  private splitter: ChannelSplitterNode;
-  private _wizsound = false;
-  private _muted = false;
-
-  constructor(video: HTMLVideoElement) {
-    this.ctx = new AudioContext();
-    this.source = this.ctx.createMediaElementSource(video);
-
-    /* ── Output gain (mute control) — at the very end of the chain ── */
-    this.outputGain = this.ctx.createGain();
-    this.outputGain.gain.value = 1.0;
-    this.outputGain.connect(this.ctx.destination);
-
-    /* ── Standard path — deliberately flat and quiet ── */
-    this.standardGain = this.ctx.createGain();
-    this.standardGain.gain.value = 0.7; // Quieter than WizSound to emphasise the upgrade
-
-    /* ── WizSound path ── */
-    // Bass boost: +18 dB low-shelf at 100 Hz — heavy, cinematic bass
-    this.bassBoost = this.ctx.createBiquadFilter();
-    this.bassBoost.type = "lowshelf";
-    this.bassBoost.frequency.value = 100;
-    this.bassBoost.gain.value = 18;
-
-    // Sub-bass: +10 dB low-shelf at 60 Hz — rumble you can feel
-    this.subBass = this.ctx.createBiquadFilter();
-    this.subBass.type = "lowshelf";
-    this.subBass.frequency.value = 60;
-    this.subBass.gain.value = 10;
-
-    // Presence boost: +8 dB peak at 3.2 kHz (vocal clarity, attack)
-    this.presenceBoost = this.ctx.createBiquadFilter();
-    this.presenceBoost.type = "peaking";
-    this.presenceBoost.frequency.value = 3200;
-    this.presenceBoost.Q.value = 1.2;
-    this.presenceBoost.gain.value = 8;
-
-    // Air boost: +5 dB high-shelf at 10 kHz (sparkle, openness)
-    this.airBoost = this.ctx.createBiquadFilter();
-    this.airBoost.type = "highshelf";
-    this.airBoost.frequency.value = 10000;
-    this.airBoost.gain.value = 5;
-
-    // Haas stereo widening: split L/R, delay one side by 30 ms
-    this.splitter = this.ctx.createChannelSplitter(2);
-    this.haasDelay = this.ctx.createDelay(0.06);
-    this.haasDelay.delayTime.value = 0.030; // 30 ms Haas effect — wider than before
-    this.haasGainL = this.ctx.createGain();
-    this.haasGainL.gain.value = 1.0;
-    this.haasGainR = this.ctx.createGain();
-    this.haasGainR.gain.value = 1.0;
-    this.panLeft = this.ctx.createStereoPanner();
-    this.panLeft.pan.value = -0.9; // Hard left
-    this.panRight = this.ctx.createStereoPanner();
-    this.panRight.pan.value = 0.9; // Hard right
-    this.merger = this.ctx.createChannelMerger(2);
-
-    // Dynamic compression: aggressive for punch and loudness
-    this.compressor = this.ctx.createDynamicsCompressor();
-    this.compressor.threshold.value = -24;
-    this.compressor.knee.value = 6;
-    this.compressor.ratio.value = 6;
-    this.compressor.attack.value = 0.002;
-    this.compressor.release.value = 0.1;
-
-    // Master gain: +6 dB perceived loudness boost
-    this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 2.0;
-
-    /* ── Wire the WizSound graph ── */
-    // source → bassBoost → subBass → presenceBoost → airBoost → splitter
-    this.bassBoost.connect(this.subBass);
-    this.subBass.connect(this.presenceBoost);
-    this.presenceBoost.connect(this.airBoost);
-    this.airBoost.connect(this.splitter);
-
-    // Left channel: direct → pan left
-    this.splitter.connect(this.haasGainL, 0);
-    this.haasGainL.connect(this.panLeft);
-    this.panLeft.connect(this.merger, 0, 0);
-
-    // Right channel: delayed → pan right (Haas effect)
-    this.splitter.connect(this.haasDelay, 1);
-    this.haasDelay.connect(this.haasGainR);
-    this.haasGainR.connect(this.panRight);
-    this.panRight.connect(this.merger, 0, 1);
-
-    // merger → compressor → masterGain → outputGain → destination
-    this.merger.connect(this.compressor);
-    this.compressor.connect(this.masterGain);
-    this.masterGain.connect(this.outputGain);
-
-    /* ── Start with Standard (bypass WizSound graph) ── */
-    this.source.connect(this.standardGain);
-    this.standardGain.connect(this.outputGain);
-  }
-
-  setWizSound(enabled: boolean) {
-    if (enabled === this._wizsound) return;
-    this._wizsound = enabled;
-
-    if (enabled) {
-      // Disconnect standard path, connect WizSound path
-      try { this.source.disconnect(this.standardGain); } catch { /* noop */ }
-      try { this.standardGain.disconnect(); } catch { /* noop */ }
-      this.source.connect(this.bassBoost);
-    } else {
-      // Disconnect WizSound path, reconnect standard path
-      try { this.source.disconnect(this.bassBoost); } catch { /* noop */ }
-      this.source.connect(this.standardGain);
-      this.standardGain.connect(this.outputGain);
-    }
-  }
-
-  setMuted(muted: boolean) {
-    this._muted = muted;
-    this.outputGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.02);
-  }
-
-  get isMuted() { return this._muted; }
-
-  resume() {
-    if (this.ctx.state === "suspended") this.ctx.resume();
-  }
-
-  destroy() {
-    try { this.ctx.close(); } catch { /* noop */ }
-  }
-}
-
-/* ── Single-video player with real-time audio processing ─────────────────── */
+/* ── Simple dual-audio player ─────────────────────────────────────────────
+   Video plays muted (always allowed by browsers).
+   Audio plays from a separate <audio> element synced to the video.
+   Toggle switches between two pre-processed audio files:
+     Standard = flat, 192kbps, volume 0.7
+     WizSound = bass boost, stereo widening, reverb, compression, 320kbps
+   ────────────────────────────────────────────────────────────────────── */
 function WizSoundPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [wizsound, setWizsound] = useState(false);
   const [progress, setProgress] = useState(0);
   const [loaded, setLoaded] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [engineReady, setEngineReady] = useState(false);
+  const [isMuted, setIsMuted] = useState(false); // Start unmuted — audio plays when user clicks play
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const engineRef = useRef<WizSoundEngine | null>(null);
+  const audioStdRef = useRef<HTMLAudioElement>(null);
+  const audioEnhRef = useRef<HTMLAudioElement>(null);
   const rafRef = useRef<number>(0);
-  const wizsoundRef = useRef(false);
+
+  /* ── Get the active audio element ── */
+  const getActiveAudio = useCallback(() => {
+    return wizsound ? audioEnhRef.current : audioStdRef.current;
+  }, [wizsound]);
+
+  const getInactiveAudio = useCallback(() => {
+    return wizsound ? audioStdRef.current : audioEnhRef.current;
+  }, [wizsound]);
 
   /* ── Track progress ── */
   const trackProgress = useCallback(() => {
@@ -199,54 +47,69 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
-  /* ── Destroy engine on unmount ── */
-  useEffect(() => () => { engineRef.current?.destroy(); }, []);
-
-  /* ── Sync mute state to engine (NOT to video.muted) ── */
+  /* ── Sync audio to video time on mode switch ── */
   useEffect(() => {
-    if (engineRef.current) {
-      engineRef.current.setMuted(isMuted);
-    }
-  }, [isMuted]);
+    const v = videoRef.current;
+    const active = getActiveAudio();
+    const inactive = getInactiveAudio();
+    if (!v || !active) return;
 
-  /* ── Initialise Web Audio Engine on first play (requires user gesture) ── */
-  const initEngine = useCallback(() => {
-    if (engineRef.current || !videoRef.current) return;
-    try {
-      const engine = new WizSoundEngine(videoRef.current);
-      engineRef.current = engine;
-      engine.setWizSound(wizsoundRef.current);
-      engine.setMuted(false); // Start unmuted — user just clicked play
-      setEngineReady(true);
-    } catch (e) {
-      console.warn("[WizSound] Web Audio API unavailable:", e);
+    // Pause inactive audio
+    if (inactive) {
+      inactive.pause();
     }
-  }, []);
+
+    // Sync active audio to video time
+    active.currentTime = v.currentTime;
+    active.muted = isMuted;
+
+    if (playing) {
+      active.play().catch(() => {});
+    }
+  }, [wizsound]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Sync mute state ── */
+  useEffect(() => {
+    const active = getActiveAudio();
+    if (active) active.muted = isMuted;
+  }, [isMuted, getActiveAudio]);
+
+  /* ── Keep audio synced to video (drift correction) ── */
+  useEffect(() => {
+    if (!playing) return;
+    const interval = setInterval(() => {
+      const v = videoRef.current;
+      const active = getActiveAudio();
+      if (v && active && Math.abs(v.currentTime - active.currentTime) > 0.15) {
+        active.currentTime = v.currentTime;
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [playing, getActiveAudio]);
 
   /* ── Play / Pause ── */
   const togglePlay = useCallback(async () => {
     const v = videoRef.current;
-    if (!v) return;
+    const active = getActiveAudio();
+    if (!v || !active) return;
 
     if (playing) {
       v.pause();
+      active.pause();
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
     } else {
-      // CRITICAL: video.muted must be FALSE BEFORE createMediaElementSource() is called
-      // Once Web Audio takes over, video.muted=true kills the entire audio pipeline
-      v.muted = false;
-      initEngine();
-      engineRef.current?.resume();
-      setIsMuted(false);
+      // Sync audio to video position
+      active.currentTime = v.currentTime;
+      active.muted = isMuted;
+
       try {
-        await v.play();
+        await v.play(); // Video is muted, always works
+        await active.play(); // Audio plays — user clicked, so gesture is satisfied
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
-        // Autoplay blocked — mute via Web Audio gain (NOT video.muted) and try again
-        engineRef.current?.setMuted(true);
-        setIsMuted(true);
+        // If audio still blocked, play video only (user can unmute later)
         try {
           await v.play();
           setPlaying(true);
@@ -256,37 +119,39 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         }
       }
     }
-  }, [playing, initEngine, trackProgress]);
+  }, [playing, getActiveAudio, isMuted, trackProgress]);
+
+  /* ── Handle video ended (loop) ── */
+  const handleVideoLoop = useCallback(() => {
+    const v = videoRef.current;
+    const active = getActiveAudio();
+    if (v && active) {
+      active.currentTime = 0;
+      if (playing) active.play().catch(() => {});
+    }
+  }, [playing, getActiveAudio]);
 
   /* ── Switch Standard ↔ WizSound ── */
   const switchMode = useCallback((toWizSound: boolean) => {
-    if (toWizSound === wizsoundRef.current) return;
-    wizsoundRef.current = toWizSound;
     setWizsound(toWizSound);
-
-    if (engineRef.current) {
-      engineRef.current.setWizSound(toWizSound);
-    }
   }, []);
 
-  /* ── Mute toggle — uses Web Audio gain, NOT video.muted ── */
+  /* ── Mute toggle ── */
   const toggleMute = useCallback(() => {
-    const newMuted = !isMuted;
-    setIsMuted(newMuted);
-    if (engineRef.current) {
-      engineRef.current.setMuted(newMuted);
-    }
-  }, [isMuted]);
+    setIsMuted(prev => !prev);
+  }, []);
 
   /* ── Seek ── */
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const v = videoRef.current;
+    const active = getActiveAudio();
     if (!v) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     v.currentTime = ratio * (v.duration || 22);
+    if (active) active.currentTime = v.currentTime;
     setProgress(ratio * 100);
-  }, []);
+  }, [getActiveAudio]);
 
   return (
     <div
@@ -301,7 +166,6 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
           : "none",
       }}
     >
-      {/* WizSound active glow ring */}
       {wizsound && (
         <div
           className="absolute inset-0 rounded-2xl pointer-events-none z-10"
@@ -309,7 +173,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         />
       )}
 
-      {/* ── Video ── */}
+      {/* ── Video (always muted — audio comes from separate element) ── */}
       <div className="relative w-full aspect-video bg-black overflow-hidden rounded-t-xl">
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-black z-20">
@@ -317,17 +181,21 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
           </div>
         )}
 
-        {/* CRITICAL: No muted attribute — Web Audio handles all audio routing.
-            The video element must NOT be muted or Web Audio receives silence. */}
         <video
           ref={videoRef}
           src={VIDEO_SRC}
           className="absolute inset-0 w-full h-full object-cover"
           playsInline
           loop
+          muted
           preload="auto"
           onCanPlayThrough={() => setLoaded(true)}
+          onSeeked={handleVideoLoop}
         />
+
+        {/* Hidden audio elements — one standard, one enhanced */}
+        <audio ref={audioStdRef} src={AUDIO_STANDARD} preload="auto" loop />
+        <audio ref={audioEnhRef} src={AUDIO_ENHANCED} preload="auto" loop />
 
         {/* Play button overlay */}
         {!playing && loaded && (
@@ -377,15 +245,6 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
             Standard Audio
           </div>
         </div>
-
-        {/* Engine ready indicator */}
-        {engineReady && playing && (
-          <div className="absolute bottom-3 left-3 z-30">
-            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono ${wizsound ? "text-fuchsia-300/70" : "text-white/30"}`}>
-              {wizsound ? "⚡ WEB AUDIO PROCESSING" : "○ RAW SIGNAL"}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ── Headphones hint ── */}
@@ -498,49 +357,22 @@ function FeatureCard({
   title,
   description,
   gradient,
-  delay,
 }: {
-  icon: React.ElementType;
+  icon: typeof Zap;
   title: string;
   description: string;
   gradient: string;
-  delay: number;
 }) {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.2 }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className="relative rounded-2xl border border-white/8 bg-white/3 p-6 overflow-hidden group hover:border-fuchsia-500/30 hover:bg-white/5 transition-all duration-500"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(24px)",
-        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
-      }}
-    >
+    <div className="rounded-2xl border border-white/8 bg-white/3 p-6 hover:border-fuchsia-500/25 transition-all duration-300 group">
       <div
-        className="absolute top-0 left-0 w-24 h-24 rounded-br-full opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+        className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
         style={{ background: gradient }}
-      />
-      <div className="relative z-10">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-          style={{ background: gradient, boxShadow: "0 0 20px rgba(217,70,239,0.2)" }}
-        >
-          <Icon className="w-5 h-5 text-white" />
-        </div>
-        <h3 className="text-white font-bold text-base mb-2">{title}</h3>
-        <p className="text-white/50 text-sm leading-relaxed">{description}</p>
+      >
+        <Icon className="w-5 h-5 text-white" />
       </div>
+      <h3 className="text-white font-semibold text-base mb-2">{title}</h3>
+      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -548,15 +380,17 @@ function FeatureCard({
 /* ── Main section ────────────────────────────────────────────────────────── */
 export default function WizSoundSection() {
   const [visible, setVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [, navigate] = useLocation();
 
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
       { threshold: 0.15 }
     );
-    if (sectionRef.current) obs.observe(sectionRef.current);
+    obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
@@ -564,140 +398,95 @@ export default function WizSoundSection() {
     <section
       ref={sectionRef}
       id="wizsound"
-      className="relative py-28 px-6 overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #0a0a14 0%, #0d0d1a 50%, #0a0a0f 100%)" }}
+      className="relative py-24 overflow-hidden"
+      style={{ background: "linear-gradient(180deg, #0a0a12 0%, #0d0d18 50%, #0a0a12 100%)" }}
     >
-      {/* Background glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(139,92,246,0.06) 0%, transparent 70%)",
-        }}
-      />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-fuchsia-500/40 to-transparent" />
+      {/* Ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] pointer-events-none" style={{ background: "radial-gradient(ellipse, rgba(217,70,239,0.06) 0%, transparent 70%)" }} />
 
-      <div className="relative max-w-6xl mx-auto">
-
+      <div className="container max-w-6xl mx-auto px-4 relative z-10">
         {/* Header */}
-        <div
-          className="text-center mb-14"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
-          }}
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300 text-xs font-mono tracking-widest uppercase font-semibold mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
-            Powered by WizSound™
+        <div className="text-center mb-12">
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-fuchsia-500/25 bg-fuchsia-500/8 mb-6 transition-all duration-700"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)" }}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
+            <span className="text-fuchsia-300 text-xs font-bold tracking-wider uppercase">Powered by WizSound™</span>
           </div>
-
           <h2
-            className="font-extrabold tracking-tight text-white mb-4"
-            style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", lineHeight: 1.1 }}
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 transition-all duration-700 delay-100"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(16px)" }}
           >
             Hear the difference with{" "}
-            <span className="bg-gradient-to-r from-fuchsia-300 via-purple-200 to-indigo-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-violet-400 bg-clip-text text-transparent">
               WizSound™
             </span>
           </h2>
-
-          <p className="text-white/55 text-lg max-w-2xl mx-auto leading-relaxed">
-            Press play, then toggle between Standard and WizSound™ Cinematic.
+          <p
+            className="text-white/50 text-base md:text-lg max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-200"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)" }}
+          >
+            Press play, then toggle between Standard and WizSound Cinematic.
           </p>
-          <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed mt-2">
-            The difference is{" "}
-            <span className="text-fuchsia-300 font-semibold">immediate</span>. WizSound™ applies real-time bass boost,
-            stereo widening, spatial reverb, and dynamic compression — the same audio you hear, transformed live in your browser.
+          <p
+            className="text-white/40 text-sm max-w-xl mx-auto mt-2 transition-all duration-700 delay-300"
+            style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)" }}
+          >
+            The difference is <strong className="text-white/60">immediate</strong>. WizSound™ transforms flat audio into a rich, immersive
+            cinematic soundscape — wider stereo, deeper bass, and studio-grade mastering.
           </p>
         </div>
 
-        {/* Two-column: player + feature cards */}
-        <div className="grid lg:grid-cols-2 gap-10 mb-14 items-start">
-          <WizSoundPlayer visible={visible} />
+        {/* Player + features grid */}
+        <div className="grid lg:grid-cols-5 gap-8 items-start">
+          <div className="lg:col-span-3">
+            <WizSoundPlayer visible={visible} />
+          </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="lg:col-span-2 space-y-4">
             <FeatureCard
               icon={Volume2}
               title="Spatial Immersion"
               description="Audio that surrounds the viewer — not flat stereo. WizSound™ applies stereo widening and spatial reverb to create a three-dimensional sound field that fills the room."
-              gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(109,40,217,0.6))"
-              delay={0}
+              gradient="linear-gradient(135deg, rgba(217,70,239,0.3), rgba(139,92,246,0.2))"
             />
             <FeatureCard
               icon={Zap}
               title="Studio-Grade Mastering"
               description="5-band parametric EQ, dynamic compression, sub-bass enhancement, and loudness normalisation to broadcast standards. Every frequency sculpted for maximum impact."
-              gradient="linear-gradient(135deg, rgba(217,70,239,0.8), rgba(139,92,246,0.6))"
-              delay={100}
+              gradient="linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.2))"
             />
             <FeatureCard
               icon={Film}
               title="Cinematic by Design"
-              description="Tuned for music videos, animation, and storytelling. WizSound™ adds the warmth, punch, and presence that makes your content sound like a cinema release."
-              gradient="linear-gradient(135deg, rgba(236,72,153,0.8), rgba(217,70,239,0.6))"
-              delay={200}
+              description="Inspired by film scoring techniques — WizSound™ adds depth, warmth, and presence that makes your video sound like it was mixed in a professional studio."
+              gradient="linear-gradient(135deg, rgba(236,72,153,0.3), rgba(217,70,239,0.2))"
             />
           </div>
         </div>
 
-        {/* Tier comparison strip */}
+        {/* CTA */}
         <div
-          className="rounded-2xl border border-white/8 bg-white/3 overflow-hidden mb-10"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.7s ease 0.4s, transform 0.7s ease 0.4s",
-          }}
+          className="text-center mt-12 transition-all duration-700 delay-500"
+          style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)" }}
         >
-          <div className="grid grid-cols-3 divide-x divide-white/8">
-            {[
-              { label: "Standard Audio", sub: "Basic mix, no processing", price: "Included", colour: "text-white/50", icon: Music2 },
-              { label: "WizSound Enhance", sub: "Bass boost + clarity", price: "+£1", colour: "text-violet-300", icon: Volume2 },
-              { label: "WizSound Cinematic", sub: "Full spatial mastering", price: "+£3", colour: "text-fuchsia-300", icon: Zap, badge: "RECOMMENDED" },
-            ].map((tier) => (
-              <div key={tier.label} className={`relative p-5 text-center ${tier.badge ? "bg-fuchsia-500/5" : ""}`}>
-                {tier.badge && (
-                  <div className="absolute -top-px left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-b-lg bg-fuchsia-500 text-white text-[9px] font-bold tracking-widest">
-                    {tier.badge}
-                  </div>
-                )}
-                <tier.icon className={`w-5 h-5 mx-auto mb-2 mt-3 ${tier.colour}`} />
-                <p className={`text-sm font-bold ${tier.colour}`}>{tier.label}</p>
-                <p className="text-white/35 text-xs mt-1">{tier.sub}</p>
-                <p className={`text-base font-extrabold mt-2 ${tier.badge ? "text-fuchsia-300" : "text-white/60"}`}>{tier.price}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Upgrade CTA */}
-        <div
-          className="text-center"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(16px)",
-            transition: "opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s",
-          }}
-        >
-          <button
-            onClick={() => navigate("/onboarding")}
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-white text-sm transition-all duration-200 hover:scale-105 active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, rgba(217,70,239,0.9), rgba(139,92,246,0.8))",
-              boxShadow: "0 0 40px rgba(217,70,239,0.3), 0 4px 20px rgba(0,0,0,0.4)",
-            }}
-            aria-label="Add WizSound cinematic audio to your video"
-          >
-            <Zap className="w-4 h-4" />
-            Add WizSound to Your Video
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <p className="text-white/30 text-xs mt-3">
+          <p className="text-white/30 text-xs mb-4">
             Select WizSound Cinematic at checkout · Only pay when you render
           </p>
+          <button
+            onClick={() => navigate("/onboarding")}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))",
+              boxShadow: "0 0 30px rgba(217,70,239,0.3)",
+            }}
+          >
+            <Music2 className="w-4 h-4" />
+            Try WizSound™ Free
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
-
       </div>
     </section>
   );

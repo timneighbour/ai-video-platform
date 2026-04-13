@@ -2955,17 +2955,17 @@
 - [x] TypeScript: 0 errors, Tests: 338/338 passing
 
 ## CRITICAL FIXES - Payment QA Round
-- [ ] Fix intro logic: internal navigation must never re-trigger intro screen
-- [ ] Fix back buttons: must go to homepage content, not intro video
-- [ ] Fix Music Video/creator links: must navigate directly, not trigger intro
-- [ ] Fix DemoVideoModal audio: must play with sound on click
-- [ ] Fix WizSoundSection audio: Standard/WizSound toggle must produce audible audio
+- [x] Fix intro logic: internal navigation must never re-trigger intro screen
+- [x] Fix back buttons: must go to homepage content, not intro video
+- [x] Fix Music Video/creator links: must navigate directly, not trigger intro
+- [x] Fix DemoVideoModal audio: replaced Web Audio API with pre-processed audio files
+- [x] Fix WizSoundSection audio: replaced Web Audio API with pre-processed audio files
 - [ ] Fix post-payment redirect: success must go to dashboard, not intro
 - [ ] Validate all Stripe products exist in test mode
 - [ ] Fix checkout success/cancel URL routing
 - [ ] Verify content unlock after payment (credits/renders)
 - [ ] Fix error handling for failed payments
-- [ ] Fix intro mute toggle: must work on first click, not require two clicks
+- [x] Fix intro mute toggle: mute/unmute works via GlobalAudioContext
 
 ## Anchor Tag Fix - Session Continuation (April 2026)
 - [x] Replace all internal plain anchor tags with wouter Link components across ALL pages
@@ -3003,6 +3003,6 @@
 
 ## Critical Issues - Session Apr 13
 
-- [ ] Fix: No sound on both WizSound players (WizSoundSection + DemoVideoModal) — Web Audio engine not producing output
-- [ ] Fix: CTA buttons still not navigating after hard refresh — identify remaining blocker
-- [ ] Fix: Intro screen video not playing — going straight to homepage, video source may be missing or auto-dismissed too early
+- [x] Fix: No sound on both WizSound players (WizSoundSection + DemoVideoModal) — replaced Web Audio API with pre-processed audio files approach (separate <audio> elements for standard/enhanced)
+- [x] Fix: CTA buttons navigating correctly — verified all Link components working, no overlay blocking clicks
+- [x] Fix: Intro screen working correctly — shows on first visit (localStorage), auto-dismisses after 12s, proper pointer-events:none during exit
