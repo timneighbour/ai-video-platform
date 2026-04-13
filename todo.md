@@ -2560,3 +2560,19 @@
 - [x] Update AudioDemoPlayer to swap audio source on toggle (real A/B comparison)
 - [x] Add Web Audio API analyser for real-time frequency-responsive waveform
 - [x] Remove fake volume-only simulation
+
+## Intro Video Audio Fix (Dolby Atmos Cinema Vibe)
+- [ ] Generate proper cinematic orchestral soundtrack (20s) synced to intro video structure
+- [ ] Process through WizSound cinematic FFmpeg pipeline for spatial depth
+- [ ] Upload to CDN and replace Web Audio API synth oscillators with real audio track
+- [ ] Add Web Audio API spatial processing (convolver reverb, stereo widener) on top of real track
+
+## Ultra-Premium Intro Rebuild (V5)
+- [ ] Fix duplicate text overlays (genre labels appearing twice)
+- [ ] Fix logo reveal — remove overlapping WizVid logo + WIZVID text
+- [ ] Generate new ultra-cinematic video clips (more dramatic, purposeful, IMAX-level)
+- [ ] Generate proper orchestral Dolby-style soundtrack (not oscillator tones)
+- [x] Process soundtrack through WizSound cinematic FFmpeg pipeline
+- [ ] Compose new video with crossfade transitions
+- [ ] Rebuild component with clean single text overlays, premium logo reveal, real audio
+- [ ] Ensure overall experience feels beyond premium — IMAX cinema quality
