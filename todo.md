@@ -2553,3 +2553,10 @@
 - [x] Spatial audio engine synced to video (bass rumble, tension, impact, reverb)
 - [x] Autoplay muted, unmute on interaction
 - [x] Final frame hold with WIZVID + Enter Experience CTA
+
+## WizSound Demo Fix (Homepage)
+- [x] Process demo audio through real WizSound FFmpeg pipeline (standard + cinematic versions)
+- [x] Upload both audio files to CDN
+- [x] Update AudioDemoPlayer to swap audio source on toggle (real A/B comparison)
+- [x] Add Web Audio API analyser for real-time frequency-responsive waveform
+- [x] Remove fake volume-only simulation
