@@ -2703,3 +2703,10 @@
 - [x] Fix: simplify audio init — only create AudioContext on first unmute click, ensure context.resume() is awaited, connect source → panner → destination correctly
 - [x] Fix: add fallback — if Web Audio API fails, fall back to plain video.muted = false with no AudioContext
 - [x] Fix: ensure AudioContext is not created before user interaction (browser autoplay policy blocks it)
+
+## WizSound Preview Modal Audio Fix
+- [x] Fix: audio silent in WizSound preview modal (Standard Audio / WizSound™ tabs with video player)
+- [x] Find the component rendering this modal (WizSoundSection.tsx AudioDemoPlayer)
+- [x] Ensure video element is not muted by default
+- [x] Apply same Web Audio API fix: ensureAudioGraph now async, ctx.resume() awaited inside click handler
+- [x] Ensure switching between Standard/WizSound tabs correctly routes audio

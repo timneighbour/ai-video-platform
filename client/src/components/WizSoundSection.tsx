@@ -166,13 +166,26 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
 
   // Set up Web Audio graph: both sources → individual gain nodes → analyser → destination
   // Both play simultaneously; we crossfade gain to switch instantly
-  const ensureAudioGraph = useCallback(() => {
-    if (connectedRef.current) return;
+  const ensureAudioGraph = useCallback(async () => {
+    if (connectedRef.current) {
+      // Already built — just ensure context is running
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        await audioCtxRef.current.resume();
+      }
+      return;
+    }
     const std = audioStdRef.current;
     const cin = audioCinRef.current;
     if (!std || !cin) return;
 
-    const ctx = new AudioContext();
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+
+    // Resume immediately — required on Chrome/Safari when context is created
+    // outside a direct synchronous user-gesture handler
+    if (ctx.state === "suspended") {
+      await ctx.resume();
+    }
+
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 256;
     analyser.smoothingTimeConstant = 0.75;
@@ -244,8 +257,10 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
   }, [wizsound, muted]);
 
   const togglePlay = useCallback(async () => {
-    ensureAudioGraph();
-    if (audioCtxRef.current?.state === "suspended") {
+    // Build graph AND resume context — must be awaited inside the click handler
+    await ensureAudioGraph();
+    // Double-check resume in case context was suspended between calls
+    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
       await audioCtxRef.current.resume();
     }
 
