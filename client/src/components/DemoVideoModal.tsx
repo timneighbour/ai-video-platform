@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, Play, Pause, Subtitles, Maximize2, Volume2, VolumeX } from "lucide-react";
 import { mp } from "@/lib/mixpanel";
-import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── Asset URLs ──────────────────────────────────────────────────────── */
 const POSTER_URL =
@@ -30,7 +29,12 @@ function WizSoundEQ({ size = "lg" }: { size?: "sm" | "lg" }) {
             width: barW,
             height: h,
             background: "linear-gradient(to top, #5b21b6, #a78bfa, #e879f9)",
-            animation: `wizEq ${0.4 + i * 0.06}s ease-in-out ${i * 0.035}s infinite alternate`,
+            animationName: "wizEq",
+            animationDuration: `${0.4 + i * 0.06}s`,
+            animationDelay: `${i * 0.035}s`,
+            animationTimingFunction: "ease-in-out",
+            animationIterationCount: "infinite",
+            animationDirection: "alternate",
             opacity: 0.92,
             boxShadow: isLg ? "0 0 5px rgba(167,139,250,0.5)" : "0 0 3px rgba(167,139,250,0.4)",
           }}
@@ -113,27 +117,11 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const [duration, setDuration] = useState(0);
   const [captions, setCaptions] = useState(false);
   const [wizsoundMode, setWizsoundMode] = useState(true);
+  // Local mute state — independent of global AudioContext
+  // Start unmuted so audio plays immediately when user clicks play
+  const [isMuted, setIsMuted] = useState(false);
 
-  const {
-    isMuted,
-    toggleMute: globalToggleMute,
-    requestAudioFocus,
-    releaseAudioFocus,
-    registerAudioElement,
-    unregisterAudioElement,
-  } = useGlobalAudio();
-
-  const demoId = "demo-video-modal";
-
-  /* ── Register video element with AudioContext ────────────────────── */
-  useEffect(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    registerAudioElement(demoId, vid);
-    return () => unregisterAudioElement(demoId);
-  }, [videoLoaded]); // re-register when video loads
-
-  /* ── Sync mute state from AudioContext to video element ─────────── */
+  /* ── Sync local mute state to video element ──────────────────────── */
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
@@ -158,7 +146,6 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       }
       setPlaying(false);
       setCurrentTime(0);
-      releaseAudioFocus(demoId);
     }
   }, [open]);
 
@@ -182,11 +169,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const handleEnded = useCallback(() => {
     mp.demoVideoCompleted();
     setPlaying(false);
-    releaseAudioFocus(demoId);
   }, []);
 
   /* ── Play / Pause ────────────────────────────────────────────────── */
-  const togglePlay = useCallback(() => {
+  const togglePlay = useCallback(async () => {
     const vid = videoRef.current;
     if (!vid) return;
 
@@ -195,43 +181,35 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
-      // Request audio focus — this mutes all other sources
-      requestAudioFocus(demoId);
-      // Ensure the video element itself is unmuted (AudioContext will have set it)
-      // But also explicitly set it here as a failsafe for autoplay policy
+      // Ensure mute state is applied before play
       vid.muted = isMuted;
-      vid.play()
-        .then(() => {
+      try {
+        await vid.play();
+        setPlaying(true);
+        mp.demoVideoPlayed();
+      } catch {
+        // Browser blocked audio — play muted first, then unmute
+        vid.muted = true;
+        try {
+          await vid.play();
+          // Now that it's playing, unmute if user wants sound
+          vid.muted = isMuted;
           setPlaying(true);
           mp.demoVideoPlayed();
-        })
-        .catch(() => {
-          // Autoplay blocked — try muted then unmute
-          vid.muted = true;
-          vid.play()
-            .then(() => {
-              // Successfully playing muted — unmute if user wants sound
-              if (!isMuted) {
-                vid.muted = false;
-              }
-              setPlaying(true);
-              mp.demoVideoPlayed();
-            })
-            .catch(() => {
-              // Still blocked — just update state
-              setPlaying(false);
-            });
-        });
+        } catch {
+          setPlaying(false);
+        }
+      }
     }
-  }, [playing, isMuted, requestAudioFocus]);
+  }, [playing, isMuted]);
 
   /* ── Mute toggle ─────────────────────────────────────────────────── */
   const toggleMute = useCallback(() => {
-    globalToggleMute();
-    // Also directly set on video element for immediate response
     const vid = videoRef.current;
-    if (vid) vid.muted = !isMuted;
-  }, [isMuted, globalToggleMute]);
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    if (vid) vid.muted = newMuted;
+  }, [isMuted]);
 
   /* ── Progress bar seek ───────────────────────────────────────────── */
   const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -412,7 +390,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               <button
                 onClick={toggleMute}
                 className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors"
-                aria-label="Toggle sound"
+                aria-label={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
               </button>

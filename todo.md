@@ -2917,3 +2917,39 @@
 - [x] Fix WizSoundSection: inactive video always muted via ref, active video mute managed by AudioContext
 - [x] Fix WizSoundSection: switchMode correctly syncs time and swaps audio focus between std/wiz
 - [x] TypeScript: 0 errors, Tests: 335/335 passing
+
+## Audio Fix Round 2 + Stripe Basic Plan (Session Apr 13)
+- [ ] Fix DemoVideoModal audio — still not working after AudioContext registration fix
+- [ ] Fix WizSoundSection audio — still not working after dual-video rebuild
+- [ ] Root cause: AudioContext registerAudioElement/requestAudioFocus may be interfering
+- [ ] Simplify both players: remove AudioContext dependency, use direct video.muted control only
+- [ ] Create Stripe Basic plan (£19/month) in test mode
+- [ ] Configure STRIPE_BASIC_PRICE_ID environment variable
+
+## Full Button/CTA/Navigation Audit (Session Apr 13)
+- [ ] Audit all routes in App.tsx — map every registered route
+- [ ] Audit Home.tsx — all nav links, hero CTAs, pricing buttons, demo button, showcase CTAs
+- [ ] Audit KidsVideo.tsx — all back buttons, step navigation, create/generate buttons
+- [ ] Audit MusicVideoAutopilot.tsx — all back buttons, step navigation, create/generate buttons
+- [ ] Audit Autopilot.tsx (Cinematic) — all back buttons, step navigation, create/generate buttons
+- [ ] Audit TextToVideoCreator.tsx — all back buttons, step navigation, create/generate buttons
+- [ ] Audit Pricing.tsx — all plan CTA buttons, back to home link
+- [ ] Audit Dashboard.tsx — all navigation links and action buttons
+- [ ] Audit HowItWorks.tsx — back button
+- [ ] Fix any dead/broken buttons found in audit
+- [ ] Create Stripe Basic plan in test mode, configure STRIPE_BASIC_PRICE_ID
+
+## Full Navigation/CTA/Pricing Audit (COMPLETE)
+- [x] Audit all routes in App.tsx and map every page button/CTA
+- [x] Fix WizSound™ nav link: changed from #wizsound to /#wizsound for cross-page compatibility
+- [x] Fix homepage pricing cards: now link to /pricing?plan=X for plan pre-selection
+- [x] Fix Pricing.tsx: reads ?plan= query param, scrolls to + highlights the selected plan
+- [x] Fix Pricing.tsx: handleSubscribe now accepts 'pro' plan ID
+- [x] Fix HabitLoopPanel: /create routes replaced with /music-video/create, /wizpilot, /onboarding
+- [x] Fix intro video: switched from sessionStorage to localStorage (persists across visits)
+- [x] Fix CinematicEntryScreen: animation/animationDelay shorthand conflict resolved
+- [x] Create Stripe Basic plan (£19/month) in test mode: prod_UKKQ7JPatENuRn
+- [x] Configure STRIPE_BASIC_PRICE_ID=price_1TLfm3IaMYB25uKKhCvFLqNy
+- [x] Configure STRIPE_BASIC_ANNUAL_PRICE_ID=price_1TLfm4IaMYB25uKKH4oaIGya
+- [x] Write and pass vitest for Stripe Basic plan validation (3/3 tests passing)
+- [x] TypeScript: 0 errors, Tests: 338/338 passing

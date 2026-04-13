@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
-import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── CDN video URLs — two identical visuals, different baked-in audio ── */
 const VIDEO_STANDARD =
@@ -9,73 +8,32 @@ const VIDEO_STANDARD =
 const VIDEO_WIZSOUND =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-wizsound_d2f714ff.mp4";
 
-const PLAYER_ID_STD = "wizsound-section-std";
-const PLAYER_ID_WIZ = "wizsound-section-wiz";
-
 /* ── Dual-video sync player ─────────────────────────────────────────────── */
 function DualVideoPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [wizsound, setWizsound] = useState(true);
   const [progress, setProgress] = useState(0);
   const [loaded, setLoaded] = useState({ std: false, wiz: false });
-
-  const {
-    isMuted,
-    toggleMute: globalToggleMute,
-    requestAudioFocus,
-    releaseAudioFocus,
-    registerAudioElement,
-    unregisterAudioElement,
-  } = useGlobalAudio();
+  // Local mute state — independent of global AudioContext
+  // Start unmuted so audio plays immediately when user clicks play
+  const [isMuted, setIsMuted] = useState(false);
 
   const stdRef = useRef<HTMLVideoElement>(null);
   const wizRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number>(0);
-  // Keep a ref to current wizsound state for use in callbacks
   const wizsoundRef = useRef(true);
 
-  /* ── Register ONLY the active video with AudioContext ─────────────────
-   * This is critical: AudioContext applies isMuted to ALL registered elements.
-   * If both are registered, it will mute both when isMuted changes.
-   * We register only the active one so AudioContext manages its mute state,
-   * and we manually keep the inactive one always muted via its own ref.
-   * ─────────────────────────────────────────────────────────────────────── */
-  useEffect(() => {
-    const wiz = wizRef.current;
-    if (!wiz) return;
-    // WizSound starts as active
-    registerAudioElement(PLAYER_ID_WIZ, wiz);
-    return () => unregisterAudioElement(PLAYER_ID_WIZ);
-  }, [loaded.wiz]); // re-register when loaded
-
-  useEffect(() => {
-    const std = stdRef.current;
-    if (!std) return;
-    // Standard is inactive by default — register it so we can manage it,
-    // but keep it muted manually
-    registerAudioElement(PLAYER_ID_STD, std);
-    return () => unregisterAudioElement(PLAYER_ID_STD);
-  }, [loaded.std]);
-
-  /* ── Keep inactive video always muted ─────────────────────────────────
-   * Whenever wizsound or isMuted changes, enforce mute on inactive video.
-   * The active video's mute is managed by AudioContext via registration.
-   * ─────────────────────────────────────────────────────────────────────── */
+  /* ── Keep inactive video always muted, active video respects local mute ── */
   useEffect(() => {
     const std = stdRef.current;
     const wiz = wizRef.current;
     if (!std || !wiz) return;
-
     if (wizsound) {
-      // WizSound is active: std must always be muted
-      std.muted = true;
-      // wiz mute is controlled by AudioContext (isMuted)
-      wiz.muted = isMuted;
+      std.muted = true;      // Inactive: always silent
+      wiz.muted = isMuted;   // Active: user controls
     } else {
-      // Standard is active: wiz must always be muted
-      wiz.muted = true;
-      // std mute is controlled by AudioContext (isMuted)
-      std.muted = isMuted;
+      wiz.muted = true;      // Inactive: always silent
+      std.muted = isMuted;   // Active: user controls
     }
   }, [wizsound, isMuted]);
 
@@ -90,11 +48,7 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
 
   /* ── Cleanup ───────────────────────────────────────────────────────── */
   useEffect(() => {
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      releaseAudioFocus(PLAYER_ID_WIZ);
-      releaseAudioFocus(PLAYER_ID_STD);
-    };
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
   /* ── Play / Pause ──────────────────────────────────────────────────── */
@@ -108,14 +62,13 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
       wiz.pause();
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
-      releaseAudioFocus(wizsoundRef.current ? PLAYER_ID_WIZ : PLAYER_ID_STD);
     } else {
       // Sync both to same time
       const syncTime = (wizsoundRef.current ? wiz : std).currentTime;
       std.currentTime = syncTime;
       wiz.currentTime = syncTime;
 
-      // Enforce mute state before play
+      // Enforce mute: inactive always muted, active respects local state
       if (wizsoundRef.current) {
         std.muted = true;
         wiz.muted = isMuted;
@@ -124,33 +77,29 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
         std.muted = isMuted;
       }
 
-      // Request audio focus for the active video
-      requestAudioFocus(wizsoundRef.current ? PLAYER_ID_WIZ : PLAYER_ID_STD);
-
       try {
-        // Play both simultaneously for sync — inactive is muted
         await Promise.all([std.play(), wiz.play()]);
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
-        // Autoplay blocked — try muted first
+        // Autoplay blocked — play muted first, then unmute active
         std.muted = true;
         wiz.muted = true;
         try {
           await Promise.all([std.play(), wiz.play()]);
-          setPlaying(true);
-          // Now unmute the active one if user wants sound
+          // Unmute the active video if user wants sound
           if (!isMuted) {
             if (wizsoundRef.current) wiz.muted = false;
             else std.muted = false;
           }
+          setPlaying(true);
           rafRef.current = requestAnimationFrame(trackProgress);
         } catch {
           setPlaying(false);
         }
       }
     }
-  }, [playing, isMuted, trackProgress, requestAudioFocus, releaseAudioFocus]);
+  }, [playing, isMuted, trackProgress]);
 
   /* ── Switch Standard ↔ WizSound ────────────────────────────────────── */
   const switchMode = useCallback((toWizSound: boolean) => {
@@ -164,32 +113,29 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
     const currentTime = wizsoundRef.current ? wiz.currentTime : std.currentTime;
 
     if (toWizSound) {
-      // Switching to WizSound
       wiz.currentTime = currentTime;
       std.currentTime = currentTime;
-      std.muted = true;        // Inactive: always muted
-      wiz.muted = isMuted;     // Active: respect global mute
-      requestAudioFocus(PLAYER_ID_WIZ);
+      std.muted = true;       // Inactive: always silent
+      wiz.muted = isMuted;    // Active: respect local mute
     } else {
-      // Switching to Standard
       std.currentTime = currentTime;
       wiz.currentTime = currentTime;
-      wiz.muted = true;        // Inactive: always muted
-      std.muted = isMuted;     // Active: respect global mute
-      requestAudioFocus(PLAYER_ID_STD);
+      wiz.muted = true;       // Inactive: always silent
+      std.muted = isMuted;    // Active: respect local mute
     }
 
     wizsoundRef.current = toWizSound;
     setWizsound(toWizSound);
-  }, [isMuted, requestAudioFocus]);
+  }, [isMuted]);
 
   /* ── Mute toggle ───────────────────────────────────────────────────── */
   const toggleMute = useCallback(() => {
-    // Immediately apply to active video for instant response
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    // Apply immediately to active video
     const activeVid = wizsoundRef.current ? wizRef.current : stdRef.current;
-    if (activeVid) activeVid.muted = !isMuted;
-    globalToggleMute();
-  }, [isMuted, globalToggleMute]);
+    if (activeVid) activeVid.muted = newMuted;
+  }, [isMuted]);
 
   /* ── Seek ──────────────────────────────────────────────────────────── */
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {

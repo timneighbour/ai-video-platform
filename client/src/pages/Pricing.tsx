@@ -10,7 +10,7 @@
  *   5. Render bundles
  *   6. FAQ
  */
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -201,11 +201,26 @@ export default function Pricing() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [highlightedPlan, setHighlightedPlan] = useState<string | null>(null);
+  const plansRef = useRef<HTMLDivElement>(null);
+
+  // Read ?plan= query param and scroll to + highlight that plan
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const planParam = params.get("plan");
+    if (planParam) {
+      setHighlightedPlan(planParam);
+      // Scroll to plans section after a short delay for render
+      setTimeout(() => {
+        plansRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 400);
+    }
+  }, []);
 
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
   const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
 
-  async function handleSubscribe(planId: "starter" | "basic" | "creator" | "studio") {
+  async function handleSubscribe(planId: "starter" | "basic" | "creator" | "pro" | "studio") {
     mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), "monthly");
     if (!isAuthenticated) {
       window.location.href = getLoginUrl();
@@ -459,12 +474,15 @@ export default function Pricing() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {PLANS.map((plan) => (
               <div
                 key={plan.id}
-                className={`relative flex flex-col rounded-2xl border p-6 ${
-                  plan.popular
+                id={`plan-${plan.id}`}
+                className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-500 ${
+                  highlightedPlan === plan.id
+                    ? "border-violet-400/80 bg-gradient-to-b from-violet-500/15 to-violet-900/8 shadow-[0_0_60px_rgba(139,92,246,0.3)] ring-2 ring-violet-400/40"
+                    : plan.popular
                     ? "border-violet-500/60 bg-gradient-to-b from-violet-500/10 to-violet-900/5 shadow-[0_0_40px_rgba(139,92,246,0.15)]"
                     : "border-white/10 bg-white/3"
                 }`}

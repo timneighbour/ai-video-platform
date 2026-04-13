@@ -28,7 +28,7 @@ const TEMPLATES: Template[] = [
     icon: <Music className="w-4 h-4" />,
     title: "Music Video",
     description: "Turn any track into a cinematic visual story",
-    href: "/create",
+    href: "/music-video/create",
     gradient: "from-violet-500/20 to-purple-600/10",
   },
   {
@@ -36,7 +36,7 @@ const TEMPLATES: Template[] = [
     icon: <FileText className="w-4 h-4" />,
     title: "Lyric Video",
     description: "Animated lyrics synced to your music",
-    href: "/create?template=lyric",
+    href: "/music-video/create",
     gradient: "from-fuchsia-500/20 to-pink-600/10",
   },
   {
@@ -44,7 +44,7 @@ const TEMPLATES: Template[] = [
     icon: <Eye className="w-4 h-4" />,
     title: "Faceless Content",
     description: "AI visuals for YouTube & social — no camera needed",
-    href: "/create?template=faceless",
+    href: "/wizpilot",
     gradient: "from-indigo-500/20 to-blue-600/10",
   },
   {
@@ -103,7 +103,7 @@ export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) 
 
       {/* Primary CTA */}
       <Button
-        onClick={() => navigate("/create")}
+        onClick={() => navigate("/onboarding")}
         className="w-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold h-9 rounded-lg"
       >
         <Sparkles className="w-3.5 h-3.5 mr-1.5" />
