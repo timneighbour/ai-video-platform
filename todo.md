@@ -2720,3 +2720,14 @@
 ## Audio Fix - Complete Rebuild (No Web Audio API)
 - [x] Fix CinematicIntroSequence: use video element directly with muted prop, unmute on click
 - [x] Fix WizSoundSection: remove all Web Audio API, use plain audio elements only
+
+## Intro Video Audio Autoplay Fix
+- [ ] Autoplay audio by default (attempt unmute immediately on video play)
+- [ ] Show persistent mute/unmute button (bottom-right or bottom-center)
+- [ ] Remove click-to-unmute hint
+- [ ] If browser blocks autoplay with sound, fall back gracefully and show unmute button
+
+## Intro Video WizSound Audio
+- [x] Use WizSound™ processed audio track for the intro video soundtrack (not raw video audio)
+- [x] Fix stale video element comment
+- [x] Confirm TypeScript clean

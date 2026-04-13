@@ -24,6 +24,10 @@ import { useRef, useState, useEffect, useCallback } from "react";
 const INTRO_VIDEO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v10-intro-final_825d36e4.mp4";
 
+// WizSound™ cinematic audio track — same as used in the A/B demo section
+const WIZSOUND_AUDIO_URL =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-wizsound-cinematic_5e57de05.mp3";
+
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
@@ -54,13 +58,16 @@ interface Props {
 }
 
 export default function CinematicIntroSequence({ onComplete }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number>(0);
   const wizSoundStartedRef = useRef(false);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
-  const [audioUnmuted, setAudioUnmuted] = useState(false);
+  // Audio starts ON by default — user can mute if they wish
+  const [muted, setMuted] = useState(false);
   const [showCTA, setShowCTA] = useState(false);
   const [showLogo, setShowLogo] = useState(false);
   const [showWizSound, setShowWizSound] = useState(false);
@@ -68,14 +75,34 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const [wizSoundPulse, setWizSoundPulse] = useState(false);
   const [heroZoom, setHeroZoom] = useState(false);
 
-  /* ── Nothing to set up — audio comes directly from the <video> element ── */
+  /* ── Create WizSound™ Audio element on mount and autoplay it ── */
   useEffect(() => {
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
+    const audio = new Audio(WIZSOUND_AUDIO_URL);
+    audio.preload = "auto";
+    audio.loop = true;
+    audio.volume = 1.0;
+    audioRef.current = audio;
 
-  /* ── No separate audio sync needed — video element handles its own audio ── */
+    // Attempt autoplay — works after any prior user interaction on the page
+    const tryPlay = () => {
+      audio.play().catch(() => {
+        // Autoplay blocked by browser — show Unmute button
+        setMuted(true);
+      });
+    };
+
+    if (audio.readyState >= 2) {
+      tryPlay();
+    } else {
+      audio.addEventListener("canplay", tryPlay, { once: true });
+    }
+
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ── No Web Audio API used ── */
   const initWizSoundStereo = useCallback(async () => {
@@ -143,25 +170,39 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     return () => video.removeEventListener("ended", handleEnd);
   }, []);
 
-  /* ── Unmute: toggle video.muted directly — simplest possible approach ── */
+  /* ── Toggle mute — controls the WizSound™ Audio element ── */
+  const toggleMute = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const next = !muted;
+    if (next) {
+      audio.volume = 0;
+    } else {
+      audio.volume = 1.0;
+      // If autoplay was blocked, try playing now (user gesture unlocks it)
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      }
+    }
+    setMuted(next);
+  }, [muted]);
+
+  /* ── Click anywhere: unmute if muted ── */
   const handleInteraction = useCallback(() => {
-    if (audioUnmuted) return;
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Directly unmute the video element — this always works
-    video.muted = false;
-    video.volume = 1.0;
-    setAudioUnmuted(true);
-
-    // Trigger visual WizSound effect (CSS-only, no Web Audio)
-    initWizSoundStereo();
-  }, [audioUnmuted, initWizSoundStereo]);
+    if (!muted) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 1.0;
+    if (audio.paused) audio.play().catch(() => {});
+    setMuted(false);
+  }, [muted]);
 
   /* ── Skip ── */
   const handleSkip = useCallback(() => {
     const video = videoRef.current;
+    const audio = audioRef.current;
     if (video) video.pause();
+    if (audio) { audio.pause(); audio.src = ""; }
     cancelAnimationFrame(rafRef.current);
     onComplete();
   }, [onComplete]);
@@ -172,11 +213,11 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleSkip();
-      if (e.key === " " || e.key === "Enter") { e.preventDefault(); handleInteraction(); }
+      if (e.key === "m" || e.key === "M") toggleMute();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleSkip, handleInteraction]);
+  }, [handleSkip, toggleMute]);
 
   /* ── Label helpers ── */
   const labelOpacity = (start: number, end: number) => {
@@ -203,7 +244,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
 
   return (
     <div
-      ref={videoRef as unknown as React.RefObject<HTMLDivElement>}
+      ref={containerRef}
       onClick={handleInteraction}
       style={{
         position: "fixed",
@@ -211,10 +252,10 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         zIndex: 99999,
         background: "#000",
         overflow: "hidden",
-        cursor: audioUnmuted ? "default" : "pointer",
+        cursor: "default",
       }}
     >
-      {/* ── VIDEO — muted by default, unmuted on first click ── */}
+      {/* ── VIDEO — always muted (visual only); WizSound™ audio plays via separate Audio element ── */}
       <video
         ref={videoRef}
         src={INTRO_VIDEO_URL}
@@ -425,26 +466,45 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       )}
 
       {/* ── CLICK TO UNMUTE HINT ── */}
-      {!audioUnmuted && videoReady && !videoEnded && (
-        <div style={{
-          position: "absolute", bottom: "2.5rem", left: "50%",
-          transform: "translateX(-50%)", zIndex: 25,
-          display: "flex", alignItems: "center", gap: "0.5rem",
-          padding: "0.5rem 1.25rem",
-          background: "rgba(0,0,0,0.5)", borderRadius: "9999px",
-          border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)",
-          animation: "introFadeInUp 0.5s ease forwards",
-          pointerEvents: "none",
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(167,139,250,0.9)" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <line x1="23" y1="9" x2="17" y2="15" />
-            <line x1="17" y1="9" x2="23" y2="15" />
-          </svg>
-          <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", letterSpacing: "0.04em" }}>
-            Click for immersive WizSound™ audio
-          </span>
-        </div>
+      {/* Mute/unmute button — always visible, bottom-right corner */}
+      {videoReady && !videoEnded && (
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+          aria-label={muted ? "Unmute audio" : "Mute audio"}
+          style={{
+            position: "absolute", bottom: "2.5rem", right: "1.5rem", zIndex: 30,
+            display: "flex", alignItems: "center", gap: "0.4rem",
+            padding: "0.45rem 1rem",
+            background: "rgba(0,0,0,0.5)", borderRadius: "9999px",
+            border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)",
+            cursor: "pointer", color: "rgba(255,255,255,0.75)",
+            fontSize: "0.75rem", letterSpacing: "0.04em",
+            transition: "all 0.2s ease",
+            animation: "introFadeInUp 0.5s ease forwards",
+          }}
+          onMouseEnter={(e) => { const b = e.currentTarget; b.style.background = "rgba(0,0,0,0.7)"; b.style.borderColor = "rgba(255,255,255,0.25)"; b.style.color = "#fff"; }}
+          onMouseLeave={(e) => { const b = e.currentTarget; b.style.background = "rgba(0,0,0,0.5)"; b.style.borderColor = "rgba(255,255,255,0.12)"; b.style.color = "rgba(255,255,255,0.75)"; }}
+        >
+          {muted ? (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+              <span>Unmute</span>
+            </>
+          ) : (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(167,139,250,0.9)" strokeWidth="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+              <span style={{ color: "rgba(167,139,250,0.9)" }}>WizSound™</span>
+            </>
+          )}
+        </button>
       )}
 
       {/* ── PROGRESS BAR ── */}
