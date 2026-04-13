@@ -2525,3 +2525,17 @@
 - [x] Enhanced cinematic audio (low rumble → rising tension → impact → reverb tail)
 - [x] Hold final frame 2–3s with WIZVID + "Cinematic AI Video Creation" + Start Creating CTA
 - [x] IMAX lighting, depth layers, particles, motion blur, high contrast
+
+## SEO Fixes (Homepage)
+- [x] Reduce meta keywords from 9 to 6–7 focused keywords
+- [x] Fix H1/H2 not visible to crawlers — render homepage content alongside intro overlay instead of blocking with early return
+
+## V3 Cinematic Intro Final Polish
+- [x] Tighter timeline: 7–8s total (Open 0–1.2s, Flow 1.2–4.5s, Genre 4.5–5.8s, Impact 5.8–7s, Hold 7–8s+)
+- [x] 3 flowing scenes: music video (push-in), Pixar animation (parallax), cinematic film (slow pan)
+- [x] Smooth motion-based transitions (light/particle morphs, no hard cuts)
+- [x] Genre text ("Music Videos", "Cinematic Films", "Animation") integrated into scene, not overlays
+- [x] Impact moment: logo from light, glow sweep, camera push-in, micro-shake
+- [x] Audio: bass hit + cinematic boom + spatial echo at impact
+- [x] Hold final frame 2–3s with WIZVID + tagline + Start Creating CTA
+- [x] IMAX lighting, depth layers, particles, motion blur, high contrast

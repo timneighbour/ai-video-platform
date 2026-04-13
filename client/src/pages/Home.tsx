@@ -2033,12 +2033,12 @@ export default function Home() {
     setIntroComplete(true);
   }, []);
 
-  if (!introComplete && !hasSeenIntro) {
-    return <CinematicIntroSequence onComplete={handleIntroComplete} />;
-  }
+  const showIntro = !introComplete && !hasSeenIntro;
 
   return (
     <div className="bg-[#0f0f0f] text-white min-h-screen overflow-x-hidden">
+      {/* Intro overlay — page content stays in DOM for SEO crawlers */}
+      {showIntro && <CinematicIntroSequence onComplete={handleIntroComplete} />}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg focus:font-semibold"
