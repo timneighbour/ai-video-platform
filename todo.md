@@ -3063,3 +3063,10 @@
 - [x] Found root cause: Hero left column (CTAs) missing z-10, stacking behind right column on desktop
 - [x] Fix: Added z-10 to left column div to ensure it stacks above right column
 - [x] Verified: CTAs now work on desktop and mobile
+
+## Mobile Audio Breakup Bug (Apr 13) - FIXED ✅
+- [x] Investigated: Audio sync interval too slow (500ms) causing lag on mobile
+- [x] Fixed: Reduced sync interval from 500ms to 250ms for faster drift correction
+- [x] Fixed: Added crossOrigin="anonymous" to audio elements for better mobile compatibility
+- [x] Reduced sync threshold from 0.15s to 0.1s for tighter audio-video sync
+- [x] All 328 tests passing

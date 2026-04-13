@@ -80,10 +80,10 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
     const interval = setInterval(() => {
       const v = videoRef.current;
       const active = getActiveAudio();
-      if (v && active && Math.abs(v.currentTime - active.currentTime) > 0.15) {
+      if (v && active && Math.abs(v.currentTime - active.currentTime) > 0.1) {
         active.currentTime = v.currentTime;
       }
-    }, 500);
+    }, 250); // Reduced from 500ms for faster mobile sync
     return () => clearInterval(interval);
   }, [playing, getActiveAudio]);
 
@@ -194,8 +194,8 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         />
 
         {/* Hidden audio elements — one standard, one enhanced */}
-        <audio ref={audioStdRef} src={AUDIO_STANDARD} preload="auto" loop />
-        <audio ref={audioEnhRef} src={AUDIO_ENHANCED} preload="auto" loop />
+        <audio ref={audioStdRef} src={AUDIO_STANDARD} preload="auto" loop crossOrigin="anonymous" />
+        <audio ref={audioEnhRef} src={AUDIO_ENHANCED} preload="auto" loop crossOrigin="anonymous" />
 
         {/* Play button overlay */}
         {!playing && loaded && (

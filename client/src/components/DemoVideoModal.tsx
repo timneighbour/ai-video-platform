@@ -164,10 +164,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     const interval = setInterval(() => {
       const v = videoRef.current;
       const active = getActiveAudio();
-      if (v && active && Math.abs(v.currentTime - active.currentTime) > 0.15) {
+      if (v && active && Math.abs(v.currentTime - active.currentTime) > 0.1) {
         active.currentTime = v.currentTime;
       }
-    }, 500);
+    }, 250); // Reduced from 500ms for faster mobile sync
     return () => clearInterval(interval);
   }, [playing, getActiveAudio]);
 
@@ -372,8 +372,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           </video>
 
           {/* Hidden audio elements */}
-          <audio ref={audioStdRef} src={AUDIO_STANDARD} preload="auto" />
-          <audio ref={audioEnhRef} src={AUDIO_ENHANCED} preload="auto" />
+          <audio ref={audioStdRef} src={AUDIO_STANDARD} preload="auto" crossOrigin="anonymous" />
+          <audio ref={audioEnhRef} src={AUDIO_ENHANCED} preload="auto" crossOrigin="anonymous" />
 
           {/* ── Close button ──────────────────────────────────────── */}
           <button
