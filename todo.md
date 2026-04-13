@@ -2985,3 +2985,7 @@
 - [x] Try an Example section: pre-filled prompts (Hip-Hop, Rock, R&B, Pop, Cinematic) with one-click navigation
 - [x] Pricing guidance: "Most creators start here — £29" banner + plan card tooltip
 - [x] Confidence messaging: "No editing skills needed — just describe your video" in hero and ImmediateValue bullets
+
+## Navigation Fix - Duplicate Intro Overlay (CRITICAL)
+- [x] Remove CinematicIntroSequence from Home.tsx — it's a SECOND intro overlay (z-99999, position:fixed, inset:0) that blocks ALL nav clicks on every new browser session. App.tsx already has CinematicEntryScreen for first-visit intro.
+- [ ] Update WizSound demo to use demo-clean video with real audio track
