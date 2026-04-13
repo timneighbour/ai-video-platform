@@ -1,231 +1,286 @@
 /**
- * CinematicIntroSequence
+ * CinematicIntroSequence V2
  *
- * A full-screen, gated cinematic intro (7–9 seconds) rendered entirely on Canvas.
- * Acts:
- *   ACT 1 (0–1.5s)  — Black → subtle glow build → particles forming
- *   ACT 2 (1.5–5s)  — Cinematic scene flow: concert → animation → film
- *   ACT 3 (5–6.5s)  — Genre text reveals inside the scene
- *   ACT 4 (6.5–8s)  — WizVid logo reveal with glow sweep + camera push-in
- *   ACT 5 (8–9s)    — Hold on WIZVID / "Powered by WizSound™" + "Start Creating →"
+ * A true cinematic product trailer rendered on a 4K Canvas.
+ * 3 immersive scenes connected by morphing transitions (no hard cuts).
+ * Every frame has camera movement — push-in, pan, or parallax.
  *
- * Audio: Web Audio API spatial engine (bass rumble → rising tension → impact hit → reverb tail)
- * No autoplay audio — starts only after first user interaction.
+ * Timeline (total ~12s):
+ *   SCENE 1 (0–4s)   — Void Awakening: deep black → energy particles converge → glow builds
+ *   MORPH  (3.5–4.5s) — Particle explosion transitions into Scene 2
+ *   SCENE 2 (4–8s)    — Cinematic Worlds: concert stage → morphs into film set → morphs into animation
+ *   MORPH  (7.5–8.5s) — Light tunnel collapses into logo
+ *   SCENE 3 (8–10.5s) — Logo Reveal: WIZVID with impact hit, glow sweep, camera push-in
+ *   HOLD   (10.5–13s) — Final frame: WIZVID + tagline + "Start Creating →" CTA
+ *
+ * Audio (Web Audio API):
+ *   0–4s:    Sub-bass rumble (30Hz) building
+ *   4–8s:    Rising cinematic tension (layered oscillators + filter sweep)
+ *   8s:      IMPACT HIT (noise burst + sub drop + all oscillators peak)
+ *   8–13s:   Reverb tail + atmospheric pad fade-out
+ *
+ * Canvas: 4K resolution (3840×2160) scaled by devicePixelRatio
  */
 import { useEffect, useRef, useState, useCallback } from "react";
 import { mp } from "@/lib/mixpanel";
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)); }
+function lerp(a: number, b: number, t: number) { return a + (b - a) * clamp(t, 0, 1); }
+function smoothstep(edge0: number, edge1: number, x: number) {
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+function easeOutExpo(t: number) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+function easeInOutQuart(t: number) {
+  return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+  x: number; y: number;
+  vx: number; vy: number;
   radius: number;
+  hue: number; sat: number; light: number;
   alpha: number;
-  hue: number;
-  life: number;
-  maxLife: number;
-  layer: number; // 0=far, 1=mid, 2=near
-}
-
-interface LightRay {
-  x: number;
-  angle: number;
-  width: number;
-  alpha: number;
-  speed: number;
-  hue: number;
+  life: number; maxLife: number;
+  layer: number; // 0=far 1=mid 2=near — affects parallax speed
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const TOTAL_DURATION = 8800; // ms
-const ACT_TIMES = {
-  act1End: 1500,
-  act2End: 5000,
-  act3End: 6500,
-  act4End: 8000,
-  act5End: 8800,
-};
+const SCENE_1_END = 4000;
+const SCENE_2_END = 8000;
+const SCENE_3_END = 10500;
+const HOLD_END = 13000;
+const MORPH_DURATION = 1000; // ms overlap between scenes
 
-const GENRE_LABELS = ["Music Videos", "Cinematic Films", "Animation"];
+// ── Camera state ──────────────────────────────────────────────────────────────
 
-// ── Easing helpers ────────────────────────────────────────────────────────────
-
-function easeInOutCubic(t: number) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-function easeOutExpo(t: number) {
-  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-}
-function easeInExpo(t: number) {
-  return t === 0 ? 0 : Math.pow(2, 10 * t - 10);
-}
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
-}
-function clamp(v: number, lo: number, hi: number) {
-  return Math.max(lo, Math.min(hi, v));
+interface Camera {
+  x: number; y: number; zoom: number; rotation: number;
 }
 
-// ── Audio engine ──────────────────────────────────────────────────────────────
+function getCamera(elapsed: number, w: number, h: number): Camera {
+  const cam: Camera = { x: 0, y: 0, zoom: 1, rotation: 0 };
 
-function buildAudioEngine(ctx: AudioContext) {
-  const master = ctx.createGain();
-  master.gain.value = 0;
-  master.connect(ctx.destination);
-
-  // Bass rumble: low-frequency oscillator
-  const bassOsc = ctx.createOscillator();
-  bassOsc.type = "sine";
-  bassOsc.frequency.value = 40;
-  const bassGain = ctx.createGain();
-  bassGain.gain.value = 0;
-  const bassFilter = ctx.createBiquadFilter();
-  bassFilter.type = "lowpass";
-  bassFilter.frequency.value = 120;
-  bassOsc.connect(bassFilter);
-  bassFilter.connect(bassGain);
-  bassGain.connect(master);
-  bassOsc.start();
-
-  // Rising tension: detuned sawtooth + filter sweep
-  const tensionOsc = ctx.createOscillator();
-  tensionOsc.type = "sawtooth";
-  tensionOsc.frequency.value = 80;
-  const tensionGain = ctx.createGain();
-  tensionGain.gain.value = 0;
-  const tensionFilter = ctx.createBiquadFilter();
-  tensionFilter.type = "bandpass";
-  tensionFilter.frequency.value = 200;
-  tensionFilter.Q.value = 2;
-  tensionOsc.connect(tensionFilter);
-  tensionFilter.connect(tensionGain);
-  tensionGain.connect(master);
-  tensionOsc.start();
-
-  // Impact hit: short noise burst
-  function triggerImpact(when: number) {
-    const bufferSize = ctx.sampleRate * 0.15;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    const impactGain = ctx.createGain();
-    impactGain.gain.setValueAtTime(0.6, when);
-    impactGain.gain.exponentialRampToValueAtTime(0.001, when + 0.15);
-    const impactFilter = ctx.createBiquadFilter();
-    impactFilter.type = "lowpass";
-    impactFilter.frequency.value = 300;
-    source.connect(impactFilter);
-    impactFilter.connect(impactGain);
-    impactGain.connect(master);
-    source.start(when);
+  if (elapsed < SCENE_1_END) {
+    // Slow push-in from 0.92 → 1.05 + slight upward pan
+    const t = elapsed / SCENE_1_END;
+    cam.zoom = lerp(0.92, 1.05, easeInOutQuart(t));
+    cam.y = lerp(h * 0.04, -h * 0.02, t);
+    cam.x = Math.sin(elapsed * 0.0003) * w * 0.008;
+    cam.rotation = Math.sin(elapsed * 0.0002) * 0.003;
+  } else if (elapsed < SCENE_2_END) {
+    // Continuous pan right + slow zoom out then in
+    const t = (elapsed - SCENE_1_END) / (SCENE_2_END - SCENE_1_END);
+    cam.x = lerp(-w * 0.03, w * 0.03, t) + Math.sin(elapsed * 0.0004) * w * 0.01;
+    cam.y = Math.cos(elapsed * 0.00025) * h * 0.015;
+    cam.zoom = lerp(1.08, 1.0, Math.abs(Math.sin(t * Math.PI)));
+    cam.rotation = Math.sin(elapsed * 0.00015) * 0.004;
+  } else if (elapsed < SCENE_3_END) {
+    // Camera push-in on logo (dramatic)
+    const t = (elapsed - SCENE_2_END) / (SCENE_3_END - SCENE_2_END);
+    cam.zoom = lerp(0.95, 1.12, easeOutExpo(t));
+    cam.y = lerp(h * 0.01, 0, t);
   }
+  // HOLD: camera stays still
 
-  // Reverb tail: convolver with synthetic IR
+  return cam;
+}
+
+// ── Audio Engine ──────────────────────────────────────────────────────────────
+
+function buildAudio(ctx: AudioContext) {
+  const now = ctx.currentTime;
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0, now);
+  master.gain.linearRampToValueAtTime(0.8, now + 0.5);
+
+  // Convolver reverb (synthetic IR — 3s hall)
   const convolver = ctx.createConvolver();
-  const irLength = ctx.sampleRate * 2.5;
-  const ir = ctx.createBuffer(2, irLength, ctx.sampleRate);
-  for (let c = 0; c < 2; c++) {
-    const d = ir.getChannelData(c);
-    for (let i = 0; i < irLength; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLength, 2.5);
+  const irLen = ctx.sampleRate * 3;
+  const ir = ctx.createBuffer(2, irLen, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = ir.getChannelData(ch);
+    for (let i = 0; i < irLen; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 3);
+    }
   }
   convolver.buffer = ir;
-  const reverbGain = ctx.createGain();
-  reverbGain.gain.value = 0.25;
-  master.connect(convolver);
-  convolver.connect(reverbGain);
-  reverbGain.connect(ctx.destination);
+  const reverbSend = ctx.createGain();
+  reverbSend.gain.value = 0.35;
+  master.connect(reverbSend);
+  reverbSend.connect(convolver);
+  convolver.connect(ctx.destination);
+  master.connect(ctx.destination);
 
-  // Schedule the full audio sequence
-  const now = ctx.currentTime;
+  // 1) Sub-bass rumble (30Hz, 0–8s, peaks at impact)
+  const subOsc = ctx.createOscillator();
+  subOsc.type = "sine";
+  subOsc.frequency.value = 30;
+  const subGain = ctx.createGain();
+  const subFilter = ctx.createBiquadFilter();
+  subFilter.type = "lowpass";
+  subFilter.frequency.value = 80;
+  subOsc.connect(subFilter);
+  subFilter.connect(subGain);
+  subGain.connect(master);
+  subGain.gain.setValueAtTime(0, now);
+  subGain.gain.linearRampToValueAtTime(0.25, now + 2);
+  subGain.gain.linearRampToValueAtTime(0.4, now + 7.5);
+  subGain.gain.linearRampToValueAtTime(0.7, now + 8); // peak at impact
+  subGain.gain.linearRampToValueAtTime(0.15, now + 9);
+  subGain.gain.linearRampToValueAtTime(0, now + 11);
+  subOsc.start(now);
+  subOsc.stop(now + 12);
 
-  // Fade in master
-  master.gain.setValueAtTime(0, now);
-  master.gain.linearRampToValueAtTime(0.7, now + 0.3);
+  // 2) Rising tension (detuned sawtooths + bandpass sweep, 2–8s)
+  for (let i = 0; i < 3; i++) {
+    const osc = ctx.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.value = 60 + i * 20;
+    osc.detune.value = (i - 1) * 15;
+    const g = ctx.createGain();
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.Q.value = 3;
+    bp.frequency.setValueAtTime(150, now + 2);
+    bp.frequency.exponentialRampToValueAtTime(3000, now + 8);
+    osc.connect(bp);
+    bp.connect(g);
+    g.connect(master);
+    g.gain.setValueAtTime(0, now + 2);
+    g.gain.linearRampToValueAtTime(0.08, now + 5);
+    g.gain.linearRampToValueAtTime(0.2, now + 7.8);
+    g.gain.linearRampToValueAtTime(0, now + 8.5);
+    osc.start(now + 2);
+    osc.stop(now + 9);
+  }
 
-  // Bass rumble: 0–5s
-  bassGain.gain.setValueAtTime(0, now);
-  bassGain.gain.linearRampToValueAtTime(0.4, now + 0.5);
-  bassGain.gain.linearRampToValueAtTime(0.5, now + 2.5);
-  bassGain.gain.linearRampToValueAtTime(0.1, now + 5.0);
-  bassGain.gain.linearRampToValueAtTime(0, now + 6.0);
+  // 3) Cinematic pad (soft chord, 4–10s)
+  const padNotes = [110, 164.81, 220, 329.63]; // Am chord
+  padNotes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.value = freq;
+    const g = ctx.createGain();
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 800;
+    osc.connect(lp);
+    lp.connect(g);
+    g.connect(master);
+    g.gain.setValueAtTime(0, now + 4);
+    g.gain.linearRampToValueAtTime(0.04, now + 6);
+    g.gain.linearRampToValueAtTime(0.06, now + 8);
+    g.gain.linearRampToValueAtTime(0.02, now + 10);
+    g.gain.linearRampToValueAtTime(0, now + 12);
+    osc.start(now + 4);
+    osc.stop(now + 13);
+  });
 
-  // Rising tension: 1.5–6.5s with frequency sweep
-  tensionGain.gain.setValueAtTime(0, now + 1.5);
-  tensionGain.gain.linearRampToValueAtTime(0.15, now + 3.0);
-  tensionGain.gain.linearRampToValueAtTime(0.3, now + 6.0);
-  tensionGain.gain.linearRampToValueAtTime(0, now + 6.8);
-  tensionFilter.frequency.setValueAtTime(200, now + 1.5);
-  tensionFilter.frequency.exponentialRampToValueAtTime(2000, now + 6.5);
+  // 4) IMPACT HIT at 8s (noise burst + sub drop)
+  const impactAt = now + 8;
+  // Noise burst
+  const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+  const noiseData = noiseBuf.getChannelData(0);
+  for (let i = 0; i < noiseData.length; i++) {
+    noiseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / noiseData.length, 1.5);
+  }
+  const noiseSrc = ctx.createBufferSource();
+  noiseSrc.buffer = noiseBuf;
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.8, impactAt);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, impactAt + 0.2);
+  const noiseLp = ctx.createBiquadFilter();
+  noiseLp.type = "lowpass";
+  noiseLp.frequency.value = 400;
+  noiseSrc.connect(noiseLp);
+  noiseLp.connect(noiseGain);
+  noiseGain.connect(master);
+  noiseSrc.start(impactAt);
 
-  // Impact hit at logo reveal (6.5s)
-  triggerImpact(now + 6.5);
+  // Sub drop (80Hz → 25Hz in 0.3s)
+  const dropOsc = ctx.createOscillator();
+  dropOsc.type = "sine";
+  dropOsc.frequency.setValueAtTime(80, impactAt);
+  dropOsc.frequency.exponentialRampToValueAtTime(25, impactAt + 0.3);
+  const dropGain = ctx.createGain();
+  dropGain.gain.setValueAtTime(0.6, impactAt);
+  dropGain.gain.exponentialRampToValueAtTime(0.001, impactAt + 0.5);
+  dropOsc.connect(dropGain);
+  dropGain.connect(master);
+  dropOsc.start(impactAt);
+  dropOsc.stop(impactAt + 0.6);
 
-  // Fade out master after reverb tail
-  master.gain.setValueAtTime(0.7, now + 8.0);
-  master.gain.linearRampToValueAtTime(0, now + 9.5);
+  // 5) Fade out master
+  master.gain.setValueAtTime(0.8, now + 10.5);
+  master.gain.linearRampToValueAtTime(0, now + 13);
 
-  return { master };
+  return master;
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Particle factory ──────────────────────────────────────────────────────────
 
-interface Props {
-  onComplete: () => void;
+function makeParticle(w: number, h: number, layer: number, scene: number): Particle {
+  const angle = Math.random() * Math.PI * 2;
+  const speed = (0.2 + Math.random() * 1.5) * (layer * 0.5 + 0.5);
+
+  // Scene-specific colour palettes
+  let hue: number, sat: number, light: number;
+  if (scene === 0) {
+    // Void: deep violet/indigo
+    hue = 260 + Math.random() * 40;
+    sat = 70 + Math.random() * 30;
+    light = 50 + Math.random() * 30;
+  } else if (scene === 1) {
+    // Worlds: warm amber → cool teal shift
+    hue = Math.random() < 0.5 ? 20 + Math.random() * 30 : 170 + Math.random() * 30;
+    sat = 80 + Math.random() * 20;
+    light = 55 + Math.random() * 25;
+  } else {
+    // Logo: pure white/violet
+    hue = 270 + Math.random() * 50;
+    sat = 40 + Math.random() * 40;
+    light = 70 + Math.random() * 30;
+  }
+
+  return {
+    x: w * 0.5 + (Math.random() - 0.5) * w * 0.8,
+    y: h * 0.5 + (Math.random() - 0.5) * h * 0.8,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed - 0.3,
+    radius: (0.5 + Math.random() * 3) * (layer * 0.4 + 0.6),
+    hue, sat, light,
+    alpha: 0.5 + Math.random() * 0.5,
+    life: 0,
+    maxLife: 80 + Math.random() * 160,
+    layer,
+  };
 }
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+interface Props { onComplete: () => void; }
 
 export default function CinematicIntroSequence({ onComplete }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const startTimeRef = useRef<number>(0);
-  const rafRef = useRef<number>(0);
+  const startRef = useRef(0);
+  const rafRef = useRef(0);
   const particlesRef = useRef<Particle[]>([]);
-  const raysRef = useRef<LightRay[]>([]);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioStartedRef = useRef(false);
-  const [showCTA, setShowCTA] = useState(false);
-  const [ctaVisible, setCtaVisible] = useState(false);
-  const [skipped, setSkipped] = useState(false);
-  const [genreIndex, setGenreIndex] = useState(-1);
+  const doneRef = useRef(false);
+
+  const [phase, setPhase] = useState<"playing" | "hold">("playing");
+  const [ctaVisible, setCTAVisible] = useState(false);
   const [logoAlpha, setLogoAlpha] = useState(0);
-  const [glowSweep, setGlowSweep] = useState(0); // 0–1 sweep progress
-  const completedRef = useRef(false);
+  const [impactFlash, setImpactFlash] = useState(0);
 
-  // ── Particle factory ──────────────────────────────────────────────────────
-
-  const spawnParticle = useCallback((w: number, h: number, t: number, layer: number): Particle => {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = (0.3 + Math.random() * 1.2) * (layer + 1) * 0.5;
-    const hue = layer === 0 ? 260 + Math.random() * 40 : layer === 1 ? 290 + Math.random() * 50 : 310 + Math.random() * 60;
-    return {
-      x: w * 0.5 + (Math.random() - 0.5) * w * 0.6,
-      y: h * 0.5 + (Math.random() - 0.5) * h * 0.6,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 0.4,
-      radius: (0.8 + Math.random() * 2.5) * (layer + 1) * 0.6,
-      alpha: 0.6 + Math.random() * 0.4,
-      hue,
-      life: 0,
-      maxLife: 60 + Math.random() * 120,
-      layer,
-    };
-  }, []);
-
-  const spawnRay = useCallback((w: number): LightRay => ({
-    x: Math.random() * w,
-    angle: -0.3 + Math.random() * 0.6,
-    width: 20 + Math.random() * 60,
-    alpha: 0.02 + Math.random() * 0.05,
-    speed: 0.3 + Math.random() * 0.8,
-    hue: 260 + Math.random() * 80,
-  }), []);
-
-  // ── Audio start on first interaction ─────────────────────────────────────
+  // ── Audio ─────────────────────────────────────────────────────────────────
 
   const startAudio = useCallback(() => {
     if (audioStartedRef.current) return;
@@ -233,263 +288,379 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     try {
       const ctx = new AudioContext();
       audioCtxRef.current = ctx;
-      buildAudioEngine(ctx);
-    } catch {
-      // Audio not available — silently skip
-    }
+      buildAudio(ctx);
+    } catch { /* silent */ }
   }, []);
 
-  // ── Canvas render loop ────────────────────────────────────────────────────
+  const cleanup = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    if (audioCtxRef.current) audioCtxRef.current.close().catch(() => {});
+  }, []);
+
+  const finish = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    cleanup();
+    onComplete();
+  }, [cleanup, onComplete]);
+
+  // ── Canvas loop ───────────────────────────────────────────────────────────
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    let w = window.innerWidth;
-    let h = window.innerHeight;
-    canvas.width = w;
-    canvas.height = h;
+    // 4K resolution with DPR scaling
+    const dpr = Math.min(window.devicePixelRatio || 1, 3); // cap at 3x for perf
+    let cssW = window.innerWidth;
+    let cssH = window.innerHeight;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+    ctx.scale(dpr, dpr);
 
     const onResize = () => {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
+      cssW = window.innerWidth;
+      cssH = window.innerHeight;
+      const newDpr = Math.min(window.devicePixelRatio || 1, 3);
+      canvas.width = cssW * newDpr;
+      canvas.height = cssH * newDpr;
+      canvas.style.width = cssW + "px";
+      canvas.style.height = cssH + "px";
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(newDpr, newDpr);
     };
     window.addEventListener("resize", onResize);
 
-    // Seed initial particles
-    for (let i = 0; i < 120; i++) {
-      particlesRef.current.push(spawnParticle(w, h, 0, i % 3));
-    }
-    for (let i = 0; i < 8; i++) {
-      raysRef.current.push(spawnRay(w));
+    // Seed particles
+    for (let i = 0; i < 200; i++) {
+      particlesRef.current.push(makeParticle(cssW, cssH, i % 3, 0));
     }
 
-    startTimeRef.current = performance.now();
+    startRef.current = performance.now();
+    let impactFired = false;
 
     function draw(now: number) {
       if (!ctx) return;
-      const elapsed = now - startTimeRef.current;
-      const t = clamp(elapsed / TOTAL_DURATION, 0, 1);
+      const elapsed = now - startRef.current;
+      const w = cssW;
+      const h = cssH;
 
-      // ── Act detection ──────────────────────────────────────────────────
-      const inAct1 = elapsed < ACT_TIMES.act1End;
-      const inAct2 = elapsed >= ACT_TIMES.act1End && elapsed < ACT_TIMES.act2End;
-      const inAct3 = elapsed >= ACT_TIMES.act2End && elapsed < ACT_TIMES.act3End;
-      const inAct4 = elapsed >= ACT_TIMES.act3End && elapsed < ACT_TIMES.act4End;
-      const inAct5 = elapsed >= ACT_TIMES.act4End;
+      // ── Determine scene ────────────────────────────────────────────────
+      const inScene1 = elapsed < SCENE_1_END;
+      const inMorph1 = elapsed >= SCENE_1_END - MORPH_DURATION / 2 && elapsed < SCENE_1_END + MORPH_DURATION / 2;
+      const inScene2 = elapsed >= SCENE_1_END && elapsed < SCENE_2_END;
+      const inMorph2 = elapsed >= SCENE_2_END - MORPH_DURATION / 2 && elapsed < SCENE_2_END + MORPH_DURATION / 2;
+      const inScene3 = elapsed >= SCENE_2_END && elapsed < SCENE_3_END;
+      const inHold = elapsed >= SCENE_3_END;
 
-      // ── Background ────────────────────────────────────────────────────
-      // Motion blur: semi-transparent clear
-      const blurAlpha = inAct1 ? 0.12 : inAct2 ? 0.08 : 0.15;
+      // ── Camera ─────────────────────────────────────────────────────────
+      const cam = getCamera(elapsed, w, h);
+
+      // ── Motion blur: semi-transparent clear ────────────────────────────
+      const blurAlpha = inScene1 ? 0.06 : inScene2 ? 0.05 : inScene3 ? 0.08 : 0.12;
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const currentDpr = Math.min(window.devicePixelRatio || 1, 3);
+      ctx.scale(currentDpr, currentDpr);
       ctx.fillStyle = `rgba(0,0,0,${blurAlpha})`;
       ctx.fillRect(0, 0, w, h);
+      ctx.restore();
 
-      // ── Scene-specific backgrounds ────────────────────────────────────
+      // ── Apply camera transform ─────────────────────────────────────────
+      ctx.save();
+      ctx.translate(w / 2 + cam.x, h / 2 + cam.y);
+      ctx.rotate(cam.rotation);
+      ctx.scale(cam.zoom, cam.zoom);
+      ctx.translate(-w / 2, -h / 2);
 
-      if (inAct1) {
-        // Black with subtle glow build
-        const act1T = elapsed / ACT_TIMES.act1End;
-        const glowR = easeInOutCubic(act1T);
-        const grd = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, w * 0.6);
-        grd.addColorStop(0, `rgba(88,28,220,${0.12 * glowR})`);
-        grd.addColorStop(0.5, `rgba(120,20,180,${0.06 * glowR})`);
-        grd.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grd;
+      // ── SCENE 1: Void Awakening ────────────────────────────────────────
+      if (inScene1 || inMorph1) {
+        const t = elapsed / SCENE_1_END;
+        const glowIntensity = smoothstep(0, 1, t);
+
+        // Central energy core — pulsing radial gradient
+        const pulseR = w * (0.15 + 0.25 * glowIntensity + 0.03 * Math.sin(elapsed * 0.003));
+        const coreGrd = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, pulseR);
+        coreGrd.addColorStop(0, `rgba(140,80,255,${0.2 * glowIntensity})`);
+        coreGrd.addColorStop(0.4, `rgba(100,40,200,${0.1 * glowIntensity})`);
+        coreGrd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = coreGrd;
         ctx.fillRect(0, 0, w, h);
+
+        // Nebula wisps — multiple offset orbs drifting
+        for (let i = 0; i < 4; i++) {
+          const ox = w * (0.3 + i * 0.15) + Math.sin(elapsed * 0.0005 + i * 2) * w * 0.08;
+          const oy = h * (0.35 + Math.cos(elapsed * 0.0004 + i * 1.5) * 0.15);
+          const or = w * (0.08 + i * 0.03) * glowIntensity;
+          const nebGrd = ctx.createRadialGradient(ox, oy, 0, ox, oy, or);
+          nebGrd.addColorStop(0, `hsla(${260 + i * 20},80%,50%,${0.06 * glowIntensity})`);
+          nebGrd.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = nebGrd;
+          ctx.fillRect(0, 0, w, h);
+        }
+
+        // Converging light streaks toward centre
+        if (t > 0.3) {
+          const streakAlpha = smoothstep(0.3, 0.8, t) * 0.04;
+          for (let s = 0; s < 12; s++) {
+            const angle = (s / 12) * Math.PI * 2 + elapsed * 0.0001;
+            const startR = w * 0.7;
+            const endR = w * 0.05 * (1 - t * 0.5);
+            const sx = w * 0.5 + Math.cos(angle) * startR;
+            const sy = h * 0.5 + Math.sin(angle) * startR;
+            const ex = w * 0.5 + Math.cos(angle) * endR;
+            const ey = h * 0.5 + Math.sin(angle) * endR;
+            const streakGrd = ctx.createLinearGradient(sx, sy, ex, ey);
+            streakGrd.addColorStop(0, "rgba(0,0,0,0)");
+            streakGrd.addColorStop(0.5, `rgba(180,120,255,${streakAlpha})`);
+            streakGrd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.strokeStyle = streakGrd;
+            ctx.lineWidth = 1.5 + t * 2;
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+            ctx.stroke();
+          }
+        }
       }
 
-      if (inAct2) {
-        const act2T = (elapsed - ACT_TIMES.act1End) / (ACT_TIMES.act2End - ACT_TIMES.act1End);
-
-        // Scene 1 (0–0.33): Concert — warm amber/red stage lights
-        if (act2T < 0.33) {
-          const st = act2T / 0.33;
-          // Stage floor gradient
-          const floor = ctx.createLinearGradient(0, h * 0.6, 0, h);
-          floor.addColorStop(0, `rgba(255,120,0,${0.08 * st})`);
-          floor.addColorStop(1, `rgba(180,40,0,${0.04 * st})`);
-          ctx.fillStyle = floor;
-          ctx.fillRect(0, h * 0.6, w, h * 0.4);
-          // Stage spotlights
-          for (let s = 0; s < 3; s++) {
-            const sx = w * (0.2 + s * 0.3);
-            const sg = ctx.createRadialGradient(sx, h * 0.1, 0, sx, h * 0.5, h * 0.6);
-            sg.addColorStop(0, `rgba(255,200,80,${0.06 * st})`);
-            sg.addColorStop(1, "rgba(0,0,0,0)");
-            ctx.fillStyle = sg;
-            ctx.fillRect(0, 0, w, h);
+      // ── MORPH 1: Particle explosion transition ─────────────────────────
+      if (inMorph1) {
+        const mt = (elapsed - (SCENE_1_END - MORPH_DURATION / 2)) / MORPH_DURATION;
+        const flashAlpha = Math.sin(mt * Math.PI) * 0.15;
+        const flashGrd = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, w * 0.6);
+        flashGrd.addColorStop(0, `rgba(200,150,255,${flashAlpha})`);
+        flashGrd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = flashGrd;
+        ctx.fillRect(0, 0, w, h);
+        // Spawn burst particles
+        if (particlesRef.current.length < 500) {
+          for (let i = 0; i < 8; i++) {
+            particlesRef.current.push(makeParticle(w, h, Math.floor(Math.random() * 3), 1));
           }
-          // Crowd silhouette
-          ctx.fillStyle = `rgba(0,0,0,${0.3 * st})`;
-          for (let c = 0; c < 40; c++) {
-            const cx = (c / 40) * w;
-            const ch = h * (0.72 + Math.sin(c * 1.7) * 0.04 + Math.cos(c * 0.9) * 0.03);
+        }
+      }
+
+      // ── SCENE 2: Cinematic Worlds ──────────────────────────────────────
+      if (inScene2 || inMorph2) {
+        const t = (elapsed - SCENE_1_END) / (SCENE_2_END - SCENE_1_END);
+
+        // Sub-scene blending (3 worlds morphing into each other)
+        // World A (0–0.4): Concert stage — warm amber/red
+        // World B (0.3–0.7): Film noir — cool blue/teal
+        // World C (0.6–1.0): Animation — golden/teal/violet
+        const worldA = smoothstep(0, 0.15, t) * (1 - smoothstep(0.3, 0.45, t));
+        const worldB = smoothstep(0.25, 0.4, t) * (1 - smoothstep(0.6, 0.75, t));
+        const worldC = smoothstep(0.55, 0.7, t);
+
+        // World A: Concert stage
+        if (worldA > 0.01) {
+          // Stage floor
+          const floorGrd = ctx.createLinearGradient(0, h * 0.55, 0, h);
+          floorGrd.addColorStop(0, `rgba(255,100,20,${0.08 * worldA})`);
+          floorGrd.addColorStop(1, `rgba(120,20,0,${0.04 * worldA})`);
+          ctx.fillStyle = floorGrd;
+          ctx.fillRect(0, h * 0.5, w, h * 0.5);
+
+          // Spotlights (volumetric cones)
+          for (let s = 0; s < 5; s++) {
+            const sx = w * (0.1 + s * 0.2) + Math.sin(elapsed * 0.001 + s) * 20;
+            ctx.save();
+            ctx.globalAlpha = worldA;
+            const spotGrd = ctx.createRadialGradient(sx, -h * 0.1, 0, sx, h * 0.5, h * 0.8);
+            spotGrd.addColorStop(0, `rgba(255,200,80,0.08)`);
+            spotGrd.addColorStop(0.5, `rgba(255,150,50,0.03)`);
+            spotGrd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = spotGrd;
+            ctx.fillRect(0, 0, w, h);
+            ctx.restore();
+          }
+
+          // Crowd silhouettes (moving)
+          ctx.fillStyle = `rgba(0,0,0,${0.4 * worldA})`;
+          for (let c = 0; c < 50; c++) {
+            const cx = (c / 50) * w;
+            const bobY = Math.sin(elapsed * 0.004 + c * 0.8) * 4;
+            const cy = h * (0.74 + Math.sin(c * 1.3) * 0.03) + bobY;
             ctx.beginPath();
-            ctx.arc(cx, ch, 8 + Math.sin(c) * 3, 0, Math.PI * 2);
+            ctx.ellipse(cx, cy, 6 + Math.sin(c) * 2, 10 + Math.cos(c) * 3, 0, 0, Math.PI * 2);
             ctx.fill();
           }
         }
 
-        // Scene 2 (0.33–0.66): Pixar animation — warm golden + teal
-        if (act2T >= 0.33 && act2T < 0.66) {
-          const st = (act2T - 0.33) / 0.33;
+        // World B: Film noir
+        if (worldB > 0.01) {
+          const filmGrd = ctx.createLinearGradient(0, 0, w, h);
+          filmGrd.addColorStop(0, `rgba(0,30,70,${0.12 * worldB})`);
+          filmGrd.addColorStop(0.5, `rgba(0,60,100,${0.06 * worldB})`);
+          filmGrd.addColorStop(1, `rgba(15,0,50,${0.08 * worldB})`);
+          ctx.fillStyle = filmGrd;
+          ctx.fillRect(0, 0, w, h);
+
+          // Letterbox bars (cinematic aspect)
+          const barH = h * 0.07 * worldB;
+          ctx.fillStyle = `rgba(0,0,0,${0.8 * worldB})`;
+          ctx.fillRect(0, 0, w, barH);
+          ctx.fillRect(0, h - barH, w, barH);
+
+          // Volumetric light shaft from upper-right
+          ctx.save();
+          ctx.globalAlpha = worldB * 0.06;
+          ctx.translate(w * 0.8, 0);
+          ctx.rotate(0.3);
+          const shaftGrd = ctx.createLinearGradient(0, 0, 0, h * 1.5);
+          shaftGrd.addColorStop(0, "rgba(100,180,255,0)");
+          shaftGrd.addColorStop(0.3, "rgba(100,180,255,1)");
+          shaftGrd.addColorStop(1, "rgba(100,180,255,0)");
+          ctx.fillStyle = shaftGrd;
+          ctx.fillRect(-40, 0, 80, h * 1.5);
+          ctx.restore();
+        }
+
+        // World C: Animation
+        if (worldC > 0.01) {
           const animGrd = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.5, w * 0.7);
-          animGrd.addColorStop(0, `rgba(255,180,60,${0.09 * st})`);
-          animGrd.addColorStop(0.5, `rgba(0,180,160,${0.05 * st})`);
+          animGrd.addColorStop(0, `rgba(255,180,60,${0.08 * worldC})`);
+          animGrd.addColorStop(0.4, `rgba(0,200,180,${0.04 * worldC})`);
           animGrd.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = animGrd;
           ctx.fillRect(0, 0, w, h);
-          // Floating orbs (Pixar-style)
-          for (let o = 0; o < 5; o++) {
-            const ox = w * (0.1 + o * 0.2) + Math.sin(elapsed * 0.001 + o) * 30;
-            const oy = h * (0.3 + Math.cos(elapsed * 0.0008 + o * 1.2) * 0.15);
-            const og = ctx.createRadialGradient(ox, oy, 0, ox, oy, 40 + o * 15);
-            og.addColorStop(0, `rgba(255,220,100,${0.15 * st})`);
-            og.addColorStop(1, "rgba(0,0,0,0)");
-            ctx.fillStyle = og;
-            ctx.fillRect(0, 0, w, h);
+
+          // Floating luminous orbs (Pixar-style)
+          for (let o = 0; o < 7; o++) {
+            const ox = w * (0.1 + o * 0.13) + Math.sin(elapsed * 0.0008 + o * 1.5) * 40;
+            const oy = h * (0.25 + Math.cos(elapsed * 0.0006 + o * 2) * 0.2);
+            const orbR = 20 + o * 10 + Math.sin(elapsed * 0.002 + o) * 8;
+            const orbGrd = ctx.createRadialGradient(ox, oy, 0, ox, oy, orbR);
+            orbGrd.addColorStop(0, `rgba(255,220,100,${0.18 * worldC})`);
+            orbGrd.addColorStop(0.5, `rgba(255,180,60,${0.06 * worldC})`);
+            orbGrd.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = orbGrd;
+            ctx.fillRect(ox - orbR, oy - orbR, orbR * 2, orbR * 2);
           }
         }
-
-        // Scene 3 (0.66–1.0): Cinematic film — cool blue/teal
-        if (act2T >= 0.66) {
-          const st = (act2T - 0.66) / 0.34;
-          const filmGrd = ctx.createLinearGradient(0, 0, w, h);
-          filmGrd.addColorStop(0, `rgba(0,40,80,${0.12 * st})`);
-          filmGrd.addColorStop(0.5, `rgba(0,80,120,${0.06 * st})`);
-          filmGrd.addColorStop(1, `rgba(20,0,60,${0.08 * st})`);
-          ctx.fillStyle = filmGrd;
-          ctx.fillRect(0, 0, w, h);
-          // Letterbox bars
-          const barH = h * 0.08 * st;
-          ctx.fillStyle = `rgba(0,0,0,${0.7 * st})`;
-          ctx.fillRect(0, 0, w, barH);
-          ctx.fillRect(0, h - barH, w, barH);
-        }
-
-        // Cross-scene motion: camera pan simulation via canvas transform
-        const panX = Math.sin(elapsed * 0.0003) * w * 0.008;
-        const panY = Math.cos(elapsed * 0.0002) * h * 0.005;
-        ctx.save();
-        ctx.translate(panX, panY);
-        ctx.restore();
       }
 
-      if (inAct3) {
-        // Maintain film look from act 2
-        const filmGrd = ctx.createLinearGradient(0, 0, w, h);
-        filmGrd.addColorStop(0, "rgba(0,20,50,0.04)");
-        filmGrd.addColorStop(1, "rgba(10,0,40,0.04)");
-        ctx.fillStyle = filmGrd;
-        ctx.fillRect(0, 0, w, h);
-        // Letterbox
-        const barH = h * 0.08;
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
-        ctx.fillRect(0, 0, w, barH);
-        ctx.fillRect(0, h - barH, w, barH);
-      }
-
-      if (inAct4 || inAct5) {
-        // Deep black for logo reveal
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
+      // ── MORPH 2: Light tunnel collapse ─────────────────────────────────
+      if (inMorph2) {
+        const mt = (elapsed - (SCENE_2_END - MORPH_DURATION / 2)) / MORPH_DURATION;
+        // Radial light tunnel collapsing inward
+        const tunnelR = w * 0.6 * (1 - mt);
+        const tunnelGrd = ctx.createRadialGradient(w * 0.5, h * 0.5, tunnelR * 0.1, w * 0.5, h * 0.5, tunnelR);
+        tunnelGrd.addColorStop(0, `rgba(255,255,255,${0.15 * Math.sin(mt * Math.PI)})`);
+        tunnelGrd.addColorStop(0.5, `rgba(180,120,255,${0.08 * Math.sin(mt * Math.PI)})`);
+        tunnelGrd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = tunnelGrd;
         ctx.fillRect(0, 0, w, h);
       }
 
-      // ── Light rays ────────────────────────────────────────────────────
-      if (!inAct1) {
-        const rayAlphaScale = inAct4 || inAct5 ? 0.3 : 1;
-        raysRef.current.forEach((ray) => {
-          ray.x += ray.speed;
-          if (ray.x > w + 100) ray.x = -100;
-          ctx.save();
-          ctx.translate(ray.x, 0);
-          ctx.rotate(ray.angle);
-          const rg = ctx.createLinearGradient(0, 0, 0, h * 1.5);
-          rg.addColorStop(0, `hsla(${ray.hue},80%,60%,0)`);
-          rg.addColorStop(0.3, `hsla(${ray.hue},80%,60%,${ray.alpha * rayAlphaScale})`);
-          rg.addColorStop(1, `hsla(${ray.hue},80%,60%,0)`);
-          ctx.fillStyle = rg;
-          ctx.fillRect(-ray.width / 2, 0, ray.width, h * 1.5);
-          ctx.restore();
-        });
+      // ── SCENE 3: Logo Reveal + Impact ──────────────────────────────────
+      if (inScene3 || inHold) {
+        const t3 = clamp((elapsed - SCENE_2_END) / (SCENE_3_END - SCENE_2_END), 0, 1);
+
+        // Impact flash at the very start of scene 3
+        if (!impactFired && elapsed >= SCENE_2_END) {
+          impactFired = true;
+          setImpactFlash(1);
+          // Decay flash over 600ms
+          const flashStart = performance.now();
+          const decayFlash = () => {
+            const dt = (performance.now() - flashStart) / 600;
+            if (dt < 1) {
+              setImpactFlash(1 - dt);
+              requestAnimationFrame(decayFlash);
+            } else {
+              setImpactFlash(0);
+            }
+          };
+          requestAnimationFrame(decayFlash);
+        }
+
+        // Glow sweep behind logo
+        const sweepX = lerp(-0.3, 1.3, easeOutExpo(clamp(t3 * 1.5, 0, 1)));
+        const sweepGrd = ctx.createLinearGradient(w * (sweepX - 0.15), 0, w * (sweepX + 0.15), 0);
+        sweepGrd.addColorStop(0, "rgba(0,0,0,0)");
+        sweepGrd.addColorStop(0.5, `rgba(200,150,255,${0.12 * (1 - t3 * 0.5)})`);
+        sweepGrd.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = sweepGrd;
+        ctx.fillRect(0, h * 0.3, w, h * 0.4);
+
+        // Central glow
+        const logoGlow = ctx.createRadialGradient(w * 0.5, h * 0.45, 0, w * 0.5, h * 0.45, w * 0.35);
+        logoGlow.addColorStop(0, `rgba(160,100,255,${0.08 * easeOutExpo(t3)})`);
+        logoGlow.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = logoGlow;
+        ctx.fillRect(0, 0, w, h);
+
+        setLogoAlpha(easeOutExpo(clamp(t3 * 2, 0, 1)));
       }
 
-      // ── Particles ─────────────────────────────────────────────────────
-      const spawnRate = inAct1 ? 3 : inAct2 ? 5 : inAct3 ? 2 : 1;
-      for (let s = 0; s < spawnRate; s++) {
-        if (particlesRef.current.length < 400) {
-          particlesRef.current.push(spawnParticle(w, h, elapsed, Math.floor(Math.random() * 3)));
+      // ── Particles (all scenes) ─────────────────────────────────────────
+      const currentScene = inScene1 ? 0 : inScene2 ? 1 : 2;
+      const spawnRate = inScene1 ? 2 : inScene2 ? 3 : inScene3 ? 1 : 0;
+      for (let i = 0; i < spawnRate; i++) {
+        if (particlesRef.current.length < 600) {
+          particlesRef.current.push(makeParticle(w, h, Math.floor(Math.random() * 3), currentScene));
         }
       }
 
-      particlesRef.current = particlesRef.current.filter((p) => p.life < p.maxLife);
+      particlesRef.current = particlesRef.current.filter(p => p.life < p.maxLife);
 
-      particlesRef.current.forEach((p) => {
+      for (const p of particlesRef.current) {
         p.life++;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy -= 0.01; // slight upward drift
+        // Parallax: deeper layers move slower
+        const parallaxFactor = 0.3 + p.layer * 0.35;
+        p.x += p.vx * parallaxFactor;
+        p.y += p.vy * parallaxFactor;
+        p.vy -= 0.008; // gentle upward drift
+
         const lifeT = p.life / p.maxLife;
-        const fadeAlpha = lifeT < 0.1 ? lifeT / 0.1 : lifeT > 0.7 ? 1 - (lifeT - 0.7) / 0.3 : 1;
-        const depthScale = 0.4 + p.layer * 0.3;
-        const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 2);
-        grd.addColorStop(0, `hsla(${p.hue},90%,70%,${p.alpha * fadeAlpha * depthScale})`);
-        grd.addColorStop(1, `hsla(${p.hue},90%,70%,0)`);
+        const fadeIn = smoothstep(0, 0.15, lifeT);
+        const fadeOut = 1 - smoothstep(0.7, 1, lifeT);
+        const a = p.alpha * fadeIn * fadeOut;
+
+        if (a < 0.01) continue;
+
+        const r = p.radius * (1 + p.layer * 0.3);
+        const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.5);
+        grd.addColorStop(0, `hsla(${p.hue},${p.sat}%,${p.light}%,${a})`);
+        grd.addColorStop(0.4, `hsla(${p.hue},${p.sat}%,${p.light}%,${a * 0.4})`);
+        grd.addColorStop(1, `hsla(${p.hue},${p.sat}%,${p.light}%,0)`);
         ctx.fillStyle = grd;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius * 2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r * 2.5, 0, Math.PI * 2);
         ctx.fill();
-      });
-
-      // ── Film grain ────────────────────────────────────────────────────
-      if (!inAct1) {
-        const grainAlpha = 0.025;
-        const grainSize = 1.5;
-        const grainCount = Math.floor((w * h) / 3000);
-        ctx.fillStyle = `rgba(255,255,255,${grainAlpha})`;
-        for (let g = 0; g < grainCount; g++) {
-          ctx.fillRect(
-            Math.random() * w,
-            Math.random() * h,
-            grainSize,
-            grainSize
-          );
-        }
       }
 
-      // ── React state updates for overlay elements ──────────────────────
-
-      // Genre reveals (act 3)
-      if (inAct3) {
-        const act3T = (elapsed - ACT_TIMES.act2End) / (ACT_TIMES.act3End - ACT_TIMES.act2End);
-        const idx = Math.floor(act3T * GENRE_LABELS.length);
-        setGenreIndex(Math.min(idx, GENRE_LABELS.length - 1));
+      // ── Film grain (subtle) ────────────────────────────────────────────
+      const grainCount = Math.floor(w * h / 5000);
+      ctx.fillStyle = "rgba(255,255,255,0.018)";
+      for (let g = 0; g < grainCount; g++) {
+        ctx.fillRect(Math.random() * w, Math.random() * h, 1.2, 1.2);
       }
 
-      // Logo alpha (act 4)
-      if (inAct4) {
-        const act4T = (elapsed - ACT_TIMES.act3End) / (ACT_TIMES.act4End - ACT_TIMES.act3End);
-        setLogoAlpha(easeOutExpo(clamp(act4T * 2, 0, 1)));
-        setGlowSweep(clamp(act4T, 0, 1));
+      // ── Depth vignette ─────────────────────────────────────────────────
+      const vigGrd = ctx.createRadialGradient(w * 0.5, h * 0.5, w * 0.25, w * 0.5, h * 0.5, w * 0.75);
+      vigGrd.addColorStop(0, "rgba(0,0,0,0)");
+      vigGrd.addColorStop(1, "rgba(0,0,0,0.5)");
+      ctx.fillStyle = vigGrd;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.restore(); // camera transform
+
+      // ── Phase transitions ──────────────────────────────────────────────
+      if (elapsed >= SCENE_3_END && phase !== "hold") {
+        setPhase("hold");
+        setTimeout(() => setCTAVisible(true), 800);
       }
 
-      // CTA (act 5)
-      if (inAct5 && !showCTA) {
-        setShowCTA(true);
-        setTimeout(() => setCtaVisible(true), 200);
+      if (elapsed < HOLD_END + 5000) {
+        rafRef.current = requestAnimationFrame(draw);
       }
-
-      // Auto-complete after full duration
-      if (elapsed >= TOTAL_DURATION + 2000 && !completedRef.current) {
-        completedRef.current = true;
-        handleComplete();
-      }
-
-      rafRef.current = requestAnimationFrame(draw);
     }
 
     rafRef.current = requestAnimationFrame(draw);
@@ -501,229 +672,139 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Complete handler ──────────────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
-  const handleComplete = useCallback(() => {
-    if (completedRef.current && !skipped) return;
-    completedRef.current = true;
-    cancelAnimationFrame(rafRef.current);
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close().catch(() => {});
-    }
-    onComplete();
-  }, [onComplete, skipped]);
-
-  const handleSkip = useCallback(() => {
-    setSkipped(true);
-    completedRef.current = true;
-    cancelAnimationFrame(rafRef.current);
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close().catch(() => {});
-    }
-    onComplete();
-  }, [onComplete]);
-
-  const handleCTAClick = useCallback(() => {
+  const handleInteraction = useCallback(() => { startAudio(); }, [startAudio]);
+  const handleCTA = useCallback(() => {
     startAudio();
     mp.heroCTAClicked();
-    handleComplete();
-  }, [startAudio, handleComplete]);
-
-  const handleInteraction = useCallback(() => {
-    startAudio();
-  }, [startAudio]);
-
-  // ── Genre label positions (in-scene, not flat overlay) ────────────────────
-
-  const genrePositions = [
-    { x: "20%", y: "65%", rotate: "-2deg" },
-    { x: "50%", y: "72%", rotate: "0deg" },
-    { x: "72%", y: "62%", rotate: "2deg" },
-  ];
+    finish();
+  }, [startAudio, finish]);
+  const handleSkip = useCallback(() => { finish(); }, [finish]);
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black overflow-hidden"
+      className="fixed inset-0 z-[9999] bg-black overflow-hidden cursor-pointer"
       onClick={handleInteraction}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleInteraction(); }}
       role="presentation"
       aria-label="WizVid cinematic intro"
     >
-      {/* Canvas: full-screen cinematic render */}
+      {/* 4K Canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
         aria-hidden="true"
       />
 
-      {/* Overlay: genre labels (act 3) */}
-      {genreIndex >= 0 && genreIndex < GENRE_LABELS.length && (
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          {GENRE_LABELS.slice(0, genreIndex + 1).map((label, i) => (
-            <div
-              key={label}
-              className="absolute"
-              style={{
-                left: genrePositions[i].x,
-                top: genrePositions[i].y,
-                transform: `translateX(-50%) rotate(${genrePositions[i].rotate})`,
-                opacity: i === genreIndex ? 1 : 0.55,
-                transition: "opacity 0.4s ease",
-              }}
-            >
-              <span
-                className="font-black tracking-[0.15em] uppercase"
-                style={{
-                  fontSize: "clamp(1rem, 2.5vw, 1.6rem)",
-                  color: i === 0 ? "rgba(255,180,80,0.9)" : i === 1 ? "rgba(80,220,180,0.9)" : "rgba(180,100,255,0.9)",
-                  textShadow: `0 0 30px ${i === 0 ? "rgba(255,150,0,0.6)" : i === 1 ? "rgba(0,200,160,0.6)" : "rgba(160,80,255,0.6)"}`,
-                  letterSpacing: "0.2em",
-                  animation: "genreReveal 0.5s cubic-bezier(0.22,1,0.36,1) forwards",
-                }}
-              >
-                {label}
-              </span>
-            </div>
-          ))}
-        </div>
+      {/* Impact flash overlay */}
+      {impactFlash > 0 && (
+        <div
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{
+            background: `radial-gradient(circle at 50% 45%, rgba(200,150,255,${impactFlash * 0.5}), rgba(255,255,255,${impactFlash * 0.2}) 30%, transparent 70%)`,
+          }}
+        />
       )}
 
-      {/* Overlay: logo reveal (act 4+) */}
+      {/* Logo overlay (Scene 3 + Hold) */}
       {logoAlpha > 0 && (
         <div
-          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-          aria-hidden="true"
+          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20"
           style={{ opacity: logoAlpha }}
         >
-          {/* Glow sweep effect */}
-          <div
-            className="absolute inset-0"
+          <h1
+            className="font-black tracking-[0.35em] uppercase select-none"
             style={{
-              background: `linear-gradient(105deg, transparent ${(glowSweep * 120 - 20)}%, rgba(180,100,255,0.12) ${glowSweep * 120}%, rgba(255,255,255,0.06) ${glowSweep * 120 + 5}%, transparent ${glowSweep * 120 + 25}%)`,
-              transition: "background 0.05s linear",
+              fontSize: "clamp(3.5rem, 12vw, 10rem)",
+              background: "linear-gradient(135deg, #e2d9f3 0%, #c084fc 35%, #f0abfc 65%, #e2d9f3 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: `drop-shadow(0 0 ${50 * logoAlpha}px rgba(192,132,252,0.9)) drop-shadow(0 0 ${100 * logoAlpha}px rgba(192,132,252,0.4))`,
+              transform: `scale(${1 + (1 - logoAlpha) * 0.12})`,
+              transition: "transform 0.15s ease-out",
             }}
-          />
-          {/* Logo text */}
-          <div className="relative flex flex-col items-center gap-3">
-            <h1
-              className="font-black tracking-[0.3em] uppercase"
-              style={{
-                fontSize: "clamp(3rem, 10vw, 8rem)",
-                background: "linear-gradient(135deg, #e2d9f3 0%, #c084fc 40%, #f0abfc 70%, #e2d9f3 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                textShadow: "none",
-                filter: `drop-shadow(0 0 ${40 * logoAlpha}px rgba(192,132,252,0.8)) drop-shadow(0 0 ${80 * logoAlpha}px rgba(192,132,252,0.4))`,
-                transform: `scale(${1 + (1 - logoAlpha) * 0.08})`,
-                transition: "transform 0.1s ease",
-              }}
-            >
-              WIZVID
-            </h1>
-            <p
-              className="font-semibold tracking-[0.25em] uppercase"
-              style={{
-                fontSize: "clamp(0.6rem, 1.5vw, 0.9rem)",
-                color: "rgba(200,160,255,0.7)",
-                letterSpacing: "0.3em",
-                opacity: logoAlpha,
-              }}
-            >
-              Powered by WizSound™
-            </p>
-          </div>
+          >
+            WIZVID
+          </h1>
+          <p
+            className="mt-3 font-semibold tracking-[0.3em] uppercase select-none"
+            style={{
+              fontSize: "clamp(0.65rem, 1.8vw, 1rem)",
+              color: `rgba(200,160,255,${0.8 * logoAlpha})`,
+              letterSpacing: "0.35em",
+            }}
+          >
+            Cinematic AI Video Creation
+          </p>
+          <p
+            className="mt-1 font-medium tracking-[0.2em] uppercase select-none"
+            style={{
+              fontSize: "clamp(0.5rem, 1.2vw, 0.7rem)",
+              color: `rgba(180,140,240,${0.5 * logoAlpha})`,
+              letterSpacing: "0.25em",
+            }}
+          >
+            Powered by WizSound™
+          </p>
         </div>
       )}
 
-      {/* Overlay: CTA (act 5) */}
-      {showCTA && (
+      {/* CTA (Hold phase) */}
+      {ctaVisible && (
         <div
-          className="absolute inset-0 flex flex-col items-center justify-center gap-8"
+          className="absolute inset-0 flex flex-col items-center justify-end pb-[15vh] z-30"
           style={{
             opacity: ctaVisible ? 1 : 0,
-            transition: "opacity 0.8s ease",
+            animation: "fadeInUp 0.8s ease forwards",
           }}
         >
-          {/* Logo (persistent) */}
-          <div className="flex flex-col items-center gap-2">
-            <h1
-              className="font-black tracking-[0.3em] uppercase"
-              style={{
-                fontSize: "clamp(3rem, 10vw, 8rem)",
-                background: "linear-gradient(135deg, #e2d9f3 0%, #c084fc 40%, #f0abfc 70%, #e2d9f3 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                filter: "drop-shadow(0 0 40px rgba(192,132,252,0.8)) drop-shadow(0 0 80px rgba(192,132,252,0.4))",
-              }}
-            >
-              WIZVID
-            </h1>
-            <p
-              className="font-semibold tracking-[0.25em] uppercase"
-              style={{
-                fontSize: "clamp(0.6rem, 1.5vw, 0.9rem)",
-                color: "rgba(200,160,255,0.7)",
-                letterSpacing: "0.3em",
-              }}
-            >
-              Powered by WizSound™
-            </p>
-          </div>
-
-          {/* CTA button */}
           <button
-            onClick={handleCTAClick}
+            onClick={handleCTA}
             aria-label="Start Creating with WizVid"
-            className="group relative inline-flex items-center gap-3 px-10 py-5 rounded-2xl font-bold text-black overflow-hidden"
+            className="group relative inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-bold text-black overflow-hidden"
             style={{
-              fontSize: "clamp(1rem, 2vw, 1.2rem)",
+              fontSize: "clamp(1rem, 2.2vw, 1.25rem)",
               background: "linear-gradient(135deg, #e2d9f3, #c084fc, #f0abfc)",
               boxShadow: "0 0 60px rgba(192,132,252,0.5), 0 0 120px rgba(192,132,252,0.2)",
-              letterSpacing: "0.05em",
+              letterSpacing: "0.08em",
             }}
           >
-            {/* Shimmer */}
             <span
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{
-                background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%)",
-                animation: "shimmer 1.5s infinite",
+                background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
+                animation: "shimmer 2s infinite",
               }}
             />
             <span className="relative z-10">Start Creating</span>
-            <span className="relative z-10 text-xl">→</span>
+            <span className="relative z-10 text-xl transition-transform group-hover:translate-x-1">→</span>
           </button>
-
-          <p
-            className="text-white/30 text-sm font-medium tracking-wide"
-            style={{ letterSpacing: "0.1em" }}
-          >
+          <p className="mt-4 text-white/25 text-sm font-medium tracking-widest uppercase">
             No credit card required
           </p>
         </div>
       )}
 
-      {/* Skip button (always visible after 1s) */}
+      {/* Skip button */}
       <button
         onClick={handleSkip}
         aria-label="Skip intro"
-        className="absolute top-6 right-6 z-50 px-4 py-2 rounded-full text-white/30 hover:text-white/70 text-sm font-medium border border-white/10 hover:border-white/25 bg-black/20 backdrop-blur-sm transition-all duration-300"
-        style={{ letterSpacing: "0.05em" }}
+        className="absolute top-6 right-6 z-50 px-5 py-2.5 rounded-full text-white/25 hover:text-white/60 text-sm font-medium border border-white/8 hover:border-white/20 bg-black/20 backdrop-blur-sm transition-all duration-300"
+        style={{ letterSpacing: "0.06em" }}
       >
         Skip →
       </button>
 
-      {/* CSS keyframes */}
+      {/* Keyframes */}
       <style>{`
-        @keyframes genreReveal {
-          from { opacity: 0; transform: translateX(-50%) translateY(12px) rotate(var(--rotate, 0deg)); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0)    rotate(var(--rotate, 0deg)); }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes shimmer {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
+          0%   { transform: translateX(-150%); }
+          100% { transform: translateX(250%); }
         }
       `}</style>
     </div>

@@ -2515,3 +2515,13 @@
 - [ ] Update RenderPaywallModal render tiers to match
 - [ ] Update products.ts Stripe price references
 - [ ] Update pricing page render tier display
+
+## V2 Cinematic Intro Rebuild
+- [x] Render Canvas at 4K (3840×2160) with devicePixelRatio scaling
+- [x] Continuous camera movement (push-in, pan, parallax) — no static frames
+- [x] Scene morphing transitions (zoom/particle/light) — no hard cuts
+- [x] Reduce to 3 immersive scenes, each longer
+- [x] Impact moment at logo reveal (bass hit + visual pulse + camera push-in)
+- [x] Enhanced cinematic audio (low rumble → rising tension → impact → reverb tail)
+- [x] Hold final frame 2–3s with WIZVID + "Cinematic AI Video Creation" + Start Creating CTA
+- [x] IMAX lighting, depth layers, particles, motion blur, high contrast
