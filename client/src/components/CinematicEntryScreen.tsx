@@ -26,11 +26,13 @@ interface Props {
  *
  * Stage 0 (0–800ms):      Black screen + subtle glow pulse
  * Stage 1 (800–4000ms):   3 cinematic clips, each 1s with 300ms cross-fade
- * Stage 2 (4000–5800ms):  Genre text — MUSIC VIDEOS / CINEMATIC FILMS / PIXAR ANIMATION (fade in/out)
- * Stage 3 (5800ms+):      Logo reveal — slow bloom, WizSound™, "Enter Site →" CTA
+ *   → Signature moment at ~70% (5200ms): slow-zoom + audio dip on clip 3
+ * Stage 2 (4000–5800ms):  Genre text — MUSIC VIDEOS / CINEMATIC FILMS / PIXAR ANIMATION
+ *   → Micro silence before logo hit (6200–6400ms)
+ * Stage 3 (6400ms+):      Logo reveal — slow bloom, WizSound™ stereo pulse, CTA
  *
- * Total: ~7 seconds before user can click CTA.
- * NO auto-dismiss — user must click "Enter Site →".
+ * Total: ~7.8 seconds before user can click CTA.
+ * NO auto-dismiss — user must click CTA.
  */
 export default function CinematicEntryScreen({ onComplete }: Props) {
   // Stage
@@ -39,6 +41,9 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   // Clip state
   const [clipIndex, setClipIndex] = useState(0);
   const [clipVisible, setClipVisible] = useState(false);
+
+  // Signature moment: slow-zoom on clip 3 at ~70%
+  const [signatureZoom, setSignatureZoom] = useState(false);
 
   // Category text state
   const [catIndex, setCatIndex] = useState(0);
@@ -49,9 +54,16 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const [wizsoundVisible, setWizsoundVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
+  // WizSound stereo pulse animation
+  const [wizsoundPulse, setWizsoundPulse] = useState(false);
+
   const [soundButtonVisible, setSoundButtonVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioUnlockedRef = useRef(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+  const lfoRef = useRef<OscillatorNode | null>(null);
+  const lfoGainRef = useRef<GainNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
 
   // Use global audio context
   const { isMuted, unmute: globalUnmute, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
@@ -84,8 +96,80 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     return () => {
       unregisterAudioElement("cinematic-entry");
       releaseAudioFocus("cinematic-entry");
+      // Cleanup Web Audio nodes
+      if (lfoRef.current) { try { lfoRef.current.stop(); } catch { /* noop */ } }
+      if (audioCtxRef.current) { try { audioCtxRef.current.close(); } catch { /* noop */ } }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Setup Web Audio graph for rhythmic pulse ─────────────────────────── */
+  const setupWebAudio = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || audioCtxRef.current) return; // Already set up
+
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioCtxRef.current = ctx;
+
+      // Source node from the audio element
+      const source = ctx.createMediaElementSource(audio);
+      sourceNodeRef.current = source;
+
+      // Main gain node (controls overall volume)
+      const mainGain = ctx.createGain();
+      mainGain.gain.value = 0.9;
+      gainNodeRef.current = mainGain;
+
+      // LFO for rhythmic pulse (2Hz = 2 beats/sec, subtle depth)
+      const lfo = ctx.createOscillator();
+      lfo.type = "sine";
+      lfo.frequency.value = 1.8; // ~1.8 pulses per second
+      lfoRef.current = lfo;
+
+      const lfoGain = ctx.createGain();
+      lfoGain.gain.value = 0.04; // Very subtle — 4% amplitude modulation
+      lfoGainRef.current = lfoGain;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(mainGain.gain);
+
+      // Connect: source → mainGain → destination
+      source.connect(mainGain);
+      mainGain.connect(ctx.destination);
+
+      lfo.start();
+    } catch {
+      // Web Audio not supported — fall back to plain audio element
+    }
+  }, []);
+
+  /* ── Audio dip for signature moment ──────────────────────────────────── */
+  const audioDip = useCallback((targetGain: number, durationMs: number) => {
+    const ctx = audioCtxRef.current;
+    const gain = gainNodeRef.current;
+    if (!ctx || !gain) {
+      // Fallback: directly set audio volume
+      const audio = audioRef.current;
+      if (audio) audio.volume = targetGain;
+      return;
+    }
+    gain.gain.setTargetAtTime(targetGain, ctx.currentTime, durationMs / 1000 / 3);
+  }, []);
+
+  /* ── Logo impact hit — strong gain spike ─────────────────────────────── */
+  const logoImpactHit = useCallback(() => {
+    const ctx = audioCtxRef.current;
+    const gain = gainNodeRef.current;
+    if (!ctx || !gain) {
+      const audio = audioRef.current;
+      if (audio) { audio.volume = 1.0; }
+      return;
+    }
+    // Spike to 1.2 (louder than normal) then settle to 0.9
+    gain.gain.cancelScheduledValues(ctx.currentTime);
+    gain.gain.setValueAtTime(1.2, ctx.currentTime);
+    gain.gain.setTargetAtTime(0.9, ctx.currentTime + 0.05, 0.3);
+  }, []);
 
   // Sync global mute state to local audio element
   useEffect(() => {
@@ -100,7 +184,12 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         audio.currentTime = 0;
         audio.volume = 0;
         requestAudioFocus("cinematic-entry");
+        setupWebAudio();
         audio.play().then(() => {
+          // Resume AudioContext if suspended (browser policy)
+          if (audioCtxRef.current?.state === "suspended") {
+            audioCtxRef.current.resume().catch(() => {});
+          }
           let vol = 0;
           const fadeIn = setInterval(() => {
             vol = Math.min(0.9, vol + 0.03);
@@ -108,14 +197,18 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
             if (vol >= 0.9) clearInterval(fadeIn);
           }, 60);
         }).catch(() => {});
+      } else {
+        // Audio already playing — resume AudioContext if needed
+        if (audioCtxRef.current?.state === "suspended") {
+          audioCtxRef.current.resume().catch(() => {});
+        }
       }
     }
-  }, [isMuted, requestAudioFocus]);
+  }, [isMuted, requestAudioFocus, setupWebAudio]);
 
   /* ── Master timeline ─────────────────────────────────────────────────── */
   useEffect(() => {
     // ── Stage 0: black glow (0–800ms) ──
-    // Nothing to do — black screen with CSS glow pulse
 
     // ── Stage 1: cinematic clips ──
     // Clip 1 (800ms): cinematic film
@@ -139,6 +232,13 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       setClipVisible(true);
     }, 3400);
 
+    // ── SIGNATURE MOMENT at ~70% (5000ms) ──
+    // Slow-zoom on clip 3 + audio dip
+    addTimer(() => {
+      setSignatureZoom(true);
+      audioDip(0.45, 600); // Dip audio to 45%
+    }, 5000);
+
     // ── Stage 2: genre text (4000ms) ──
     addTimer(() => setClipVisible(false), 3900);
     addTimer(() => {
@@ -155,16 +255,25 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     addTimer(() => setCatVisible(false), 5500);
     // PIXAR ANIMATION → fade in
     addTimer(() => { setCatIndex(2); setCatVisible(true); }, 5700);
-    // → fade out
-    addTimer(() => setCatVisible(false), 6200);
+    // → fade out + micro silence begins (200ms silence before logo hit)
+    addTimer(() => {
+      setCatVisible(false);
+      audioDip(0, 200); // Micro silence — drop to 0
+    }, 6100);
 
-    // ── Stage 3: logo reveal (6400ms) ──
+    // ── Stage 3: logo reveal (6400ms) — strong cinematic hit ──
     addTimer(() => {
       setStage(3);
+      setSignatureZoom(false);
       setSoundButtonVisible(true);
+      logoImpactHit(); // Strong gain spike at logo reveal
     }, 6400);
     addTimer(() => setLogoVisible(true), 6600);
-    addTimer(() => setWizsoundVisible(true), 7200);
+    addTimer(() => {
+      setWizsoundVisible(true);
+      // Start WizSound stereo pulse animation
+      setWizsoundPulse(true);
+    }, 7200);
     addTimer(() => setCtaVisible(true), 7800);
 
     // NO auto-dismiss — user must click CTA
@@ -174,13 +283,6 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       timersRef.current = [];
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* ── Enable sound — uses global audio context ─────────────────────── */
-  const enableSound = useCallback(() => {
-    if (!isMuted) return; // Already unmuted
-    requestAudioFocus("cinematic-entry");
-    globalUnmute();
-  }, [isMuted, globalUnmute, requestAudioFocus]);
 
   /* ── Keyboard skip (only at logo stage) ─────────────────────────────── */
   useEffect(() => {
@@ -221,6 +323,9 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const currentClip = CLIPS[clipIndex];
   const currentCat  = CATS[catIndex];
 
+  // WizSound EQ bars — left-to-right wave pattern for stereo widening feel
+  const EQ_BARS = [0.35, 0.55, 0.75, 0.95, 1.0, 0.9, 0.7, 0.5, 0.3];
+
   return (
     <div
       className="fixed inset-0 overflow-hidden select-none"
@@ -248,7 +353,6 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           transition: "opacity 600ms ease-out",
         }}
       >
-        {/* Subtle radial glow pulse */}
         <div
           style={{
             width: 320,
@@ -269,13 +373,17 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           transition: stage === 1 ? "opacity 500ms ease-in" : "opacity 400ms ease-out",
         }}
       >
-        {/* Clip image with smooth cross-fade */}
+        {/* Clip image with smooth cross-fade + signature zoom */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url(${currentClip.src})`,
             opacity: clipVisible ? 1 : 0,
-            transition: "opacity 300ms ease-in-out",
+            // Signature moment: slow zoom in on clip 3
+            transform: signatureZoom && clipIndex === 2 ? "scale(1.09)" : "scale(1)",
+            transition: signatureZoom && clipIndex === 2
+              ? "opacity 300ms ease-in-out, transform 1800ms cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+              : "opacity 300ms ease-in-out, transform 300ms ease",
             filter: "brightness(0.72) saturate(1.2)",
           }}
         />
@@ -284,7 +392,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         {/* Vignette */}
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%)" }} />
         {/* Subtle purple bloom */}
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 60%, rgba(109,40,217,0.12) 0%, transparent 60%)" }} />
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 40%, rgba(109,40,217,0.12) 0%, transparent 60%)" }} />
 
         {/* Clip label — bottom left */}
         <div
@@ -297,6 +405,17 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         <div className="absolute top-[8vh] right-8 text-white/25 font-mono text-xs tracking-widest">
           {String(clipIndex + 1).padStart(2, "0")} / 03
         </div>
+
+        {/* Signature moment overlay: subtle dark vignette during zoom */}
+        {signatureZoom && clipIndex === 2 && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(0,0,0,0.45) 100%)",
+              animation: "signatureVignette 1.8s ease-in forwards",
+            }}
+          />
+        )}
       </div>
 
       {/* ── STAGE 2: GENRE TEXT ──────────────────────────────────────────── */}
@@ -382,6 +501,16 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           backgroundImage: "radial-gradient(circle at 15% 85%, rgba(139,92,246,0.12) 0%, transparent 40%), radial-gradient(circle at 85% 15%, rgba(217,70,239,0.08) 0%, transparent 40%)",
         }} />
 
+        {/* Logo impact flash — white bloom that fades quickly */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.08) 0%, transparent 55%)",
+            opacity: logoVisible ? 0 : 1,
+            transition: "opacity 600ms ease-out",
+          }}
+        />
+
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center gap-6 px-8 text-center">
           {/* Logo */}
@@ -411,7 +540,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
             }}
           />
 
-          {/* WizSound™ badge */}
+          {/* WizSound™ badge — with stereo widening pulse */}
           <div
             style={{
               opacity: wizsoundVisible ? 1 : 0,
@@ -431,24 +560,42 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
               >
                 POWERED BY
               </span>
-              <span
-                style={{
-                  fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  background: "linear-gradient(135deg, #c084fc, #e879f9)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  filter: "drop-shadow(0 0 16px rgba(192,132,252,0.5))",
-                  fontFamily: "'Inter', sans-serif",
-                }}
-              >
-                WizSound™
-              </span>
-              {/* Animated EQ waveform */}
-              <div className="flex items-center gap-[3px]" style={{ height: 18 }}>
-                {[0.4, 0.7, 1.0, 0.8, 0.5, 0.9, 0.6, 0.85, 0.45].map((h, i) => (
+              {/* WizSound™ label with stereo sweep animation */}
+              <div style={{ position: "relative", overflow: "hidden", borderRadius: 4 }}>
+                <span
+                  style={{
+                    fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    background: "linear-gradient(135deg, #c084fc, #e879f9)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    filter: "drop-shadow(0 0 16px rgba(192,132,252,0.5))",
+                    fontFamily: "'Inter', sans-serif",
+                    display: "block",
+                    animation: wizsoundPulse ? "wizsoundGlow 1.4s ease-in-out infinite alternate" : "none",
+                  }}
+                >
+                  WizSound™
+                </span>
+                {/* Stereo sweep: left-to-right shimmer */}
+                {wizsoundPulse && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(90deg, transparent 0%, rgba(192,132,252,0.35) 40%, rgba(236,72,153,0.25) 60%, transparent 100%)",
+                      animation: "stereoSweep 1.8s ease-in-out infinite",
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* EQ bars — left-to-right wave for stereo widening effect */}
+              <div className="flex items-center gap-[3px]" style={{ height: 20 }}>
+                {EQ_BARS.map((h, i) => (
                   <div
                     key={i}
                     style={{
@@ -456,12 +603,37 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
                       height: `${h * 100}%`,
                       background: `linear-gradient(to top, #7c3aed, #ec4899)`,
                       borderRadius: 2,
-                      animation: `eqBar ${0.6 + i * 0.07}s ease-in-out infinite alternate`,
-                      animationDelay: `${i * 0.08}s`,
+                      // Left-to-right wave: bars on the left animate faster, right slower
+                      animation: wizsoundPulse
+                        ? `eqBarStereo ${0.5 + i * 0.06}s ease-in-out infinite alternate`
+                        : `eqBar ${0.6 + i * 0.07}s ease-in-out infinite alternate`,
+                      animationDelay: `${i * 0.06}s`,
+                      // Stereo widening: outer bars are slightly brighter
+                      opacity: i === 0 || i === EQ_BARS.length - 1 ? 1 : 0.75 + (i / EQ_BARS.length) * 0.25,
                     }}
                   />
                 ))}
               </div>
+
+              {/* Stereo width indicator — subtle L/R labels */}
+              {wizsoundPulse && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    maxWidth: 80,
+                    fontSize: "0.55rem",
+                    letterSpacing: "0.15em",
+                    color: "rgba(192,132,252,0.4)",
+                    fontFamily: "'Inter', monospace",
+                    animation: "stereoLabels 1.8s ease-in-out infinite",
+                  }}
+                >
+                  <span>L</span>
+                  <span>R</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -500,10 +672,10 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
                 (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
               }}
               id="enter-site-btn"
-              aria-label="Enter WizVid Studio"
+              aria-label="Create Your First Cinematic Video"
             >
               <span className="relative z-10 flex items-center gap-2">
-                ▶ Enter WizVid Studio
+                Create Your First Cinematic Video
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -606,6 +778,11 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           from { transform: scaleY(0.3); }
           to   { transform: scaleY(1);   }
         }
+        @keyframes eqBarStereo {
+          0%   { transform: scaleY(0.2); }
+          50%  { transform: scaleY(1.1); }
+          100% { transform: scaleY(0.4); }
+        }
         @keyframes shimmerSweep {
           0%   { transform: translateX(-100%); }
           60%  { transform: translateX(100%); }
@@ -615,7 +792,27 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
           0%, 100% { opacity: 0.7; }
           50%       { opacity: 1;   }
         }
+        @keyframes signatureVignette {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes wizsoundGlow {
+          from { filter: drop-shadow(0 0 12px rgba(192,132,252,0.4)); }
+          to   { filter: drop-shadow(0 0 28px rgba(236,72,153,0.7)) drop-shadow(0 0 8px rgba(192,132,252,0.6)); }
+        }
+        @keyframes stereoSweep {
+          0%   { transform: translateX(-120%); opacity: 0; }
+          20%  { opacity: 1; }
+          80%  { opacity: 1; }
+          100% { transform: translateX(120%); opacity: 0; }
+        }
+        @keyframes stereoLabels {
+          0%, 100% { opacity: 0.4; }
+          50%       { opacity: 0.8; }
+        }
       `}</style>
     </div>
   );
 }
+
+
