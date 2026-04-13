@@ -3097,3 +3097,15 @@
 - [ ] Solution: Replace Link with button + onClick + useLocation navigation
 - [ ] Replace all Link components in Home.tsx with button elements
 - [ ] Test all nav links and CTAs on Chrome after fix
+
+## Cinematic Intro Rebuild
+- [ ] Process all video clips with unified cinematic colour grade (FFmpeg)
+- [ ] Upload all graded clips and WizVid logo to CDN
+- [ ] Build CinematicHeroIntro component: crossfading video loop (Pixar, singer, band, cinematic, creator)
+- [ ] Add WizVid logo overlay (mix-blend-mode: screen for clean display over video)
+- [ ] Add sound toggle (auto-play muted, user can enable)
+- [x] Add strapline "Create without limits" (3–6s, fade in/out, centred, white with glow)
+- [x] Add strapline "See it. Hear it. Feel it" (9–12s, fade in/out, centred, white with glow)
+- [x] Add strapline "From imagination to immersion" (15–18s, fade in/out, centred, white with glow)
+- [x] Ensure CTA button always clickable (pointer-events on overlays)
+- [ ] Wire CinematicHeroIntro into App.tsx replacing old WizVidIntro
