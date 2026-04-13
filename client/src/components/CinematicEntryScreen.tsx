@@ -59,6 +59,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
 
   const [soundButtonVisible, setSoundButtonVisible] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
+  const [skipVisible, setSkipVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
@@ -106,8 +107,12 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       setSoundButtonVisible(true);
     }, 800);
 
+    // Show skip button after 3 seconds
+    const skipTimer = setTimeout(() => setSkipVisible(true), 3000);
+
     return () => {
       clearTimeout(startTimer);
+      clearTimeout(skipTimer);
       unregisterAudioElement("cinematic-entry");
       releaseAudioFocus("cinematic-entry");
       // Cleanup Web Audio nodes
@@ -780,28 +785,41 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         </button>
       )}
 
-      {/* ── SKIP (always visible, subtle) ────────────────────────────────── */}
+      {/* ── SKIP INTRO (appears after 3s) ───────────────────────────────── */}
       <button
         onClick={dismiss}
-        className="absolute top-[7vh] right-6 z-50 flex items-center gap-1.5 text-white/25 hover:text-white/60 transition-colors"
+        className="absolute top-[7vh] right-6 z-50 flex items-center gap-1.5 transition-all"
         style={{
-          fontSize: "0.7rem",
-          letterSpacing: "0.15em",
+          fontSize: "0.72rem",
+          letterSpacing: "0.12em",
           fontFamily: "'Inter', sans-serif",
-          background: "none",
-          border: "none",
+          background: "rgba(255,255,255,0.06)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 20,
+          color: "rgba(255,255,255,0.55)",
           cursor: "pointer",
-          padding: "8px 4px",
+          padding: "8px 16px",
+          opacity: skipVisible ? 1 : 0,
+          transform: skipVisible ? "translateY(0)" : "translateY(-6px)",
+          transition: "opacity 500ms ease, transform 500ms ease, color 200ms ease, background 200ms ease",
+          pointerEvents: skipVisible ? "auto" : "none",
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.9)";
+          (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)";
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.55)";
+          (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
         }}
         aria-label="Skip intro"
       >
-        SKIP
+        Skip Intro
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
           <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-      </button>
-
-      {/* ── KEYFRAME STYLES ──────────────────────────────────────────────── */}
+      </button>      {/* ── KEYFRAME STYLES ──────────────────────────────────────────────── */}
       <style>{`
         @keyframes glowPulse {
           from { opacity: 0.4; transform: scale(0.95); }
