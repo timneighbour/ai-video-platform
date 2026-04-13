@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { mp } from "@/lib/mixpanel";
+import CinematicIntroSequence from "@/components/CinematicIntroSequence";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
@@ -2019,10 +2020,22 @@ function Footer() {
     </footer>
   );
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Page ────────────────────────────────────────────────────────────────────────────────
 export default function Home() {
   useReveal();
+  const [introComplete, setIntroComplete] = useState(false);
+
+  // Skip intro if user has already seen it this session
+  const hasSeenIntro = typeof sessionStorage !== "undefined" && sessionStorage.getItem("wizvid_intro_seen") === "1";
+
+  const handleIntroComplete = useCallback(() => {
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem("wizvid_intro_seen", "1");
+    setIntroComplete(true);
+  }, []);
+
+  if (!introComplete && !hasSeenIntro) {
+    return <CinematicIntroSequence onComplete={handleIntroComplete} />;
+  }
 
   return (
     <div className="bg-[#0f0f0f] text-white min-h-screen overflow-x-hidden">
