@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight } from "lucide-react";
+import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones } from "lucide-react";
 import { useLocation } from "wouter";
 
-/* ── CDN audio sources (real FFmpeg-processed) ─────────────────────────── */
-const AUDIO_STANDARD  = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-15s_bdeb12bf.mp3";
-const AUDIO_CINEMATIC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-cinematic-15s_16e465c3.mp3";
+/* ── CDN audio sources (dramatically different processing) ─────────────── */
+const AUDIO_STANDARD =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-standard_b82962e7.mp3";
+const AUDIO_CINEMATIC =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-wizsound-cinematic_5e57de05.mp3";
 
 /* ── Real-time frequency waveform (Web Audio API) ──────────────────────── */
 function FrequencyWaveform({
@@ -62,7 +64,6 @@ function FrequencyWaveform({
       const step = Math.max(1, Math.floor(bufferLength / BAR_COUNT));
 
       for (let i = 0; i < BAR_COUNT; i++) {
-        // Average a range of frequency bins for each bar
         let sum = 0;
         for (let j = 0; j < step; j++) {
           sum += data[i * step + j] || 0;
@@ -74,7 +75,6 @@ function FrequencyWaveform({
         const y = H / 2 - h / 2;
 
         if (wizsound) {
-          // Fuchsia/violet gradient with glow
           const grad = ctx.createLinearGradient(x, y + h, x, y);
           grad.addColorStop(0, "rgba(217,70,239,0.95)");
           grad.addColorStop(0.5, "rgba(168,85,247,0.85)");
@@ -83,7 +83,6 @@ function FrequencyWaveform({
           ctx.shadowColor = "rgba(217,70,239,0.5)";
           ctx.shadowBlur = 6;
         } else {
-          // White/grey
           const grad = ctx.createLinearGradient(x, y + h, x, y);
           grad.addColorStop(0, "rgba(255,255,255,0.15)");
           grad.addColorStop(1, "rgba(255,255,255,0.35)");
@@ -115,19 +114,22 @@ function FrequencyWaveform({
   );
 }
 
-/* ── Audio demo player (real A/B comparison) ───────────────────────────── */
+/* ── Audio demo player (real A/B comparison — dramatic difference) ────── */
 function AudioDemoPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
-  const [wizsound, setWizsound] = useState(true); // Start on cinematic to impress
+  const [wizsound, setWizsound] = useState(true);
   const [muted, setMuted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [switching, setSwitching] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const gainStdRef = useRef<GainNode | null>(null);
+  const gainCinRef = useRef<GainNode | null>(null);
   const audioStdRef = useRef<HTMLAudioElement | null>(null);
   const audioCinRef = useRef<HTMLAudioElement | null>(null);
+  const connectedRef = useRef(false);
   const rafRef = useRef<number>(0);
 
   // Create both audio elements on mount
@@ -136,18 +138,23 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
     std.preload = "auto";
     std.crossOrigin = "anonymous";
     std.loop = true;
-    std.volume = 0;
 
     const cin = new Audio(AUDIO_CINEMATIC);
     cin.preload = "auto";
     cin.crossOrigin = "anonymous";
     cin.loop = true;
-    cin.volume = 0.85;
 
     audioStdRef.current = std;
     audioCinRef.current = cin;
 
+    let loadCount = 0;
+    const onCanPlay = () => { loadCount++; if (loadCount >= 2) setReady(true); };
+    std.addEventListener("canplaythrough", onCanPlay);
+    cin.addEventListener("canplaythrough", onCanPlay);
+
     return () => {
+      std.removeEventListener("canplaythrough", onCanPlay);
+      cin.removeEventListener("canplaythrough", onCanPlay);
       std.pause(); std.src = "";
       cin.pause(); cin.src = "";
       cancelAnimationFrame(rafRef.current);
@@ -157,62 +164,41 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
     };
   }, []);
 
-  // Set up Web Audio API analyser
-  const ensureAudioContext = useCallback(() => {
-    if (audioCtxRef.current) return;
+  // Set up Web Audio graph: both sources → individual gain nodes → analyser → destination
+  // Both play simultaneously; we crossfade gain to switch instantly
+  const ensureAudioGraph = useCallback(() => {
+    if (connectedRef.current) return;
+    const std = audioStdRef.current;
+    const cin = audioCinRef.current;
+    if (!std || !cin) return;
+
     const ctx = new AudioContext();
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 256;
     analyser.smoothingTimeConstant = 0.75;
+
+    const gainStd = ctx.createGain();
+    const gainCin = ctx.createGain();
+
+    // Start with cinematic active
+    gainStd.gain.value = 0;
+    gainCin.gain.value = 0.85;
+
+    const srcStd = ctx.createMediaElementSource(std);
+    const srcCin = ctx.createMediaElementSource(cin);
+
+    srcStd.connect(gainStd);
+    srcCin.connect(gainCin);
+    gainStd.connect(analyser);
+    gainCin.connect(analyser);
+    analyser.connect(ctx.destination);
+
     audioCtxRef.current = ctx;
     analyserRef.current = analyser;
-
-    // Connect the active audio to analyser
-    const activeAudio = wizsound ? audioCinRef.current : audioStdRef.current;
-    if (activeAudio) {
-      const source = ctx.createMediaElementSource(activeAudio);
-      source.connect(analyser);
-      analyser.connect(ctx.destination);
-      sourceRef.current = source;
-    }
-  }, [wizsound]);
-
-  // Switch audio source when toggling Standard/Cinematic
-  const switchMode = useCallback(async (toCinematic: boolean) => {
-    if (toCinematic === wizsound) return;
-    setSwitching(true);
-
-    const oldAudio = toCinematic ? audioStdRef.current : audioCinRef.current;
-    const newAudio = toCinematic ? audioCinRef.current : audioStdRef.current;
-    if (!oldAudio || !newAudio) return;
-
-    const currentTime = oldAudio.currentTime;
-    const wasPlaying = playing;
-
-    // Pause old
-    oldAudio.pause();
-    oldAudio.volume = 0;
-
-    // Disconnect old source, connect new
-    if (audioCtxRef.current && analyserRef.current) {
-      try { sourceRef.current?.disconnect(); } catch { /* ok */ }
-      const newSource = audioCtxRef.current.createMediaElementSource(newAudio);
-      newSource.connect(analyserRef.current);
-      analyserRef.current.connect(audioCtxRef.current.destination);
-      sourceRef.current = newSource;
-    }
-
-    // Sync position and play
-    newAudio.currentTime = currentTime;
-    newAudio.volume = muted ? 0 : 0.85;
-
-    if (wasPlaying) {
-      try { await newAudio.play(); } catch { /* ok */ }
-    }
-
-    setWizsound(toCinematic);
-    setSwitching(false);
-  }, [wizsound, playing, muted]);
+    gainStdRef.current = gainStd;
+    gainCinRef.current = gainCin;
+    connectedRef.current = true;
+  }, []);
 
   // Progress tracker
   const trackProgress = useCallback(() => {
@@ -225,37 +211,83 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
     rafRef.current = requestAnimationFrame(trackProgress);
   }, [wizsound]);
 
+  // Switch mode: instant crossfade via gain nodes (no reconnection needed)
+  const switchMode = useCallback((toCinematic: boolean) => {
+    if (toCinematic === wizsound) return;
+    setSwitching(true);
+
+    const std = audioStdRef.current;
+    const cin = audioCinRef.current;
+    if (!std || !cin) return;
+
+    // Sync playback position
+    if (toCinematic) {
+      cin.currentTime = std.currentTime;
+    } else {
+      std.currentTime = cin.currentTime;
+    }
+
+    // Crossfade gains
+    const vol = muted ? 0 : 0.85;
+    if (gainStdRef.current && gainCinRef.current) {
+      if (toCinematic) {
+        gainStdRef.current.gain.setTargetAtTime(0, audioCtxRef.current!.currentTime, 0.05);
+        gainCinRef.current.gain.setTargetAtTime(vol, audioCtxRef.current!.currentTime, 0.05);
+      } else {
+        gainCinRef.current.gain.setTargetAtTime(0, audioCtxRef.current!.currentTime, 0.05);
+        gainStdRef.current.gain.setTargetAtTime(vol, audioCtxRef.current!.currentTime, 0.05);
+      }
+    }
+
+    setWizsound(toCinematic);
+    setTimeout(() => setSwitching(false), 120);
+  }, [wizsound, muted]);
+
   const togglePlay = useCallback(async () => {
-    ensureAudioContext();
+    ensureAudioGraph();
     if (audioCtxRef.current?.state === "suspended") {
       await audioCtxRef.current.resume();
     }
 
-    const audio = wizsound ? audioCinRef.current : audioStdRef.current;
-    if (!audio) return;
+    const std = audioStdRef.current;
+    const cin = audioCinRef.current;
+    if (!std || !cin) return;
 
     if (playing) {
-      audio.pause();
+      std.pause();
+      cin.pause();
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
     } else {
-      audio.volume = muted ? 0 : 0.85;
+      // Set initial gains
+      if (gainStdRef.current && gainCinRef.current) {
+        const vol = muted ? 0 : 0.85;
+        gainStdRef.current.gain.value = wizsound ? 0 : vol;
+        gainCinRef.current.gain.value = wizsound ? vol : 0;
+      }
+      // Play both simultaneously (one is muted via gain)
       try {
-        await audio.play();
+        await Promise.all([std.play(), cin.play()]);
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
         setPlaying(false);
       }
     }
-  }, [playing, wizsound, muted, trackProgress, ensureAudioContext]);
+  }, [playing, wizsound, muted, trackProgress, ensureAudioGraph]);
 
   const toggleMute = () => {
-    const audio = wizsound ? audioCinRef.current : audioStdRef.current;
-    if (!audio) return;
     const next = !muted;
     setMuted(next);
-    audio.volume = next ? 0 : 0.85;
+    if (gainStdRef.current && gainCinRef.current) {
+      if (next) {
+        gainStdRef.current.gain.value = 0;
+        gainCinRef.current.gain.value = 0;
+      } else {
+        gainStdRef.current.gain.value = wizsound ? 0 : 0.85;
+        gainCinRef.current.gain.value = wizsound ? 0.85 : 0;
+      }
+    }
   };
 
   return (
@@ -278,9 +310,12 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
 
       {/* Caption */}
       <div className="px-6 pt-5 pb-3 border-b border-white/6">
-        <p className="text-white/40 text-xs font-mono tracking-widest uppercase text-center">
-          Powered by WizSound™ – richer, more cinematic audio
-        </p>
+        <div className="flex items-center justify-center gap-2">
+          <Headphones className="w-3.5 h-3.5 text-fuchsia-400" />
+          <p className="text-white/50 text-xs font-mono tracking-widest uppercase text-center">
+            Use headphones for the full experience
+          </p>
+        </div>
       </div>
 
       {/* Real-time frequency waveform */}
@@ -309,7 +344,10 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
               WizSound™ Cinematic Active
             </span>
           ) : (
-            <span className="text-white/30 text-xs font-semibold tracking-wide">Standard Audio</span>
+            <span className="inline-flex items-center gap-1.5 text-white/40 text-xs font-semibold tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+              Standard Audio
+            </span>
           )}
         </div>
       </div>
@@ -357,7 +395,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
         </button>
       </div>
 
-      {/* Standard / WizSound toggle */}
+      {/* Standard / WizSound toggle — THE KEY A/B SWITCH */}
       <div className="px-6 pb-5">
         <div
           className="flex items-center justify-between p-1 rounded-xl border border-white/8 bg-white/3"
@@ -367,7 +405,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
           <button
             onClick={() => switchMode(false)}
             disabled={switching}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 ${
+            className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 ${
               !wizsound
                 ? "bg-white/12 text-white shadow-sm"
                 : "text-white/35 hover:text-white/55"
@@ -379,7 +417,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
           <button
             onClick={() => switchMode(true)}
             disabled={switching}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 ${
+            className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 ${
               wizsound
                 ? "text-white shadow-sm"
                 : "text-white/35 hover:text-white/55"
@@ -393,10 +431,10 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
             WizSound™ Cinematic
           </button>
         </div>
-        <p className="text-white/25 text-[10px] text-center mt-2 font-mono">
+        <p className="text-white/30 text-[11px] text-center mt-2.5 leading-relaxed">
           {wizsound
-            ? "Full mastering pipeline · Stereo widening · Spatial depth"
-            : "Original audio mix — no enhancement applied"
+            ? "Wide stereo field · Deep bass · Spatial reverb · 5-band EQ · 320kbps mastered"
+            : "Flat mix · Narrow stereo · No bass enhancement · No spatial processing"
           }
         </p>
       </div>
@@ -520,12 +558,12 @@ export default function WizSoundSection() {
           </h2>
 
           <p className="text-white/55 text-lg max-w-2xl mx-auto leading-relaxed">
-            Immersive cinematic audio for your videos.
+            Press play and toggle between Standard and WizSound Cinematic.
           </p>
-          <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed mt-3">
-            Our proprietary audio engine turns ordinary sound into a cinematic experience. Choose{" "}
-            <span className="text-fuchsia-300 font-semibold">WizSound Cinematic</span> for full 3D depth, or{" "}
-            <span className="text-violet-300 font-semibold">WizSound Enhance</span> for extra bass and clarity.
+          <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed mt-2">
+            The difference is{" "}
+            <span className="text-fuchsia-300 font-semibold">immediate</span>. WizSound™ transforms flat audio into a
+            rich, immersive cinematic soundscape with spatial depth, wide stereo imaging, and studio-grade mastering.
           </p>
         </div>
 
@@ -539,22 +577,22 @@ export default function WizSoundSection() {
           <div className="flex flex-col gap-4">
             <FeatureCard
               icon={Volume2}
-              title="Immersive Depth"
-              description="Audio that surrounds the viewer — layered and spatial, not flat stereo. WizSound™ adds Haas stereo enhancement and spatial reverb for a three-dimensional sound field."
+              title="Spatial Immersion"
+              description="Audio that surrounds the viewer — not flat stereo. WizSound™ applies Haas-effect stereo widening and spatial reverb to create a three-dimensional sound field that fills the room."
               gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,50,200,0.6))"
               delay={0}
             />
             <FeatureCard
               icon={Zap}
-              title="Cinematic Mastering"
-              description="AI-enhanced clarity, punch, and balance — like a professionally mastered soundtrack. 5-band EQ, dynamic compression, and loudness normalisation to streaming standards."
+              title="Studio-Grade Mastering"
+              description="5-band parametric EQ, dynamic compression, sub-bass enhancement, and loudness normalisation to broadcast standards. Every frequency is sculpted for maximum impact."
               gradient="linear-gradient(135deg, rgba(217,70,239,0.8), rgba(139,92,246,0.6))"
               delay={100}
             />
             <FeatureCard
               icon={Film}
-              title="Built for Video"
-              description="Optimised specifically for music videos, animation, and storytelling. Every processing step is tuned for emotional impact."
+              title="Cinematic by Design"
+              description="Tuned specifically for music videos, animation, and storytelling. WizSound™ adds the warmth, punch, and presence that makes your content sound like a cinema release."
               gradient="linear-gradient(135deg, rgba(236,72,153,0.8), rgba(217,70,239,0.6))"
               delay={200}
             />
@@ -572,9 +610,9 @@ export default function WizSoundSection() {
         >
           <div className="grid grid-cols-3 divide-x divide-white/8">
             {[
-              { label: "Standard Audio", sub: "Original mix", price: "Included", colour: "text-white/50", icon: Music2 },
-              { label: "WizSound Enhance", sub: "Polished, fuller sound", price: "+£1", colour: "text-violet-300", icon: Volume2 },
-              { label: "WizSound Cinematic", sub: "Full mastering pipeline", price: "+£3", colour: "text-fuchsia-300", icon: Zap, badge: "RECOMMENDED" },
+              { label: "Standard Audio", sub: "Basic mix, no processing", price: "Included", colour: "text-white/50", icon: Music2 },
+              { label: "WizSound Enhance", sub: "Bass boost + clarity", price: "+£1", colour: "text-violet-300", icon: Volume2 },
+              { label: "WizSound Cinematic", sub: "Full spatial mastering", price: "+£3", colour: "text-fuchsia-300", icon: Zap, badge: "RECOMMENDED" },
             ].map((tier) => (
               <div key={tier.label} className={`relative p-5 text-center ${tier.badge ? "bg-fuchsia-500/5" : ""}`}>
                 {tier.badge && (

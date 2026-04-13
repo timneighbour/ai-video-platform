@@ -2580,3 +2580,28 @@
 ## Bug Fixes
 - [x] Fix Mixpanel autocapture implementation error (trackDomEvent failing)
 - [x] Fix WizSoundSection canvas roundRect negative radius error
+
+## Hero Layout Fixes
+- [ ] Move product preview mockup so it doesn't overlap background video text
+- [ ] Reposition "Enter WizVid Studio" floating button so it doesn't cover stats section
+- [ ] Ensure nothing blocks or overlaps in the hero section for a premium layout
+
+## Intro Audio V2
+- [x] Replace depressing intro soundtrack with uplifting, exciting Dolby Atmos cinema-style track
+- [x] Process new soundtrack through WizSound cinematic pipeline
+- [x] Compose into intro video and upload to CDN
+
+## WizSound Demo Audio Overhaul
+- [x] Generate high-quality cinematic demo track for WizSound A/B comparison
+- [x] Create dramatically degraded "Standard" version (thin, flat, mono-ish, low bitrate feel)
+- [x] Create premium "WizSound Cinematic" version (wide stereo, rich bass, spatial depth, immersive)
+- [x] Ensure toggle difference is immediately obvious and dramatic
+- [x] Upload new Standard and WizSound demo audio files to CDN
+- [x] Update WizSoundSection with new audio URLs
+
+## Intro Soundtrack V2 (Uplifting)
+- [x] Generate uplifting, exciting cinematic intro soundtrack (Dolby Atmos cinema feel)
+- [x] Process through WizSound cinematic pipeline
+- [x] Compose into intro video with new soundtrack
+- [x] Upload new intro video to CDN
+- [x] Update CinematicIntroSequence with new video URL

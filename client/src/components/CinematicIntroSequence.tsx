@@ -14,7 +14,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v5-intro-final_5fb2a89e.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v6-intro-final_92a6af28.mp4";
 
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
