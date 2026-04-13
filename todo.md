@@ -2627,3 +2627,19 @@
 - [x] Increase pacing — tighter cuts, no slow/dragging sections
 - [x] Compose final V8 intro with all new assets
 - [x] Upload to CDN and update CinematicIntroSequence component
+
+## Brand System Integration — WizCreate™ · WizSound™ · WizPilot™
+- [ ] Navbar: Add WizCreate™, WizSound™, WizPilot™ menu items with clean responsive layout
+- [ ] Hero: Add "Powered by WizCreate™, WizSound™ & WizPilot™" under main headline
+- [ ] Ecosystem section: "One platform. Four powerful engines." grid with all 4 brand engines
+- [ ] Paywall: Add "Powered by WizCreate™ & WizSound™" line
+- [ ] Intro video overlay: Add subtle "Powered by WizCreate™" text moment
+- [ ] Footer: Add "WizVid ecosystem: WizCreate™ · WizSound™ · WizPilot™"
+- [ ] Pricing page: Ensure brand engine names appear in feature descriptions
+- [ ] Consistent brand naming across all marketing copy
+
+## Brand Logos — WizSound™ & WizPilot™
+- [ ] Generate WizSound™ logo (neon purple/blue, audio/spatial sound icon, white wordmark)
+- [ ] Generate WizPilot™ logo (neon purple/blue, autopilot/navigation icon, white wordmark)
+- [ ] Upload all 3 brand logos to CDN
+- [ ] Integrate logos into Ecosystem section and brand touchpoints

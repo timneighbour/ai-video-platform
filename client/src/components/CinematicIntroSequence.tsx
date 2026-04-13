@@ -1,41 +1,39 @@
 /**
- * CinematicIntroSequence V8 — Energetic Premium Experience
+ * CinematicIntroSequence V9 — Emotional Impact Refinements
  *
- * Complete overhaul:
- * - New energetic modern soundtrack (electronic + orchestral hybrid, 128 BPM)
- * - 5 new premium video clips (music, cinematic, creator, animation, logo)
- * - Faster pacing: 3.2s per clip with 0.6s transitions
- * - Audio impact hit at logo reveal + WizSound swell
- * - 3.4s final frame hold for CTA absorption
- * - Total: 17s
+ * Emotional upgrades:
+ * - Signature audio drop at ~70% (11.5-11.9s pause → bass hit)
+ * - Goosebumps moment: cinematic clip in slow-motion (0.6x) + zoom
+ * - WizSound stereo widening + extrastereo at 14-17s
+ * - Extended final hold (3.5s)
+ * - CTA: "Create Your First Cinematic Video →"
+ * - Total: ~17.5s
  *
- * SCENE ORDER: Music Video → Cinematic Film → Creator Video → Animation → Logo Reveal
+ * SCENE ORDER: Music Video → Cinematic Film (slow-mo goosebumps) → Creator Video → Logo Reveal
  */
 import { useRef, useState, useEffect, useCallback } from "react";
 
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v8-intro-final_8f2aa9a3.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v9-intro-final_0b61f302.mp4";
 
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
-/* ── timing map (seconds) — matched to V8 faster pacing ── */
+/* ── timing map (seconds) — matched to V9 emotional pacing ── */
 const T = {
-  /* Scene boundaries (3.2s each, 0.6s transitions) */
-  SCENE1_END: 2.6,       // music video
-  SCENE2_START: 2.6,     // cinematic film
-  SCENE2_END: 5.2,
-  SCENE3_START: 5.2,     // creator video
-  SCENE3_END: 7.8,
-  SCENE4_START: 7.8,     // animation
-  SCENE4_END: 10.4,
-  SCENE5_START: 10.4,    // logo reveal
+  /* Scene boundaries — V9 has 4 clips + goosebumps slow-mo */
+  SCENE1_END: 2.7,       // music video (3.2s clip)
+  SCENE2_START: 2.7,     // cinematic film — GOOSEBUMPS slow-mo (6.4s)
+  SCENE2_END: 8.6,
+  SCENE3_START: 8.6,     // creator video (3.2s)
+  SCENE3_END: 11.3,
+  SCENE4_START: 11.3,    // logo reveal (3.2s)
 
   /* Logo + WizSound + CTA timing */
-  LOGO_SHOW: 11.0,       // Logo appears with impact hit
-  WIZSOUND_SHOW: 12.0,   // "Powered by WizSound™" with audio swell
-  CTA_SHOW: 13.0,        // CTA button appears
-  VIDEO_END: 17.0,       // 3.4s hold for absorption
+  LOGO_SHOW: 11.8,       // Logo appears with impact hit
+  WIZSOUND_SHOW: 13.0,   // "Powered by WizSound™" with audio swell + stereo widening
+  CTA_SHOW: 14.0,        // CTA button appears
+  VIDEO_END: 17.5,       // 3.5s hold for absorption
 };
 
 /* ── genre labels — appear once per scene, faster timing ── */
@@ -46,9 +44,8 @@ const GENRE_LABELS: Array<{
   color: string;
 }> = [
   { text: "Music Videos", start: 0.5, end: 2.3, color: "#f59e0b" },
-  { text: "Cinematic Films", start: 3.0, end: 4.8, color: "#06b6d4" },
-  { text: "Creator Content", start: 5.5, end: 7.3, color: "#f472b6" },
-  { text: "Animation", start: 8.2, end: 10.0, color: "#34d399" },
+  { text: "Cinematic Films", start: 3.2, end: 7.8, color: "#06b6d4" },
+  { text: "Creator Content", start: 9.0, end: 10.8, color: "#f472b6" },
 ];
 
 interface Props {
@@ -493,7 +490,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
                 btn.style.transform = "translateY(0) scale(1)";
               }}
             >
-              Start Creating Your Video &rarr;
+              Create Your First Cinematic Video &rarr;
             </button>
           )}
         </div>
