@@ -307,7 +307,10 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     }, 7200);
     addTimer(() => setCtaVisible(true), 7800);
 
-    // NO auto-dismiss — user must click CTA
+    // Auto-dismiss safety net — if user doesn't click CTA within 12s, auto-dismiss
+    addTimer(() => {
+      dismiss();
+    }, 12000);
 
     return () => {
       timersRef.current.forEach(clearTimeout);
@@ -340,8 +343,9 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       }, 40);
     }
     setExiting(true);
-    // Write to localStorage (not sessionStorage) so intro never shows again across visits
+    // Write to localStorage AND cookie so intro never shows again across visits
     try { localStorage.setItem(INTRO_SESSION_KEY, "true"); } catch { /* noop */ }
+    try { document.cookie = `${INTRO_SESSION_KEY}=true; max-age=31536000; path=/; SameSite=Lax`; } catch { /* noop */ }
     setTimeout(onComplete, 800);
   }, [onComplete]);
 

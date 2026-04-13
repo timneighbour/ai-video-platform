@@ -164,14 +164,18 @@ function App() {
   // Show branded preloader on initial app mount, then fade out
   const [appReady, setAppReady] = useState(false);
 
-  // Show cinematic intro only on the very first visit (localStorage persists across sessions)
+  // Show cinematic intro only on the very first visit (localStorage + cookie fallback)
   // Initialise synchronously so the intro renders on the FIRST paint — no flicker
   const [showIntro, setShowIntro] = useState(() => {
     try {
-      return !localStorage.getItem(INTRO_SESSION_KEY);
-    } catch {
-      return false; // localStorage unavailable (private mode edge case)
-    }
+      // Check localStorage first
+      if (localStorage.getItem(INTRO_SESSION_KEY)) return false;
+    } catch { /* localStorage unavailable */ }
+    // Cookie fallback for browsers that clear localStorage between sessions
+    try {
+      if (document.cookie.includes(INTRO_SESSION_KEY + "=true")) return false;
+    } catch { /* noop */ }
+    return true;
   });
 
   useEffect(() => {

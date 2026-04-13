@@ -2988,4 +2988,15 @@
 
 ## Navigation Fix - Duplicate Intro Overlay (CRITICAL)
 - [x] Remove CinematicIntroSequence from Home.tsx — it's a SECOND intro overlay (z-99999, position:fixed, inset:0) that blocks ALL nav clicks on every new browser session. App.tsx already has CinematicEntryScreen for first-visit intro.
-- [ ] Update WizSound demo to use demo-clean video with real audio track
+- [x] Update WizSound demo to use demo-clean video with real audio track
+
+## CinematicEntryScreen Blocking All Navigation (CRITICAL)
+- [x] Fix CinematicEntryScreen showing on every visit — localStorage not persisting, blocks all clicks at z-9999
+- [x] Fix WizSound audio differential on BOTH players (WizSoundSection + DemoVideoModal) — rebuilt with Web Audio API, muting via outputGain not video.muted
+- [x] Add auto-dismiss after 12s and cookie-based persistence fallback to CinematicEntryScreen
+- [x] Add cookie-based fallback for intro-seen flag so it works even when localStorage is blocked
+- [x] Add auto-dismiss safety timeout so the intro never blocks the page permanently
+
+## WizSound Audio Differential
+- [x] Ensure WizSound demo player on Home page has clear audible difference between Standard and WizSound modes
+- [x] Check MusicVideosLanding player (DemoVideoModal) for same audio differential issue — FIXED with Web Audio API

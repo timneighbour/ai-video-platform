@@ -9,27 +9,36 @@ const VIDEO_SRC =
 
 /* ──────────────────────────────────────────────────────────────────────────
    WizSoundEngine
-   Builds a Web Audio API graph that transforms the raw video audio into a
-   dramatically different cinematic sound:
+   Builds a Web Audio API graph with TWO dramatically different paths.
 
-   Standard path:  source → gainNode (0 dB) → destination
-                   Narrow, flat, unprocessed — sounds like a phone speaker.
+   CRITICAL: Once createMediaElementSource() is called, the video element's
+   audio is routed EXCLUSIVELY through Web Audio. The video.muted property
+   must stay FALSE — muting is handled by a gain node at the end of the graph.
 
-   WizSound path:  source → bassBoost (BiquadFilter +12 dB shelf at 120 Hz)
-                          → presenceBoost (BiquadFilter +6 dB peak at 3 kHz)
-                          → haasLeft / haasRight (StereoPannerNode + DelayNode)
-                          → compressor (DynamicsCompressorNode)
-                          → masterGain (+4 dB)
-                          → destination
-                   Wide stereo, punchy bass, spatial depth — cinema-grade.
+   Standard path:  source → standardGain (0.7) → outputGain → destination
+                   Deliberately quieter, flat, narrow — "before" quality.
+
+   WizSound path:  source → bassBoost (+18 dB shelf at 100 Hz)
+                          → subBass (+10 dB shelf at 60 Hz)
+                          → presenceBoost (+8 dB peak at 3.2 kHz)
+                          → airBoost (+5 dB high-shelf at 10 kHz)
+                          → splitter → Haas stereo widening (30ms)
+                          → compressor → masterGain (2.0 = +6 dB)
+                          → outputGain → destination
+                   Loud, wide, punchy, spatial — cinema-grade.
+
+   outputGain: used for mute/unmute (0 or 1) — replaces video.muted
    ─────────────────────────────────────────────────────────────────────── */
 class WizSoundEngine {
   private ctx: AudioContext;
   private source: MediaElementAudioSourceNode;
   private standardGain: GainNode;
   private masterGain: GainNode;
+  private outputGain: GainNode; // Mute control
   private bassBoost: BiquadFilterNode;
+  private subBass: BiquadFilterNode;
   private presenceBoost: BiquadFilterNode;
+  private airBoost: BiquadFilterNode;
   private compressor: DynamicsCompressorNode;
   private haasDelay: DelayNode;
   private haasGainL: GainNode;
@@ -39,59 +48,79 @@ class WizSoundEngine {
   private merger: ChannelMergerNode;
   private splitter: ChannelSplitterNode;
   private _wizsound = false;
+  private _muted = false;
 
   constructor(video: HTMLVideoElement) {
     this.ctx = new AudioContext();
     this.source = this.ctx.createMediaElementSource(video);
 
-    /* ── Standard path ── */
+    /* ── Output gain (mute control) — at the very end of the chain ── */
+    this.outputGain = this.ctx.createGain();
+    this.outputGain.gain.value = 1.0;
+    this.outputGain.connect(this.ctx.destination);
+
+    /* ── Standard path — deliberately flat and quiet ── */
     this.standardGain = this.ctx.createGain();
-    this.standardGain.gain.value = 1.0;
+    this.standardGain.gain.value = 0.7; // Quieter than WizSound to emphasise the upgrade
 
     /* ── WizSound path ── */
-    // Bass boost: +12 dB low-shelf at 120 Hz
+    // Bass boost: +18 dB low-shelf at 100 Hz — heavy, cinematic bass
     this.bassBoost = this.ctx.createBiquadFilter();
     this.bassBoost.type = "lowshelf";
-    this.bassBoost.frequency.value = 120;
-    this.bassBoost.gain.value = 12;
+    this.bassBoost.frequency.value = 100;
+    this.bassBoost.gain.value = 18;
 
-    // Presence boost: +6 dB peak at 3 kHz (adds clarity/air)
+    // Sub-bass: +10 dB low-shelf at 60 Hz — rumble you can feel
+    this.subBass = this.ctx.createBiquadFilter();
+    this.subBass.type = "lowshelf";
+    this.subBass.frequency.value = 60;
+    this.subBass.gain.value = 10;
+
+    // Presence boost: +8 dB peak at 3.2 kHz (vocal clarity, attack)
     this.presenceBoost = this.ctx.createBiquadFilter();
     this.presenceBoost.type = "peaking";
-    this.presenceBoost.frequency.value = 3000;
-    this.presenceBoost.Q.value = 1.0;
-    this.presenceBoost.gain.value = 6;
+    this.presenceBoost.frequency.value = 3200;
+    this.presenceBoost.Q.value = 1.2;
+    this.presenceBoost.gain.value = 8;
 
-    // Haas stereo widening: split L/R, delay one side by 25 ms
+    // Air boost: +5 dB high-shelf at 10 kHz (sparkle, openness)
+    this.airBoost = this.ctx.createBiquadFilter();
+    this.airBoost.type = "highshelf";
+    this.airBoost.frequency.value = 10000;
+    this.airBoost.gain.value = 5;
+
+    // Haas stereo widening: split L/R, delay one side by 30 ms
     this.splitter = this.ctx.createChannelSplitter(2);
-    this.haasDelay = this.ctx.createDelay(0.05);
-    this.haasDelay.delayTime.value = 0.025; // 25 ms Haas effect
+    this.haasDelay = this.ctx.createDelay(0.06);
+    this.haasDelay.delayTime.value = 0.030; // 30 ms Haas effect — wider than before
     this.haasGainL = this.ctx.createGain();
     this.haasGainL.gain.value = 1.0;
     this.haasGainR = this.ctx.createGain();
     this.haasGainR.gain.value = 1.0;
     this.panLeft = this.ctx.createStereoPanner();
-    this.panLeft.pan.value = -0.85;
+    this.panLeft.pan.value = -0.9; // Hard left
     this.panRight = this.ctx.createStereoPanner();
-    this.panRight.pan.value = 0.85;
+    this.panRight.pan.value = 0.9; // Hard right
     this.merger = this.ctx.createChannelMerger(2);
 
-    // Dynamic compression: adds punch and loudness
+    // Dynamic compression: aggressive for punch and loudness
     this.compressor = this.ctx.createDynamicsCompressor();
-    this.compressor.threshold.value = -18;
-    this.compressor.knee.value = 8;
-    this.compressor.ratio.value = 4;
-    this.compressor.attack.value = 0.003;
-    this.compressor.release.value = 0.15;
+    this.compressor.threshold.value = -24;
+    this.compressor.knee.value = 6;
+    this.compressor.ratio.value = 6;
+    this.compressor.attack.value = 0.002;
+    this.compressor.release.value = 0.1;
 
-    // Master gain: +4 dB perceived loudness boost
+    // Master gain: +6 dB perceived loudness boost
     this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 1.6;
+    this.masterGain.gain.value = 2.0;
 
     /* ── Wire the WizSound graph ── */
-    // source → bassBoost → presenceBoost → splitter
-    this.bassBoost.connect(this.presenceBoost);
-    this.presenceBoost.connect(this.splitter);
+    // source → bassBoost → subBass → presenceBoost → airBoost → splitter
+    this.bassBoost.connect(this.subBass);
+    this.subBass.connect(this.presenceBoost);
+    this.presenceBoost.connect(this.airBoost);
+    this.airBoost.connect(this.splitter);
 
     // Left channel: direct → pan left
     this.splitter.connect(this.haasGainL, 0);
@@ -104,14 +133,14 @@ class WizSoundEngine {
     this.haasGainR.connect(this.panRight);
     this.panRight.connect(this.merger, 0, 1);
 
-    // merger → compressor → masterGain → destination
+    // merger → compressor → masterGain → outputGain → destination
     this.merger.connect(this.compressor);
     this.compressor.connect(this.masterGain);
-    this.masterGain.connect(this.ctx.destination);
+    this.masterGain.connect(this.outputGain);
 
     /* ── Start with Standard (bypass WizSound graph) ── */
     this.source.connect(this.standardGain);
-    this.standardGain.connect(this.ctx.destination);
+    this.standardGain.connect(this.outputGain);
   }
 
   setWizSound(enabled: boolean) {
@@ -120,16 +149,23 @@ class WizSoundEngine {
 
     if (enabled) {
       // Disconnect standard path, connect WizSound path
-      this.source.disconnect(this.standardGain);
-      this.standardGain.disconnect();
+      try { this.source.disconnect(this.standardGain); } catch { /* noop */ }
+      try { this.standardGain.disconnect(); } catch { /* noop */ }
       this.source.connect(this.bassBoost);
     } else {
       // Disconnect WizSound path, reconnect standard path
-      this.source.disconnect(this.bassBoost);
+      try { this.source.disconnect(this.bassBoost); } catch { /* noop */ }
       this.source.connect(this.standardGain);
-      this.standardGain.connect(this.ctx.destination);
+      this.standardGain.connect(this.outputGain);
     }
   }
+
+  setMuted(muted: boolean) {
+    this._muted = muted;
+    this.outputGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.02);
+  }
+
+  get isMuted() { return this._muted; }
 
   resume() {
     if (this.ctx.state === "suspended") this.ctx.resume();
@@ -166,10 +202,11 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
   /* ── Destroy engine on unmount ── */
   useEffect(() => () => { engineRef.current?.destroy(); }, []);
 
-  /* ── Apply mute to video element ── */
+  /* ── Sync mute state to engine (NOT to video.muted) ── */
   useEffect(() => {
-    const v = videoRef.current;
-    if (v) v.muted = isMuted;
+    if (engineRef.current) {
+      engineRef.current.setMuted(isMuted);
+    }
   }, [isMuted]);
 
   /* ── Initialise Web Audio Engine on first play (requires user gesture) ── */
@@ -179,6 +216,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
       const engine = new WizSoundEngine(videoRef.current);
       engineRef.current = engine;
       engine.setWizSound(wizsoundRef.current);
+      engine.setMuted(false); // Start unmuted — user just clicked play
       setEngineReady(true);
     } catch (e) {
       console.warn("[WizSound] Web Audio API unavailable:", e);
@@ -197,6 +235,8 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
     } else {
       initEngine();
       engineRef.current?.resume();
+      // CRITICAL: video.muted must be FALSE for Web Audio to receive the signal
+      // Muting is handled by the outputGain node in the Web Audio graph
       v.muted = false;
       setIsMuted(false);
       try {
@@ -204,7 +244,17 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
-        setPlaying(false);
+        // Autoplay blocked — try muted first, then unmute
+        v.muted = true;
+        try {
+          await v.play();
+          // Unmute after play succeeds
+          v.muted = false;
+          setPlaying(true);
+          rafRef.current = requestAnimationFrame(trackProgress);
+        } catch {
+          setPlaying(false);
+        }
       }
     }
   }, [playing, initEngine, trackProgress]);
@@ -220,11 +270,13 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
     }
   }, []);
 
-  /* ── Mute toggle ── */
+  /* ── Mute toggle — uses Web Audio gain, NOT video.muted ── */
   const toggleMute = useCallback(() => {
     const newMuted = !isMuted;
     setIsMuted(newMuted);
-    if (videoRef.current) videoRef.current.muted = newMuted;
+    if (engineRef.current) {
+      engineRef.current.setMuted(newMuted);
+    }
   }, [isMuted]);
 
   /* ── Seek ── */
@@ -266,12 +318,13 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
           </div>
         )}
 
+        {/* CRITICAL: No muted attribute — Web Audio handles all audio routing.
+            The video element must NOT be muted or Web Audio receives silence. */}
         <video
           ref={videoRef}
           src={VIDEO_SRC}
           className="absolute inset-0 w-full h-full object-cover"
           playsInline
-          muted
           loop
           preload="auto"
           onCanPlayThrough={() => setLoaded(true)}
@@ -281,7 +334,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         {!playing && loaded && (
           <button
             onClick={togglePlay}
-            className="absolute inset-0 flex items-center justify-center z-30 group"
+            className="absolute inset-0 flex items-center justify-center z-20 group cursor-pointer"
             aria-label="Play demo"
           >
             <div
@@ -569,7 +622,7 @@ export default function WizSoundSection() {
               icon={Volume2}
               title="Spatial Immersion"
               description="Audio that surrounds the viewer — not flat stereo. WizSound™ applies stereo widening and spatial reverb to create a three-dimensional sound field that fills the room."
-              gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,50,200,0.6))"
+              gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(109,40,217,0.6))"
               delay={0}
             />
             <FeatureCard

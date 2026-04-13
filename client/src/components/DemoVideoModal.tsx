@@ -9,6 +9,152 @@ const POSTER_URL =
 const DEMO_VIDEO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-clean_b6ec4737.mp4";
 
+/* ──────────────────────────────────────────────────────────────────────────
+   DemoWizSoundEngine — Web Audio API real-time processing
+   
+   CRITICAL: Once createMediaElementSource() is called, the video element's
+   audio is routed EXCLUSIVELY through Web Audio. video.muted must stay FALSE.
+   Muting is controlled via the outputGain node.
+
+   Standard path:  source → standardGain (0.7) → outputGain → destination
+   WizSound path:  source → EQ chain → stereo widening → compressor → masterGain (2.0) → outputGain → destination
+   ─────────────────────────────────────────────────────────────────────── */
+class DemoWizSoundEngine {
+  private ctx: AudioContext;
+  private source: MediaElementAudioSourceNode;
+  private standardGain: GainNode;
+  private masterGain: GainNode;
+  private outputGain: GainNode;
+  private bassBoost: BiquadFilterNode;
+  private subBass: BiquadFilterNode;
+  private presenceBoost: BiquadFilterNode;
+  private airBoost: BiquadFilterNode;
+  private compressor: DynamicsCompressorNode;
+  private haasDelay: DelayNode;
+  private haasGainL: GainNode;
+  private haasGainR: GainNode;
+  private panLeft: StereoPannerNode;
+  private panRight: StereoPannerNode;
+  private merger: ChannelMergerNode;
+  private splitter: ChannelSplitterNode;
+  private _wizsound = false;
+
+  constructor(video: HTMLVideoElement) {
+    this.ctx = new AudioContext();
+    this.source = this.ctx.createMediaElementSource(video);
+
+    // Output gain — mute control at the very end
+    this.outputGain = this.ctx.createGain();
+    this.outputGain.gain.value = 1.0;
+    this.outputGain.connect(this.ctx.destination);
+
+    // Standard path — flat and quiet
+    this.standardGain = this.ctx.createGain();
+    this.standardGain.gain.value = 0.7;
+
+    // Bass boost: +18 dB low-shelf at 100 Hz
+    this.bassBoost = this.ctx.createBiquadFilter();
+    this.bassBoost.type = "lowshelf";
+    this.bassBoost.frequency.value = 100;
+    this.bassBoost.gain.value = 18;
+
+    // Sub-bass: +10 dB at 60 Hz
+    this.subBass = this.ctx.createBiquadFilter();
+    this.subBass.type = "lowshelf";
+    this.subBass.frequency.value = 60;
+    this.subBass.gain.value = 10;
+
+    // Presence: +8 dB peak at 3.2 kHz
+    this.presenceBoost = this.ctx.createBiquadFilter();
+    this.presenceBoost.type = "peaking";
+    this.presenceBoost.frequency.value = 3200;
+    this.presenceBoost.Q.value = 1.2;
+    this.presenceBoost.gain.value = 8;
+
+    // Air: +5 dB high-shelf at 10 kHz
+    this.airBoost = this.ctx.createBiquadFilter();
+    this.airBoost.type = "highshelf";
+    this.airBoost.frequency.value = 10000;
+    this.airBoost.gain.value = 5;
+
+    // Haas stereo widening: 30ms delay
+    this.splitter = this.ctx.createChannelSplitter(2);
+    this.haasDelay = this.ctx.createDelay(0.06);
+    this.haasDelay.delayTime.value = 0.030;
+    this.haasGainL = this.ctx.createGain();
+    this.haasGainL.gain.value = 1.0;
+    this.haasGainR = this.ctx.createGain();
+    this.haasGainR.gain.value = 1.0;
+    this.panLeft = this.ctx.createStereoPanner();
+    this.panLeft.pan.value = -0.9;
+    this.panRight = this.ctx.createStereoPanner();
+    this.panRight.pan.value = 0.9;
+    this.merger = this.ctx.createChannelMerger(2);
+
+    // Compression
+    this.compressor = this.ctx.createDynamicsCompressor();
+    this.compressor.threshold.value = -24;
+    this.compressor.knee.value = 6;
+    this.compressor.ratio.value = 6;
+    this.compressor.attack.value = 0.002;
+    this.compressor.release.value = 0.1;
+
+    // Master gain: +6 dB
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.value = 2.0;
+
+    // Wire WizSound graph
+    this.bassBoost.connect(this.subBass);
+    this.subBass.connect(this.presenceBoost);
+    this.presenceBoost.connect(this.airBoost);
+    this.airBoost.connect(this.splitter);
+
+    this.splitter.connect(this.haasGainL, 0);
+    this.haasGainL.connect(this.panLeft);
+    this.panLeft.connect(this.merger, 0, 0);
+
+    this.splitter.connect(this.haasDelay, 1);
+    this.haasDelay.connect(this.haasGainR);
+    this.haasGainR.connect(this.panRight);
+    this.panRight.connect(this.merger, 0, 1);
+
+    this.merger.connect(this.compressor);
+    this.compressor.connect(this.masterGain);
+    this.masterGain.connect(this.outputGain);
+
+    // Start with WizSound ON (default for demo modal)
+    this.source.connect(this.bassBoost);
+    this._wizsound = true;
+  }
+
+  setWizSound(enabled: boolean) {
+    if (enabled === this._wizsound) return;
+    this._wizsound = enabled;
+
+    if (enabled) {
+      try { this.source.disconnect(this.standardGain); } catch { /* noop */ }
+      try { this.standardGain.disconnect(); } catch { /* noop */ }
+      this.source.connect(this.bassBoost);
+    } else {
+      try { this.source.disconnect(this.bassBoost); } catch { /* noop */ }
+      this.source.connect(this.standardGain);
+      this.standardGain.connect(this.outputGain);
+    }
+  }
+
+  setMuted(muted: boolean) {
+    this.outputGain.gain.setTargetAtTime(muted ? 0 : 1, this.ctx.currentTime, 0.02);
+  }
+
+  resume() {
+    if (this.ctx.state === "suspended") this.ctx.resume();
+  }
+
+  destroy() {
+    try { this.ctx.close(); } catch { /* noop */ }
+  }
+}
+
 /* ── WizSound™ EQ Bar animation component ───────────────────────────── */
 function WizSoundEQ({ size = "lg" }: { size?: "sm" | "lg" }) {
   const isLg = size === "lg";
@@ -111,23 +257,29 @@ interface DemoVideoModalProps {
 
 export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const engineRef = useRef<DemoWizSoundEngine | null>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [captions, setCaptions] = useState(false);
   const [wizsoundMode, setWizsoundMode] = useState(true);
-  // Local mute state — independent of global AudioContext
-  // Start muted (browser autoplay policy), unmuted after first user interaction
   const [isMuted, setIsMuted] = useState(true);
-  const hasInteracted = useRef(false);
+  const [engineReady, setEngineReady] = useState(false);
 
-  /* ── Sync local mute state to video element ──────────────────────── */
+  /* ── Sync mute state to engine (NOT video.muted) ── */
   useEffect(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    vid.muted = isMuted;
+    if (engineRef.current) {
+      engineRef.current.setMuted(isMuted);
+    }
   }, [isMuted]);
+
+  /* ── Sync WizSound mode to engine ── */
+  useEffect(() => {
+    if (engineRef.current) {
+      engineRef.current.setWizSound(wizsoundMode);
+    }
+  }, [wizsoundMode]);
 
   /* ── ESC to close ────────────────────────────────────────────────── */
   useEffect(() => {
@@ -149,6 +301,23 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       setCurrentTime(0);
     }
   }, [open]);
+
+  /* ── Cleanup engine on unmount ── */
+  useEffect(() => () => { engineRef.current?.destroy(); }, []);
+
+  /* ── Init Web Audio engine on first play ── */
+  const initEngine = useCallback(() => {
+    if (engineRef.current || !videoRef.current) return;
+    try {
+      const engine = new DemoWizSoundEngine(videoRef.current);
+      engineRef.current = engine;
+      engine.setWizSound(wizsoundMode);
+      engine.setMuted(false);
+      setEngineReady(true);
+    } catch (e) {
+      console.warn("[DemoModal] Web Audio API unavailable:", e);
+    }
+  }, [wizsoundMode]);
 
   /* ── Video event handlers ────────────────────────────────────────── */
   const handleCanPlay = useCallback(() => {
@@ -182,34 +351,37 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
-      // First play: always start muted to satisfy autoplay policy,
-      // then immediately unmute — this is the only reliable cross-browser approach.
-      vid.muted = true;
+      initEngine();
+      engineRef.current?.resume();
+      // CRITICAL: video.muted must be FALSE for Web Audio to receive the signal
+      vid.muted = false;
+      setIsMuted(false);
       try {
         await vid.play();
-        // Unmute after successful play — this is a user gesture context so it works
-        if (!hasInteracted.current) {
-          hasInteracted.current = true;
-          vid.muted = false;
-          setIsMuted(false);
-        } else {
-          vid.muted = isMuted;
-        }
         setPlaying(true);
         mp.demoVideoPlayed();
       } catch {
-        // Absolute fallback — stay muted
-        setPlaying(false);
+        // Autoplay blocked — try muted first, then unmute
+        vid.muted = true;
+        try {
+          await vid.play();
+          vid.muted = false;
+          setPlaying(true);
+          mp.demoVideoPlayed();
+        } catch {
+          setPlaying(false);
+        }
       }
     }
-  }, [playing, isMuted]);
+  }, [playing, initEngine]);
 
-  /* ── Mute toggle ─────────────────────────────────────────────────── */
+  /* ── Mute toggle — uses Web Audio gain ── */
   const toggleMute = useCallback(() => {
-    const vid = videoRef.current;
     const newMuted = !isMuted;
     setIsMuted(newMuted);
-    if (vid) vid.muted = newMuted;
+    if (engineRef.current) {
+      engineRef.current.setMuted(newMuted);
+    }
   }, [isMuted]);
 
   /* ── Progress bar seek ───────────────────────────────────────────── */
@@ -290,7 +462,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               }`}
               style={
                 wizsoundMode
-                  ? { background: "linear-gradient(90deg, #5b21b6, #7c3aed)", boxShadow: "0 0 12px rgba(109,40,217,0.5)" }
+                  ? {
+                      background: "linear-gradient(135deg, rgba(109,40,217,0.7), rgba(217,70,239,0.6))",
+                      boxShadow: "0 0 12px rgba(217,70,239,0.3)",
+                    }
                   : {}
               }
               aria-pressed={wizsoundMode}
@@ -300,13 +475,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             </button>
           </div>
 
-          {/* ── Video element ─────────────────────────────────────────── */}
+          {/* ── Video element — NO muted attribute ─────────────────── */}
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
             poster={POSTER_URL}
             playsInline
-            muted
             preload="metadata"
             onCanPlay={handleCanPlay}
             onLoadedMetadata={handleLoadedMetadata}
@@ -321,7 +495,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             )}
           </video>
 
-          {/* ── Close button ──────────────────────────────────────────── */}
+          {/* ── Close button ──────────────────────────────────────── */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all"
@@ -330,7 +504,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <X size={18} />
           </button>
 
-          {/* ── Centre play button (when paused) ──────────────────────── */}
+          {/* ── Centre play button (when paused) ──────────────────── */}
           {!playing && (
             <button
               onClick={togglePlay}
@@ -347,7 +521,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             </button>
           )}
 
-          {/* ── Controls bar ──────────────────────────────────────────── */}
+          {/* ── Controls bar ──────────────────────────────────────── */}
           <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
             {/* Waveform canvas */}
             {playing && (
@@ -428,6 +602,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 )}
               </div>
 
+              {/* Audio processing indicator */}
+              {engineReady && playing && (
+                <div className={`text-[9px] font-mono ${wizsoundMode ? "text-fuchsia-400/60" : "text-white/25"}`}>
+                  {wizsoundMode ? "⚡ PROCESSING" : "○ RAW"}
+                </div>
+              )}
+
               {/* Time display */}
               <span className="text-white/50 text-xs font-mono tabular-nums">
                 {formatTime(currentTime)} / {formatTime(duration)}
@@ -460,7 +641,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             </div>
           )}
 
-          {/* ── WizSound™ keyframes ────────────────────────────────────── */}
+          {/* ── WizSound™ keyframes ────────────────────────────────── */}
           <style>{`
             @keyframes wizEq {
               0%   { transform: scaleY(0.25); }
