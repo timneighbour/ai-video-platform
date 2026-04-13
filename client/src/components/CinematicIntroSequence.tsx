@@ -1,51 +1,83 @@
 /**
- * CinematicIntroSequence V9 — Emotional Impact Refinements
+ * CinematicIntroSequence V10 — Emotional Impact Rebuild
  *
- * Emotional upgrades:
- * - Signature audio drop at ~70% (11.5-11.9s pause → bass hit)
- * - Goosebumps moment: cinematic clip in slow-motion (0.6x) + zoom
- * - WizSound stereo widening + extrastereo at 14-17s
- * - Extended final hold (3.5s)
+ * What's new in V10:
+ * - New energetic cinematic soundtrack (128 BPM, hybrid orchestral/electronic)
+ * - 3 upgraded premium clips: concert arena → epic city hero → creator studio
+ * - Hero moment at ~70% (13.5s of 20s): slow-motion zoom + audio dip → impact hit
+ * - WizSound stereo widening via Web Audio API (StereoPannerNode L→R sweep at 14-17s)
+ * - Visual pulse synced to WizSound moment
+ * - Emotional shift: "what YOU can create" not "what WizVid does"
  * - CTA: "Create Your First Cinematic Video →"
- * - Total: ~17.5s
+ * - Total: ~20.25s
  *
- * SCENE ORDER: Music Video → Cinematic Film (slow-mo goosebumps) → Creator Video → Logo Reveal
+ * SCENE ORDER:
+ *   0.0–3.5s   → Concert arena (Music Videos)
+ *   3.5–9.5s   → Epic city hero SLOW-MO (Cinematic Films) ← HERO MOMENT
+ *   9.5–13.5s  → Creator studio (Creator Content)
+ *   13.5–20.0s → Logo reveal + WizSound + CTA hold
  */
 import { useRef, useState, useEffect, useCallback } from "react";
 
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v9-intro-final_0b61f302.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v10-intro-final_825d36e4.mp4";
 
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
-/* ── timing map (seconds) — matched to V9 emotional pacing ── */
+/* ── timing map (seconds) — matched to V10 composition ── */
 const T = {
-  /* Scene boundaries — V9 has 4 clips + goosebumps slow-mo */
-  SCENE1_END: 2.7,       // music video (3.2s clip)
-  SCENE2_START: 2.7,     // cinematic film — GOOSEBUMPS slow-mo (6.4s)
-  SCENE2_END: 8.6,
-  SCENE3_START: 8.6,     // creator video (3.2s)
-  SCENE3_END: 11.3,
-  SCENE4_START: 11.3,    // logo reveal (3.2s)
+  /* Scene boundaries */
+  SCENE1_END: 3.5,        // concert arena
+  SCENE2_START: 3.5,      // hero city — SLOW-MO HERO MOMENT
+  SCENE2_END: 9.5,
+  SCENE3_START: 9.5,      // creator studio
+  SCENE3_END: 13.5,
+
+  /* Hero moment: audio dip + visual zoom at ~70% (14s / 20s = 70%) */
+  HERO_ZOOM_START: 3.5,   // hero clip starts — zoom effect begins
+  HERO_ZOOM_PEAK: 6.5,    // peak of slow-mo zoom
+
+  /* Audio silence gap (baked into soundtrack at 11.3-11.7s) */
+  SILENCE_START: 11.3,
+  SILENCE_END: 11.7,
 
   /* Logo + WizSound + CTA timing */
-  LOGO_SHOW: 11.8,       // Logo appears with impact hit
-  WIZSOUND_SHOW: 13.0,   // "Powered by WizSound™" with audio swell + stereo widening
-  CTA_SHOW: 14.0,        // CTA button appears
-  VIDEO_END: 17.5,       // 3.5s hold for absorption
+  LOGO_SHOW: 13.8,        // Logo appears with impact hit
+  WIZSOUND_SHOW: 15.0,    // "Powered by WizSound™" + stereo widening
+  CTA_SHOW: 16.2,         // CTA button appears
+  VIDEO_END: 20.25,       // total video duration
 };
 
-/* ── genre labels — appear once per scene, faster timing ── */
+/* ── genre labels — appear once per scene ── */
 const GENRE_LABELS: Array<{
   text: string;
+  subtext: string;
   start: number;
   end: number;
   color: string;
 }> = [
-  { text: "Music Videos", start: 0.5, end: 2.3, color: "#f59e0b" },
-  { text: "Cinematic Films", start: 3.2, end: 7.8, color: "#06b6d4" },
-  { text: "Creator Content", start: 9.0, end: 10.8, color: "#f472b6" },
+  {
+    text: "Your Music Videos",
+    subtext: "Stadium-scale. AI-powered.",
+    start: 0.5,
+    end: 3.0,
+    color: "#f59e0b",
+  },
+  {
+    text: "Your Cinematic Films",
+    subtext: "Blockbuster quality. No crew needed.",
+    start: 4.0,
+    end: 8.8,
+    color: "#06b6d4",
+  },
+  {
+    text: "Your Creator Content",
+    subtext: "Scroll-stopping. Every time.",
+    start: 10.0,
+    end: 13.0,
+    color: "#f472b6",
+  },
 ];
 
 interface Props {
@@ -56,6 +88,10 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const pannerRef = useRef<StereoPannerNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const wizSoundStartedRef = useRef(false);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
@@ -65,6 +101,55 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const [showWizSound, setShowWizSound] = useState(false);
   const [impactFired, setImpactFired] = useState(false);
   const [wizSoundPulse, setWizSoundPulse] = useState(false);
+  const [heroZoom, setHeroZoom] = useState(false);
+
+  /* ── Web Audio API: stereo widening for WizSound moment ── */
+  const initWebAudio = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || audioCtxRef.current) return;
+
+    try {
+      const ctx = new AudioContext();
+      audioCtxRef.current = ctx;
+
+      const source = ctx.createMediaElementSource(video);
+      sourceRef.current = source;
+
+      // StereoPanner for L→R sweep effect
+      const panner = ctx.createStereoPanner();
+      panner.pan.value = 0;
+      pannerRef.current = panner;
+
+      // Gain node for overall volume control
+      const gain = ctx.createGain();
+      gain.gain.value = 1.0;
+
+      source.connect(panner);
+      panner.connect(gain);
+      gain.connect(ctx.destination);
+    } catch {
+      // Web Audio API not available — graceful fallback
+    }
+  }, []);
+
+  /* ── Animate WizSound stereo pan sweep (L → R → center) ── */
+  const triggerWizSoundStereo = useCallback(() => {
+    const ctx = audioCtxRef.current;
+    const panner = pannerRef.current;
+    if (!ctx || !panner || wizSoundStartedRef.current) return;
+
+    wizSoundStartedRef.current = true;
+    const now = ctx.currentTime;
+
+    // Sweep: center → hard left → hard right → center
+    panner.pan.cancelScheduledValues(now);
+    panner.pan.setValueAtTime(0, now);
+    panner.pan.linearRampToValueAtTime(-1, now + 0.5);   // sweep left
+    panner.pan.linearRampToValueAtTime(1, now + 1.2);    // sweep right
+    panner.pan.linearRampToValueAtTime(-0.6, now + 1.8); // back left
+    panner.pan.linearRampToValueAtTime(0.6, now + 2.4);  // back right
+    panner.pan.linearRampToValueAtTime(0, now + 3.0);    // settle center
+  }, []);
 
   /* ── video time sync loop ── */
   useEffect(() => {
@@ -75,12 +160,27 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       const t = video.currentTime;
       setCurrentTime(t);
 
+      // Hero zoom moment (scene 2 = cinematic city)
+      if (t >= T.HERO_ZOOM_START && t <= T.SCENE2_END && !heroZoom) {
+        setHeroZoom(true);
+      } else if ((t < T.HERO_ZOOM_START || t > T.SCENE2_END) && heroZoom) {
+        setHeroZoom(false);
+      }
+
+      // Logo impact hit
       if (t >= T.LOGO_SHOW && !showLogo) setShowLogo(true);
+
+      // WizSound moment + stereo widening
       if (t >= T.WIZSOUND_SHOW && !showWizSound) {
         setShowWizSound(true);
         setWizSoundPulse(true);
+        triggerWizSoundStereo();
       }
+
+      // CTA
       if (t >= T.CTA_SHOW && !showCTA) setShowCTA(true);
+
+      // Impact flash
       if (t >= T.LOGO_SHOW - 0.2 && t <= T.LOGO_SHOW + 0.5 && !impactFired) {
         setImpactFired(true);
       }
@@ -105,7 +205,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       video.removeEventListener("play", onPlay);
       video.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [showLogo, showWizSound, showCTA, impactFired]);
+  }, [showLogo, showWizSound, showCTA, impactFired, heroZoom, triggerWizSoundStereo]);
 
   /* ── pause video at end for CTA hold ── */
   useEffect(() => {
@@ -123,11 +223,16 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   /* ── unmute audio on user interaction ── */
   const handleInteraction = useCallback(() => {
     if (!audioUnmuted && videoRef.current) {
+      initWebAudio();
       videoRef.current.muted = false;
       videoRef.current.volume = 1.0;
+      // Resume AudioContext if suspended (browser autoplay policy)
+      if (audioCtxRef.current?.state === "suspended") {
+        audioCtxRef.current.resume();
+      }
       setAudioUnmuted(true);
     }
-  }, [audioUnmuted]);
+  }, [audioUnmuted, initWebAudio]);
 
   /* ── skip / enter ── */
   const handleSkip = useCallback(() => {
@@ -135,6 +240,10 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       videoRef.current.pause();
     }
     cancelAnimationFrame(rafRef.current);
+    // Clean up Web Audio
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+    }
     onComplete();
   }, [onComplete]);
 
@@ -169,6 +278,15 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     return 0;
   };
 
+  /* ── hero zoom scale: peaks at HERO_ZOOM_PEAK, returns to normal ── */
+  const heroZoomScale = () => {
+    if (currentTime < T.HERO_ZOOM_START) return 1;
+    const progress = Math.min(1, (currentTime - T.HERO_ZOOM_START) / (T.HERO_ZOOM_PEAK - T.HERO_ZOOM_START));
+    // Ease in to 1.12x scale, then hold
+    const eased = 1 - Math.pow(1 - progress, 3);
+    return 1 + eased * 0.12;
+  };
+
   const videoEnded = currentTime >= T.VIDEO_END - 0.5 || showCTA;
 
   return (
@@ -201,6 +319,12 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           objectFit: "cover",
           opacity: videoReady ? 1 : 0,
           transition: "opacity 0.6s ease",
+          // Hero zoom: scale up during hero moment (scene 2)
+          transform: `scale(${heroZoom ? heroZoomScale() : 1})`,
+          transformOrigin: "center center",
+          transitionProperty: heroZoom ? "opacity" : "opacity, transform",
+          transitionDuration: heroZoom ? "0.6s, 3s" : "0.6s, 0.8s",
+          transitionTimingFunction: "ease, cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       />
 
@@ -240,8 +364,8 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           top: 0,
           left: 0,
           right: 0,
-          height: "5%",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)",
+          height: "6%",
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.75), transparent)",
           pointerEvents: "none",
           zIndex: 5,
         }}
@@ -252,12 +376,27 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           bottom: 0,
           left: 0,
           right: 0,
-          height: "5%",
-          background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent)",
+          height: "6%",
+          background: "linear-gradient(to top, rgba(0,0,0,0.75), transparent)",
           pointerEvents: "none",
           zIndex: 5,
         }}
       />
+
+      {/* ── HERO MOMENT VIGNETTE (during scene 2 slow-mo) ── */}
+      {heroZoom && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)",
+            pointerEvents: "none",
+            zIndex: 6,
+            opacity: Math.min(1, (currentTime - T.HERO_ZOOM_START) / 1.5),
+            transition: "opacity 0.3s ease",
+          }}
+        />
+      )}
 
       {/* ── GENRE TEXT OVERLAYS ── */}
       {GENRE_LABELS.map((label) => (
@@ -276,6 +415,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         >
           <span
             style={{
+              display: "block",
               fontSize: "clamp(2rem, 5vw, 5rem)",
               fontWeight: 800,
               color: "#fff",
@@ -288,9 +428,24 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               letterSpacing: "0.12em",
               fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
               textTransform: "uppercase",
+              lineHeight: 1.1,
             }}
           >
             {label.text}
+          </span>
+          <span
+            style={{
+              display: "block",
+              fontSize: "clamp(0.85rem, 1.5vw, 1.2rem)",
+              fontWeight: 400,
+              color: "rgba(255,255,255,0.75)",
+              letterSpacing: "0.18em",
+              marginTop: "0.5rem",
+              textTransform: "uppercase",
+              textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+            }}
+          >
+            {label.subtext}
           </span>
         </div>
       ))}
@@ -301,18 +456,51 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, rgba(167,139,250,0.4) 25%, rgba(124,58,237,0.2) 50%, transparent 75%)",
+            background: "radial-gradient(circle at center, rgba(255,255,255,0.75) 0%, rgba(167,139,250,0.45) 25%, rgba(124,58,237,0.2) 50%, transparent 75%)",
             opacity: 0,
-            animation: "introImpactFlash 1s ease-out forwards",
+            animation: "introImpactFlash 1.2s ease-out forwards",
             pointerEvents: "none",
             zIndex: 11,
           }}
         />
       )}
 
-      {/* ── WIZSOUND VISUAL PULSE ── */}
+      {/* ── WIZSOUND VISUAL PULSE (stereo rings + ambient glow) ── */}
       {wizSoundPulse && (
         <>
+          {/* Left ring — sweeps from left */}
+          <div
+            style={{
+              position: "absolute",
+              left: "20%",
+              top: "50%",
+              width: 0,
+              height: 0,
+              transform: "translate(-50%, -50%)",
+              borderRadius: "50%",
+              border: "2px solid rgba(167,139,250,0.7)",
+              animation: "introWizSoundRingLeft 2s ease-out forwards",
+              pointerEvents: "none",
+              zIndex: 12,
+            }}
+          />
+          {/* Right ring — sweeps from right */}
+          <div
+            style={{
+              position: "absolute",
+              right: "20%",
+              top: "50%",
+              width: 0,
+              height: 0,
+              transform: "translate(50%, -50%)",
+              borderRadius: "50%",
+              border: "2px solid rgba(139,92,246,0.6)",
+              animation: "introWizSoundRingRight 2s ease-out 0.15s forwards",
+              pointerEvents: "none",
+              zIndex: 12,
+            }}
+          />
+          {/* Center convergence ring */}
           <div
             style={{
               position: "absolute",
@@ -322,35 +510,20 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               height: 0,
               transform: "translate(-50%, -50%)",
               borderRadius: "50%",
-              border: "2px solid rgba(167,139,250,0.6)",
-              boxShadow: "0 0 30px rgba(167,139,250,0.3), inset 0 0 30px rgba(167,139,250,0.1)",
-              animation: "introWizSoundRing 1.5s ease-out forwards",
+              border: "1.5px solid rgba(196,181,253,0.5)",
+              animation: "introWizSoundRing 2.5s ease-out 0.3s forwards",
               pointerEvents: "none",
               zIndex: 12,
             }}
           />
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "50%",
-              width: 0,
-              height: 0,
-              transform: "translate(-50%, -50%)",
-              borderRadius: "50%",
-              border: "1px solid rgba(139,92,246,0.4)",
-              animation: "introWizSoundRing 1.8s ease-out 0.2s forwards",
-              pointerEvents: "none",
-              zIndex: 12,
-            }}
-          />
+          {/* Ambient stereo glow */}
           <div
             style={{
               position: "absolute",
               inset: 0,
-              background: "radial-gradient(circle at center, rgba(139,92,246,0.15) 0%, transparent 60%)",
+              background: "radial-gradient(ellipse 120% 60% at center, rgba(139,92,246,0.18) 0%, transparent 70%)",
               opacity: 0,
-              animation: "introWizSoundPulse 0.8s ease-out forwards",
+              animation: "introWizSoundPulse 1.2s ease-out forwards",
               pointerEvents: "none",
               zIndex: 12,
             }}
@@ -377,9 +550,9 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               position: "absolute",
               inset: 0,
               background: videoEnded
-                ? "radial-gradient(ellipse at center, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.94) 100%)"
-                : "radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.65) 100%)",
-              transition: "background 1s ease",
+                ? "radial-gradient(ellipse at center, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.96) 100%)"
+                : "radial-gradient(ellipse at center, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.68) 100%)",
+              transition: "background 1.2s ease",
             }}
           />
 
@@ -387,17 +560,18 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
             src={WIZVID_LOGO}
             alt="WizVid"
             style={{
-              width: "clamp(200px, 28vw, 420px)",
+              width: "clamp(220px, 30vw, 460px)",
               height: "auto",
               position: "relative",
               zIndex: 1,
               opacity: 0,
               transform: "scale(0.85)",
               animation: showLogo ? "introLogoReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards" : "none",
-              filter: "drop-shadow(0 0 60px rgba(167,139,250,0.8)) drop-shadow(0 0 120px rgba(124,58,237,0.5))",
+              filter: "drop-shadow(0 0 70px rgba(167,139,250,0.9)) drop-shadow(0 0 140px rgba(124,58,237,0.55))",
             }}
           />
 
+          {/* Glow sweep line */}
           {showLogo && (
             <div
               style={{
@@ -406,57 +580,101 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
                 left: "-100%",
                 width: "50%",
                 height: "2px",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)",
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent)",
                 transform: "translateY(-50%)",
-                animation: "introGlowSweep 1.2s ease-in-out 0.4s forwards",
+                animation: "introGlowSweep 1.4s ease-in-out 0.3s forwards",
                 pointerEvents: "none",
                 zIndex: 2,
               }}
             />
           )}
 
+          {/* Tagline: "what YOU can create" positioning */}
           <p
             style={{
               position: "relative",
               zIndex: 1,
               fontSize: "clamp(0.9rem, 1.8vw, 1.4rem)",
-              color: "rgba(255,255,255,0.9)",
+              color: "rgba(255,255,255,0.92)",
               marginTop: "1.5rem",
               letterSpacing: "0.2em",
               fontWeight: 300,
               textTransform: "uppercase",
               opacity: showLogo ? 1 : 0,
               transform: `translateY(${showLogo ? "0" : "15px"})`,
-              transition: "opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s",
+              transition: "opacity 0.7s ease 0.35s, transform 0.7s ease 0.35s",
               textShadow: "0 2px 15px rgba(0,0,0,0.9)",
             }}
           >
-            Cinematic AI Video Creation
+            Create Anything. Cinematic Quality.
           </p>
 
-          <p
+          {/* WizSound label with stereo widening indicator */}
+          <div
             style={{
               position: "relative",
               zIndex: 1,
-              fontSize: "clamp(0.75rem, 1.2vw, 1rem)",
-              color: "rgba(167,139,250,0.95)",
-              marginTop: "0.8rem",
-              letterSpacing: "0.15em",
-              fontWeight: 500,
+              marginTop: "0.9rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
               opacity: showWizSound ? 1 : 0,
               transform: `translateY(${showWizSound ? "0" : "12px"}) scale(${showWizSound ? "1" : "0.95"})`,
               transition: "opacity 0.5s ease, transform 0.5s ease",
-              textShadow: "0 0 30px rgba(167,139,250,0.6), 0 0 60px rgba(124,58,237,0.3)",
-              animation: showWizSound ? "introWizSoundTextGlow 2s ease-in-out infinite alternate" : "none",
             }}
           >
-            Powered by WizSound™ &middot; Cinematic Spatial Audio
-          </p>
+            {/* Left audio bar */}
+            <div style={{ display: "flex", gap: "2px", alignItems: "center" }}>
+              {[0.4, 0.7, 1.0, 0.7, 0.4].map((h, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 3,
+                    height: `${h * 16}px`,
+                    background: "rgba(167,139,250,0.7)",
+                    borderRadius: 2,
+                    animation: showWizSound ? `introAudioBar${i} 0.6s ease-in-out ${i * 0.08}s infinite alternate` : "none",
+                  }}
+                />
+              ))}
+            </div>
 
+            <p
+              style={{
+                fontSize: "clamp(0.75rem, 1.2vw, 1rem)",
+                color: "rgba(167,139,250,0.97)",
+                letterSpacing: "0.15em",
+                fontWeight: 500,
+                textShadow: "0 0 30px rgba(167,139,250,0.7), 0 0 60px rgba(124,58,237,0.35)",
+                animation: showWizSound ? "introWizSoundTextGlow 2s ease-in-out infinite alternate" : "none",
+                margin: 0,
+              }}
+            >
+              Powered by WizSound™ &middot; Spatial Cinematic Audio
+            </p>
+
+            {/* Right audio bar */}
+            <div style={{ display: "flex", gap: "2px", alignItems: "center" }}>
+              {[0.4, 0.7, 1.0, 0.7, 0.4].map((h, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 3,
+                    height: `${h * 16}px`,
+                    background: "rgba(167,139,250,0.7)",
+                    borderRadius: 2,
+                    animation: showWizSound ? `introAudioBar${4 - i} 0.6s ease-in-out ${i * 0.08}s infinite alternate` : "none",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
           {videoEnded && (
             <button
               onClick={handleEnter}
-              aria-label="Start Creating Your Video"
+              aria-label="Create Your First Cinematic Video"
               style={{
                 position: "relative",
                 zIndex: 1,
@@ -472,21 +690,21 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
                 cursor: "pointer",
                 letterSpacing: "0.06em",
                 boxShadow:
-                  "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.25), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  "0 0 40px rgba(124,58,237,0.55), 0 0 80px rgba(124,58,237,0.28), inset 0 1px 0 rgba(255,255,255,0.15)",
                 opacity: 0,
                 transform: "translateY(20px)",
-                animation: "introCtaAppear 0.6s ease forwards 0.2s",
+                animation: "introCtaAppear 0.7s ease forwards 0.2s",
               }}
               onMouseEnter={(e) => {
                 const btn = e.currentTarget;
                 btn.style.boxShadow =
-                  "0 0 60px rgba(124,58,237,0.7), 0 0 120px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2)";
-                btn.style.transform = "translateY(0) scale(1.03)";
+                  "0 0 60px rgba(124,58,237,0.75), 0 0 120px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.2)";
+                btn.style.transform = "translateY(0) scale(1.04)";
               }}
               onMouseLeave={(e) => {
                 const btn = e.currentTarget;
                 btn.style.boxShadow =
-                  "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.25), inset 0 1px 0 rgba(255,255,255,0.15)";
+                  "0 0 40px rgba(124,58,237,0.55), 0 0 80px rgba(124,58,237,0.28), inset 0 1px 0 rgba(255,255,255,0.15)";
                 btn.style.transform = "translateY(0) scale(1)";
               }}
             >
@@ -574,7 +792,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               letterSpacing: "0.04em",
             }}
           >
-            Click for immersive audio
+            Click for immersive WizSound™ audio
           </span>
         </div>
       )}
@@ -601,13 +819,13 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         }
         @keyframes introImpactFlash {
           0% { opacity: 0; }
-          10% { opacity: 1; }
-          30% { opacity: 0.5; }
+          8% { opacity: 1; }
+          25% { opacity: 0.6; }
           100% { opacity: 0; }
         }
         @keyframes introLogoReveal {
           0% { opacity: 0; transform: scale(0.85); }
-          60% { opacity: 1; transform: scale(1.02); }
+          60% { opacity: 1; transform: scale(1.03); }
           100% { opacity: 1; transform: scale(1); }
         }
         @keyframes introGlowSweep {
@@ -625,7 +843,15 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         }
         @keyframes introWizSoundRing {
           0% { width: 0; height: 0; opacity: 1; }
-          100% { width: 80vw; height: 80vw; opacity: 0; }
+          100% { width: 90vw; height: 90vw; opacity: 0; }
+        }
+        @keyframes introWizSoundRingLeft {
+          0% { width: 0; height: 0; opacity: 1; }
+          100% { width: 70vw; height: 70vw; opacity: 0; }
+        }
+        @keyframes introWizSoundRingRight {
+          0% { width: 0; height: 0; opacity: 1; }
+          100% { width: 70vw; height: 70vw; opacity: 0; }
         }
         @keyframes introWizSoundPulse {
           0% { opacity: 0; }
@@ -634,7 +860,27 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         }
         @keyframes introWizSoundTextGlow {
           0% { text-shadow: 0 0 30px rgba(167,139,250,0.6), 0 0 60px rgba(124,58,237,0.3); }
-          100% { text-shadow: 0 0 50px rgba(167,139,250,0.9), 0 0 100px rgba(124,58,237,0.5), 0 0 150px rgba(139,92,246,0.2); }
+          100% { text-shadow: 0 0 55px rgba(167,139,250,0.95), 0 0 110px rgba(124,58,237,0.55), 0 0 160px rgba(139,92,246,0.25); }
+        }
+        @keyframes introAudioBar0 {
+          from { transform: scaleY(0.4); }
+          to { transform: scaleY(1.0); }
+        }
+        @keyframes introAudioBar1 {
+          from { transform: scaleY(0.6); }
+          to { transform: scaleY(1.2); }
+        }
+        @keyframes introAudioBar2 {
+          from { transform: scaleY(0.8); }
+          to { transform: scaleY(1.4); }
+        }
+        @keyframes introAudioBar3 {
+          from { transform: scaleY(0.5); }
+          to { transform: scaleY(1.1); }
+        }
+        @keyframes introAudioBar4 {
+          from { transform: scaleY(0.3); }
+          to { transform: scaleY(0.9); }
         }
       `}</style>
     </div>
