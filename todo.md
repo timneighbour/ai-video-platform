@@ -2615,3 +2615,15 @@
 - [x] Extend final frame hold to 3+ seconds minimum
 - [x] Compose final intro video with all refinements
 - [x] Upload to CDN and update CinematicIntroSequence component
+
+## Intro Video V8 — Complete Energy Overhaul
+- [x] Replace soundtrack with energetic, modern, cinematic track (rhythm/pulse, building intensity)
+- [x] Generate new Music Video scene clip (strong lighting, motion, energy, modern style)
+- [x] Generate new Cinematic Film scene clip (dramatic composition, strong lighting contrast, depth)
+- [x] Generate new Animation scene clip (expressive character movement, vibrant colours, personality)
+- [x] Generate new Creator Video scene clip (modern, engaging, dynamic)
+- [x] Generate new Logo Reveal scene clip (premium, impactful)
+- [x] Process audio: subtle intro → rising energy → strong impact at logo → confident ending
+- [x] Increase pacing — tighter cuts, no slow/dragging sections
+- [x] Compose final V8 intro with all new assets
+- [x] Upload to CDN and update CinematicIntroSequence component
