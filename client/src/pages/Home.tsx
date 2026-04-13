@@ -1791,12 +1791,25 @@ function HomePricing() {
       name: "Starter",
       price: "£9",
       period: "/mo",
-      annual: "£79/year",
-      saving: "save £29",
-      desc: "5 min · 720p · Watermark",
+      annual: "£90/year",
+      saving: "save £18",
+      desc: "2 renders · 720p",
       highlight: false,
       badge: null as string | null,
-      cta: "Start Free",
+      cta: "Get Started",
+      ctaStyle: "border border-white/20 bg-white/5 hover:bg-white/10 text-white",
+    },
+    {
+      id: "basic",
+      name: "Basic",
+      price: "£19",
+      period: "/mo",
+      annual: "£190/year",
+      saving: "save £38",
+      desc: "5 renders · 1080p HD",
+      highlight: false,
+      badge: null as string | null,
+      cta: "Get Started",
       ctaStyle: "border border-white/20 bg-white/5 hover:bg-white/10 text-white",
     },
     {
@@ -1804,25 +1817,38 @@ function HomePricing() {
       name: "Creator",
       price: "£29",
       period: "/mo",
-      annual: "£232/year",
-      saving: "save £116",
-      desc: "20 min · 1080p · No watermark",
+      annual: "£290/year",
+      saving: "save £58",
+      desc: "10 renders · HD + 4K",
       highlight: true,
       badge: "Most Popular",
       cta: "Get Started",
       ctaStyle: "bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white shadow-lg shadow-violet-500/25",
     },
     {
+      id: "pro",
+      name: "Pro",
+      price: "£59",
+      period: "/mo",
+      annual: "£590/year",
+      saving: "save £118",
+      desc: "25 renders · 4K · Priority",
+      highlight: false,
+      badge: null as string | null,
+      cta: "Go Pro",
+      ctaStyle: "border border-fuchsia-500/40 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-300",
+    },
+    {
       id: "studio",
       name: "Studio",
       price: "£99",
       period: "/mo",
-      annual: "£792/year",
-      saving: "save £396",
-      desc: "60 min · 4K · Full cinematic",
+      annual: "£990/year",
+      saving: "save £198",
+      desc: "50 renders · 4K · API",
       highlight: false,
       badge: "Best Value",
-      cta: "Go Pro",
+      cta: "Go Studio",
       ctaStyle: "border border-fuchsia-500/40 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-300",
     },
   ];
@@ -1843,7 +1869,7 @@ function HomePricing() {
           <p className="text-sm text-violet-300/80 font-medium">Start free — upgrade only when you're ready</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           {plans.map((plan) => (
             <a
               key={plan.id}
@@ -1910,8 +1936,8 @@ function HomePricing() {
 
         <div className="text-center">
           <p className="text-sm font-medium mb-4">
-            <strong className="text-green-400">✓ Save £116/year</strong>{" "}
-            <span className="text-[#a1a1aa]">on Creator with annual billing — equivalent to 2 months free</span>
+            <strong className="text-green-400">✓ Save up to £198/year</strong>{" "}
+            <span className="text-[#a1a1aa]">with annual billing — equivalent to 2 months free on every plan</span>
           </p>
           <a
             href="/pricing"

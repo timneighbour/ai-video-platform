@@ -2768,3 +2768,38 @@
 - [x] Update tagline to "Your Story. Cinematic Quality. No Crew Needed."
 - [x] Genre labels updated to "Your Music Videos", "Your Cinematic Films", "Your Creator Content"
 - [x] 335/335 tests passing, 0 TypeScript errors
+
+## Pricing Fixes
+- [ ] Restore Starter £19/month plan to Subscribe.tsx subscription plans
+- [ ] Add new pricing section to Home.tsx with exact copy provided by Tim
+- [ ] Home pricing: headline "Create videos from £1 per minute", subheadline, 3 plan cards (Starter/Creator/Studio)
+- [ ] Home pricing: Cinematic Pack add-on card (£7)
+- [ ] Home pricing: trust signals (free storyboard, no credit card, cancel anytime, annual savings)
+- [ ] Home pricing: "See full pricing & compare plans →" link to /subscribe
+
+## Starter Plan Fix
+- [ ] Diagnose why Starter £19/month is missing from Subscribe page
+- [ ] Restore/add Starter £19/month plan card to Subscribe.tsx
+- [ ] Ensure Starter plan appears correctly in the plan grid
+
+## 5-Tier Subscription Pricing Update
+- [ ] Rewrite Subscribe.tsx: 6 plan cards (Free + Starter £9 + Basic £19 + Creator £29 + Pro £59 + Studio £99)
+- [ ] Subscribe.tsx: monthly/annual toggle (2 months free on annual)
+- [ ] Subscribe.tsx: "Most Popular" badge on Creator £29
+- [ ] Subscribe.tsx: correct features per tier (renders, quality, rendering speed, WizSound discount)
+- [ ] Update products.ts: 5 paid tiers with correct prices, features, Stripe price ID mappings
+- [ ] Update Home.tsx HomePricing section to show new 5-tier model
+- [ ] Update billing router to handle all 5 plan IDs (starter/basic/creator/pro/studio)
+- [ ] Annual pricing: Starter £90/yr, Basic £190/yr, Creator £290/yr, Pro £590/yr, Studio £990/yr
+
+## Pricing Page Conversion Optimisation
+- [x] Above-the-fold hero: "Create for free. Only pay when you render." headline + sub + trust line
+- [x] Monthly/Annual toggle with "Save 2 months with annual" label
+- [x] 5 plan cards in order £9 → £19 → £29 → £59 → £99, £29 highlighted with glow + "Most Popular" badge
+- [x] Outcome-focused plan copy ("Create up to 10 videos/month")
+- [x] CTA buttons: "Start Creating" / "Upgrade Plan" (not "Subscribe")
+- [x] Pay-per-render section: "Not ready for a plan? Pay as you go." with 720p/1080p/4K/Cinematic Pack
+- [x] WizSound section: "Make your video cinematic" with Cinematic option highlighted
+- [x] Render bundles section: "Save with render bundles" with best value highlighted
+- [x] Minimal comparison table
+- [x] Bottom CTA: "Start building your video for free" + "Start Creating →" button

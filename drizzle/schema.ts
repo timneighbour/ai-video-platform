@@ -30,7 +30,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const subscriptions = mysqlTable("subscriptions", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  plan: mysqlEnum("plan", ["starter", "pro", "business", "creator", "studio"]).notNull(),
+  plan: mysqlEnum("plan", ["starter", "basic", "pro", "business", "creator", "studio"]).notNull(),
   stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).unique(),
   status: mysqlEnum("status", ["active", "canceled", "past_due", "unpaid"]).default("active").notNull(),
   currentPeriodStart: timestamp("currentPeriodStart"),

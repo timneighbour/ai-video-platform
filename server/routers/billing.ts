@@ -34,6 +34,7 @@ export const billingRouter = router({
       status: sub?.status ?? "inactive",
       isActive: sub?.status === "active",
       isPro: sub?.plan === "creator" || sub?.plan === "studio" || sub?.plan === "pro" || sub?.plan === "business",
+      isBasic: sub?.plan === "basic",
       isStarter: sub?.plan === "starter",
     };
   }),
@@ -266,23 +267,27 @@ export const billingRouter = router({
   createSubscriptionCheckout: protectedProcedure
     .input(
       z.object({
-        plan: z.enum(["starter", "creator", "studio"]),
+        plan: z.enum(["starter", "basic", "creator", "pro", "studio"]),
         origin: z.string().url(),
         billingInterval: z.enum(["monthly", "annual"]).default("monthly"),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Monthly price IDs (new keys: starter/creator/studio)
+        // Monthly price IDs for all 5 tiers
         const monthlyPrices: Record<string, string> = {
           starter: process.env.STRIPE_STARTER_PRICE_ID || "",
+          basic: process.env.STRIPE_BASIC_PRICE_ID || "",
           creator: process.env.STRIPE_PRO_PRICE_ID || "",
+          pro: process.env.STRIPE_PRO_PLUS_PRICE_ID || "",
           studio: process.env.STRIPE_BUSINESS_PRICE_ID || "",
         };
         // Annual price IDs (2 months free)
         const annualPrices: Record<string, string> = {
           starter: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || monthlyPrices.starter,
+          basic: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID || monthlyPrices.basic,
           creator: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || monthlyPrices.creator,
+          pro: process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID || monthlyPrices.pro,
           studio: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || monthlyPrices.studio,
         };
 

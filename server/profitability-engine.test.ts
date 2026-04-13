@@ -191,12 +191,12 @@ describe("estimateVideoCostGBP", () => {
 
 describe("isWithinMonthlyLimit", () => {
   it("allows creation when under limit", () => {
-    expect(isWithinMonthlyLimit(4, "starter")).toBe(true); // starter: max 5
+    expect(isWithinMonthlyLimit(1, "starter")).toBe(true); // starter: max 2
     expect(isWithinMonthlyLimit(0, "free")).toBe(true);    // free: max 2
   });
 
   it("blocks creation when at or over limit", () => {
-    expect(isWithinMonthlyLimit(5, "starter")).toBe(false); // starter: max 5
+    expect(isWithinMonthlyLimit(2, "starter")).toBe(false); // starter: max 2
     expect(isWithinMonthlyLimit(2, "free")).toBe(false);     // free: max 2
     expect(isWithinMonthlyLimit(20, "creator")).toBe(false);  // creator: max 20
   });
