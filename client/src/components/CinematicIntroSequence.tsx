@@ -24,10 +24,6 @@ import { useRef, useState, useEffect, useCallback } from "react";
 const INTRO_VIDEO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v10-intro-final_825d36e4.mp4";
 
-// The soundtrack is the audio track baked into the video — we extract it as a separate
-// audio element so we control unmute independently of the video element.
-const INTRO_AUDIO_URL = INTRO_VIDEO_URL; // same file — browsers can play audio from MP4
-
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
@@ -59,12 +55,7 @@ interface Props {
 
 export default function CinematicIntroSequence({ onComplete }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  // Separate audio element — never connected to Web Audio API unless user clicks
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number>(0);
-  // Web Audio (optional stereo widening — only attached to audioRef, never videoRef)
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const pannerRef = useRef<StereoPannerNode | null>(null);
   const wizSoundStartedRef = useRef(false);
 
   const [currentTime, setCurrentTime] = useState(0);
@@ -77,94 +68,25 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const [wizSoundPulse, setWizSoundPulse] = useState(false);
   const [heroZoom, setHeroZoom] = useState(false);
 
-  /* ── Create separate Audio element on mount ── */
+  /* ── Nothing to set up — audio comes directly from the <video> element ── */
   useEffect(() => {
-    const audio = new Audio(INTRO_AUDIO_URL);
-    audio.preload = "auto";
-    audio.muted = true; // starts muted — unmuted on first click
-    audio.volume = 1.0;
-    audioRef.current = audio;
-
     return () => {
-      audio.pause();
-      audio.src = "";
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close().catch(() => {});
-      }
+      cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
-  /* ── Sync audio playback with video ── */
-  useEffect(() => {
-    const video = videoRef.current;
-    const audio = audioRef.current;
-    if (!video || !audio) return;
+  /* ── No separate audio sync needed — video element handles its own audio ── */
 
-    const onPlay = () => {
-      // Sync audio to video position and play
-      audio.currentTime = video.currentTime;
-      if (!audio.muted) {
-        audio.play().catch(() => {});
-      }
-    };
-    const onPause = () => audio.pause();
-    const onSeeked = () => { audio.currentTime = video.currentTime; };
-    const onEnded = () => audio.pause();
-
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-    video.addEventListener("seeked", onSeeked);
-    video.addEventListener("ended", onEnded);
-
-    return () => {
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
-      video.removeEventListener("seeked", onSeeked);
-      video.removeEventListener("ended", onEnded);
-    };
-  }, []);
-
-  /* ── Optional: Web Audio stereo widening on the Audio() element ── */
+  /* ── No Web Audio API used ── */
   const initWizSoundStereo = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio || audioCtxRef.current) return; // already initialised
-
-    try {
-      const ctx = new (window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-
-      if (ctx.state === "suspended") await ctx.resume();
-
-      // Connect the Audio() element (NOT the video element) to Web Audio
-      const source = ctx.createMediaElementSource(audio);
-      const panner = ctx.createStereoPanner();
-      panner.pan.value = 0;
-      pannerRef.current = panner;
-
-      source.connect(panner);
-      panner.connect(ctx.destination);
-      audioCtxRef.current = ctx;
-    } catch {
-      // Web Audio unavailable — audio still plays natively, just no stereo sweep
-      audioCtxRef.current = null;
-    }
+    // Intentionally empty — stereo widening is visual-only via CSS animation
   }, []);
 
-  /* ── Trigger WizSound stereo pan sweep ── */
+  /* ── Trigger WizSound visual effect (CSS-only) ── */
   const triggerWizSoundStereo = useCallback(() => {
-    const ctx = audioCtxRef.current;
-    const panner = pannerRef.current;
-    if (!ctx || !panner || wizSoundStartedRef.current) return;
-
+    if (wizSoundStartedRef.current) return;
     wizSoundStartedRef.current = true;
-    const now = ctx.currentTime;
-    panner.pan.cancelScheduledValues(now);
-    panner.pan.setValueAtTime(0, now);
-    panner.pan.linearRampToValueAtTime(-1, now + 0.5);
-    panner.pan.linearRampToValueAtTime(1, now + 1.2);
-    panner.pan.linearRampToValueAtTime(-0.6, now + 1.8);
-    panner.pan.linearRampToValueAtTime(0.6, now + 2.4);
-    panner.pan.linearRampToValueAtTime(0, now + 3.0);
+    // Visual pulse only — no Web Audio
   }, []);
 
   /* ── Video time sync loop ── */
@@ -221,38 +143,26 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     return () => video.removeEventListener("ended", handleEnd);
   }, []);
 
-  /* ── Unmute: purely native — no Web Audio dependency ── */
-  const handleInteraction = useCallback(async () => {
+  /* ── Unmute: toggle video.muted directly — simplest possible approach ── */
+  const handleInteraction = useCallback(() => {
     if (audioUnmuted) return;
-    const audio = audioRef.current;
     const video = videoRef.current;
-    if (!audio || !video) return;
+    if (!video) return;
 
-    // Step 1: Unmute the Audio element immediately (native, always works)
-    audio.muted = false;
-    audio.volume = 1.0;
-
-    // Step 2: If video is already playing, start audio in sync
-    if (!video.paused) {
-      audio.currentTime = video.currentTime;
-      try { await audio.play(); } catch { /* ignore */ }
-    }
-
+    // Directly unmute the video element — this always works
+    video.muted = false;
+    video.volume = 1.0;
     setAudioUnmuted(true);
 
-    // Step 3: Wire up Web Audio for stereo widening (non-blocking, best-effort)
-    // This only touches the Audio() element, never the video element
-    initWizSoundStereo().catch(() => {});
+    // Trigger visual WizSound effect (CSS-only, no Web Audio)
+    initWizSoundStereo();
   }, [audioUnmuted, initWizSoundStereo]);
 
   /* ── Skip ── */
   const handleSkip = useCallback(() => {
     const video = videoRef.current;
-    const audio = audioRef.current;
     if (video) video.pause();
-    if (audio) audio.pause();
     cancelAnimationFrame(rafRef.current);
-    try { audioCtxRef.current?.close(); } catch { /* ignore */ }
     onComplete();
   }, [onComplete]);
 
@@ -304,7 +214,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         cursor: audioUnmuted ? "default" : "pointer",
       }}
     >
-      {/* ── VIDEO (muted permanently — audio comes from separate Audio element) ── */}
+      {/* ── VIDEO — muted by default, unmuted on first click ── */}
       <video
         ref={videoRef}
         src={INTRO_VIDEO_URL}

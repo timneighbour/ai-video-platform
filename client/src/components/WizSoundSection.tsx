@@ -123,26 +123,22 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
   const [switching, setSwitching] = useState(false);
   const [ready, setReady] = useState(false);
 
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const gainStdRef = useRef<GainNode | null>(null);
-  const gainCinRef = useRef<GainNode | null>(null);
+  // Plain audio elements — NO Web Audio API, NO crossOrigin, NO MediaElementSource
   const audioStdRef = useRef<HTMLAudioElement | null>(null);
   const audioCinRef = useRef<HTMLAudioElement | null>(null);
-  const connectedRef = useRef(false);
   const rafRef = useRef<number>(0);
 
   // Create both audio elements on mount
   useEffect(() => {
     const std = new Audio(AUDIO_STANDARD);
     std.preload = "auto";
-    std.crossOrigin = "anonymous";
     std.loop = true;
+    std.volume = 0; // start silent — only one plays at a time
 
     const cin = new Audio(AUDIO_CINEMATIC);
     cin.preload = "auto";
-    cin.crossOrigin = "anonymous";
     cin.loop = true;
+    cin.volume = 1; // cinematic starts as active
 
     audioStdRef.current = std;
     audioCinRef.current = cin;
@@ -151,80 +147,29 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
     const onCanPlay = () => { loadCount++; if (loadCount >= 2) setReady(true); };
     std.addEventListener("canplaythrough", onCanPlay);
     cin.addEventListener("canplaythrough", onCanPlay);
+    // Also mark ready after a short timeout in case canplaythrough fires early
+    const timer = setTimeout(() => setReady(true), 2000);
 
     return () => {
+      clearTimeout(timer);
       std.removeEventListener("canplaythrough", onCanPlay);
       cin.removeEventListener("canplaythrough", onCanPlay);
       std.pause(); std.src = "";
       cin.pause(); cin.src = "";
       cancelAnimationFrame(rafRef.current);
-      if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
-        audioCtxRef.current.close();
-      }
     };
-  }, []);
-
-  // Set up Web Audio graph: both sources → individual gain nodes → analyser → destination
-  // Both play simultaneously; we crossfade gain to switch instantly
-  const ensureAudioGraph = useCallback(async () => {
-    if (connectedRef.current) {
-      // Already built — just ensure context is running
-      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-        await audioCtxRef.current.resume();
-      }
-      return;
-    }
-    const std = audioStdRef.current;
-    const cin = audioCinRef.current;
-    if (!std || !cin) return;
-
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-
-    // Resume immediately — required on Chrome/Safari when context is created
-    // outside a direct synchronous user-gesture handler
-    if (ctx.state === "suspended") {
-      await ctx.resume();
-    }
-
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.75;
-
-    const gainStd = ctx.createGain();
-    const gainCin = ctx.createGain();
-
-    // Start with cinematic active
-    gainStd.gain.value = 0;
-    gainCin.gain.value = 0.85;
-
-    const srcStd = ctx.createMediaElementSource(std);
-    const srcCin = ctx.createMediaElementSource(cin);
-
-    srcStd.connect(gainStd);
-    srcCin.connect(gainCin);
-    gainStd.connect(analyser);
-    gainCin.connect(analyser);
-    analyser.connect(ctx.destination);
-
-    audioCtxRef.current = ctx;
-    analyserRef.current = analyser;
-    gainStdRef.current = gainStd;
-    gainCinRef.current = gainCin;
-    connectedRef.current = true;
   }, []);
 
   // Progress tracker
   const trackProgress = useCallback(() => {
     const audio = wizsound ? audioCinRef.current : audioStdRef.current;
-    if (!audio || !audio.duration) {
-      rafRef.current = requestAnimationFrame(trackProgress);
-      return;
+    if (audio && audio.duration) {
+      setProgress((audio.currentTime / audio.duration) * 100);
     }
-    setProgress((audio.currentTime / audio.duration) * 100);
     rafRef.current = requestAnimationFrame(trackProgress);
   }, [wizsound]);
 
-  // Switch mode: instant crossfade via gain nodes (no reconnection needed)
+  // Switch mode: pause inactive, play active at same position
   const switchMode = useCallback((toCinematic: boolean) => {
     if (toCinematic === wizsound) return;
     setSwitching(true);
@@ -233,37 +178,29 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
     const cin = audioCinRef.current;
     if (!std || !cin) return;
 
-    // Sync playback position
     if (toCinematic) {
+      // Sync cinematic to standard position, then swap
       cin.currentTime = std.currentTime;
+      std.volume = 0;
+      if (playing && !muted) {
+        cin.volume = 1;
+        cin.play().catch(() => {});
+      }
     } else {
+      // Sync standard to cinematic position, then swap
       std.currentTime = cin.currentTime;
-    }
-
-    // Crossfade gains
-    const vol = muted ? 0 : 0.85;
-    if (gainStdRef.current && gainCinRef.current) {
-      if (toCinematic) {
-        gainStdRef.current.gain.setTargetAtTime(0, audioCtxRef.current!.currentTime, 0.05);
-        gainCinRef.current.gain.setTargetAtTime(vol, audioCtxRef.current!.currentTime, 0.05);
-      } else {
-        gainCinRef.current.gain.setTargetAtTime(0, audioCtxRef.current!.currentTime, 0.05);
-        gainStdRef.current.gain.setTargetAtTime(vol, audioCtxRef.current!.currentTime, 0.05);
+      cin.volume = 0;
+      if (playing && !muted) {
+        std.volume = 1;
+        std.play().catch(() => {});
       }
     }
 
     setWizsound(toCinematic);
     setTimeout(() => setSwitching(false), 120);
-  }, [wizsound, muted]);
+  }, [wizsound, playing, muted]);
 
   const togglePlay = useCallback(async () => {
-    // Build graph AND resume context — must be awaited inside the click handler
-    await ensureAudioGraph();
-    // Double-check resume in case context was suspended between calls
-    if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
-      await audioCtxRef.current.resume();
-    }
-
     const std = audioStdRef.current;
     const cin = audioCinRef.current;
     if (!std || !cin) return;
@@ -274,34 +211,35 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
     } else {
-      // Set initial gains
-      if (gainStdRef.current && gainCinRef.current) {
-        const vol = muted ? 0 : 0.85;
-        gainStdRef.current.gain.value = wizsound ? 0 : vol;
-        gainCinRef.current.gain.value = wizsound ? vol : 0;
-      }
-      // Play both simultaneously (one is muted via gain)
+      // Play only the active track
+      const active = wizsound ? cin : std;
+      const inactive = wizsound ? std : cin;
+      inactive.volume = 0;
+      if (!muted) active.volume = 1;
       try {
-        await Promise.all([std.play(), cin.play()]);
+        await active.play();
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
         setPlaying(false);
       }
     }
-  }, [playing, wizsound, muted, trackProgress, ensureAudioGraph]);
+  }, [playing, wizsound, muted, trackProgress]);
 
   const toggleMute = () => {
     const next = !muted;
     setMuted(next);
-    if (gainStdRef.current && gainCinRef.current) {
-      if (next) {
-        gainStdRef.current.gain.value = 0;
-        gainCinRef.current.gain.value = 0;
-      } else {
-        gainStdRef.current.gain.value = wizsound ? 0 : 0.85;
-        gainCinRef.current.gain.value = wizsound ? 0.85 : 0;
-      }
+    const std = audioStdRef.current;
+    const cin = audioCinRef.current;
+    if (!std || !cin) return;
+    if (next) {
+      // Mute: silence both
+      std.volume = 0;
+      cin.volume = 0;
+    } else {
+      // Unmute: restore active track volume
+      std.volume = wizsound ? 0 : 1;
+      cin.volume = wizsound ? 1 : 0;
     }
   };
 
@@ -344,7 +282,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
         }}
       >
         <FrequencyWaveform
-          analyser={analyserRef.current}
+          analyser={null}
           active={playing}
           wizsound={wizsound}
         />

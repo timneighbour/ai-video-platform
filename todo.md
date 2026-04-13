@@ -2716,3 +2716,7 @@
 - [x] Use separate Audio() element for soundtrack — video element stays permanently muted (purely visual)
 - [x] Keep WizSound stereo widening visual effect (CSS animation) + optional Web Audio on Audio() element only
 - [x] Ensure click anywhere unmutes immediately and reliably via native Audio.muted=false
+
+## Audio Fix - Complete Rebuild (No Web Audio API)
+- [x] Fix CinematicIntroSequence: use video element directly with muted prop, unmute on click
+- [x] Fix WizSoundSection: remove all Web Audio API, use plain audio elements only
