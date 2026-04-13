@@ -176,8 +176,7 @@ export default function Help() {
           {[
             { icon: <Music className="w-4 h-4" />, label: "Music Video", href: "/music-video" },
             { icon: <Video className="w-4 h-4" />, label: "WizPilot", href: "/wizpilot" },
-            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/seo/ai-kids-video-generator" },
-            { icon: <MessageCircle className="w-4 h-4" />, label: "Live Chat", href: "#chat" },
+            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/kids-video" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
               <div className="p-4 rounded-xl bg-[#171717] border border-white/8 hover:border-white/15 transition-all cursor-pointer text-center card-hover">
@@ -186,6 +185,14 @@ export default function Help() {
               </div>
             </Link>
           ))}
+          <div
+            key="live-chat"
+            onClick={() => { if (typeof window !== "undefined" && (window as any).$crisp) { (window as any).$crisp.push(["do", "chat:open"]); } }}
+            className="p-4 rounded-xl bg-[#171717] border border-white/8 hover:border-white/15 transition-all cursor-pointer text-center card-hover"
+          >
+            <div className="text-[#a1a1aa] flex justify-center mb-2"><MessageCircle className="w-4 h-4" /></div>
+            <p className="text-white text-xs font-medium">Live Chat</p>
+          </div>
         </div>
 
         {/* Category filter */}

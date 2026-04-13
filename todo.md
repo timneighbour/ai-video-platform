@@ -2731,3 +2731,22 @@
 - [x] Use WizSound™ processed audio track for the intro video soundtrack (not raw video audio)
 - [x] Fix stale video element comment
 - [x] Confirm TypeScript clean
+
+## Site-Wide Button & Navigation Audit
+- [ ] Fix intro video: Skip and Mute buttons unclickable (container div intercepts clicks)
+- [ ] Audit App.tsx routes — ensure all pages are registered
+- [ ] Audit homepage navigation links
+- [ ] Audit all back buttons across pages
+- [ ] Audit all CTA buttons across pages
+- [ ] Fix any broken routes or dead links found
+
+## Site-Wide Button & Navigation Audit - COMPLETED ✅
+- [x] Fix intro video buttons: remove onClick from container div, raise button z-index to 100
+- [x] Audit all pages for broken links, missing routes, dead buttons
+- [x] Fix Blog.tsx and BlogPost.tsx broken /create links → /music-video/create
+- [x] Fix Help.tsx Live Chat #chat link → onClick Crisp open (also fixed Kids Content link to /kids-video)
+- [x] Verify all routes registered in App.tsx validRoutes and Route components
+- [x] Verify all back buttons have correct fallback destinations
+- [x] Confirmed: all pages have working back/home navigation
+- [x] Confirmed: all footer links point to registered routes
+- [x] Confirmed: Onboarding options all point to valid routes

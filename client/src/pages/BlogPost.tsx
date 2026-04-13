@@ -128,7 +128,7 @@ export default function BlogPost() {
               <Link href="/blog" className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1">
                 <ArrowLeft className="w-3.5 h-3.5" /> Blog
               </Link>
-              <Link href="/create">
+              <Link href="/music-video/create">
                 <Button size="sm" className="bg-violet-600 hover:bg-violet-500 text-white text-sm h-8">
                   Create Video
                 </Button>
@@ -197,7 +197,7 @@ export default function BlogPost() {
           <div className="mt-14 p-6 rounded-xl border border-violet-500/20 bg-violet-500/5 text-center">
             <h3 className="text-lg font-bold text-white mb-2">Ready to create your first AI video?</h3>
             <p className="text-white/50 text-sm mb-4">Free to create. Only pay when you render.</p>
-            <Link href="/create">
+            <Link href="/music-video/create">
               <Button className="bg-violet-600 hover:bg-violet-500 text-white">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

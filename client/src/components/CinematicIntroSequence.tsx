@@ -245,7 +245,6 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   return (
     <div
       ref={containerRef}
-      onClick={handleInteraction}
       style={{
         position: "fixed",
         inset: 0,
@@ -451,7 +450,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           onClick={(e) => { e.stopPropagation(); handleSkip(); }}
           aria-label="Skip intro"
           style={{
-            position: "absolute", top: "1.5rem", right: "1.5rem", zIndex: 30,
+            position: "absolute", top: "1.5rem", right: "1.5rem", zIndex: 100,
             padding: "0.5rem 1.25rem", fontSize: "0.8rem", fontWeight: 500,
             color: "rgba(255,255,255,0.6)", background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.1)", borderRadius: "9999px",
@@ -472,7 +471,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           onClick={(e) => { e.stopPropagation(); toggleMute(); }}
           aria-label={muted ? "Unmute audio" : "Mute audio"}
           style={{
-            position: "absolute", bottom: "2.5rem", right: "1.5rem", zIndex: 30,
+            position: "absolute", bottom: "2.5rem", right: "1.5rem", zIndex: 100,
             display: "flex", alignItems: "center", gap: "0.4rem",
             padding: "0.45rem 1rem",
             background: "rgba(0,0,0,0.5)", borderRadius: "9999px",
