@@ -2978,3 +2978,10 @@
 - [x] Refunds.tsx: logo, back to home, inline /terms link, footer links → Link
 - [x] Onboarding.tsx: Terms/Privacy footer links → Link
 - [x] TypeScript: 0 errors, Tests: 338/338 passing
+
+## Conversion Optimisations
+- [x] Fix broken Music Video / app navigation (Onboarding.tsx converted to wouter navigate)
+- [x] WizSound audio differential: rebuilt with Web Audio API real-time processing (bass boost, stereo widening, reverb, compression)
+- [x] Try an Example section: pre-filled prompts (Hip-Hop, Rock, R&B, Pop, Cinematic) with one-click navigation
+- [x] Pricing guidance: "Most creators start here — £29" banner + plan card tooltip
+- [x] Confidence messaging: "No editing skills needed — just describe your video" in hero and ImmediateValue bullets

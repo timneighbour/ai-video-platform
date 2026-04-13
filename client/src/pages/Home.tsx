@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { mp } from "@/lib/mixpanel";
 import CinematicIntroSequence from "@/components/CinematicIntroSequence";
 import { Button } from "@/components/ui/button";
@@ -540,9 +540,10 @@ function Hero() {
             {/* Value bullets */}
             <div className="relative z-10 mb-7 flex flex-col gap-2.5">
               {[
-                { icon: "🎬", text: "Full videos — not clips" },
+                { icon: "🎤", text: "Full videos — not clips" },
                 { icon: "👁️", text: "Preview before you pay" },
                 { icon: "🎵", text: "Cinematic audio with WizSound™" },
+                { icon: "✨", text: "No editing skills needed — just describe your video" },
               ].map((b) => (
                 <div key={b.text} className="inline-flex items-center gap-2.5 text-sm text-white/80 font-medium">
                   <span className="text-base leading-none">{b.icon}</span>
@@ -655,6 +656,104 @@ function Hero() {
   );
 }
 
+// ── Try an Example ─────────────────────────────────────────────────────────
+const EXAMPLE_PROMPTS = [
+  { label: "🎤 Hip-Hop", prompt: "A cinematic hip-hop music video — artist performing on a rooftop at golden hour, city skyline, slow-motion crowd shots, neon lights", genre: "Hip-Hop" },
+  { label: "🎸 Rock", prompt: "An epic rock music video — electric guitar solo on a stormy mountain peak, lightning strikes, dramatic wide shots, dark cinematic atmosphere", genre: "Rock" },
+  { label: "🌙 R&B", prompt: "A moody R&B music video — artist in a rain-soaked city street at midnight, neon reflections, intimate close-ups, cinematic slow motion", genre: "R&B" },
+  { label: "🎹 Pop", prompt: "A vibrant pop music video — colourful dance sequences, confetti, bright studio lights, high-energy choreography, fun and upbeat", genre: "Pop" },
+  { label: "🎻 Cinematic", prompt: "A sweeping cinematic orchestral video — aerial shots of mountain ranges at sunrise, dramatic clouds, epic scale, emotional storytelling", genre: "Cinematic" },
+];
+
+function TryAnExample() {
+  const [, navigate] = useLocation();
+  const [selected, setSelected] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold: 0.15 }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const handleTryExample = () => {
+    const prompt = EXAMPLE_PROMPTS[selected].prompt;
+    navigate(`/music-video/create?prompt=${encodeURIComponent(prompt)}`);
+  };
+
+  return (
+    <section
+      ref={ref}
+      className="py-20 px-6 bg-gradient-to-b from-[#0d0d18] to-[#0f0f0f] border-t border-white/6"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(24px)",
+        transition: "opacity 0.7s ease, transform 0.7s ease",
+      }}
+    >
+      <div className="max-w-3xl mx-auto text-center">
+        {/* Header */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-widest uppercase font-semibold mb-6">
+          <Sparkles className="w-3 h-3" />
+          Instant First Win
+        </div>
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
+          Try an example — one click to start
+        </h2>
+        <p className="text-white/50 text-base mb-8 max-w-xl mx-auto">
+          No editing skills needed. Just describe your video and WizVid does the rest.
+        </p>
+
+        {/* Prompt selector tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          {EXAMPLE_PROMPTS.map((ex, i) => (
+            <button
+              key={i}
+              onClick={() => setSelected(i)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                selected === i
+                  ? "bg-violet-600 text-white shadow-lg shadow-violet-500/25"
+                  : "bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {ex.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Prompt preview */}
+        <div className="relative mb-8 p-5 rounded-2xl border border-violet-500/25 bg-violet-500/5 text-left">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+            <span className="text-xs font-mono text-violet-400/80 uppercase tracking-widest">Example prompt</span>
+          </div>
+          <p className="text-white/80 text-sm leading-relaxed font-medium">
+            {EXAMPLE_PROMPTS[selected].prompt}
+          </p>
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={handleTryExample}
+          className="inline-flex items-center gap-3 bg-white text-black font-bold px-8 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:shadow-[0_0_70px_rgba(255,255,255,0.35)] hover:bg-white/95 transition-all duration-300 text-base"
+        >
+          <Sparkles className="w-5 h-5 flex-shrink-0" />
+          Try This Example Free
+          <ArrowRight className="w-4 h-4" />
+        </button>
+
+        <p className="text-white/30 text-xs mt-4">
+          Free to create · No credit card · Only pay when you render
+        </p>
+      </div>
+    </section>
+  );
+}
+
 // ── Immediate Value Section ─────────────────────────────────────────────────
 function ImmediateValue() {
   return (
@@ -672,6 +771,7 @@ function ImmediateValue() {
                 { icon: "⚡", text: "AI builds your full storyboard in under 30 seconds" },
                 { icon: "👁️", text: "Preview every scene — edit any prompt before rendering" },
                 { icon: "🎛️", text: "Full creative control, zero technical skill required" },
+                { icon: "✨", text: "No editing skills needed — just describe your video" },
               ].map((item) => (
                 <li key={item.text} className="flex items-start gap-3">
                   <span className="text-xl flex-shrink-0 mt-0.5">{item.icon}</span>
@@ -2056,17 +2156,37 @@ function HomePricing() {
           <p className="text-sm text-violet-300/80 font-medium mt-2">Start free — upgrade only when you're ready</p>
         </div>
 
+        {/* Decision guidance banner */}
+        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 rounded-2xl border border-violet-500/30 bg-gradient-to-r from-violet-950/50 to-indigo-950/30">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">👋</span>
+            <div className="text-left">
+              <p className="text-white font-bold text-sm">Most creators start here — <span className="text-violet-300">Creator at £29/mo</span></p>
+              <p className="text-white/50 text-xs mt-0.5">10 renders · HD + 4K · WizSound included · No editing skills needed</p>
+            </div>
+          </div>
+          <Link href="/pricing?plan=creator" className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-colors">
+            <Sparkles className="w-3.5 h-3.5" />
+            Start with Creator
+          </Link>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
           {plans.map((plan) => (
             <a
               key={plan.id}
               href={`/pricing?plan=${plan.id}`}
-              className={`block rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
+              className={`relative block rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
                 plan.highlight
                   ? "border-violet-500/50 bg-violet-500/8 shadow-lg shadow-violet-500/10"
                   : "border-white/8 bg-white/3 hover:border-white/15"
               }`}
             >
+              {plan.highlight && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-violet-600 text-white text-[9px] font-bold tracking-wide shadow-lg">
+                  👋 Most creators start here
+                </div>
+              )}
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-white text-base">
                   {plan.highlight ? "⭐ " : ""}{plan.name}
@@ -2429,6 +2549,7 @@ export default function Home() {
       <Nav />
       <main id="main-content">
         <Hero />
+        <TryAnExample />
         <DemoSection />
         <WizSoundSection />
         <ImmediateValue />
