@@ -1,5 +1,3 @@
-import { } from "react";
-import { useLocation } from "wouter";
 import BackButton from "@/components/BackButton";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -73,7 +71,6 @@ function formatDate(ts: Date | string | number): string {
 }
 
 export default function MyProjects() {
-  const [, navigate] = useLocation();
   // toast imported from sonner
   const utils = trpc.useUtils();
 
@@ -90,7 +87,7 @@ export default function MyProjects() {
   });
 
   function openProject(jobId: number) {
-    navigate(`/music-video/create?jobId=${jobId}`);
+    window.location.href = `/music-video/create?jobId=${jobId}`;
   }
 
   function downloadFile(url: string, filename: string) {
@@ -118,10 +115,10 @@ export default function MyProjects() {
               {jobs ? `${jobs.length} project${jobs.length !== 1 ? "s" : ""}` : "Loading your projects..."}
             </p>
           </div>
-          <Button onClick={() => navigate("/music-video/create")} className="flex items-center gap-2">
+          <a href="/music-video/create" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
             <Plus className="w-4 h-4" />
             New Project
-          </Button>
+          </a>
         </div>
 
         {/* Loading state */}
@@ -139,10 +136,10 @@ export default function MyProjects() {
             <p className="text-muted-foreground mb-6 max-w-sm">
               Create your first AI music video to get started. Upload a song and let WizVid do the rest.
             </p>
-            <Button onClick={() => navigate("/music-video/create")}>
+            <a href="/music-video/create" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Video
-            </Button>
+            </a>
           </div>
         )}
 

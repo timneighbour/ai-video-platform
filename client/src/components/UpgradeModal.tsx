@@ -1,7 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, Infinity, X } from "lucide-react";
-import { useLocation } from "wouter";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -44,14 +42,8 @@ const PRO_FEATURES = [
   { icon: <Sparkles className="w-4 h-4" />, text: "4K quality output" },
 ];
 
-export default function UpgradeModal({ open, onClose, trigger = "milestone", videosCreated }: UpgradeModalProps) {
-  const [, navigate] = useLocation();
+export default function UpgradeModal({ open, onClose, trigger = "milestone" }: UpgradeModalProps) {
   const content = TRIGGER_CONTENT[trigger];
-
-  const handleUpgrade = () => {
-    onClose();
-    navigate("/pricing");
-  };
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -99,12 +91,12 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone", vid
 
           {/* CTAs */}
           <div className="flex flex-col gap-3">
-            <Button
-              onClick={handleUpgrade}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl font-bold py-3"
+            <a
+              href="/pricing"
+              className="w-full inline-flex items-center justify-center bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl font-bold py-3 px-4 transition-all"
             >
               <Sparkles className="w-4 h-4 mr-2" />Unlock unlimited videos with Pro
-            </Button>
+            </a>
             <button
               onClick={onClose}
               className="text-white/30 hover:text-white/60 text-sm transition-colors py-1"

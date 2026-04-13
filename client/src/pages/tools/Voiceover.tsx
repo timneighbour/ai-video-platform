@@ -30,10 +30,10 @@ export default function Voiceover() {
       {/* Header */}
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="gap-2">
+          <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />
             Back
-          </Button>
+          </a>
           <h1 className="text-xl font-bold">AI Voiceover Generator</h1>
           <div className="w-20" />
         </div>

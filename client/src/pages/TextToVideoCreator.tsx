@@ -759,12 +759,12 @@ export default function TextToVideoCreator() {
                   </Button>
                 </>
               )}
-              <Button
-                onClick={() => setLocation("/projects")}
-                className="gap-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white border-0 flex-1"
+              <a
+                href="/projects"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
               >
                 View All Projects
-              </Button>
+              </a>
             </div>
             <button
               onClick={() => {

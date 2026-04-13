@@ -6,7 +6,6 @@
  * Non-intrusive: dismissible per-session.
  */
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,6 @@ export default function BundlePromoBanner({
   className = "",
 }: BundlePromoBannerProps) {
   const { isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
   const [dismissed, setDismissed] = useState(() => {
     try {
       return sessionStorage.getItem(DISMISS_KEY) === "1";
@@ -95,14 +93,12 @@ export default function BundlePromoBanner({
       </div>
 
       {/* CTA */}
-      <Button
-        size="sm"
-        variant="outline"
-        className="flex-shrink-0 border-violet-500/50 text-violet-300 hover:bg-violet-500/20 hover:text-violet-100 text-xs px-3 h-7"
-        onClick={() => navigate("/pricing#bundles")}
+      <a
+        href="/pricing#bundles"
+        className="flex-shrink-0 inline-flex items-center justify-center border border-violet-500/50 text-violet-300 hover:bg-violet-500/20 hover:text-violet-100 text-xs px-3 h-7 rounded-md transition-colors"
       >
         Get a bundle
-      </Button>
+      </a>
 
       {/* Dismiss */}
       <button

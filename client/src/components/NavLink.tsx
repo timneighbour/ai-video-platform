@@ -3,23 +3,29 @@ import { useLocation } from "wouter";
 
 interface NavLinkProps {
   href: string;
-  className?: string;
   children: ReactNode;
+  className?: string;
   onClick?: () => void;
-  [key: string]: any; // Allow additional props like id, style, etc.
+  [key: string]: any;
 }
 
-export function NavLink({ href, className, children, onClick, ...rest }: NavLinkProps) {
+export function NavLink({ href, children, className = "", onClick, ...rest }: NavLinkProps) {
   const [, navigate] = useLocation();
 
-  const handleClick = () => {
-    onClick?.();
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault(); // stop full reload
+    if (onClick) onClick();
     navigate(href);
   };
 
   return (
-    <button onClick={handleClick} className={className} {...rest}>
+    <a
+      href={href}
+      onClick={handleClick}
+      className={className}
+      {...rest}
+    >
       {children}
-    </button>
+    </a>
   );
 }

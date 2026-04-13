@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones, Sparkles } from "lucide-react";
-import { useLocation } from "wouter";
 
 /* ── CDN assets ── */
 const VIDEO_SRC =
@@ -381,7 +380,6 @@ function FeatureCard({
 export default function WizSoundSection() {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [, navigate] = useLocation();
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -474,8 +472,8 @@ export default function WizSoundSection() {
           <p className="text-white/30 text-xs mb-4">
             Select WizSound Cinematic at checkout · Only pay when you render
           </p>
-          <button
-            onClick={() => navigate("/onboarding")}
+          <a
+            href="/onboarding"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
               background: "linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))",
@@ -485,7 +483,7 @@ export default function WizSoundSection() {
             <Music2 className="w-4 h-4" />
             Try WizSound™ Free
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </a>
         </div>
       </div>
     </section>

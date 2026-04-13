@@ -135,13 +135,13 @@ export default function Credits() {
       {/* Nav */}
       <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0a]/95 backdrop-blur-xl px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/dashboard")}
+          <a
+            href="/dashboard"
             className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
-          </button>
+          </a>
           <span className="text-sm font-semibold text-white">Buy Credits</span>
           <CreditBalance variant="badge" />
         </div>

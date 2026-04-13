@@ -969,14 +969,13 @@ export default function Autopilot() {
               <p className="text-xs text-muted-foreground mb-3">
                 You can safely leave this page — your video will still be generated.
               </p>
-              <Button
-                variant="outline"
-                onClick={() => setLocation("/projects")}
-                className="gap-2 border-white/20 text-white hover:bg-white/10"
+              <a
+                href="/projects"
+                className="inline-flex items-center gap-2 rounded-md border border-white/20 text-white hover:bg-white/10 px-4 py-2 text-sm font-medium transition-colors"
               >
                 <Film className="h-4 w-4" />
                 View Projects While Waiting
-              </Button>
+              </a>
             </div>
           </div>
         )}
@@ -1007,14 +1006,13 @@ export default function Autopilot() {
                   </a>
                 </Button>
               )}
-              <Button
-                onClick={() => setLocation("/projects")}
-                variant={generatedVideoUrl ? "outline" : "default"}
-                className={`gap-2 ${generatedVideoUrl ? "border-white/20 text-white hover:bg-white/10" : "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0"}`}
+              <a
+                href="/projects"
+                className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${generatedVideoUrl ? "border border-white/20 text-white hover:bg-white/10" : "bg-gradient-to-r from-purple-600 to-pink-600 text-white"}`}
               >
                 <Film className="h-4 w-4" />
                 View All Projects
-              </Button>
+              </a>
               {generatedVideoUrl && (
                 <Button asChild variant="outline" className="gap-2 border-white/20 text-white hover:bg-white/10">
                   <a href={generatedVideoUrl} target="_blank" rel="noopener noreferrer">

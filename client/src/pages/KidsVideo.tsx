@@ -1648,13 +1648,13 @@ export default function KidsVideo() {
                       <ExternalLink className="h-4 w-4" />
                       Open in New Tab
                     </Button>
-                    <Button
-                      onClick={() => setLocation("/projects")}
-                      className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 flex-1"
+                    <a
+                      href="/projects"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
                     >
                       <Film className="h-4 w-4" />
                       View All Projects
-                    </Button>
+                    </a>
                   </div>
                 </div>
               )}

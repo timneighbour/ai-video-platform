@@ -3118,3 +3118,34 @@
 - [x] Demo video: no autoplay with sound, require user interaction for audio
 - [x] WizSound: add visual cues (pulse/glow) and "Enable Sound Experience" prompt (already built into WizSoundSection)
 - [x] Cross-browser compatibility: Chrome, Safari, mobile
+
+## Bug: Header nav links and hero CTAs don't work in Chrome (Safari works fine)
+- [ ] Header nav links (Home, Music Video, WizCreate, WizSound, WizPilot, Pricing, Help) don't respond in Chrome
+- [ ] Hero CTAs (Create Your First Video, Try This Example Free) don't respond in Chrome
+- [ ] Videos and audio playback work perfectly in Chrome
+- [ ] Onboarding/app CTAs DO work in Chrome (tested and confirmed)
+- [ ] All nav works fine in Safari (desktop + mobile)
+- [ ] Issue is specific to header nav buttons and hero section buttons
+- [ ] Diagnose why these specific buttons don't respond
+- [ ] Fix navigation for header and hero CTAs in Chrome
+
+
+## CRITICAL: Cross-Browser Navigation Fix (Before Scaling)
+- [ ] Diagnose root cause: why wouter navigation fails in Chrome but works in Safari
+- [ ] Test navigation on all browsers: Chrome, Firefox, Safari, Edge
+- [ ] Test on mobile: iOS Safari, Chrome Android
+- [ ] Implement bulletproof navigation fix (consider replacing wouter with native History API if needed)
+- [ ] Ensure all CTAs navigate correctly: onboarding, dashboard, tools, pricing, etc.
+- [ ] Ensure all nav links work: top nav, footer, mobile menu
+- [ ] Add automated Vitest tests for navigation on all routes
+- [ ] Verify no console errors on any browser
+- [ ] Test on slow 3G network to ensure navigation doesn't timeout
+- [ ] Document navigation architecture for maintainability
+
+## Bug: Hero video blocking CTA clicks in Chrome
+- [ ] Set pointer-events: none on HeroCinematicBg component
+- [ ] Enforce z-index stack: video z-0, content z-10+, nav z-50
+- [ ] Ensure all CTA buttons have pointer-events: auto
+- [ ] Remove any duplicate video layers in hero section
+- [ ] Verify Chrome autoplay compliance (muted, playsInline, loop)
+- [ ] Fix remaining navigate() calls in mobile nav

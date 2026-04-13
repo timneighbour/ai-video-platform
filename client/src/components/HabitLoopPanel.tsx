@@ -9,7 +9,6 @@
  *
  * Keeps the user in a creation loop rather than leaving after download.
  */
-import { useLocation } from "wouter";
 import { Sparkles, Music, FileText, Eye, BookOpen, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -62,7 +61,6 @@ interface HabitLoopPanelProps {
 }
 
 export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) {
-  const [, navigate] = useLocation();
 
   return (
     <div className={`rounded-xl border border-white/8 bg-white/[0.02] p-5 ${className}`}>
@@ -80,10 +78,10 @@ export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) 
       {/* Template grid */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         {TEMPLATES.map((tpl) => (
-          <button
+          <a
             key={tpl.id}
-            onClick={() => navigate(tpl.href)}
-            className={`group relative text-left rounded-lg border border-white/8 bg-gradient-to-br ${tpl.gradient} p-3 hover:border-white/16 hover:bg-white/5 transition-all duration-200 active:scale-[0.98]`}
+            href={tpl.href}
+            className={`group relative text-left rounded-lg border border-white/8 bg-gradient-to-br ${tpl.gradient} p-3 hover:border-white/16 hover:bg-white/5 transition-all duration-200 active:scale-[0.98] block`}
           >
             <div className="flex items-center gap-2 mb-1.5">
               <span className="text-white/60 group-hover:text-white/80 transition-colors">
@@ -97,18 +95,18 @@ export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) 
               {tpl.description}
             </p>
             <ArrowRight className="absolute bottom-2.5 right-2.5 w-3 h-3 text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all duration-200" />
-          </button>
+          </a>
         ))}
       </div>
 
       {/* Primary CTA */}
-      <Button
-        onClick={() => navigate("/onboarding")}
-        className="w-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold h-9 rounded-lg"
+      <a
+        href="/onboarding"
+        className="w-full inline-flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold h-9 rounded-lg transition-colors"
       >
         <Sparkles className="w-3.5 h-3.5 mr-1.5" />
         Start a new video
-      </Button>
+      </a>
     </div>
   );
 }

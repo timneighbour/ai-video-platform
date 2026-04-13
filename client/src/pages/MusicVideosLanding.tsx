@@ -18,12 +18,11 @@ const WIZBEAT_IMAGES = [
 
 export default function MusicVideosLanding() {
   const { isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
   const [showAuthGate, setShowAuthGate] = useState(false);
 
   const handleCTA = () => {
     if (isAuthenticated) {
-      navigate("/music-video/create");
+      window.location.href = "/music-video/create";
     } else {
       setShowAuthGate(true);
     }
@@ -65,23 +64,23 @@ export default function MusicVideosLanding() {
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
-              <Button
-                className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9"
-                onClick={handleCTA}
+              <a
+                href="/music-video/create"
+                className="inline-flex items-center bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 transition-colors"
               >
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" />Create Music Video
-              </Button>
+              </a>
             ) : (
               <>
                 <a href={getLoginUrl()} className="hidden sm:block text-sm text-[#a1a1aa] hover:text-white transition-colors font-medium px-3 py-2">
                   Sign in
                 </a>
-                <Button
-                  className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9"
+                <button
+                  className="inline-flex items-center bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 transition-colors"
                   onClick={handleCTA}
                 >
                   Start Creating Free
-                </Button>
+                </button>
               </>
             )}
           </div>
@@ -108,19 +107,27 @@ export default function MusicVideosLanding() {
                 Upload your track. Describe your vision. WizBeat writes the storyboard, generates every scene, and delivers a complete music video — synced to your lyrics.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <Button
-                  className="bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
-                  onClick={handleCTA}
+                {isAuthenticated ? (
+                  <a
+                    href="/music-video/create"
+                    className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+                  </a>
+                ) : (
+                  <button
+                    className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                    onClick={handleCTA}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+                  </button>
+                )}
+                <a
+                  href="/pricing"
+                  className="inline-flex items-center justify-center border border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium transition-colors"
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
-                  asChild
-                >
-                  <Link href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />View pricing</Link>
-                </Button>
+                  <ChevronRight className="w-4 h-4 mr-1" />View pricing
+                </a>
               </div>
               <p className="text-sm text-[#a1a1aa]">Free to create · No credit card · Only pay to render</p>
             </div>
@@ -232,12 +239,21 @@ export default function MusicVideosLanding() {
           <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
             Storyboard generation is always free. You only pay when you're ready to render and download. From £2 per video.
           </p>
-          <Button
-            className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
-            onClick={handleCTA}
-          >
-            <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
-          </Button>
+          {isAuthenticated ? (
+            <a
+              href="/music-video/create"
+              className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+            </a>
+          ) : (
+            <button
+              className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+              onClick={handleCTA}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+            </button>
+          )}
           <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to render</p>
         </div>
       </section>

@@ -1,5 +1,4 @@
 import { ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
 
 interface BackButtonProps {
   /** Override the fallback destination (defaults to "/") */
@@ -11,32 +10,19 @@ interface BackButtonProps {
 }
 
 /**
- * A consistent back-navigation button for all internal pages.
- *
- * Behaviour:
- * - Navigates to the `fallback` path (default: "/")
- * - Uses the wouter router so it stays within the SPA without a full reload
- *
- * Note: We intentionally do NOT use window.history.back() because
- * `history.length` is unreliable in SPAs — it counts all browser history
- * entries, not just in-app navigation, so users who land directly on a page
- * would be sent to an external site rather than the WizVid homepage.
+ * A consistent back-navigation link for all internal pages.
+ * Renders a native <a href> so navigation works without JavaScript
+ * and is consistent across all browsers.
  */
 export default function BackButton({ fallback = "/", label = "Back", className = "" }: BackButtonProps) {
-  const [, navigate] = useLocation();
-
-  const handleBack = () => {
-    navigate(fallback);
-  };
-
   return (
-    <button
-      onClick={handleBack}
+    <a
+      href={fallback}
       className={`inline-flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-white transition-colors font-medium group ${className}`}
       aria-label={label}
     >
       <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
       {label}
-    </button>
+    </a>
   );
 }

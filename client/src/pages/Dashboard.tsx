@@ -100,10 +100,10 @@ export default function Dashboard() {
         <div className="container flex flex-col gap-2 py-4">
           <div className="flex items-center justify-between">
             <BackButton fallback="/" label="Home" />
-            <Button variant="outline" size="sm" onClick={() => setLocation("/account")} className="gap-2">
+            <a href="/account" className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
               <Settings className="h-4 w-4" />
               Account
-            </Button>
+            </a>
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Welcome back, {user?.name || "Creator"}</h1>
@@ -150,12 +150,9 @@ export default function Dashboard() {
                 <span className="text-2xl font-bold text-foreground">{currentPlan}</span>
               </div>
               {currentPlan === "Free" && (
-                <button
-                  onClick={() => setLocation("/pricing")}
-                  className="text-[11px] text-violet-400 mt-1.5 hover:underline"
-                >
+                <a href="/pricing" className="text-[11px] text-violet-400 mt-1.5 hover:underline block">
                   Upgrade
-                </button>
+                </a>
               )}
             </CardContent>
           </Card>
@@ -176,12 +173,9 @@ export default function Dashboard() {
                 </p>
               )}
               {renderBalance === 0 && (
-                <button
-                  onClick={() => setLocation("/pricing")}
-                  className="text-[11px] text-violet-400 mt-1.5 hover:underline"
-                >
+                <a href="/pricing" className="text-[11px] text-violet-400 mt-1.5 hover:underline block">
                   Get renders
-                </button>
+                </a>
               )}
             </CardContent>
           </Card>
@@ -191,14 +185,14 @@ export default function Dashboard() {
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quick Start</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-1.5">
-              <Button size="sm" className="gap-2 w-full h-8 text-xs" onClick={() => setLocation("/music-video/create")}>
+              <a href="/music-video/create" className="inline-flex items-center justify-center gap-2 w-full h-8 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors">
                 <Sparkles className="h-3.5 w-3.5" />
                 New Music Video
-              </Button>
-              <Button size="sm" variant="outline" className="gap-2 w-full h-8 text-xs" onClick={() => setLocation("/render-history")}>
+              </a>
+              <a href="/render-history" className="inline-flex items-center justify-center gap-2 w-full h-8 text-xs rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground font-medium transition-colors">
                 <Download className="h-3.5 w-3.5" />
                 Downloads
-              </Button>
+              </a>
             </CardContent>
           </Card>
         </div>
@@ -211,19 +205,19 @@ export default function Dashboard() {
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 Continue where you left off
               </h2>
-              <button
-                onClick={() => setLocation("/projects")}
+              <a
+                href="/projects"
                 className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
               >
                 View all <ChevronRight className="w-3 h-3" />
-              </button>
+              </a>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               {recentJobsData.slice(0, 3).map((job: { id: number; title?: string | null; status: string; createdAt: Date }) => (
-                <button
+                <a
                   key={job.id}
-                  onClick={() => setLocation(`/music-video/create?resume=${job.id}`)}
-                  className="text-left rounded-xl border border-border/40 bg-card/50 p-4 hover:border-border hover:bg-card transition-all group"
+                  href={`/music-video/create?resume=${job.id}`}
+                  className="text-left rounded-xl border border-border/40 bg-card/50 p-4 hover:border-border hover:bg-card transition-all group block"
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center flex-shrink-0">
@@ -243,7 +237,7 @@ export default function Dashboard() {
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {job.createdAt instanceof Date ? job.createdAt.toLocaleDateString() : new Date(job.createdAt).toLocaleDateString()}
                   </p>
-                </button>
+                </a>
               ))}
             </div>
           </div>
@@ -263,10 +257,10 @@ export default function Dashboard() {
               <CardDescription>Purchase additional credit packs to keep creating</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="gap-2" onClick={() => setLocation("/credits")}>
+              <a href="/credits" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
                 <Plus className="h-4 w-4" />
                 Buy Credits
-              </Button>
+              </a>
             </CardContent>
           </Card>
 
@@ -280,22 +274,18 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2 flex-wrap">
-                <Button variant="outline" className="gap-2" onClick={() => setLocation("/projects")}>
+                <a href="/projects" className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
                   <History className="h-4 w-4" />
                   Projects
-                </Button>
-                <Button variant="outline" className="gap-2" onClick={() => setLocation("/render-history")}>
+                </a>
+                <a href="/render-history" className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
                   <History className="h-4 w-4" />
                   Render History
-                </Button>
-                <Button
-                  variant="outline"
-                  className="gap-2 border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
-                  onClick={() => setLocation("/batch-regeneration")}
-                >
+                </a>
+                <a href="/batch-regeneration" className="inline-flex items-center gap-2 rounded-md border border-violet-500/30 text-violet-400 bg-background px-4 py-2 text-sm font-medium hover:bg-violet-500/10 transition-colors">
                   <RefreshCw className="h-4 w-4" />
                   Re-generate Portraits
-                </Button>
+                </a>
               </div>
             </CardContent>
           </Card>
@@ -312,24 +302,22 @@ export default function Dashboard() {
             {AI_TOOLS.map((tool) => {
               const Icon = tool.icon;
               return (
-                <Card
+                <a
                   key={tool.id}
-                  className="border-border/40 bg-card/50 backdrop-blur hover:ring-1 hover:ring-accent transition-all cursor-pointer"
-                  onClick={() => setLocation(tool.href)}
+                  href={tool.href}
+                  className="block rounded-xl border border-border/40 bg-card/50 backdrop-blur hover:ring-1 hover:ring-accent transition-all"
                 >
-                  <CardHeader>
+                  <div className="p-6">
                     <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
                       <Icon className="h-5 w-5 text-accent" />
                     </div>
-                    <CardTitle className="text-lg">{tool.name}</CardTitle>
-                    <CardDescription className="text-xs">{tool.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-xs text-muted-foreground">
+                    <h3 className="text-lg font-semibold text-foreground">{tool.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{tool.description}</p>
+                    <p className="text-xs text-muted-foreground mt-3">
                       Est. {tool.estimatedCredits} credits
                     </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </a>
               );
             })}
           </div>

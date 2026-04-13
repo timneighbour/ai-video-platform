@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
@@ -80,8 +79,6 @@ function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
@@ -122,7 +119,7 @@ function Nav() {
     }`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <button onClick={() => navigate("/")} className="flex items-center group flex-shrink-0 hover:opacity-80 transition-opacity">
+        <NavLink href="/" className="flex items-center group flex-shrink-0 hover:opacity-80 transition-opacity">
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
@@ -130,18 +127,18 @@ function Nav() {
             height={180}
             className="h-24 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
           />
-        </button>
+        </NavLink>
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-0.5">
           {mainLinks.map((link) => (
-            <button
+            <NavLink
               key={link.label}
-              onClick={() => navigate(link.href)}
+              href={link.href}
               className="px-3 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block whitespace-nowrap"
             >
               {link.label}
-            </button>
+            </NavLink>
           ))}
 
           {/* Tools dropdown */}
@@ -169,12 +166,10 @@ function Nav() {
               >
                 <div className="p-2">
                   {toolLinks.map((tool) => (
-                    <button
+                    <NavLink
                       key={tool.label}
-                      onClick={() => {
-                        navigate(tool.href);
-                        setTimeout(() => setToolsOpen(false), 50);
-                      }}
+                      href={tool.href}
+                      onClick={() => setTimeout(() => setToolsOpen(false), 50)}
                       className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-white/6 transition-colors group w-full text-left"
                     >
                       <span className="text-xl mt-0.5 flex-shrink-0">{tool.icon}</span>
@@ -182,7 +177,7 @@ function Nav() {
                         <div className="text-sm font-medium text-white">{tool.label}</div>
                         <div className="text-xs text-[#a1a1aa] mt-0.5">{tool.sub}</div>
                       </div>
-                    </button>
+                    </NavLink>
                   ))}
                 </div>
               </div>
@@ -195,7 +190,7 @@ function Nav() {
           <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
-              <button onClick={() => navigate("/dashboard")} className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</button>
+              <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
             </Button>
           ) : (
             <>
@@ -203,7 +198,7 @@ function Nav() {
                 Sign in
               </a>
               <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm px-5 rounded-xl font-semibold h-9 shadow-sm shadow-violet-500/25" asChild>
-                <button onClick={() => navigate("/onboarding")} className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</button>
+                <NavLink href="/onboarding" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</NavLink>
               </Button>
             </>
           )}
@@ -671,7 +666,6 @@ const EXAMPLE_PROMPTS = [
 ];
 
 function TryAnExample() {
-  const [, navigate] = useLocation();
   const [selected, setSelected] = useState(0);
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLElement>(null);
@@ -685,10 +679,10 @@ function TryAnExample() {
     return () => obs.disconnect();
   }, []);
 
-  const handleTryExample = () => {
-    const prompt = EXAMPLE_PROMPTS[selected].prompt;
-    navigate(`/music-video/create?prompt=${encodeURIComponent(prompt)}`);
-  };
+  const tryExampleHref = useMemo(
+    () => `/music-video/create?prompt=${encodeURIComponent(EXAMPLE_PROMPTS[selected].prompt)}`,
+    [selected]
+  );
 
   return (
     <section
@@ -742,14 +736,14 @@ function TryAnExample() {
         </div>
 
         {/* CTA */}
-        <button
-          onClick={handleTryExample}
+        <NavLink
+          href={tryExampleHref}
           className="inline-flex items-center gap-3 bg-white text-black font-bold px-8 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:shadow-[0_0_70px_rgba(255,255,255,0.35)] hover:bg-white/95 transition-all duration-300 text-base"
         >
           <Sparkles className="w-5 h-5 flex-shrink-0" />
           Try This Example Free
           <ArrowRight className="w-4 h-4" />
-        </button>
+        </NavLink>
 
         <p className="text-white/30 text-xs mt-4">
           Free to create · No credit card · Only pay when you render

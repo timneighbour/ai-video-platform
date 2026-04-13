@@ -28,14 +28,14 @@ export default function Account() {
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")} className="gap-2">
+            <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2">
               <ArrowLeft className="h-4 w-4" />
               Back
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="gap-2 text-muted-foreground hover:text-foreground">
+            </a>
+            <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2">
               <Home className="h-4 w-4" />
               Home
-            </Button>
+            </a>
           </div>
           <h1 className="text-xl font-bold">Account Settings</h1>
           <div className="w-32" />
@@ -97,9 +97,9 @@ export default function Account() {
                 </div>
               </div>
               <div className="flex gap-2 pt-4">
-                <Button variant="outline" onClick={() => setLocation("/subscribe")}>
+                <a href="/subscribe" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
                   Change Plan
-                </Button>
+                </a>
                 <Button variant="outline" className="text-destructive hover:text-destructive">
                   Cancel Subscription
                 </Button>
@@ -139,9 +139,9 @@ export default function Account() {
                 <p className="text-sm text-muted-foreground mb-3">
                   Upgrade to Business plan to access API keys and integrate WizVid into your applications
                 </p>
-                <Button onClick={() => setLocation("/subscribe")}>
+                <a href="/subscribe" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
                   Upgrade to Business
-                </Button>
+                </a>
               </div>
             </CardContent>
           </Card>

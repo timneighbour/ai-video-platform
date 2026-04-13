@@ -199,9 +199,9 @@ export default function Subscribe() {
       {/* ── Header ── */}
       <div className="border-b border-white/10">
         <div className="container flex h-16 items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="gap-2 text-muted-foreground hover:text-foreground">
+          <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />Back to Home
-          </Button>
+          </a>
           <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png" alt="WizVid" className="h-12 w-auto object-contain" />
           <div className="w-24" />
         </div>
@@ -478,9 +478,9 @@ export default function Subscribe() {
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">
             Already have an account?{" "}
-            <button onClick={() => setLocation("/dashboard")} className="text-purple-400 hover:text-purple-300 underline underline-offset-2">
+            <a href="/dashboard" className="text-purple-400 hover:text-purple-300 underline underline-offset-2">
               Go to your dashboard →
-            </button>
+            </a>
           </p>
         </div>
       </section>

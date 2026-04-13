@@ -104,13 +104,13 @@ export default function HowItWorks() {
       <nav className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/8 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           {/* Back button */}
-          <button
-            onClick={() => setLocation("/")}
+          <a
+            href="/"
             className="flex items-center gap-2 text-[#a1a1aa] hover:text-white transition-colors text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
-          </button>
+          </a>
 
           {/* Logo */}
           <Link href="/" className="absolute left-1/2 -translate-x-1/2">
@@ -231,21 +231,18 @@ export default function HowItWorks() {
           Preview your full storyboard for free — no credit card required.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
-            asChild
+          <a
+            href="/onboarding"
+            className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
           >
-            <Link href="/onboarding">
-              <Sparkles className="w-4 h-4 mr-2" />Ready to Create Video
-            </Link>
-          </Button>
-          <Button
-            variant="outline"
-            className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-8 py-3 rounded-xl font-medium h-auto"
-            onClick={() => setLocation("/")}
+            <Sparkles className="w-4 h-4 mr-2" />Ready to Create Video
+          </a>
+          <a
+            href="/"
+            className="inline-flex items-center justify-center border border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-8 py-3 rounded-xl font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />Back to Home
-          </Button>
+          </a>
         </div>
       </div>
     </div>

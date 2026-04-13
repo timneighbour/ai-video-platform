@@ -1,66 +1,67 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
 import { Music, Play, Sparkles, Wand2, Waves, ArrowRight, ArrowLeft } from 'lucide-react';
 
+const options = [
+  {
+    href: '/music-video/create',
+    icon: Music,
+    title: 'WizBeat · Music Video Creator',
+    description: 'Turn your lyrics and audio into a full cinematic music video — with AI storyboard, characters, and scenes',
+    color: 'from-purple-600 to-pink-600',
+    borderColor: 'hover:border-purple-500/50',
+    isPopular: true,
+  },
+  {
+    href: '/wizpilot',
+    icon: Play,
+    title: 'YouTube Video Creator',
+    description: 'Auto-enhance your YouTube videos with AI editing, music, and professional polish',
+    color: 'from-red-600 to-orange-600',
+    borderColor: 'hover:border-red-500/50',
+    isPopular: false,
+  },
+  {
+    href: '/kids-video',
+    icon: Sparkles,
+    title: 'Kids Animation Creator',
+    description: 'Create stunning animated kids videos in Pixar, cartoon, or storybook styles',
+    color: 'from-pink-600 to-rose-600',
+    borderColor: 'hover:border-pink-500/50',
+    isPopular: false,
+  },
+  {
+    href: '/text-to-video',
+    icon: Wand2,
+    title: 'Text to Video',
+    description: 'Turn your ideas into cinematic videos with AI-powered visual storytelling',
+    color: 'from-blue-600 to-cyan-600',
+    borderColor: 'hover:border-blue-500/50',
+    isPopular: false,
+  },
+  {
+    href: '/music-creator',
+    icon: Waves,
+    title: 'AI Music Generator',
+    description: 'Generate original, royalty-free music powered by Suno AI in any style',
+    color: 'from-emerald-600 to-teal-600',
+    borderColor: 'hover:border-emerald-500/50',
+    isPopular: false,
+  },
+];
+
 const Onboarding: React.FC = () => {
-  const [, navigate] = useLocation();
-
-  const options = [
-    {
-      href: '/music-video/create',
-      icon: Music,
-      title: 'WizBeat · Music Video Creator',
-      description: 'Turn your lyrics and audio into a full cinematic music video — with AI storyboard, characters, and scenes',
-      color: 'from-purple-600 to-pink-600',
-      borderColor: 'hover:border-purple-500/50',
-      isPopular: true,
-    },
-    {
-      href: '/wizpilot',
-      icon: Play,
-      title: 'YouTube Video Creator',
-      description: 'Auto-enhance your YouTube videos with AI editing, music, and professional polish',
-      color: 'from-red-600 to-orange-600',
-      borderColor: 'hover:border-red-500/50',
-    },
-    {
-      href: '/kids-video',
-      icon: Sparkles,
-      title: 'Kids Animation Creator',
-      description: 'Create stunning animated kids videos in Pixar, cartoon, or storybook styles',
-      color: 'from-pink-600 to-rose-600',
-      borderColor: 'hover:border-pink-500/50',
-    },
-    {
-      href: '/text-to-video',
-      icon: Wand2,
-      title: 'Text to Video',
-      description: 'Turn your ideas into cinematic videos with AI-powered visual storytelling',
-      color: 'from-blue-600 to-cyan-600',
-      borderColor: 'hover:border-blue-500/50',
-    },
-    {
-      href: '/music-creator',
-      icon: Waves,
-      title: 'AI Music Generator',
-      description: 'Generate original, royalty-free music powered by Suno AI in any style',
-      color: 'from-emerald-600 to-teal-600',
-      borderColor: 'hover:border-emerald-500/50',
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black overflow-hidden">
       {/* Back button */}
       <div className="fixed top-6 left-6 z-50">
-        <button
-          onClick={() => navigate('/')}
+        <a
+          href="/"
           className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-slate-200 transition-colors duration-300 group"
           aria-label="Go back to homepage"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
           <span className="text-sm font-medium">Back</span>
-        </button>
+        </a>
       </div>
 
       {/* Animated background elements */}
@@ -100,10 +101,10 @@ const Onboarding: React.FC = () => {
           {options.map((option, index) => {
             const Icon = option.icon;
             return (
-              <button
+              <a
                 key={index}
-                onClick={() => navigate(option.href)}
-                className="group relative h-full transition-all duration-500 hover:-translate-y-2 cursor-pointer outline-none block text-left w-full"
+                href={option.href}
+                className="group relative h-full transition-all duration-500 hover:-translate-y-2 outline-none block"
               >
                 {/* Gradient glow background on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-0 group-hover:opacity-40 rounded-2xl blur-2xl transition-all duration-500 pointer-events-none`} />
@@ -149,7 +150,7 @@ const Onboarding: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </button>
+              </a>
             );
           })}
         </div>
@@ -158,13 +159,13 @@ const Onboarding: React.FC = () => {
         <div className="text-center text-slate-500 text-xs">
           <p>
             By continuing, you agree to WizVid's{' '}
-            <Link href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
+            <a href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
               Terms of Service
-            </Link>
+            </a>
             {' '}and{' '}
-            <Link href="/privacy" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
+            <a href="/privacy" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
               Privacy Policy
-            </Link>
+            </a>
           </p>
         </div>
       </div>

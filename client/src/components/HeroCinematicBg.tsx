@@ -261,7 +261,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
   }
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* ── Poster: shown until video loads ── */}
       <img
         src={ASSETS.poster} alt="" aria-hidden="true"
@@ -323,7 +323,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
       {/* ── Pause / Play toggle ── */}
       <button
         onClick={togglePause}
-        className="absolute bottom-6 right-6 z-20 w-9 h-9 rounded-full bg-black/35 backdrop-blur-md border border-white/8 flex items-center justify-center text-white/50 hover:bg-white/10 hover:text-white/80 transition-all"
+        className="absolute bottom-6 right-6 z-20 w-9 h-9 rounded-full bg-black/35 backdrop-blur-md border border-white/8 flex items-center justify-center text-white/50 hover:bg-white/10 hover:text-white/80 transition-all pointer-events-auto"
         aria-label={paused ? "Play background video" : "Pause background video"}
       >
         {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
