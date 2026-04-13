@@ -1,28 +1,23 @@
 /**
- * CinematicIntroSequence V10.1 — Audio Reliability Fix
+ * CinematicIntroSequence V11 — Cinematic Trailer Quality
  *
- * KEY CHANGE from V10: The soundtrack is now played via a SEPARATE Audio() element,
- * completely decoupled from the <video> element. This avoids the Web Audio API
- * createMediaElementSource() trap where the video's audio output is permanently
- * hijacked by the AudioContext graph, causing silence if the context is suspended.
+ * Full rebuild: new high-energy hybrid orchestral/electronic soundtrack,
+ * 3 premium AI-generated video clips, hero slow-motion at 70%, WizSound
+ * stereo widening pulse, emotional user-centric copy, updated CTA.
  *
  * Audio architecture:
- *   <video>  → purely visual (muted permanently, no audio track used)
- *   Audio()  → soundtrack playback (native browser audio, unmuted on click)
- *   Web Audio API (optional) → stereo panner on the Audio() element for WizSound sweep
+ *   <video>  → purely visual (muted permanently)
+ *   Audio()  → WizSound™ Cinematic soundtrack (native browser audio)
  *
- * This guarantees audio plays via the native browser path regardless of AudioContext state.
- *
- * SCENE ORDER:
- *   0.0–3.5s   → Concert arena (Music Videos)
- *   3.5–9.5s   → Epic city hero SLOW-MO (Cinematic Films) ← HERO MOMENT
- *   9.5–13.5s  → Creator studio (Creator Content)
- *   13.5–20.0s → Logo reveal + WizSound + CTA hold
+ * SCENE ORDER (22s total):
+ *   0.0–6.0s   → Concert arena (Your Music Videos)
+ *   6.0–16.0s  → Epic city aerial SLOW-MO (Your Cinematic Films) ← HERO MOMENT at ~70%
+ *   16.0–22.0s → Creator studio (Your Creator Content) → Logo reveal + WizSound + CTA
  */
 import { useRef, useState, useEffect, useCallback } from "react";
 
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v10-intro-final_825d36e4.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v11-final_a7ab5c88.mp4";
 
 // WizSound™ cinematic audio track — same as used in the A/B demo section
 const WIZSOUND_AUDIO_URL =
@@ -31,26 +26,26 @@ const WIZSOUND_AUDIO_URL =
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
-/* ── timing map (seconds) ── */
+/* ── timing map (seconds) — V11 (22s total) ── */
 const T = {
-  SCENE1_END: 3.5,
-  SCENE2_START: 3.5,
-  SCENE2_END: 9.5,
-  SCENE3_START: 9.5,
-  SCENE3_END: 13.5,
-  HERO_ZOOM_START: 3.5,
-  HERO_ZOOM_PEAK: 6.5,
-  LOGO_SHOW: 13.8,
-  WIZSOUND_SHOW: 15.0,
-  CTA_SHOW: 16.2,
-  VIDEO_END: 20.25,
+  SCENE1_END: 6.0,
+  SCENE2_START: 6.0,
+  SCENE2_END: 16.0,
+  SCENE3_START: 16.0,
+  SCENE3_END: 19.5,
+  HERO_ZOOM_START: 11.0,   // ~70% of 22s = ~15.4s into video; hero moment at 11s (slow-mo city)
+  HERO_ZOOM_PEAK: 14.5,
+  LOGO_SHOW: 19.8,
+  WIZSOUND_SHOW: 20.6,
+  CTA_SHOW: 21.2,
+  VIDEO_END: 22.0,
 };
 
-/* ── genre labels ── */
+/* ── genre labels — V11 ── */
 const GENRE_LABELS = [
-  { text: "Your Music Videos",    subtext: "Stadium-scale. AI-powered.",            start: 0.5,  end: 3.0,  color: "#f59e0b" },
-  { text: "Your Cinematic Films", subtext: "Blockbuster quality. No crew needed.",  start: 4.0,  end: 8.8,  color: "#06b6d4" },
-  { text: "Your Creator Content", subtext: "Scroll-stopping. Every time.",          start: 10.0, end: 13.0, color: "#f472b6" },
+  { text: "Your Music Videos",    subtext: "Stadium-scale. AI-powered.",            start: 0.8,  end: 5.2,  color: "#f59e0b" },
+  { text: "Your Cinematic Films", subtext: "Blockbuster quality. No crew needed.",  start: 7.0,  end: 15.2, color: "#06b6d4" },
+  { text: "Your Creator Content", subtext: "Scroll-stopping. Every time.",          start: 16.3, end: 19.2, color: "#f472b6" },
 ];
 
 interface Props {
@@ -328,23 +323,43 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         </div>
       ))}
 
-      {/* ── IMPACT FLASH ── */}
+      {/* ── IMPACT FLASH — stronger for V11 ── */}
       {impactFired && (
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "radial-gradient(circle at center, rgba(255,255,255,0.75) 0%, rgba(167,139,250,0.45) 25%, rgba(124,58,237,0.2) 50%, transparent 75%)",
-          opacity: 0, animation: "introImpactFlash 1.2s ease-out forwards",
-          pointerEvents: "none", zIndex: 11,
-        }} />
+        <>
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "radial-gradient(circle at center, rgba(255,255,255,0.92) 0%, rgba(167,139,250,0.6) 20%, rgba(124,58,237,0.3) 45%, transparent 70%)",
+            opacity: 0, animation: "introImpactFlash 1.4s ease-out forwards",
+            pointerEvents: "none", zIndex: 11,
+          }} />
+          {/* Shockwave ring */}
+          <div style={{
+            position: "absolute", left: "50%", top: "50%",
+            width: 0, height: 0,
+            transform: "translate(-50%, -50%)",
+            borderRadius: "50%",
+            border: "3px solid rgba(255,255,255,0.8)",
+            animation: "introShockwave 1.2s ease-out forwards",
+            pointerEvents: "none", zIndex: 12,
+          }} />
+        </>
       )}
 
-      {/* ── WIZSOUND VISUAL PULSE ── */}
+      {/* ── WIZSOUND VISUAL PULSE — V11 enhanced stereo sweep ── */}
       {wizSoundPulse && (
         <>
-          <div style={{ position: "absolute", left: "20%", top: "50%", width: 0, height: 0, transform: "translate(-50%, -50%)", borderRadius: "50%", border: "2px solid rgba(167,139,250,0.7)", animation: "introWizSoundRingLeft 2s ease-out forwards", pointerEvents: "none", zIndex: 12 }} />
-          <div style={{ position: "absolute", right: "20%", top: "50%", width: 0, height: 0, transform: "translate(50%, -50%)", borderRadius: "50%", border: "2px solid rgba(139,92,246,0.6)", animation: "introWizSoundRingRight 2s ease-out 0.15s forwards", pointerEvents: "none", zIndex: 12 }} />
-          <div style={{ position: "absolute", left: "50%", top: "50%", width: 0, height: 0, transform: "translate(-50%, -50%)", borderRadius: "50%", border: "1.5px solid rgba(196,181,253,0.5)", animation: "introWizSoundRing 2.5s ease-out 0.3s forwards", pointerEvents: "none", zIndex: 12 }} />
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 120% 60% at center, rgba(139,92,246,0.18) 0%, transparent 70%)", opacity: 0, animation: "introWizSoundPulse 1.2s ease-out forwards", pointerEvents: "none", zIndex: 12 }} />
+          {/* Left stereo ring */}
+          <div style={{ position: "absolute", left: "15%", top: "50%", width: 0, height: 0, transform: "translate(-50%, -50%)", borderRadius: "50%", border: "2.5px solid rgba(167,139,250,0.85)", animation: "introWizSoundRingLeft 2.2s ease-out forwards", pointerEvents: "none", zIndex: 12 }} />
+          {/* Right stereo ring */}
+          <div style={{ position: "absolute", right: "15%", top: "50%", width: 0, height: 0, transform: "translate(50%, -50%)", borderRadius: "50%", border: "2.5px solid rgba(139,92,246,0.75)", animation: "introWizSoundRingRight 2.2s ease-out 0.12s forwards", pointerEvents: "none", zIndex: 12 }} />
+          {/* Center convergence ring */}
+          <div style={{ position: "absolute", left: "50%", top: "50%", width: 0, height: 0, transform: "translate(-50%, -50%)", borderRadius: "50%", border: "2px solid rgba(196,181,253,0.6)", animation: "introWizSoundRing 3s ease-out 0.25s forwards", pointerEvents: "none", zIndex: 12 }} />
+          {/* Second center ring — delayed */}
+          <div style={{ position: "absolute", left: "50%", top: "50%", width: 0, height: 0, transform: "translate(-50%, -50%)", borderRadius: "50%", border: "1.5px solid rgba(167,139,250,0.4)", animation: "introWizSoundRing 3s ease-out 0.6s forwards", pointerEvents: "none", zIndex: 12 }} />
+          {/* Background glow pulse */}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 140% 70% at center, rgba(139,92,246,0.22) 0%, transparent 65%)", opacity: 0, animation: "introWizSoundPulse 1.5s ease-out forwards", pointerEvents: "none", zIndex: 12 }} />
+          {/* Horizontal stereo sweep line */}
+          <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, transform: "translateY(-50%)", background: "linear-gradient(90deg, transparent 0%, rgba(167,139,250,0.6) 20%, rgba(255,255,255,0.9) 50%, rgba(167,139,250,0.6) 80%, transparent 100%)", opacity: 0, animation: "introWizSoundSweep 1.8s ease-out 0.1s forwards", pointerEvents: "none", zIndex: 13 }} />
         </>
       )}
 
@@ -389,7 +404,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
             transform: `translateY(${showLogo ? "0" : "15px"})`,
             transition: "opacity 0.7s ease 0.35s, transform 0.7s ease 0.35s",
             textShadow: "0 2px 15px rgba(0,0,0,0.9)",
-          }}>Create Anything. Cinematic Quality.</p>
+          }}>Your Story. Cinematic Quality. No Crew Needed.</p>
 
           {/* WizSound label */}
           <div style={{
@@ -518,7 +533,8 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       {/* ── KEYFRAME ANIMATIONS ── */}
       <style>{`
         @keyframes introSpin { to { transform: rotate(360deg); } }
-        @keyframes introImpactFlash { 0% { opacity: 0; } 8% { opacity: 1; } 25% { opacity: 0.6; } 100% { opacity: 0; } }
+        @keyframes introImpactFlash { 0% { opacity: 0; } 5% { opacity: 1; } 20% { opacity: 0.8; } 100% { opacity: 0; } }
+        @keyframes introShockwave { 0% { width: 0; height: 0; opacity: 1; border-width: 4px; } 100% { width: 120vw; height: 120vw; opacity: 0; border-width: 1px; } }
         @keyframes introLogoReveal { 0% { opacity: 0; transform: scale(0.85); } 60% { opacity: 1; transform: scale(1.03); } 100% { opacity: 1; transform: scale(1); } }
         @keyframes introGlowSweep { 0% { left: -50%; opacity: 0; } 20% { opacity: 1; } 100% { left: 150%; opacity: 0; } }
         @keyframes introCtaAppear { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -526,7 +542,8 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         @keyframes introWizSoundRing { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 90vw; height: 90vw; opacity: 0; } }
         @keyframes introWizSoundRingLeft { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 70vw; height: 70vw; opacity: 0; } }
         @keyframes introWizSoundRingRight { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 70vw; height: 70vw; opacity: 0; } }
-        @keyframes introWizSoundPulse { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes introWizSoundPulse { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes introWizSoundSweep { 0% { opacity: 0; transform: translateY(-50%) scaleX(0); } 10% { opacity: 1; transform: translateY(-50%) scaleX(1); } 80% { opacity: 0.6; } 100% { opacity: 0; transform: translateY(-50%) scaleX(1); } }
         @keyframes introWizSoundTextGlow {
           0% { text-shadow: 0 0 30px rgba(167,139,250,0.6), 0 0 60px rgba(124,58,237,0.3); }
           100% { text-shadow: 0 0 55px rgba(167,139,250,0.95), 0 0 110px rgba(124,58,237,0.55), 0 0 160px rgba(139,92,246,0.25); }
