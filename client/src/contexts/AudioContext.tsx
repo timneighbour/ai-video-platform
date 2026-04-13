@@ -151,6 +151,10 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     if (el) {
       try {
         el.muted = isMuted;
+        // If unmuted and paused, start playback (browser allows this after user gesture)
+        if (!isMuted && el.paused) {
+          el.play().catch(() => {}); // Failsafe — ignore autoplay policy errors
+        }
       } catch { /* failsafe */ }
     }
   }, [isMuted]);

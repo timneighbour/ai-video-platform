@@ -58,6 +58,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const [wizsoundPulse, setWizsoundPulse] = useState(false);
 
   const [soundButtonVisible, setSoundButtonVisible] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
@@ -66,7 +67,7 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
 
   // Use global audio context
-  const { isMuted, unmute: globalUnmute, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
+  const { isMuted, unmute: globalUnmute, mute: globalMute, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
 
   // Exit
   const [exiting, setExiting] = useState(false);
@@ -93,7 +94,20 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     audioRef.current = audio;
     audio.load();
     registerAudioElement("cinematic-entry", audio);
+
+    // Auto-start audio playback muted as soon as intro begins (800ms)
+    // This ensures the audio is "running" so unmuting works instantly
+    const startTimer = setTimeout(() => {
+      audio.muted = true;
+      audio.volume = 0;
+      audio.play().catch(() => {}); // Start muted — browser allows this
+      setAudioStarted(true);
+      // Show sound button as soon as audio is running
+      setSoundButtonVisible(true);
+    }, 800);
+
     return () => {
+      clearTimeout(startTimer);
       unregisterAudioElement("cinematic-entry");
       releaseAudioFocus("cinematic-entry");
       // Cleanup Web Audio nodes
@@ -175,33 +189,45 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.muted = isMuted;
+
     if (isMuted) {
-      audio.volume = 0;
+      // Muting: fade out then mute
+      let vol = audio.volume;
+      const fadeOut = setInterval(() => {
+        vol = Math.max(0, vol - 0.08);
+        audio.volume = vol;
+        if (vol <= 0) {
+          audio.muted = true;
+          clearInterval(fadeOut);
+        }
+      }, 30);
     } else {
-      // Fade in gently when unmuted
-      if (audio.paused) {
-        audio.currentTime = 0;
-        audio.volume = 0;
-        requestAudioFocus("cinematic-entry");
-        setupWebAudio();
-        audio.play().then(() => {
-          // Resume AudioContext if suspended (browser policy)
-          if (audioCtxRef.current?.state === "suspended") {
-            audioCtxRef.current.resume().catch(() => {});
-          }
-          let vol = 0;
-          const fadeIn = setInterval(() => {
-            vol = Math.min(0.9, vol + 0.03);
-            audio.volume = vol;
-            if (vol >= 0.9) clearInterval(fadeIn);
-          }, 60);
-        }).catch(() => {});
-      } else {
-        // Audio already playing — resume AudioContext if needed
+      // Unmuting: ensure audio is playing, then fade in
+      audio.muted = false;
+      requestAudioFocus("cinematic-entry");
+      setupWebAudio();
+
+      const doFadeIn = () => {
+        // Resume AudioContext if suspended (browser autoplay policy)
         if (audioCtxRef.current?.state === "suspended") {
           audioCtxRef.current.resume().catch(() => {});
         }
+        let vol = audio.volume;
+        const fadeIn = setInterval(() => {
+          vol = Math.min(0.9, vol + 0.04);
+          audio.volume = vol;
+          if (vol >= 0.9) clearInterval(fadeIn);
+        }, 40);
+      };
+
+      if (audio.paused) {
+        // Audio not yet started — play it now
+        audio.currentTime = audio.currentTime || 0;
+        audio.play().then(doFadeIn).catch(() => {
+          // Autoplay blocked — audio will play on next user gesture
+        });
+      } else {
+        doFadeIn();
       }
     }
   }, [isMuted, requestAudioFocus, setupWebAudio]);
@@ -265,7 +291,6 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     addTimer(() => {
       setStage(3);
       setSignatureZoom(false);
-      setSoundButtonVisible(true);
       logoImpactHit(); // Strong gain spike at logo reveal
     }, 6400);
     addTimer(() => setLogoVisible(true), 6600);
@@ -710,7 +735,15 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       {/* ── MUTE/UNMUTE BUTTON — uses global audio state ──────────────── */}
       {soundButtonVisible && (
         <button
-          onClick={(e) => { e.stopPropagation(); if (isMuted) { requestAudioFocus("cinematic-entry"); } globalToggleMute(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isMuted) {
+              // User wants sound — unmute globally (the useEffect will handle play)
+              globalUnmute();
+            } else {
+              globalMute();
+            }
+          }}
           className="absolute top-[7vh] left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white transition-all"
           style={{
             background: isMuted ? "rgba(255,255,255,0.06)" : "rgba(109,40,217,0.12)",
