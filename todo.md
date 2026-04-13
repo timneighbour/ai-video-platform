@@ -3077,3 +3077,12 @@
 - [x] Audio issues: Fixed with 250ms sync interval + crossOrigin attribute
 - [x] All fixes verified in dev environment, ready to publish
 - [ ] AWAITING USER: Click Publish button in Management UI to deploy to wizvid.ai
+
+
+## Chrome Compatibility Issues (Apr 13 - CRITICAL) - FIXED ✅
+- [x] Root cause: WizVidIntro video/audio missing crossOrigin="anonymous" — Chrome CORS policy blocks CDN media
+- [x] Fix: Added crossOrigin="anonymous" to WizVidIntro video element
+- [x] Fix: Added crossOrigin="anonymous" to WizVidIntro audio element
+- [x] Verified: DemoVideoModal and WizSoundSection already have crossOrigin="anonymous"
+- [x] All 328 tests passing
+- [ ] Test on Chrome to verify intro/audio/CTAs now work

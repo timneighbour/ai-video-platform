@@ -154,6 +154,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         muted
         playsInline
         loop
+        crossOrigin="anonymous"
         onCanPlay={() => setVideoReady(true)}
       />
 
@@ -172,6 +173,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         loop
         muted={muted}
         preload="none"
+        crossOrigin="anonymous"
       />
 
       {/* ── Skip button (top-right, always visible) ── */}
