@@ -15,8 +15,9 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
   const [progress, setProgress] = useState(0);
   const [loaded, setLoaded] = useState({ std: false, wiz: false });
   // Local mute state — independent of global AudioContext
-  // Start unmuted so audio plays immediately when user clicks play
-  const [isMuted, setIsMuted] = useState(false);
+  // Start muted (browser autoplay policy), unmuted after first user interaction
+  const [isMuted, setIsMuted] = useState(true);
+  const hasInteracted = useRef(false);
 
   const stdRef = useRef<HTMLVideoElement>(null);
   const wizRef = useRef<HTMLVideoElement>(null);
@@ -68,35 +69,34 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
       std.currentTime = syncTime;
       wiz.currentTime = syncTime;
 
-      // Enforce mute: inactive always muted, active respects local state
-      if (wizsoundRef.current) {
-        std.muted = true;
-        wiz.muted = isMuted;
-      } else {
-        wiz.muted = true;
-        std.muted = isMuted;
-      }
+      // Always play both muted first (satisfies autoplay policy)
+      std.muted = true;
+      wiz.muted = true;
 
       try {
         await Promise.all([std.play(), wiz.play()]);
+        // After successful play (user gesture context), unmute the active video
+        if (!hasInteracted.current) {
+          hasInteracted.current = true;
+          // Unmute active video — this is safe in a user gesture callback
+          if (wizsoundRef.current) {
+            wiz.muted = false;
+          } else {
+            std.muted = false;
+          }
+          setIsMuted(false);
+        } else {
+          // Subsequent plays: respect current mute state
+          if (wizsoundRef.current) {
+            wiz.muted = isMuted;
+          } else {
+            std.muted = isMuted;
+          }
+        }
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
-        // Autoplay blocked — play muted first, then unmute active
-        std.muted = true;
-        wiz.muted = true;
-        try {
-          await Promise.all([std.play(), wiz.play()]);
-          // Unmute the active video if user wants sound
-          if (!isMuted) {
-            if (wizsoundRef.current) wiz.muted = false;
-            else std.muted = false;
-          }
-          setPlaying(true);
-          rafRef.current = requestAnimationFrame(trackProgress);
-        } catch {
-          setPlaying(false);
-        }
+        setPlaying(false);
       }
     }
   }, [playing, isMuted, trackProgress]);
@@ -193,6 +193,7 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
             zIndex: wizsound ? 1 : 2,
           }}
           playsInline
+          muted
           loop
           preload="auto"
           onCanPlayThrough={() => setLoaded(p => ({ ...p, std: true }))}
@@ -209,6 +210,7 @@ function DualVideoPlayer({ visible }: { visible: boolean }) {
             zIndex: wizsound ? 2 : 1,
           }}
           playsInline
+          muted
           loop
           preload="auto"
           onCanPlayThrough={() => setLoaded(p => ({ ...p, wiz: true }))}

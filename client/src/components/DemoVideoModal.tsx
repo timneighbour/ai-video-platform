@@ -118,8 +118,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const [captions, setCaptions] = useState(false);
   const [wizsoundMode, setWizsoundMode] = useState(true);
   // Local mute state — independent of global AudioContext
-  // Start unmuted so audio plays immediately when user clicks play
-  const [isMuted, setIsMuted] = useState(false);
+  // Start muted (browser autoplay policy), unmuted after first user interaction
+  const [isMuted, setIsMuted] = useState(true);
+  const hasInteracted = useRef(false);
 
   /* ── Sync local mute state to video element ──────────────────────── */
   useEffect(() => {
@@ -181,24 +182,24 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
-      // Ensure mute state is applied before play
-      vid.muted = isMuted;
+      // First play: always start muted to satisfy autoplay policy,
+      // then immediately unmute — this is the only reliable cross-browser approach.
+      vid.muted = true;
       try {
         await vid.play();
+        // Unmute after successful play — this is a user gesture context so it works
+        if (!hasInteracted.current) {
+          hasInteracted.current = true;
+          vid.muted = false;
+          setIsMuted(false);
+        } else {
+          vid.muted = isMuted;
+        }
         setPlaying(true);
         mp.demoVideoPlayed();
       } catch {
-        // Browser blocked audio — play muted first, then unmute
-        vid.muted = true;
-        try {
-          await vid.play();
-          // Now that it's playing, unmute if user wants sound
-          vid.muted = isMuted;
-          setPlaying(true);
-          mp.demoVideoPlayed();
-        } catch {
-          setPlaying(false);
-        }
+        // Absolute fallback — stay muted
+        setPlaying(false);
       }
     }
   }, [playing, isMuted]);
@@ -305,6 +306,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             className="w-full h-full object-cover"
             poster={POSTER_URL}
             playsInline
+            muted
             preload="metadata"
             onCanPlay={handleCanPlay}
             onLoadedMetadata={handleLoadedMetadata}

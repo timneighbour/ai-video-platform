@@ -2953,3 +2953,16 @@
 - [x] Configure STRIPE_BASIC_ANNUAL_PRICE_ID=price_1TLfm4IaMYB25uKKH4oaIGya
 - [x] Write and pass vitest for Stripe Basic plan validation (3/3 tests passing)
 - [x] TypeScript: 0 errors, Tests: 338/338 passing
+
+## CRITICAL FIXES - Payment QA Round
+- [ ] Fix intro logic: internal navigation must never re-trigger intro screen
+- [ ] Fix back buttons: must go to homepage content, not intro video
+- [ ] Fix Music Video/creator links: must navigate directly, not trigger intro
+- [ ] Fix DemoVideoModal audio: must play with sound on click
+- [ ] Fix WizSoundSection audio: Standard/WizSound toggle must produce audible audio
+- [ ] Fix post-payment redirect: success must go to dashboard, not intro
+- [ ] Validate all Stripe products exist in test mode
+- [ ] Fix checkout success/cancel URL routing
+- [ ] Verify content unlock after payment (credits/renders)
+- [ ] Fix error handling for failed payments
+- [ ] Fix intro mute toggle: must work on first click, not require two clicks

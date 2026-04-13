@@ -15,7 +15,8 @@ const CLIP_MUSIC   = `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`;
 // Background for logo reveal
 const BG_POSTER = `${CDN}/wizvid-intro-bg-4k-S9fuvpjGgLio3Y2rzSEUfh.webp`;
 
-export const INTRO_SESSION_KEY = "wizvid_intro_seen";
+// MUST match the key used in App.tsx to read intro state
+export const INTRO_SESSION_KEY = "wizvid_intro_seen_v2";
 
 interface Props {
   onComplete: () => void;
@@ -339,7 +340,8 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
       }, 40);
     }
     setExiting(true);
-    try { sessionStorage.setItem(INTRO_SESSION_KEY, "true"); } catch { /* noop */ }
+    // Write to localStorage (not sessionStorage) so intro never shows again across visits
+    try { localStorage.setItem(INTRO_SESSION_KEY, "true"); } catch { /* noop */ }
     setTimeout(onComplete, 800);
   }, [onComplete]);
 

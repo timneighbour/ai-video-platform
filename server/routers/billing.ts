@@ -964,4 +964,56 @@ export const renderRouter = router({
       cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-cinematic_281fea93.mp3",
     };
   }),
+
+  /**
+   * Confirm a render payment after Stripe checkout success.
+   * Called by the /render/success page with the Stripe session ID.
+   * Verifies payment with Stripe, marks the render job as paid, returns job details.
+   */
+  confirmRenderPayment: protectedProcedure
+    .input(z.object({
+      renderJobId: z.number().int(),
+      sessionId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { getRenderJob, updateRenderJob } = await import("../db");
+      const { TRPCError } = await import("@trpc/server");
+      const job = await getRenderJob(input.renderJobId);
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Render job not found" });
+      if (job.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Unauthorised" });
+      }
+      // Already confirmed — idempotent
+      if (job.paymentStatus === "paid" || job.paymentStatus === "free" || job.paymentStatus === "subscription") {
+        return { success: true, job, alreadyConfirmed: true };
+      }
+      // Verify with Stripe
+      const session = await stripe.checkout.sessions.retrieve(input.sessionId);
+      if (session.payment_status === "paid") {
+        await updateRenderJob(input.renderJobId, {
+          paymentStatus: "paid",
+          stripeSessionId: input.sessionId,
+          stripePaymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : undefined,
+        });
+        const updatedJob = await getRenderJob(input.renderJobId);
+        return { success: true, job: updatedJob, alreadyConfirmed: false };
+      }
+      return { success: false, job, alreadyConfirmed: false, reason: "Payment not completed in Stripe" };
+    }),
+
+  /**
+   * Get a single render job by ID (for polling on the success page).
+   */
+  getRenderJobById: protectedProcedure
+    .input(z.object({ renderJobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const { getRenderJob } = await import("../db");
+      const { TRPCError } = await import("@trpc/server");
+      const job = await getRenderJob(input.renderJobId);
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Render job not found" });
+      if (job.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Unauthorised" });
+      }
+      return job;
+    }),
 });
