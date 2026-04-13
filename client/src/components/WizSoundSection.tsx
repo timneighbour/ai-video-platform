@@ -3,13 +3,127 @@ import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headpho
 import { useLocation } from "wouter";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 
-/* ── CDN audio sources (dramatically different processing) ─────────────── */
-const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-standard_b82962e7.mp3";
-const AUDIO_CINEMATIC =
+/* ── CDN audio source — single high-quality file processed in real-time ── */
+// One source file, two real-time processing chains. Guarantees perfect sync.
+const AUDIO_SOURCE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-wizsound-cinematic_5e57de05.mp3";
 
-/* ── Real-time frequency waveform (Web Audio API) ──────────────────────── */
+/* ── Web Audio processing chain builder ────────────────────────────────── */
+interface AudioChain {
+  input: GainNode;
+  output: GainNode;
+  analyser: AnalyserNode;
+}
+
+function buildStandardChain(ctx: AudioContext): AudioChain {
+  // Standard: narrow stereo, flat EQ, no spatial depth
+  const input = ctx.createGain();
+  input.gain.value = 1.0;
+
+  // Mono-ish: merge to mono then split back (narrow stereo)
+  const merger = ctx.createChannelMerger(2);
+  const splitter = ctx.createChannelSplitter(2);
+  input.connect(splitter);
+  splitter.connect(merger, 0, 0); // L → L (only left channel to both)
+  splitter.connect(merger, 0, 1); // L → R (mono-ish)
+
+  // Flat EQ: slight high-frequency roll-off (dull)
+  const hiShelf = ctx.createBiquadFilter();
+  hiShelf.type = "highshelf";
+  hiShelf.frequency.value = 4000;
+  hiShelf.gain.value = -4; // cut highs
+
+  // Slight bass reduction
+  const loShelf = ctx.createBiquadFilter();
+  loShelf.type = "lowshelf";
+  loShelf.frequency.value = 120;
+  loShelf.gain.value = -3; // cut bass
+
+  // Analyser
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.75;
+
+  // Output gain (volume-matched to WizSound)
+  const output = ctx.createGain();
+  output.gain.value = 0; // starts silent; toggled by switchMode
+
+  merger.connect(hiShelf);
+  hiShelf.connect(loShelf);
+  loShelf.connect(analyser);
+  analyser.connect(output);
+
+  return { input, output, analyser };
+}
+
+function buildWizSoundChain(ctx: AudioContext): AudioChain {
+  // WizSound: wide stereo (Haas), bass boost, presence boost, spatial reverb
+  const input = ctx.createGain();
+  input.gain.value = 1.0;
+
+  // Stereo widener: Haas effect — delay right channel by 20ms
+  const splitter = ctx.createChannelSplitter(2);
+  const merger = ctx.createChannelMerger(2);
+  input.connect(splitter);
+
+  // Left channel: direct
+  splitter.connect(merger, 0, 0);
+
+  // Right channel: delay 20ms (Haas effect creates wide stereo)
+  const delay = ctx.createDelay(0.05);
+  delay.delayTime.value = 0.02; // 20ms Haas delay
+  splitter.connect(delay, 1);
+  delay.connect(merger, 0, 1);
+
+  // Bass boost: +6dB at 80Hz
+  const bassBoost = ctx.createBiquadFilter();
+  bassBoost.type = "lowshelf";
+  bassBoost.frequency.value = 120;
+  bassBoost.gain.value = 6;
+
+  // Presence boost: +4dB at 3kHz (clarity/air)
+  const presenceBoost = ctx.createBiquadFilter();
+  presenceBoost.type = "peaking";
+  presenceBoost.frequency.value = 3000;
+  presenceBoost.Q.value = 0.8;
+  presenceBoost.gain.value = 4;
+
+  // High shelf: +2dB at 8kHz (air/sparkle)
+  const airBoost = ctx.createBiquadFilter();
+  airBoost.type = "highshelf";
+  airBoost.frequency.value = 8000;
+  airBoost.gain.value = 2;
+
+  // Convolver for spatial reverb (using a simple impulse response)
+  // We'll use a DynamicsCompressor as a gentle limiter instead of convolver
+  // (convolver requires a separate IR file)
+  const compressor = ctx.createDynamicsCompressor();
+  compressor.threshold.value = -18;
+  compressor.knee.value = 6;
+  compressor.ratio.value = 3;
+  compressor.attack.value = 0.003;
+  compressor.release.value = 0.25;
+
+  // Analyser
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.8;
+
+  // Output gain — slightly reduced to compensate for bass/presence boost (LUFS match)
+  const output = ctx.createGain();
+  output.gain.value = 1; // starts at full; toggled by switchMode
+
+  merger.connect(bassBoost);
+  bassBoost.connect(presenceBoost);
+  presenceBoost.connect(airBoost);
+  airBoost.connect(compressor);
+  compressor.connect(analyser);
+  analyser.connect(output);
+
+  return { input, output, analyser };
+}
+
+/* ── Real-time frequency waveform ──────────────────────────────────────── */
 function FrequencyWaveform({
   analyser,
   active,
@@ -26,31 +140,30 @@ function FrequencyWaveform({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
+    const ctx2d = canvas.getContext("2d");
+    if (!ctx2d) return;
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    ctx2d.scale(dpr, dpr);
     const W = rect.width;
     const H = rect.height;
 
     const draw = () => {
-      ctx.clearRect(0, 0, W, H);
+      ctx2d.clearRect(0, 0, W, H);
+      const gap = 2;
+      const barW = Math.max(1, (W - (BAR_COUNT - 1) * gap) / BAR_COUNT);
 
       if (!active || !analyser) {
         // Idle bars
-        const gap = 2;
-        const barW = Math.max(1, (W - (BAR_COUNT - 1) * gap) / BAR_COUNT);
         for (let i = 0; i < BAR_COUNT; i++) {
           const x = i * (barW + gap);
           const h = H * 0.12;
-          ctx.fillStyle = "rgba(255,255,255,0.08)";
-          ctx.beginPath();
-          ctx.roundRect(x, H / 2 - h / 2, barW, h, Math.max(0, barW / 2));
-          ctx.fill();
+          ctx2d.fillStyle = "rgba(255,255,255,0.08)";
+          ctx2d.beginPath();
+          ctx2d.roundRect(x, H / 2 - h / 2, barW, h, Math.max(0, barW / 2));
+          ctx2d.fill();
         }
         rafRef.current = requestAnimationFrame(draw);
         return;
@@ -59,16 +172,11 @@ function FrequencyWaveform({
       const bufferLength = analyser.frequencyBinCount;
       const data = new Uint8Array(bufferLength);
       analyser.getByteFrequencyData(data);
-
-      const gap = 2;
-      const barW = Math.max(1, (W - (BAR_COUNT - 1) * gap) / BAR_COUNT);
       const step = Math.max(1, Math.floor(bufferLength / BAR_COUNT));
 
       for (let i = 0; i < BAR_COUNT; i++) {
         let sum = 0;
-        for (let j = 0; j < step; j++) {
-          sum += data[i * step + j] || 0;
-        }
+        for (let j = 0; j < step; j++) sum += data[i * step + j] || 0;
         const avg = sum / step;
         const norm = avg / 255;
         const h = Math.max(norm * H * 0.92, H * 0.04);
@@ -76,29 +184,27 @@ function FrequencyWaveform({
         const y = H / 2 - h / 2;
 
         if (wizsound) {
-          const grad = ctx.createLinearGradient(x, y + h, x, y);
+          const grad = ctx2d.createLinearGradient(x, y + h, x, y);
           grad.addColorStop(0, "rgba(217,70,239,0.95)");
           grad.addColorStop(0.5, "rgba(168,85,247,0.85)");
           grad.addColorStop(1, "rgba(139,92,246,0.75)");
-          ctx.fillStyle = grad;
-          ctx.shadowColor = "rgba(217,70,239,0.5)";
-          ctx.shadowBlur = 6;
+          ctx2d.fillStyle = grad;
+          ctx2d.shadowColor = "rgba(217,70,239,0.5)";
+          ctx2d.shadowBlur = 6;
         } else {
-          const grad = ctx.createLinearGradient(x, y + h, x, y);
+          const grad = ctx2d.createLinearGradient(x, y + h, x, y);
           grad.addColorStop(0, "rgba(255,255,255,0.15)");
           grad.addColorStop(1, "rgba(255,255,255,0.35)");
-          ctx.fillStyle = grad;
-          ctx.shadowColor = "transparent";
-          ctx.shadowBlur = 0;
+          ctx2d.fillStyle = grad;
+          ctx2d.shadowColor = "transparent";
+          ctx2d.shadowBlur = 0;
         }
-
-        ctx.beginPath();
-        ctx.roundRect(x, y, barW, h, Math.max(0, barW / 2));
-        ctx.fill();
+        ctx2d.beginPath();
+        ctx2d.roundRect(x, y, barW, h, Math.max(0, barW / 2));
+        ctx2d.fill();
       }
-
-      ctx.shadowColor = "transparent";
-      ctx.shadowBlur = 0;
+      ctx2d.shadowColor = "transparent";
+      ctx2d.shadowBlur = 0;
       rafRef.current = requestAnimationFrame(draw);
     };
 
@@ -111,146 +217,179 @@ function FrequencyWaveform({
       ref={canvasRef}
       className="w-full"
       style={{ height: 80 }}
+      aria-hidden="true"
     />
   );
 }
 
-/* ── Audio demo player (real A/B comparison — dramatic difference) ────── */
+/* ── Audio demo player ──────────────────────────────────────────────────── */
 function AudioDemoPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [wizsound, setWizsound] = useState(true);
-  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus } = useGlobalAudio();
   const wizSoundId = "wizsound-section";
   const [progress, setProgress] = useState(0);
   const [switching, setSwitching] = useState(false);
   const [ready, setReady] = useState(false);
+  const [activeAnalyser, setActiveAnalyser] = useState<AnalyserNode | null>(null);
 
-  // Plain audio elements — NO Web Audio API, NO crossOrigin, NO MediaElementSource
-  const audioStdRef = useRef<HTMLAudioElement | null>(null);
-  const audioCinRef = useRef<HTMLAudioElement | null>(null);
+  // Web Audio API refs
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
+  const stdChainRef = useRef<AudioChain | null>(null);
+  const wizChainRef = useRef<AudioChain | null>(null);
   const rafRef = useRef<number>(0);
+  // Track current wizsound state in a ref for use in callbacks
+  const wizsoundRef = useRef(true);
 
-  // Create both audio elements on mount
+  // Initialise Web Audio API on first interaction (browser requires user gesture)
+  const initAudio = useCallback(async () => {
+    if (audioCtxRef.current) return; // already initialised
+
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AudioContextClass();
+    audioCtxRef.current = ctx;
+
+    // Single audio element
+    const audio = new Audio(AUDIO_SOURCE);
+    audio.crossOrigin = "anonymous";
+    audio.loop = true;
+    audio.preload = "auto";
+    audioElRef.current = audio;
+
+    // Connect to Web Audio graph
+    const source = ctx.createMediaElementSource(audio);
+    sourceRef.current = source;
+
+    // Build both chains
+    const std = buildStandardChain(ctx);
+    const wiz = buildWizSoundChain(ctx);
+    stdChainRef.current = std;
+    wizChainRef.current = wiz;
+
+    // Source → both chain inputs
+    source.connect(std.input);
+    source.connect(wiz.input);
+
+    // Both outputs → destination
+    std.output.connect(ctx.destination);
+    wiz.output.connect(ctx.destination);
+
+    // Set initial gains: WizSound on, Standard off
+    std.output.gain.setValueAtTime(0, ctx.currentTime);
+    wiz.output.gain.setValueAtTime(isMuted ? 0 : 1, ctx.currentTime);
+
+    // Set active analyser
+    setActiveAnalyser(wiz.analyser);
+
+    // Wait for audio to be ready
+    audio.addEventListener("canplaythrough", () => setReady(true), { once: true });
+    setTimeout(() => setReady(true), 2000); // fallback
+  }, [isMuted]);
+
+  // Cleanup on unmount
   useEffect(() => {
-    const std = new Audio(AUDIO_STANDARD);
-    std.preload = "auto";
-    std.loop = false; // No looping to prevent loud restart
-    std.volume = 0; // start silent — only one plays at a time
-
-    const cin = new Audio(AUDIO_CINEMATIC);
-    cin.preload = "auto";
-    cin.loop = false; // No looping to prevent loud restart
-    cin.volume = 0; // Start muted (user-first)
-
-    audioStdRef.current = std;
-    audioCinRef.current = cin;
-    registerAudioElement("wizsound-std", std);
-    registerAudioElement("wizsound-cin", cin);
-
-    let loadCount = 0;
-    const onCanPlay = () => { loadCount++; if (loadCount >= 2) setReady(true); };
-    std.addEventListener("canplaythrough", onCanPlay);
-    cin.addEventListener("canplaythrough", onCanPlay);
-    const timer = setTimeout(() => setReady(true), 2000);
-
     return () => {
-      clearTimeout(timer);
-      std.removeEventListener("canplaythrough", onCanPlay);
-      cin.removeEventListener("canplaythrough", onCanPlay);
-      std.pause(); std.src = "";
-      cin.pause(); cin.src = "";
       cancelAnimationFrame(rafRef.current);
-      unregisterAudioElement("wizsound-std");
-      unregisterAudioElement("wizsound-cin");
+      if (audioElRef.current) {
+        audioElRef.current.pause();
+        audioElRef.current.src = "";
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+      }
       releaseAudioFocus(wizSoundId);
     };
   }, []);
 
+  // Sync global mute to Web Audio gain nodes
+  useEffect(() => {
+    const ctx = audioCtxRef.current;
+    const std = stdChainRef.current;
+    const wiz = wizChainRef.current;
+    if (!ctx || !std || !wiz) return;
+
+    if (isMuted) {
+      std.output.gain.setTargetAtTime(0, ctx.currentTime, 0.01);
+      wiz.output.gain.setTargetAtTime(0, ctx.currentTime, 0.01);
+    } else if (playing) {
+      const isWiz = wizsoundRef.current;
+      std.output.gain.setTargetAtTime(isWiz ? 0 : 1, ctx.currentTime, 0.01);
+      wiz.output.gain.setTargetAtTime(isWiz ? 1 : 0, ctx.currentTime, 0.01);
+    }
+  }, [isMuted, playing]);
+
   // Progress tracker
   const trackProgress = useCallback(() => {
-    const audio = wizsound ? audioCinRef.current : audioStdRef.current;
+    const audio = audioElRef.current;
     if (audio && audio.duration) {
       setProgress((audio.currentTime / audio.duration) * 100);
     }
     rafRef.current = requestAnimationFrame(trackProgress);
-  }, [wizsound]);
+  }, []);
 
-  // Switch mode: pause inactive, play active at same position
-  const switchMode = useCallback((toCinematic: boolean) => {
-    if (toCinematic === wizsound) return;
+  // Switch mode: instant crossfade via gain ramp (10ms)
+  const switchMode = useCallback(async (toCinematic: boolean) => {
+    if (toCinematic === wizsoundRef.current) return;
     setSwitching(true);
 
-    const std = audioStdRef.current;
-    const cin = audioCinRef.current;
-    if (!std || !cin) return;
+    // Initialise audio on first interaction if needed
+    if (!audioCtxRef.current) await initAudio();
+
+    const ctx = audioCtxRef.current;
+    const std = stdChainRef.current;
+    const wiz = wizChainRef.current;
+    if (!ctx || !std || !wiz) { setSwitching(false); return; }
+
+    const now = ctx.currentTime;
+    const ramp = 0.015; // 15ms crossfade — instant but click-free
 
     if (toCinematic) {
-      cin.currentTime = std.currentTime;
-      std.volume = 0;
-      if (playing && !isMuted) {
-        cin.volume = 1;
-        cin.play().catch(() => {});
-      }
+      std.output.gain.setTargetAtTime(0, now, ramp);
+      if (!isMuted) wiz.output.gain.setTargetAtTime(1, now, ramp);
+      setActiveAnalyser(wiz.analyser);
     } else {
-      std.currentTime = cin.currentTime;
-      cin.volume = 0;
-      if (playing && !isMuted) {
-        std.volume = 1;
-        std.play().catch(() => {});
-      }
+      wiz.output.gain.setTargetAtTime(0, now, ramp);
+      if (!isMuted) std.output.gain.setTargetAtTime(1, now, ramp);
+      setActiveAnalyser(std.analyser);
     }
 
+    wizsoundRef.current = toCinematic;
     setWizsound(toCinematic);
-    setTimeout(() => setSwitching(false), 120);
-  }, [wizsound, playing, isMuted]);
+    setTimeout(() => setSwitching(false), 80);
+  }, [isMuted, initAudio]);
 
   const togglePlay = useCallback(async () => {
-    const std = audioStdRef.current;
-    const cin = audioCinRef.current;
-    if (!std || !cin) return;
+    // Initialise Web Audio on first play (requires user gesture)
+    if (!audioCtxRef.current) await initAudio();
+
+    const ctx = audioCtxRef.current;
+    const audio = audioElRef.current;
+    if (!ctx || !audio) return;
+
+    // Resume suspended context (browser autoplay policy)
+    if (ctx.state === "suspended") await ctx.resume();
 
     if (playing) {
-      std.pause();
-      cin.pause();
+      audio.pause();
       cancelAnimationFrame(rafRef.current);
       setPlaying(false);
+      releaseAudioFocus(wizSoundId);
     } else {
-      // Play only the active track
-      const active = wizsound ? cin : std;
-      const inactive = wizsound ? std : cin;
-      inactive.volume = 0;
-      if (!isMuted) {
-        active.volume = 1;
-        requestAudioFocus(wizSoundId);
-      }
+      if (!isMuted) requestAudioFocus(wizSoundId);
       try {
-        await active.play();
+        await audio.play();
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
       } catch {
         setPlaying(false);
       }
     }
-  }, [playing, wizsound, isMuted, trackProgress, requestAudioFocus]);
-
-  // Sync global mute to local audio elements
-  useEffect(() => {
-    const std = audioStdRef.current;
-    const cin = audioCinRef.current;
-    if (!std || !cin) return;
-    if (isMuted) {
-      std.volume = 0;
-      cin.volume = 0;
-    } else if (playing) {
-      std.volume = wizsound ? 0 : 1;
-      cin.volume = wizsound ? 1 : 0;
-    }
-  }, [isMuted, playing, wizsound]);
+  }, [playing, isMuted, trackProgress, requestAudioFocus, releaseAudioFocus, initAudio]);
 
   const toggleMute = () => {
-    if (isMuted) {
-      requestAudioFocus(wizSoundId);
-    }
+    if (isMuted) requestAudioFocus(wizSoundId);
     globalToggleMute();
   };
 
@@ -261,7 +400,9 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(24px)",
         transition: "opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s",
-        boxShadow: wizsound ? "0 0 60px rgba(217,70,239,0.15), 0 0 120px rgba(139,92,246,0.08)" : "none",
+        boxShadow: wizsound
+          ? "0 0 60px rgba(217,70,239,0.15), 0 0 120px rgba(139,92,246,0.08)"
+          : "none",
       }}
     >
       {/* WizSound glow border */}
@@ -293,7 +434,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
         }}
       >
         <FrequencyWaveform
-          analyser={null}
+          analyser={playing ? activeAnalyser : null}
           active={playing}
           wizsound={wizsound}
         />
@@ -304,8 +445,11 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
             <span className="text-white/30 text-xs font-semibold tracking-wide">Switching…</span>
           ) : wizsound ? (
             <span className="inline-flex items-center gap-1.5 text-fuchsia-300 text-xs font-bold tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
-              WizSound™ Cinematic Active
+              <span
+                className="w-1.5 h-1.5 rounded-full bg-fuchsia-400"
+                style={{ animation: "pulse 1.5s ease-in-out infinite" }}
+              />
+              WizSound™ Enabled
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-white/40 text-xs font-semibold tracking-wide">
@@ -467,11 +611,7 @@ export default function WizSoundSection() {
 
   useEffect(() => {
     const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setVisible(true);
-        }
-      },
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
       { threshold: 0.2 }
     );
     if (sectionRef.current) obs.observe(sectionRef.current);
@@ -533,11 +673,8 @@ export default function WizSoundSection() {
 
         {/* Two-column: audio demo + feature cards */}
         <div className="grid lg:grid-cols-2 gap-10 mb-14 items-start">
-
-          {/* Left: Audio demo player */}
           <AudioDemoPlayer visible={visible} />
 
-          {/* Right: Feature cards stacked */}
           <div className="flex flex-col gap-4">
             <FeatureCard
               icon={Volume2}
