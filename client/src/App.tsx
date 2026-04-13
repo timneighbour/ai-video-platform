@@ -148,15 +148,8 @@ function MixpanelIdentity() {
 }
 
 function App() {
-  // Show intro on first visit only. Check localStorage synchronously so there
-  // is zero flicker — if already seen, intro never mounts at all.
-  const [showIntro, setShowIntro] = useState<boolean>(() => {
-    try {
-      return !localStorage.getItem(INTRO_SEEN_KEY);
-    } catch {
-      return false; // private browsing or storage blocked — skip intro
-    }
-  });
+  // Show intro on every visit — user can skip at any time to go straight to the homepage.
+  const [showIntro, setShowIntro] = useState<boolean>(true);
 
   return (
     <ErrorBoundary>

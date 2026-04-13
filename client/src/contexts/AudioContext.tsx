@@ -55,11 +55,18 @@ export function useGlobalAudio() {
 }
 
 export function GlobalAudioProvider({ children }: { children: React.ReactNode }) {
-  // Always start muted on page load — user-first policy.
-  // Browser autoplay policy requires a user gesture before audio can play.
-  // We never restore "unmuted" from storage because the user must explicitly
-  // unmute on each visit (browser may have blocked autoplay anyway).
-  const [isMuted, setIsMuted] = useState(true);
+  // Default to UNMUTED. Read user's saved preference from localStorage if available.
+  // If no preference has been saved, default to false (unmuted).
+  // Note: browsers require a user gesture before audio can play — the
+  // hasUserInteracted flag below ensures audio only starts after first interaction.
+  const [isMuted, setIsMuted] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved !== null ? saved === "true" : false;
+    } catch {
+      return false; // private browsing or storage blocked — default unmuted
+    }
+  });
 
   const [activeSourceId, setActiveSourceId] = useState<string | null>(null);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);

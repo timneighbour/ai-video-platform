@@ -30,7 +30,7 @@ const BG_CLIPS = [
 // Ambient music track (standard audio — no Web Audio API)
 const AMBIENT_AUDIO = `${CDN}/wizsound-standard_31845db2.m4a`;
 
-// localStorage key — set after first visit so intro never auto-shows again
+// localStorage key — exported for compatibility but no longer used to gate the intro
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -111,15 +111,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const handleClose = useCallback(() => {
     if (phase === "exiting") return;
     setPhase("exiting");
-    // Mark as seen so it never auto-shows again
-    try { localStorage.setItem(INTRO_SEEN_KEY, "1"); } catch { /* ignore */ }
     // Fade out then call onClose
     setTimeout(() => onClose(), 700);
   }, [phase, onClose]);
 
   // ── CTA click — navigate then close ────────────────────────────────────────
   const handleCTA = useCallback(() => {
-    try { localStorage.setItem(INTRO_SEEN_KEY, "1"); } catch { /* ignore */ }
     setPhase("exiting");
     setTimeout(() => {
       onClose();

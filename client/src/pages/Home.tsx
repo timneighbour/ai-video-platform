@@ -170,7 +170,7 @@ function Nav() {
                     <Link
                       key={tool.label}
                       href={tool.href}
-                      onClick={() => setToolsOpen(false)}
+                      onClick={() => setTimeout(() => setToolsOpen(false), 50)}
                       className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-white/6 transition-colors group"
                     >
                       <span className="text-xl mt-0.5 flex-shrink-0">{tool.icon}</span>
@@ -236,7 +236,7 @@ function Nav() {
                 key={tool.label}
                 href={tool.href}
                 className="flex items-center gap-3 py-3 border-b border-white/5"
-                onClick={() => setMobileOpen(false)}
+                onClick={() => setTimeout(() => setMobileOpen(false), 50)}
               >
                 <span className="text-lg">{tool.icon}</span>
                 <div>
