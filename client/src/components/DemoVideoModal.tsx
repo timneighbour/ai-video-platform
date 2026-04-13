@@ -7,7 +7,7 @@ const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
 
 const DEMO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid_demo_cd4e1b19.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-clean_b6ec4737.mp4";
 
 /* ── WizSound™ EQ Bar animation component ───────────────────────────── */
 function WizSoundEQ({ size = "lg" }: { size?: "sm" | "lg" }) {

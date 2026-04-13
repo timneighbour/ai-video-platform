@@ -11,6 +11,7 @@
  *   6. FAQ
  */
 import { useState, useEffect, useRef } from "react";
+import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -268,15 +269,15 @@ export default function Pricing() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/6">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/">
+          <Link href="/">
             <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-20 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
-          </a>
+          </Link>
           <div className="flex items-center gap-4">
-            <a href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</a>
-            <a href="/music-video" className="text-sm text-white/50 hover:text-white transition-colors">Create</a>
+            <Link href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</Link>
+            <Link href="/music-video" className="text-sm text-white/50 hover:text-white transition-colors">Create</Link>
             {isAuthenticated ? (
               <Button className="bg-white text-black hover:bg-white/90 text-sm px-4 h-8 rounded-lg font-semibold" asChild>
-                <a href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</a>
+                <Link href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</Link>
               </Button>
             ) : (
               <Button className="bg-white text-black hover:bg-white/90 text-sm px-4 h-8 rounded-lg font-semibold" asChild>
@@ -719,9 +720,9 @@ export default function Pricing() {
         <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain mx-auto mb-4 opacity-50" />
         <p>© 2025 WizVid. All rights reserved.</p>
         <div className="flex items-center justify-center gap-4 mt-3">
-          <a href="/privacy" className="hover:text-white/50 transition-colors">Privacy</a>
-          <a href="/terms" className="hover:text-white/50 transition-colors">Terms</a>
-          <a href="/help" className="hover:text-white/50 transition-colors">Help</a>
+          <Link href="/privacy" className="hover:text-white/50 transition-colors">Privacy</Link>
+          <Link href="/terms" className="hover:text-white/50 transition-colors">Terms</Link>
+          <Link href="/help" className="hover:text-white/50 transition-colors">Help</Link>
         </div>
       </footer>
     </div>

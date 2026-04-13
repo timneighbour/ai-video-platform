@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
 import CinematicIntroSequence from "@/components/CinematicIntroSequence";
 import { Button } from "@/components/ui/button";
@@ -120,7 +121,7 @@ function Nav() {
     }`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center group flex-shrink-0">
+        <Link href="/" className="flex items-center group flex-shrink-0">
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
@@ -128,18 +129,18 @@ function Nav() {
             height={180}
             className="h-24 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
           />
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-0.5">
           {mainLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               className="px-3 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block whitespace-nowrap"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
 
           {/* Tools dropdown */}
@@ -167,7 +168,7 @@ function Nav() {
               >
                 <div className="p-2">
                   {toolLinks.map((tool) => (
-                    <a
+                    <Link
                       key={tool.label}
                       href={tool.href}
                       onClick={() => setToolsOpen(false)}
@@ -178,7 +179,7 @@ function Nav() {
                         <div className="text-sm font-medium text-white">{tool.label}</div>
                         <div className="text-xs text-[#a1a1aa] mt-0.5">{tool.sub}</div>
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -191,7 +192,7 @@ function Nav() {
           <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
-              <a href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</a>
+              <Link href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</Link>
             </Button>
           ) : (
             <>
@@ -199,7 +200,7 @@ function Nav() {
                 Sign in
               </a>
               <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm px-5 rounded-xl font-semibold h-9 shadow-sm shadow-violet-500/25" asChild>
-                <a href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</a>
+                <Link href="/onboarding"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</Link>
               </Button>
             </>
           )}
@@ -218,21 +219,21 @@ function Nav() {
         <div className="lg:hidden bg-[#0f0f0f]/98 backdrop-blur-xl border-t border-white/8 px-6 py-5 max-h-[80vh] overflow-y-auto">
           {/* Main links */}
           {mainLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               className="block py-3 text-[#a1a1aa] hover:text-white font-medium border-b border-white/5 text-sm"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
 
           {/* Tools section */}
           <div className="pt-4 pb-2">
             <p className="text-xs font-bold text-[#a1a1aa]/60 uppercase tracking-widest mb-3">Tools</p>
             {toolLinks.map((tool) => (
-              <a
+              <Link
                 key={tool.label}
                 href={tool.href}
                 className="flex items-center gap-3 py-3 border-b border-white/5"
@@ -243,15 +244,15 @@ function Nav() {
                   <div className="text-sm font-medium text-white">{tool.label}</div>
                   <div className="text-xs text-[#a1a1aa]">{tool.sub}</div>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
 
           <div className="pt-4 flex gap-3">
             <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
-            <a href="/onboarding" className="flex-1">
+            <Link href="/onboarding" className="flex-1">
               <Button className="w-full bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl text-sm font-semibold h-10">Start Creating</Button>
-            </a>
+            </Link>
           </div>
         </div>
       )}
@@ -894,7 +895,7 @@ function ProductDemo() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</a>
+            <Link href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</Link>
           </Button>
           <p className="text-[#a1a1aa] text-sm mt-3">Free to create · No credit card · Only pay to render</p>
         </div>
@@ -1150,9 +1151,9 @@ function WhoItsFor() {
               <div className="p-6">
                 <h3 className="text-lg font-semibold text-white mb-2">{a.title}</h3>
                 <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">{a.desc}</p>
-                <a href={a.href} className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors">
+                <Link href={a.href} className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors">
                   {a.cta} <ArrowRight className="w-3.5 h-3.5" />
-                </a>
+                </Link>
               </div>
             </div>
           ))}
@@ -1350,7 +1351,7 @@ function ContentEngine() {
                   className="border-white/12 text-white hover:bg-white/5 bg-transparent text-sm rounded-xl font-medium h-auto py-2.5 mt-auto"
                   asChild
                 >
-                  <a href={f.href}><ArrowRight className="w-3.5 h-3.5 mr-1.5" />{f.cta}</a>
+                  <Link href={f.href}><ArrowRight className="w-3.5 h-3.5 mr-1.5" />{f.cta}</Link>
                 </Button>
               </div>
             ))}
@@ -1474,13 +1475,13 @@ function ContentEngine() {
               className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <a href="/onboarding"><Video className="w-4 h-4 mr-2" />Create Your First AI Video</a>
+              <Link href="/onboarding"><Video className="w-4 h-4 mr-2" />Create Your First AI Video</Link>
             </Button>
             <Button
               className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <a href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Generate Your First Song</a>
+              <Link href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Generate Your First Song</Link>
             </Button>
           </div>
         </div>
@@ -1492,12 +1493,12 @@ function ContentEngine() {
 // ── How It Works Modal ───────────────────────────────────────────────────────
 function HowItWorksModalButton() {
   return (
-    <a
+    <Link
       href="/how-it-works"
       className="inline-flex items-center gap-1.5 text-base px-7 py-3 rounded-xl font-medium border border-white/15 text-white hover:bg-white/5 transition-all"
     >
       <ChevronRight className="w-4 h-4" />See How It Works
-    </a>
+    </Link>
   );
 }
 
@@ -1578,7 +1579,7 @@ function WizBeatSection() {
               className="bg-white text-black hover:bg-white/90 text-sm px-6 py-2.5 rounded-xl font-semibold h-auto shadow-md hover:shadow-lg transition-all"
               asChild
             >
-              <a href="/music-video"><Music className="w-4 h-4 mr-2" />Make a music video</a>
+              <Link href="/music-video"><Music className="w-4 h-4 mr-2" />Make a music video</Link>
             </Button>
           </div>
         </div>
@@ -2155,14 +2156,14 @@ function CTAPush() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</a>
+            <Link href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</Link>
           </Button>
           <Button
             variant="outline"
             className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-8 py-3 rounded-xl font-medium h-auto"
             asChild
           >
-            <a href="/pricing">View pricing</a>
+            <Link href="/pricing">View pricing</Link>
           </Button>
         </div>
         <p className="text-[#a1a1aa] text-sm">Create for free · No credit card · Only pay when you render</p>
@@ -2342,13 +2343,23 @@ function Footer() {
               <h4 className="font-semibold text-white text-sm mb-4">{section.title}</h4>
               <div className="space-y-3">
                 {section.links.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="block text-[#a1a1aa] hover:text-white text-sm transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  link.href.startsWith('mailto:') ? (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="block text-[#a1a1aa] hover:text-white text-sm transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className="block text-[#a1a1aa] hover:text-white text-sm transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  )
                 ))}
               </div>
             </div>
@@ -2370,9 +2381,9 @@ function Footer() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
             <p>© 2026 WizVid. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="/refunds" className="hover:text-white transition-colors">Refund Policy</a>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+              <Link href="/refunds" className="hover:text-white transition-colors">Refund Policy</Link>
             </div>
           </div>
           <div className="mt-6 text-center">

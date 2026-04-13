@@ -1203,10 +1203,10 @@ export default function MusicVideoAutopilot() {
         <div className="max-w-5xl mx-auto px-4 py-6">
           {/* Top nav row: Home + Dashboard links */}
           <div className="flex items-center justify-between mb-4">
-            <a href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+            <Link href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
               <span>Home</span>
-            </a>
+            </Link>
             <Link href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard</span>

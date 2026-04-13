@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 const VIDEO_STANDARD =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-standard_32cb7c7a.mp4";
 const VIDEO_WIZSOUND =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-wizsound_d2f714ff.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-wizsound_b930bf43.mp4";
 
 /* ── Dual-video sync player ─────────────────────────────────────────────── */
 function DualVideoPlayer({ visible }: { visible: boolean }) {

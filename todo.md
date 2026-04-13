@@ -2966,3 +2966,15 @@
 - [ ] Verify content unlock after payment (credits/renders)
 - [ ] Fix error handling for failed payments
 - [ ] Fix intro mute toggle: must work on first click, not require two clicks
+
+## Anchor Tag Fix - Session Continuation (April 2026)
+- [x] Replace all internal plain anchor tags with wouter Link components across ALL pages
+- [x] MusicVideosLanding.tsx: logo, nav links, pricing link, footer links → Link
+- [x] HowItWorks.tsx: logo, Get Started CTAs → Link
+- [x] Pricing.tsx: logo, nav links, Dashboard, footer links → Link
+- [x] Home.tsx: logo, desktop nav, tools dropdown, mobile menu, all CTAs, footer links → Link
+- [x] Privacy.tsx: logo, back to home, footer links → Link
+- [x] Terms.tsx: logo, back to home, inline /refunds link, footer links → Link
+- [x] Refunds.tsx: logo, back to home, inline /terms link, footer links → Link
+- [x] Onboarding.tsx: Terms/Privacy footer links → Link
+- [x] TypeScript: 0 errors, Tests: 338/338 passing

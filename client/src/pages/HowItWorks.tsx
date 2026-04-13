@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 
 // ── CDN assets (same as Home.tsx) ────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -113,22 +113,22 @@ export default function HowItWorks() {
           </button>
 
           {/* Logo */}
-          <a href="/" className="absolute left-1/2 -translate-x-1/2">
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
             <img
               src={WIZVID_LOGO_FULL}
               alt="WizVid"
               className="h-9 w-auto object-contain"
             />
-          </a>
+          </Link>
 
           {/* CTA */}
           <Button
             className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 shadow-sm"
             asChild
           >
-            <a href="/onboarding">
+            <Link href="/onboarding">
               <Sparkles className="w-3.5 h-3.5 mr-1.5" />Get Started
-            </a>
+            </Link>
           </Button>
         </div>
       </nav>
@@ -235,9 +235,9 @@ export default function HowItWorks() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <a href="/onboarding">
+            <Link href="/onboarding">
               <Sparkles className="w-4 h-4 mr-2" />Ready to Create Video
-            </a>
+            </Link>
           </Button>
           <Button
             variant="outline"

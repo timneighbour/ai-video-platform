@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'wouter';
 import { Music, Play, Sparkles, Wand2, Waves, ArrowRight, ArrowLeft } from 'lucide-react';
 
 /**
@@ -179,13 +180,13 @@ const Onboarding: React.FC = () => {
         <div className="text-center text-slate-500 text-xs">
           <p>
             By continuing, you agree to WizVid's{' '}
-            <a href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
+            <Link href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
               Terms of Service
-            </a>
+            </Link>
             {' '}and{' '}
-            <a href="/privacy" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
+            <Link href="/privacy" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
               Privacy Policy
-            </a>
+            </Link>
           </p>
         </div>
       </div>

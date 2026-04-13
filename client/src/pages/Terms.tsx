@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
 
 export default function Terms() {
@@ -5,10 +6,10 @@ export default function Terms() {
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
-          </a>
-          <a href="/" className="text-sm text-[#a1a1aa] hover:text-white transition-colors">← Back to Home</a>
+          </Link>
+          <Link href="/" className="text-sm text-[#a1a1aa] hover:text-white transition-colors">← Back to Home</Link>
         </div>
       </nav>
 
@@ -59,7 +60,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">6. Credits and Subscriptions</h2>
-            <p>WizVid operates on a credit-based system. Credits are consumed when you render videos. Unused credits do not roll over between billing periods unless stated in your plan. Subscription fees are billed in advance and are non-refundable except as set out in our <a href="/refunds" className="text-purple-400 hover:text-purple-300 underline">Refund Policy</a>.</p>
+            <p>WizVid operates on a credit-based system. Credits are consumed when you render videos. Unused credits do not roll over between billing periods unless stated in your plan. Subscription fees are billed in advance and are non-refundable except as set out in our <Link href="/refunds" className="text-purple-400 hover:text-purple-300 underline">Refund Policy</Link>.</p>
           </section>
 
           <section>
@@ -96,9 +97,9 @@ export default function Terms() {
 
       <footer className="border-t border-white/8 py-8 mt-16">
         <div className="max-w-4xl mx-auto px-6 flex flex-wrap gap-4 text-sm text-[#a1a1aa]">
-          <a href="/" className="hover:text-white transition-colors">Home</a>
-          <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="/refunds" className="hover:text-white transition-colors">Refund Policy</a>
+          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+          <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+          <Link href="/refunds" className="hover:text-white transition-colors">Refund Policy</Link>
           <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
         </div>
       </footer>

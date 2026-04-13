@@ -5,7 +5,7 @@ import { getLoginUrl } from "@/const";
 import BackButton from "@/components/BackButton";
 import AuthGate from "@/components/AuthGate";
 import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "lucide-react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
@@ -43,9 +43,9 @@ export default function MusicVideosLanding() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back to Home" />
-            <a href="/" className="hidden md:flex items-center">
+            <Link href="/" className="hidden md:flex items-center">
               <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
-            </a>
+            </Link>
           </div>
           <div className="hidden md:flex items-center gap-1">
             {[
@@ -54,13 +54,13 @@ export default function MusicVideosLanding() {
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
           <div className="flex items-center gap-3">
@@ -119,7 +119,7 @@ export default function MusicVideosLanding() {
                   className="border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-7 py-3 rounded-xl font-medium h-auto"
                   asChild
                 >
-                  <a href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />View pricing</a>
+                  <Link href="/pricing"><ChevronRight className="w-4 h-4 mr-1" />View pricing</Link>
                 </Button>
               </div>
               <p className="text-sm text-[#a1a1aa]">Free to create · No credit card · Only pay to render</p>
@@ -248,11 +248,11 @@ export default function MusicVideosLanding() {
           <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain" />
           <p>© 2025 WizVid. All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
-            <a href="/pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/help" className="hover:text-white transition-colors">Help</a>
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
-            <a href="/terms" className="hover:text-white transition-colors">Terms</a>
-            <a href="/refunds" className="hover:text-white transition-colors">Refunds</a>
+            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="/help" className="hover:text-white transition-colors">Help</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <Link href="/refunds" className="hover:text-white transition-colors">Refunds</Link>
             <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
           </div>
         </div>
