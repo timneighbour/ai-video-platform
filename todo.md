@@ -2710,3 +2710,9 @@
 - [x] Ensure video element is not muted by default
 - [x] Apply same Web Audio API fix: ensureAudioGraph now async, ctx.resume() awaited inside click handler
 - [x] Ensure switching between Standard/WizSound tabs correctly routes audio
+
+## Intro Video Audio Fix V2
+- [x] Remove Web Audio API from critical audio path in CinematicIntroSequence
+- [x] Use separate Audio() element for soundtrack — video element stays permanently muted (purely visual)
+- [x] Keep WizSound stereo widening visual effect (CSS animation) + optional Web Audio on Audio() element only
+- [x] Ensure click anywhere unmutes immediately and reliably via native Audio.muted=false
