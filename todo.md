@@ -2664,3 +2664,18 @@
 - [ ] Add "Kids Video" to homepage features section
 - [ ] Ensure kid-friendly colourful design (bright, fun, not corporate)
 - [ ] Write vitest tests for kidsVideo procedures
+
+## Kids Video Concept Page - COMPLETED ✅
+- [x] Add full marketing/concept landing section to /kids-video page
+- [x] Hero section with headline, stats row, and primary CTA
+- [x] "How It Works" 3-step section with conversion psychology hook
+- [x] 6 animation styles showcase grid (clickable — selects style and enters creation flow)
+- [x] Features grid (Character-Consistent AI, Free Storyboard, WizSound™, Child-Safe, Screen Format, Speed)
+- [x] Pricing callout with video length/credit breakdown
+- [x] Trust signals bar (Child-Safe, WizSound™, Unlimited Previews, etc.)
+- [x] Bottom CTA section with gradient background
+- [x] "concept" step added to state machine — page now starts on concept, then flows to input → storyboard → render
+- [x] Header CTA button changes contextually (Start Free on concept page, CreditBalance on creation steps)
+- [x] Progress steps bar hidden on concept page, shown on creation steps
+- [x] "Create another video" resets to concept page
+- [x] 335/335 tests passing, 0 TypeScript errors
