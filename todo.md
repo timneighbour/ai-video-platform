@@ -2869,3 +2869,15 @@
 - [x] Creator consistency audit: Autopilot (Cinematic) is intentionally simpler (text-to-video tool), Music Video and Kids Animation are consistent
 - [x] TypeScript check: 0 errors
 - [x] Tests: 335/335 passing
+
+## Homepage Video Showcase Section
+- [x] Audit existing showcase data and video assets in the codebase
+- [x] Source/define example video data (title, category, creator type, poster, video URL)
+- [x] Build VideoShowcaseSection component with category filter tabs (All, Music Video, Kids Animation, Cinematic, Story Animation)
+- [x] Cinematic card design: poster thumbnail, category badge, title, duration badge, tool label, hover-to-play video preview
+- [x] Add "Made with WizVid" branding on each card
+- [x] Smooth hover interaction: poster fades, video autoplays muted on hover, scale-110 zoom
+- [x] Responsive grid: 3 columns desktop, 2 tablet, 1 mobile
+- [x] Static fallback data with 9 AI-generated poster images (3 per category)
+- [x] Integrate section into Home.tsx (upgraded existing MadeWithWizVid section)
+- [x] TypeScript: 0 errors, Tests: 335/335 passing

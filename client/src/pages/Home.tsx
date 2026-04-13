@@ -1647,20 +1647,120 @@ function SocialProof() {
 }
 
 // ── Category colour map ───────────────────────────────────────────────────────
-const CATEGORY_COLOURS: Record<string, { badge: string; glow: string }> = {
-  "Kids YouTube":       { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20" },
-  "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20" },
-  "WizBeat":             { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20" },
-  "Story Animation":    { badge: "bg-pink-500/20 text-pink-300 border border-pink-500/30",       glow: "group-hover:shadow-pink-500/20" },
-  "Faceless Content":   { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",       glow: "group-hover:shadow-cyan-500/20" },
-  "Social Short":       { badge: "bg-green-500/20 text-green-300 border border-green-500/30",   glow: "group-hover:shadow-green-500/20" },
-  "Cinematic AI Video": { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20" },
+const CATEGORY_COLOURS: Record<string, { badge: string; glow: string; dot: string }> = {
+  "Kids Animation":     { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20",  dot: "bg-yellow-400" },
+  "Kids YouTube":       { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20",  dot: "bg-yellow-400" },
+  "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
+  "WizBeat":            { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
+  "Story Animation":    { badge: "bg-pink-500/20 text-pink-300 border border-pink-500/30",       glow: "group-hover:shadow-pink-500/20",    dot: "bg-pink-400" },
+  "Faceless Content":   { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",       glow: "group-hover:shadow-cyan-500/20",    dot: "bg-cyan-400" },
+  "Social Short":       { badge: "bg-green-500/20 text-green-300 border border-green-500/30",    glow: "group-hover:shadow-green-500/20",   dot: "bg-green-400" },
+  "Cinematic":          { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20",  dot: "bg-orange-400" },
+  "Cinematic AI Video": { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20",  dot: "bg-orange-400" },
 };
 
-// ── Individual showcase card ───────────────────────────────────────────────────
-function ShowcaseCard({ item }: { item: { id: number; category: string; title: string; description: string; posterUrl: string; videoUrl: string | null } }) {
+// ── Static showcase data (always shown; DB items override when available) ─────
+const STATIC_SHOWCASE_ITEMS = [
+  {
+    id: -1,
+    category: "Music Video",
+    title: "Neon Stage",
+    description: "A cinematic concert performance with AI-generated crowd, volumetric lighting, and WizSound™ audio enhancement.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp",
+    videoUrl: null,
+    duration: "3:24",
+    tool: "Music Video Creator",
+  },
+  {
+    id: -2,
+    category: "Music Video",
+    title: "Desert Horizon",
+    description: "Silhouette guitarist at golden hour — epic desert landscape, cinematic lens flares, and an original WizSound™ soundtrack.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp",
+    videoUrl: null,
+    duration: "2:58",
+    tool: "Music Video Creator",
+  },
+  {
+    id: -3,
+    category: "Music Video",
+    title: "Cyberpunk Alley",
+    description: "Rain-soaked neon Tokyo street performance — holographic displays, purple and cyan lighting, full cinematic grade.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp",
+    videoUrl: null,
+    duration: "4:12",
+    tool: "Music Video Creator",
+  },
+  {
+    id: -4,
+    category: "Kids Animation",
+    title: "The Enchanted Forest",
+    description: "Two young adventurers discover a magical glowing forest — Pixar 3D style, vibrant colours, and a whimsical original score.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-pixar-adventure-BKhZNEWoXbX6EXPmv6vDHr.webp",
+    videoUrl: null,
+    duration: "5:10",
+    tool: "Kids Animation Creator",
+  },
+  {
+    id: -5,
+    category: "Kids Animation",
+    title: "Cosmic Explorers",
+    description: "A cheerful astronaut and friendly alien companions float through a vibrant galaxy — joyful, colourful, and perfectly paced for young audiences.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-space-explorer-gUrADwNHSJSJCBHQnA9TKr.webp",
+    videoUrl: null,
+    duration: "4:45",
+    tool: "Kids Animation Creator",
+  },
+  {
+    id: -6,
+    category: "Kids Animation",
+    title: "Dragon Rider",
+    description: "A brave girl soars through rainbow clouds on her friendly dragon — Disney cartoon style with a catchy original kids song.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-cartoon-dragon-fHkz9VL8sBdfDvLuy8RYqd.webp",
+    videoUrl: null,
+    duration: "3:30",
+    tool: "Kids Animation Creator",
+  },
+  {
+    id: -7,
+    category: "Cinematic",
+    title: "Neon City Chronicles",
+    description: "Aerial flyover of a rain-soaked futuristic megacity — atmospheric fog, purple and gold lighting, Hollywood-grade colour grade.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic-city-7Gb7h9K3CbiAuwh6HKv9bc.webp",
+    videoUrl: null,
+    duration: "2:45",
+    tool: "WizPilot",
+  },
+  {
+    id: -8,
+    category: "Cinematic",
+    title: "The Last Stand",
+    description: "A lone golden warrior surveys a ruined fantasy kingdom — dramatic storm, lightning, and a sweeping orchestral WizSound™ score.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic-warrior-KwKZH22SRsKfJSGoJaL3Nu.webp",
+    videoUrl: null,
+    duration: "3:18",
+    tool: "WizPilot",
+  },
+  {
+    id: -9,
+    category: "Story Animation",
+    title: "The Spirit of Summer",
+    description: "A Ghibli-inspired watercolour story — a young girl and her magical spirit companion wander through a sunlit meadow at dusk.",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-story-ghibli-EtQk9cWKXAQvDGRgrHfBt3.webp",
+    videoUrl: null,
+    duration: "4:02",
+    tool: "Kids Animation Creator",
+  },
+];
+
+const SHOWCASE_FILTER_TABS = ["All", "Music Video", "Kids Animation", "Cinematic", "Story Animation"] as const;
+
+// ── Individual showcase card ───────────────────────────────────────────────────────
+type ShowcaseItem = { id: number; category: string; title: string; description: string; posterUrl: string; videoUrl: string | null; duration?: string; tool?: string };
+
+function ShowcaseCard({ item }: { item: ShowcaseItem }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const colours = CATEGORY_COLOURS[item.category] ?? { badge: "bg-white/10 text-white/70 border border-white/20", glow: "group-hover:shadow-white/10" };
+  const colours = CATEGORY_COLOURS[item.category] ?? { badge: "bg-white/10 text-white/70 border border-white/20", glow: "group-hover:shadow-white/10", dot: "bg-white/40" };
 
   const handleMouseEnter = () => {
     if (videoRef.current && item.videoUrl) {
@@ -1685,12 +1785,14 @@ function ShowcaseCard({ item }: { item: { id: number; category: string; title: s
         <img
           src={item.posterUrl}
           alt={item.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
           decoding="async"
           width={640}
           height={360}
         />
+        {/* Cinematic gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         {item.videoUrl && (
           <video
             ref={videoRef}
@@ -1702,30 +1804,40 @@ function ShowcaseCard({ item }: { item: { id: number; category: string; title: s
             className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           />
         )}
+        {/* Duration badge top-left */}
+        {item.duration && (
+          <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[11px] font-semibold text-white/90 border border-white/10 flex items-center gap-1">
+            <Play className="w-2.5 h-2.5 fill-white" />
+            {item.duration}
+          </div>
+        )}
         {/* Play icon overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-            <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+          <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-xl">
+            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
           </div>
         </div>
-        {/* Made with WizVid badge */}
-        <div className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-semibold text-white/70 border border-white/10">
+        {/* Made with WizVid badge bottom-right */}
+        <div className="absolute bottom-3 right-3 px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-semibold text-white/70 border border-white/10">
           Made with WizVid
         </div>
       </div>
 
       {/* Card body */}
       <div className="p-5">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${colours.badge}`}>{item.category}</span>
+          {item.tool && (
+            <span className="text-[10px] text-white/40 font-medium">{item.tool}</span>
+          )}
         </div>
-        <h3 className="font-semibold text-white text-base mb-1 leading-snug">{item.title}</h3>
-        <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">{item.description}</p>
+        <h3 className="font-bold text-white text-base mb-2 leading-snug group-hover:text-violet-200 transition-colors">{item.title}</h3>
+        <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4 line-clamp-2">{item.description}</p>
         <a
           href="/onboarding"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/60 hover:text-white transition-colors group/cta"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors group/cta"
         >
-          Create your first video
+          Create something like this
           <ArrowRight className="w-3 h-3 transition-transform group-hover/cta:translate-x-0.5" />
         </a>
       </div>
@@ -1749,54 +1861,94 @@ function ShowcaseSkeleton() {
       ))}
     </div>
   );
-}
-
-// ── Made with WizVid (showcase gallery) ──────────────────────────────────────
+}// ── Made with WizVid (showcase gallery) ──────────────────────────────────────────────
 function MadeWithWizVid() {
-  const { data: items, isLoading } = trpc.showcase.list.useQuery();
+  const { data: dbItems } = trpc.showcase.list.useQuery();
+  const [activeFilter, setActiveFilter] = useState<string>("All");
+
+  // Use DB items if available, otherwise fall back to static data
+  const allItems: ShowcaseItem[] = (dbItems && dbItems.length > 0)
+    ? dbItems.map((i) => ({ ...i, duration: undefined, tool: undefined }))
+    : STATIC_SHOWCASE_ITEMS;
+
+  const filteredItems = activeFilter === "All"
+    ? allItems
+    : allItems.filter((i) => i.category === activeFilter);
 
   return (
-    <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
+    <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/6">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14 reveal">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Created with WizVid</p>
+        {/* Section header */}
+        <div className="text-center mb-12 reveal">
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Example videos</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-            Real videos. Real creators.
+            See what WizVid creates
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Every video below was created using WizVid — no editing, no animators, no studio. Just an idea and a song.
+            Every video below was generated with WizVid — no editing, no animators, no studio. Just an idea.
           </p>
         </div>
 
+        {/* Category filter tabs */}
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-10 reveal">
+          {SHOWCASE_FILTER_TABS.map((tab) => {
+            const isActive = activeFilter === tab;
+            const colours = CATEGORY_COLOURS[tab];
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveFilter(tab)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 border ${
+                  isActive
+                    ? "bg-violet-600 text-white border-violet-500 shadow-lg shadow-violet-500/20"
+                    : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                {tab === "All" ? (
+                  "All Videos"
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    {colours && <span className={`w-1.5 h-1.5 rounded-full ${colours.dot}`} />}
+                    {tab}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Grid */}
         <div className="reveal">
-          {isLoading ? (
-            <ShowcaseSkeleton />
-          ) : items && items.length > 0 ? (
+          {filteredItems.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <ShowcaseCard key={item.id} item={item} />
               ))}
             </div>
           ) : (
-            <ShowcaseSkeleton />
+            <div className="text-center py-16 text-white/40">
+              <Film className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p className="text-sm">No examples in this category yet.</p>
+            </div>
           )}
         </div>
 
-        <div className="text-center mt-12 reveal">
+        {/* Bottom CTA */}
+        <div className="text-center mt-14 reveal">
+          <p className="text-[#a1a1aa] text-sm mb-5">Ready to create your own?</p>
           <a
             href="/onboarding"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 text-white text-sm font-semibold hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25"
           >
             <Sparkles className="w-4 h-4" />
-              Create Your First Video
-
+            Create Your First Video →
           </a>
         </div>
       </div>
     </section>
   );
 }
-// ── Mid-page punch line ────────────────────────────────────────────────────────────
+// ── Mid-page punch line ────────────────────────────────────────────────────────────────────────────────────
 function PunchLine() {
   return (
     <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
