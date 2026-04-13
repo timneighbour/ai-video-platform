@@ -1,44 +1,47 @@
 /**
- * CinematicIntroSequence V5 — Ultra-Premium IMAX Cinematic Experience
+ * CinematicIntroSequence V7 — Premium Cinematic Experience
  *
- * A full-screen video player with real AI-generated cinematic footage
- * and an orchestral soundtrack processed through the WizSound cinematic pipeline.
+ * Final refinements:
+ * - Color-graded clips with consistent cinematic tone
+ * - Zoom/radial/circle transitions (no fades or cuts)
+ * - Audio impact boost at logo reveal (deep bass + sharp hit + extended reverb)
+ * - WizSound™ moment with audio swell + visual pulse
+ * - CTA: "Start Creating Your Video →"
+ * - 3+ second final frame hold
  *
- * VIDEO: 17s composed from 5 ultra-cinematic clips with crossfade transitions
- *        (volumetric open → concert → noir city → Pixar animation → logo reveal)
- * AUDIO: Real orchestral soundtrack baked into the video file
- *        (sub-bass → strings → brass crescendo → impact hit → reverb tail)
- * TEXT:  CSS-only overlays synced to video currentTime (no baked-in text)
- * CTA:   "Enter Experience →" button appears on final frame with 2–3s hold
+ * VIDEO: 20s composed from 5 color-graded clips with cinematic transitions
+ *        (volumetric open → concert → noir city → animation → logo reveal + 3s hold)
+ * AUDIO: Orchestral soundtrack with impact hit at logo + WizSound swell
+ * TEXT:  CSS-only overlays synced to video currentTime
  */
 import { useRef, useState, useEffect, useCallback } from "react";
 
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v6-intro-final_92a6af28.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v7-intro-final_5666a9e2.mp4";
 
 const WIZVID_LOGO =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 
-/* ── timing map (seconds) — matched to 5-clip composition ── */
+/* ── timing map (seconds) — matched to V7 composition ── */
 const T = {
-  /* Scene boundaries (with 0.8s crossfades between each) */
+  /* Scene boundaries (with 0.8s zoom/radial transitions between each) */
   SCENE1_END: 3.2,       // volumetric open
   SCENE2_START: 3.2,     // concert performance
   SCENE2_END: 6.4,
   SCENE3_START: 6.4,     // cinematic film noir
   SCENE3_END: 9.6,
-  SCENE4_START: 9.6,     // Pixar animation
+  SCENE4_START: 9.6,     // animation
   SCENE4_END: 12.8,
   SCENE5_START: 12.8,    // logo reveal (light convergence)
 
-  /* Logo + CTA timing */
-  LOGO_SHOW: 13.5,
-  USP_SHOW: 14.2,
-  CTA_SHOW: 15.0,
-  VIDEO_END: 17.0,
+  /* Logo + WizSound + CTA timing */
+  LOGO_SHOW: 13.5,       // Logo appears with impact hit
+  WIZSOUND_SHOW: 14.5,   // "Powered by WizSound™" with audio swell + visual pulse
+  CTA_SHOW: 15.5,        // CTA button appears
+  VIDEO_END: 20.0,       // 3+ second hold for absorption and click
 };
 
-/* ── genre labels — appear once per scene, CSS-only, positioned within the frame ── */
+/* ── genre labels — appear once per scene ── */
 const GENRE_LABELS: Array<{
   text: string;
   start: number;
@@ -64,8 +67,9 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const [audioUnmuted, setAudioUnmuted] = useState(false);
   const [showCTA, setShowCTA] = useState(false);
   const [showLogo, setShowLogo] = useState(false);
-  const [showUSP, setShowUSP] = useState(false);
+  const [showWizSound, setShowWizSound] = useState(false);
   const [impactFired, setImpactFired] = useState(false);
+  const [wizSoundPulse, setWizSoundPulse] = useState(false);
 
   /* ── video time sync loop ── */
   useEffect(() => {
@@ -77,7 +81,10 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       setCurrentTime(t);
 
       if (t >= T.LOGO_SHOW && !showLogo) setShowLogo(true);
-      if (t >= T.USP_SHOW && !showUSP) setShowUSP(true);
+      if (t >= T.WIZSOUND_SHOW && !showWizSound) {
+        setShowWizSound(true);
+        setWizSoundPulse(true);
+      }
       if (t >= T.CTA_SHOW && !showCTA) setShowCTA(true);
       // Impact flash at logo reveal moment
       if (t >= T.LOGO_SHOW - 0.2 && t <= T.LOGO_SHOW + 0.5 && !impactFired) {
@@ -104,7 +111,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       video.removeEventListener("play", onPlay);
       video.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [showLogo, showUSP, showCTA, impactFired]);
+  }, [showLogo, showWizSound, showCTA, impactFired]);
 
   /* ── pause video at end for CTA hold ── */
   useEffect(() => {
@@ -113,7 +120,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     const handleEnd = () => {
       setShowCTA(true);
       setShowLogo(true);
-      setShowUSP(true);
+      setShowWizSound(true);
     };
     video.addEventListener("ended", handleEnd);
     return () => video.removeEventListener("ended", handleEnd);
@@ -183,7 +190,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         cursor: audioUnmuted ? "default" : "pointer",
       }}
     >
-      {/* ── VIDEO ELEMENT (with real orchestral audio baked in) ── */}
+      {/* ── VIDEO ELEMENT ── */}
       <video
         ref={videoRef}
         src={INTRO_VIDEO_URL}
@@ -223,7 +230,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               border: "3px solid rgba(255,255,255,0.1)",
               borderTopColor: "#a78bfa",
               borderRadius: "50%",
-              animation: "spin 1s linear infinite",
+              animation: "introSpin 1s linear infinite",
             }}
           />
           <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}>
@@ -258,7 +265,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         }}
       />
 
-      {/* ── GENRE TEXT OVERLAYS (CSS-only, centred, one at a time) ── */}
+      {/* ── GENRE TEXT OVERLAYS ── */}
       {GENRE_LABELS.map((label) => (
         <div
           key={label.text}
@@ -294,22 +301,73 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
         </div>
       ))}
 
-      {/* ── IMPACT FLASH (at logo reveal) ── */}
+      {/* ── IMPACT FLASH (at logo reveal — enhanced with deeper glow) ── */}
       {impactFired && (
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "radial-gradient(circle at center, rgba(255,255,255,0.5) 0%, rgba(167,139,250,0.3) 30%, transparent 70%)",
+            background: "radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, rgba(167,139,250,0.4) 25%, rgba(124,58,237,0.2) 50%, transparent 75%)",
             opacity: 0,
-            animation: "impactFlash 1s ease-out forwards",
+            animation: "introImpactFlash 1.2s ease-out forwards",
             pointerEvents: "none",
             zIndex: 11,
           }}
         />
       )}
 
-      {/* ── LOGO + TAGLINE + CTA (final frame — clean, no overlap) ── */}
+      {/* ── WIZSOUND VISUAL PULSE (at "Powered by WizSound™" moment) ── */}
+      {wizSoundPulse && (
+        <>
+          {/* Concentric ring pulse */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 0,
+              height: 0,
+              transform: "translate(-50%, -50%)",
+              borderRadius: "50%",
+              border: "2px solid rgba(167,139,250,0.6)",
+              boxShadow: "0 0 30px rgba(167,139,250,0.3), inset 0 0 30px rgba(167,139,250,0.1)",
+              animation: "introWizSoundRing 1.5s ease-out forwards",
+              pointerEvents: "none",
+              zIndex: 12,
+            }}
+          />
+          {/* Second ring (delayed) */}
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 0,
+              height: 0,
+              transform: "translate(-50%, -50%)",
+              borderRadius: "50%",
+              border: "1px solid rgba(139,92,246,0.4)",
+              animation: "introWizSoundRing 1.8s ease-out 0.2s forwards",
+              pointerEvents: "none",
+              zIndex: 12,
+            }}
+          />
+          {/* Screen distortion pulse */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(circle at center, rgba(139,92,246,0.15) 0%, transparent 60%)",
+              opacity: 0,
+              animation: "introWizSoundPulse 0.8s ease-out forwards",
+              pointerEvents: "none",
+              zIndex: 12,
+            }}
+          />
+        </>
+      )}
+
+      {/* ── LOGO + TAGLINE + WIZSOUND + CTA (final frame) ── */}
       {showLogo && (
         <div
           style={{
@@ -329,25 +387,25 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               position: "absolute",
               inset: 0,
               background: videoEnded
-                ? "radial-gradient(ellipse at center, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.92) 100%)"
-                : "radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)",
+                ? "radial-gradient(ellipse at center, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.94) 100%)"
+                : "radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.65) 100%)",
               transition: "background 1.2s ease",
             }}
           />
 
-          {/* Logo image */}
+          {/* Logo image — large and prominent */}
           <img
             src={WIZVID_LOGO}
             alt="WizVid"
             style={{
-              width: "clamp(180px, 25vw, 380px)",
+              width: "clamp(200px, 28vw, 420px)",
               height: "auto",
               position: "relative",
               zIndex: 1,
               opacity: 0,
               transform: "scale(0.85)",
-              animation: showLogo ? "logoReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards" : "none",
-              filter: "drop-shadow(0 0 50px rgba(167,139,250,0.7)) drop-shadow(0 0 100px rgba(124,58,237,0.4))",
+              animation: showLogo ? "introLogoReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards" : "none",
+              filter: "drop-shadow(0 0 60px rgba(167,139,250,0.8)) drop-shadow(0 0 120px rgba(124,58,237,0.5))",
             }}
           />
 
@@ -360,9 +418,9 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
                 left: "-100%",
                 width: "50%",
                 height: "2px",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)",
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)",
                 transform: "translateY(-50%)",
-                animation: "glowSweep 1.5s ease-in-out 0.5s forwards",
+                animation: "introGlowSweep 1.5s ease-in-out 0.5s forwards",
                 pointerEvents: "none",
                 zIndex: 2,
               }}
@@ -380,39 +438,40 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
               letterSpacing: "0.2em",
               fontWeight: 300,
               textTransform: "uppercase",
-              opacity: showUSP ? 1 : 0,
-              transform: `translateY(${showUSP ? "0" : "15px"})`,
-              transition: "opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s",
+              opacity: showLogo ? 1 : 0,
+              transform: `translateY(${showLogo ? "0" : "15px"})`,
+              transition: "opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s",
               textShadow: "0 2px 15px rgba(0,0,0,0.9)",
             }}
           >
             Cinematic AI Video Creation
           </p>
 
-          {/* WizSound USP */}
+          {/* WizSound™ USP — key emotional moment with visual pulse */}
           <p
             style={{
               position: "relative",
               zIndex: 1,
-              fontSize: "clamp(0.7rem, 1.1vw, 0.9rem)",
+              fontSize: "clamp(0.75rem, 1.2vw, 1rem)",
               color: "rgba(167,139,250,0.95)",
-              marginTop: "0.6rem",
-              letterSpacing: "0.12em",
-              fontWeight: 400,
-              opacity: showUSP ? 1 : 0,
-              transform: `translateY(${showUSP ? "0" : "10px"})`,
-              transition: "opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s",
-              textShadow: "0 0 25px rgba(167,139,250,0.5)",
+              marginTop: "0.8rem",
+              letterSpacing: "0.15em",
+              fontWeight: 500,
+              opacity: showWizSound ? 1 : 0,
+              transform: `translateY(${showWizSound ? "0" : "12px"}) scale(${showWizSound ? "1" : "0.95"})`,
+              transition: "opacity 0.6s ease, transform 0.6s ease",
+              textShadow: "0 0 30px rgba(167,139,250,0.6), 0 0 60px rgba(124,58,237,0.3)",
+              animation: showWizSound ? "introWizSoundTextGlow 2s ease-in-out infinite alternate" : "none",
             }}
           >
             Powered by WizSound™ &middot; Cinematic Spatial Audio
           </p>
 
-          {/* CTA Button */}
+          {/* CTA Button — conversion-focused */}
           {videoEnded && (
             <button
               onClick={handleEnter}
-              aria-label="Enter WizVid Experience"
+              aria-label="Start Creating Your Video"
               style={{
                 position: "relative",
                 zIndex: 1,
@@ -431,7 +490,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
                   "0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.25), inset 0 1px 0 rgba(255,255,255,0.15)",
                 opacity: 0,
                 transform: "translateY(20px)",
-                animation: "ctaAppear 0.8s ease forwards 0.3s",
+                animation: "introCtaAppear 0.8s ease forwards 0.3s",
               }}
               onMouseEnter={(e) => {
                 const btn = e.currentTarget;
@@ -446,7 +505,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
                 btn.style.transform = "translateY(0) scale(1)";
               }}
             >
-              Enter Experience →
+              Start Creating Your Video &rarr;
             </button>
           )}
         </div>
@@ -487,7 +546,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
             btn.style.borderColor = "rgba(255,255,255,0.1)";
           }}
         >
-          Skip →
+          Skip &rarr;
         </button>
       )}
 
@@ -508,7 +567,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
             borderRadius: "9999px",
             border: "1px solid rgba(255,255,255,0.08)",
             backdropFilter: "blur(12px)",
-            animation: "fadeInUp 0.6s ease forwards",
+            animation: "introFadeInUp 0.6s ease forwards",
           }}
         >
           <svg
@@ -552,31 +611,45 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
 
       {/* ── KEYFRAME ANIMATIONS ── */}
       <style>{`
-        @keyframes spin {
+        @keyframes introSpin {
           to { transform: rotate(360deg); }
         }
-        @keyframes impactFlash {
+        @keyframes introImpactFlash {
           0% { opacity: 0; }
-          10% { opacity: 1; }
+          8% { opacity: 1; }
+          25% { opacity: 0.6; }
           100% { opacity: 0; }
         }
-        @keyframes logoReveal {
+        @keyframes introLogoReveal {
           0% { opacity: 0; transform: scale(0.85); }
           60% { opacity: 1; transform: scale(1.02); }
           100% { opacity: 1; transform: scale(1); }
         }
-        @keyframes glowSweep {
+        @keyframes introGlowSweep {
           0% { left: -50%; opacity: 0; }
           20% { opacity: 1; }
           100% { left: 150%; opacity: 0; }
         }
-        @keyframes ctaAppear {
+        @keyframes introCtaAppear {
           0% { opacity: 0; transform: translateY(20px); }
           100% { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeInUp {
+        @keyframes introFadeInUp {
           from { opacity: 0; transform: translateX(-50%) translateY(10px); }
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes introWizSoundRing {
+          0% { width: 0; height: 0; opacity: 1; }
+          100% { width: 80vw; height: 80vw; opacity: 0; }
+        }
+        @keyframes introWizSoundPulse {
+          0% { opacity: 0; }
+          20% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes introWizSoundTextGlow {
+          0% { text-shadow: 0 0 30px rgba(167,139,250,0.6), 0 0 60px rgba(124,58,237,0.3); }
+          100% { text-shadow: 0 0 50px rgba(167,139,250,0.9), 0 0 100px rgba(124,58,237,0.5), 0 0 150px rgba(139,92,246,0.2); }
         }
       `}</style>
     </div>
