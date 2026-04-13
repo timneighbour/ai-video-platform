@@ -2,7 +2,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { WizVidLoader } from "./components/WizVidLoader";
 import { lazy, Suspense, useEffect, useState } from "react"; // useState used by App component
 import { identifyUser, resetIdentity } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -161,9 +160,6 @@ function MixpanelIdentity() {
 }
 
 function App() {
-  // Show branded preloader on initial app mount, then fade out
-  const [appReady, setAppReady] = useState(false);
-
   // Show cinematic intro only on the very first visit (localStorage + cookie fallback)
   // Initialise synchronously so the intro renders on the FIRST paint — no flicker
   const [showIntro, setShowIntro] = useState(() => {
@@ -177,13 +173,6 @@ function App() {
     } catch { /* noop */ }
     return true;
   });
-
-  useEffect(() => {
-    const t = requestAnimationFrame(() => {
-      setTimeout(() => setAppReady(true), 300);
-    });
-    return () => cancelAnimationFrame(t);
-  }, []);
 
   return (
     <ErrorBoundary>
@@ -200,8 +189,6 @@ function App() {
           {showIntro && (
             <CinematicEntryScreen onComplete={() => setShowIntro(false)} />
           )}
-          {/* Branded preloader — only shown when intro is NOT showing */}
-          {!showIntro && <WizVidLoader done={appReady} minDuration={400} />}
           <Toaster />
           <Suspense fallback={null}>
             <CrispChat />

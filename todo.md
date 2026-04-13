@@ -3006,3 +3006,7 @@
 - [x] Fix: No sound on both WizSound players (WizSoundSection + DemoVideoModal) — replaced Web Audio API with pre-processed audio files approach (separate <audio> elements for standard/enhanced)
 - [x] Fix: CTA buttons navigating correctly — verified all Link components working, no overlay blocking clicks
 - [x] Fix: Intro screen working correctly — shows on first visit (localStorage), auto-dismisses after 12s, proper pointer-events:none during exit
+
+## CTA Click Blocking - CRITICAL (Session Apr 13 cont.)
+- [x] Find root cause: WizVidLoader (z-9999 full-screen overlay) was stuck with pointer-events:auto — appReady RAF was being cancelled on fast renders
+- [x] Fix: Removed WizVidLoader entirely from App.tsx — intro screen (CinematicEntryScreen) already handles the loading state; no separate loader needed
