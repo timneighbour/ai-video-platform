@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { mp } from "@/lib/mixpanel";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,6 +79,19 @@ export default function Dashboard() {
       setLocation("/");
     }
   }, [isAuthenticated, setLocation]);
+
+  // Fire Signup Completed when Stripe redirects back with ?success=true
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "true") {
+      const plan = params.get("plan") ?? currentPlan;
+      mp.signupCompleted(plan, 0);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("success");
+      url.searchParams.delete("plan");
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [currentPlan]);
 
   return (
     <div className="min-h-screen bg-background">

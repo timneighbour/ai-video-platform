@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, Play, Pause, Subtitles, Maximize2, Volume2, VolumeX } from "lucide-react";
+import { mp } from "@/lib/mixpanel";
 
 /* ── Asset URLs ──────────────────────────────────────────────────────── */
 const POSTER_URL =
@@ -307,8 +308,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   }, []);
 
   const handleVideoEnded = useCallback(() => {
-    setPlaying(false);
+    mp.demoVideoCompleted();
     track("demo_complete");
+    setPlaying(false);
   }, []);
 
   /* ── Controls ────────────────────────────────────────────────────── */
@@ -317,12 +319,14 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       if (playing) {
         videoRef.current.pause();
         track("demo_pause", { time: videoRef.current.currentTime });
+        mp.demoVideoPaused(videoRef.current.currentTime);
       } else {
         videoRef.current.play();
         track("demo_play", { time: videoRef.current.currentTime });
+        mp.demoVideoPlayed();
       }
     } else {
-      if (!playing) track("demo_play_proxy");
+      if (!playing) { track("demo_play_proxy"); mp.demoVideoPlayed(); }
       else track("demo_pause_proxy");
     }
     setPlaying((p) => !p);

@@ -11,6 +11,7 @@
  *   CinematicPack_Purchased — fired when user clicks Render & Download with Cinematic Pack selected
  */
 import { useState, useRef, useEffect } from "react";
+import { mp } from "@/lib/mixpanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
@@ -109,14 +110,7 @@ const CINEMATIC_PACK = {
 /** Fire a lightweight analytics event without blocking the UI */
 function trackEvent(name: string, props?: Record<string, unknown>) {
   try {
-    // Mixpanel (loaded via CDN snippet if present)
-    const mp = (window as unknown as Record<string, unknown>)["mixpanel"] as
-      | { track: (n: string, p?: Record<string, unknown>) => void }
-      | undefined;
-    if (mp?.track) {
-      mp.track(name, props);
-    }
-    // Fallback: console in dev
+    mp.track(name, props);
     if (import.meta.env.DEV) {
       console.info("[Analytics]", name, props);
     }
@@ -150,6 +144,7 @@ export function RenderPaywallModal({
   useEffect(() => {
     if (open && !offeredFiredRef.current) {
       offeredFiredRef.current = true;
+      mp.cinematicPackOffered("paywall");
       trackEvent("CinematicPack_Offered", { jobId, jobType });
     }
     if (!open) {
@@ -520,6 +515,7 @@ export function RenderPaywallModal({
                     setPlayingTier(null);
                     setPreviewProgress((p) => ({ ...p, [a.id]: 0 }));
                     setAudioTier(a.id);
+                    if (a.id !== "standard") mp.wizSoundUpgraded(a.id as "enhanced" | "cinematic");
                     setJustListened(a.id);
                     if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current);
                     justListenedTimerRef.current = setTimeout(() => setJustListened(null), 3000);
@@ -539,7 +535,7 @@ export function RenderPaywallModal({
                   return (
                     <button
                       key={a.id}
-                      onClick={() => { setAudioTier(a.id); setJustListened(null); if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current); }}
+                      onClick={() => { setAudioTier(a.id); if (a.id !== "standard") mp.wizSoundUpgraded(a.id as "enhanced" | "cinematic"); setJustListened(null); if (justListenedTimerRef.current) clearTimeout(justListenedTimerRef.current); }}
                       className={`w-full flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-300 text-left ${
                         isJustListened
                           ? "border-emerald-400 bg-emerald-500/10 shadow-[0_0_20px_rgba(52,211,153,0.25)]"

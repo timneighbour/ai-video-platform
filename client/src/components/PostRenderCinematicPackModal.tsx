@@ -17,6 +17,7 @@
  *  - CinematicPack_Skipped   — fired when user clicks Skip
  */
 import { useEffect, useRef, useState, useCallback } from "react";
+import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -35,10 +36,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 function trackEvent(name: string, props?: Record<string, unknown>) {
   try {
-    const mp = (window as unknown as Record<string, unknown>)["mixpanel"] as
-      | { track: (n: string, p?: Record<string, unknown>) => void }
-      | undefined;
-    if (mp?.track) mp.track(name, props);
+    mp.track(name, props);
     if (import.meta.env.DEV) console.info("[Analytics]", name, props);
   } catch {
     // Never let analytics break the UI
@@ -110,6 +108,7 @@ export default function PostRenderCinematicPackModal({
   useEffect(() => {
     if (open && !offeredFiredRef.current) {
       offeredFiredRef.current = true;
+      mp.cinematicPackOffered("post_render");
       trackEvent("CinematicPack_Offered", { jobId, jobType, discountActive: true });
     }
     if (!open) offeredFiredRef.current = false;
@@ -159,12 +158,14 @@ export default function PostRenderCinematicPackModal({
   }, [open, handleKeyDown]);
 
   function handleSkip() {
+    mp.cinematicPackSkipped("post_render");
     trackEvent("CinematicPack_Skipped", { jobId, jobType });
     onSkip(finalVideoUrl);
     onClose();
   }
 
   async function handleUpgrade() {
+    mp.cinematicPackPurchased(effectivePrice, "post_render");
     trackEvent("CinematicPack_Purchased", {
       jobId,
       jobType,

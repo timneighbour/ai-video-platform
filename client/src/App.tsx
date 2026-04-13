@@ -4,6 +4,7 @@ import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { WizVidLoader } from "./components/WizVidLoader";
 import { lazy, Suspense, useEffect, useState } from "react";
+import { identifyUser, resetIdentity } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Home is eagerly loaded — it's the LCP page
@@ -204,6 +205,25 @@ function Router() {
 
 const INTRO_SESSION_KEY = "wizvid_intro_seen";
 
+/** Fires identifyUser once the auth state is known */
+function MixpanelIdentity() {
+  const { data: me } = trpc.auth.me.useQuery();
+  useEffect(() => {
+    if (me?.id) {
+      identifyUser(me.id, {
+        name: me.name ?? undefined,
+        email: me.email ?? undefined,
+        plan: (me as Record<string, unknown>).subscriptionPlan as string | undefined,
+        role: "Musician",
+      });
+    } else if (me === null) {
+      // Explicitly logged-out — reset so anonymous events aren't merged
+      resetIdentity();
+    }
+  }, [me?.id]);
+  return null;
+}
+
 function App() {
   // Show branded preloader on initial app mount, then fade out
   const [appReady, setAppReady] = useState(false);
@@ -248,6 +268,7 @@ function App() {
           </Suspense>
           {/* Homepage is always mounted so it loads in the background.
               When intro is showing it is hidden behind z-[9999] overlay. */}
+          <MixpanelIdentity />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

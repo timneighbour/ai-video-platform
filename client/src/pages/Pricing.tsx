@@ -11,6 +11,7 @@
  *   6. FAQ
  */
 import { useState } from "react";
+import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -181,6 +182,7 @@ export default function Pricing() {
   const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
 
   async function handleSubscribe(planId: "starter" | "creator" | "studio") {
+    mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), "monthly");
     if (!isAuthenticated) {
       window.location.href = getLoginUrl();
       return;

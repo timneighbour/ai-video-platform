@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { mp } from "@/lib/mixpanel";
 import { useLocalStorage, useFormPersistence } from "@/hooks/useLocalStorage";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -764,6 +765,7 @@ export default function MusicVideoAutopilot() {
         toast.dismiss(STORYBOARD_TOAST_ID);
         setStoryboardGenerating(false);
         setStep("storyboard");
+        mp.storyboardGenerated(storyboard.scenes.length);
         toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
       }
     } catch (err: any) {
@@ -903,6 +905,7 @@ export default function MusicVideoAutopilot() {
       setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
       toast.dismiss(REGEN_TOAST_ID);
       setStoryboardGenerating(false);
+      mp.storyboardRegenerated(storyboard.scenes.length);
       toast.success("Storyboard regenerated!", { description: `${storyboard.scenes.length} scenes ready.` });
     } catch (err: any) {
       toast.dismiss(REGEN_TOAST_ID);

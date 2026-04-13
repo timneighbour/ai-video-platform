@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, ArrowLeft, Zap, Gift, Crown, Star, Loader2, X } from "lucide-react";
@@ -121,6 +122,10 @@ export default function Subscribe() {
   });
 
   const handlePlanSelect = (planId: string) => {
+    // Track plan selection intent
+    const planName = PLANS.find((p) => p.id === planId)?.name ?? planId;
+    mp.planSelected(planName, billing);
+
     if (planId === "free") {
       if (!isAuthenticated) {
         window.location.href = getLoginUrl();

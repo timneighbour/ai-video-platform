@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
@@ -533,9 +534,11 @@ function Hero() {
             {/* CTA row */}
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
               <a
+                id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
                 className="inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
                 style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)" }}
+                onClick={() => mp.heroCTAClicked()}
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
                 {isAuthenticated ? "Open Creator" : "Create Your First Video"}

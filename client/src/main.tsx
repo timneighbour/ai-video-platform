@@ -1,6 +1,7 @@
 import { trpc } from "@/lib/trpc";
 import "@/lib/i18n"; // initialise i18n before app renders
 import { initGA4 } from "@/lib/analytics";
+import { initMixpanel } from "@/lib/mixpanel";
 import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, httpLink, splitLink, TRPCClientError } from "@trpc/client";
@@ -13,6 +14,8 @@ import "./index.css";
 
 // Initialise GA4 analytics
 initGA4();
+// Initialise Mixpanel analytics
+initMixpanel();
 
 const queryClient = new QueryClient();
 
