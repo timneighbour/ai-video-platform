@@ -66,8 +66,8 @@ describe("Hero System — HeroCinematicBg", () => {
   });
 });
 
-describe("Hero System — IntroFilmModal", () => {
-  const componentPath = resolve(__dirname, "../client/src/components/IntroFilmModal.tsx");
+describe("Hero System — WizVidIntro", () => {
+  const componentPath = resolve(__dirname, "../client/src/components/WizVidIntro.tsx");
   const source = readFileSync(componentPath, "utf-8");
 
   it("component file exists", () => {
@@ -75,121 +75,56 @@ describe("Hero System — IntroFilmModal", () => {
   });
 
   it("exports a default function component", () => {
-    expect(source).toContain("export default function IntroFilmModal");
+    expect(source).toContain("export default function WizVidIntro");
   });
 
-  it("accepts open and onClose props", () => {
-    expect(source).toContain("open: boolean");
+  it("exports INTRO_SEEN_KEY constant", () => {
+    expect(source).toContain("export const INTRO_SEEN_KEY");
+  });
+
+  it("accepts onClose prop", () => {
     expect(source).toContain("onClose: () => void");
   });
 
-  it("has poster desktop and mobile URLs", () => {
-    expect(source).toContain("posterDesktop");
-    expect(source).toContain("posterMobile");
-  });
-
-  it("has responsive <picture> element", () => {
-    expect(source).toContain("<picture>");
-  });
-
-  it("has VTT captions track", () => {
-    expect(source).toContain("captionsUrl");
-    expect(source).toContain("intro-film.vtt");
-  });
-
-  it("has play button with accessible label", () => {
-    expect(source).toContain("Play intro film");
-  });
-
-  it("has close button with accessible label", () => {
-    expect(source).toContain("Close intro film");
-  });
-
-  it("locks body scroll when open", () => {
-    expect(source).toContain("document.body.style.overflow");
-  });
-
-  it("handles Escape key to close", () => {
-    expect(source).toContain("Escape");
-  });
-
-  it("has analytics tracking", () => {
-    expect(source).toContain("trackEvent");
-    expect(source).toContain("wizvid_intro_opened");
-    expect(source).toContain("wizvid_intro_played");
-    expect(source).toContain("wizvid_intro_completed");
+  it("has skip button", () => {
+    expect(source).toContain("Skip intro");
   });
 
   it("has mute/unmute toggle", () => {
-    expect(source).toContain("toggleMute");
     expect(source).toContain("VolumeX");
     expect(source).toContain("Volume2");
   });
 
-  it("has fullscreen toggle", () => {
-    expect(source).toContain("toggleFullscreen");
-    expect(source).toContain("requestFullscreen");
+  it("has WizVid logo", () => {
+    expect(source).toContain("wizvid-logo-transparent");
   });
 
-  it("has captions toggle", () => {
-    expect(source).toContain("captionsOn");
-    expect(source).toContain("CaptionsOff");
+  it("has CTA button navigating to /onboarding", () => {
+    expect(source).toContain("/onboarding");
+    expect(source).toContain("Create Your First Video");
   });
 
-  it("has progress bar", () => {
-    expect(source).toContain("progress");
-    expect(source).toContain("from-violet-500 to-cyan-400");
+  it("sets localStorage key on close", () => {
+    expect(source).toContain("localStorage.setItem(INTRO_SEEN_KEY");
   });
 
-  it("has storyboard proxy slideshow", () => {
-    expect(source).toContain("storyboardFrames");
-    expect(source).toContain("proxyFrame");
-    expect(source).toContain("SCENE_CAPTIONS");
+  it("has cinematic background video clips", () => {
+    expect(source).toContain("BG_CLIPS");
+    expect(source).toContain(".mp4");
   });
 
-  it("has video source elements with AV1, VP9, and MP4 fallback", () => {
-    expect(source).toContain("introVideoAV1");
-    expect(source).toContain("introVideoVP9");
-    expect(source).toContain("introVideoMP4");
-  });
-});
-
-describe("Hero System — VTT Captions", () => {
-  const vttPath = resolve(__dirname, "../client/public/captions/intro-film.vtt");
-
-  it("VTT file exists", () => {
-    expect(existsSync(vttPath)).toBe(true);
+  it("has fade-in/exiting phase transitions", () => {
+    expect(source).toContain("fade-in");
+    expect(source).toContain("exiting");
   });
 
-  it("starts with WEBVTT header", () => {
-    const content = readFileSync(vttPath, "utf-8");
-    expect(content.startsWith("WEBVTT")).toBe(true);
+  it("renders at z-[9999] and is pointer-events:none when exiting", () => {
+    expect(source).toContain("z-[9999]");
+    expect(source).toContain("pointerEvents: isExiting ? \"none\" : \"auto\"");
   });
 
-  it("has 6 caption cues", () => {
-    const content = readFileSync(vttPath, "utf-8");
-    const cues = content.split("\n").filter((l) => l.includes("-->"));
-    expect(cues.length).toBe(6);
-  });
-
-  it("covers 0–30 second range", () => {
-    const content = readFileSync(vttPath, "utf-8");
-    expect(content).toContain("00:00:00.000");
-    expect(content).toContain("00:00:30.000");
-  });
-});
-
-describe("Hero System — Transcript", () => {
-  const transcriptPath = resolve(__dirname, "../client/public/captions/intro-film-transcript.txt");
-
-  it("transcript file exists", () => {
-    expect(existsSync(transcriptPath)).toBe(true);
-  });
-
-  it("contains all 6 scene lines", () => {
-    const content = readFileSync(transcriptPath, "utf-8");
-    expect(content).toContain("[0:00");
-    expect(content).toContain("[0:25");
+  it("has progress bar animation", () => {
+    expect(source).toContain("introProgress");
   });
 });
 
@@ -216,8 +151,8 @@ describe("Hero System — Home.tsx Integration", () => {
     expect(source).toContain("onClose={() => setDemoOpen(false)}");
   });
 
-  it("has Watch 30-sec demo button", () => {
-    expect(source).toContain("See how it works in 20 seconds");
+  it("has Watch demo button", () => {
+    expect(source).toContain("Watch 20-sec Demo");
   });
 
   it("passes mouseX/mouseY to HeroCinematicBg", () => {

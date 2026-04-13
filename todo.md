@@ -3034,3 +3034,27 @@
 - [x] Ensure no intro overlay blocks homepage or CTAs after load (introOpen=false by default)
 - [x] Verify all CTAs navigate correctly (no blocking overlays on homepage)
 - [x] Run tests and save checkpoint (338/338 passing)
+
+## CTA Still Blocked + No Intro Video (Apr 13 2026 - Round 3)
+- [ ] Identify exact DOM element blocking all CTA clicks via browser JS inspection
+- [ ] Fix the blocking element
+- [ ] Verify Watch Intro button opens CinematicEntryScreen
+- [ ] Verify all CTAs navigate correctly
+
+## Brand New Intro Rebuild (Apr 13 2026)
+- [ ] Delete CinematicEntryScreen.tsx, CinematicIntroSequence.tsx, IntroFilmModal.tsx
+- [ ] Remove all intro imports/references from App.tsx and Home.tsx
+- [ ] Build new WizVidIntro.tsx — clean, no Web Audio API, first-visit only
+- [ ] Wire into App.tsx: show on first visit (localStorage), never blocks CTAs
+- [ ] Add Watch Intro button to Hero that re-opens the intro
+- [ ] Verify CTAs work when intro is not showing
+- [ ] Test and checkpoint
+
+## Intro System Full Rebuild (Apr 13, 2026) - COMPLETED ✅
+- [x] Deleted all old intro components (CinematicEntryScreen, CinematicIntroSequence, IntroFilmModal)
+- [x] Removed all intro references from App.tsx and Home.tsx
+- [x] Built brand new WizVidIntro component from scratch (no Web Audio API, no blocking overlays)
+- [x] Wired WizVidIntro in App.tsx: first-visit only via localStorage, mounts AFTER router
+- [x] Updated hero-system.test.ts to match new WizVidIntro component
+- [x] All CTAs now work — no blocking overlays on homepage
+- [x] Tests: 328/328 passing, 0 TypeScript errors

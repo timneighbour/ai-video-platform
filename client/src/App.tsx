@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { identifyUser, resetIdentity } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -10,6 +10,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import { trpc } from "./lib/trpc";
 import GlobalMuteButton from "./components/GlobalMuteButton";
+import WizVidIntro, { INTRO_SEEN_KEY } from "./components/WizVidIntro";
 
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -147,6 +148,16 @@ function MixpanelIdentity() {
 }
 
 function App() {
+  // Show intro on first visit only. Check localStorage synchronously so there
+  // is zero flicker — if already seen, intro never mounts at all.
+  const [showIntro, setShowIntro] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem(INTRO_SEEN_KEY);
+    } catch {
+      return false; // private browsing or storage blocked — skip intro
+    }
+  });
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
@@ -158,6 +169,10 @@ function App() {
           <MixpanelIdentity />
           <Router />
           <GlobalMuteButton />
+          {/* Intro mounts AFTER the router so it never blocks page content */}
+          {showIntro && (
+            <WizVidIntro onClose={() => setShowIntro(false)} />
+          )}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

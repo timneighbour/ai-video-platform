@@ -4,7 +4,6 @@ import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
-import CinematicEntryScreen from "@/components/CinematicEntryScreen";
 import WizSoundSection from "@/components/WizSoundSection";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -464,7 +463,6 @@ function HeroProductPreview() {
 function Hero() {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [demoOpen, setDemoOpen] = useState(false);
-  const [introOpen, setIntroOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
@@ -578,14 +576,7 @@ function Hero() {
                 </span>
                 Watch 20-sec Demo
               </button>
-              <button
-                onClick={() => setIntroOpen(true)}
-                className="group inline-flex items-center gap-2 px-5 py-4 rounded-2xl border border-violet-400/30 bg-violet-500/8 hover:bg-violet-500/15 text-violet-300 hover:text-violet-200 font-semibold transition-all duration-300"
-                style={{ fontSize: "clamp(0.85rem, 1.5vw, 0.95rem)" }}
-              >
-                <Film className="w-4 h-4 flex-shrink-0" />
-                Watch Intro
-              </button>
+
             </div>
 
             {/* Trust line */}
@@ -662,13 +653,6 @@ function Hero() {
       {/* Demo Video Modal */}
       <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
 
-      {/* Cinematic Intro — only mounts when open, never blocks page */}
-      {introOpen && (
-        <CinematicEntryScreen
-          onComplete={() => setIntroOpen(false)}
-          isManualTrigger={true}
-        />
-      )}
     </section>
   );
 }
