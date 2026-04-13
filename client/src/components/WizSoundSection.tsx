@@ -3,8 +3,9 @@ import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headpho
 import { useLocation } from "wouter";
 
 /* ── Single demo video — audio processed in real-time via Web Audio API ── */
+// demo-clean_b6ec4737.mp4 — stereo AAC 48kHz, confirmed audio track present
 const VIDEO_SRC =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-standard_32cb7c7a.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-clean_b6ec4737.mp4";
 
 /* ──────────────────────────────────────────────────────────────────────────
    WizSoundEngine
