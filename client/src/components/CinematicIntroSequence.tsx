@@ -104,31 +104,46 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const [heroZoom, setHeroZoom] = useState(false);
 
   /* ── Web Audio API: stereo widening for WizSound moment ── */
-  const initWebAudio = useCallback(() => {
+  const initWebAudio = useCallback(async () => {
     const video = videoRef.current;
-    if (!video || audioCtxRef.current) return;
+    if (!video) return;
+
+    // If already initialised, just resume
+    if (audioCtxRef.current) {
+      if (audioCtxRef.current.state === "suspended") {
+        await audioCtxRef.current.resume();
+      }
+      return;
+    }
 
     try {
-      const ctx = new AudioContext();
+      // Create AudioContext only on user gesture
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       audioCtxRef.current = ctx;
 
-      const source = ctx.createMediaElementSource(video);
-      sourceRef.current = source;
+      // Resume immediately (required on some browsers)
+      if (ctx.state === "suspended") {
+        await ctx.resume();
+      }
 
-      // StereoPanner for L→R sweep effect
-      const panner = ctx.createStereoPanner();
-      panner.pan.value = 0;
-      pannerRef.current = panner;
+      // Only create MediaElementSource once — it takes exclusive ownership of the element
+      if (!sourceRef.current) {
+        const source = ctx.createMediaElementSource(video);
+        sourceRef.current = source;
 
-      // Gain node for overall volume control
-      const gain = ctx.createGain();
-      gain.gain.value = 1.0;
+        // StereoPanner for L→R sweep effect
+        const panner = ctx.createStereoPanner();
+        panner.pan.value = 0;
+        pannerRef.current = panner;
 
-      source.connect(panner);
-      panner.connect(gain);
-      gain.connect(ctx.destination);
-    } catch {
-      // Web Audio API not available — graceful fallback
+        // Wire: source → panner → destination
+        source.connect(panner);
+        panner.connect(ctx.destination);
+      }
+    } catch (err) {
+      // Web Audio API failed — fall back to plain unmute (audio still works, just no stereo widening)
+      console.warn("[WizVid] Web Audio API unavailable, using plain unmute", err);
+      audioCtxRef.current = null;
     }
   }, []);
 
@@ -221,16 +236,15 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   }, []);
 
   /* ── unmute audio on user interaction ── */
-  const handleInteraction = useCallback(() => {
+  const handleInteraction = useCallback(async () => {
     if (!audioUnmuted && videoRef.current) {
-      initWebAudio();
+      // Unmute the video element FIRST so audio plays even if Web Audio fails
       videoRef.current.muted = false;
       videoRef.current.volume = 1.0;
-      // Resume AudioContext if suspended (browser autoplay policy)
-      if (audioCtxRef.current?.state === "suspended") {
-        audioCtxRef.current.resume();
-      }
       setAudioUnmuted(true);
+
+      // Then wire up Web Audio for stereo widening (non-blocking — failure is safe)
+      await initWebAudio();
     }
   }, [audioUnmuted, initWebAudio]);
 
@@ -240,10 +254,12 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       videoRef.current.pause();
     }
     cancelAnimationFrame(rafRef.current);
-    // Clean up Web Audio
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close().catch(() => {});
-    }
+    // Clean up Web Audio (best-effort)
+    try {
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close();
+      }
+    } catch { /* ignore */ }
     onComplete();
   }, [onComplete]);
 

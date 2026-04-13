@@ -2696,3 +2696,10 @@
 - [x] CTA confirmed: "Create Your First Cinematic Video →"
 - [x] Unmute hint updated: "Click for immersive WizSound™ audio"
 - [x] 335/335 tests passing, 0 TypeScript errors
+
+## Intro Video Audio Fix
+- [x] Fix: users cannot hear audio in intro video after clicking to unmute
+- [x] Root cause: Web Audio API MediaElementAudioSourceNode intercepts audio before it reaches speakers; AudioContext must be resumed AND graph must be connected before sound plays
+- [x] Fix: simplify audio init — only create AudioContext on first unmute click, ensure context.resume() is awaited, connect source → panner → destination correctly
+- [x] Fix: add fallback — if Web Audio API fails, fall back to plain video.muted = false with no AudioContext
+- [x] Fix: ensure AudioContext is not created before user interaction (browser autoplay policy blocks it)
