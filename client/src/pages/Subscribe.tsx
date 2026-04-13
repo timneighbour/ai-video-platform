@@ -51,7 +51,7 @@ const PLANS = [
       "WizPilot AI video creator",
       "Email support",
     ],
-    cta: "Get Starter",
+    cta: "Start Free",
     highlight: false,
   },
   {
@@ -72,7 +72,7 @@ const PLANS = [
       "Character consistency",
       "Priority support",
     ],
-    cta: "Get Creator",
+    cta: "Get Started",
     highlight: true,
   },
   {
@@ -84,7 +84,7 @@ const PLANS = [
     annualTotal: 792,
     annualSaving: 396,
     description: "60 min/month · 4K · Full cinematic",
-    badge: null as string | null,
+    badge: "Best Value" as string | null,
     features: [
       "60 minutes of video/month",
       "Up to 3 minutes per video",
@@ -95,7 +95,7 @@ const PLANS = [
       "API access",
       "Dedicated account support",
     ],
-    cta: "Get Studio",
+    cta: "Go Pro",
     highlight: false,
   },
 ];
@@ -186,9 +186,16 @@ export default function Subscribe() {
               Pricing
             </span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Create videos from <strong className="text-white">£1 per minute</strong> (HD video). Storyboard generation is always free — no credit card required.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
+            Create videos from <strong className="text-white">£1 per minute</strong>. Storyboard generation is always free.
           </p>
+          <p className="text-sm text-violet-300/80 font-medium mb-6">Start free — upgrade only when you're ready</p>
+          {/* Trust signals */}
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-[#a1a1aa]/70 mb-8">
+            <span>✓ Free storyboard preview on all plans</span>
+            <span>✓ No credit card required to start</span>
+            <span>✓ Cancel anytime</span>
+          </div>
 
           {/* Billing Toggle */}
           <div className="flex flex-col items-center gap-3 mb-2">

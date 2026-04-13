@@ -53,7 +53,7 @@ const FAQS = [
     questions: [
       { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you render and download the final video. Choose your quality (Standard £2 / HD £4 / 4K £6) and optionally add WizSound™ audio enhancement." },
       { q: "What is WizSound™?", a: "WizSound™ is our proprietary audio enhancement system. WizSound Enhance (+£1) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+£3) applies our full mastering pipeline with immersive depth and dynamic range — recommended for music videos." },
-      { q: "What plans are available?", a: "Starter (£19/month, 20 videos), Pro (£49/month, unlimited, no watermark, 4K), and Creator+ (£99/month, priority processing, premium styles, API access)." },
+      { q: "What plans are available?", a: "Free (50 trial credits, no card required), Starter (£9/month, 5 min/month, 720p), Creator (£29/month, 20 min/month, 1080p, no watermark), and Studio (£99/month, 60 min/month, 4K, full cinematic). Storyboard generation is always free on all plans." },
       { q: "Can I cancel my subscription?", a: "Yes, cancel at any time from your Account settings. Your subscription remains active until the end of the billing period." },
       { q: "What payment methods do you accept?", a: "Visa, Mastercard, Amex, Apple Pay, and Google Pay via Stripe." },
     ],
@@ -63,7 +63,7 @@ const FAQS = [
     icon: <Bot className="w-4 h-4" />,
     questions: [
       { q: "Why is my video not generating?", a: "Check that your audio file is in a supported format (MP3, WAV, M4A) and under 50MB. If the issue persists, try refreshing the page. Contact support@wizvid.ai if it continues." },
-      { q: "My video quality looks low — what can I do?", a: "Make sure you're on the Pro or Creator+ plan for 4K export. Also ensure your input audio is high quality." },
+      { q: "My video quality looks low — what can I do?", a: "Make sure you're on the Creator or Studio plan for 1080p/4K export. Also ensure your input audio is high quality." },
       { q: "How do I download my video?", a: "Once your video is generated, click the Download button on the result screen. Videos are also saved to your Projects page for 30 days." },
       { q: "I'm getting an error message — what should I do?", a: "Try refreshing the page first. If the error persists, contact us at support@wizvid.ai with a screenshot." },
     ],

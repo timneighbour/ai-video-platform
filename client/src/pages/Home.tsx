@@ -1785,30 +1785,68 @@ function PunchLine() {
 
 // ── Value Clarity Pricing Block ─────────────────────────────────────────────
 function HomePricing() {
+  const plans = [
+    {
+      id: "starter",
+      name: "Starter",
+      price: "£9",
+      period: "/mo",
+      annual: "£79/year",
+      saving: "save £29",
+      desc: "5 min · 720p · Watermark",
+      highlight: false,
+      badge: null as string | null,
+      cta: "Start Free",
+      ctaStyle: "border border-white/20 bg-white/5 hover:bg-white/10 text-white",
+    },
+    {
+      id: "creator",
+      name: "Creator",
+      price: "£29",
+      period: "/mo",
+      annual: "£232/year",
+      saving: "save £116",
+      desc: "20 min · 1080p · No watermark",
+      highlight: true,
+      badge: "Most Popular",
+      cta: "Get Started",
+      ctaStyle: "bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white shadow-lg shadow-violet-500/25",
+    },
+    {
+      id: "studio",
+      name: "Studio",
+      price: "£99",
+      period: "/mo",
+      annual: "£792/year",
+      saving: "save £396",
+      desc: "60 min · 4K · Full cinematic",
+      highlight: false,
+      badge: "Best Value",
+      cta: "Go Pro",
+      ctaStyle: "border border-fuchsia-500/40 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-300",
+    },
+  ];
   return (
-    <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
+    <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6" id="pricing">
       <div className="max-w-4xl mx-auto reveal">
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Pricing</p>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Create videos from{" "}
+            Create videos from{" "}
             <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
               £1 per minute
             </span>
           </h2>
-          <p className="text-[#a1a1aa] max-w-lg mx-auto">
-            Storyboard generation is always free. Only pay when you render — from £1/min (HD video), upgrade packs available.
+          <p className="text-[#a1a1aa] max-w-lg mx-auto mb-2">
+            Storyboard generation is always free. Only pay when you render.
           </p>
+          <p className="text-sm text-violet-300/80 font-medium">Start free — upgrade only when you're ready</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          {([
-            { name: "Starter", price: "£9", period: "/mo", annual: "£79/yr", saving: "save £29", desc: "5 min · 720p · Watermark", highlight: false },
-            { name: "⭐ Creator", price: "£29", period: "/mo", annual: "£232/yr", saving: "save £116", desc: "20 min · 1080p · No watermark", highlight: true },
-            { name: "Studio", price: "£99", period: "/mo", annual: "£792/yr", saving: "save £396", desc: "60 min · 4K · Full cinematic", highlight: false },
-          ] as const).map((plan) => (
+          {plans.map((plan) => (
             <a
-              key={plan.name}
+              key={plan.id}
               href="/pricing"
               className={`block rounded-2xl border p-5 transition-all duration-200 hover:scale-[1.02] ${
                 plan.highlight
@@ -1817,10 +1855,16 @@ function HomePricing() {
               }`}
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="font-bold text-white text-base">{plan.name}</span>
-                {plan.highlight && (
-                  <span className="text-xs font-semibold text-violet-400 bg-violet-500/15 border border-violet-500/25 px-2 py-0.5 rounded-full">
-                    Most Popular
+                <span className="font-bold text-white text-base">
+                  {plan.highlight ? "⭐ " : ""}{plan.name}
+                </span>
+                {plan.badge && (
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                    plan.highlight
+                      ? "text-violet-400 bg-violet-500/15 border-violet-500/25"
+                      : "text-fuchsia-400 bg-fuchsia-500/15 border-fuchsia-500/25"
+                  }`}>
+                    {plan.badge}
                   </span>
                 )}
               </div>
@@ -1832,26 +1876,36 @@ function HomePricing() {
                 {plan.annual}{" "}
                 <span className="text-green-400 font-semibold">({plan.saving})</span>
               </p>
-              <p className="text-xs text-[#a1a1aa]/70 mt-2">{plan.desc}</p>
+              <p className="text-xs text-[#a1a1aa]/70 mt-2 mb-4">{plan.desc}</p>
+              <div className={`w-full text-center text-xs font-semibold py-2 rounded-xl transition-all ${plan.ctaStyle}`}>
+                {plan.cta}
+              </div>
             </a>
           ))}
         </div>
 
-        {/* Cinematic Pack teaser */}
+        {/* Cinematic Pack add-on */}
         <div className="mb-6 p-4 rounded-2xl border border-fuchsia-500/30 bg-gradient-to-r from-fuchsia-950/40 to-violet-950/30 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white text-[10px] font-bold tracking-wider">
-              ★ BEST VALUE
+              ★ ADD-ON
             </span>
             <div>
               <p className="text-sm font-bold text-white">Cinematic Pack — £7</p>
-              <p className="text-xs text-fuchsia-300/70">4K video · WizSound Cinematic audio · Priority rendering</p>
+              <p className="text-xs text-fuchsia-300/70">4K upgrade · WizSound Cinematic audio · Priority rendering</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs text-white/50">
             <span className="line-through">£9 individually</span>
             <span className="text-emerald-400 font-semibold">Save £2</span>
           </div>
+        </div>
+
+        {/* Trust signals */}
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-[#a1a1aa]/70 mb-6">
+          <span>✓ Free storyboard preview on all plans</span>
+          <span>✓ No credit card required to start</span>
+          <span>✓ Cancel anytime</span>
         </div>
 
         <div className="text-center">
