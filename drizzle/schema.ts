@@ -511,6 +511,12 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
 
   // Reference images (uploaded or AI-generated)
   referenceImageUrls: longtext("referenceImageUrls"), // JSON: string[]
+  // Character lock system: JSON array of { name, species, colour, features, outfit, photoUrl?, lockedPrompt }
+  characterLockData: longtext("characterLockData"),
+  // Audio upload (optional: kids songs, narration, voice recordings)
+  audioUrl: varchar("audioUrl", { length: 1024 }),
+  audioKey: varchar("audioKey", { length: 512 }),
+  audioMimeType: varchar("audioMimeType", { length: 64 }),
 
   // Storyboard (free)
   storyboardStatus: mysqlEnum("kidsStoryboardStatus", ["pending", "generating", "ready", "failed"]).default("pending").notNull(),

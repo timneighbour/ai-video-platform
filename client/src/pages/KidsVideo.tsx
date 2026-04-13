@@ -1,10 +1,15 @@
 /**
- * Kids Animation Creator
+ * Kids Animation Creator — Premium Rebuild
  * Unified creation flow matching MusicVideoAutopilot:
  *   concept → story_input → characters → storyboard → render
  *
- * Backend: kidsVideo tRPC router (createJob → generateStoryboard → createRenderCheckout)
- * Characters: kidsVideo.generateCharacter (AI preview) + stored as referenceImageUrls on job
+ * Features:
+ *  - Character Lock System (species/colour/features/outfit + photo upload)
+ *  - Audio Upload (kids songs, narration, voice recordings)
+ *  - 6 Premium Animation Style Cards with hover animations
+ *  - Per-scene storyboard editing and regeneration
+ *  - WizBrand premium UI elements
+ *  - Full render flow with Stripe checkout
  */
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +20,9 @@ import {
   Wand2, Sparkles, RefreshCw, Play, ChevronRight,
   Zap, CheckCircle2, Clock, ArrowLeft, Loader2,
   AlertCircle, Download, ExternalLink, Plus, Trash2,
-  Star, Shield, Film, User, X, ImageIcon,
+  Star, Shield, Film, User, X, ImageIcon, Upload,
+  Music, Lock, Eye, Pencil, RotateCcw, Camera,
+  ChevronDown, ChevronUp,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
@@ -27,16 +34,83 @@ import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { mp } from "@/lib/mixpanel";
+import { WizBrandBadge } from "@/components/WizBrand";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const KIDS_STYLES = [
-  { id: "pixar3d",    label: "Pixar 3D",    desc: "Vibrant 3D animation",          emoji: "🎬", color: "from-blue-500 to-cyan-400" },
-  { id: "disney",     label: "Disney",       desc: "Magical Disney animation",      emoji: "✨", color: "from-purple-500 to-pink-400" },
-  { id: "anime",      label: "Anime",        desc: "Fun Japanese animation",        emoji: "🌸", color: "from-pink-500 to-rose-400" },
-  { id: "cartoon",    label: "Cartoon",      desc: "Classic colourful cartoon",     emoji: "🎨", color: "from-orange-500 to-yellow-400" },
-  { id: "storybook",  label: "Storybook",    desc: "Illustrated fairy-tale style",  emoji: "📖", color: "from-green-500 to-emerald-400" },
-  { id: "claymation", label: "Claymation",   desc: "Playful clay-style animation",  emoji: "🧸", color: "from-amber-500 to-orange-400" },
+  {
+    id: "pixar3d",
+    label: "Pixar 3D",
+    desc: "Vibrant 3D animation",
+    emoji: "🎬",
+    gradient: "from-blue-600 via-cyan-500 to-blue-400",
+    glow: "shadow-blue-500/40",
+    border: "border-blue-500/60",
+    bg: "bg-blue-950/40",
+    selectedBg: "bg-blue-600/20",
+    example: "Toy Story · Finding Nemo · Up",
+  },
+  {
+    id: "disney",
+    label: "Disney",
+    desc: "Magical cinematic animation",
+    emoji: "✨",
+    gradient: "from-purple-600 via-violet-500 to-pink-500",
+    glow: "shadow-purple-500/40",
+    border: "border-purple-500/60",
+    bg: "bg-purple-950/40",
+    selectedBg: "bg-purple-600/20",
+    example: "Frozen · Moana · Encanto",
+  },
+  {
+    id: "anime",
+    label: "Anime",
+    desc: "Japanese animation style",
+    emoji: "🌸",
+    gradient: "from-pink-600 via-rose-500 to-red-400",
+    glow: "shadow-pink-500/40",
+    border: "border-pink-500/60",
+    bg: "bg-pink-950/40",
+    selectedBg: "bg-pink-600/20",
+    example: "My Neighbor Totoro · Spirited Away",
+  },
+  {
+    id: "cartoon",
+    label: "Cartoon",
+    desc: "Classic colourful animation",
+    emoji: "🎨",
+    gradient: "from-orange-500 via-amber-500 to-yellow-400",
+    glow: "shadow-orange-500/40",
+    border: "border-orange-500/60",
+    bg: "bg-orange-950/40",
+    selectedBg: "bg-orange-600/20",
+    example: "Bluey · Peppa Pig · Paw Patrol",
+  },
+  {
+    id: "storybook",
+    label: "Storybook",
+    desc: "Illustrated fairy-tale style",
+    emoji: "📖",
+    gradient: "from-green-600 via-emerald-500 to-teal-400",
+    glow: "shadow-green-500/40",
+    border: "border-green-500/60",
+    bg: "bg-green-950/40",
+    selectedBg: "bg-green-600/20",
+    example: "Winnie the Pooh · Peter Rabbit",
+  },
+  {
+    id: "claymation",
+    label: "Claymation",
+    desc: "Playful clay-style animation",
+    emoji: "🧸",
+    gradient: "from-amber-600 via-orange-500 to-red-400",
+    glow: "shadow-amber-500/40",
+    border: "border-amber-500/60",
+    bg: "bg-amber-950/40",
+    selectedBg: "bg-amber-600/20",
+    example: "Wallace & Gromit · Shaun the Sheep",
+  },
 ] as const;
 
 type KidsStyleId = typeof KIDS_STYLES[number]["id"];
@@ -76,14 +150,14 @@ const HOW_IT_WORKS = [
   },
   {
     step: "2", emoji: "🎭",
-    title: "Design Your Characters",
-    desc: "Describe your characters and let AI generate consistent character art for every scene.",
+    title: "Lock Your Characters",
+    desc: "Define species, colour, and features. AI enforces strict character consistency across every scene.",
     color: "from-purple-500/20 to-violet-500/10 border-purple-500/30",
   },
   {
     step: "3", emoji: "🎨",
     title: "See Your Free Storyboard",
-    desc: "AI instantly creates 4–6 illustrated scenes. Review, regenerate — completely free.",
+    desc: "AI instantly creates 4–6 illustrated scenes. Review, edit, regenerate — completely free.",
     color: "from-blue-500/20 to-cyan-500/10 border-blue-500/30",
   },
   {
@@ -95,12 +169,12 @@ const HOW_IT_WORKS = [
 ];
 
 const FEATURES = [
-  { icon: "🎭", title: "AI Generated Characters", desc: "Describe your characters and AI creates consistent character art across every scene." },
+  { icon: "🔒", title: "Character Lock System", desc: "Define species, colour, features, and outfit. AI enforces strict consistency — no variation between scenes." },
+  { icon: "📸", title: "Photo Reference Upload", desc: "Upload a photo of your pet or character. AI uses it as the base identity for every scene." },
+  { icon: "🎵", title: "Audio Upload", desc: "Upload kids songs, narration, or voice recordings. Supports lip sync compatibility." },
   { icon: "🔄", title: "Free Storyboard, Always", desc: "Generate and regenerate your storyboard as many times as you want before spending a single credit." },
-  { icon: "🎵", title: "WizSound™ Cinematic Audio", desc: "Every kids video comes with AI-composed background music matched to your story's mood." },
+  { icon: "🎬", title: "6 Animation Styles", desc: "Pixar 3D, Disney, Anime, Cartoon, Storybook, or Claymation — each with distinct visual character." },
   { icon: "🛡️", title: "Child-Safe by Design", desc: "All content is filtered and reviewed to ensure it's safe, positive, and appropriate for children." },
-  { icon: "📱", title: "Any Screen Format", desc: "Landscape for TV, portrait for phones, square for social — choose the format that fits." },
-  { icon: "⚡", title: "Ready in Minutes", desc: "From story idea to finished animated video in under 5 minutes. No editing skills required." },
 ];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -110,9 +184,20 @@ type Step = "concept" | "story_input" | "characters" | "storyboard" | "render";
 interface KidsCharacter {
   id: string;
   name: string;
+  // Character lock fields
+  species: string;
+  colour: string;
+  features: string;
+  outfit: string;
+  // Legacy description (combined from lock fields)
   description: string;
+  // Visuals
   imageUrl: string | null;
+  photoUrl: string | null;
   isGenerating: boolean;
+  isUploadingPhoto: boolean;
+  // UI state
+  expanded: boolean;
 }
 
 interface StoryboardFrame {
@@ -135,6 +220,15 @@ function stepIndex(step: Step): number {
   return CREATION_STEPS.findIndex((s) => s.key === step);
 }
 
+function buildCharacterDescription(char: KidsCharacter): string {
+  const parts: string[] = [];
+  if (char.species.trim()) parts.push(char.species.trim());
+  if (char.colour.trim()) parts.push(`${char.colour.trim()} colouring`);
+  if (char.features.trim()) parts.push(char.features.trim());
+  if (char.outfit.trim()) parts.push(`wearing ${char.outfit.trim()}`);
+  return parts.join(", ") || char.description;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function KidsVideo() {
@@ -152,10 +246,35 @@ export default function KidsVideo() {
   const [videoLength, setVideoLength] = useState<VideoLengthId>("15s");
   const [screenFormat, setScreenFormat] = useState<ScreenFormatId>("16:9");
 
+  // ── Audio upload ──
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioBase64, setAudioBase64] = useState<string | null>(null);
+  const [audioMimeType, setAudioMimeType] = useState<string | null>(null);
+  const [isDraggingAudio, setIsDraggingAudio] = useState(false);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+
   // ── Characters ──
   const [characters, setCharacters] = useState<KidsCharacter[]>([
-    { id: "char-1", name: "Main Character", description: "", imageUrl: null, isGenerating: false },
+    {
+      id: "char-1",
+      name: "Main Character",
+      species: "",
+      colour: "",
+      features: "",
+      outfit: "",
+      description: "",
+      imageUrl: null,
+      photoUrl: null,
+      isGenerating: false,
+      isUploadingPhoto: false,
+      expanded: true,
+    },
   ]);
+
+  // ── Storyboard editing ──
+  const [editingSceneIndex, setEditingSceneIndex] = useState<number | null>(null);
+  const [editingSceneText, setEditingSceneText] = useState("");
+  const [regeneratingSceneIndex, setRegeneratingSceneIndex] = useState<number | null>(null);
 
   // ── Job state ──
   const [jobId, setJobId] = useState<number | null>(null);
@@ -174,6 +293,7 @@ export default function KidsVideo() {
   const utils = trpc.useUtils();
   const selectedLength = VIDEO_LENGTHS.find((v) => v.id === videoLength)!;
   const creditCost = selectedLength.credits;
+  const selectedStyle = KIDS_STYLES.find((s) => s.id === style)!;
 
   // ── Restore from URL params (post-Stripe redirect) ──
   useEffect(() => {
@@ -187,7 +307,6 @@ export default function KidsVideo() {
         setStep("render");
         setRenderStatus("queued");
         toast.success("Payment successful! Your video is being rendered 🎬");
-        // Clean URL
         window.history.replaceState({}, "", "/kids-video");
         startPollingRender(id);
       }
@@ -198,7 +317,6 @@ export default function KidsVideo() {
         setStep("storyboard");
         toast.info("Payment cancelled — your storyboard is still here.");
         window.history.replaceState({}, "", "/kids-video");
-        // Reload storyboard frames
         utils.kidsVideo.getJob.fetch({ jobId: id }).then((job) => {
           if (job.storyboardFrames?.length) {
             setStoryboardFrames(job.storyboardFrames as StoryboardFrame[]);
@@ -224,7 +342,7 @@ export default function KidsVideo() {
         if (job.renderStatus === "completed" && job.videoUrl) {
           setVideoUrl(job.videoUrl);
           clearInterval(pollRef.current!);
-          toast.success("🎉 Your kids video is ready!");
+          toast.success("🎉 Your kids animation is ready!");
         } else if (job.renderStatus === "failed") {
           clearInterval(pollRef.current!);
           toast.error(job.errorMessage || "Render failed. Please contact support.");
@@ -241,30 +359,80 @@ export default function KidsVideo() {
   const createJobMutation = trpc.kidsVideo.createJob.useMutation();
   const generateStoryboardMutation = trpc.kidsVideo.generateStoryboard.useMutation();
   const generateCharacterMutation = trpc.kidsVideo.generateCharacter.useMutation();
+  const uploadCharacterPhotoMutation = trpc.kidsVideo.uploadCharacterPhoto.useMutation();
+  const regenerateSceneMutation = trpc.kidsVideo.regenerateScene.useMutation();
   const createRenderCheckoutMutation = trpc.kidsVideo.createRenderCheckout.useMutation();
 
-  // ── Handlers ──
-
-  const handleGoToCharacters = useCallback(() => {
-    if (!prompt.trim() || prompt.length < 10) {
-      toast.error("Please describe your story idea (at least 10 characters).");
+  // ── Audio handlers ──
+  const handleAudioFile = useCallback((file: File) => {
+    const maxSize = 16 * 1024 * 1024; // 16MB
+    if (file.size > maxSize) {
+      toast.error("Audio file must be under 16MB.");
       return;
     }
-    setStep("characters");
-  }, [prompt]);
+    const allowed = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/m4a", "audio/mp4", "audio/webm"];
+    if (!allowed.includes(file.type) && !file.name.match(/\.(mp3|wav|ogg|m4a|webm)$/i)) {
+      toast.error("Supported formats: MP3, WAV, OGG, M4A, WebM.");
+      return;
+    }
+    setAudioFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      // Strip data URL prefix to get base64
+      const base64 = result.split(",")[1];
+      setAudioBase64(base64);
+      setAudioMimeType(file.type || "audio/mpeg");
+    };
+    reader.readAsDataURL(file);
+    toast.success(`Audio added: ${file.name}`);
+  }, []);
 
+  // ── Photo upload handler ──
+  const handlePhotoUpload = useCallback(async (charId: string, file: File) => {
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) { toast.error("Photo must be under 10MB."); return; }
+    setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, isUploadingPhoto: true } : c));
+    try {
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          resolve(result.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const char = characters.find((c) => c.id === charId);
+      const result = await uploadCharacterPhotoMutation.mutateAsync({
+        photoBase64: base64,
+        mimeType: (file.type as "image/jpeg" | "image/png" | "image/webp") || "image/jpeg",
+        characterName: char?.name || "character",
+      });
+      setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, photoUrl: result.photoUrl, imageUrl: result.photoUrl, isUploadingPhoto: false } : c));
+      toast.success("Photo uploaded! This will be used as the character reference. ✨");
+    } catch (err: any) {
+      setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, isUploadingPhoto: false } : c));
+      toast.error(err?.message || "Photo upload failed.");
+    }
+  }, [uploadCharacterPhotoMutation]);
+
+  // ── Character handlers ──
   const handleGenerateCharacterImage = useCallback(async (charId: string) => {
     if (!isAuthenticated) { setShowAuthGate(true); return; }
     const char = characters.find((c) => c.id === charId);
-    if (!char || char.description.trim().length < 5) {
-      toast.error("Please describe the character first (at least 5 characters).");
+    if (!char) return;
+    const desc = buildCharacterDescription(char);
+    if (desc.trim().length < 5) {
+      toast.error("Please fill in at least the species or description first.");
       return;
     }
     setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, isGenerating: true } : c));
     try {
       const result = await generateCharacterMutation.mutateAsync({
-        characterPrompt: `${char.name}: ${char.description}`,
+        characterPrompt: `${char.name}: ${desc}`,
         animationStyle: (style === "disney" ? "pixar3d" : style) as "pixar3d" | "anime" | "cartoon" | "storybook" | "claymation",
+
       });
       setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, imageUrl: result.imageUrl ?? null, isGenerating: false } : c));
       toast.success(`${char.name} generated! ✨`);
@@ -278,7 +446,13 @@ export default function KidsVideo() {
     if (characters.length >= 4) { toast.error("Maximum 4 characters per video."); return; }
     setCharacters((prev) => [
       ...prev,
-      { id: `char-${Date.now()}`, name: `Character ${prev.length + 1}`, description: "", imageUrl: null, isGenerating: false },
+      {
+        id: `char-${Date.now()}`,
+        name: `Character ${prev.length + 1}`,
+        species: "", colour: "", features: "", outfit: "", description: "",
+        imageUrl: null, photoUrl: null,
+        isGenerating: false, isUploadingPhoto: false, expanded: true,
+      },
     ]);
   }, [characters.length]);
 
@@ -289,15 +463,28 @@ export default function KidsVideo() {
     });
   }, []);
 
+  // ── Storyboard handlers ──
   const handleGenerateStoryboard = useCallback(async () => {
     if (!isAuthenticated) { setShowAuthGate(true); return; }
     setStoryboardError(null);
     setIsCreatingJob(true);
     try {
-      // Collect reference image URLs from generated characters
       const referenceImageUrls = characters
         .filter((c) => c.imageUrl)
         .map((c) => c.imageUrl as string);
+
+      const characterLockData = characters
+        .filter((c) => buildCharacterDescription(c).trim().length >= 5)
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          species: c.species,
+          colour: c.colour,
+          features: c.features,
+          outfit: c.outfit,
+          photoUrl: c.photoUrl ?? undefined,
+          lockedPrompt: buildCharacterDescription(c),
+        }));
 
       let currentJobId = jobId;
       if (!currentJobId) {
@@ -307,6 +494,9 @@ export default function KidsVideo() {
           videoLength: videoLength as "5s" | "10s" | "15s" | "30s" | "60s",
           screenFormat: screenFormat as "16:9" | "9:16" | "1:1",
           referenceImageUrls: referenceImageUrls.length > 0 ? referenceImageUrls : undefined,
+          characterLockData: characterLockData.length > 0 ? characterLockData : undefined,
+          audioBase64: audioBase64 ?? undefined,
+          audioMimeType: (audioMimeType as "audio/mpeg" | "audio/wav" | "audio/mp4" | "audio/ogg" | undefined) ?? undefined,
         });
         currentJobId = result.jobId;
         setJobId(currentJobId);
@@ -328,7 +518,8 @@ export default function KidsVideo() {
     }
   }, [
     isAuthenticated, prompt, style, videoLength, screenFormat,
-    characters, jobId, createJobMutation, generateStoryboardMutation,
+    characters, jobId, audioBase64, audioMimeType,
+    createJobMutation, generateStoryboardMutation,
   ]);
 
   const handleRegenerateStoryboard = useCallback(async () => {
@@ -347,6 +538,29 @@ export default function KidsVideo() {
       setIsGeneratingStoryboard(false);
     }
   }, [jobId, generateStoryboardMutation]);
+
+  const handleRegenerateScene = useCallback(async (sceneIndex: number, customPrompt?: string) => {
+    if (!jobId) return;
+    setRegeneratingSceneIndex(sceneIndex);
+    try {
+      const result = await regenerateSceneMutation.mutateAsync({
+        jobId,
+        sceneIndex,
+        customPrompt,
+      });
+      setStoryboardFrames((prev) => prev.map((f) =>
+        f.sceneIndex === sceneIndex
+          ? { ...f, imageUrl: result.imageUrl ?? f.imageUrl }
+          : f
+      ));
+      toast.success(`Scene ${sceneIndex + 1} regenerated! ✨`);
+    } catch (err: any) {
+      toast.error(err?.message || "Scene regeneration failed.");
+    } finally {
+      setRegeneratingSceneIndex(null);
+      setEditingSceneIndex(null);
+    }
+  }, [jobId, regenerateSceneMutation]);
 
   const handleRenderVideo = useCallback(async () => {
     if (!isAuthenticated) { setShowAuthGate(true); return; }
@@ -374,7 +588,15 @@ export default function KidsVideo() {
     setStyle("pixar3d");
     setVideoLength("15s");
     setScreenFormat("16:9");
-    setCharacters([{ id: "char-1", name: "Main Character", description: "", imageUrl: null, isGenerating: false }]);
+    setAudioFile(null);
+    setAudioBase64(null);
+    setAudioMimeType(null);
+    setCharacters([{
+      id: "char-1", name: "Main Character",
+      species: "", colour: "", features: "", outfit: "", description: "",
+      imageUrl: null, photoUrl: null,
+      isGenerating: false, isUploadingPhoto: false, expanded: true,
+    }]);
     setJobId(null);
     setStoryboardFrames([]);
     setStoryboardError(null);
@@ -388,7 +610,7 @@ export default function KidsVideo() {
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background">
-      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your kids video" />
+      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your kids animation" />
 
       {/* ── Header ── */}
       <div className="border-b border-white/10 sticky top-0 z-30 bg-background/95 backdrop-blur-sm">
@@ -450,10 +672,8 @@ export default function KidsVideo() {
                           : "bg-white/10 text-muted-foreground"
                       }`}
                     >
-                      {currentStepIndex > i
-                        ? <CheckCircle2 className="h-3 w-3" />
-                        : <Clock className="h-3 w-3" />}
-                      <span className="whitespace-nowrap">{s.label}</span>
+                      {currentStepIndex > i ? <CheckCircle2 className="h-3 w-3" /> : null}
+                      {s.label}
                     </div>
                     {i < CREATION_STEPS.length - 1 && (
                       <ChevronRight className="h-3 w-3 text-muted-foreground/40 flex-shrink-0" />
@@ -467,37 +687,34 @@ export default function KidsVideo() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          CONCEPT PAGE (marketing landing)
+          CONCEPT / LANDING PAGE
       ══════════════════════════════════════════════════════════════════════ */}
       {step === "concept" && (
-        <div className="overflow-x-hidden">
-
+        <div>
           {/* Hero */}
           <section className="relative py-20 sm:py-28 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-950/40 via-background to-purple-950/30 pointer-events-none" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(ellipse_at_center,_rgba(236,72,153,0.1)_0%,_transparent_70%)] pointer-events-none" />
-            <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-950/30 via-background to-purple-950/20 pointer-events-none" />
+            <div className="absolute top-20 left-1/4 w-64 h-64 rounded-full bg-pink-500/5 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-10 right-1/4 w-48 h-48 rounded-full bg-purple-500/5 blur-3xl pointer-events-none" />
+            <div className="container mx-auto px-4 max-w-4xl text-center relative">
               <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-xs sm:text-sm text-pink-300 mb-6">
-                <Shield className="h-3.5 w-3.5 flex-shrink-0" />
-                Child-Safe AI · AI Generated Characters · Powered by WizCreate™
+                <Lock className="h-3.5 w-3.5" />
+                Character Lock System · Strict Scene Consistency
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-                Turn Any Story Into a
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                Kids Animation
                 <span className="block bg-gradient-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                  Magical Kids Animation
+                  Creator
                 </span>
               </h1>
-              <p className="text-base sm:text-lg font-medium text-white/80 max-w-2xl mx-auto mb-3 leading-relaxed">
-                Create stunning animated kids videos in Pixar, cartoon, or storybook styles.
+              <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Create stunning animated kids videos in Pixar, Disney, cartoon, or storybook styles.
               </p>
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-                Describe your story, design your characters with AI, and watch a beautiful animated storyboard appear — completely free. Render the full video when you're ready.
-              </p>
-              <div className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10 text-sm">
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-sm text-muted-foreground mb-10">
                 {[
+                  { value: "6", label: "Animation styles" },
                   { value: "Free", label: "Storyboard preview" },
-                  { value: "6",    label: "Animation styles" },
-                  { value: "4–6",  label: "Scenes per video" },
+                  { value: "100%", label: "Child-safe content" },
                   { value: "< 5 min", label: "To final video" },
                 ].map((stat) => (
                   <div key={stat.label} className="text-center">
@@ -537,17 +754,10 @@ export default function KidsVideo() {
                   </div>
                 ))}
               </div>
-              <div className="mt-8 rounded-2xl border border-orange-500/30 bg-gradient-to-r from-orange-500/10 to-amber-500/5 p-6 text-center">
-                <div className="text-2xl mb-3">👀</div>
-                <h3 className="text-lg font-bold text-white mb-2">"I've already seen it — now I want to unlock it."</h3>
-                <p className="text-sm text-muted-foreground max-w-xl mx-auto">
-                  Your storyboard is generated instantly and for free. By the time you see your story illustrated scene-by-scene, the video already feels real.
-                </p>
-              </div>
             </div>
           </section>
 
-          {/* Animation Styles */}
+          {/* Animation Styles — Premium Cards */}
           <section className="py-16 sm:py-20 border-t border-white/5 bg-white/[0.02]">
             <div className="container mx-auto px-4 max-w-5xl">
               <div className="text-center mb-12">
@@ -558,13 +768,14 @@ export default function KidsVideo() {
                 {KIDS_STYLES.map((s) => (
                   <div
                     key={s.id}
-                    className="group rounded-2xl border border-white/10 bg-white/5 p-5 text-center hover:border-pink-500/40 hover:bg-pink-500/5 transition-all cursor-pointer"
+                    className={`group relative rounded-2xl border ${s.bg} p-5 text-center cursor-pointer transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:${s.glow} hover:${s.border} border-white/10`}
                     onClick={() => { setStyle(s.id); setStep("story_input"); }}
                   >
-                    <div className="text-4xl mb-3">{s.emoji}</div>
+                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{s.emoji}</div>
                     <div className="font-bold text-white text-sm mb-1">{s.label}</div>
-                    <div className="text-xs text-muted-foreground">{s.desc}</div>
-                    <div className={`mt-3 h-0.5 rounded-full bg-gradient-to-r ${s.color} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                    <div className="text-xs text-muted-foreground mb-2">{s.desc}</div>
+                    <div className="text-xs text-muted-foreground/50 italic">{s.example}</div>
+                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-b-2xl bg-gradient-to-r ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                   </div>
                 ))}
               </div>
@@ -625,9 +836,9 @@ export default function KidsVideo() {
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-center">
                 {[
                   { icon: "🛡️", label: "Child-Safe Content" },
-                  { icon: "🎭", label: "AI Characters" },
-                  { icon: "🎵", label: "WizSound™ Audio" },
-                  { icon: "⚡", label: "Ready in Minutes" },
+                  { icon: "🔒", label: "Character Lock" },
+                  { icon: "📸", label: "Photo Upload" },
+                  { icon: "🎵", label: "Audio Upload" },
                   { icon: "♾️", label: "Unlimited Previews" },
                 ].map((t) => (
                   <div key={t.label} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -668,13 +879,10 @@ export default function KidsVideo() {
           {step === "story_input" && (
             <div className="space-y-6 sm:space-y-8">
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-xs sm:text-sm text-pink-300 mb-4">
-                  <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
-                  Storyboard preview is always free — pay only when you render
-                </div>
+                <WizBrandBadge layer="create" animated className="mb-4" />
                 <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">🌈 Tell Your Story</h1>
                 <p className="text-muted-foreground text-sm sm:text-base">
-                  Describe your story idea, pick a style, and we'll create a free animated storyboard for you to review.
+                  Describe your story idea, pick an animation style, and we'll create a free storyboard for you to review.
                 </p>
               </div>
 
@@ -713,23 +921,31 @@ export default function KidsVideo() {
                 </div>
               </div>
 
-              {/* Animation Style */}
+              {/* Animation Style — Premium Cards */}
               <div>
                 <label className="block text-sm font-medium text-white mb-3">Animation Style</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {KIDS_STYLES.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setStyle(s.id)}
-                      className={`rounded-xl border p-3 text-left transition-all ${
+                      className={`group relative rounded-xl border p-4 text-left transition-all duration-200 ${
                         style === s.id
-                          ? "border-pink-500 bg-pink-500/20 text-white"
-                          : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
+                          ? `${s.selectedBg} ${s.border} shadow-lg ${s.glow}`
+                          : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08]"
                       }`}
                     >
-                      <div className="text-lg mb-1">{s.emoji}</div>
-                      <div className="font-medium text-sm">{s.label}</div>
-                      <div className="text-xs opacity-70 mt-0.5">{s.desc}</div>
+                      <div className={`text-2xl mb-2 transition-transform duration-200 ${style === s.id ? "scale-110" : "group-hover:scale-105"}`}>
+                        {s.emoji}
+                      </div>
+                      <div className={`font-semibold text-sm mb-0.5 ${style === s.id ? "text-white" : "text-muted-foreground group-hover:text-white"}`}>
+                        {s.label}
+                      </div>
+                      <div className="text-xs text-muted-foreground/70">{s.desc}</div>
+                      {style === s.id && (
+                        <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br ${s.gradient}`} />
+                      )}
+                      <div className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-b-xl bg-gradient-to-r ${s.gradient} transition-opacity duration-200 ${style === s.id ? "opacity-100" : "opacity-0 group-hover:opacity-50"}`} />
                     </button>
                   ))}
                 </div>
@@ -777,6 +993,67 @@ export default function KidsVideo() {
                 </div>
               </div>
 
+              {/* Audio Upload */}
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Music className="h-4 w-4 text-pink-400" />
+                  <span className="text-sm font-medium text-white">Upload Audio</span>
+                  <Badge className="bg-white/10 text-muted-foreground border-white/10 text-xs">Optional</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Add kids songs, narration, or voice recordings. Supports lip sync compatibility. Max 16MB.
+                </p>
+                {audioFile ? (
+                  <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 p-3">
+                    <Music className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-white font-medium truncate">{audioFile.name}</div>
+                      <div className="text-xs text-muted-foreground">{(audioFile.size / 1024 / 1024).toFixed(1)} MB</div>
+                    </div>
+                    <button
+                      onClick={() => { setAudioFile(null); setAudioBase64(null); setAudioMimeType(null); }}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition flex-shrink-0"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all ${
+                      isDraggingAudio
+                        ? "border-pink-500/60 bg-pink-500/10"
+                        : "border-white/10 hover:border-pink-500/30 hover:bg-pink-500/5"
+                    }`}
+                    onClick={() => audioInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); setIsDraggingAudio(true); }}
+                    onDragLeave={() => setIsDraggingAudio(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDraggingAudio(false);
+                      const file = e.dataTransfer.files[0];
+                      if (file) handleAudioFile(file);
+                    }}
+                  >
+                    <Upload className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="text-pink-400 font-medium">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">MP3, WAV, OGG, M4A, WebM · Max 16MB</p>
+                  </div>
+                )}
+                <input
+                  ref={audioInputRef}
+                  type="file"
+                  accept="audio/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleAudioFile(file);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
               {/* CTA */}
               <div className="text-center">
                 <Button
@@ -798,31 +1075,46 @@ export default function KidsVideo() {
             <div className="space-y-6">
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs sm:text-sm text-purple-300 mb-4">
-                  <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
-                  AI Generated Characters — describe them and watch them come to life
+                  <Lock className="h-3.5 w-3.5 flex-shrink-0" />
+                  Character Lock System — strict consistency across all scenes
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">🎭 Design Your Characters</h2>
                 <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                  Describe each character and generate a preview image. These will be used to keep your characters consistent across all scenes.
+                  Define your characters precisely. The AI will enforce these details in every scene — no variation allowed.
                 </p>
+              </div>
+
+              {/* Character Lock explainer */}
+              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4 flex items-start gap-3">
+                <Lock className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-purple-200 leading-relaxed">
+                  <span className="font-semibold text-purple-300">How Character Lock works:</span> Fill in species, colour, features, and outfit. The AI uses these as strict rules — your character must appear <em>identical</em> in every scene. Upload a reference photo for even stronger consistency.
+                </div>
               </div>
 
               <div className="space-y-4">
                 {characters.map((char, idx) => {
                   const slotColors = [
-                    { ring: "ring-purple-500", bg: "bg-purple-900/20", badge: "bg-purple-900/50 text-purple-300 border-purple-800" },
-                    { ring: "ring-blue-500",   bg: "bg-blue-900/20",   badge: "bg-blue-900/50 text-blue-300 border-blue-800" },
-                    { ring: "ring-pink-500",   bg: "bg-pink-900/20",   badge: "bg-pink-900/50 text-pink-300 border-pink-800" },
-                    { ring: "ring-amber-500",  bg: "bg-amber-900/20",  badge: "bg-amber-900/50 text-amber-300 border-amber-800" },
+                    { ring: "ring-purple-500", bg: "bg-purple-900/20", badge: "bg-purple-900/50 text-purple-300 border-purple-800", accent: "text-purple-400", border: "border-purple-500/30" },
+                    { ring: "ring-blue-500",   bg: "bg-blue-900/20",   badge: "bg-blue-900/50 text-blue-300 border-blue-800",     accent: "text-blue-400",   border: "border-blue-500/30" },
+                    { ring: "ring-pink-500",   bg: "bg-pink-900/20",   badge: "bg-pink-900/50 text-pink-300 border-pink-800",     accent: "text-pink-400",   border: "border-pink-500/30" },
+                    { ring: "ring-amber-500",  bg: "bg-amber-900/20",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  accent: "text-amber-400",  border: "border-amber-500/30" },
                   ][idx % 4];
 
+                  const isLocked = !!(char.species || char.colour || char.features || char.outfit);
+                  const desc = buildCharacterDescription(char);
+
                   return (
-                    <div key={char.id} className={`rounded-2xl border border-white/10 ${slotColors.bg} p-4 sm:p-5`}>
+                    <div key={char.id} className={`rounded-2xl border ${isLocked ? slotColors.border : "border-white/10"} ${slotColors.bg} overflow-hidden transition-all`}>
                       {/* Character header */}
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                         <div className="flex items-center gap-2">
-                          <div className={`w-7 h-7 rounded-full ring-2 ${slotColors.ring} bg-white/10 flex items-center justify-center`}>
-                            <User className="h-3.5 w-3.5 text-white" />
+                          <div className={`w-7 h-7 rounded-full ring-2 ${slotColors.ring} bg-white/10 flex items-center justify-center flex-shrink-0`}>
+                            {char.imageUrl ? (
+                              <img src={char.imageUrl} alt={char.name} className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              <User className="h-3.5 w-3.5 text-white" />
+                            )}
                           </div>
                           <Input
                             value={char.name}
@@ -830,75 +1122,196 @@ export default function KidsVideo() {
                             className="bg-transparent border-none text-white font-semibold text-sm p-0 h-auto focus-visible:ring-0 w-36 sm:w-48"
                             placeholder="Character name…"
                           />
-                          <Badge className={`text-xs border ${slotColors.badge}`}>Character {idx + 1}</Badge>
+                          <Badge className={`text-xs border ${slotColors.badge} hidden sm:inline-flex`}>Character {idx + 1}</Badge>
+                          {isLocked && (
+                            <div className="flex items-center gap-1 text-xs text-green-400">
+                              <Lock className="h-3 w-3" />
+                              <span className="hidden sm:inline">Locked</span>
+                            </div>
+                          )}
                         </div>
-                        {characters.length > 1 && (
+                        <div className="flex items-center gap-1">
                           <button
-                            onClick={() => handleRemoveCharacter(char.id)}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition"
+                            onClick={() => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, expanded: !c.expanded } : c))}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            {char.expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                           </button>
-                        )}
-                      </div>
-
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        {/* Description */}
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1.5 block">Character Description</label>
-                          <Textarea
-                            value={char.description}
-                            onChange={(e) => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, description: e.target.value } : c))}
-                            placeholder={`e.g. A cheerful young girl with curly red hair, wearing a yellow dress and carrying a magic wand…`}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:ring-1 focus:ring-purple-500/50 min-h-[80px]"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => handleGenerateCharacterImage(char.id)}
-                            disabled={char.isGenerating || char.description.trim().length < 5}
-                            className="mt-2 gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 text-xs w-full"
-                          >
-                            {char.isGenerating ? (
-                              <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
-                            ) : (
-                              <><Wand2 className="h-3.5 w-3.5" /> Generate Character Image ✨</>
-                            )}
-                          </Button>
-                        </div>
-
-                        {/* Preview image */}
-                        <div>
-                          {char.isGenerating ? (
-                            <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 aspect-square flex flex-col items-center justify-center gap-2">
-                              <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
-                              <span className="text-xs text-purple-300">Creating character…</span>
-                            </div>
-                          ) : char.imageUrl ? (
-                            <div className="relative rounded-xl overflow-hidden aspect-square border border-purple-500/30">
-                              <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover" />
-                              <button
-                                onClick={() => handleGenerateCharacterImage(char.id)}
-                                className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition"
-                                title="Regenerate"
-                              >
-                                <RefreshCw className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          ) : (
+                          {characters.length > 1 && (
                             <button
-                              onClick={() => char.description.trim().length >= 5 && handleGenerateCharacterImage(char.id)}
-                              className="w-full rounded-xl border-2 border-dashed border-purple-500/20 bg-purple-500/5 aspect-square flex flex-col items-center justify-center gap-2 hover:border-purple-500/40 hover:bg-purple-500/10 transition group"
+                              onClick={() => handleRemoveCharacter(char.id)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition"
                             >
-                              <ImageIcon className="h-8 w-8 text-muted-foreground/30 group-hover:text-purple-400 transition" />
-                              <span className="text-xs text-muted-foreground/50 group-hover:text-purple-300 transition text-center px-2">
-                                {char.description.trim().length >= 5
-                                  ? "Click to generate character image 🎨"
-                                  : "Describe the character first"}
-                              </span>
+                              <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           )}
                         </div>
                       </div>
+
+                      {char.expanded && (
+                        <div className="p-4 sm:p-5 space-y-4">
+                          <div className="grid sm:grid-cols-2 gap-4">
+                            {/* Character Lock Fields */}
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <Lock className={`h-3.5 w-3.5 ${slotColors.accent}`} />
+                                <span className="text-xs font-semibold text-white">Character Lock Fields</span>
+                              </div>
+
+                              <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Species / Type *</label>
+                                <Input
+                                  value={char.species}
+                                  onChange={(e) => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, species: e.target.value } : c))}
+                                  placeholder="e.g. black miniature schnauzer, young girl, robot"
+                                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/60 text-sm h-9"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Colour / Colouring *</label>
+                                <Input
+                                  value={char.colour}
+                                  onChange={(e) => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, colour: e.target.value } : c))}
+                                  placeholder="e.g. solid black fur, curly red hair, bright blue"
+                                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/60 text-sm h-9"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Features</label>
+                                <Input
+                                  value={char.features}
+                                  onChange={(e) => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, features: e.target.value } : c))}
+                                  placeholder="e.g. bushy eyebrows, big round eyes, pointy ears"
+                                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/60 text-sm h-9"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Outfit / Accessories</label>
+                                <Input
+                                  value={char.outfit}
+                                  onChange={(e) => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, outfit: e.target.value } : c))}
+                                  placeholder="e.g. red scarf, yellow dress, astronaut suit"
+                                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/60 text-sm h-9"
+                                />
+                              </div>
+
+                              {desc.trim().length >= 5 && (
+                                <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-2.5">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <Lock className="h-3 w-3 text-green-400" />
+                                    <span className="text-xs font-medium text-green-300">Lock Preview</span>
+                                  </div>
+                                  <p className="text-xs text-green-200/80 leading-relaxed">{desc}</p>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Character Visual */}
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <Eye className={`h-3.5 w-3.5 ${slotColors.accent}`} />
+                                <span className="text-xs font-semibold text-white">Character Visual</span>
+                              </div>
+
+                              {/* Photo Upload */}
+                              <div>
+                                <label className="text-xs text-muted-foreground mb-1.5 block">Reference Photo (optional)</label>
+                                {char.isUploadingPhoto ? (
+                                  <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 h-20 flex items-center justify-center gap-2">
+                                    <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />
+                                    <span className="text-xs text-purple-300">Uploading…</span>
+                                  </div>
+                                ) : char.photoUrl ? (
+                                  <div className="relative rounded-xl overflow-hidden border border-purple-500/30 h-20">
+                                    <img src={char.photoUrl} alt="Reference" className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+                                      <button
+                                        onClick={() => setCharacters((prev) => prev.map((c) => c.id === char.id ? { ...c, photoUrl: null } : c))}
+                                        className="p-1.5 rounded-lg bg-red-500/80 text-white"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                    <div className="absolute bottom-1 left-1 flex items-center gap-1 bg-black/60 rounded px-1.5 py-0.5">
+                                      <Camera className="h-2.5 w-2.5 text-green-400" />
+                                      <span className="text-xs text-green-300">Photo set</span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <label className="cursor-pointer block">
+                                    <div className="rounded-xl border-2 border-dashed border-white/10 bg-white/5 h-20 flex flex-col items-center justify-center gap-1.5 hover:border-purple-500/30 hover:bg-purple-500/5 transition">
+                                      <Camera className="h-5 w-5 text-muted-foreground/40" />
+                                      <span className="text-xs text-muted-foreground/60">Upload pet/character photo</span>
+                                    </div>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handlePhotoUpload(char.id, file);
+                                        e.target.value = "";
+                                      }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+
+                              {/* AI Generated Preview */}
+                              <div>
+                                <label className="text-xs text-muted-foreground mb-1.5 block">AI Character Preview</label>
+                                {char.isGenerating ? (
+                                  <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 aspect-square flex flex-col items-center justify-center gap-2">
+                                    <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
+                                    <span className="text-xs text-purple-300">Creating character…</span>
+                                  </div>
+                                ) : char.imageUrl && !char.photoUrl ? (
+                                  <div className="relative rounded-xl overflow-hidden aspect-square border border-purple-500/30">
+                                    <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover" />
+                                    <button
+                                      onClick={() => handleGenerateCharacterImage(char.id)}
+                                      className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition"
+                                      title="Regenerate"
+                                    >
+                                      <RefreshCw className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                ) : !char.photoUrl ? (
+                                  <button
+                                    onClick={() => desc.trim().length >= 5 && handleGenerateCharacterImage(char.id)}
+                                    className="w-full rounded-xl border-2 border-dashed border-purple-500/20 bg-purple-500/5 aspect-square flex flex-col items-center justify-center gap-2 hover:border-purple-500/40 hover:bg-purple-500/10 transition group"
+                                  >
+                                    <ImageIcon className="h-8 w-8 text-muted-foreground/30 group-hover:text-purple-400 transition" />
+                                    <span className="text-xs text-muted-foreground/50 group-hover:text-purple-300 transition text-center px-2">
+                                      {desc.trim().length >= 5
+                                        ? "Click to generate character image 🎨"
+                                        : "Fill in species & colour first"}
+                                    </span>
+                                  </button>
+                                ) : null}
+
+                                {desc.trim().length >= 5 && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleGenerateCharacterImage(char.id)}
+                                    disabled={char.isGenerating}
+                                    className="mt-2 gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 text-xs w-full"
+                                  >
+                                    {char.isGenerating ? (
+                                      <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
+                                    ) : (
+                                      <><Wand2 className="h-3.5 w-3.5" /> Generate Character Image ✨</>
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -918,7 +1331,7 @@ export default function KidsVideo() {
               <div className="flex items-start gap-2 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 text-sm text-blue-300">
                 <Star className="h-4 w-4 mt-0.5 flex-shrink-0 text-blue-400" />
                 <span>
-                  Character images are optional but recommended — they help AI keep your characters consistent across all scenes. You can skip this step and generate the storyboard directly.
+                  Character definitions are optional but strongly recommended — they enforce strict consistency across all scenes. You can skip this step and generate the storyboard directly.
                 </span>
               </div>
 
@@ -952,9 +1365,13 @@ export default function KidsVideo() {
           {step === "storyboard" && (
             <div className="space-y-6">
               <div className="text-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-xs sm:text-sm text-pink-300 mb-4">
+                  <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
+                  {selectedStyle.emoji} {selectedStyle.label} · {videoLength} · {screenFormat}
+                </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">🎬 Your Free Storyboard</h2>
                 <p className="text-sm text-muted-foreground">
-                  AI-generated scenes for your story. Review and regenerate as many times as you like — completely free!
+                  AI-generated scenes for your story. Edit descriptions, regenerate individual scenes, or regenerate all — completely free!
                 </p>
               </div>
 
@@ -989,15 +1406,54 @@ export default function KidsVideo() {
                 <div className="space-y-4">
                   {storyboardFrames.map((frame, i) => (
                     <div key={frame.sceneIndex} className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-                      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10">
-                        <span className="text-xs font-bold text-pink-400 bg-pink-500/20 rounded-full px-2 py-0.5">
-                          Scene {i + 1}
-                        </span>
-                        <span className="text-sm font-semibold text-white">{frame.sceneLabel}</span>
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-pink-400 bg-pink-500/20 rounded-full px-2 py-0.5">
+                            Scene {i + 1}
+                          </span>
+                          <span className="text-sm font-semibold text-white">{frame.sceneLabel}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => {
+                              if (editingSceneIndex === frame.sceneIndex) {
+                                setEditingSceneIndex(null);
+                              } else {
+                                setEditingSceneIndex(frame.sceneIndex);
+                                setEditingSceneText(frame.description);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition"
+                            title="Edit scene description"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleRegenerateScene(frame.sceneIndex)}
+                            disabled={regeneratingSceneIndex === frame.sceneIndex}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-pink-400 hover:bg-pink-500/10 transition"
+                            title="Regenerate this scene"
+                          >
+                            {regeneratingSceneIndex === frame.sceneIndex ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <RotateCcw className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
+
                       {frame.imageUrl ? (
-                        <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl overflow-hidden aspect-video">
+                        <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl overflow-hidden aspect-video relative">
                           <img src={frame.imageUrl} alt={frame.sceneLabel} className="w-full h-full object-cover" />
+                          {regeneratingSceneIndex === frame.sceneIndex && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <div className="text-center">
+                                <Loader2 className="h-8 w-8 text-pink-400 animate-spin mx-auto mb-2" />
+                                <span className="text-xs text-pink-300">Regenerating scene…</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-pink-500/20 bg-pink-500/5 aspect-video flex items-center justify-center">
@@ -1007,8 +1463,42 @@ export default function KidsVideo() {
                           </div>
                         </div>
                       )}
+
                       <div className="px-4 py-3">
-                        <p className="text-sm text-muted-foreground leading-relaxed">{frame.description}</p>
+                        {editingSceneIndex === frame.sceneIndex ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editingSceneText}
+                              onChange={(e) => setEditingSceneText(e.target.value)}
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-muted-foreground/60 resize-none focus:outline-none focus:ring-1 focus:ring-pink-500/50 min-h-[80px]"
+                              placeholder="Describe what should happen in this scene…"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleRegenerateScene(frame.sceneIndex, editingSceneText)}
+                                disabled={regeneratingSceneIndex === frame.sceneIndex || editingSceneText.trim().length < 5}
+                                className="gap-1.5 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 text-xs flex-1"
+                              >
+                                {regeneratingSceneIndex === frame.sceneIndex ? (
+                                  <><Loader2 className="h-3 w-3 animate-spin" /> Regenerating…</>
+                                ) : (
+                                  <><Wand2 className="h-3 w-3" /> Regenerate with New Description</>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingSceneIndex(null)}
+                                className="border-white/20 text-white hover:bg-white/10 text-xs"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground leading-relaxed">{frame.description}</p>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -1043,7 +1533,7 @@ export default function KidsVideo() {
                         <span className="font-semibold text-white">Ready to render? 🚀</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {videoLength} · {screenFormat}
+                        Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {videoLength} · {screenFormat} · {selectedStyle.label}
                       </p>
                       <div className="mt-2">
                         <CreditBalance variant="inline" cost={creditCost} />
@@ -1057,7 +1547,7 @@ export default function KidsVideo() {
                         className="gap-2 border-white/20 text-white hover:bg-white/10 flex-1"
                       >
                         {isGeneratingStoryboard ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                        Regenerate Free 🎨
+                        Regenerate All 🎨
                       </Button>
                       <Button
                         onClick={handleRenderVideo}
@@ -1087,9 +1577,9 @@ export default function KidsVideo() {
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
-                  {renderStatus === "completed" ? "🎉 Your Video is Ready!" :
+                  {renderStatus === "completed" ? "🎉 Your Animation is Ready!" :
                    renderStatus === "failed" ? "❌ Render Failed" :
-                   "🎬 Rendering Your Video…"}
+                   "🎬 Rendering Your Animation…"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {renderStatus === "completed" ? "Your animated kids video has been created. Watch it below!" :
@@ -1111,9 +1601,9 @@ export default function KidsVideo() {
                   <div className="space-y-2 text-left max-w-xs mx-auto">
                     {[
                       { label: "Payment confirmed", done: true },
-                    { label: "Render job queued", done: ["processing", "completed"].includes(renderStatus) },
-                    { label: "Generating animation frames", done: renderStatus === ("completed" as RenderStatus) },
-                    { label: "Compositing final video", done: renderStatus === ("completed" as RenderStatus) },
+                      { label: "Render job queued", done: (renderStatus as string) === "processing" || (renderStatus as string) === "completed" },
+                      { label: "Generating animation frames", done: (renderStatus as string) === "completed" },
+                      { label: "Compositing final video", done: (renderStatus as string) === "completed" },
                     ].map((s, i) => (
                       <div key={i} className="flex items-center gap-3 text-sm">
                         {s.done ? (
@@ -1125,7 +1615,7 @@ export default function KidsVideo() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">This page will update automatically when your video is ready 🌈</p>
+                  <p className="text-xs text-muted-foreground">This page will update automatically when your animation is ready 🌈</p>
                 </div>
               )}
 
@@ -1142,7 +1632,7 @@ export default function KidsVideo() {
                       onClick={() => {
                         const a = document.createElement("a");
                         a.href = videoUrl;
-                        a.download = "kids-video.mp4";
+                        a.download = "kids-animation.mp4";
                         a.click();
                         toast.success("Download started!");
                       }}
@@ -1201,4 +1691,13 @@ export default function KidsVideo() {
       )}
     </div>
   );
+
+  // ── Handler defined after JSX to avoid hoisting issues ──
+  function handleGoToCharacters() {
+    if (!prompt.trim() || prompt.length < 10) {
+      toast.error("Please describe your story idea (at least 10 characters).");
+      return;
+    }
+    setStep("characters");
+  }
 }

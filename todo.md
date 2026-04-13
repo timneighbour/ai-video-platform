@@ -2843,3 +2843,17 @@
 - [x] Strong cinematic hit transitioning to logo after signature moment
 - [x] WizSound™ section: stereo widening + left-right audio movement + synced visual pulse
 - [x] Update CTA button text to "Create Your First Cinematic Video →"
+
+## Kids Animation Creator - Full Rebuild
+- [ ] Replace current UI with WizPilot prompt input + storyboard preview system
+- [ ] Add character lock system: species, colour, features, outfit fields
+- [x] Add photo upload for character reference (pet photo / character reference)
+- [ ] Add audio upload (kids songs, narration, voice recordings)
+- [ ] Add 6 animation style cards with icons, hover animations, selection state: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation
+- [ ] Implement editable storyboard scenes (same as Music Video Creator)
+- [ ] Add refinement controls (regenerate scene, edit prompt per scene)
+- [ ] Wire render flow with RenderPaywallModal
+- [ ] Update header to "Kids Animation Creator" with subheading
+- [ ] Premium visual UI: depth, spacing, cinematic feel, animation style cards with hover effects
+- [ ] Character lock enforces consistent appearance across all scenes via prompt engineering
+- [ ] Lip sync compatibility note for audio uploads
