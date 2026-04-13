@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
+const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
 // Official WizVid logo — transparent background, violet glow
 const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 const WIZVID_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
@@ -97,9 +100,10 @@ function Nav() {
   const mainLinks = [
     { label: "Home", href: "/" },
     { label: "Music Video", href: "/music-video" },
-    { label: "WizPilot", href: "/wizpilot" },
+    { label: "WizCreate™", href: "/music-video" },
+    { label: "WizSound™", href: "/#wizsound" },
+    { label: "WizPilot™", href: "/wizpilot" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Blog", href: "/blog" },
     { label: "Help", href: "/help" },
   ];
 
@@ -517,6 +521,12 @@ function Hero() {
                 in Minutes
               </span>
             </h1>
+
+            {/* Brand engine tagline */}
+            <div className="relative z-10 mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-400/20 bg-violet-500/8 text-violet-300/90 text-[11px] font-semibold tracking-wide">
+              <span className="text-violet-400">✦</span>
+              Powered by WizCreate™, WizSound™ &amp; WizPilot™
+            </div>
 
             {/* Subheadline */}
             <p
@@ -1895,6 +1905,121 @@ function CTAPush() {
   );
 }
 
+// ── Ecosystem Section ─────────────────────────────────────────────────────────
+function EcosystemSection() {
+  const engines = [
+    {
+      logo: WIZCREATE_LOGO,
+      name: "WizCreate™",
+      tagline: "AI Creation Engine",
+      desc: "AI-powered creation engine from storyboard to final render. Generates scenes, characters, and cinematic visuals from a single prompt.",
+      colour: "violet",
+      border: "border-violet-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]",
+      bg: "bg-violet-500/5",
+      badge: "text-violet-300 bg-violet-500/10 border-violet-500/25",
+      href: "/music-video",
+    },
+    {
+      logo: WIZSOUND_LOGO,
+      name: "WizSound™",
+      tagline: "Cinematic Audio Engine",
+      desc: "Proprietary spatial sound enhancement that transforms standard audio into an immersive, Dolby Atmos-quality cinematic experience.",
+      colour: "indigo",
+      border: "border-indigo-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]",
+      bg: "bg-indigo-500/5",
+      badge: "text-indigo-300 bg-indigo-500/10 border-indigo-500/25",
+      href: "/#wizsound",
+    },
+    {
+      logo: WIZPILOT_LOGO,
+      name: "WizPilot™",
+      tagline: "Automation Engine",
+      desc: "Automated workflows for faster video production. Describe any idea and WizPilot handles everything — storyboard, scenes, and final video.",
+      colour: "fuchsia",
+      border: "border-fuchsia-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(217,70,239,0.2)]",
+      bg: "bg-fuchsia-500/5",
+      badge: "text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/25",
+      href: "/wizpilot",
+    },
+  ];
+
+  return (
+    <section className="py-24 px-6 bg-[#0a0a0a] relative overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(139,92,246,0.04) 0%, transparent 70%)" }} />
+
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/25 bg-violet-500/8 text-violet-300 text-xs font-mono tracking-widest uppercase font-semibold mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            The WizVid Ecosystem
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+            One platform.
+            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"> Four powerful engines.</span>
+          </h2>
+          <p className="text-white/50 text-lg max-w-2xl mx-auto">
+            WizVid is built on a stack of proprietary AI engines — each one engineered for a specific part of the video creation process.
+          </p>
+        </div>
+
+        {/* WizVid platform card */}
+        <div className="mb-8 p-6 rounded-2xl border border-white/10 bg-white/3 flex flex-col md:flex-row items-center gap-6">
+          <img
+            src={WIZVID_LOGO_FULL}
+            alt="WizVid"
+            className="h-16 w-auto object-contain"
+          />
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+              <h3 className="text-xl font-bold text-white">WizVid</h3>
+              <span className="text-xs px-2 py-0.5 rounded-full border border-white/20 text-white/50 font-mono">Platform</span>
+            </div>
+            <p className="text-white/60 text-sm">All-in-one cinematic video creation platform — the unified experience that brings WizCreate™, WizSound™, and WizPilot™ together.</p>
+          </div>
+        </div>
+
+        {/* Engine grid */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {engines.map((engine) => (
+            <a
+              key={engine.name}
+              href={engine.href}
+              className={`group relative flex flex-col p-6 rounded-2xl border ${engine.border} ${engine.bg} ${engine.glow} transition-all duration-300 cursor-pointer`}
+            >
+              {/* Logo */}
+              <div className="mb-4 flex items-center justify-center h-20">
+                <img
+                  src={engine.logo}
+                  alt={engine.name}
+                  className="h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+
+              {/* Badge */}
+              <div className={`inline-flex items-center self-start gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest mb-3 ${engine.badge}`}>
+                {engine.tagline}
+              </div>
+
+              {/* Description */}
+              <p className="text-white/55 text-sm leading-relaxed flex-1">{engine.desc}</p>
+
+              {/* CTA */}
+              <div className={`mt-4 flex items-center gap-1.5 text-xs font-semibold ${engine.badge.split(" ")[0]} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
+                Explore {engine.name} <ArrowRight className="w-3 h-3" />
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Footer ────────────────────────────────────────────────────────────────────
 function Footer() {
   const footerLinks = [
@@ -1986,15 +2111,12 @@ function Footer() {
           </div>
           <div className="mt-6 text-center">
             <p className="text-xs text-[#a1a1aa]/50 tracking-widest uppercase">
-              Powered by{" "}
-              <a
-                href="https://www.wizvid.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#a1a1aa]/70 hover:text-white transition-colors font-medium"
-              >
-                WizVid Studio
-              </a>
+              WizVid ecosystem:{" "}
+              <span className="text-violet-400/70">WizCreate™</span>
+              {" · "}
+              <span className="text-indigo-400/70">WizSound™</span>
+              {" · "}
+              <span className="text-fuchsia-400/70">WizPilot™</span>
             </p>
           </div>
         </div>
@@ -2044,6 +2166,7 @@ export default function Home() {
         <PunchLine />
         <HomePricing />
         <CTAPush />
+        <EcosystemSection />
       </main>
       <Footer />
     </div>

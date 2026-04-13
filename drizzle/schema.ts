@@ -497,6 +497,54 @@ export const inAppNotifications = mysqlTable("inAppNotifications", {
 export type InAppNotification = typeof inAppNotifications.$inferSelect;
 export type InsertInAppNotification = typeof inAppNotifications.$inferInsert;
 
+// ── Kids Video Jobs ─────────────────────────────────────────────────────────
+// Standalone kids animated video creation flow (separate from music video)
+export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+
+  // Story input
+  storyPrompt: text("storyPrompt").notNull(),
+  animationStyle: mysqlEnum("animationStyle", ["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation"]).notNull().default("pixar3d"),
+  videoLength: mysqlEnum("videoLength", ["5s", "10s", "15s", "30s", "60s"]).notNull().default("15s"),
+  screenFormat: mysqlEnum("screenFormat", ["16:9", "9:16", "1:1"]).notNull().default("16:9"),
+
+  // Reference images (uploaded or AI-generated)
+  referenceImageUrls: longtext("referenceImageUrls"), // JSON: string[]
+
+  // Storyboard (free)
+  storyboardStatus: mysqlEnum("kidsStoryboardStatus", ["pending", "generating", "ready", "failed"]).default("pending").notNull(),
+  storyboardFrames: longtext("storyboardFrames"), // JSON: Array<{sceneIndex, sceneLabel, imageUrl, description}>
+  storyboardGeneratedAt: timestamp("storyboardGeneratedAt"),
+
+  // Render (paid)
+  renderStatus: mysqlEnum("kidsRenderStatus", ["not_started", "queued", "processing", "completed", "failed"]).default("not_started").notNull(),
+  videoUrl: varchar("videoUrl", { length: 1024 }),
+  videoKey: varchar("videoKey", { length: 512 }),
+  creditsCharged: int("creditsCharged").default(0).notNull(),
+
+  // Stripe checkout for paid render
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }),
+  paymentStatus: mysqlEnum("kidsPaymentStatus", ["free", "pending", "paid", "failed"]).default("free").notNull(),
+
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type KidsVideoJob = typeof kidsVideoJobs.$inferSelect;
+export type InsertKidsVideoJob = typeof kidsVideoJobs.$inferInsert;
+
+export type KidsAnimationStyle = "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation";
+export type KidsVideoLength = "5s" | "10s" | "15s" | "30s" | "60s";
+export type KidsScreenFormat = "16:9" | "9:16" | "1:1";
+
+export interface KidsStoryboardFrame {
+  sceneIndex: number;
+  sceneLabel: string;
+  imageUrl: string;
+  description: string;
+}
+
 // ── Blog Posts ────────────────────────────────────────────────────────────────
 export const blogPosts = mysqlTable("blogPosts", {
   id: int("id").autoincrement().primaryKey(),

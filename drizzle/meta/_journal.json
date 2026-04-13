@@ -232,6 +232,13 @@
       "when": 1776032609258,
       "tag": "0032_gorgeous_power_man",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1776049990223,
+      "tag": "0033_damp_quasar",
+      "breakpoints": true
     }
   ]
 }

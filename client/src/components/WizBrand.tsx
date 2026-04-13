@@ -14,10 +14,10 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Film, Music2, Cpu } from "lucide-react";
+import { Sparkles, Film, Music2, Cpu, Zap } from "lucide-react";
 
 // ── Brand layer config ────────────────────────────────────────────────────────
-export type WizLayer = "create" | "render" | "sound";
+export type WizLayer = "create" | "render" | "sound" | "pilot";
 
 interface LayerConfig {
   name: string;        // e.g. "WizCreate™"
@@ -61,6 +61,16 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
     glow: "0 0 12px rgba(99,102,241,0.45)",
     Icon: ({ className }) => <Music2 className={className} />,
   },
+  pilot: {
+    name: "WizPilot™",
+    verb: "Automated by",
+    pastVerb: "Automated by",
+    processingLabel: "Automating with WizPilot™…",
+    tagline: "Automated video production workflows",
+    colour: "fuchsia",
+    glow: "0 0 12px rgba(217,70,239,0.45)",
+    Icon: ({ className }) => <Zap className={className} />,
+  },
 };
 
 // ── Colour map (Tailwind doesn't support dynamic class names) ─────────────────
@@ -82,6 +92,12 @@ const colourMap: Record<WizLayer, { text: string; bg: string; border: string; ri
     bg: "bg-indigo-500/10",
     border: "border-indigo-500/25",
     ring: "ring-indigo-500/30",
+  },
+  pilot: {
+    text: "text-fuchsia-300",
+    bg: "bg-fuchsia-500/10",
+    border: "border-fuchsia-500/25",
+    ring: "ring-fuchsia-500/30",
   },
 };
 

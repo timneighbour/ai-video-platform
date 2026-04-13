@@ -2629,17 +2629,38 @@
 - [x] Upload to CDN and update CinematicIntroSequence component
 
 ## Brand System Integration — WizCreate™ · WizSound™ · WizPilot™
-- [ ] Navbar: Add WizCreate™, WizSound™, WizPilot™ menu items with clean responsive layout
-- [ ] Hero: Add "Powered by WizCreate™, WizSound™ & WizPilot™" under main headline
-- [ ] Ecosystem section: "One platform. Four powerful engines." grid with all 4 brand engines
+- [x] Navbar: Add WizCreate™, WizSound™, WizPilot™ menu items with clean responsive layout
+- [x] Hero: Add "Powered by WizCreate™, WizSound™ & WizPilot™" under main headline
+- [x] Ecosystem section: "One platform. Four powerful engines." grid with all 4 brand engines
 - [ ] Paywall: Add "Powered by WizCreate™ & WizSound™" line
 - [ ] Intro video overlay: Add subtle "Powered by WizCreate™" text moment
-- [ ] Footer: Add "WizVid ecosystem: WizCreate™ · WizSound™ · WizPilot™"
+- [x] Footer: Add "WizVid ecosystem: WizCreate™ · WizSound™ · WizPilot™"
 - [ ] Pricing page: Ensure brand engine names appear in feature descriptions
 - [ ] Consistent brand naming across all marketing copy
 
 ## Brand Logos — WizSound™ & WizPilot™
-- [ ] Generate WizSound™ logo (neon purple/blue, audio/spatial sound icon, white wordmark)
-- [ ] Generate WizPilot™ logo (neon purple/blue, autopilot/navigation icon, white wordmark)
-- [ ] Upload all 3 brand logos to CDN
-- [ ] Integrate logos into Ecosystem section and brand touchpoints
+- [x] Generate WizSound™ logo (neon purple/blue, audio/spatial sound icon, white wordmark)
+- [x] Generate WizPilot™ logo (neon purple/blue, autopilot/navigation icon, white wordmark)
+- [x] Upload all 3 brand logos to CDN
+- [x] Integrate logos into Ecosystem section and brand touchpoints
+
+## Kids Video Feature — "Create a Kids Video"
+- [ ] Add kidsVideoJobs table to drizzle schema (id, userId, storyPrompt, animationStyle, videoLength, screenFormat, referenceImageUrls, status, storyboardFrames, videoUrl, creditsCharged, createdAt)
+- [ ] Add server procedures: kidsVideo.generateStoryboard (free), kidsVideo.renderVideo (paid), kidsVideo.getJob, kidsVideo.listJobs
+- [ ] Build KidsVideoPage with story input (min 10 chars, max 1000, char counter)
+- [ ] Add inspiration suggestion chips (3 clickable prompts that fill input)
+- [ ] Add image input section: upload reference images (drag & drop) + AI character generator button
+- [ ] Build AI character generator modal (prompt input → generate preview → select)
+- [ ] Build animation style selector (6 cards: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation)
+- [ ] Build video length selector (5s/10s/15s/30s/60s with credit costs)
+- [ ] Build screen format selector (16:9, 9:16, 1:1)
+- [ ] Build "Create Free Storyboard 🌈" CTA with subtext
+- [ ] Build storyboard output display (4-8 scenes, horizontal scroll + grid, scene labels)
+- [ ] Add regenerate storyboard and edit prompt options
+- [ ] Build render flow CTA ("Render Full Video") with credits required, length, style summary
+- [ ] Wire to Stripe checkout for paid render
+- [ ] Add KidsVideo route to App.tsx
+- [ ] Add "Kids Video" to sidebar navigation in DashboardLayout
+- [ ] Add "Kids Video" to homepage features section
+- [ ] Ensure kid-friendly colourful design (bright, fun, not corporate)
+- [ ] Write vitest tests for kidsVideo procedures

@@ -1,0 +1,22 @@
+CREATE TABLE `kidsVideoJobs` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`storyPrompt` text NOT NULL,
+	`animationStyle` enum('pixar3d','disney','anime','cartoon','storybook','claymation') NOT NULL DEFAULT 'pixar3d',
+	`videoLength` enum('5s','10s','15s','30s','60s') NOT NULL DEFAULT '15s',
+	`screenFormat` enum('16:9','9:16','1:1') NOT NULL DEFAULT '16:9',
+	`referenceImageUrls` longtext,
+	`kidsStoryboardStatus` enum('pending','generating','ready','failed') NOT NULL DEFAULT 'pending',
+	`storyboardFrames` longtext,
+	`storyboardGeneratedAt` timestamp,
+	`kidsRenderStatus` enum('not_started','queued','processing','completed','failed') NOT NULL DEFAULT 'not_started',
+	`videoUrl` varchar(1024),
+	`videoKey` varchar(512),
+	`creditsCharged` int NOT NULL DEFAULT 0,
+	`stripeSessionId` varchar(255),
+	`kidsPaymentStatus` enum('free','pending','paid','failed') NOT NULL DEFAULT 'free',
+	`errorMessage` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `kidsVideoJobs_id` PRIMARY KEY(`id`)
+);
