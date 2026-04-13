@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── Asset URLs ──────────────────────────────────────────────────────────── */
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -15,7 +16,6 @@ const CLIP_MUSIC   = `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`;
 const BG_POSTER = `${CDN}/wizvid-intro-bg-4k-S9fuvpjGgLio3Y2rzSEUfh.webp`;
 
 export const INTRO_SESSION_KEY = "wizvid_intro_seen";
-const SOUND_PREF_KEY = "wizvid_sound_enabled";
 
 interface Props {
   onComplete: () => void;
@@ -49,13 +49,12 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
   const [wizsoundVisible, setWizsoundVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  // Audio — restore localStorage preference
-  const [soundEnabled, setSoundEnabled] = useState(() => {
-    try { return localStorage.getItem(SOUND_PREF_KEY) === "true"; } catch { return false; }
-  });
   const [soundButtonVisible, setSoundButtonVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUnlockedRef = useRef(false);
+
+  // Use global audio context
+  const { isMuted, unmute: globalUnmute, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
 
   // Exit
   const [exiting, setExiting] = useState(false);
@@ -68,44 +67,50 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     return t;
   }, []);
 
-  /* ── Preload images + pre-create audio element ──────────────────────── */
+  /* ── Preload images + pre-create audio element (MUTED by default) ────── */
   useEffect(() => {
     [CLIP_CINEMA, CLIP_PIXAR, CLIP_MUSIC, BG_POSTER, LOGO_URL].forEach((src) => {
       const img = new Image();
       img.src = src;
     });
-    // Pre-create audio element so it's ready to play on user click
+    // Pre-create audio element — starts MUTED (user-first)
     const audio = new Audio(AUDIO_URL);
     audio.preload = "auto";
     audio.volume = 0;
     audio.muted = true;
     audioRef.current = audio;
-    // Attempt silent load to prime the audio context
     audio.load();
-  }, []);
-
-  /* ── Unlock audio on first any-click (browser autoplay policy) ───────── */
-  useEffect(() => {
-    const unlock = () => {
-      if (audioUnlockedRef.current) return;
-      audioUnlockedRef.current = true;
-      const audio = audioRef.current;
-      if (!audio) return;
-      // Play silently to unlock the audio context, then immediately pause
-      audio.muted = true;
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
-      }).catch(() => {});
-    };
-    window.addEventListener("click", unlock, { once: true });
-    window.addEventListener("touchstart", unlock, { once: true });
+    registerAudioElement("cinematic-entry", audio);
     return () => {
-      window.removeEventListener("click", unlock);
-      window.removeEventListener("touchstart", unlock);
+      unregisterAudioElement("cinematic-entry");
+      releaseAudioFocus("cinematic-entry");
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync global mute state to local audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = isMuted;
+    if (isMuted) {
+      audio.volume = 0;
+    } else {
+      // Fade in gently when unmuted
+      if (audio.paused) {
+        audio.currentTime = 0;
+        audio.volume = 0;
+        requestAudioFocus("cinematic-entry");
+        audio.play().then(() => {
+          let vol = 0;
+          const fadeIn = setInterval(() => {
+            vol = Math.min(0.9, vol + 0.03);
+            audio.volume = vol;
+            if (vol >= 0.9) clearInterval(fadeIn);
+          }, 60);
+        }).catch(() => {});
+      }
+    }
+  }, [isMuted, requestAudioFocus]);
 
   /* ── Master timeline ─────────────────────────────────────────────────── */
   useEffect(() => {
@@ -170,68 +175,12 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── Sound ───────────────────────────────────────────────────────────── */
+  /* ── Enable sound — uses global audio context ─────────────────────── */
   const enableSound = useCallback(() => {
-    if (soundEnabled) return;
-    setSoundEnabled(true);
-    // Persist preference
-    try { localStorage.setItem(SOUND_PREF_KEY, "true"); } catch { /* noop */ }
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.muted = false;
-    audio.volume = 0;
-    audio.currentTime = 0;
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Fallback: create a fresh Audio element (some browsers need this)
-        const freshAudio = new Audio(AUDIO_URL);
-        freshAudio.volume = 0;
-        audioRef.current = freshAudio;
-        freshAudio.play().catch(() => {});
-        // Slow fade-in: build from quiet over ~2s (0.03 per 60ms)
-        let v = 0;
-        const fi = setInterval(() => {
-          v = Math.min(0.9, v + 0.03);
-          freshAudio.volume = v;
-          if (v >= 0.9) clearInterval(fi);
-        }, 60);
-      });
-    }
-    // Slow fade-in: build from quiet over ~2s (0.03 per 60ms)
-    let vol = 0;
-    const fadeIn = setInterval(() => {
-      const a = audioRef.current;
-      if (!a) { clearInterval(fadeIn); return; }
-      vol = Math.min(0.9, vol + 0.03);
-      a.volume = vol;
-      if (vol >= 0.9) clearInterval(fadeIn);
-    }, 60);
-  }, [soundEnabled]);
-
-  /* ── Auto-play sound if preference is saved ─────────────────────────── */
-  useEffect(() => {
-    if (!soundEnabled) return;
-    // User previously enabled sound — start playing as soon as audio is ready
-    const tryPlay = () => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      audio.muted = false;
-      audio.volume = 0;
-      audio.currentTime = 0;
-      audio.play().then(() => {
-        let vol = 0;
-        const fadeIn = setInterval(() => {
-          vol = Math.min(0.9, vol + 0.03);
-          audio.volume = vol;
-          if (vol >= 0.9) clearInterval(fadeIn);
-        }, 60);
-      }).catch(() => {});
-    };
-    // Delay slightly to ensure audio element is primed
-    const t = setTimeout(tryPlay, 1200);
-    return () => clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isMuted) return; // Already unmuted
+    requestAudioFocus("cinematic-entry");
+    globalUnmute();
+  }, [isMuted, globalUnmute, requestAudioFocus]);
 
   /* ── Keyboard skip (only at logo stage) ─────────────────────────────── */
   useEffect(() => {
@@ -586,50 +535,44 @@ export default function CinematicEntryScreen({ onComplete }: Props) {
         </div>
       </div>
 
-      {/* ── ENABLE SOUND BUTTON ──────────────────────────────────────────── */}
-      {soundButtonVisible && !soundEnabled && (
+      {/* ── MUTE/UNMUTE BUTTON — uses global audio state ──────────────── */}
+      {soundButtonVisible && (
         <button
-          onClick={enableSound}
+          onClick={(e) => { e.stopPropagation(); if (isMuted) { requestAudioFocus("cinematic-entry"); } globalToggleMute(); }}
           className="absolute top-[7vh] left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white transition-all"
           style={{
-            background: "rgba(255,255,255,0.06)",
+            background: isMuted ? "rgba(255,255,255,0.06)" : "rgba(109,40,217,0.12)",
             backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: isMuted ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(109,40,217,0.2)",
             fontSize: "0.75rem",
             letterSpacing: "0.08em",
             fontFamily: "'Inter', sans-serif",
             cursor: "pointer",
-            animation: "soundPulse 2s ease-in-out infinite",
+            color: isMuted ? undefined : "rgba(196,181,253,0.7)",
+            animation: isMuted ? "soundPulse 2s ease-in-out infinite" : "none",
           }}
-          aria-label="Enable sound"
+          aria-label={isMuted ? "Enable sound" : "Mute sound"}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </svg>
-          Enable Sound
+          {isMuted ? (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+              Unmute
+            </>
+          ) : (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+              Sound On
+            </>
+          )}
         </button>
-      )}
-      {soundEnabled && soundButtonVisible && (
-        <div
-          className="absolute top-[7vh] left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-violet-300/70"
-          style={{
-            background: "rgba(109,40,217,0.12)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(109,40,217,0.2)",
-            fontSize: "0.75rem",
-            letterSpacing: "0.08em",
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </svg>
-          Sound On
-        </div>
       )}
 
       {/* ── SKIP (always visible, subtle) ────────────────────────────────── */}

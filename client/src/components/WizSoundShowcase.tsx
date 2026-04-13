@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 type Tier = "standard" | "enhanced" | "cinematic";
@@ -108,6 +109,7 @@ export default function WizSoundShowcase() {
     standard: 0, enhanced: 0, cinematic: 0,
   });
   const [volume, setVolume] = useState(0.8);
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
   const audioRefs = useRef<Record<Tier, HTMLAudioElement | null>>({
     standard: null, enhanced: null, cinematic: null,
   });
@@ -116,13 +118,16 @@ export default function WizSoundShowcase() {
 
   const tier = TIERS.find((t) => t.id === activeTier)!;
 
-  /* ── Sync volume ──────────────────────────────────────────────────── */
+  /* ── Sync volume + global mute ─────────────────────────────────── */
   useEffect(() => {
     (["standard", "enhanced", "cinematic"] as Tier[]).forEach((t) => {
       const el = audioRefs.current[t];
-      if (el) el.volume = volume;
+      if (el) {
+        el.volume = isMuted ? 0 : volume;
+        el.muted = isMuted;
+      }
     });
-  }, [volume]);
+  }, [volume, isMuted]);
 
   /* ── Toggle preview playback ──────────────────────────────────────── */
   const togglePlay = (t: Tier) => {
@@ -138,8 +143,10 @@ export default function WizSoundShowcase() {
         const o = audioRefs.current[other];
         if (o && other !== t) { o.pause(); o.currentTime = 0; }
       });
-      el.volume = volume;
+      el.volume = isMuted ? 0 : volume;
+      el.muted = isMuted;
       el.currentTime = 0;
+      if (!isMuted) requestAudioFocus("wizsound-showcase");
       el.play().catch(() => {});
       setPlayingTier(t);
       setActiveTier(t);
@@ -351,11 +358,11 @@ export default function WizSoundShowcase() {
           {/* Volume control footer */}
           <div className="px-8 py-4 border-t border-white/8 flex items-center gap-3">
             <button
-              onClick={() => setVolume(volume > 0 ? 0 : 0.8)}
+              onClick={() => { if (isMuted) { requestAudioFocus("wizsound-showcase"); } globalToggleMute(); }}
               className="text-white/40 hover:text-white/70 transition-colors"
-              aria-label={volume > 0 ? "Mute preview" : "Unmute preview"}
+              aria-label={isMuted ? "Unmute preview" : "Mute preview"}
             >
-              {volume === 0 ? (
+              {isMuted ? (
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
                 </svg>

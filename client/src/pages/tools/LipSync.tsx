@@ -288,7 +288,7 @@ export default function LipSync() {
                     src={resultUrl}
                     controls
                     autoPlay
-                    loop
+                    muted
                     playsInline
                     className="w-full rounded-lg"
                   />

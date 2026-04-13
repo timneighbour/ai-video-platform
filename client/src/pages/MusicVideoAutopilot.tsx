@@ -2300,7 +2300,7 @@ export default function MusicVideoAutopilot() {
                         src={finalVideoUrl}
                         controls
                         autoPlay
-                        loop
+                        muted
                         playsInline
                         className="w-full max-h-80 bg-black"
                       />

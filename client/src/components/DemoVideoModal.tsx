@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, Play, Pause, Subtitles, Maximize2, Volume2, VolumeX } from "lucide-react";
 import { mp } from "@/lib/mixpanel";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── Asset URLs ──────────────────────────────────────────────────────── */
 const POSTER_URL =
@@ -229,11 +230,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [playing, setPlaying] = useState(false);
-  // Default muted until user interacts
-  const [muted, setMuted] = useState(true);
+  // Use global audio state
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
   const [volume, setVolume] = useState(0.8);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const volumeHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const demoId = "demo-video-modal";
   const [captions, setCaptions] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [proxyTime, setProxyTime] = useState(0);
@@ -268,12 +270,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       setPlaying(false);
       setProxyTime(0);
       setCurrentTime(0);
-      setMuted(true);
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.currentTime = 0;
         videoRef.current.muted = true;
       }
+      releaseAudioFocus(demoId);
       if (proxyTimerRef.current) clearInterval(proxyTimerRef.current);
     } else {
       track("demo_modal_open");
@@ -333,28 +335,19 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   }, [playing, hasRealVideo]);
 
   const toggleMute = useCallback(() => {
-    const newMuted = !muted;
-    if (videoRef.current) {
-      videoRef.current.muted = newMuted;
-      if (!newMuted) videoRef.current.volume = volume;
+    if (isMuted) {
+      requestAudioFocus(demoId);
     }
-    setMuted(newMuted);
-    track("demo_mute_toggle", { muted: newMuted });
-  }, [muted, volume]);
+    globalToggleMute();
+    track("demo_mute_toggle", { muted: !isMuted });
+  }, [isMuted, globalToggleMute, requestAudioFocus]);
 
   const handleVolumeChange = useCallback((newVol: number) => {
     setVolume(newVol);
     if (videoRef.current) {
       videoRef.current.volume = newVol;
-      if (newVol > 0 && muted) {
-        videoRef.current.muted = false;
-        setMuted(false);
-      } else if (newVol === 0) {
-        videoRef.current.muted = true;
-        setMuted(true);
-      }
     }
-  }, [muted]);
+  }, []);
 
   const toggleCaptions = useCallback(() => {
     setCaptions((c) => !c);
@@ -488,7 +481,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                   min={0}
                   max={1}
                   step={0.05}
-                  value={muted ? 0 : volume}
+                  value={isMuted ? 0 : volume}
                   onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
                   className="h-20 cursor-pointer accent-violet-500"
                   style={{
@@ -498,7 +491,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                   aria-label="Volume"
                 />
                 <span className="text-white/40 text-[0.6rem] tabular-nums mt-1">
-                  {muted ? "0" : Math.round(volume * 100)}%
+                  {isMuted ? "0" : Math.round(volume * 100)}%
                 </span>
               </div>
             )}
@@ -510,7 +503,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
               aria-label="Toggle sound"
             >
-              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
             </button>
           </div>
 
@@ -678,7 +671,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               className="w-full h-full object-cover"
               poster={POSTER_URL}
               playsInline
-              muted={muted}
+              muted={isMuted}
               onTimeUpdate={handleVideoTimeUpdate}
               onEnded={handleVideoEnded}
               onCanPlay={() => setVideoLoaded(true)}
@@ -780,7 +773,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors"
                 aria-label="Toggle sound"
               >
-                {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
               </button>
 
               <div className="flex-1" />

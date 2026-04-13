@@ -994,7 +994,7 @@ export default function Autopilot() {
             </div>
             {generatedVideoUrl && (
               <div className="rounded-2xl overflow-hidden border border-white/10 bg-black aspect-video">
-                <video src={generatedVideoUrl} controls autoPlay className="w-full h-full object-contain" />
+                <video src={generatedVideoUrl} controls autoPlay muted playsInline className="w-full h-full object-contain" />
               </div>
             )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

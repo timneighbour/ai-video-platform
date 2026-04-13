@@ -2822,3 +2822,15 @@
 - [x] Use CharacterManager component with animated-only presets (Pixar 3D, Anime, Cartoon)
 - [x] Default character mode to ai_generated (not photo) for kids video
 - [x] Wire characters into kidsVideo storyboard generation
+
+## Fix Video/Audio Behaviour (Critical)
+- [x] Audit all video/audio components to identify every audio source
+- [x] Create global AudioContext provider with isMuted state
+- [x] Implement single audio source rule (only one video can have sound)
+- [x] Add visible mute/unmute button to all video players
+- [x] Stop looped audio from restarting loudly (keep muted on loop)
+- [x] Enforce autoplay = muted ONLY (sound only after user interaction)
+- [x] Remove any auto sound triggers (no auto-enable after delay, scroll, or loop)
+- [x] Ensure mobile compatibility (tap to enable/disable sound)
+- [x] Add failsafe: default to muted state on any audio error
+- [x] Persist global mute state across interactions

@@ -15,6 +15,7 @@
  *   16.0–22.0s → Creator studio (Your Creator Content) → Logo reveal + WizSound + CTA
  */
 import { useRef, useState, useEffect, useCallback } from "react";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 
 const INTRO_VIDEO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/v11-final_a7ab5c88.mp4";
@@ -61,8 +62,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
-  // Audio starts ON by default — user can mute if they wish
-  const [muted, setMuted] = useState(false);
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
   const [showCTA, setShowCTA] = useState(false);
   const [showLogo, setShowLogo] = useState(false);
   const [showWizSound, setShowWizSound] = useState(false);
@@ -70,34 +70,44 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   const [wizSoundPulse, setWizSoundPulse] = useState(false);
   const [heroZoom, setHeroZoom] = useState(false);
 
-  /* ── Create WizSound™ Audio element on mount and autoplay it ── */
+  /* ── Create WizSound™ Audio element on mount — starts MUTED (user-first) ── */
   useEffect(() => {
     const audio = new Audio(WIZSOUND_AUDIO_URL);
     audio.preload = "auto";
-    audio.loop = true;
-    audio.volume = 1.0;
+    audio.loop = false; // No looping — prevents loud restart
+    audio.volume = 0;
+    audio.muted = true; // Always start muted
     audioRef.current = audio;
+    registerAudioElement("cinematic-intro", audio);
 
-    // Attempt autoplay — works after any prior user interaction on the page
-    const tryPlay = () => {
-      audio.play().catch(() => {
-        // Autoplay blocked by browser — show Unmute button
-        setMuted(true);
-      });
-    };
-
-    if (audio.readyState >= 2) {
-      tryPlay();
-    } else {
-      audio.addEventListener("canplay", tryPlay, { once: true });
-    }
+    // Pre-load but do NOT autoplay with sound
+    audio.load();
 
     return () => {
       audio.pause();
       audio.src = "";
+      unregisterAudioElement("cinematic-intro");
+      releaseAudioFocus("cinematic-intro");
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Sync global mute state to local audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = isMuted;
+    if (isMuted) {
+      audio.volume = 0;
+    } else {
+      audio.volume = 1.0;
+      // If user unmuted, start playing if not already
+      if (audio.paused) {
+        requestAudioFocus("cinematic-intro");
+        audio.play().catch(() => {});
+      }
+    }
+  }, [isMuted, requestAudioFocus]);
 
   /* ── No Web Audio API used ── */
   const initWizSoundStereo = useCallback(async () => {
@@ -165,32 +175,24 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
     return () => video.removeEventListener("ended", handleEnd);
   }, []);
 
-  /* ── Toggle mute — controls the WizSound™ Audio element ── */
+  /* ── Toggle mute — uses global audio context ── */
   const toggleMute = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const next = !muted;
-    if (next) {
-      audio.volume = 0;
-    } else {
-      audio.volume = 1.0;
-      // If autoplay was blocked, try playing now (user gesture unlocks it)
+    if (isMuted) {
+      // User is unmuting — request focus and start playing
+      requestAudioFocus("cinematic-intro");
       if (audio.paused) {
         audio.play().catch(() => {});
       }
     }
-    setMuted(next);
-  }, [muted]);
+    globalToggleMute();
+  }, [isMuted, globalToggleMute, requestAudioFocus]);
 
-  /* ── Click anywhere: unmute if muted ── */
+  /* ── No click-anywhere-to-unmute — user must use the mute button ── */
   const handleInteraction = useCallback(() => {
-    if (!muted) return;
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = 1.0;
-    if (audio.paused) audio.play().catch(() => {});
-    setMuted(false);
-  }, [muted]);
+    // Intentionally empty — removed auto-unmute on click
+  }, []);
 
   /* ── Skip ── */
   const handleSkip = useCallback(() => {
@@ -208,11 +210,11 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleSkip();
-      if (e.key === "m" || e.key === "M") toggleMute();
+      if (e.key === "m" || e.key === "M") globalToggleMute();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleSkip, toggleMute]);
+  }, [handleSkip, globalToggleMute]);
 
   /* ── Label helpers ── */
   const labelOpacity = (start: number, end: number) => {
@@ -484,7 +486,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
       {videoReady && !videoEnded && (
         <button
           onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-          aria-label={muted ? "Unmute audio" : "Mute audio"}
+          aria-label={isMuted ? "Unmute audio" : "Mute audio"}
           style={{
             position: "absolute", bottom: "2.5rem", right: "1.5rem", zIndex: 100,
             display: "flex", alignItems: "center", gap: "0.4rem",
@@ -499,7 +501,7 @@ export default function CinematicIntroSequence({ onComplete }: Props) {
           onMouseEnter={(e) => { const b = e.currentTarget; b.style.background = "rgba(0,0,0,0.7)"; b.style.borderColor = "rgba(255,255,255,0.25)"; b.style.color = "#fff"; }}
           onMouseLeave={(e) => { const b = e.currentTarget; b.style.background = "rgba(0,0,0,0.5)"; b.style.borderColor = "rgba(255,255,255,0.12)"; b.style.color = "rgba(255,255,255,0.75)"; }}
         >
-          {muted ? (
+          {isMuted ? (
             <>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />

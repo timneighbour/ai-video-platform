@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { X, Play, Volume2, VolumeX, Maximize, Minimize, Captions, CaptionsOff } from "lucide-react";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── Asset URLs ─────────────────────────────────────────────────────── */
 const ASSETS = {
@@ -58,7 +59,8 @@ interface IntroFilmModalProps {
 export default function IntroFilmModal({ open, onClose }: IntroFilmModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus } = useGlobalAudio();
+  const filmId = "intro-film-modal";
   const [captionsOn, setCaptionsOn] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -150,11 +152,14 @@ export default function IntroFilmModal({ open, onClose }: IntroFilmModalProps) {
   }, [hasVideo]);
 
   const toggleMute = useCallback(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = !muted;
+    if (isMuted) {
+      requestAudioFocus(filmId);
     }
-    setMuted(!muted);
-  }, [muted]);
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+    }
+    globalToggleMute();
+  }, [isMuted, globalToggleMute, requestAudioFocus]);
 
   const toggleFullscreen = useCallback(() => {
     if (!containerRef.current) return;
@@ -221,7 +226,7 @@ export default function IntroFilmModal({ open, onClose }: IntroFilmModalProps) {
         {hasVideo && playing && (
           <video
             ref={videoRef}
-            muted={muted}
+            muted={isMuted}
             playsInline
             preload="none"
             onCanPlay={() => setVideoReady(true)}
@@ -316,9 +321,9 @@ export default function IntroFilmModal({ open, onClose }: IntroFilmModalProps) {
                   <button
                     onClick={toggleMute}
                     className="text-white/80 hover:text-white transition-colors"
-                    aria-label={muted ? "Unmute" : "Mute"}
+                    aria-label={isMuted ? "Unmute" : "Mute"}
                   >
-                    {muted ? (
+                    {isMuted ? (
                       <VolumeX className="w-5 h-5" />
                     ) : (
                       <Volume2 className="w-5 h-5" />

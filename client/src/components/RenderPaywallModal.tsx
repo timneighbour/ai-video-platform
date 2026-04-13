@@ -18,6 +18,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Check, Download, Zap, Crown, ChevronRight, Sparkles, Info, Play, Pause, Volume2, VolumeX, Star } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 import { WizBrandBadge } from "@/components/WizBrand";
 import SubscriptionUpgradeNudge from "@/components/SubscriptionUpgradeNudge";
 import BundlePromoBanner from "@/components/BundlePromoBanner";
@@ -136,6 +137,7 @@ export function RenderPaywallModal({
   const [justListened, setJustListened] = useState<AudioTier | null>(null);
   const justListenedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [previewVolume, setPreviewVolume] = useState(0.8);
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
   const audioRefs = useRef<Record<AudioTier, HTMLAudioElement | null>>({ standard: null, enhanced: null, cinematic: null });
   const selectChimeRef = useRef<HTMLAudioElement | null>(null);
   const offeredFiredRef = useRef(false);
@@ -170,13 +172,14 @@ export function RenderPaywallModal({
     }
   }, [open]);
 
-  // Sync volume to all audio elements
+  // Sync volume + global mute to all audio elements
   useEffect(() => {
+    const effectiveVol = isMuted ? 0 : previewVolume;
     Object.values(audioRefs.current).forEach((el) => {
-      if (el) el.volume = previewVolume;
+      if (el) { el.volume = effectiveVol; el.muted = isMuted; }
     });
-    if (selectChimeRef.current) selectChimeRef.current.volume = Math.min(previewVolume, 0.5);
-  }, [previewVolume]);
+    if (selectChimeRef.current) { selectChimeRef.current.volume = isMuted ? 0 : Math.min(previewVolume, 0.5); selectChimeRef.current.muted = isMuted; }
+  }, [previewVolume, isMuted]);
 
   function togglePreview(tier: AudioTier, url: string) {
     Object.entries(audioRefs.current).forEach(([t, el]) => {
@@ -192,7 +195,9 @@ export function RenderPaywallModal({
       setPlayingTier(null);
     } else {
       audio.src = url;
-      audio.volume = previewVolume;
+      audio.volume = isMuted ? 0 : previewVolume;
+      audio.muted = isMuted;
+      if (!isMuted) requestAudioFocus("render-paywall");
       audio.play().catch(() => {});
       setPlayingTier(tier);
     }

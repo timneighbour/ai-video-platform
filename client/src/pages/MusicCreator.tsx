@@ -7,6 +7,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -58,6 +59,16 @@ const PROMPT_EXAMPLES = [
 function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: string; imageUrl?: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+  const { isMuted, requestAudioFocus } = useGlobalAudio();
+
+  // Sync global mute to audio element
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = isMuted;
+    if (isMuted) audio.volume = 0;
+    else audio.volume = 1;
+  }, [isMuted]);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -78,7 +89,11 @@ function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: s
     const audio = audioRef.current;
     if (!audio) return;
     if (playing) { audio.pause(); setPlaying(false); }
-    else { audio.play().then(() => setPlaying(true)).catch(() => {}); }
+    else {
+      if (!isMuted) requestAudioFocus("music-creator");
+      audio.muted = isMuted;
+      audio.play().then(() => setPlaying(true)).catch(() => {});
+    }
   };
 
   const seek = (e: React.MouseEvent<HTMLDivElement>) => {

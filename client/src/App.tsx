@@ -11,6 +11,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import { trpc } from "./lib/trpc";
 import CinematicEntryScreen from "./components/CinematicEntryScreen";
+import GlobalMuteButton from "./components/GlobalMuteButton";
 
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -270,6 +271,7 @@ function App() {
               When intro is showing it is hidden behind z-[9999] overlay. */}
           <MixpanelIdentity />
           <Router />
+          <GlobalMuteButton />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

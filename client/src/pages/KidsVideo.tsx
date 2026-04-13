@@ -1133,7 +1133,7 @@ export default function KidsVideo() {
               {renderStatus === "completed" && videoUrl && (
                 <div className="space-y-4">
                   <div className="w-full rounded-2xl overflow-hidden border border-pink-500/30 bg-black">
-                    <video src={videoUrl} controls autoPlay loop playsInline className="w-full" style={{ maxHeight: "400px" }} />
+                    <video src={videoUrl} controls autoPlay muted playsInline className="w-full" style={{ maxHeight: "400px" }} />
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button

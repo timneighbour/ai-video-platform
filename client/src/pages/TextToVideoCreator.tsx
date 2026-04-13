@@ -718,7 +718,7 @@ export default function TextToVideoCreator() {
                   src={generatedVideoUrl}
                   controls
                   autoPlay
-                  loop
+                  muted
                   playsInline
                   className="w-full"
                   style={{ maxHeight: "400px" }}

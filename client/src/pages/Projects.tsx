@@ -741,7 +741,7 @@ export default function Projects() {
                 src={previewProject.outputUrl}
                 controls
                 autoPlay
-                loop
+                muted
                 playsInline
                 className="w-full h-full object-contain"
               />

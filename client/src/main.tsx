@@ -10,6 +10,7 @@ import superjson from "superjson";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import { getLoginUrl } from "./const";
+import { GlobalAudioProvider } from "@/contexts/AudioContext";
 import "./index.css";
 
 // Initialise GA4 analytics
@@ -85,7 +86,9 @@ createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <GlobalAudioProvider>
+          <App />
+        </GlobalAudioProvider>
       </QueryClientProvider>
     </trpc.Provider>
   </HelmetProvider>

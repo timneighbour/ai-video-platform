@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headphones } from "lucide-react";
 import { useLocation } from "wouter";
+import { useGlobalAudio } from "@/contexts/AudioContext";
 
 /* ── CDN audio sources (dramatically different processing) ─────────────── */
 const AUDIO_STANDARD =
@@ -118,7 +119,8 @@ function FrequencyWaveform({
 function AudioDemoPlayer({ visible }: { visible: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [wizsound, setWizsound] = useState(true);
-  const [muted, setMuted] = useState(false);
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus, releaseAudioFocus, registerAudioElement, unregisterAudioElement } = useGlobalAudio();
+  const wizSoundId = "wizsound-section";
   const [progress, setProgress] = useState(0);
   const [switching, setSwitching] = useState(false);
   const [ready, setReady] = useState(false);
@@ -132,22 +134,23 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
   useEffect(() => {
     const std = new Audio(AUDIO_STANDARD);
     std.preload = "auto";
-    std.loop = true;
+    std.loop = false; // No looping to prevent loud restart
     std.volume = 0; // start silent — only one plays at a time
 
     const cin = new Audio(AUDIO_CINEMATIC);
     cin.preload = "auto";
-    cin.loop = true;
-    cin.volume = 1; // cinematic starts as active
+    cin.loop = false; // No looping to prevent loud restart
+    cin.volume = 0; // Start muted (user-first)
 
     audioStdRef.current = std;
     audioCinRef.current = cin;
+    registerAudioElement("wizsound-std", std);
+    registerAudioElement("wizsound-cin", cin);
 
     let loadCount = 0;
     const onCanPlay = () => { loadCount++; if (loadCount >= 2) setReady(true); };
     std.addEventListener("canplaythrough", onCanPlay);
     cin.addEventListener("canplaythrough", onCanPlay);
-    // Also mark ready after a short timeout in case canplaythrough fires early
     const timer = setTimeout(() => setReady(true), 2000);
 
     return () => {
@@ -157,6 +160,9 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
       std.pause(); std.src = "";
       cin.pause(); cin.src = "";
       cancelAnimationFrame(rafRef.current);
+      unregisterAudioElement("wizsound-std");
+      unregisterAudioElement("wizsound-cin");
+      releaseAudioFocus(wizSoundId);
     };
   }, []);
 
@@ -179,18 +185,16 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
     if (!std || !cin) return;
 
     if (toCinematic) {
-      // Sync cinematic to standard position, then swap
       cin.currentTime = std.currentTime;
       std.volume = 0;
-      if (playing && !muted) {
+      if (playing && !isMuted) {
         cin.volume = 1;
         cin.play().catch(() => {});
       }
     } else {
-      // Sync standard to cinematic position, then swap
       std.currentTime = cin.currentTime;
       cin.volume = 0;
-      if (playing && !muted) {
+      if (playing && !isMuted) {
         std.volume = 1;
         std.play().catch(() => {});
       }
@@ -198,7 +202,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
 
     setWizsound(toCinematic);
     setTimeout(() => setSwitching(false), 120);
-  }, [wizsound, playing, muted]);
+  }, [wizsound, playing, isMuted]);
 
   const togglePlay = useCallback(async () => {
     const std = audioStdRef.current;
@@ -215,7 +219,10 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
       const active = wizsound ? cin : std;
       const inactive = wizsound ? std : cin;
       inactive.volume = 0;
-      if (!muted) active.volume = 1;
+      if (!isMuted) {
+        active.volume = 1;
+        requestAudioFocus(wizSoundId);
+      }
       try {
         await active.play();
         setPlaying(true);
@@ -224,23 +231,27 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
         setPlaying(false);
       }
     }
-  }, [playing, wizsound, muted, trackProgress]);
+  }, [playing, wizsound, isMuted, trackProgress, requestAudioFocus]);
 
-  const toggleMute = () => {
-    const next = !muted;
-    setMuted(next);
+  // Sync global mute to local audio elements
+  useEffect(() => {
     const std = audioStdRef.current;
     const cin = audioCinRef.current;
     if (!std || !cin) return;
-    if (next) {
-      // Mute: silence both
+    if (isMuted) {
       std.volume = 0;
       cin.volume = 0;
-    } else {
-      // Unmute: restore active track volume
+    } else if (playing) {
       std.volume = wizsound ? 0 : 1;
       cin.volume = wizsound ? 1 : 0;
     }
+  }, [isMuted, playing, wizsound]);
+
+  const toggleMute = () => {
+    if (isMuted) {
+      requestAudioFocus(wizSoundId);
+    }
+    globalToggleMute();
   };
 
   return (
@@ -344,7 +355,7 @@ function AudioDemoPlayer({ visible }: { visible: boolean }) {
           aria-label="Toggle sound"
           className="w-8 h-8 rounded-full flex items-center justify-center text-white/40 hover:text-white/70 transition-colors flex-shrink-0"
         >
-          {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
         </button>
       </div>
 
