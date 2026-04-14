@@ -4,20 +4,23 @@
  * ARCHITECTURE: Two persistent video elements (A/B) — NO key props.
  * Clips loaded via ref.current.src. Dissolves are CSS opacity cross-fades.
  *
- * Trailer structure (audio: Steel Thunderfall 12.48s):
+ * 6 visually distinct clip categories (no duplicates):
+ *   1. Music video        — singer clip
+ *   2. Cinematic film     — dramatic wide shot
+ *   3. Abstract / wow     — abstract visual effects
+ *   4. Social / nightclub — atmospheric, creator-style
+ *   5. AI showcase        — product demo / cinematic output
+ *   6. Animation          — WizVid animation sequence
  *
- *   0–3s    BLACK SCREEN     Deep bass hit → "This changes everything"
- *   3–10s   SINGER CLIP      Slow, intimate build → "Create anything"
- *   10–18s  CINEMATIC CLIP   Hero moment (best clip) → "Powered by AI"
- *   18–24s  CONCERT CLIP     Energy close → "Enhanced with WizSound™"
- *   24s+    HOLD FRAME       Audio ends → "Enter WizVid" CTA
- *
- * Rules:
- *   - 3 clips only. No weak clips. No slideshow.
- *   - Each clip held for 7–8s minimum (cinematic pacing)
- *   - Dissolve: 1500ms slow fade (not a cut)
- *   - Audio drives timing — text appears on key audio moments
- *   - No loop on clips or audio
+ * Trailer timing (audio: Steel Thunderfall 12.48s):
+ *   0–3s    BLACK SCREEN     "This changes everything"
+ *   3–5.5s  MUSIC VIDEO      "Music videos"
+ *   5.5–8s  CINEMATIC FILM   "Cinematic films"
+ *   8–10.5s ABSTRACT / WOW   "Abstract worlds"
+ *   10.5–13s SOCIAL / NIGHT  "Social content"
+ *   13–15.5s AI SHOWCASE     "Powered by AI"
+ *   15.5–18s ANIMATION       "Enhanced with WizSound™"
+ *   18s+    HOLD FRAME       "Enter WizVid" CTA
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -29,39 +32,49 @@ const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA
 const LOGO        = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
 
-// 3 premium clips — ordered by emotional arc
-const CLIP_SINGER    = `${CDN}/intro-new-singer_fdadff1e.mp4`;
-const CLIP_CINEMATIC = `${CDN}/intro-new-cinematic_d6673107.mp4`;
-const CLIP_CONCERT   = `${CDN}/hero-concert-web_2f9db1a6.mp4`;
+// 6 visually distinct clips — one per category
+const CLIPS = {
+  music:     `${CDN}/intro-new-singer_fdadff1e.mp4`,       // 1. Music video
+  cinematic: `${CDN}/intro-new-cinematic_d6673107.mp4`,    // 2. Cinematic film
+  abstract:  `${CDN}/hero-abstract-web_ed099aea.mp4`,      // 3. Abstract / wow shot
+  social:    `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,     // 4. Social / nightclub
+  showcase:  `${CDN}/showcase-cinematic_13667434.mp4`,     // 5. AI showcase / product
+  animation: `${CDN}/wizvid-animation-v3_85969477.mp4`,    // 6. Animation
+};
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
 const SOUND_KEY = "wizvid_intro_sound";
 
-const DISSOLVE_MS = 1500; // slow cinematic dissolve
+const DISSOLVE_MS = 900; // smooth but not sluggish
 
-// ── Clip transition schedule (ms from start) ─────────────────────────────────
+// ── Clip schedule (ms from start) ─────────────────────────────────────────────
 const CLIP_SCHEDULE = [
-  { at: 3000,  src: CLIP_SINGER    },  // BUILD phase
-  { at: 10000, src: CLIP_CINEMATIC },  // HERO MOMENT
-  { at: 18000, src: CLIP_CONCERT   },  // ENERGY CLOSE
+  { at: 3000,  src: CLIPS.music     },  // Music video
+  { at: 5500,  src: CLIPS.cinematic },  // Cinematic film
+  { at: 8000,  src: CLIPS.abstract  },  // Abstract / wow
+  { at: 10500, src: CLIPS.social    },  // Social / nightclub
+  { at: 13000, src: CLIPS.showcase  },  // AI showcase
+  { at: 15500, src: CLIPS.animation },  // Animation — hold for CTA
 ];
 
-// ── Text overlay schedule (ms from start) ─────────────────────────────────────
-// Synced to Steel Thunderfall's musical structure:
-//   0–3s:   bass impact
+// ── Text schedule (ms from start) ─────────────────────────────────────────────
+// Synced to Steel Thunderfall (12.48s):
+//   0–3s:   deep bass impact
 //   3–7s:   tension build
-//   7–12s:  energy peak
-//   12–16s: cinematic drop
-//   16–20s: resolution
+//   7–12s:  energy peak / drop
+//   12s+:   resolution / silence
 const TEXT_SCHEDULE = [
-  { showAt: 800,   hideAt: 2700,  text: "This changes everything" },
-  { showAt: 4000,  hideAt: 8500,  text: "Create anything"         },
-  { showAt: 11000, hideAt: 16500, text: "Powered by AI"           },
-  { showAt: 18500, hideAt: 23000, text: "Enhanced with WizSound™" },
+  { showAt: 700,   hideAt: 2700,  text: "This changes everything" },
+  { showAt: 3200,  hideAt: 5200,  text: "Music videos"            },
+  { showAt: 5700,  hideAt: 7700,  text: "Cinematic films"         },
+  { showAt: 8200,  hideAt: 10200, text: "Abstract worlds"         },
+  { showAt: 10700, hideAt: 12700, text: "Social content"          },
+  { showAt: 13200, hideAt: 15200, text: "Powered by AI"           },
+  { showAt: 15700, hideAt: 17700, text: "Enhanced with WizSound™" },
 ];
 
-const TEXT_FADE_IN_MS  = 600;
-const TEXT_FADE_OUT_MS = 500;
+const TEXT_FADE_IN_MS  = 500;
+const TEXT_FADE_OUT_MS = 400;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -73,7 +86,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   // ── Video A/B opacity — cross-fade dissolve ───────────────────────────────
   const [aOpacity, setAOpacity] = useState(0);
   const [bOpacity, setBOpacity] = useState(0);
-  const frontIsARef = useRef(true); // which element is currently "front"
+  const frontIsARef = useRef(true);
 
   // ── Text overlay ──────────────────────────────────────────────────────────
   const [overlayText, setOverlayText]       = useState<string | null>(null);
@@ -107,14 +120,13 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   // ── Load a clip into a video element and play it ──────────────────────────
   const loadAndPlay = useCallback((
     ref: React.RefObject<HTMLVideoElement | null>,
-    src: string,
-    loop = false
+    src: string
   ) => {
     const v = ref.current;
     if (!v) return;
     v.src = src;
     v.muted = true;
-    v.loop = loop;
+    v.loop = true;
     v.playsInline = true;
     v.load();
     v.play().catch(() => {});
@@ -126,32 +138,30 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     const isFrontA = frontIsARef.current;
     const backRef  = isFrontA ? videoBRef : videoARef;
 
-    // Load clip into the back element
-    loadAndPlay(backRef, src, false);
+    // Load clip into back element
+    loadAndPlay(backRef, src);
 
     // Cross-fade: bring back to full opacity, fade out front
     if (isFrontA) {
       setBOpacity(1);
-      // Delay fading out A so back clip has a moment to start
-      addTimer(() => setAOpacity(0), 100);
+      addTimer(() => setAOpacity(0), 80);
     } else {
       setAOpacity(1);
-      addTimer(() => setBOpacity(0), 100);
+      addTimer(() => setBOpacity(0), 80);
     }
 
-    // After dissolve completes, swap front reference
+    // After dissolve, swap front reference
     addTimer(() => {
       frontIsARef.current = !isFrontA;
-    }, DISSOLVE_MS + 200);
+    }, DISSOLVE_MS + 150);
   }, [addTimer, loadAndPlay]);
 
-  // ── Show a text overlay with fade in/out ─────────────────────────────────
+  // ── Show a text overlay ───────────────────────────────────────────────────
   const showTextOverlay = useCallback((text: string, showAt: number, hideAt: number) => {
     addTimer(() => {
       if (isExitingRef.current) return;
       setOverlayText(text);
       setOverlayOpacity(0);
-      // Double rAF to ensure the DOM has updated before starting transition
       requestAnimationFrame(() => requestAnimationFrame(() => setOverlayOpacity(1)));
 
       const holdDuration = hideAt - showAt - TEXT_FADE_OUT_MS;
@@ -164,14 +174,14 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
 
   // ── Master timeline ────────────────────────────────────────────────────────
   useEffect(() => {
-    // Preload first clip (singer) into video B immediately — ready at 3s
-    loadAndPlay(videoBRef, CLIP_SINGER, false);
+    // Preload first clip into video B immediately — ready at 3s
+    loadAndPlay(videoBRef, CLIPS.music);
 
-    // Logo fades in at 1s, tagline at 2s
-    addTimer(() => setShowLogo(true),    1000);
-    addTimer(() => setShowTagline(true), 2000);
+    // Logo at 0.8s, tagline at 1.8s
+    addTimer(() => setShowLogo(true),    800);
+    addTimer(() => setShowTagline(true), 1800);
 
-    // Text overlays (synced to Steel Thunderfall)
+    // Text overlays
     TEXT_SCHEDULE.forEach(({ showAt, hideAt, text }) => {
       showTextOverlay(text, showAt, hideAt);
     });
@@ -181,8 +191,8 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       addTimer(() => dissolveToClip(src), at);
     });
 
-    // CTA appears at 24.5s (after audio ends at ~24s, slight delay for impact)
-    addTimer(() => setShowCTA(true), 24500);
+    // CTA at 18.5s
+    addTimer(() => setShowCTA(true), 18500);
 
     return () => {
       timers.current.forEach(clearTimeout);
@@ -195,7 +205,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     const a = audioRef.current;
     if (!a) return;
     a.muted = true;
-    a.loop = false; // NO loop
+    a.loop = false;
     a.currentTime = 0;
     a.play().catch(() => {});
   }, []);
@@ -270,10 +280,10 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           zIndex: 1,
           background: [
             "linear-gradient(to bottom,",
-            "  rgba(0,0,0,0.6) 0%,",
-            "  rgba(0,0,0,0.05) 35%,",
-            "  rgba(0,0,0,0.05) 65%,",
-            "  rgba(0,0,0,0.75) 100%",
+            "  rgba(0,0,0,0.55) 0%,",
+            "  rgba(0,0,0,0.08) 30%,",
+            "  rgba(0,0,0,0.08) 65%,",
+            "  rgba(0,0,0,0.78) 100%",
             ")",
           ].join(""),
         }}
@@ -327,11 +337,11 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             opacity: overlayText ? overlayOpacity : 0,
             transition: `opacity ${overlayOpacity > 0 ? TEXT_FADE_IN_MS : TEXT_FADE_OUT_MS}ms cubic-bezier(0.4,0,0.2,1)`,
             fontFamily: "'Bebas Neue', 'Barlow Condensed', 'Impact', sans-serif",
-            textShadow: "0 2px 60px rgba(0,0,0,0.99), 0 0 120px rgba(139,92,246,0.4)",
-            letterSpacing: "0.18em",
+            textShadow: "0 2px 60px rgba(0,0,0,0.99), 0 0 120px rgba(139,92,246,0.45)",
+            letterSpacing: "0.2em",
             lineHeight: 1.05,
           }}
-          className="text-center text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.18em] uppercase"
+          className="text-center text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase"
         >
           {overlayText ?? "\u00A0"}
         </p>
@@ -371,7 +381,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             textShadow: "0 2px 20px rgba(0,0,0,0.95)",
           }}
         >
-          AI Music Video Creator
+          Create anything with AI
         </p>
 
         {/* Enter WizVid CTA */}
