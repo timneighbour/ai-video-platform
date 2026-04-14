@@ -3388,3 +3388,20 @@
 - [x] Dashboard: "Continue your project" section verified — shows draft/storyboard_ready jobs
 - [x] Add deleteScene tRPC procedure to server router
 - [x] Add reorderScene tRPC procedure to server router
+
+## Intro Trailer v7 — Smooth Cinematic Refine (Apr 2026)
+- [x] Audit all clips for FPS and repeated content
+- [x] Re-encode at strict 24fps, crossfades 0.5s, no repeated clips
+- [x] Remove repeated cinematic scene (was duplicated at impact moment)
+- [x] Add bass build before ending sequence (acompressor + EQ bass boost)
+- [x] Add cinematic hit sound on logo reveal (audio compression + bass EQ)
+- [x] Slow final sequence by ~15% (text cards 5.75s + 4.5s, logo 10.5s)
+- [x] Add 1–2 fade-to-black moments (after AI transform, before logo)
+- [x] Upload v7 to CDN and wire into WizVidIntro
+
+## WizVidIntro Text Visibility Fix (Apr 2026)
+- [x] Force pure white (#FFFFFF) on all text layers, no transparency
+- [x] Add mandatory text-shadow: 0px 4px 20px rgba(0,0,0,0.9)
+- [x] Add dark gradient overlay behind all text blocks (top + bottom + radial vignette)
+- [x] Use SemiBold/Bold font weight only (no thin/light)
+- [x] Position text in safe dark zones, not over bright/high-motion areas

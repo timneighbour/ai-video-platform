@@ -14,13 +14,13 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v6_41ca86e4.mp4`;
+const TRAILER_URL = `${CDN}/wizvid-intro-v7_b954fa9d.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v6_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v7_seen";
 
-// CTA appears when video ends (video is ~37.5s); timer fires at 36s as backup
-const CTA_SHOW_AT_MS = 36000;
+// CTA appears when video ends (video is ~41.5s); timer fires at 40s as backup
+const CTA_SHOW_AT_MS = 40000;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -135,21 +135,32 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         </div>
       )}
 
-      {/* ── Cinematic vignette ──────────────────── */}
+      {/* ── Cinematic vignette + text protection overlay ──────────────────── */}
       <div
         className="absolute inset-0"
         style={{
           zIndex: 1,
           pointerEvents: "none",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 75%, rgba(0,0,0,0.65) 100%)",
+          background: [
+            /* Top gradient — protects skip/sound buttons */
+            "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 12%, transparent 25%)",
+            /* Bottom gradient — protects CTA */
+            "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 18%, transparent 35%)",
+            /* Edge vignette — frames the image cinematically */
+            "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%)",
+          ].join(", "),
         }}
       />
 
-      {/* ── Skip (top-left) ─────────────────────── */}
+      {/* ── Skip (top-left) ──────────────────── */}
       <button
         onClick={() => dismiss()}
-        className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/60 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-        style={{ zIndex: 20, cursor: "pointer" }}
+        className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+        style={{
+          zIndex: 20,
+          cursor: "pointer",
+          textShadow: "0px 2px 8px rgba(0,0,0,0.9)",
+        }}
         aria-label="Skip intro"
       >
         <X className="w-3.5 h-3.5" />
@@ -166,8 +177,11 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         </div>
         <button
           onClick={() => setMuted(m => !m)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-          style={{ cursor: "pointer" }}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+          style={{
+            cursor: "pointer",
+            textShadow: "0px 2px 8px rgba(0,0,0,0.9)",
+          }}
           aria-label={muted ? "Enable sound" : "Mute audio"}
         >
           {muted ? (
@@ -193,13 +207,15 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         >
           <button
             onClick={() => dismiss("/")}
-            className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-semibold text-white transition-all duration-300 hover:scale-105"
+            className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-bold text-white transition-all duration-300 hover:scale-105"
             style={{
               cursor: "pointer",
-              background: "linear-gradient(135deg, rgba(139,92,246,0.95) 0%, rgba(109,40,217,1) 100%)",
+              background: "linear-gradient(135deg, rgba(139,92,246,0.98) 0%, rgba(109,40,217,1) 100%)",
               boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
               animation: "ctaPulse 2.8s ease-in-out infinite",
-              letterSpacing: "0.04em",
+              letterSpacing: "0.06em",
+              textShadow: "0px 2px 12px rgba(0,0,0,0.8)",
+              color: "#FFFFFF",
             }}
           >
             Enter Site
