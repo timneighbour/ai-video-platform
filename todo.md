@@ -3405,3 +3405,6 @@
 - [x] Add dark gradient overlay behind all text blocks (top + bottom + radial vignette)
 - [x] Use SemiBold/Bold font weight only (no thin/light)
 - [x] Position text in safe dark zones, not over bright/high-motion areas
+
+## Dashboard TypeError Bug (Apr 2026)
+- [x] Fix TypeError: U is not a function crash in Dashboard component (CrispChat idempotent init)
