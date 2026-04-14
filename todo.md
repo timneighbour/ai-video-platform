@@ -2920,7 +2920,7 @@
 
 ## Audio Fix Round 2 + Stripe Basic Plan (Session Apr 13)
 - [ ] Fix DemoVideoModal audio — still not working after AudioContext registration fix
-- [ ] Fix WizSoundSection audio — still not working after dual-video rebuild
+- [x] Fix WizSoundSection audio — still not working after dual-video rebuild
 - [ ] Root cause: AudioContext registerAudioElement/requestAudioFocus may be interfering
 - [ ] Simplify both players: remove AudioContext dependency, use direct video.muted control only
 - [ ] Create Stripe Basic plan (£19/month) in test mode
@@ -3265,3 +3265,14 @@
 - [x] Enhance background video to near-4K quality with more visual impact
 - [x] Add 4-step progress strip (Describe → Storyboard → Preview → Render) below browser mockup
 - [x] Add WizCreate™ branded badge top-right above hero mockup
+- [ ] Make all WizVid logos much larger across entire platform
+- [ ] Move hero video player mockup higher and further right
+- [ ] Fix DemoVideoModal: one video, two distinct audio tracks (Standard flat + WizSound Sub-bassRavel)
+- [x] Fix CTA: "Back" button not working on Text to Video page
+- [x] Fix CTA: "Text to Video" button not working on Text to Video page
+- [x] Fix CTA: "AI Generator" button not working on Text to Video page
+- [x] Fix CTA: "20,000 Credits" button not working on Text to Video page
+- [x] Fix CTA: "Buy Credits" button not working on Text to Video page
+- [x] Fix WizSoundSection: Standard vs WizSound must have unmistakably different audio (Sub-bassRavel = Standard, SubwooferTension = WizSound)
+- [ ] Fix DemoVideoModal: same audio track swap (Sub-bassRavel = Standard, SubwooferTension = WizSound)
+- [ ] Add WizSound™ logo/text next to mute button on WizVidIntro screen

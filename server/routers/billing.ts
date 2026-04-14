@@ -959,9 +959,12 @@ export const renderRouter = router({
    */
   getWizSoundPreviews: publicProcedure.query(() => {
     return {
-      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-standard_068b4f86.mp3",
-      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-enhanced_6365aaf2.mp3",
-      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-cinematic_1369a88d.mp3",
+      // Standard: SubwooferTension — flat, dry, unprocessed original audio (the "before")
+      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3",
+      // Enhanced: SubwooferTension — same base track, represents light processing tier
+      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3",
+      // Cinematic: Sub-bassRavel — deep bass, wide stereo, full WizSound mastering (the "wow")
+      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-cinematic-v2_20cc6479.mp3",
     };
   }),
 

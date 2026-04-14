@@ -50,6 +50,7 @@ const KIDS_STYLES = [
     bg: "bg-blue-950/40",
     selectedBg: "bg-blue-600/20",
     example: "Toy Story · Finding Nemo · Up",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar3d_e747cdf9.jpg",
   },
   {
     id: "disney",
@@ -62,6 +63,7 @@ const KIDS_STYLES = [
     bg: "bg-purple-950/40",
     selectedBg: "bg-purple-600/20",
     example: "Frozen · Moana · Encanto",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney_64f736bd.webp",
   },
   {
     id: "anime",
@@ -74,6 +76,7 @@ const KIDS_STYLES = [
     bg: "bg-pink-950/40",
     selectedBg: "bg-pink-600/20",
     example: "My Neighbor Totoro · Spirited Away",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime_cde245ce.jpg",
   },
   {
     id: "cartoon",
@@ -86,6 +89,7 @@ const KIDS_STYLES = [
     bg: "bg-orange-950/40",
     selectedBg: "bg-orange-600/20",
     example: "Bluey · Peppa Pig · Paw Patrol",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-cartoon-dragon_bfc45246.jpg",
   },
   {
     id: "storybook",
@@ -98,6 +102,7 @@ const KIDS_STYLES = [
     bg: "bg-green-950/40",
     selectedBg: "bg-green-600/20",
     example: "Winnie the Pooh · Peter Rabbit",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook-QzPVorZPaSTtxgboyNtpFb.webp",
   },
   {
     id: "claymation",
@@ -110,6 +115,7 @@ const KIDS_STYLES = [
     bg: "bg-amber-950/40",
     selectedBg: "bg-amber-600/20",
     example: "Wallace & Gromit · Shaun the Sheep",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation-HjhQBH5zz7Rpo3hb78P3Tt.webp",
   },
 ] as const;
 
@@ -625,6 +631,14 @@ export default function KidsVideo() {
               else if (step === "render" && renderStatus === "not_started") setStep("storyboard");
               else setLocation("/");
             }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              if (step === "characters") setStep("story_input");
+              else if (step === "story_input") setStep("concept");
+              else if (step === "storyboard") setStep("characters");
+              else if (step === "render" && renderStatus === "not_started") setStep("storyboard");
+              else setLocation("/");
+            }}
             className="gap-2 text-muted-foreground hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -768,14 +782,27 @@ export default function KidsVideo() {
                 {KIDS_STYLES.map((s) => (
                   <div
                     key={s.id}
-                    className={`group relative rounded-2xl border ${s.bg} p-5 text-center cursor-pointer transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:${s.glow} hover:${s.border} border-white/10`}
+                    className={`group relative rounded-2xl border overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:${s.glow} hover:${s.border} border-white/10`}
                     onClick={() => { setStyle(s.id); setStep("story_input"); }}
                   >
-                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{s.emoji}</div>
-                    <div className="font-bold text-white text-sm mb-1">{s.label}</div>
-                    <div className="text-xs text-muted-foreground mb-2">{s.desc}</div>
-                    <div className="text-xs text-muted-foreground/50 italic">{s.example}</div>
-                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-b-2xl bg-gradient-to-r ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    {/* Style preview image */}
+                    <div className="relative h-32 sm:h-36 overflow-hidden">
+                      <img
+                        src={s.image}
+                        alt={s.label}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute top-2 left-2 text-2xl">{s.emoji}</div>
+                    </div>
+                    {/* Text content */}
+                    <div className={`${s.bg} p-3 text-center`}>
+                      <div className="font-bold text-white text-sm mb-0.5">{s.label}</div>
+                      <div className="text-xs text-muted-foreground mb-1">{s.desc}</div>
+                      <div className="text-[10px] text-muted-foreground/50 italic leading-tight">{s.example}</div>
+                    </div>
+                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${s.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                   </div>
                 ))}
               </div>

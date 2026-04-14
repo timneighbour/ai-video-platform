@@ -13,7 +13,7 @@
 import { Zap, AlertCircle, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 /** Low credit warning threshold — matches server/products.ts LOW_CREDIT_THRESHOLD */
 const LOW_CREDIT_THRESHOLD = 20;
@@ -29,6 +29,27 @@ interface CreditBalanceProps {
   refetchInterval?: number;
   /** Called when user clicks "Buy Credits" — if not provided, navigates to /credits */
   onBuyCredits?: () => void;
+}
+
+/** Reliable navigation button for credits page — uses both onClick + onMouseDown */
+function GoToCredits({ isEmpty, label }: { isEmpty: boolean; label?: string }) {
+  const [, setLocation] = useLocation();
+  const go = (e: React.MouseEvent) => { e.preventDefault(); setLocation("/credits"); };
+  return (
+    <button
+      onClick={go}
+      onMouseDown={go}
+      className={cn(
+        "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer",
+        isEmpty
+          ? "bg-red-600 border-red-500 text-white hover:bg-red-500"
+          : "bg-violet-600/20 border-violet-500/40 text-violet-300 hover:bg-violet-600/30 hover:border-violet-400"
+      )}
+    >
+      <Plus className="w-3 h-3" />
+      {label ?? (isEmpty ? "Get More Credits" : "Buy Credits")}
+    </button>
+  );
 }
 
 export default function CreditBalance({
@@ -101,19 +122,7 @@ export default function CreditBalance({
             {isEmpty ? "Get More Credits" : "Buy Credits"}
           </button>
         ) : (
-          <Link href="/credits">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer",
-                isEmpty
-                  ? "bg-red-600 border-red-500 text-white hover:bg-red-500"
-                  : "bg-violet-600/20 border-violet-500/40 text-violet-300 hover:bg-violet-600/30 hover:border-violet-400"
-              )}
-            >
-              <Plus className="w-3 h-3" />
-              {isEmpty ? "Get More Credits" : "Buy Credits"}
-            </span>
-          </Link>
+          <GoToCredits isEmpty={isEmpty} />
         )}
       </div>
     );

@@ -321,6 +321,12 @@ export default function TextToVideoCreator() {
               else if (step === "generating") toast.info("Video is rendering — check progress in Projects.");
               else setLocation("/");
             }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              if (step === "storyboard") setStep("input");
+              else if (step === "generating") toast.info("Video is rendering — check progress in Projects.");
+              else setLocation("/");
+            }}
             className="gap-2 text-muted-foreground hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />

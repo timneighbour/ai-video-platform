@@ -271,7 +271,7 @@ export default function Pricing() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/6">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <NavLink href="/">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-20 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
+            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-28 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
           </NavLink>
           <div className="flex items-center gap-4">
             <NavLink href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</NavLink>
@@ -723,7 +723,7 @@ export default function Pricing() {
       `}</style>
       {/* ── Footer ── */}
       <footer className="border-t border-white/6 py-8 px-6 text-center text-xs text-white/25">
-        <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain mx-auto mb-4 opacity-50" />
+        <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-20 w-auto object-contain mx-auto mb-4 opacity-60" />
         <p>© 2025 WizVid. All rights reserved.</p>
         <div className="flex items-center justify-center gap-4 mt-3">
           <Link href="/privacy" className="hover:text-white/50 transition-colors">Privacy</Link>

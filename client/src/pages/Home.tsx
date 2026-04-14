@@ -698,8 +698,8 @@ function Hero() {
           </div>
 
           {/* ── RIGHT: Animated product preview — bottom-right corner ── */}
-          <div className="hidden lg:flex items-end justify-end pb-0 self-end">
-            <div className="w-full max-w-[520px] translate-x-8 translate-y-10">
+          <div className="hidden lg:flex items-start justify-end pb-0 self-start" style={{marginTop: '4rem'}}>
+            <div className="w-full max-w-[540px] translate-x-16 -translate-y-4">
               <HeroProductPreview />
             </div>
           </div>
@@ -2594,7 +2594,7 @@ function EcosystemSection() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-16 w-auto object-contain"
+            className="h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]"
           />
           <div className="flex-1 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
@@ -2614,11 +2614,11 @@ function EcosystemSection() {
               className={`group relative flex flex-col p-6 rounded-2xl border ${engine.border} ${engine.bg} ${engine.glow} transition-all duration-300 cursor-pointer`}
             >
               {/* Logo */}
-              <div className="mb-4 flex items-center justify-center h-20">
+              <div className="mb-4 flex items-center justify-center h-28">
                 <img
                   src={engine.logo}
                   alt={engine.name}
-                  className="h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_16px_rgba(139,92,246,0.5)]"
                 />
               </div>
 
@@ -2686,7 +2686,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={127} height={72} loading="lazy" className="h-9 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={127} height={72} loading="lazy" className="h-16 w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.
