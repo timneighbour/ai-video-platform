@@ -9,21 +9,24 @@ const POSTER_URL =
 const VIDEO_SRC =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
 
+// Standard Audio: SubwooferTension-WizVid — raw, unprocessed comparison track
 const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-standard_31845db2.m4a";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-standard-v2_0af03a11.mp3";
 
+// WizSound Enhanced: Sub-bassRavel-WizVid — WizSound™ processed, cinematic quality
 const AUDIO_ENHANCED =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-enhanced_9f37b387.m4a";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-enhanced-v2_31089485.mp3";
 
-/* ── WizSound™ EQ Bar animation component ───────────────────────────── */
-function WizSoundEQ({ size = "lg" }: { size?: "sm" | "lg" }) {
+/* ── WizSound™ EQ Bar animation ─────────────────────────────────────── */
+function WizSoundEQ({ size = "lg", active = true }: { size?: "sm" | "lg"; active?: boolean }) {
   const isLg = size === "lg";
+  // More bars for premium feel, varied heights for organic look
   const heights = isLg
-    ? [6, 12, 20, 30, 36, 30, 20, 12, 6]
-    : [3, 6, 10, 14, 16, 14, 10, 6, 3];
+    ? [5, 10, 18, 28, 38, 44, 38, 28, 18, 10, 5]
+    : [3, 5, 9, 13, 16, 13, 9, 5, 3];
   const gap = isLg ? "gap-[3px]" : "gap-[2px]";
-  const barW = isLg ? 4 : 2.5;
-  const containerH = isLg ? 40 : 20;
+  const barW = isLg ? 3.5 : 2;
+  const containerH = isLg ? 44 : 20;
 
   return (
     <div className={`flex items-end ${gap}`} aria-hidden="true" style={{ height: containerH }}>
@@ -33,16 +36,21 @@ function WizSoundEQ({ size = "lg" }: { size?: "sm" | "lg" }) {
           className="rounded-full"
           style={{
             width: barW,
-            height: h,
-            background: "linear-gradient(to top, #5b21b6, #a78bfa, #e879f9)",
-            animationName: "wizEq",
-            animationDuration: `${0.4 + i * 0.06}s`,
-            animationDelay: `${i * 0.035}s`,
-            animationTimingFunction: "ease-in-out",
+            height: active ? h : Math.max(2, h * 0.2),
+            background: active
+              ? "linear-gradient(to top, #4c1d95, #8b5cf6, #e879f9, #f0abfc)"
+              : "rgba(255,255,255,0.15)",
+            animationName: active ? "wizEqPremium" : "none",
+            animationDuration: `${0.35 + i * 0.055}s`,
+            animationDelay: `${i * 0.03}s`,
+            animationTimingFunction: "cubic-bezier(0.4, 0, 0.6, 1)",
             animationIterationCount: "infinite",
             animationDirection: "alternate",
-            opacity: 0.92,
-            boxShadow: isLg ? "0 0 5px rgba(167,139,250,0.5)" : "0 0 3px rgba(167,139,250,0.4)",
+            opacity: active ? 0.95 : 0.3,
+            boxShadow: active && isLg
+              ? `0 0 6px rgba(167,139,250,0.6), 0 0 12px rgba(232,121,249,0.3)`
+              : "none",
+            transition: "height 0.2s ease, opacity 0.2s ease",
           }}
         />
       ))}
@@ -54,41 +62,62 @@ function WizSoundEQ({ size = "lg" }: { size?: "sm" | "lg" }) {
 function WaveformCanvas({ active, wizsound }: { active: boolean; wizsound: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
+  const tRef = useRef(0);
 
   useEffect(() => {
-    if (!active) return;
+    if (!active) {
+      cancelAnimationFrame(rafRef.current);
+      return;
+    }
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const draw = (ts: number) => {
+    const draw = () => {
+      tRef.current += 1;
+      const t = tRef.current;
       const W = canvas.width;
       const H = canvas.height;
       ctx.clearRect(0, 0, W, H);
-      const bars = wizsound ? 32 : 20;
-      const barW = W / bars;
-      const t = ts / 1000;
+
+      const bars = wizsound ? 48 : 28;
+      const barW = (W - bars * 1.5) / bars;
+
       for (let i = 0; i < bars; i++) {
         const phase = (i / bars) * Math.PI * 2;
-        const freq = wizsound ? 2.8 : 1.6;
-        const amp = wizsound ? 0.85 : 0.55;
-        const h = H * amp * Math.abs(Math.sin(t * freq + phase)) * (0.4 + 0.6 * Math.random() * 0.3);
-        const x = i * barW + barW * 0.15;
-        const w = barW * 0.7;
+        // WizSound: richer, more complex waveform with multiple frequencies
+        const h = wizsound
+          ? H * 0.75 * Math.abs(
+              Math.sin(t * 0.045 + phase) * 0.5 +
+              Math.sin(t * 0.08 + phase * 1.7) * 0.3 +
+              Math.sin(t * 0.12 + phase * 0.8) * 0.2
+            )
+          : H * 0.45 * Math.abs(Math.sin(t * 0.03 + phase));
+
+        const x = i * (barW + 1.5);
         const grad = ctx.createLinearGradient(0, H, 0, H - h);
         if (wizsound) {
-          grad.addColorStop(0, "rgba(91,33,182,0.8)");
-          grad.addColorStop(0.5, "rgba(167,139,250,0.9)");
-          grad.addColorStop(1, "rgba(232,121,249,0.95)");
+          grad.addColorStop(0, "rgba(76,29,149,0.9)");
+          grad.addColorStop(0.4, "rgba(139,92,246,0.95)");
+          grad.addColorStop(0.75, "rgba(217,70,239,0.9)");
+          grad.addColorStop(1, "rgba(240,171,252,0.85)");
         } else {
-          grad.addColorStop(0, "rgba(255,255,255,0.2)");
-          grad.addColorStop(1, "rgba(255,255,255,0.5)");
+          grad.addColorStop(0, "rgba(255,255,255,0.15)");
+          grad.addColorStop(1, "rgba(255,255,255,0.4)");
         }
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.roundRect(x, H - h, w, h, 2);
+        ctx.roundRect(x, H - h, barW, h, 2);
         ctx.fill();
+
+        // Glow for WizSound bars
+        if (wizsound && h > H * 0.3) {
+          ctx.shadowColor = "rgba(167,139,250,0.4)";
+          ctx.shadowBlur = 4;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
       }
       rafRef.current = requestAnimationFrame(draw);
     };
@@ -101,9 +130,9 @@ function WaveformCanvas({ active, wizsound }: { active: boolean; wizsound: boole
     <canvas
       ref={canvasRef}
       width={600}
-      height={60}
+      height={56}
       className="w-full"
-      style={{ height: 60, display: "block" }}
+      style={{ height: 56, display: "block" }}
       aria-hidden="true"
     />
   );
@@ -119,13 +148,14 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioStdRef = useRef<HTMLAudioElement>(null);
   const audioEnhRef = useRef<HTMLAudioElement>(null);
+  const switchingRef = useRef(false); // Prevent rapid toggle race conditions
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [captions, setCaptions] = useState(false);
   const [wizsoundMode, setWizsoundMode] = useState(true);
-  const [isMuted, setIsMuted] = useState(false); // Start unmuted — user clicks play (gesture)
+  const [isMuted, setIsMuted] = useState(false);
 
   /* ── Get active/inactive audio refs ── */
   const getActiveAudio = useCallback(() => {
@@ -136,43 +166,71 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return wizsoundMode ? audioStdRef.current : audioEnhRef.current;
   }, [wizsoundMode]);
 
-  /* ── Sync audio to video on mode switch (PRODUCTION FIX: no overlapping audio) ── */
-  useEffect(() => {
+  /* ── Switch audio mode (instant, no overlap) ── */
+  const switchAudioMode = useCallback(async (toWizSound: boolean) => {
+    if (switchingRef.current) return; // Prevent race conditions
+    switchingRef.current = true;
+
     const v = videoRef.current;
-    const active = getActiveAudio();
-    const inactive = getInactiveAudio();
-    if (!v || !active) return;
+    const nextActive = toWizSound ? audioEnhRef.current : audioStdRef.current;
+    const nextInactive = toWizSound ? audioStdRef.current : audioEnhRef.current;
 
-    // CRITICAL: Stop inactive track FIRST to prevent overlap
-    if (inactive) {
-      inactive.pause();
-      inactive.currentTime = 0;
+    // Step 1: Immediately silence and stop inactive track
+    if (nextInactive) {
+      nextInactive.volume = 0;
+      nextInactive.pause();
+      nextInactive.currentTime = 0;
     }
-    // Sync active track to video position
-    active.currentTime = v.currentTime;
-    active.muted = isMuted;
 
-    if (playing) {
-      active.play().catch(() => {});
+    // Step 2: Sync new active track to video position
+    if (nextActive && v) {
+      nextActive.currentTime = v.currentTime;
+      nextActive.muted = isMuted;
+      nextActive.volume = 1;
     }
+
+    // Step 3: Play new track if video is playing
+    if (playing && nextActive) {
+      try {
+        await nextActive.play();
+      } catch {
+        // Autoplay blocked — user will hear audio on next interaction
+      }
+    }
+
+    switchingRef.current = false;
+  }, [playing, isMuted]);
+
+  /* ── Sync audio to video on mode switch ── */
+  useEffect(() => {
+    switchAudioMode(wizsoundMode);
   }, [wizsoundMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── Sync mute state ── */
+  /* ── Sync mute state to active track only ── */
   useEffect(() => {
     const active = getActiveAudio();
     if (active) active.muted = isMuted;
-  }, [isMuted, getActiveAudio]);
+    // Ensure inactive track stays silent
+    const inactive = getInactiveAudio();
+    if (inactive) {
+      inactive.muted = true;
+      inactive.volume = 0;
+    }
+  }, [isMuted, getActiveAudio, getInactiveAudio]);
 
-  /* ── Keep audio synced to video (drift correction) ── */
+  /* ── Drift correction: keep audio in sync with video ── */
   useEffect(() => {
     if (!playing) return;
     const interval = setInterval(() => {
       const v = videoRef.current;
       const active = getActiveAudio();
-      if (v && active && Math.abs(v.currentTime - active.currentTime) > 0.1) {
+      if (!v || !active) return;
+      const drift = Math.abs(v.currentTime - active.currentTime);
+      // Correct drift > 80ms (tighter threshold for better sync)
+      if (drift > 0.08) {
         active.currentTime = v.currentTime;
       }
-    }, 250); // Reduced from 500ms for faster mobile sync
+    }, 150); // Check every 150ms for tighter sync
     return () => clearInterval(interval);
   }, [playing, getActiveAudio]);
 
@@ -184,25 +242,18 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
-  /* ── Reset on close (PRODUCTION FIX: guarantee all audio stops) ── */
+  /* ── Full reset on close ─────────────────────────────────────────── */
   useEffect(() => {
     if (!open) {
       const vid = videoRef.current;
-      if (vid) {
-        vid.pause();
-        vid.currentTime = 0;
-      }
-      // Stop BOTH audio tracks and reset to prevent ghost playback
-      if (audioStdRef.current) {
-        audioStdRef.current.pause();
-        audioStdRef.current.currentTime = 0;
-      }
-      if (audioEnhRef.current) {
-        audioEnhRef.current.pause();
-        audioEnhRef.current.currentTime = 0;
-      }
+      if (vid) { vid.pause(); vid.currentTime = 0; }
+      // Hard stop both tracks
+      [audioStdRef.current, audioEnhRef.current].forEach(a => {
+        if (a) { a.pause(); a.currentTime = 0; a.volume = 1; a.muted = false; }
+      });
       setPlaying(false);
       setCurrentTime(0);
+      switchingRef.current = false;
     }
   }, [open]);
 
@@ -239,20 +290,29 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     if (playing) {
       vid.pause();
       active?.pause();
+      // Ensure inactive track is also stopped
+      const inactive = getInactiveAudio();
+      if (inactive) { inactive.pause(); inactive.currentTime = 0; }
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
+      // Sync active audio to video position before playing
       if (active) {
         active.currentTime = vid.currentTime;
         active.muted = isMuted;
+        active.volume = 1;
       }
+      // Ensure inactive track is silent
+      const inactive = getInactiveAudio();
+      if (inactive) { inactive.pause(); inactive.currentTime = 0; inactive.volume = 0; }
+
       try {
-        await vid.play(); // Video is muted, always works
-        if (active) await active.play(); // Audio plays — user clicked (gesture satisfied)
+        await vid.play();
+        if (active) await active.play();
         setPlaying(true);
         mp.demoVideoPlayed();
       } catch {
-        // If audio blocked, play video only
+        // If audio is blocked, play video only (browser autoplay policy)
         try {
           await vid.play();
           setPlaying(true);
@@ -262,7 +322,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
         }
       }
     }
-  }, [playing, getActiveAudio, isMuted]);
+  }, [playing, getActiveAudio, getInactiveAudio, isMuted]);
 
   /* ── Mute toggle ── */
   const toggleMute = useCallback(() => {
@@ -276,9 +336,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     if (!vid || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    vid.currentTime = ratio * duration;
-    if (active) active.currentTime = vid.currentTime;
-    setCurrentTime(ratio * duration);
+    const seekTo = ratio * duration;
+    vid.currentTime = seekTo;
+    if (active) active.currentTime = seekTo;
+    setCurrentTime(seekTo);
   }, [duration, getActiveAudio]);
 
   const handleFullscreen = useCallback(() => {
@@ -299,26 +360,33 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     >
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300"
+        className="absolute inset-0 bg-black/92 backdrop-blur-md animate-in fade-in duration-300"
+        style={{ pointerEvents: "auto" }}
         onClick={onClose}
       />
 
       {/* ── WizSound caption above video ──────────────────────────────── */}
       <div className="relative z-10 w-full max-w-5xl mx-4 flex flex-col gap-0">
+        {/* Header badge */}
         <div className="flex items-center justify-center gap-3 pb-3">
-          <WizSoundEQ size="sm" />
+          <WizSoundEQ size="sm" active={wizsoundMode} />
           <p
-            className="text-center text-sm font-medium"
+            className="text-center text-sm font-semibold tracking-wide"
             style={{
-              background: "linear-gradient(90deg, #a78bfa, #e879f9)",
+              background: wizsoundMode
+                ? "linear-gradient(90deg, #a78bfa, #e879f9, #f0abfc)"
+                : "rgba(255,255,255,0.4)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
+              transition: "all 0.3s ease",
             }}
           >
-            Powered by WizSound™ – richer, more cinematic audio
+            {wizsoundMode
+              ? "WizSound™ Active — Cinematic Audio Enhancement"
+              : "Standard Audio — Toggle WizSound™ to hear the difference"}
           </p>
-          <WizSoundEQ size="sm" />
+          <WizSoundEQ size="sm" active={wizsoundMode} />
         </div>
 
         {/* Modal container */}
@@ -327,37 +395,41 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           className="relative w-full rounded-2xl overflow-hidden bg-black"
           style={{
             aspectRatio: "16/9",
-            boxShadow:
-              "0 0 0 1px rgba(255,255,255,0.08), 0 32px 80px rgba(0,0,0,0.8), 0 0 60px rgba(109,40,217,0.15)",
+            boxShadow: wizsoundMode
+              ? "0 0 0 1px rgba(139,92,246,0.3), 0 32px 80px rgba(0,0,0,0.85), 0 0 80px rgba(109,40,217,0.25)"
+              : "0 0 0 1px rgba(255,255,255,0.08), 0 32px 80px rgba(0,0,0,0.8)",
+            transition: "box-shadow 0.4s ease",
           }}
         >
           {/* ── Standard/WizSound comparison toggle ─────────────────── */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/70 border border-white/10 backdrop-blur-md p-1">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/80 border border-white/10 backdrop-blur-md p-1">
             <button
-              onClick={() => setWizsoundMode(false)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
-                !wizsoundMode ? "bg-white/20 text-white" : "text-white/40 hover:text-white/70"
+              onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(false); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                !wizsoundMode
+                  ? "bg-white/20 text-white shadow-sm"
+                  : "text-white/40 hover:text-white/70"
               }`}
               aria-pressed={!wizsoundMode}
             >
               Standard Audio
             </button>
             <button
-              onClick={() => setWizsoundMode(true)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+              onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(true); }}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
                 wizsoundMode ? "text-white" : "text-white/40 hover:text-white/70"
               }`}
               style={
                 wizsoundMode
                   ? {
-                      background: "linear-gradient(135deg, rgba(109,40,217,0.7), rgba(217,70,239,0.6))",
-                      boxShadow: "0 0 12px rgba(217,70,239,0.3)",
+                      background: "linear-gradient(135deg, rgba(109,40,217,0.85), rgba(217,70,239,0.75))",
+                      boxShadow: "0 0 16px rgba(217,70,239,0.4), 0 0 4px rgba(139,92,246,0.6)",
                     }
                   : {}
               }
               aria-pressed={wizsoundMode}
             >
-              {wizsoundMode && <WizSoundEQ size="sm" />}
+              {wizsoundMode && <WizSoundEQ size="sm" active={true} />}
               WizSound™
             </button>
           </div>
@@ -383,14 +455,24 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             )}
           </video>
 
-          {/* Hidden audio elements */}
-          <audio ref={audioStdRef} src={AUDIO_STANDARD} preload="auto" crossOrigin="anonymous" />
-          <audio ref={audioEnhRef} src={AUDIO_ENHANCED} preload="auto" crossOrigin="anonymous" />
+          {/* Hidden audio elements — preload both for instant switching */}
+          <audio
+            ref={audioStdRef}
+            src={AUDIO_STANDARD}
+            preload="auto"
+            crossOrigin="anonymous"
+          />
+          <audio
+            ref={audioEnhRef}
+            src={AUDIO_ENHANCED}
+            preload="auto"
+            crossOrigin="anonymous"
+          />
 
           {/* ── Close button ──────────────────────────────────────── */}
           <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all"
+            onMouseDown={onClose}
+            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
             aria-label="Close demo"
           >
             <X size={18} />
@@ -399,8 +481,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           {/* ── Centre play button (when paused) ──────────────────── */}
           {!playing && (
             <button
-              onClick={togglePlay}
-              className="absolute inset-0 z-10 flex items-center justify-center group"
+              onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
+              className="absolute inset-0 z-10 flex items-center justify-center group cursor-pointer"
               aria-label="Play demo"
             >
               <div className="relative w-20 h-20 sm:w-24 sm:h-24">
@@ -414,18 +496,18 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           )}
 
           {/* ── Controls bar ──────────────────────────────────────── */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 pb-4 pt-12">
             {/* Waveform canvas */}
             {playing && (
-              <div className="mb-2 opacity-70">
+              <div className="mb-2 opacity-80">
                 <WaveformCanvas active={playing} wizsound={wizsoundMode} />
               </div>
             )}
 
             {/* Progress bar */}
             <div
-              className="w-full h-1.5 bg-white/20 rounded-full mb-3 cursor-pointer group relative"
-              onClick={handleProgressClick}
+              className="w-full h-2 bg-white/15 rounded-full mb-3 cursor-pointer group relative"
+              onMouseDown={handleProgressClick}
               role="slider"
               aria-label="Video progress"
               aria-valuenow={Math.round(progressPercent)}
@@ -433,31 +515,33 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               aria-valuemax={100}
             >
               <div
-                className="h-full rounded-full transition-all duration-100 relative"
+                className="h-full rounded-full relative"
                 style={{
                   width: `${progressPercent}%`,
                   background: wizsoundMode
-                    ? "linear-gradient(90deg, #7c3aed, #e879f9)"
-                    : "white",
+                    ? "linear-gradient(90deg, #6d28d9, #8b5cf6, #e879f9)"
+                    : "rgba(255,255,255,0.7)",
+                  transition: "background 0.3s ease",
+                  boxShadow: wizsoundMode ? "0 0 8px rgba(139,92,246,0.5)" : "none",
                 }}
               >
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </div>
 
             {/* Buttons row */}
             <div className="flex items-center gap-3">
               <button
-                onClick={togglePlay}
-                className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
+                className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
                 aria-label={playing ? "Pause" : "Play"}
               >
                 {playing ? <Pause size={18} /> : <Play size={18} />}
               </button>
 
               <button
-                onClick={toggleMute}
-                className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                onMouseDown={(e) => { e.preventDefault(); toggleMute(); }}
+                className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -467,18 +551,22 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
               {/* WizSound™ status badge */}
               <div
-                className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all duration-300"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all duration-400"
                 style={
                   wizsoundMode
-                    ? { borderColor: "rgba(109,40,217,0.4)", background: "rgba(109,40,217,0.15)" }
+                    ? {
+                        borderColor: "rgba(139,92,246,0.5)",
+                        background: "rgba(109,40,217,0.2)",
+                        boxShadow: "0 0 10px rgba(139,92,246,0.2)",
+                      }
                     : { borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }
                 }
               >
                 {wizsoundMode ? (
                   <>
-                    <WizSoundEQ size="sm" />
+                    <WizSoundEQ size="sm" active={playing} />
                     <span
-                      className="font-semibold text-[0.6rem] tracking-wide"
+                      className="font-bold text-[0.65rem] tracking-wide"
                       style={{
                         background: "linear-gradient(90deg, #a78bfa, #e879f9)",
                         WebkitBackgroundClip: "text",
@@ -486,20 +574,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                         backgroundClip: "text",
                       }}
                     >
-                      WizSound™ Active
+                      WizSound™ ON
                     </span>
                   </>
                 ) : (
-                  <span className="text-white/40 text-[0.6rem] tracking-wide">Standard Audio</span>
+                  <span className="text-white/40 text-[0.65rem] tracking-wide font-medium">Standard Audio</span>
                 )}
               </div>
-
-              {/* Audio mode indicator */}
-              {playing && (
-                <div className={`text-[9px] font-mono ${wizsoundMode ? "text-fuchsia-400/60" : "text-white/25"}`}>
-                  {wizsoundMode ? "⚡ CINEMATIC" : "○ FLAT"}
-                </div>
-              )}
 
               {/* Time display */}
               <span className="text-white/50 text-xs font-mono tabular-nums">
@@ -507,8 +588,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               </span>
 
               <button
-                onClick={() => setCaptions((c) => !c)}
-                className={`w-8 h-8 flex items-center justify-center transition-colors ${
+                onMouseDown={(e) => { e.preventDefault(); setCaptions((c) => !c); }}
+                className={`w-8 h-8 flex items-center justify-center transition-colors cursor-pointer ${
                   captions ? "text-white" : "text-white/40 hover:text-white/80"
                 }`}
                 aria-label="Toggle captions"
@@ -517,8 +598,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               </button>
 
               <button
-                onClick={handleFullscreen}
-                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors"
+                onMouseDown={handleFullscreen}
+                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
                 aria-label="Fullscreen"
               >
                 <Maximize2 size={18} />
@@ -535,11 +616,33 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
           {/* ── WizSound™ keyframes ────────────────────────────────── */}
           <style>{`
-            @keyframes wizEq {
-              0%   { transform: scaleY(0.25); }
-              100% { transform: scaleY(1); }
+            @keyframes wizEqPremium {
+              0%   { transform: scaleY(0.2); opacity: 0.7; }
+              50%  { transform: scaleY(0.85); opacity: 1; }
+              100% { transform: scaleY(1); opacity: 0.95; }
             }
           `}</style>
+        </div>
+
+        {/* ── Below modal: WizSound comparison hint ── */}
+        <div className="flex items-center justify-center gap-2 pt-3">
+          <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+          <p className="text-center text-xs text-white/40 font-medium">
+            Toggle between <span className="text-white/60">Standard Audio</span> and{" "}
+            <span
+              style={{
+                background: "linear-gradient(90deg, #a78bfa, #e879f9)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+              className="font-semibold"
+            >
+              WizSound™
+            </span>{" "}
+            to hear the difference
+          </p>
+          <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
         </div>
       </div>
     </div>

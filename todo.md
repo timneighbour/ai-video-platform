@@ -3200,3 +3200,10 @@
 ### 9. Performance
 - [x] Lazy load videos and images
 - [x] No blocking render — fast load <2s
+
+## DEMO VIDEO AUDIO REPLACEMENT (Apr 2026)
+- [x] Upload Sub-bassRavel-WizVid.mp3 to CDN (assign as WizSound Enhanced track)
+- [x] Upload SubwooferTension-WizVid.mp3 to CDN (assign as Standard Audio track)
+- [x] Replace AUDIO_STANDARD and AUDIO_ENHANCED URLs in DemoVideoModal.tsx
+- [x] Enhance WizSound module: fix wavy audio, improve visual EQ bars, add premium feel
+- [x] Verify no overlapping audio tracks on mode switch
