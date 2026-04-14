@@ -511,14 +511,14 @@ function Hero() {
               className="relative z-10 font-extrabold leading-[1.05] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
               style={{ fontSize: "clamp(2.4rem, 5.5vw, 5rem)" }}
             >
-              Create cinematic videos<br />
-              in minutes —{" "}
+              Create AI Music Videos,{" "}
               <span
                 className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
                 style={{ textShadow: "none" }}
               >
-                music videos,<br />animations &amp; more
+                Films &amp; Animations
               </span>
+              <br />in Minutes
             </h1>
 
             {/* Brand engine tagline */}
@@ -532,7 +532,7 @@ function Hero() {
               className="text-white/70 max-w-xl mb-4 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
               style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)" }}
             >
-              Type a prompt or upload your song. WizVid generates a full storyboard and delivers your final music video — in under 5 minutes.
+              Upload your audio or idea. Generate cinematic video. Pay only when you render.
             </p>
 
             {/* Value bullets */}
@@ -560,7 +560,7 @@ function Hero() {
                 onClick={() => mp.heroCTAClicked()}
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
-                {isAuthenticated ? "Open Creator" : "Create Your First Video"}
+                {isAuthenticated ? "Open Creator" : "Start Creating Free"}
               </NavLink>
               <button
                 onClick={() => setDemoOpen(true)}
@@ -573,7 +573,7 @@ function Hero() {
                     <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
                   </span>
                 </span>
-                Watch 20-sec Demo
+                Watch Demo
               </button>
 
             </div>
@@ -581,7 +581,7 @@ function Hero() {
             {/* Trust line */}
             <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium">
               <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
-              No credit card required · Free to create · Only pay when you render.
+              No credit card required · Create first, pay only if you love it
             </p>
 
             {/* Trust strip */}
@@ -753,6 +753,41 @@ function TryAnExample() {
   );
 }
 
+// ── How It Works Strip (4-step, directly under hero) ───────────────────────
+function HowItWorksStrip() {
+  const steps = [
+    { num: "01", icon: <Music className="w-5 h-5" />, title: "Upload audio or idea", desc: "Drop your track or type a prompt" },
+    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "AI builds your video", desc: "Scenes, visuals, sync — all automatic" },
+    { num: "03", icon: <Film className="w-5 h-5" />, title: "Preview every scene", desc: "Review before spending a single credit" },
+    { num: "04", icon: <Download className="w-5 h-5" />, title: "Pay to render in HD or 4K", desc: "Only pay when you love it" },
+  ];
+  return (
+    <section className="bg-[#0a0a0a] border-t border-white/6 py-10 px-6">
+      <div className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+          {steps.map((step, i) => (
+            <div key={i} className="flex flex-col items-center text-center gap-3">
+              {/* Step number + connector line */}
+              <div className="flex items-center w-full">
+                {i > 0 && <div className="hidden md:block flex-1 h-px bg-white/8" />}
+                <div className="flex-shrink-0 w-10 h-10 rounded-full border border-violet-500/40 bg-violet-500/10 flex items-center justify-center text-violet-300">
+                  {step.icon}
+                </div>
+                {i < steps.length - 1 && <div className="hidden md:block flex-1 h-px bg-white/8" />}
+              </div>
+              <div>
+                <p className="text-[10px] font-mono text-violet-400/60 tracking-widest uppercase mb-1">Step {step.num}</p>
+                <p className="text-sm font-semibold text-white leading-snug">{step.title}</p>
+                <p className="text-xs text-white/40 mt-1 leading-relaxed">{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Immediate Value Section ─────────────────────────────────────────────────
 function ImmediateValue() {
   return (
@@ -835,7 +870,7 @@ function DemoSection() {
         <div className="reveal mb-8">
           <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Demo</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            🎬 See how it works in 20 seconds
+            See exactly what you’ll get before you pay
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
             Watch WizVid turn a simple idea into a complete cinematic video — live.
@@ -1717,9 +1752,9 @@ function SocialProof() {
         </div>
 
         <div className="text-center mb-12 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Real creators. Real results.</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">What creators are saying</h2>
-          <p className="text-white/45 text-base max-w-xl mx-auto">Join thousands of musicians, YouTubers, and content creators who use WizVid every week.</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Real creators. Real results.</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">Used by creators worldwide</h2>
+          <p className="text-white/45 text-base max-w-xl mx-auto">Join 1,000+ creators exploring AI video — musicians, YouTubers, animators, and storytellers.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {testimonials.map((t, i) => (
@@ -2535,6 +2570,7 @@ export default function Home() {
       <Nav />
       <main id="main-content">
         <Hero />
+        <HowItWorksStrip />
         <TryAnExample />
         <DemoSection />
         <WizSoundSection />

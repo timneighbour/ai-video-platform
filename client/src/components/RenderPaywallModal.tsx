@@ -63,7 +63,7 @@ const AUDIO_OPTIONS: Array<{
 }> = [
   {
     id: "standard",
-    label: "Standard Audio",
+    label: "Included",
     price: 0,
     description: "Original audio, used as-is",
     features: ["Original mix", "Stereo output"],
@@ -71,20 +71,21 @@ const AUDIO_OPTIONS: Array<{
   },
   {
     id: "enhanced",
-    label: "WizSound Enhance",
+    label: "Pro Audio (+£1)",
     price: 1,
+    badge: "🔊 POPULAR",
     description: "Polished, fuller sound",
     features: ["Stereo widening", "Frequency EQ", "Noise reduction"],
-    tooltip: "WizSound Enhance applies stereo widening to make your track feel bigger, frequency EQ to balance the mix, and light noise reduction to clean up background hiss. Great for tracks recorded at home or on mobile.",
+    tooltip: "Pro Audio applies stereo widening to make your track feel bigger, frequency EQ to balance the mix, and light noise reduction to clean up background hiss. Great for tracks recorded at home or on mobile.",
   },
   {
     id: "cinematic",
-    label: "WizSound Cinematic",
+    label: "Studio Audio (+£3)",
     price: 3,
-    badge: "✦ RECOMMENDED",
+    badge: "✶ RECOMMENDED",
     description: "Immersive, studio-quality mastered audio",
     features: ["Full mastering pipeline", "Immersive spatial depth", "Streaming loudness (−14 LUFS)", "Cinematic dynamic range"],
-    tooltip: "WizSound Cinematic applies our full proprietary mastering pipeline: dynamic range compression, immersive spatial depth, stereo widening, and loudness normalisation to streaming standards. Makes your track sound like it was mixed in a professional studio.",
+    tooltip: "Studio Audio applies our full proprietary mastering pipeline: dynamic range compression, immersive spatial depth, stereo widening, and loudness normalisation to streaming standards. Makes your track sound like it was mixed in a professional studio.",
   },
 ];
 
@@ -128,9 +129,9 @@ export function RenderPaywallModal({
   videoTitle,
   previewImageUrl,
 }: RenderPaywallModalProps) {
-  const [selectionMode, setSelectionMode] = useState<SelectionMode>("cinematic_pack");
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>("custom");
   const [quality, setQuality] = useState<Quality>("hd");
-  const [audioTier, setAudioTier] = useState<AudioTier>("cinematic");
+  const [audioTier, setAudioTier] = useState<AudioTier>("enhanced");
   const [isLoading, setIsLoading] = useState(false);
   const [playingTier, setPlayingTier] = useState<AudioTier | null>(null);
   const [previewProgress, setPreviewProgress] = useState<Record<AudioTier, number>>({ standard: 0, enhanced: 0, cinematic: 0 });
@@ -471,6 +472,7 @@ export function RenderPaywallModal({
                     <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
                   </div>
                   <p className="text-[10px] text-white/35 mt-0.5">Proprietary audio enhancement for richer, more immersive sound</p>
+                  <p className="text-[10px] text-amber-300/80 mt-1 font-semibold">🔊 Most creators upgrade to Pro Audio for a cinematic finish</p>
                 </div>
                 <div className="flex items-center gap-1.5 ml-3">
                   <button

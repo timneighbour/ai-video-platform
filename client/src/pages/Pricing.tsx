@@ -125,9 +125,9 @@ const PLANS = [
 
 // ── Render bundles ───────────────────────────────────────────────────────────
 const BUNDLES = [
-  { id: "6" as const, renders: 6, price: 10, perRender: "£1.67", label: "Starter Pack", popular: false },
-  { id: "15" as const, renders: 15, price: 20, perRender: "£1.33", label: "Creator Pack", popular: true },
-  { id: "40" as const, renders: 40, price: 50, perRender: "£1.25", label: "Studio Pack", popular: false },
+  { id: "6" as const, renders: 6, price: 10, perRender: "£1.67", label: "Starter Pack", popular: false, bestValue: false },
+  { id: "15" as const, renders: 15, price: 20, perRender: "£1.33", label: "Creator Pack", popular: true, bestValue: false },
+  { id: "40" as const, renders: 40, price: 50, perRender: "£1.25", label: "Studio Pack — Best Value", popular: false, bestValue: true },
 ];
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
@@ -606,6 +606,11 @@ export default function Pricing() {
               >
                 {bundle.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-violet-500 text-white text-[10px] font-bold tracking-wider">
+                    MOST POPULAR
+                  </div>
+                )}
+                {bundle.bestValue && (
+                  <div className="absolute -top-3 right-4 px-3 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold tracking-wider">
                     BEST VALUE
                   </div>
                 )}
