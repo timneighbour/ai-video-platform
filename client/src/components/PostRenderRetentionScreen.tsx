@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Download, Play, Pause, Share2, Sparkles, Film, Music,
   Baby, Youtube, ChevronRight, ArrowRight, Star, Zap, RefreshCw,
-  Rocket, Globe, Instagram, Twitter, Users
+  Rocket, Globe, Instagram, Twitter, Users, Crown
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -88,6 +89,10 @@ export function PostRenderRetentionScreen({
   const [isPlaying, setIsPlaying] = useState(false);
   const [showConfetti, setShowConfetti] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { isAuthenticated } = useAuth();
+  const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
+  // Show upgrade prompt for free users or starter plan users
+  const showUpgradePrompt = !subData?.plan || subData.plan === "starter";
 
   const { data: recentJobsData } = trpc.musicVideo.listJobs.useQuery(undefined, { staleTime: 60_000 });
   const continueProjects = recentJobsData
@@ -202,10 +207,32 @@ export function PostRenderRetentionScreen({
         </Button>
       </div>
 
-      {/* ── What next? ──────────────────────────────────────────────── */}
+      {/* ── Upgrade Prompt (free/starter users only) ──────────────────── */}
+      {showUpgradePrompt && (
+        <div className="mb-5 px-4 py-3.5 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 to-indigo-950/40 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
+              <Crown className="w-4 h-4 text-violet-400" />
+            </div>
+            <div>
+              <p className="text-white text-sm font-semibold">Get more renders every month</p>
+              <p className="text-zinc-400 text-xs mt-0.5">Basic £19/mo · 5 renders · HD quality · no watermark</p>
+            </div>
+          </div>
+          <a
+            href="/pricing"
+            onClick={() => mp.track("PostRender_UpgradeClick", { jobId, currentPlan: subData?.plan ?? "free" })}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-colors"
+          >
+            Upgrade
+            <ChevronRight className="w-3 h-3" />
+          </a>
+        </div>
+      )}
+
+      {/* ── What next? ──────────────────────────────────────────────────────── */}
       <div className="mb-6">
-        <h3 className="text-sm font-semibold text-white mb-3">What would you like to create next?</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <h3 className="text-sm font-semibold text-white mb-3">What would you like to create next?</h3> <div className="grid grid-cols-2 gap-2">
           {NEXT_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (

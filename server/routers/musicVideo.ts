@@ -520,6 +520,25 @@ Rules:
       const scenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
+      // ── STORYBOARD LOCK VALIDATION ────────────────────────────────────────────
+      // Every scene MUST have an approved storyboard preview image before rendering.
+      // If any scene is missing its preview, STOP the render immediately.
+      // This enforces the "what you see is what you get" guarantee.
+      const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
+      if (scenesWithoutPreview.length > 0) {
+        // Revert job status back to storyboard_ready so user can generate previews
+        await db.update(musicVideoJobs)
+          .set({ status: "storyboard_ready", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, input.jobId));
+        const missingSceneNums = scenesWithoutPreview.map(s => s.sceneIndex + 1).join(", ");
+        console.error(`[MusicVideo] STORYBOARD LOCK VIOLATION: Job ${input.jobId} has ${scenesWithoutPreview.length} scene(s) without preview images (scenes: ${missingSceneNums}). Render stopped.`);
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Storyboard not complete. Scene${scenesWithoutPreview.length > 1 ? 's' : ''} ${missingSceneNums} ${scenesWithoutPreview.length > 1 ? 'are' : 'is'} missing preview images. Please generate all scene previews before rendering.`,
+        });
+      }
+      console.log(`[MusicVideo] STORYBOARD LOCK: All ${scenes.length} scenes have approved preview images. Render approved.`);
+
       // ── Profitability Gate 4: Scene classification + renderer routing ──────
       // Resolve user plan for renderer routing
       const renderUserSub = await getUserSubscription(ctx.user.id);

@@ -3654,3 +3654,12 @@
 - [x] Failsafe: log error + mark job failed if scene count or duration mismatch
 - [ ] Verify correct characters present in final video (requires vision API — future feature)
 - [ ] Verify no random/unexpected content (requires vision API — future feature)
+
+### Session Apr 14 — Core System Fixes
+- [x] Storyboard lock hard stop: render aborts with user-facing error if any scene missing previewImageUrl
+- [x] Kling API mode fix: changed 'standard' → 'std', 'pro' → 'std'; kling-v2 now omits mode parameter entirely (v2 does not support it)
+- [x] Lyrics clutter fix: removed inline lyrics display from storyboard scene cards (used internally only)
+- [x] Pricing page: added missing Pro £59 tier to Pricing.tsx PLANS array
+- [x] Help.tsx FAQ: updated plan descriptions to show all 5 tiers (Starter £9, Basic £19, Creator £29, Pro £59, Studio £99)
+- [x] Upgrade prompt on download: PostRenderRetentionScreen shows upgrade banner for free/starter users after render
+- [x] TypeScript: tsc watcher confirms 0 errors (nohup.out shows "Found 0 errors" at 3:05 PM)
