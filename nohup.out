@@ -39,7 +39,11 @@ nohup: ignoring input
 
 
 4:20:36 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H6:47:32 PM - File change detected. Starting incremental compilation...
+
+
+6:47:48 PM - Found 0 errors. Watching for file changes.
 cremental compilation...
 
 
-4:20:37 PM - Found 0 errors. Watching for file changes.
+6:47:48 PM - Found 0 errors. Watching for file changes.

@@ -3721,3 +3721,9 @@
 - [ ] Post-Render section: explain render progress, notifications, dashboard, downloads
 - [ ] WizBoost: creator sharing platform, social growth, exposure
 - [ ] Final CTA: strong conversion block
+
+### Intro Audio UX Fix (Apr 14)
+- [x] Add Tap to Enter pre-play overlay with sound prompt
+- [x] Large pulsing glow sound button centred on screen during playback
+- [x] Unmute on any user click/tap anywhere on screen
+- [x] Keep mute toggle in corner for users who want to mute after entering
