@@ -3483,3 +3483,106 @@
 - [x] CRITICAL: Lip sync alignment — lyric context block explicitly names which character is singing and what lyrics, directing the video model to sync that character's mouth
 - [x] CRITICAL: Download button fix — blob-fetch approach with fallback (open in new tab + copy link) in MusicVideoAutopilot.tsx and MyProjects.tsx
 - [x] CRITICAL: Copy Link fallback button added to render complete screen
+
+## Realistic Music Performance System
+- [ ] Add instrumentAnalysis JSON column to musicVideoJobs table (stores detected instruments + time map)
+- [ ] Add instrumentRole field to videoCharacters table (e.g. "lead_vocalist", "guitarist", "drummer", "bassist", "pianist")
+- [ ] Build analyseAudioInstruments() service: LLM-based instrument detection from genre/mood/lyrics metadata
+- [ ] Build assignInstrumentsToCharacters() service: map detected instruments to characters by role priority
+- [ ] Inject per-instrument performance directives into scene prompts (hand positioning, sync cues, camera angles)
+- [ ] Expose instrument role badges in storyboard character panel (editable before render)
+- [ ] Trigger audio analysis automatically after storyboard generation
+- [ ] Persist instrument assignments to DB and include in characterRoster JSON
+
+## Audio-to-Character Assignment Engine (Core USP)
+- [ ] Extend InstrumentAnalysis to support multi-role characters (e.g. guitar + vocals simultaneously)
+- [ ] Add audioTrackBinding field to CharacterInstrumentAssignment: CHARACTER → INSTRUMENT → AUDIO TRACK
+- [ ] Build multi-role performance directive: simultaneous guitar strumming + lip sync for same character
+- [ ] Inject full audio-driven performance block into every scene prompt (no cross-over between characters)
+- [ ] Add character-instrument assignment panel to storyboard UI with editable roles and lock-after-approval
+- [ ] Show instrument badges on character cards in storyboard (e.g. 🎸 Lead Guitar + 🎤 Vocals)
+- [ ] Add tRPC procedure: getInstrumentAssignments (returns analysis + assignments for a job)
+- [ ] Add tRPC procedure: updateCharacterInstrument (allows user to change assignment before render)
+- [ ] Lock assignments after storyboard approval — no changes allowed during render
+
+## Storyboard-Faithful Prompt Assembly
+- [ ] Fix duplicate performanceBlock declaration in startRender scene loop
+- [ ] Build unified buildEnrichedScenePrompt() helper that assembles all locked attributes in correct order
+- [ ] Honour scene.prompt (storyboard description) as the foundation — never override it
+- [ ] Honour scene.visualStyle (locked visual style) — inject as style directive
+- [ ] Honour per-character lip sync flags (scene.lipSync + scene.lipSyncStyle)
+- [ ] Honour character appearance (compact identity tags from locked descriptions)
+- [ ] Honour instrument assignments (audio-driven performance block)
+- [ ] Honour storyboard image lock (previewImageUrl as reference_images)
+- [ ] Honour scene.characterAssignments (only assigned characters perform in this scene)
+
+## Advanced Mode — Audio Intelligence (Future Roadmap)
+- [ ] ADVANCED: Detect BPM and tempo changes across the full track timeline
+- [ ] ADVANCED: Detect song structure (verse, chorus, bridge, outro) and label each scene accordingly
+- [ ] ADVANCED: Adjust performance intensity per section (e.g. chorus = high energy, verse = restrained)
+- [ ] ADVANCED: Sync lighting changes to beat drops and tempo shifts in scene prompts
+- [ ] ADVANCED: Sync camera cut suggestions to beat (e.g. cut on every 4th beat during chorus)
+- [ ] ADVANCED: Inject song section label into each scene prompt (e.g. "This is the CHORUS — maximum energy, full band performance")
+
+## WizVid Core System — Full Spec (Pasted_content_05)
+
+### Section 1 — Storyboard Lock (already implemented in cce682c8)
+- [x] LOCK all scenes once storyboard confirmed — pass previewImageUrl as reference_images
+- [x] CHARACTER IDENTITY LOCK — compact identity tags injected into every scene prompt
+- [x] PROP LOCK — instrument + appearance locked via character description tags
+- [x] RENDER PIPELINE: Storyboard Image → Animation → Final Video (not Prompt → Regenerate)
+
+### Section 2 — Music Performance Realism Engine (in progress)
+- [x] Audio analysis service: detect BPM, instruments, vocal sections
+- [x] Character role assignment: singer, guitarist, bassist, drummer, keyboard player
+- [x] Performance realism directives injected into scene prompt (guitar strumming, drum hits, lip sync)
+- [x] No fake animation — all movement derived from audio waveform
+- [ ] Instrument assignment UI: show instrument badges on character cards in storyboard
+- [ ] tRPC: getInstrumentAssignments procedure
+- [ ] tRPC: updateCharacterInstrument procedure (editable before render, locked after)
+
+### Section 3 — Lip Sync (already implemented)
+- [x] Assign vocals to ONE character (primary vocalist detection)
+- [x] Sync mouth movement directive injected into scene prompt
+- [x] No incorrect characters singing
+
+### Section 4 — Render UX
+- [x] Show render stage labels: Analysing audio → Preparing scenes → Animating performance → Syncing vocals → Enhancing audio → Rendering final video
+- [x] Progress bar with percentage + stage text
+- [ ] Save + return: storyboard, roles, and progress persisted so user can come back later
+- [x] Completion system: show in Completed Videos, send email notification, allow download
+
+### Section 5 — Download Fix (already implemented in cce682c8)
+- [x] Download button uses blob-fetch with copy-URL fallback
+- [x] Same fix applied to MyProjects.tsx
+
+### Section 6 — WizSound Fix
+- [ ] Single audio track with toggle: Standard / WizSound Enhance / WizSound Cinematic
+- [ ] Clear audible difference between modes (louder, fuller, cinematic)
+
+### Section 7 — Intro Video Fix
+- [ ] Remove static logo from intro video
+- [ ] Final sequence: "If ever there was a Wiz…" (PAUSE) "There is!" (PAUSE) → animated logo
+- [ ] Slow timing for readability
+- [ ] Cross-device compatibility: Chrome, Safari (iPhone), Android
+
+### Section 8 — Tracking + Analytics
+- [x] Microsoft Clarity: global install (project ID: wbohukdt58), heatmaps, session recordings
+- [x] Google Analytics GA4 (G-YJD1MG144E): page views, signup, onboarding start, render start, payment success
+- [x] Mixpanel events: Start Creating, Prompt submitted, Storyboard generated, Render started, Render completed, Upgrade clicked (token: 2f7a295391152b5e481e7afa9d0b3703)
+
+### Section 9 — Email Notifications
+- [x] Signup email to timneighbour@wizvid.ai: username, email, timestamp, plan type (wired in oauth.ts)
+- [x] Subscription email to timneighbour@wizvid.ai: email, plan, amount, billing type, Stripe session ID, timestamp (wired in webhooks.ts)
+- [x] Render complete email to user (wired in assembleMusicVideo)
+- [x] Server-side only via Resend, log all events, retry on failure
+
+### Section 10 — Stripe Webhook
+- [x] On checkout.session.completed → send subscription email to timneighbour@wizvid.ai
+- [x] Failed payment email (emailFailedPayment) wired in webhooks.ts
+
+### Section 11 — Creator Showcase
+- [x] Post-render share prompt: FeatureMyVideoSection in PostRenderRetentionScreen.tsx
+- [x] Share form: name, creator type, YouTube, Instagram, TikTok, website, bio
+- [x] Showcase page at /creators (Discover.tsx) with featured creators
+- [x] Creator badge download after submission

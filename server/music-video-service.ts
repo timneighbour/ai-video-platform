@@ -1106,6 +1106,27 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       .set({ status: "completed", finalVideoUrl: url, finalVideoKey: finalKey, updatedAt: new Date() })
       .where(eq(musicVideoJobs.id, jobId));
 
+    // Notify owner of render completion
+    try {
+      const { users } = await import("../drizzle/schema");
+      const { eq: eqUser } = await import("drizzle-orm");
+      const [user] = await dbConn.select({ name: users.name, email: users.email })
+        .from(users)
+        .where(eqUser(users.id, job.userId));
+      if (user) {
+        const { emailRenderComplete } = await import("./email");
+        await emailRenderComplete({
+          name: user.name || "Unknown",
+          email: user.email || "",
+          jobId: String(jobId),
+          quality: "Standard",
+          duration: job.audioDuration ?? undefined,
+        });
+      }
+    } catch (emailErr) {
+      console.error("[Email] Failed to send render complete email:", emailErr);
+    }
+
     return url;
   } finally {
     try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}

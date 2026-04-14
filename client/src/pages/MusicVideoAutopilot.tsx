@@ -2611,11 +2611,11 @@ export default function MusicVideoAutopilot() {
                     {/* Enhanced 5-stage pipeline */}
                     {(() => {
                       const stages = [
-                        { key: "queued",     label: "Queued",                  icon: <Clock className="w-4 h-4" /> },
-                        { key: "rendering",  label: "Generating scenes",       icon: <Clapperboard className="w-4 h-4" /> },
-                        { key: "assembling", label: "Building animation",      icon: <Layers className="w-4 h-4" /> },
-                        { key: "wizsound",   label: "Enhancing audio",         icon: <Music2 className="w-4 h-4" /> },
-                        { key: "completed",  label: "Finalising video",        icon: <CheckCircle2 className="w-4 h-4" /> },
+                        { key: "queued",     label: "Analysing Audio",          icon: <Music2 className="w-4 h-4" /> },
+                        { key: "rendering",  label: "Animating Scenes",         icon: <Clapperboard className="w-4 h-4" /> },
+                        { key: "assembling", label: "Syncing Performance",      icon: <Layers className="w-4 h-4" /> },
+                        { key: "wizsound",   label: "Enhancing Audio",          icon: <Sparkles className="w-4 h-4" /> },
+                        { key: "completed",  label: "Rendering Final",          icon: <CheckCircle2 className="w-4 h-4" /> },
                       ];
                       const stageOrder = ["queued", "rendering", "assembling", "wizsound", "completed"];
                       // Map legacy "assembling" to cover wizsound too until server emits it

@@ -145,6 +145,9 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   enforceStrictMode: boolean("enforceStrictMode").default(true).notNull(), // Full character+outfit+props constraints
   promptSnapshot: longtext("promptSnapshot"), // Last full prompt sent to image gen (debugging)
   negativePromptSnapshot: longtext("negativePromptSnapshot"), // Last full negative prompt (debugging)
+  // --- Realistic Music Performance System ------------------------------------
+  // JSON: InstrumentAnalysis { instruments: InstrumentTrack[], tempo: number, timeSignature: string, key: string, analysedAt: string }
+  instrumentAnalysis: longtext("instrumentAnalysis"),
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

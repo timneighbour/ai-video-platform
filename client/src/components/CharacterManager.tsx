@@ -377,9 +377,28 @@ export function CharacterManager({
                     placeholder="e.g. Alex, Lead Singer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
                 </div>
                 <div>
-                  <Label className="text-zinc-400 text-xs mb-1 block">Role</Label>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Role / Instrument</Label>
                   <Input value={char.role} onChange={(e) => updateCharacter(char.slotIndex, { role: e.target.value })}
-                    placeholder="e.g. Lead Singer, Dancer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
+                    placeholder="e.g. Lead Vocalist, Guitarist" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
+                  {/* Quick-select instrument role buttons */}
+                  {!disabled && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {["Lead Vocalist", "Guitarist", "Bassist", "Drummer", "Keyboard"].map(role => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => updateCharacter(char.slotIndex, { role })}
+                          className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
+                            char.role === role
+                              ? "bg-violet-600 border-violet-500 text-white"
+                              : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-violet-500 hover:text-violet-300"
+                          }`}
+                        >
+                          {role === "Lead Vocalist" ? "🎤" : role === "Guitarist" ? "🎸" : role === "Bassist" ? "🎸" : role === "Drummer" ? "🥁" : "🎹"} {role}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

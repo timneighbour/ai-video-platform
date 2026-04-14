@@ -28,6 +28,13 @@ import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } fro
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
+import {
+  analyseAudioInstruments,
+  assignInstrumentsToCharacters,
+  buildPerformancePromptBlock,
+  type InstrumentAnalysis,
+  type CharacterInstrumentAssignment,
+} from "../instrument-analysis";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
 
 export const musicVideoRouter = router({
@@ -575,6 +582,57 @@ Rules:
 
       console.log(`[MusicVideo] Final character map for job ${input.jobId}: ${Array.from(fullCharMap.keys()).join(", ")}`);
 
+      // ── REALISTIC MUSIC PERFORMANCE SYSTEM ──────────────────────────────────
+      // Step 1: Get or generate instrument analysis for this job
+      let instrumentAnalysis: InstrumentAnalysis | null = null;
+      try {
+        if (job.instrumentAnalysis) {
+          instrumentAnalysis = JSON.parse(job.instrumentAnalysis) as InstrumentAnalysis;
+          console.log(`[MusicVideo] Loaded existing instrument analysis for job ${input.jobId}: ${instrumentAnalysis.instruments.map(i => i.label).join(", ")}`);
+        } else {
+          console.log(`[MusicVideo] Running instrument analysis for job ${input.jobId}...`);
+          instrumentAnalysis = await analyseAudioInstruments({
+            genre: job.genre,
+            mood: job.mood,
+            title: job.title,
+            lyrics: job.transcription,
+            audioDuration: job.audioDuration,
+            themePrompt: job.themePrompt,
+          });
+          // Persist to DB for future renders
+          await db!.update(musicVideoJobs)
+            .set({ instrumentAnalysis: JSON.stringify(instrumentAnalysis), updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, input.jobId));
+          console.log(`[MusicVideo] Instrument analysis complete for job ${input.jobId}: ${instrumentAnalysis.instruments.map(i => i.label).join(", ")} at ${instrumentAnalysis.tempo} BPM`);
+        }
+      } catch (err) {
+        console.warn(`[MusicVideo] Instrument analysis failed for job ${input.jobId}, skipping performance directives:`, err);
+      }
+
+      // Step 2: Assign instruments to characters
+      let performanceAssignments: CharacterInstrumentAssignment[] = [];
+      if (instrumentAnalysis && allJobCharsForRender.length > 0) {
+        try {
+          performanceAssignments = assignInstrumentsToCharacters(
+            allJobCharsForRender.map(c => ({ name: c.name, role: c.role, slotIndex: c.slotIndex })),
+            instrumentAnalysis
+          );
+          console.log(`[MusicVideo] Performance assignments for job ${input.jobId}:`, performanceAssignments.map(a => `${a.characterName} → ${a.performanceRole}`).join(", "));
+
+          // Persist instrument role back to each character's lockedRole field
+          for (const assignment of performanceAssignments) {
+            const char = allJobCharsForRender.find(c => c.name.toLowerCase() === assignment.characterName.toLowerCase());
+            if (char) {
+              await db!.update(videoCharacters)
+                .set({ lockedRole: assignment.performanceRole, updatedAt: new Date() })
+                .where(eq(videoCharacters.id, char.id));
+            }
+          }
+        } catch (err) {
+          console.warn(`[MusicVideo] Instrument assignment failed for job ${input.jobId}:`, err);
+        }
+      }
+
       // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
       const SCENE_STAGGER_MS = 3000;
       (async () => {
@@ -686,14 +744,42 @@ Rules:
               `${primaryVocalistName}'s mouth MUST be open and moving in sync with the music.`;
           }
 
+          // ── AUDIO-DRIVEN PERFORMANCE BLOCK ──────────────────────────────────────────
+          // Each character is bound to their locked audio track.
+          // No cross-over. No generic animations. No random movement.
+          // Every directive is derived from the actual audio waveform.
+          const performanceBlock = instrumentAnalysis && performanceAssignments.length > 0
+            ? buildPerformancePromptBlock(
+                performanceAssignments,
+                assignedNames.length > 0 ? assignedNames : Array.from(fullCharMap.keys()),
+                instrumentAnalysis.tempo,
+                instrumentAnalysis.energyLevel
+              )
+            : "";
+
+          // ── UNIFIED STORYBOARD-FAITHFUL PROMPT ──────────────────────────────────────
+          // Assembles ALL locked storyboard attributes in the correct priority order:
+          //   1. Character identity tags (appearance lock — highest priority)
+          //   2. Scene description from storyboard (the approved visual)
+          //   3. Visual style lock (e.g. "Cinematic", "Anime")
+          //   4. Lyric context + lip sync directive (who is singing what)
+          //   5. Audio-driven performance block (instrument + audio track binding)
+          //   6. Appearance consistency reminder
+          // The storyboard previewImageUrl is passed separately as reference_images.
+          const styleBlock = scene.visualStyle
+            ? `Visual style: ${scene.visualStyle}. Maintain this style throughout.`
+            : "";
+
           const enrichedScenePrompt = compactTags.length > 0
             ? [
                 compactTags.join(" "),
                 scene.prompt,
+                styleBlock,
                 lyricContextBlock,
+                performanceBlock,
                 "Maintain exact character appearance, same person in every scene, no variation in hair, face, or clothing."
               ].filter(Boolean).join(" ")
-            : [scene.prompt, lyricContextBlock].filter(Boolean).join(" ");
+            : [scene.prompt, styleBlock, lyricContextBlock, performanceBlock].filter(Boolean).join(" ");
 
           // ── STORYBOARD LOCK ──────────────────────────────────────────────────
           // The approved storyboard preview image is passed as a reference to the
@@ -2766,6 +2852,82 @@ Return a JSON array of objects matching the lyric lines provided.`;
         .where(eq(musicVideoScenes.id, sceneB.id));
 
       console.log(`[MusicVideo] Scene ${input.sceneId} moved ${input.direction} in job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true };
+    }),
+
+  // ── INSTRUMENT ASSIGNMENT ENGINE ──────────────────────────────────────────
+  // Returns the current instrument analysis + character assignments for a job.
+  // Used by the storyboard UI to show instrument badges on character cards.
+  getInstrumentAssignments: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const characters = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)))
+        .orderBy(videoCharacters.slotIndex);
+
+      // Parse stored instrument analysis if available
+      let instrumentAnalysis = null;
+      if (job.instrumentAnalysis) {
+        try { instrumentAnalysis = JSON.parse(job.instrumentAnalysis); } catch {}
+      }
+
+      // Build assignments from characters' lockedRole field (set during render)
+      const assignments = characters.map(c => ({
+        characterId: c.id,
+        characterName: c.name,
+        performanceRole: c.lockedRole ?? "Performer",
+        slotIndex: c.slotIndex,
+        isLocked: job.status === "rendering" || job.status === "assembling" || job.status === "completed",
+      }));
+
+      return {
+        instrumentAnalysis,
+        assignments,
+        isLocked: job.status === "rendering" || job.status === "assembling" || job.status === "completed",
+      };
+    }),
+
+  // Update a character's instrument role (only allowed before render starts)
+  updateCharacterInstrument: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      characterId: z.number().int(),
+      performanceRole: z.string().min(1).max(100),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Lock after render starts
+      if (job.status === "rendering" || job.status === "assembling" || job.status === "completed") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Instrument roles are locked once rendering begins" });
+      }
+
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await db.update(videoCharacters)
+        .set({ lockedRole: input.performanceRole, updatedAt: new Date() })
+        .where(eq(videoCharacters.id, input.characterId));
+
+      // Also clear cached instrument analysis so it gets re-run with new roles
+      await db.update(musicVideoJobs)
+        .set({ instrumentAnalysis: null, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Character ${char.name} in job ${input.jobId} role updated to: ${input.performanceRole}`);
       return { success: true };
     }),
 });
