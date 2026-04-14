@@ -562,7 +562,7 @@ export default function Pricing() {
                 <Button
                   onClick={() => handleSubscribe(plan.id)}
                   disabled={loadingPlan === plan.id}
-                  className={`w-full rounded-xl font-semibold text-sm h-10 ${
+                  className={`w-full rounded-xl font-semibold text-xs h-10 px-3 ${
                     plan.popular
                       ? "bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
                       : "bg-white/10 text-white hover:bg-white/15 border border-white/15"
@@ -575,8 +575,8 @@ export default function Pricing() {
                     </span>
                   ) : (
                     billingCycle === "monthly"
-                      ? `Get ${plan.name} Plan — £${plan.monthlyPrice}/mo`
-                      : `Get ${plan.name} Plan — £${(plan as any).annualPrice}/yr`
+                      ? `Get ${plan.name} — £${plan.monthlyPrice}/mo`
+                      : `Get ${plan.name} — £${(plan as any).annualPrice}/yr`
                   )}
                 </Button>
               </div>

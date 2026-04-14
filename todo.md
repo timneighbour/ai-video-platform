@@ -3207,3 +3207,12 @@
 - [x] Replace AUDIO_STANDARD and AUDIO_ENHANCED URLs in DemoVideoModal.tsx
 - [x] Enhance WizSound module: fix wavy audio, improve visual EQ bars, add premium feel
 - [x] Verify no overlapping audio tracks on mode switch
+
+## DEMO VIDEO AUDIO FIX — DIFFERENTIAL + EQ (Apr 2026)
+- [x] Fix: use single audio element, swap src on toggle (no simultaneous playback)
+- [x] Add Web Audio API AnalyserNode driving real frequency-data EQ bars
+- [x] Ensure audible differential: Standard = flat/dry, WizSound = boosted bass+presence
+- [x] EQ bars must animate from real FFT data, not CSS animation
+
+## PRICING CTA BUTTON TEXT FIX (Apr 2026)
+- [x] Shorten CTA button labels so they fit in 4-column pricing cards without overflow
