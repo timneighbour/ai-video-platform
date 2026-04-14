@@ -3278,17 +3278,17 @@
 - [ ] Add WizSound™ logo/text next to mute button on WizVidIntro screen
 
 ## WizVid Core Engine Fixes (Critical)
-- [ ] Render system: add render_jobs DB table with status (pending/processing/complete/failed)
-- [ ] Render system: server-side job queue with status polling endpoint (3-5s intervals)
-- [ ] Render system: frontend progress UI with status text, polling, toast on complete, retry on fail
-- [ ] Character lock: persistent character objects (face/outfit/style/seed) stored in DB per project
-- [ ] Character lock: all scenes reuse same character reference, no regeneration unless user edits
-- [ ] Scene prompt accuracy: add prompt constraint engine enforcing subject/environment/style consistency
-- [ ] Scene prompt accuracy: prevent character drift across scenes
-- [ ] AI prompt assist: "Enhance Prompt" button that expands vague prompts into detailed, constrained prompts via LLM
-- [ ] Auto-save: save prompt/storyboard/character config/style every 5 seconds
-- [ ] Auto-save: "Continue your last video" resume banner on return
-- [ ] Debug logging: track render failures, AI inconsistencies, prompt mismatches in DB
+- [x] Render system: add render_jobs DB table with status (pending/processing/complete/failed)
+- [x] Render system: server-side job queue with status polling endpoint (3-5s intervals)
+- [x] Render system: frontend progress UI with status text, polling, toast on complete, retry on fail
+- [x] Character lock: persistent character objects (face/outfit/style/seed) stored in DB per project
+- [x] Character lock: all scenes reuse same character reference, no regeneration unless user edits
+- [x] Scene prompt accuracy: add prompt constraint engine enforcing subject/environment/style consistency
+- [x] Scene prompt accuracy: prevent character drift across scenes
+- [x] AI prompt assist: "Enhance Prompt" button that expands vague prompts into detailed, constrained prompts via LLM
+- [x] Auto-save: save prompt/storyboard/character config/style every 5 seconds
+- [x] Auto-save: "Continue your last video" resume banner on return
+- [x] Debug logging: track render failures, AI inconsistencies, prompt mismatches in DB
 
 ## WizSound Demo Audio — CRITICAL FIX
 - [x] Create real WizSound enhanced audio from same source track using FFmpeg DSP (EQ, compression, loudness, stereo)
@@ -3296,3 +3296,17 @@
 - [x] Rewrite DemoVideoModal: single video, dual audio, instant toggle sync
 - [x] Rewrite WizSoundSection: single video, dual audio, instant toggle sync
 - [x] Wire real audio difference into RenderPaywallModal tier comparison
+- [ ] BUG: WizSound section disappeared from homepage — find and restore it
+- [ ] BUG: WizSound audio comparison still sounds identical — verify distinct tracks are wired
+
+## Projects Page — Full Rebuild (CRITICAL UX)
+- [x] Project status system: Draft / Ready to render / Rendering / Completed / Failed badges
+- [x] Primary CTA per project state (Continue Editing / Render Video / View Progress / Watch+Download)
+- [x] Render status UI with progress indicator and estimated time
+- [x] Auto-save + Continue banner at top of page
+- [x] Visual thumbnails: preview image, scene snapshot, video thumbnail if completed
+- [x] Sorting/filtering: In Progress / Completed / Drafts, active projects first
+- [x] Sectioned layout: Active Projects → Completed → Older
+- [x] Empty state: "Create your first video" CTA
+- [x] Lazy load thumbnails for performance
+- [ ] BUG: 3-tier WizSound graphic equaliser comparison section missing from homepage — restore it

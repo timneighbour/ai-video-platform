@@ -14,6 +14,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { EnhancePromptButton } from "@/components/EnhancePromptButton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
@@ -915,7 +916,16 @@ export default function KidsVideo() {
                   className="w-full h-28 sm:h-32 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-pink-500/50 text-sm"
                 />
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-muted-foreground">{prompt.length} / 1000</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{prompt.length} / 1000</span>
+                    <EnhancePromptButton
+                      prompt={prompt}
+                      toolType="kids_video"
+                      style={style}
+                      onEnhanced={(enhanced) => setPrompt(enhanced)}
+                      disabled={prompt.length < 3}
+                    />
+                  </div>
                   {prompt.length >= 10 && (
                     <span className="text-xs text-green-400 flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3" /> Ready
