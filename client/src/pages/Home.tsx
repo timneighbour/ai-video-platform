@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
 import WizSoundSection from "@/components/WizSoundSection";
+import WizLuminaSection from "@/components/WizLuminaSection";
+import { HowWizVidWorks } from "@/components/HowWizVidWorks";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -78,8 +80,6 @@ function useReveal() {
 // ── Nav ─────────────────────────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -87,39 +87,11 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close tools dropdown when clicking outside
-  useEffect(() => {
-    if (!toolsOpen) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest("[data-tools-menu]")) setToolsOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [toolsOpen]);
-
-  const mainLinks = [
-    { label: "Home", href: "/" },
-    { label: "Music Video", href: "/music-video" },
-    { label: "WizCreate™", href: "/music-video" },
-    { label: "WizSound™", href: "/#wizsound" },
-    { label: "WizPilot™", href: "/wizpilot" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "Help", href: "/help" },
-  ];
-
-  const toolLinks = [
-    { label: "AI Music Generator", sub: "Powered by Suno", href: "/music-creator", icon: "🎵" },
-    { label: "YouTube Video Creator", sub: "WizPilot for YouTube", href: "/wizpilot", icon: "🎥" },
-    { label: "Kids Animation Creator", sub: "Animated kids videos", href: "/kids-video", icon: "🧒" },
-    { label: "Text to Video", sub: "Prompt to full video", href: "/text-to-video", icon: "✨" },
-  ];
-
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled ? "bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8 shadow-lg" : "bg-transparent"
     }`}>
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <NavLink href="/" className="flex items-center group flex-shrink-0 hover:opacity-80 transition-opacity">
           <img
@@ -127,135 +99,23 @@ function Nav() {
             alt="WizVid"
             width={320}
             height={180}
-            className="h-24 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
+            className="h-20 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
           />
         </NavLink>
 
-        {/* Desktop nav */}
-        <div className="hidden lg:flex items-center gap-0.5">
-          {mainLinks.map((link) => (
-            <NavLink
-              key={link.label}
-              href={link.href}
-              className="px-3 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block whitespace-nowrap"
-            >
-              {link.label}
-            </NavLink>
-          ))}
-
-          {/* Tools dropdown */}
-          <div className="relative" data-tools-menu>
-            <button
-              data-tools-menu
-              onClick={() => setToolsOpen((v) => !v)}
-              className={`flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all duration-200 font-medium whitespace-nowrap ${
-                toolsOpen ? "text-white bg-white/8" : "text-[#a1a1aa] hover:text-white"
-              }`}
-            >
-              Tools
-              <svg
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsOpen ? "rotate-180" : ""}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {toolsOpen && (
-              <div
-                data-tools-menu
-                className="absolute top-full right-0 mt-2 w-64 bg-[#111]/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-              >
-                <div className="p-2">
-                  {toolLinks.map((tool) => (
-                    <NavLink
-                      key={tool.label}
-                      href={tool.href}
-                      onClick={() => setTimeout(() => setToolsOpen(false), 50)}
-                      className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-white/6 transition-colors group w-full text-left"
-                    >
-                      <span className="text-xl mt-0.5 flex-shrink-0">{tool.icon}</span>
-                      <div>
-                        <div className="text-sm font-medium text-white">{tool.label}</div>
-                        <div className="text-xs text-[#a1a1aa] mt-0.5">{tool.sub}</div>
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right controls */}
+        {/* Right: Sign in only */}
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
               <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
             </Button>
           ) : (
-            <>
-              <a href={getLoginUrl()} className="hidden sm:block text-sm text-[#a1a1aa] hover:text-white transition-colors font-medium px-3 py-2">
-                Sign in
-              </a>
-              <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm px-5 rounded-xl font-semibold h-9 shadow-sm shadow-violet-500/25" asChild>
-                <NavLink href="/onboarding" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Start Creating</NavLink>
-              </Button>
-            </>
+            <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors font-medium px-3 py-2">
+              Sign in
+            </a>
           )}
-          <button
-            className="lg:hidden p-2 text-[#a1a1aa] hover:text-white"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="lg:hidden bg-[#0f0f0f]/98 backdrop-blur-xl border-t border-white/8 px-6 py-5 max-h-[80vh] overflow-y-auto">
-          {/* Main links */}
-          {mainLinks.map((link) => (
-            <NavLink
-              key={link.label}
-              href={link.href}
-              className="block py-3 text-[#a1a1aa] hover:text-white font-medium border-b border-white/5 text-sm"
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </NavLink>
-          ))}
-
-          {/* Tools section */}
-          <div className="pt-4 pb-2">
-            <p className="text-xs font-bold text-[#a1a1aa]/60 uppercase tracking-widest mb-3">Tools</p>
-            {toolLinks.map((tool) => (
-              <NavLink
-                key={tool.label}
-                href={tool.href}
-                className="flex items-center gap-3 py-3 border-b border-white/5"
-                onClick={() => setTimeout(() => setMobileOpen(false), 50)}
-              >
-                <span className="text-lg">{tool.icon}</span>
-                <div>
-                  <div className="text-sm font-medium text-white">{tool.label}</div>
-                  <div className="text-xs text-[#a1a1aa]">{tool.sub}</div>
-                </div>
-              </NavLink>
-            ))}
-          </div>
-
-          <div className="pt-4 flex gap-3">
-            <a href={getLoginUrl()} className="flex-1 text-center py-2.5 text-[#a1a1aa] border border-white/15 rounded-xl text-sm font-medium">Sign in</a>
-            <NavLink href="/onboarding" className="flex-1">
-              <Button className="w-full bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl text-sm font-semibold h-10">Start Creating</Button>
-            </NavLink>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
@@ -577,12 +437,7 @@ function Hero() {
             {/* Eyebrow badge */}
             <div className="relative z-10 mb-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              AI Music Video Creator
-            </div>
-            {/* WizSound tagline */}
-            <div className="relative z-10 mb-5 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-400/20 bg-indigo-500/8 text-indigo-300/80 text-[11px] font-semibold tracking-wide">
-              <Volume2 className="w-3 h-3 flex-shrink-0" />
-              Cinematic visuals. Immersive sound.
+              AI Video Creator
             </div>
 
             {/* Headline */}
@@ -590,28 +445,21 @@ function Hero() {
               className="relative z-10 font-extrabold leading-[1.05] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
               style={{ fontSize: "clamp(2.4rem, 5.5vw, 5rem)" }}
             >
-              Create AI Music Videos,{" "}
+              Create Cinematic Videos{" "}
               <span
                 className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
                 style={{ textShadow: "none" }}
               >
-                Films &amp; Animations
+                with AI
               </span>
-              <br />in Minutes
             </h1>
-
-            {/* Brand engine tagline */}
-            <div className="relative z-10 mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-400/20 bg-violet-500/8 text-violet-300/90 text-[11px] font-semibold tracking-wide">
-              <span className="text-violet-400">✦</span>
-              Powered by WizCreate™, WizSound™ &amp; WizPilot™
-            </div>
 
             {/* Subheadline */}
             <p
-              className="text-white/70 max-w-xl mb-4 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
-              style={{ fontSize: "clamp(0.95rem, 2vw, 1.1rem)" }}
+              className="text-white/70 max-w-xl mb-6 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
+              style={{ fontSize: "clamp(0.95rem, 2vw, 1.15rem)" }}
             >
-              Upload your audio or idea. Generate cinematic video. Pay only when you render.
+              Turn your idea into a fully produced video with studio-grade sound and film-level visuals.
             </p>
 
             {/* Value bullets */}
@@ -639,7 +487,7 @@ function Hero() {
                 onClick={() => mp.heroCTAClicked()}
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
-                {isAuthenticated ? "Open Creator" : "Start Creating Free"}
+                {isAuthenticated ? "Start Creating" : "Start Creating for Free"}
               </NavLink>
               <button
                 onClick={() => setDemoOpen(true)}
@@ -2375,13 +2223,13 @@ function HomePricing() {
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Pricing</p>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">
-            Create videos from{" "}
+            Start for free.{" "}
             <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              £1 per minute
+              Pay only when you render.
             </span>
           </h2>
           <p className="text-[#a1a1aa] max-w-lg mx-auto mb-3">
-            Storyboard generation is always free. Only pay when you render.
+            No subscriptions. No hidden fees.
           </p>
           {/* Annual savings banner */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-400 text-sm font-semibold mb-2">
@@ -2499,19 +2347,17 @@ function CTAPush() {
     <section className="py-28 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-3xl mx-auto text-center reveal">
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-          Your first video is <strong className="text-white">free</strong> – start creating in 60 seconds.
-          <br />
-          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">No credit card required.</span>
+          Ready to create your video?
         </h2>
         <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-          Start creating for free. Only pay when you render.
+          Start for free. Pay only when you render. No subscriptions, no hidden fees.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Button
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video</NavLink>
+            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Now</NavLink>
           </Button>
           <Button
             variant="outline"
@@ -2778,6 +2624,7 @@ export default function Home() {
         <TryAnExample />
         <DemoSection />
         <WizSoundSection />
+        <WizLuminaSection />
         <ImmediateValue />
         <WhyWizVid />
         <SpeedSection />
@@ -2788,6 +2635,7 @@ export default function Home() {
         <MadeWithWizVid />
         <SocialProof />
         <PunchLine />
+        <HowWizVidWorks />
         <HomePricing />
         <CTAPush />
         <EcosystemSection />

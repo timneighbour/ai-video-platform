@@ -1904,20 +1904,25 @@ Rules:
       .where(eq(musicVideoJobs.userId, ctx.user.id))
       .orderBy(desc(musicVideoJobs.createdAt));
 
-    // Attach scene stats to each job
+    // Attach scene stats + thumbnail to each job
     const jobsWithStats = await Promise.all(jobs.map(async (job) => {
       const scenes = await db.select({
         id: musicVideoScenes.id,
         status: musicVideoScenes.status,
         errorMessage: musicVideoScenes.errorMessage,
+        previewImageUrl: musicVideoScenes.previewImageUrl,
+        sceneIndex: musicVideoScenes.sceneIndex,
       }).from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
 
       const totalScenes = scenes.length;
       const completedScenes = scenes.filter((s) => s.status === "completed").length;
       const failedScenes = scenes.filter((s) => s.status === "failed").length;
       const renderingScenes = scenes.filter((s) => s.status === "generating").length;
+      // Pick first scene with a preview image as thumbnail
+      const sortedScenes = [...scenes].sort((a, b) => a.sceneIndex - b.sceneIndex);
+      const thumbnailUrl = sortedScenes.find((s) => s.previewImageUrl)?.previewImageUrl ?? null;
 
-      return { ...job, totalScenes, completedScenes, failedScenes, renderingScenes };
+      return { ...job, totalScenes, completedScenes, failedScenes, renderingScenes, thumbnailUrl };
     }));
 
     return jobsWithStats;

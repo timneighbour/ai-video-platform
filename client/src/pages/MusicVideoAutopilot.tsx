@@ -12,6 +12,8 @@ import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
 import PostRenderCinematicPackModal from "@/components/PostRenderCinematicPackModal";
 import { RenderPaywallModal } from "@/components/RenderPaywallModal";
+import { WizGenesisModal } from "@/components/WizGenesisModal";
+import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
 import LyricsIntelligencePanel from "@/components/LyricsIntelligencePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1122,9 +1124,9 @@ export default function MusicVideoAutopilot() {
         balance={creditBalance}
         canReduceQuality={false}
       />
-      {/* Render Paywall Modal — shown when user clicks Render Video */}
+      {/* WizGenesis™ — Premium render upgrade experience (primary) */}
       {jobId && (
-        <RenderPaywallModal
+        <WizGenesisModal
           open={showRenderPaywall}
           onClose={() => setShowRenderPaywall(false)}
           jobId={jobId}
@@ -2290,8 +2292,17 @@ export default function MusicVideoAutopilot() {
             <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="pt-8 pb-8">
                 {renderStatus === "completed" && finalVideoUrl ? (
+                  <PostRenderRetentionScreen
+                    finalVideoUrl={finalVideoUrl}
+                    videoTitle={title || undefined}
+                    jobId={jobId || undefined}
+                    onCreateAnother={() => {
+                      setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({});
+                    }}
+                  />
+                ) : renderStatus === "completed" && finalVideoUrl ? (
                   <div className="text-center">
-                    {/* Celebration animation */}
+                    {/* Celebration animation — fallback */}
                     <div className="relative mb-6">
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-ping" style={{ animationDuration: '2s' }} />
