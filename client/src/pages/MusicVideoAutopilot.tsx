@@ -2423,11 +2423,47 @@ export default function MusicVideoAutopilot() {
                       >
                         <Play className="w-5 h-5 mr-2" /> Play Video
                       </Button>
-                      <a href={finalVideoUrl} download target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline" className="border-purple-500/30 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-6 h-12 text-base">
-                          <Download className="w-5 h-5 mr-2" /> Download
-                        </Button>
-                      </a>
+                      <Button
+                        variant="outline"
+                        className="border-purple-500/30 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-6 h-12 text-base"
+                        onClick={async () => {
+                          if (!finalVideoUrl) return;
+                          try {
+                            // Fetch the video as a blob so the browser triggers a real download
+                            const resp = await fetch(finalVideoUrl);
+                            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                            const blob = await resp.blob();
+                            const blobUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = blobUrl;
+                            a.download = `${title || 'wizvid'}-${Date.now()}.mp4`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(blobUrl);
+                          } catch {
+                            // Fallback: open in new tab (user can save manually)
+                            window.open(finalVideoUrl, '_blank');
+                            toast.info('Video opened in new tab — right-click to save');
+                          }
+                        }}
+                      >
+                        <Download className="w-5 h-5 mr-2" /> Download
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-zinc-700/50 text-zinc-400 bg-transparent hover:bg-zinc-800 px-4 h-12 text-sm"
+                        title="Copy direct video link"
+                        onClick={() => {
+                          if (!finalVideoUrl) return;
+                          navigator.clipboard.writeText(finalVideoUrl)
+                            .then(() => toast.success('Video link copied to clipboard'))
+                            .catch(() => toast.error('Could not copy link'));
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        Copy Link
+                      </Button>
                       <Button
                         className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 h-12 text-base font-semibold shadow-lg shadow-violet-900/30"
                         onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
@@ -2512,11 +2548,32 @@ export default function MusicVideoAutopilot() {
                           )}
                         </div>
                         <div className="flex gap-2">
-                          <a href={finalVideoUrl} download target="_blank" rel="noopener noreferrer">
-                            <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800 text-xs">
-                              Download as-is
-                            </Button>
-                          </a>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800 text-xs"
+                            onClick={async () => {
+                              if (!finalVideoUrl) return;
+                              try {
+                                const resp = await fetch(finalVideoUrl);
+                                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                                const blob = await resp.blob();
+                                const blobUrl = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = blobUrl;
+                                a.download = `${title || 'wizvid'}-${Date.now()}.mp4`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(blobUrl);
+                              } catch {
+                                window.open(finalVideoUrl!, '_blank');
+                                toast.info('Video opened in new tab — right-click to save');
+                              }
+                            }}
+                          >
+                            Download as-is
+                          </Button>
                           <Button
                             size="sm"
                             disabled={upsellTotal === 0 || isUpsellCheckingOut}

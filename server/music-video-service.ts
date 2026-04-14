@@ -549,7 +549,9 @@ export async function startSceneRender(
   lipSync = true,
   lipSyncStyle: "natural" | "expressive" | "subtle" | "dramatic" | "anime" = "natural",
   renderer: RendererType | "wavespeed" = "fal_seedance",
-  modelAssignment: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video"
+  modelAssignment: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video",
+  /** URL of the approved storyboard preview image — passed as reference_images to lock visual appearance */
+  storyboardImageUrl?: string | null
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
@@ -559,7 +561,7 @@ export async function startSceneRender(
   // Route to WaveSpeed first (primary renderer) with fallback chain
   if (renderer === "wavespeed") {
     try {
-      return await startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment);
+      return await startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined);
     } catch (waveSpeedErr) {
       console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed failed, falling back to Hypereal:`, waveSpeedErr);
       try {
@@ -1118,7 +1120,9 @@ async function startSceneRenderWaveSpeed(
   sceneId: number,
   prompt: string,
   duration: number,
-  model: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video"
+  model: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video",
+  /** Storyboard preview image URL — used as reference_images to lock visual appearance */
+  storyboardImageUrl?: string
 ): Promise<string> {
   // WaveSpeed has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
@@ -1129,6 +1133,16 @@ async function startSceneRenderWaveSpeed(
   // Map duration to WaveSpeed's allowed values: 5, 10, or 15
   const wsDuration: 5 | 10 | 15 = duration <= 5 ? 5 : duration <= 10 ? 10 : 15;
 
+  // STORYBOARD LOCK: pass the approved storyboard frame as a reference image.
+  // This is the core of the "what you see is what you get" guarantee.
+  // WaveSpeed uses reference_images to anchor the visual appearance of the generated video.
+  const referenceImages: string[] = storyboardImageUrl ? [storyboardImageUrl] : [];
+  if (storyboardImageUrl) {
+    console.log(`[MusicVideo] Scene ${sceneId} STORYBOARD LOCK: using preview image as reference — ${storyboardImageUrl.slice(0, 80)}...`);
+  } else {
+    console.warn(`[MusicVideo] Scene ${sceneId} WARNING: no storyboard preview image — rendering from text prompt only`);
+  }
+
   const trySubmit = async (p: string): Promise<string> => {
     const taskId = await submitWaveSpeedVideo(
       {
@@ -1136,6 +1150,7 @@ async function startSceneRenderWaveSpeed(
         duration: wsDuration,
         aspect_ratio: "16:9",
         resolution: "720p",
+        reference_images: referenceImages,
       },
       model
     );

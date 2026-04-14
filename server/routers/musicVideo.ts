@@ -643,9 +643,69 @@ Rules:
           // AI video models weight the beginning of the prompt most heavily —
           // character appearance must come before any scene/setting description.
           // The compact tag format [Name, Role: description] is understood by Seedance/Hailuo.
+
+          // ── AUDIO-CHARACTER MAPPING ──────────────────────────────────────────────────
+          // Determine which character is the primary vocalist for this scene.
+          // The primary vocalist is the first assigned character that has a "singer" or "vocalist" role.
+          // If no vocalist role is found, the first assigned character is used.
+          // This ensures the correct character lip-syncs to the correct audio segment.
+          let primaryVocalistName: string | null = null;
+          if (assignedNames.length > 0) {
+            for (const name of assignedNames) {
+              const charData = fullCharMap.get(name.toLowerCase());
+              if (charData) {
+                const roleLower = (charData.role ?? "").toLowerCase();
+                if (roleLower.includes("singer") || roleLower.includes("vocalist") || roleLower.includes("lead")) {
+                  primaryVocalistName = charData.name;
+                  break;
+                }
+              }
+            }
+            // Fallback: first assigned character is the vocalist
+            if (!primaryVocalistName) {
+              const firstCharData = fullCharMap.get(assignedNames[0].toLowerCase());
+              if (firstCharData) primaryVocalistName = firstCharData.name;
+            }
+          }
+
+          // Build the per-scene lyric context block
+          // This tells the video generator exactly what lyrics are being sung in this scene
+          // and which character is singing them — critical for correct lip sync alignment.
+          let lyricContextBlock = "";
+          if (scene.lyrics && scene.lyrics.trim()) {
+            const cleanLyrics = scene.lyrics.trim().replace(/\n+/g, " ").slice(0, 200);
+            if (primaryVocalistName && scene.lipSync !== false) {
+              lyricContextBlock = `AUDIO SYNC: ${primaryVocalistName} is singing these lyrics at this moment: "${cleanLyrics}". ` +
+                `${primaryVocalistName}'s mouth MUST be open and moving in sync with the vocals. ` +
+                `Lip sync is ACTIVE for ${primaryVocalistName} only. Other characters are playing their instruments.`;
+            } else if (scene.lipSync !== false) {
+              lyricContextBlock = `AUDIO SYNC: The vocalist is singing: "${cleanLyrics}". Lip sync is active.`;
+            }
+          } else if (primaryVocalistName && scene.lipSync !== false) {
+            lyricContextBlock = `AUDIO SYNC: ${primaryVocalistName} is the active vocalist in this scene. ` +
+              `${primaryVocalistName}'s mouth MUST be open and moving in sync with the music.`;
+          }
+
           const enrichedScenePrompt = compactTags.length > 0
-            ? `${compactTags.join(" ")} ${scene.prompt} Maintain exact character appearance, same person in every scene, no variation in hair, face, or clothing.`
-            : scene.prompt;
+            ? [
+                compactTags.join(" "),
+                scene.prompt,
+                lyricContextBlock,
+                "Maintain exact character appearance, same person in every scene, no variation in hair, face, or clothing."
+              ].filter(Boolean).join(" ")
+            : [scene.prompt, lyricContextBlock].filter(Boolean).join(" ");
+
+          // ── STORYBOARD LOCK ──────────────────────────────────────────────────
+          // The approved storyboard preview image is passed as a reference to the
+          // video generator. This is the ONLY way to guarantee "what you see is
+          // what you get" — the generator uses it as a visual anchor, not just text.
+          const storyboardImageUrl = scene.previewImageUrl ?? null;
+          if (storyboardImageUrl) {
+            console.log(`[MusicVideo] Scene ${scene.id} STORYBOARD LOCK active: ${storyboardImageUrl.slice(0, 80)}...`);
+          } else {
+            console.warn(`[MusicVideo] Scene ${scene.id} has no storyboard preview image — render will be text-only. Run storyboard preview generation first.`);
+          }
+
           try {
             // For now, always use WaveSpeed as primary renderer (via startSceneRender)
             // The renderer parameter is still used for fallback routing if WaveSpeed fails
@@ -656,7 +716,8 @@ Rules:
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
               "wavespeed" as any, // Route through WaveSpeed primary renderer
-              rendererType as any
+              rendererType as any,
+              storyboardImageUrl ?? undefined // STORYBOARD LOCK: pass approved frame as reference
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
@@ -1620,8 +1681,24 @@ Rules:
       if (lockedBriefs.length > 0) {
         enrichedPrompt = `${scene.prompt}. STRICT CHARACTER CONSISTENCY: ${lockedBriefs.join(" | ")}`;
       }
+      // STORYBOARD LOCK: use the approved preview image as visual anchor
+      const storyboardImageUrl = scene.previewImageUrl ?? undefined;
+      if (storyboardImageUrl) {
+        console.log(`[regenerateScene] Scene ${input.sceneId} STORYBOARD LOCK active: ${storyboardImageUrl.slice(0, 80)}...`);
+      } else {
+        console.warn(`[regenerateScene] Scene ${input.sceneId} has no storyboard preview image — render will be text-only`);
+      }
       try {
-        const taskId = await startSceneRender(input.sceneId, enrichedPrompt, scene.duration);
+        const taskId = await startSceneRender(
+          input.sceneId,
+          enrichedPrompt,
+          scene.duration,
+          scene.lipSync ?? true,
+          (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+          "wavespeed" as any,
+          (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
+          storyboardImageUrl
+        );
         if (taskId) {
           await db.update(musicVideoScenes)
             .set({ status: "generating", taskId })
@@ -1672,9 +1749,25 @@ Rules:
       }
 
       // Re-queue the render asynchronously
+      // STORYBOARD LOCK: pass the approved preview image as visual anchor
+      const retryStoryboardUrl = scene.previewImageUrl ?? undefined;
+      if (retryStoryboardUrl) {
+        console.log(`[retryFailedScene] Scene ${input.sceneId} STORYBOARD LOCK active`);
+      } else {
+        console.warn(`[retryFailedScene] Scene ${input.sceneId} has no storyboard preview image — render will be text-only`);
+      }
       (async () => {
         try {
-          const taskId = await startSceneRender(input.sceneId, scene.prompt, scene.duration);
+          const taskId = await startSceneRender(
+            input.sceneId,
+            scene.prompt,
+            scene.duration,
+            scene.lipSync ?? true,
+            (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+            "wavespeed" as any,
+            (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
+            retryStoryboardUrl
+          );
           await db!.update(musicVideoScenes)
             .set({ status: "generating", taskId, updatedAt: new Date() })
             .where(eq(musicVideoScenes.id, input.sceneId));
@@ -1717,13 +1810,27 @@ Rules:
         .where(eq(musicVideoJobs.id, input.jobId));
 
       // Re-queue each failed scene with 3s stagger
+      // STORYBOARD LOCK: each scene passes its approved preview image as visual anchor
       const STAGGER_MS = 3000;
       (async () => {
         for (let i = 0; i < failedScenes.length; i++) {
           const scene = failedScenes[i];
           if (i > 0) await new Promise((r) => setTimeout(r, STAGGER_MS));
+          const bulkStoryboardUrl = scene.previewImageUrl ?? undefined;
+          if (!bulkStoryboardUrl) {
+            console.warn(`[retryAllFailedScenes] Scene ${scene.id} has no storyboard preview image — render will be text-only`);
+          }
           try {
-            const taskId = await startSceneRender(scene.id, scene.prompt, scene.duration, scene.lipSync ?? true, (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime");
+            const taskId = await startSceneRender(
+              scene.id,
+              scene.prompt,
+              scene.duration,
+              scene.lipSync ?? true,
+              (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+              "wavespeed" as any,
+              (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
+              bulkStoryboardUrl
+            );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));

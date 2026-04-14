@@ -90,15 +90,27 @@ export default function MyProjects() {
     window.location.href = `/music-video/create?jobId=${jobId}`;
   }
 
-  function downloadFile(url: string, filename: string) {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  async function downloadFile(url: string, filename: string) {
+    try {
+      // Fetch as blob so the browser triggers a real Save dialog
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      // Fallback: open in new tab so user can right-click → Save
+      window.open(url, "_blank");
+      // Also copy the URL to clipboard as a secondary fallback
+      navigator.clipboard.writeText(url).catch(() => {});
+      toast.info("Video opened in new tab — right-click to save. Link also copied to clipboard.");
+    }
   }
 
   return (

@@ -3464,3 +3464,22 @@
 - [ ] Fix "Previous render failed" banner appearing on fresh storyboard loads
 - [ ] Add countdown timer UX when rate-limited (show "Try again in Xs")
 - [ ] Add auto-retry after Retry-After delay expires
+
+## CRITICAL: Render Pipeline Fix (Priority 1)
+- [ ] STORYBOARD LOCK: Pass previewImageUrl as reference_images to WaveSpeed image-to-video during render
+- [ ] STORYBOARD LOCK: Add storyboardLockedAt timestamp to musicVideoJobs when render starts
+- [ ] STORYBOARD LOCK: Prevent scene prompt regeneration during render — use locked DB prompt only
+- [ ] CHARACTER CONSISTENCY: Inject character descriptions as compact tags into every scene render prompt
+- [ ] CHARACTER CONSISTENCY: Pass character masterPortraitUrl as reference_images to WaveSpeed
+- [ ] AUDIO MAPPING: Store per-scene lyric timing in DB and pass to lip sync engine
+- [ ] LIP SYNC FIX: Use scene.startTime + scene.duration to slice audio segment for lip sync
+- [ ] DOWNLOAD FIX: Add fallback copy-URL button when download fails
+- [ ] DOWNLOAD FIX: Ensure finalVideoUrl is always returned in pollProgress response
+- [ ] DOWNLOAD FIX: Add direct download link in render complete UI
+
+## CRITICAL Render Pipeline Fixes - COMPLETED ✅
+- [x] CRITICAL: Storyboard lock — pass previewImageUrl as reference_images to WaveSpeed in startRender, regenerateScene, retryFailedScene, retryAllFailedScenes
+- [x] CRITICAL: Audio-character mapping — inject per-scene lyric context block with primary vocalist name into enriched prompt
+- [x] CRITICAL: Lip sync alignment — lyric context block explicitly names which character is singing and what lyrics, directing the video model to sync that character's mouth
+- [x] CRITICAL: Download button fix — blob-fetch approach with fallback (open in new tab + copy link) in MusicVideoAutopilot.tsx and MyProjects.tsx
+- [x] CRITICAL: Copy Link fallback button added to render complete screen
