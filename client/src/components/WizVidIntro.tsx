@@ -3,11 +3,19 @@
  *
  * Chrome Autoplay Policy Compliant:
  * - Video autoplays MUTED (allowed by Chrome)
- * - Audio requires user interaction (click unmute)
- * - Sound state persists via sessionStorage
+ * - Audio (Steel Thunderfall) starts muted, plays from position 0
+ * - User clicks "Enable Sound" to unmute — audio continues seamlessly from current position
+ * - No looping restart of audio
  *
- * Video loop: 5 clips crossfade seamlessly (Pixar, Band, Singer, Creator, Cinematic)
- * Straplines: 3 timed text overlays with fade in/out
+ * Audio: Steel Thunderfall (12.48s) — primary cinematic trailer soundtrack
+ * Straplines synced to audio moments:
+ *   0-2s:   bass impact → logo appears
+ *   2-5s:   tension build → "Create cinematic videos in minutes"
+ *   5-8.5s: energy peak → "Music videos · Films · Animation"
+ *   9-11.5s: cinematic drop → "Enhanced with WizSound™"
+ *   11.5s+: resolution → Enter WizVid CTA
+ *
+ * Video loop: 5 clips crossfade seamlessly
  * No auto-dismiss. User must click "Enter WizVid" (or Skip) to proceed.
  */
 
@@ -30,16 +38,22 @@ const BG_CLIPS = [
 const CLIP_DURATION_MS = 6000;
 const CROSSFADE_MS = 1200;
 
-const AMBIENT_AUDIO = `${CDN}/wizsound-standard_31845db2.m4a`;
+// Steel Thunderfall — primary cinematic intro soundtrack (12.48s, no loop)
+const INTRO_AUDIO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/SteelThunderfall_a37defe2.mp3";
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
 const SOUND_KEY = "wizvid_intro_sound";
 
-// ── Straplines config ─────────────────────────────────────────────────────────
+// ── Straplines — synced to Steel Thunderfall (12.48s) ────────────────────────
+// 0-2s:   bass impact → logo appears
+// 2-5s:   tension build → strapline 1
+// 5.5-8.5s: energy peak → strapline 2
+// 9-11.5s: cinematic drop → strapline 3
+// 11.5s+: resolution → CTA
 const STRAPLINES = [
-  { text: "Create without limits",         startMs: 3000,  endMs: 6000  },
-  { text: "See it. Hear it. Feel it",      startMs: 9000,  endMs: 12000 },
-  { text: "From imagination to immersion", startMs: 15000, endMs: 18000 },
+  { text: "Create cinematic videos in minutes",  startMs: 2000,  endMs: 5000  },
+  { text: "Music videos · Films · Animation",    startMs: 5500,  endMs: 8500  },
+  { text: "Enhanced with WizSound™",             startMs: 9000,  endMs: 11500 },
 ] as const;
 
 const STRAPLINE_FADE_MS = 600;
@@ -117,11 +131,9 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   // ── Crossfading clip cycling ───────────────────────────────────────────────
   useEffect(() => {
     const id = setInterval(() => {
-      // Start crossfade
       setCrossfading(true);
       setNextClipIdx((prev) => (prev + 1) % BG_CLIPS.length);
 
-      // After crossfade completes, swap
       setTimeout(() => {
         setClipIdx((prev) => (prev + 1) % BG_CLIPS.length);
         setNextClipIdx((prev) => (prev + 1) % BG_CLIPS.length);
@@ -151,15 +163,28 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     v.play().catch(() => {});
   }, [nextClipIdx]);
 
-  // ── Audio: mute sync + session persistence ─────────────────────────────────
+  // ── Audio: start muted autoplay on mount ──────────────────────────────────
+  // Chrome allows muted autoplay — audio plays from t=0 silently.
+  // When user clicks "Enable Sound", we just set muted=false on the existing
+  // playing element — no restart, no delay, seamless unmute.
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    a.muted = true;
+    a.currentTime = 0;
+    a.play().catch(() => {});
+  }, []);
+
+  // ── Audio: mute/unmute sync + session persistence ─────────────────────────
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
     a.muted = muted;
     try { sessionStorage.setItem(SOUND_KEY, muted ? "off" : "on"); }
     catch { /* ignore */ }
-    if (!muted) {
-      // User clicked unmute — this is a user gesture context, so play() is allowed
+    // Audio is already playing (muted) from mount — just toggle muted flag.
+    // If somehow not playing yet (e.g. preload delay), start it.
+    if (!muted && a.paused) {
       a.play().catch(() => {});
     }
   }, [muted]);
@@ -169,7 +194,6 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setPhase("exiting");
-    // Pause audio on exit
     const a = audioRef.current;
     if (a) { a.pause(); }
     setTimeout(() => {
@@ -236,8 +260,13 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         }}
       />
 
-      {/* Ambient audio — never autoplays, requires user click */}
-      <audio ref={audioRef} src={AMBIENT_AUDIO} loop muted={muted} preload="none" crossOrigin="anonymous" />
+      {/* Steel Thunderfall — autoplay muted (Chrome compliant), no loop */}
+      <audio
+        ref={audioRef}
+        src={INTRO_AUDIO}
+        preload="auto"
+        crossOrigin="anonymous"
+      />
 
       {/* Skip (top-right) */}
       <button
