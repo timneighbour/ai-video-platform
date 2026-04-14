@@ -7,7 +7,7 @@
  * - Large pulsing "Enable Sound" button shown if still muted during playback
  * - Small mute toggle in corner for users who want to mute after entering
  *
- * Video: v10 — cinematic trailer score, slow pacing, logo at 15.3s, 25.4s total
+ * Video: v11 — cinematic ELECTRONIC score (build/rise/drop), slow pacing, logo at 15.3s, 25.4s total
  * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
  */
 
@@ -16,10 +16,10 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v10_b83be573.mp4`;
+const TRAILER_URL = `${CDN}/wizvid-intro-v11_379f8718.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v10_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v11_seen";
 
 // CTA appears when video ends (~25.4s); timer fires at 24s as backup
 const CTA_SHOW_AT_MS = 24000;

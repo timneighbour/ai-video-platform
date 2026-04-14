@@ -94,3 +94,12 @@
 - [ ] Email notifications when render completes
 - [ ] Stripe Price IDs for new 5-tier structure (connect after core system stable)
 - [ ] 4K intro video (requires machine with more RAM for upscaling)
+
+## User Dashboard (Apr 14)
+- [ ] Dashboard page with Drafts / Rendering / Completed sections
+- [ ] Drafts: jobs with status draft or storyboard_ready — show title, thumbnail, last edited, Resume button
+- [ ] Rendering: jobs with status rendering or assembling — show title, progress bar, ETA, live polling
+- [ ] Completed: jobs with status completed — show title, thumbnail, Watch/Download/Share buttons
+- [ ] Empty states for each section
+- [ ] Real-time polling for Rendering section (every 5s)
+- [ ] Route /dashboard wired in App.tsx
