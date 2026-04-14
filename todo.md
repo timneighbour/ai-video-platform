@@ -3708,3 +3708,16 @@
 - [x] Share video button (navigator.share + clipboard fallback)
 - [x] Publish to WizVid platform button (Feature My Video section)
 - [x] Add social links (YouTube, Instagram, TikTok) in FeatureMyVideoSection
+
+### Homepage Redesign — Full Rebuild
+- [x] Hero: fullscreen cinematic bg video, headline "Create Cinematic Videos with AI", subtext, CTA "Start Creating", secondary "Watch Demo"
+- [ ] Trust strip: 3 items — No editing skills needed / AI storyboard generation / Full render in minutes
+- [ ] How It Works: 5-step strip — Prompt → Storyboard → Preview → Full Render → Share
+- [ ] Examples: grid with hover preview videos
+- [ ] Product Ecosystem: WizCreate, WizPilot, WizSound, WizLumina, WizBoost — each with icon + short explanation
+- [ ] Audio Demo: single track, toggle Normal/Enhance/Cinematic
+- [ ] Visual Demo: Standard vs Enhanced vs Cinematic — slider or toggle comparison
+- [ ] Pricing: pay-per-render + subscription tiers, highlight best value
+- [ ] Post-Render section: explain render progress, notifications, dashboard, downloads
+- [ ] WizBoost: creator sharing platform, social growth, exposure
+- [ ] Final CTA: strong conversion block

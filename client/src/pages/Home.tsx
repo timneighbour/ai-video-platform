@@ -753,16 +753,16 @@ function ContinueProjectBanner() {
 // ── Trust Signals (Production Audit Item 5) ──────────────────────────────────
 function TrustSignals() {
   return (
-    <section className="bg-[#0a0a0a] border-t border-white/6 py-6 px-6">
-      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+    <section className="bg-[#080808] border-t border-white/6 py-5 px-6">
+      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-14">
         {[
-          { value: "10,000+", label: "Videos created" },
-          { value: "Global", label: "Used by creators worldwide" },
-          { value: "Zero", label: "Editing skills required" },
-        ].map((stat) => (
-          <div key={stat.label} className="text-center">
-            <p className="text-white font-extrabold text-2xl sm:text-3xl tracking-tight">{stat.value}</p>
-            <p className="text-white/40 text-xs sm:text-sm mt-0.5">{stat.label}</p>
+          { icon: "✦", text: "No editing skills needed" },
+          { icon: "⚡", text: "AI storyboard generation" },
+          { icon: "🎬", text: "Full render in minutes" },
+        ].map((item) => (
+          <div key={item.text} className="flex items-center gap-2.5">
+            <span className="text-violet-400 text-sm font-bold">{item.icon}</span>
+            <span className="text-white/60 text-sm font-medium tracking-wide">{item.text}</span>
           </div>
         ))}
       </div>
@@ -861,73 +861,66 @@ function HowItWorksStrip() {
   );
 }
 
-// ── Immediate Value Section ─────────────────────────────────────────────────
+// ── Post-Render Explanation Section ──────────────────────────────────────────
 function ImmediateValue() {
+  const stages = [
+    {
+      icon: "⏳",
+      title: "Render Queue",
+      desc: "Your video enters the render queue immediately. Priority renders go first — standard renders follow in order.",
+      colour: "text-blue-400",
+      bg: "bg-blue-500/8 border-blue-500/20",
+    },
+    {
+      icon: "🎬",
+      title: "Processing Stages",
+      desc: "Watch live progress: Preparing Scenes → Animating Video → Syncing Audio → Finalising. Each stage updates in real time.",
+      colour: "text-violet-400",
+      bg: "bg-violet-500/8 border-violet-500/20",
+    },
+    {
+      icon: "🔔",
+      title: "Notifications",
+      desc: "Get notified the moment your video is ready — in-app and by email. No need to stay on the page.",
+      colour: "text-amber-400",
+      bg: "bg-amber-500/8 border-amber-500/20",
+    },
+    {
+      icon: "📁",
+      title: "Dashboard & Downloads",
+      desc: "All your videos live in your dashboard — Drafts, Rendering, and Completed. Download, share, or publish with one click.",
+      colour: "text-emerald-400",
+      bg: "bg-emerald-500/8 border-emerald-500/20",
+    },
+  ];
   return (
-    <section id="main-content" className="py-20 px-6 bg-gradient-to-b from-[#0f0f0f] to-[#111] border-t border-white/6">
+    <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/6">
       <div className="max-w-5xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left: copy */}
-          <div className="reveal">
-            <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">From upload to storyboard in seconds</p>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
-              See your full video before you render a single frame
-            </h2>
-            <ul className="space-y-4 mb-8">
-              {[
-                { icon: "⚡", text: "AI builds your full storyboard in under 30 seconds" },
-                { icon: "👁️", text: "Preview every scene — edit any prompt before rendering" },
-                { icon: "🎛️", text: "Full creative control, zero technical skill required" },
-                { icon: "✨", text: "No editing skills needed — just describe your video" },
-              ].map((item) => (
-                <li key={item.text} className="flex items-start gap-3">
-                  <span className="text-xl flex-shrink-0 mt-0.5">{item.icon}</span>
-                  <span className="text-[#a1a1aa] text-lg leading-snug">{item.text}</span>
-                </li>
-              ))}
-            </ul>
-            <NavLink
-              href="/onboarding"
-              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
-            >
-              <Sparkles className="w-4 h-4" />
-              Create your first video
-            </NavLink>
-            <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · Free to create · Only pay to render</p>
-          </div>
-          {/* Right: visual storyboard mockup */}
-          <div className="reveal">
-            <div className="bg-[#171717] border border-white/8 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
-                <span className="ml-2 text-xs text-[#a1a1aa] font-mono">AI Storyboard Preview</span>
-              </div>
-              {[
-                { time: "0:00", desc: "Opening scene — city skyline at night", status: "preview" },
-                { time: "0:08", desc: "Artist silhouette under streetlight", status: "preview" },
-                { time: "0:16", desc: "Rain in slow motion, neon reflections", status: "preview" },
-                { time: "0:24", desc: "Chorus — wide cinematic shot", status: "cinematic" },
-              ].map((scene) => (
-                <div key={scene.time} className="flex items-center gap-3 p-3 rounded-xl bg-[#0f0f0f] border border-white/5">
-                  <div className="w-12 h-8 rounded-lg bg-gradient-to-br from-violet-900/60 to-blue-900/40 border border-white/8 flex items-center justify-center text-xs text-[#a1a1aa] font-mono flex-shrink-0">
-                    {scene.time}
-                  </div>
-                  <p className="text-sm text-white/80 flex-1 leading-snug">{scene.desc}</p>
-                  {scene.status === "cinematic" ? (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-300 flex-shrink-0">✨ Cinematic</span>
-                  ) : (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/15 text-green-400 flex-shrink-0">Preview ready</span>
-                  )}
-                </div>
-              ))}
-              <div className="pt-2 flex items-center justify-between">
-                <span className="text-xs text-[#a1a1aa]">4 scenes generated</span>
-                <span className="text-xs text-violet-400 font-medium">Edit any scene before rendering →</span>
-              </div>
+        <div className="text-center mb-14 reveal">
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">After you render</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            What happens after you click render?
+          </h2>
+          <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
+            Your video is processed, delivered, and ready to download — all without leaving WizVid.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
+          {stages.map((s) => (
+            <div key={s.title} className={`rounded-2xl border p-6 flex flex-col gap-3 ${s.bg}`}>
+              <span className="text-3xl">{s.icon}</span>
+              <h3 className={`font-bold text-base ${s.colour}`}>{s.title}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{s.desc}</p>
             </div>
-          </div>
+          ))}
+        </div>
+        <div className="mt-10 text-center reveal">
+          <NavLink
+            href="/dashboard"
+            className="inline-flex items-center gap-2 text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors"
+          >
+            View your dashboard <ArrowRight className="w-3.5 h-3.5" />
+          </NavLink>
         </div>
       </div>
     </section>
@@ -2832,30 +2825,30 @@ export default function Home() {
       </a>
       <Nav />
       <main id="main-content">
+        {/* 1. Hero — fullscreen cinematic */}
         <Hero />
-        <ContinueProjectBanner />
+        {/* 2. Trust Strip — 3 key value props */}
         <TrustSignals />
-        <SeeWhatYouCanCreate />
+        {/* 3. How It Works — 5-step pipeline */}
         <HowItWorksStrip />
-        <TryAnExample />
-        <DemoSection />
-        <WizSoundSection />
-        <WizLuminaSection />
-        <ImmediateValue />
-        <WhyWizVid />
-        <SpeedSection />
-        <Features />
-        <ContentEngine />
-        <WhoItsFor />
-        <WizBeatSection />
+        {/* 4. Examples — grid with hover preview */}
         <MadeWithWizVid />
-        <SocialProof />
-        <PunchLine />
-        <HowWizVidWorks />
-        <WizBoostSection />
-        <HomePricing />
-        <CTAPush />
+        {/* 5. Product Ecosystem — 5 engines */}
         <EcosystemSection />
+        {/* 6. Audio Demo — WizSound toggle */}
+        <WizSoundSection />
+        {/* 7. Visual Demo — WizLumina comparison */}
+        <WizLuminaSection />
+        {/* 8. Pricing */}
+        <HomePricing />
+        {/* 9. Post-Render explanation */}
+        <ImmediateValue />
+        {/* 10. WizBoost */}
+        <WizBoostSection />
+        {/* 11. Final CTA */}
+        <CTAPush />
+        {/* Continue project banner (contextual) */}
+        <ContinueProjectBanner />
       </main>
       <Footer />
     </div>
