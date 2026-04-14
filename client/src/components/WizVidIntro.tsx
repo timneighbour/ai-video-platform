@@ -7,19 +7,19 @@
  * 6 visually distinct clip categories (no duplicates):
  *   1. Music video        — singer clip
  *   2. Cinematic film     — dramatic wide shot
- *   3. Abstract / wow     — abstract visual effects
- *   4. Social / nightclub — atmospheric, creator-style
- *   5. AI showcase        — product demo / cinematic output
- *   6. Animation          — WizVid animation sequence
+ *   3. Animation          — Pixar-style magical forest scene
+ *   4. AI generation      — sketch → cinematic transformation
+ *   5. Social / creator   — creator filming content
+ *   6. AI showcase        — WizVid animation sequence
  *
  * Trailer timing (audio: Steel Thunderfall 12.48s):
  *   0–3s    BLACK SCREEN     "This changes everything"
  *   3–5.5s  MUSIC VIDEO      "Music videos"
  *   5.5–8s  CINEMATIC FILM   "Cinematic films"
- *   8–10.5s ABSTRACT / WOW   "Abstract worlds"
- *   10.5–13s SOCIAL / NIGHT  "Social content"
- *   13–15.5s AI SHOWCASE     "Powered by AI"
- *   15.5–18s ANIMATION       "Enhanced with WizSound™"
+ *   8–10.5s ANIMATION        "Animated worlds"
+ *   10.5–13s AI GENERATION   "AI creates anything"
+ *   13–15.5s SOCIAL CREATOR  "For every creator"
+ *   15.5–18s AI SHOWCASE     "Enhanced with WizSound™"
  *   18s+    HOLD FRAME       "Enter WizVid" CTA
  */
 
@@ -34,12 +34,12 @@ const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
 
 // 6 visually distinct clips — one per category
 const CLIPS = {
-  music:     `${CDN}/intro-new-singer_fdadff1e.mp4`,       // 1. Music video
-  cinematic: `${CDN}/intro-new-cinematic_d6673107.mp4`,    // 2. Cinematic film
-  abstract:  `${CDN}/hero-abstract-web_ed099aea.mp4`,      // 3. Abstract / wow shot
-  social:    `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,     // 4. Social / nightclub
-  showcase:  `${CDN}/showcase-cinematic_13667434.mp4`,     // 5. AI showcase / product
-  animation: `${CDN}/wizvid-animation-v3_85969477.mp4`,    // 6. Animation
+  music:     `${CDN}/intro-new-singer_fdadff1e.mp4`,                // 1. Music video
+  cinematic: `${CDN}/intro-new-cinematic_d6673107.mp4`,             // 2. Cinematic film
+  animation: `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`,               // 3. Pixar-style animation
+  aiGen:     `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`,              // 4. AI generation/transformation
+  creator:   `${CDN}/intro-clip-creator_240db80f.mp4`,             // 5. Social creator
+  showcase:  `${CDN}/wizvid-animation-v3_85969477.mp4`,            // 6. WizVid AI showcase
 };
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
@@ -51,10 +51,10 @@ const DISSOLVE_MS = 900; // smooth but not sluggish
 const CLIP_SCHEDULE = [
   { at: 3000,  src: CLIPS.music     },  // Music video
   { at: 5500,  src: CLIPS.cinematic },  // Cinematic film
-  { at: 8000,  src: CLIPS.abstract  },  // Abstract / wow
-  { at: 10500, src: CLIPS.social    },  // Social / nightclub
-  { at: 13000, src: CLIPS.showcase  },  // AI showcase
-  { at: 15500, src: CLIPS.animation },  // Animation — hold for CTA
+  { at: 8000,  src: CLIPS.animation },  // Pixar-style animation
+  { at: 10500, src: CLIPS.aiGen     },  // AI generation/transformation
+  { at: 13000, src: CLIPS.creator   },  // Social creator
+  { at: 15500, src: CLIPS.showcase  },  // WizVid AI showcase — hold for CTA
 ];
 
 // ── Text schedule (ms from start) ─────────────────────────────────────────────
@@ -67,9 +67,9 @@ const TEXT_SCHEDULE = [
   { showAt: 700,   hideAt: 2700,  text: "This changes everything" },
   { showAt: 3200,  hideAt: 5200,  text: "Music videos"            },
   { showAt: 5700,  hideAt: 7700,  text: "Cinematic films"         },
-  { showAt: 8200,  hideAt: 10200, text: "Abstract worlds"         },
-  { showAt: 10700, hideAt: 12700, text: "Social content"          },
-  { showAt: 13200, hideAt: 15200, text: "Powered by AI"           },
+  { showAt: 8200,  hideAt: 10200, text: "Animated worlds"         },
+  { showAt: 10700, hideAt: 12700, text: "AI creates anything"     },
+  { showAt: 13200, hideAt: 15200, text: "For every creator"       },
   { showAt: 15700, hideAt: 17700, text: "Enhanced with WizSound™" },
 ];
 
