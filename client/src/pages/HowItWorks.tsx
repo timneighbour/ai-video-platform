@@ -1,248 +1,283 @@
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles } from "lucide-react";
-import { useLocation, Link } from "wouter";
-import { NavLink } from "@/components/NavLink";
+import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare, CheckCircle2, Clock, Bell, Share2 } from "lucide-react";
+import { Link } from "wouter";
 
-// ── CDN assets (same as Home.tsx) ────────────────────────────────────────────
+// ── CDN assets ────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZVID_LOGO_FULL = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
-
 const STEP_IMAGES = {
   upload: `${CDN}/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp`,
   styles: `${CDN}/step2-style-collage-P6HWeTbd9g6UsLFLRWYJEi.webp`,
   render: `${CDN}/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp`,
 };
 
-// ── Detailed walkthrough steps ───────────────────────────────────────────────
-const WALKTHROUGH_STEPS = [
+// ── 5-step pipeline ───────────────────────────────────────────────────────────
+const PIPELINE_STEPS = [
   {
-    step: "01",
-    icon: "🎬",
-    title: "Choose your video type",
-    desc: "Pick from Music Video, YouTube/WizPilot, Kids Animation, or Text to Video. Each has a tailored flow built for your content.",
-    visual: (
-      <div className="flex flex-wrap gap-2 mt-3">
-        {["🎤 Music Video", "🎥 WizPilot", "🧒 Kids Animation", "✨ Text to Video"].map((t) => (
-          <span key={t} className="text-xs bg-white/8 border border-white/10 rounded-full px-3 py-1 text-white/80">{t}</span>
-        ))}
-      </div>
-    ),
+    num: "01",
+    icon: <MessageSquare className="w-6 h-6" />,
+    color: "violet",
+    title: "Prompt",
+    headline: "Describe your video idea",
+    desc: "Type a prompt, upload your audio, or let AI generate the music. WizVid understands natural language — no technical skills needed.",
+    details: [
+      "Upload your song or describe your concept",
+      "Choose from 11 cinematic styles (Cinematic, Anime, Pixar 3D, Neon Noir, and more)",
+      "Set mood, genre, and visual direction",
+    ],
+    badge: "Free to start",
+    badgeColor: "bg-violet-500/15 text-violet-300 border-violet-500/25",
   },
   {
-    step: "02",
-    icon: "🎨",
-    title: "Pick your style",
-    desc: "Choose from 11 cinematic styles — Cinematic, Anime, Pixar 3D, Documentary, Neon Noir, Disney, Epic Fantasy, Realistic, Horror, Abstract, or Vintage.",
-    visual: (
-      <div className="flex flex-wrap gap-2 mt-3">
-        {["🎬 Cinematic", "🌸 Anime", "✨ Pixar 3D", "🌃 Neon Noir", "🏰 Disney"].map((t) => (
-          <span key={t} className="text-xs bg-violet-500/15 border border-violet-500/25 rounded-full px-3 py-1 text-violet-300">{t}</span>
-        ))}
-      </div>
-    ),
+    num: "02",
+    icon: <Wand2 className="w-6 h-6" />,
+    color: "blue",
+    title: "Storyboard",
+    headline: "AI builds your full storyboard",
+    desc: "In under 30 seconds, WizVid generates a complete scene-by-scene storyboard with AI images, scene descriptions, and visual prompts.",
+    details: [
+      "Full storyboard generated instantly — no waiting",
+      "Each scene has its own image, prompt, and timing",
+      "Edit any scene prompt or swap the visual style",
+    ],
+    badge: "Completely free",
+    badgeColor: "bg-blue-500/15 text-blue-300 border-blue-500/25",
   },
   {
-    step: "03",
-    icon: "🖼️",
-    title: "Preview your storyboard",
-    desc: "WizVid instantly generates an AI storyboard with scene images. Review every scene, edit any prompt, and approve before spending a single credit.",
-    visual: (
-      <div className="mt-3 p-3 rounded-xl bg-white/5 border border-white/8 text-xs text-white/60">
-        💡 <span className="text-white/80 font-medium">Free to preview</span> — you only pay credits when you click Render
-      </div>
-    ),
+    num: "03",
+    icon: <Film className="w-6 h-6" />,
+    color: "emerald",
+    title: "Preview",
+    headline: "Review every scene before you pay",
+    desc: "See exactly what your video will look like before spending a single credit. Edit, regenerate, or approve each scene individually.",
+    details: [
+      "Preview every scene image — no surprises",
+      "Regenerate any scene you're not happy with",
+      "Approve the full storyboard before rendering",
+    ],
+    badge: "No credits needed",
+    badgeColor: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
   },
   {
-    step: "04",
-    icon: "🚀",
-    title: "Render your video",
-    desc: "Happy with the storyboard? Hit Render and WizVid generates your full video — every scene synced, styled, and ready to download.",
-    visual: (
-      <div className="mt-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-300">
-        ✅ Download MP4 · Share anywhere · Your video, your rights
-      </div>
-    ),
+    num: "04",
+    icon: <Download className="w-6 h-6" />,
+    color: "amber",
+    title: "Full Render",
+    headline: "Render your video in HD or 4K",
+    desc: "When you're happy with the storyboard, click Render. WizVid animates every scene, syncs audio, and delivers your complete video.",
+    details: [
+      "Choose HD (1080p) or 4K resolution",
+      "WizSound audio enhancement included",
+      "WizLumina visual grading for cinematic quality",
+    ],
+    badge: "Credits used here",
+    badgeColor: "bg-amber-500/15 text-amber-300 border-amber-500/25",
+  },
+  {
+    num: "05",
+    icon: <Users className="w-6 h-6" />,
+    color: "fuchsia",
+    title: "Share",
+    headline: "Download, share, and grow",
+    desc: "Download your video instantly. Share to YouTube, Instagram, TikTok, or publish to the WizVid platform to grow your audience with WizBoost.",
+    details: [
+      "Download MP4 immediately after render",
+      "Share directly to social platforms",
+      "Publish to WizVid and grow with WizBoost",
+    ],
+    badge: "Your video, your rights",
+    badgeColor: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25",
   },
 ];
 
-// ── Three high-level step cards ───────────────────────────────────────────────
-const STEP_CARDS = [
-  {
-    step: "01",
-    icon: "🎵",
-    title: "Upload your audio or idea",
-    desc: "Drop in your song, describe your concept, or let AI generate the music.",
-    img: STEP_IMAGES.upload,
-    imgAlt: "Audio waveform upload interface with glowing violet microphone",
-    accent: "from-violet-500/20 to-violet-500/0",
-  },
-  {
-    step: "02",
-    icon: "🎨",
-    title: "Choose your style",
-    desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage.",
-    img: STEP_IMAGES.styles,
-    imgAlt: "Four-panel collage showing Cinematic, Anime, Pixar 3D, and Vintage video styles",
-    accent: "from-blue-500/20 to-blue-500/0",
-  },
-  {
-    step: "03",
-    icon: "🚀",
-    title: "WizVid generates your video",
-    desc: "AI builds your storyboard, renders every scene, and delivers a complete video.",
-    img: STEP_IMAGES.render,
-    imgAlt: "AI-generated cinematic music video scene — singer on stage with cosmic LED backdrop",
-    accent: "from-emerald-500/20 to-emerald-500/0",
-  },
-];
+const COLOR_MAP: Record<string, { ring: string; bg: string; text: string; line: string }> = {
+  violet: { ring: "border-violet-500/40", bg: "bg-violet-500/10", text: "text-violet-300", line: "bg-violet-500/20" },
+  blue:   { ring: "border-blue-500/40",   bg: "bg-blue-500/10",   text: "text-blue-300",   line: "bg-blue-500/20" },
+  emerald:{ ring: "border-emerald-500/40",bg: "bg-emerald-500/10",text: "text-emerald-300",line: "bg-emerald-500/20" },
+  amber:  { ring: "border-amber-500/40",  bg: "bg-amber-500/10",  text: "text-amber-300",  line: "bg-amber-500/20" },
+  fuchsia:{ ring: "border-fuchsia-500/40",bg: "bg-fuchsia-500/10",text: "text-fuchsia-300",line: "bg-fuchsia-500/20" },
+};
 
 export default function HowItWorks() {
-  const [, setLocation] = useLocation();
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* ── Nav bar ── */}
+      {/* ── Nav ── */}
       <nav className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/8 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          {/* Back button */}
-          <a
-            href="/"
-            className="flex items-center gap-2 text-[#a1a1aa] hover:text-white transition-colors text-sm font-medium"
-          >
+          <a href="/" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm font-medium">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </a>
-
-          {/* Logo */}
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-            <img
-              src={WIZVID_LOGO_FULL}
-              alt="WizVid"
-              className="h-9 w-auto object-contain"
-            />
+          <Link href="/">
+            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain absolute left-1/2 -translate-x-1/2" />
           </Link>
-
-          {/* CTA */}
-          <Button
-            className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 shadow-sm"
-            asChild
+          <a
+            href="/music-video"
+            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm px-5 py-2 rounded-xl font-semibold transition-colors"
           >
-            <Link href="/onboarding">
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" />Get Started
-            </Link>
-          </Button>
+            <Sparkles className="w-3.5 h-3.5" />
+            Start Creating
+          </a>
         </div>
       </nav>
 
-      {/* ── Hero header ── */}
-      <div className="max-w-5xl mx-auto px-6 pt-16 pb-10 text-center">
+      {/* ── Hero ── */}
+      <div className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-6">
           How it works
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-          Three steps to your video
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">
+          From idea to video<br />
+          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-blue-400 bg-clip-text text-transparent">in five steps</span>
         </h1>
-        <p className="text-[#a1a1aa] text-lg max-w-lg mx-auto">
-          From idea to full video in under 5 minutes — no editing required.
+        <p className="text-white/50 text-lg max-w-xl mx-auto mb-8">
+          WizVid handles the entire creation pipeline — you just describe what you want.
         </p>
-      </div>
 
-      {/* ── Three-step visual cards ── */}
-      <div className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="grid md:grid-cols-3 gap-6">
-          {STEP_CARDS.map((step, i) => (
-            <div
-              key={step.step}
-              className="rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all overflow-hidden group"
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              {/* Step image */}
-              <div className="relative w-full aspect-video overflow-hidden">
-                <img
-                  src={step.img}
-                  alt={step.imgAlt}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className={`absolute inset-0 bg-gradient-to-br ${step.accent} mix-blend-multiply pointer-events-none`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent pointer-events-none" />
-              </div>
-              {/* Step content */}
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">{step.icon}</span>
-                  <span className="text-xs font-bold text-[#a1a1aa] tracking-widest">STEP {step.step}</span>
+        {/* Pipeline strip */}
+        <div className="flex items-center justify-center gap-0 flex-wrap">
+          {PIPELINE_STEPS.map((step, i) => {
+            const c = COLOR_MAP[step.color];
+            return (
+              <div key={step.num} className="flex items-center">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${c.ring} ${c.bg}`}>
+                  <span className={`text-xs font-bold ${c.text}`}>{step.title}</span>
                 </div>
-                <h3 className="font-semibold text-white text-base mb-2">{step.title}</h3>
-                <p className="text-[#a1a1aa] text-sm leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Divider ── */}
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="border-t border-white/8" />
-      </div>
-
-      {/* ── Detailed walkthrough ── */}
-      <div className="max-w-3xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Step by step</p>
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-4">
-            How WizVid works
-          </h2>
-          <p className="text-[#a1a1aa]">A closer look at each stage of the creation process.</p>
-        </div>
-
-        <div className="space-y-2">
-          {WALKTHROUGH_STEPS.map((s, i) => (
-            <div key={s.step} className="flex gap-5">
-              {/* Timeline indicator */}
-              <div className="flex flex-col items-center">
-                <div className="w-11 h-11 rounded-full bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-xl flex-shrink-0">
-                  {s.icon}
-                </div>
-                {i < WALKTHROUGH_STEPS.length - 1 && (
-                  <div className="w-px flex-1 bg-white/8 mt-2 mb-2" />
+                {i < PIPELINE_STEPS.length - 1 && (
+                  <div className="w-6 h-px bg-white/15 mx-1" />
                 )}
               </div>
-              {/* Content */}
-              <div className="flex-1 pb-8">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold text-[#a1a1aa] tracking-widest">STEP {s.step}</span>
-                </div>
-                <h3 className="font-semibold text-white text-lg mb-2">{s.title}</h3>
-                <p className="text-[#a1a1aa] text-sm leading-relaxed">{s.desc}</p>
-                {s.visual}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* ── CTA section ── */}
-      <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border-t border-white/6 py-20 px-6 text-center">
+      {/* ── 5-step detailed walkthrough ── */}
+      <div className="max-w-3xl mx-auto px-6 pb-20">
+        <div className="space-y-0">
+          {PIPELINE_STEPS.map((step, i) => {
+            const c = COLOR_MAP[step.color];
+            return (
+              <div key={step.num} className="flex gap-6">
+                {/* Timeline */}
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div className={`w-12 h-12 rounded-full border-2 ${c.ring} ${c.bg} flex items-center justify-center ${c.text}`}>
+                    {step.icon}
+                  </div>
+                  {i < PIPELINE_STEPS.length - 1 && (
+                    <div className={`w-0.5 flex-1 ${c.line} mt-2 mb-2 min-h-[40px]`} />
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 pb-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-xs font-bold text-white/30 tracking-widest font-mono">STEP {step.num}</span>
+                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${step.badgeColor}`}>
+                      {step.badge}
+                    </span>
+                  </div>
+                  <h2 className={`text-xl font-bold mb-1 ${c.text}`}>{step.title}</h2>
+                  <h3 className="text-lg font-semibold text-white mb-3">{step.headline}</h3>
+                  <p className="text-white/50 text-sm leading-relaxed mb-4">{step.desc}</p>
+                  <ul className="space-y-2">
+                    {step.details.map((d) => (
+                      <li key={d} className="flex items-start gap-2.5 text-sm text-white/65">
+                        <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${c.text}`} />
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Render queue explainer ── */}
+      <div className="border-t border-white/8 bg-[#0d0d0d] py-16 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">After you click Render</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">What happens during rendering?</h2>
+            <p className="text-white/45 text-sm max-w-lg mx-auto">Your video goes through four processing stages. You'll be notified when it's ready.</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[
+              { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Position is based on your plan tier.", color: "text-white/50" },
+              { icon: <Wand2 className="w-5 h-5" />, stage: "Rendering", desc: "AI animates each scene from your approved storyboard images.", color: "text-violet-300" },
+              { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina are applied.", color: "text-blue-300" },
+              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WizVid.", color: "text-emerald-300" },
+            ].map((item) => (
+              <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-white/4 border border-white/8">
+                <div className={`flex-shrink-0 mt-0.5 ${item.color}`}>{item.icon}</div>
+                <div>
+                  <p className={`text-sm font-semibold mb-1 ${item.color}`}>{item.stage}</p>
+                  <p className="text-xs text-white/45 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 p-4 rounded-xl bg-violet-500/8 border border-violet-500/20 flex items-start gap-3">
+            <Bell className="w-4 h-4 text-violet-300 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-white/60">
+              <span className="text-white/80 font-medium">Email notification</span> — We'll send you an email when your render is complete, so you don't need to stay on the page.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── WizBoost teaser ── */}
+      <div className="border-t border-white/8 py-16 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 text-xs font-semibold uppercase tracking-wider mb-6">
+            WizBoost
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4">
+            Create videos. Build your audience.
+          </h2>
+          <p className="text-white/45 text-sm max-w-lg mx-auto mb-8">
+            After rendering, WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { icon: <Share2 className="w-3.5 h-3.5" />, label: "Share to YouTube, Instagram, TikTok" },
+              { icon: <Users className="w-3.5 h-3.5" />, label: "Publish to WizVid platform" },
+              { icon: <Sparkles className="w-3.5 h-3.5" />, label: "Grow your fanbase" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/65">
+                <span className="text-fuchsia-400">{item.icon}</span>
+                {item.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── CTA ── */}
+      <div className="border-t border-white/8 bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] py-20 px-6 text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-4">
           Ready to create your video?
         </h2>
-        <p className="text-[#a1a1aa] text-lg mb-8 max-w-md mx-auto">
+        <p className="text-white/45 text-lg mb-8 max-w-md mx-auto">
           Preview your full storyboard for free — no credit card required.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="/onboarding"
+            href="/music-video"
             className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
           >
-            <Sparkles className="w-4 h-4 mr-2" />Ready to Create Video
+            <Sparkles className="w-4 h-4 mr-2" />
+            Start Creating
           </a>
           <a
-            href="/"
+            href="/creators"
             className="inline-flex items-center justify-center border border-white/15 text-white hover:bg-white/5 bg-transparent text-base px-8 py-3 rounded-xl font-medium transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />Back to Home
+            <Film className="w-4 h-4 mr-2" />
+            View Examples
           </a>
         </div>
       </div>

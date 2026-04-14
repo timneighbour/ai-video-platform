@@ -39,3 +39,52 @@ server/music-video-service.ts(613,5): error TS2322: Type '"standard"' is not ass
 
 
 3:05:58 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:16:44 PM - File change detected. Starting incremental compilation...
+
+
+3:16:51 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:17:18 PM - File change detected. Starting incremental compilation...
+
+
+3:17:21 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:17:41 PM - File change detected. Starting incremental compilation...
+
+
+3:17:45 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:18:27 PM - File change detected. Starting incremental compilation...
+
+
+3:18:31 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:22:52 PM - File change detected. Starting incremental compilation...
+
+
+3:23:01 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:24:10 PM - File change detected. Starting incremental compilation...
+
+
+3:24:13 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:24:46 PM - File change detected. Starting incremental compilation...
+
+
+3:24:49 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:25:07 PM - File change detected. Starting incremental compilation...
+
+
+3:25:10 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:27:58 PM - File change detected. Starting incremental compilation...
+
+
+3:28:01 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:30:19 PM - File change detected. Starting incremental compilation...
+
+
+3:30:23 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H3:30:35 PM - File change detected. Starting incremental compilation...
+
+client/src/pages/Home.tsx(2704,10): error TS2552: Cannot find name 'WizBoostSection'. Did you mean 'WizBeatSection'?
+
+3:30:39 PM - Found 1 error. Watching for file changes.
+[2J[3J[H3:31:14 PM - File change detected. Starting incremental compilation...
+
+
+3:31:18 PM - Found 0 errors. Watching for file changes.

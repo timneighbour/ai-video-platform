@@ -17,7 +17,7 @@ import { trpc } from "@/lib/trpc";
 import {
   Sparkles, Music, Zap, Star, Play, Check, ArrowRight,
   Menu, X, Volume2, VolumeX, Film, Wand2, Users, ChevronRight,
-  Music2, Bot, Lightbulb, Video, Download
+  Music2, Bot, Lightbulb, Video, Download, TrendingUp, Instagram, Youtube, Globe
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -106,9 +106,9 @@ function Nav() {
 
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-1">
-          <NavLink href="/music-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Music Video</NavLink>
-          <NavLink href="/wizpilot" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">WizPilot</NavLink>
-          <NavLink href="/discover" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Discover</NavLink>
+          <NavLink href="/music-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Create</NavLink>
+          <NavLink href="/how-it-works" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">How It Works</NavLink>
+          <NavLink href="/creators" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Examples</NavLink>
           <NavLink href="/pricing" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Pricing</NavLink>
           <NavLink href="/help" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Help</NavLink>
         </div>
@@ -517,6 +517,13 @@ function Hero() {
                 </span>
                 Watch Demo
               </button>
+              <NavLink
+                href="/creators"
+                className="inline-flex items-center gap-2 text-sm text-white/55 hover:text-white/80 transition-colors font-medium"
+              >
+                <Film className="w-3.5 h-3.5" />
+                View Examples
+              </NavLink>
 
             </div>
 
@@ -820,15 +827,17 @@ function SeeWhatYouCanCreate() {
 // ── How It Works Strip (4-step, directly under hero) ───────────────────────
 function HowItWorksStrip() {
   const steps = [
-    { num: "01", icon: <Music className="w-5 h-5" />, title: "Upload audio or idea", desc: "Drop your track or type a prompt" },
-    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "AI builds your video", desc: "Scenes, visuals, sync — all automatic" },
-    { num: "03", icon: <Film className="w-5 h-5" />, title: "Preview every scene", desc: "Review before spending a single credit" },
-    { num: "04", icon: <Download className="w-5 h-5" />, title: "Pay to render in HD or 4K", desc: "Only pay when you love it" },
+    { num: "01", icon: <Sparkles className="w-5 h-5" />, title: "Prompt", desc: "Describe your video idea or upload your audio" },
+    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "Storyboard", desc: "AI builds your full storyboard in seconds" },
+    { num: "03", icon: <Film className="w-5 h-5" />, title: "Preview", desc: "Review every scene before spending a credit" },
+    { num: "04", icon: <Download className="w-5 h-5" />, title: "Full Render", desc: "Render in HD or 4K when you love it" },
+    { num: "05", icon: <Users className="w-5 h-5" />, title: "Share", desc: "Download, share, and grow with WizBoost" },
   ];
   return (
     <section className="bg-[#0a0a0a] border-t border-white/6 py-10 px-6">
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+        <p className="text-center text-xs font-semibold text-violet-400/70 uppercase tracking-widest mb-6">Your creation journey</p>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-3">
           {steps.map((step, i) => (
             <div key={i} className="flex flex-col items-center text-center gap-3">
               {/* Step number + connector line */}
@@ -2175,6 +2184,157 @@ function PunchLine() {
   );
 }
 
+// ── WizBoost Section ───────────────────────────────────────────────────────
+function WizBoostSection() {
+  const CREATOR_TYPES = [
+    {
+      icon: <Music className="w-5 h-5" />,
+      title: "Musicians",
+      color: "from-violet-600 to-purple-700",
+      borderColor: "border-violet-500/30",
+      glowColor: "shadow-violet-900/30",
+      benefits: ["Share your music videos", "Grow your fanbase", "Connect your social platforms"],
+      socials: [
+        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
+        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
+        { icon: <Globe className="w-3.5 h-3.5" />, label: "Website" },
+      ],
+      mock: { name: "Luna Ray", handle: "@lunaray", type: "Music Artist", views: "12.4K" },
+    },
+    {
+      icon: <Video className="w-5 h-5" />,
+      title: "Content Creators",
+      color: "from-blue-600 to-indigo-700",
+      borderColor: "border-blue-500/30",
+      glowColor: "shadow-blue-900/30",
+      benefits: ["Showcase your videos", "Drive traffic to your content", "Build your audience"],
+      socials: [
+        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
+        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
+        { icon: <Globe className="w-3.5 h-3.5" />, label: "TikTok" },
+      ],
+      mock: { name: "Alex Chen", handle: "@alexcreates", type: "Content Creator", views: "8.2K" },
+    },
+    {
+      icon: <Film className="w-5 h-5" />,
+      title: "Animators",
+      color: "from-emerald-600 to-teal-700",
+      borderColor: "border-emerald-500/30",
+      glowColor: "shadow-emerald-900/30",
+      benefits: ["Display your work", "Attract new opportunities", "Build a visual portfolio"],
+      socials: [
+        { icon: <Globe className="w-3.5 h-3.5" />, label: "Portfolio" },
+        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
+        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
+      ],
+      mock: { name: "Kai Studio", handle: "@kaistudio", type: "Animator", views: "5.7K" },
+    },
+    {
+      icon: <TrendingUp className="w-5 h-5" />,
+      title: "YouTubers",
+      color: "from-red-600 to-orange-700",
+      borderColor: "border-red-500/30",
+      glowColor: "shadow-red-900/30",
+      benefits: ["Promote your videos", "Increase visibility", "Expand your reach"],
+      socials: [
+        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
+        { icon: <Globe className="w-3.5 h-3.5" />, label: "Website" },
+        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
+      ],
+      mock: { name: "Max Vlog", handle: "@maxvlog", type: "YouTuber", views: "31.8K" },
+    },
+  ];
+
+  return (
+    <section className="py-20 px-6 bg-[#0d0d0d] border-t border-white/6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-4">
+            <TrendingUp className="w-3.5 h-3.5" />
+            WizBoost
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+            Create videos. Build your audience.
+          </h2>
+          <p className="text-white/45 text-base max-w-xl mx-auto leading-relaxed">
+            WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
+          </p>
+        </div>
+
+        {/* Creator type cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+          {CREATOR_TYPES.map((ct) => (
+            <div
+              key={ct.title}
+              className={`rounded-2xl bg-[#141414] border ${ct.borderColor} p-5 flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300`}
+            >
+              {/* Icon + title */}
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ct.color} flex items-center justify-center text-white shadow-lg ${ct.glowColor}`}>
+                  {ct.icon}
+                </div>
+                <h3 className="text-sm font-bold text-white">{ct.title}</h3>
+              </div>
+
+              {/* Mock creator profile */}
+              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/4 border border-white/6">
+                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${ct.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                  {ct.mock.name[0]}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-white truncate">{ct.mock.name}</p>
+                  <p className="text-[10px] text-white/35 truncate">{ct.mock.handle}</p>
+                </div>
+                <span className="text-[10px] text-white/30 flex-shrink-0">{ct.mock.views} views</span>
+              </div>
+
+              {/* Benefits */}
+              <ul className="space-y-1.5 flex-1">
+                {ct.benefits.map((b) => (
+                  <li key={b} className="flex items-center gap-2 text-xs text-white/55">
+                    <Check className="w-3 h-3 text-white/30 flex-shrink-0" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Social icons */}
+              <div className="flex items-center gap-2 pt-2 border-t border-white/6">
+                {ct.socials.map((s) => (
+                  <div key={s.label} className="flex items-center gap-1 text-white/30 text-[10px]">
+                    {s.icon}
+                    <span>{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href="/music-video"
+            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-7 py-3.5 rounded-2xl transition-all shadow-lg shadow-violet-900/30 text-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            Showcase your video
+          </a>
+          <a
+            href="/discover"
+            className="inline-flex items-center gap-2 border border-white/15 text-white/70 hover:text-white hover:border-white/30 px-7 py-3.5 rounded-2xl transition-all text-sm"
+          >
+            <Users className="w-4 h-4" />
+            Grow your audience with WizBoost
+            <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Value Clarity Pricing Block ─────────────────────────────────────────────
 function HomePricing() {
   const plans = [
@@ -2692,6 +2852,7 @@ export default function Home() {
         <SocialProof />
         <PunchLine />
         <HowWizVidWorks />
+        <WizBoostSection />
         <HomePricing />
         <CTAPush />
         <EcosystemSection />

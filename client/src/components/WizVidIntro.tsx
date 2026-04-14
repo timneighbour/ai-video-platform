@@ -1,12 +1,18 @@
 /**
- * WizVidIntro — Cinematic Trailer v8 (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v9 FINAL (Apr 2026)
  *
- * Cross-device compatible intro:
+ * Upgrades from v8:
+ * - WizLumina HDR grading: deeper blacks, brighter highlights, richer saturation
+ * - WizSound audio: stereo widening, EQ clarity, bass build, subwoofer impact on logo
+ * - Text: pure white #FFFFFF, bold, strong shadow
+ * - 4K source (2160p), served as 1080p web-optimised
+ * - Single logo at end only
+ *
+ * Cross-device compatible:
  * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
  * - Android Chrome/Firefox: standard muted autoplay
  * - Desktop: all browsers supported
  * - Fallback: manual play button if autoplay blocked
- * - Audio: toggle works on all devices, never gets stuck
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -14,14 +20,16 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v8 trailer — H.264 Constrained Baseline, faststart, 24fps, 13.7MB, iOS Safari compatible
-const TRAILER_URL = `${CDN}/wizvid-intro-v8_a483963a.mp4`;
+// v9 FINAL — WizLumina HDR + WizSound audio, H.264 Baseline, faststart, 24fps, 17.7MB, iOS Safari compatible
+const TRAILER_URL = `${CDN}/wizvid-intro-v9_3c56a28a.mp4`;
+// 4K version available for download: `${CDN}/wizvid-intro-v9-4k_36299eb5.mp4`
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v8_seen"; // bump to force all users to see v8
+export const INTRO_SEEN_KEY = "wizvid_intro_v9_seen"; // v9 FINAL — WizLumina + WizSound upgrade
 
 // CTA appears when video ends (~28.5s); timer fires at 27s as backup
 const CTA_SHOW_AT_MS = 27000;
+// v9 duration: 28.56s
 
 interface WizVidIntroProps {
   onClose: () => void;

@@ -3663,3 +3663,48 @@
 - [x] Help.tsx FAQ: updated plan descriptions to show all 5 tiers (Starter £9, Basic £19, Creator £29, Pro £59, Studio £99)
 - [x] Upgrade prompt on download: PostRenderRetentionScreen shows upgrade banner for free/starter users after render
 - [x] TypeScript: tsc watcher confirms 0 errors (nohup.out shows "Found 0 errors" at 3:05 PM)
+
+### WizBoost Homepage Section
+- [x] Add WizBoost section to Home.tsx after video creation flow, before pricing
+- [x] Section title: "Create videos. Build your audience."
+- [x] Subtext: "WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create."
+- [x] 4 content blocks: Musicians, Content Creators, Animators, YouTubers
+- [x] Include mock video thumbnails, creator profiles, social icons (YouTube, Instagram, TikTok)
+- [x] CTA: "Showcase your video" + "Grow your audience with WizBoost"
+
+### Full Navigation + User Journey Implementation
+#### Navigation
+- [x] Replace nav links with: Create, How It Works, Examples, Pricing, Help
+- [x] Wire Create to /music-video, How It Works to /how-it-works, Examples to /creators, Pricing to /pricing, Help to /help
+
+#### Homepage
+- [x] Primary CTA: "Start Creating" (links to /music-video)
+- [x] Secondary CTA: "Watch Demo / Examples"
+- [x] Add visual pipeline strip: Prompt → Storyboard → Preview → Full Render → Share
+- [x] Add WizBoost section (after creation flow, before pricing)
+
+#### How It Works Page
+- [x] Build /how-it-works page with 5-step flow: Prompt → Storyboard → Preview → Full Render → Share
+- [x] Register route in App.tsx
+
+#### Pricing Page
+- [x] Add "What happens after rendering?" section explaining render queue, processing stages, notification system, where videos appear
+
+#### Creation Flow — Save/Resume
+- [x] Save project button in MusicVideoAutopilot.tsx (auto-saved to DB)
+- [x] Resume later — Dashboard has Continue cards linking to resume URL
+
+#### Render Status UI
+- [x] Show render stages: Queued → Rendering → Finalising → Complete (already implemented)
+- [x] Progress bar with stage labels in MusicVideoAutopilot.tsx render step (already implemented)
+
+#### Dashboard Structure
+- [x] Add Drafts section (jobs in draft/storyboard_ready status)
+- [x] Add Rendering section (jobs in rendering/assembling status)
+- [x] Add Completed section (jobs in completed status)
+
+#### WizBoost Post-Render
+- [x] Download video button (verified working)
+- [x] Share video button (navigator.share + clipboard fallback)
+- [x] Publish to WizVid platform button (Feature My Video section)
+- [x] Add social links (YouTube, Instagram, TikTok) in FeatureMyVideoSection
