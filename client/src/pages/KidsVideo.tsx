@@ -621,25 +621,16 @@ export default function KidsVideo() {
       {/* ── Header ── */}
       <div className="border-b border-white/10 sticky top-0 z-30 bg-background/95 backdrop-blur-sm">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
+            type="button"
             onClick={() => {
               if (step === "characters") setStep("story_input");
               else if (step === "story_input") setStep("concept");
               else if (step === "storyboard") setStep("characters");
               else if (step === "render" && renderStatus === "not_started") setStep("storyboard");
-              else setLocation("/");
+              else { window.location.href = "/"; }
             }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              if (step === "characters") setStep("story_input");
-              else if (step === "story_input") setStep("concept");
-              else if (step === "storyboard") setStep("characters");
-              else if (step === "render" && renderStatus === "not_started") setStep("storyboard");
-              else setLocation("/");
-            }}
-            className="gap-2 text-muted-foreground hover:text-white"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/10"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">
@@ -647,8 +638,7 @@ export default function KidsVideo() {
                step === "storyboard" ? "Characters" :
                step === "render" ? "Storyboard" : "Back"}
             </span>
-          </Button>
-
+          </button>
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🧒</span>
             <span className="font-bold text-white text-sm sm:text-base">Kids Animation Creator</span>
