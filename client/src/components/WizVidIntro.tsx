@@ -352,20 +352,46 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
         style={{ zIndex: 10 }}
       >
-        {/* Logo */}
+        {/* Logo — premium cinematic quality */}
         <div
           style={{
             opacity: showLogo ? 1 : 0,
-            transform: showLogo ? "scale(1) translateY(0)" : "scale(0.88) translateY(24px)",
-            transition: "opacity 1000ms cubic-bezier(0.16,1,0.3,1), transform 1000ms cubic-bezier(0.16,1,0.3,1)",
+            transform: showLogo ? "scale(1) translateY(0)" : "scale(0.82) translateY(32px)",
+            transition: "opacity 1200ms cubic-bezier(0.16,1,0.3,1), transform 1200ms cubic-bezier(0.16,1,0.3,1)",
+            position: "relative",
           }}
         >
+          {/* Cinematic atmosphere glow behind logo */}
+          <div
+            style={{
+              position: "absolute",
+              inset: "-60px -80px",
+              background: "radial-gradient(ellipse 70% 55% at 50% 55%, rgba(139,92,246,0.28) 0%, rgba(109,40,217,0.12) 45%, transparent 75%)",
+              filter: "blur(32px)",
+              pointerEvents: "none",
+              zIndex: -1,
+              animation: showLogo ? "logoAtmosphere 3s ease-in-out infinite alternate" : "none",
+            }}
+          />
+          {/* Sharp PNG logo — pixel-perfect at any resolution */}
           <img
             src={LOGO}
             alt="WizVid"
-            className="w-52 sm:w-72 md:w-80 mx-auto"
             style={{
-              filter: "drop-shadow(0 0 50px rgba(139,92,246,0.95)) drop-shadow(0 0 100px rgba(139,92,246,0.5))",
+              width: "clamp(240px, 38vw, 480px)",
+              height: "auto",
+              display: "block",
+              margin: "0 auto",
+              imageRendering: "auto",
+              /* Multi-layer drop-shadow for cinematic depth */
+              filter: [
+                "drop-shadow(0 0 12px rgba(139,92,246,1))",
+                "drop-shadow(0 0 40px rgba(139,92,246,0.85))",
+                "drop-shadow(0 0 80px rgba(139,92,246,0.55))",
+                "drop-shadow(0 0 160px rgba(109,40,217,0.35))",
+                "drop-shadow(0 4px 24px rgba(0,0,0,0.9))",
+              ].join(" "),
+              animation: showLogo ? "logoPulse 3.5s ease-in-out infinite" : "none",
             }}
             draggable={false}
           />
@@ -411,6 +437,28 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       </div>
 
       <style>{`
+        @keyframes logoAtmosphere {
+          0%   { opacity: 0.7; transform: scale(0.97); }
+          100% { opacity: 1;   transform: scale(1.03); }
+        }
+        @keyframes logoPulse {
+          0%, 100% {
+            filter:
+              drop-shadow(0 0 12px rgba(139,92,246,1))
+              drop-shadow(0 0 40px rgba(139,92,246,0.85))
+              drop-shadow(0 0 80px rgba(139,92,246,0.55))
+              drop-shadow(0 0 160px rgba(109,40,217,0.35))
+              drop-shadow(0 4px 24px rgba(0,0,0,0.9));
+          }
+          50% {
+            filter:
+              drop-shadow(0 0 18px rgba(167,139,250,1))
+              drop-shadow(0 0 60px rgba(139,92,246,0.95))
+              drop-shadow(0 0 120px rgba(139,92,246,0.7))
+              drop-shadow(0 0 200px rgba(109,40,217,0.5))
+              drop-shadow(0 4px 24px rgba(0,0,0,0.9));
+          }
+        }
         @keyframes ctaPulse {
           0%, 100% {
             box-shadow: 0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
