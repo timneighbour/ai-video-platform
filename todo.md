@@ -3276,3 +3276,13 @@
 - [x] Fix WizSoundSection: Standard vs WizSound must have unmistakably different audio (Sub-bassRavel = Standard, SubwooferTension = WizSound)
 - [ ] Fix DemoVideoModal: same audio track swap (Sub-bassRavel = Standard, SubwooferTension = WizSound)
 - [ ] Add WizSound™ logo/text next to mute button on WizVidIntro screen
+
+## Projects Page — UX Polish (Final)
+- [x] Primary project hero card at top: "Continue your last project" — large, highlighted, primary CTA
+- [x] Status-driven CTAs: Draft→Continue Editing, Ready→Render Now, Rendering→Rendering... (disabled), Completed→Watch Video
+- [x] Render status UI: spinner/progress bar + estimated time when rendering
+- [x] Visual thumbnails: preview image + style badge per project card
+- [x] Completed video boost: play icon overlay + subtle glow/highlight
+- [x] Auto-save feedback: "Saved automatically" + "Last edited X mins ago"
+- [x] Filter tabs: Active / Completed / Draft
+- [x] Sort order: active first, completed second, old last
