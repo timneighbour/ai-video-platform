@@ -3366,3 +3366,8 @@
 - [x] "If ever there was a Wiz... / There is!" ending sequence
 - [x] Wire v5 trailer into WizVidIntro component (CTA_SHOW_AT_MS updated to 38000)
 - [x] Build passes with no TypeScript errors
+
+## Intro Trailer v6 — Cinematic Rebuild (Apr 2026)
+- [x] Generate abstract/AI energy scene for 3–6s slot
+- [x] Assemble v6 at 24fps with crossfades, colour grading, exact 4-clip timeline
+- [x] Upload v6 to CDN and wire into WizVidIntro component

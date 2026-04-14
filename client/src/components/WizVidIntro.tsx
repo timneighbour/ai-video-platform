@@ -14,13 +14,13 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v5_52bac0a8.mp4`;
+const TRAILER_URL = `${CDN}/wizvid-intro-v6_41ca86e4.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v5_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v6_seen";
 
-// CTA appears when video ends (video is ~40s); timer fires at 38s as backup
-const CTA_SHOW_AT_MS = 38000;
+// CTA appears when video ends (video is ~37.5s); timer fires at 36s as backup
+const CTA_SHOW_AT_MS = 36000;
 
 interface WizVidIntroProps {
   onClose: () => void;
