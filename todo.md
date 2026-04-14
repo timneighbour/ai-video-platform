@@ -91,18 +91,18 @@
 - [x] ai-video-platform-builder skill updated with homepage/UI polish patterns
 
 ## Pending
-- [ ] Email notifications when render completes
-- [ ] Stripe Price IDs for new 5-tier structure (connect after core system stable)
+- [x] Email notifications when render completes (user + owner)
+- [x] Stripe Price IDs for new 5-tier structure (connected and verified via render-prices.test.ts)
 - [ ] 4K intro video (requires machine with more RAM for upscaling)
 
 ## User Dashboard (Apr 14)
-- [ ] Dashboard page with Drafts / Rendering / Completed sections
-- [ ] Drafts: jobs with status draft or storyboard_ready — show title, thumbnail, last edited, Resume button
-- [ ] Rendering: jobs with status rendering or assembling — show title, progress bar, ETA, live polling
-- [ ] Completed: jobs with status completed — show title, thumbnail, Watch/Download/Share buttons
-- [ ] Empty states for each section
-- [ ] Real-time polling for Rendering section (every 5s)
-- [ ] Route /dashboard wired in App.tsx
+- [x] Dashboard page with Drafts / Rendering / Completed sections
+- [x] Drafts: jobs with status draft or storyboard_ready — show title, thumbnail, last edited, Resume button
+- [x] Rendering: jobs with status rendering or assembling — show title, progress bar, ETA, live polling
+- [x] Completed: jobs with status completed — show title, thumbnail, Watch/Download/Share buttons
+- [x] Empty states for each section
+- [x] Real-time polling for Rendering section (every 5s)
+- [x] Route /dashboard wired in App.tsx
 
 ## Launch Priority Fixes (Apr 15)
 - [x] Render progress stages UI: Queued → Rendering → Finalising → Complete with stage pills + progress bar

@@ -1,18 +1,23 @@
 /**
- * WizVidIntro — Cinematic Trailer v10 FINAL (Apr 2026)
+ * WizVidIntro — Cinematic Trailer FINAL (Apr 2026)
+ *
+ * Precision pass fixes:
+ * - Enable Sound centre button auto-hides after 4s (no longer blocks video)
+ * - CTA timer tightened to 25s (matches v11 duration of 25.4s)
+ * - Emoji removed from Enable Sound button (iOS rendering inconsistency)
+ * - All Safari/iOS/Android compatibility preserved
  *
  * Audio UX:
  * - "Tap to Enter" pre-play overlay — user taps → video starts with sound
  * - Any click/tap anywhere unmutes the video
- * - Large pulsing "Enable Sound" button shown if still muted during playback
  * - Small mute toggle in corner for users who want to mute after entering
  *
- * Video: v11 — cinematic ELECTRONIC score (build/rise/drop), slow pacing, logo at 15.3s, 25.4s total
+ * Video: v11 — cinematic ELECTRONIC score (build/rise/drop), 25.4s total
  * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
+import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -21,8 +26,10 @@ const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v11_seen";
 
-// CTA appears when video ends (~25.4s); timer fires at 24s as backup
-const CTA_SHOW_AT_MS = 24000;
+// CTA appears when video ends (~25.4s); timer fires at 25s as backup
+const CTA_SHOW_AT_MS = 25000;
+// Enable Sound hint auto-hides after 4s of playback
+const SOUND_HINT_HIDE_MS = 4000;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -36,10 +43,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [muted, setMuted] = useState(true);
   const [showCTA, setShowCTA] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [showSoundHint, setShowSoundHint] = useState(true);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const isExitingRef = useRef(false);
   const ctaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const soundHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasStartedRef = useRef(false);
 
   const startCTATimer = useCallback(() => {
@@ -47,6 +56,13 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     ctaTimer.current = setTimeout(() => {
       if (!isExitingRef.current) setShowCTA(true);
     }, CTA_SHOW_AT_MS);
+  }, []);
+
+  const startSoundHintTimer = useCallback(() => {
+    if (soundHintTimer.current) return;
+    soundHintTimer.current = setTimeout(() => {
+      setShowSoundHint(false);
+    }, SOUND_HINT_HIDE_MS);
   }, []);
 
   const handleVideoEnd = useCallback(() => {
@@ -61,6 +77,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       await v.play();
       hasStartedRef.current = true;
       startCTATimer();
+      startSoundHintTimer();
       if (withSound) {
         // Small delay to let play() succeed before unmuting
         setTimeout(() => {
@@ -72,7 +89,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       // Autoplay still blocked even muted — show CTA
       setShowCTA(true);
     }
-  }, [startCTATimer]);
+  }, [startCTATimer, startSoundHintTimer]);
 
   // Preload the video as soon as component mounts (so it's ready when user taps)
   useEffect(() => {
@@ -97,6 +114,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       v.removeEventListener("canplaythrough", onCanPlayThrough);
       v.removeEventListener("ended", onEnded);
       if (ctaTimer.current) clearTimeout(ctaTimer.current);
+      if (soundHintTimer.current) clearTimeout(soundHintTimer.current);
     };
   }, [handleVideoEnd]);
 
@@ -131,6 +149,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     isExitingRef.current = true;
     setPhase("exiting");
     if (ctaTimer.current) clearTimeout(ctaTimer.current);
+    if (soundHintTimer.current) clearTimeout(soundHintTimer.current);
     const v = videoRef.current;
     if (v) {
       v.pause();
@@ -285,14 +304,19 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             </button>
           </div>
 
-          {/* Large pulsing "Enable Sound" button — centre screen, shown when muted during playback */}
-          {muted && videoReady && !showCTA && (
+          {/* Enable Sound hint — centre screen, shown only for first 4s if still muted */}
+          {muted && videoReady && showSoundHint && !showCTA && (
             <div
               className="absolute inset-0 flex items-center justify-center"
-              style={{ zIndex: 10, pointerEvents: "none" }}
+              style={{
+                zIndex: 10,
+                pointerEvents: "none",
+                opacity: showSoundHint ? 1 : 0,
+                transition: "opacity 600ms ease",
+              }}
             >
               <button
-                onClick={(e) => { e.stopPropagation(); const v = videoRef.current; if (v) { v.muted = false; setMuted(false); } }}
+                onClick={(e) => { e.stopPropagation(); const vid = videoRef.current; if (vid) { vid.muted = false; } setMuted(false); }}
                 className="flex flex-col items-center gap-3 px-10 py-6 rounded-2xl text-white font-bold transition-all duration-300 hover:scale-105 active:scale-95"
                 style={{
                   pointerEvents: "auto",
@@ -313,7 +337,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
                 >
                   <Volume2 className="w-8 h-8 text-white" />
                 </div>
-                <span className="text-base sm:text-lg tracking-wide">🔊 Enable Sound</span>
+                <span className="text-base sm:text-lg tracking-wide">Enable Sound</span>
                 <span className="text-white/50 text-xs font-normal">Tap anywhere to unmute</span>
               </button>
             </div>
@@ -334,6 +358,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             >
               <button
                 onClick={(e) => { e.stopPropagation(); dismiss("/"); }}
+                onMouseDown={(e) => { e.stopPropagation(); dismiss("/"); }}
                 className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-bold text-white transition-all duration-300 hover:scale-105"
                 style={{
                   cursor: "pointer",
