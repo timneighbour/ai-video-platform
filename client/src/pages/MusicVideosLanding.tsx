@@ -28,6 +28,14 @@ export default function MusicVideosLanding() {
     }
   };
 
+  // 🔥 onMouseDown fires BEFORE Chrome extensions can intercept onClick
+  const handleCTAMouseDown = () => {
+    if (isAuthenticated) {
+      window.location.href = "/music-video/create";
+    }
+    // For unauthenticated: let onClick handle the auth gate modal
+  };
+
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Auth Gate Modal */}
@@ -77,7 +85,7 @@ export default function MusicVideosLanding() {
                 </a>
                 <button
                   className="inline-flex items-center bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 transition-colors"
-                  onClick={handleCTA}
+                  onMouseDown={handleCTAMouseDown} onClick={handleCTA}
                 >
                   Start Creating Free
                 </button>
@@ -117,7 +125,7 @@ export default function MusicVideosLanding() {
                 ) : (
                   <button
                     className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
-                    onClick={handleCTA}
+                    onMouseDown={handleCTAMouseDown} onClick={handleCTA}
                   >
                     <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
                   </button>
@@ -249,7 +257,7 @@ export default function MusicVideosLanding() {
           ) : (
             <button
               className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
-              onClick={handleCTA}
+              onMouseDown={handleCTAMouseDown} onClick={handleCTA}
             >
               <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
             </button>

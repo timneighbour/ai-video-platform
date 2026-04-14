@@ -12,18 +12,21 @@ interface NavLinkProps {
 export function NavLink({ href, children, className = "", onClick, ...rest }: NavLinkProps) {
   const [, navigate] = useLocation();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault(); // stop full reload
-    if (onClick) onClick();
-    navigate(href);
-  };
-
   return (
     <a
       href={href}
-      onClick={handleClick}
       className={className}
       {...rest}
+      onMouseDown={() => {
+        // 🔥 fires BEFORE extensions interfere
+        if (onClick) onClick();
+        window.location.href = href;
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        if (onClick) onClick();
+        navigate(href);
+      }}
     >
       {children}
     </a>
