@@ -475,7 +475,7 @@ export default function Pricing() {
             )}
           </div>
 
-          <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
             {PLANS.map((plan) => (
               <div
                 key={plan.id}
