@@ -1,26 +1,27 @@
 /**
- * WizVidIntro — Cinematic Trailer (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v8 (Apr 2026)
  *
- * Single-file 30s trailer with burned-in text and BGM.
- * - Starts MUTED (browser autoplay policy compliance)
- * - Sound toggle always visible
- * - Video STOPS at final frame (does NOT loop)
- * - "Enter Site" CTA appears at end
- * - Skip button always available
+ * Cross-device compatible intro:
+ * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
+ * - Android Chrome/Firefox: standard muted autoplay
+ * - Desktop: all browsers supported
+ * - Fallback: manual play button if autoplay blocked
+ * - Audio: toggle works on all devices, never gets stuck
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
+import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v7_b954fa9d.mp4`;
+// v8 trailer — H.264 Constrained Baseline, faststart, 24fps, 13.7MB, iOS Safari compatible
+const TRAILER_URL = `${CDN}/wizvid-intro-v8_a483963a.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v7_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v8_seen"; // bump to force all users to see v8
 
-// CTA appears when video ends (video is ~41.5s); timer fires at 40s as backup
-const CTA_SHOW_AT_MS = 40000;
+// CTA appears when video ends (~28.5s); timer fires at 27s as backup
+const CTA_SHOW_AT_MS = 27000;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -33,12 +34,14 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [showCTA, setShowCTA] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const isExitingRef = useRef(false);
   const ctaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasStartedRef = useRef(false);
 
-  // Start CTA timer when video begins playing
+  // Start CTA timer — idempotent
   const startCTATimer = useCallback(() => {
     if (ctaTimer.current) return;
     ctaTimer.current = setTimeout(() => {
@@ -46,45 +49,98 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     }, CTA_SHOW_AT_MS);
   }, []);
 
-  // When video ends, show CTA immediately
   const handleVideoEnd = useCallback(() => {
     if (!isExitingRef.current) setShowCTA(true);
   }, []);
+
+  // Attempt to play — handles iOS autoplay policy
+  const attemptPlay = useCallback(async (v: HTMLVideoElement) => {
+    if (hasStartedRef.current) return;
+    try {
+      v.muted = true; // MUST be muted for iOS autoplay
+      await v.play();
+      hasStartedRef.current = true;
+      setAutoplayBlocked(false);
+      startCTATimer();
+    } catch {
+      // Autoplay blocked (e.g. low-power mode on iOS)
+      setAutoplayBlocked(true);
+    }
+  }, [startCTATimer]);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
 
+    // iOS CRITICAL: these must be set as attributes AND properties
     v.muted = true;
     v.playsInline = true;
-    v.loop = false; // MUST NOT loop — stop at final frame
+    v.loop = false;
+    v.preload = "auto";
+
+    const onCanPlayThrough = () => {
+      setVideoReady(true);
+      attemptPlay(v);
+    };
 
     const onCanPlay = () => {
       setVideoReady(true);
-      v.play().catch(() => {});
+      // On iOS, canplaythrough may never fire — canplay is enough
+      attemptPlay(v);
+    };
+
+    const onLoadedMetadata = () => {
+      // Fallback for slow connections — try play as soon as metadata is ready
+      setTimeout(() => attemptPlay(v), 100);
+    };
+
+    const onPlay = () => {
+      hasStartedRef.current = true;
+      setAutoplayBlocked(false);
       startCTATimer();
     };
 
-    const onPlay = () => startCTATimer();
-
+    v.addEventListener("canplaythrough", onCanPlayThrough, { once: true });
     v.addEventListener("canplay", onCanPlay, { once: true });
+    v.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
     v.addEventListener("play", onPlay);
     v.addEventListener("ended", handleVideoEnd);
 
+    // Force load on iOS (sometimes needed after setting src)
+    v.load();
+
     return () => {
+      v.removeEventListener("canplaythrough", onCanPlayThrough);
       v.removeEventListener("canplay", onCanPlay);
+      v.removeEventListener("loadedmetadata", onLoadedMetadata);
       v.removeEventListener("play", onPlay);
       v.removeEventListener("ended", handleVideoEnd);
       if (ctaTimer.current) clearTimeout(ctaTimer.current);
     };
-  }, [startCTATimer, handleVideoEnd]);
+  }, [attemptPlay, startCTATimer, handleVideoEnd]);
 
-  // Sync mute state
+  // Sync mute state — must re-apply after user interaction on iOS
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     v.muted = muted;
   }, [muted]);
+
+  // Manual play when autoplay is blocked
+  const handleManualPlay = useCallback(async () => {
+    const v = videoRef.current;
+    if (!v) return;
+    try {
+      v.muted = true;
+      await v.play();
+      hasStartedRef.current = true;
+      setAutoplayBlocked(false);
+      startCTATimer();
+    } catch {
+      // Still blocked — show CTA immediately
+      setShowCTA(true);
+    }
+  }, [startCTATimer]);
 
   const dismiss = useCallback((destination?: string) => {
     if (isExitingRef.current) return;
@@ -92,7 +148,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     setIsExiting(true);
     if (ctaTimer.current) clearTimeout(ctaTimer.current);
     const v = videoRef.current;
-    if (v) { v.pause(); v.src = ""; }
+    if (v) {
+      v.pause();
+      // Properly release audio context before clearing src
+      v.muted = true;
+      setTimeout(() => { v.src = ""; v.load(); }, 50);
+    }
     setTimeout(() => {
       onClose();
       if (destination) navigate(destination);
@@ -112,6 +173,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       aria-label="WizVid cinematic intro"
     >
       {/* ── Trailer video ─────────────────────────── */}
+      {/* NOTE: crossOrigin removed — causes CORS block on iOS Safari with some CDNs */}
       <video
         ref={videoRef}
         src={TRAILER_URL}
@@ -125,13 +187,40 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         muted
         playsInline
         preload="auto"
-        crossOrigin="anonymous"
       />
 
-      {/* ── Loading state — black screen while buffering ── */}
-      {!videoReady && (
+      {/* ── Loading spinner — shown while buffering ── */}
+      {!videoReady && !autoplayBlocked && (
         <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 2 }}>
           <div className="w-10 h-10 rounded-full border-2 border-violet-500/30 border-t-violet-400 animate-spin" />
+        </div>
+      )}
+
+      {/* ── Autoplay blocked fallback — manual play button ── */}
+      {autoplayBlocked && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-6"
+          style={{ zIndex: 15 }}
+        >
+          {/* Logo */}
+          <img src={LOGO} alt="WizVid" className="w-28 opacity-90" />
+          <button
+            onClick={handleManualPlay}
+            className="flex items-center gap-3 px-10 py-4 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-lg font-bold transition-all duration-200 hover:scale-105"
+            style={{
+              boxShadow: "0 0 40px rgba(139,92,246,0.6)",
+              textShadow: "0px 2px 8px rgba(0,0,0,0.8)",
+            }}
+          >
+            <Play className="w-6 h-6 fill-white" />
+            Watch Intro
+          </button>
+          <button
+            onClick={() => dismiss("/")}
+            className="text-white/50 text-sm font-medium hover:text-white/80 transition-colors"
+          >
+            Skip intro →
+          </button>
         </div>
       )}
 
@@ -142,11 +231,8 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           zIndex: 1,
           pointerEvents: "none",
           background: [
-            /* Top gradient — protects skip/sound buttons */
             "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 12%, transparent 25%)",
-            /* Bottom gradient — protects CTA */
             "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 18%, transparent 35%)",
-            /* Edge vignette — frames the image cinematically */
             "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%)",
           ].join(", "),
         }}

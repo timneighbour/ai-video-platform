@@ -3448,3 +3448,13 @@
 - [ ] Tracking: Mixpanel events — Start Creating, Prompt submitted, Storyboard generated, Render started, Render completed, Upgrade clicked
 - [ ] Tracking: Email to timneighbour@wizvid.ai on new signup, new subscription, failed payment
 - [ ] Intro: Ensure intro layer does not appear on internal pages (Pricing, WizPilot, etc.)
+
+## Intro v8 — iOS Fix + Cinematic Polish (Apr 2026)
+- [x] Fix iOS Safari: add playsinline, muted, ensure H.264 codec, add fallback play button
+- [x] Fix audio toggle: ensure sound does not get stuck playing after skip
+- [x] Re-encode v8 at H.264 Constrained Baseline, faststart, 24fps, 13.7MB
+- [x] Add motion blur (tmix=frames=3) + slow-zoom (zoompan 3%) between clips
+- [x] Fix text timing: "If ever there was a Wiz..." (2s), "There is!" (2s), pause (0.5s), logo (10s)
+- [x] Remove any static overlapping logo — only ONE logo reveal at the end
+- [x] Ensure all text is pure white, SemiBold/Bold, with text-shadow and dark gradient overlay
+- [x] Optimise for mobile: 13.7MB (under 15MB target)
