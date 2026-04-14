@@ -4,8 +4,9 @@
  * Architecture:
  * - ONE <audio> element whose src is swapped on toggle (guarantees zero overlap)
  * - Web Audio API AnalyserNode reads real FFT data → drives EQ bars from actual signal
- * - Standard track: SubwooferTension-WizVid (flat, dry, unprocessed)
- * - WizSound track: Sub-bassRavel-WizVid (cinematic, boosted bass + presence)
+ * - Standard track: SubwooferTension normalized at -20 LUFS (flat, quiet)
+ * - WizSound track: SAME SubwooferTension with FFmpeg DSP: EQ +4dB bass, +3dB presence,
+ *   +2dB air, compression 3:1, stereo widening 15%, loudnorm -14 LUFS (louder, fuller, richer)
  * - BiquadFilter chain applied in Web Audio graph for WizSound mode:
  *     lowShelf +8dB @ 120Hz, peaking +5dB @ 3kHz, highShelf +3dB @ 8kHz
  *   giving an immediately audible difference on the SAME signal path
@@ -21,13 +22,14 @@ const POSTER_URL =
 const VIDEO_SRC =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
 
-// Standard: Sub-bassRavel — flat, dry, unprocessed — the "before" experience
+// SAME source track (SubwooferTension) processed two ways:
+// Standard: normalized at -20 LUFS — quieter, flatter, unprocessed feel
 const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/sub-bassravel-wizsound_dfb47e33.mp3";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-subwoofer_df98cac4.mp3";
 
-// WizSound Cinematic: SubwooferTension — deep bass, wide stereo, cinematic — the "wow" moment
+// WizSound: EQ boosted (bass +4dB, presence +3dB, air +2dB), compressed, stereo-widened, -14 LUFS — louder, fuller, richer
 const AUDIO_WIZSOUND =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3";
 
 /* ── Web Audio context (singleton, created on first user gesture) ─────── */
 let sharedCtx: AudioContext | null = null;

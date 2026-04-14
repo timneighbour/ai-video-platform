@@ -571,3 +571,50 @@ export const blogPosts = mysqlTable("blogPosts", {
 
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+// ── Auto-Save (Draft Recovery) ───────────────────────────────────────────────
+// Stores the latest working state for each tool so users can resume where they left off.
+export const autoSaves = mysqlTable("autoSaves", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  toolType: mysqlEnum("autoSaveToolType", ["text_to_video", "music_video", "kids_video", "wizpilot"]).notNull(),
+  // Serialised JSON blob of the entire working state (prompt, storyboard, characters, style, etc.)
+  stateJson: longtext("stateJson").notNull(),
+  // Human-readable summary for the "Continue your last video" banner
+  title: varchar("autoSaveTitle", { length: 255 }),
+  // Optional reference to the job that was in progress
+  sourceJobId: int("sourceJobId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AutoSave = typeof autoSaves.$inferSelect;
+export type InsertAutoSave = typeof autoSaves.$inferInsert;
+
+// ── Debug Logs (Engine Diagnostics) ──────────────────────────────────────────
+// Structured log of render failures, AI inconsistencies, and prompt mismatches.
+export const debugLogs = mysqlTable("debugLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  // Category of the event
+  category: mysqlEnum("debugCategory", [
+    "render_failure",
+    "character_drift",
+    "prompt_mismatch",
+    "api_error",
+    "face_validation_fail",
+    "auto_save_error",
+    "general",
+  ]).notNull().default("general"),
+  severity: mysqlEnum("debugSeverity", ["info", "warning", "error", "critical"]).notNull().default("info"),
+  // Which job / scene triggered this log
+  jobId: int("jobId"),
+  sceneId: int("sceneId"),
+  jobType: varchar("debugJobType", { length: 64 }), // music_video, text_to_video, kids_video
+  // What happened
+  message: text("message").notNull(),
+  // Full context blob (prompt sent, response received, diff, etc.)
+  contextJson: longtext("contextJson"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type DebugLog = typeof debugLogs.$inferSelect;
+export type InsertDebugLog = typeof debugLogs.$inferInsert;

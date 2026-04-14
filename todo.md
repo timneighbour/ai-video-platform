@@ -3276,3 +3276,23 @@
 - [x] Fix WizSoundSection: Standard vs WizSound must have unmistakably different audio (Sub-bassRavel = Standard, SubwooferTension = WizSound)
 - [ ] Fix DemoVideoModal: same audio track swap (Sub-bassRavel = Standard, SubwooferTension = WizSound)
 - [ ] Add WizSound™ logo/text next to mute button on WizVidIntro screen
+
+## WizVid Core Engine Fixes (Critical)
+- [ ] Render system: add render_jobs DB table with status (pending/processing/complete/failed)
+- [ ] Render system: server-side job queue with status polling endpoint (3-5s intervals)
+- [ ] Render system: frontend progress UI with status text, polling, toast on complete, retry on fail
+- [ ] Character lock: persistent character objects (face/outfit/style/seed) stored in DB per project
+- [ ] Character lock: all scenes reuse same character reference, no regeneration unless user edits
+- [ ] Scene prompt accuracy: add prompt constraint engine enforcing subject/environment/style consistency
+- [ ] Scene prompt accuracy: prevent character drift across scenes
+- [ ] AI prompt assist: "Enhance Prompt" button that expands vague prompts into detailed, constrained prompts via LLM
+- [ ] Auto-save: save prompt/storyboard/character config/style every 5 seconds
+- [ ] Auto-save: "Continue your last video" resume banner on return
+- [ ] Debug logging: track render failures, AI inconsistencies, prompt mismatches in DB
+
+## WizSound Demo Audio — CRITICAL FIX
+- [x] Create real WizSound enhanced audio from same source track using FFmpeg DSP (EQ, compression, loudness, stereo)
+- [x] Upload Standard + WizSound versions to CDN
+- [x] Rewrite DemoVideoModal: single video, dual audio, instant toggle sync
+- [x] Rewrite WizSoundSection: single video, dual audio, instant toggle sync
+- [x] Wire real audio difference into RenderPaywallModal tier comparison

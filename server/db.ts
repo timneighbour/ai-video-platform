@@ -1,7 +1,7 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts } from "../drizzle/schema";
-import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts, autoSaves, debugLogs } from "../drizzle/schema";
+import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost, InsertAutoSave, AutoSave, InsertDebugLog, DebugLog } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -519,4 +519,78 @@ export async function deleteBlogPost(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.delete(blogPosts).where(eq(blogPosts.id, id));
+}
+
+// ── Auto-Save Helpers ────────────────────────────────────────────────────────
+
+/** Upsert an auto-save for a user + tool combination (one draft per tool). */
+export async function upsertAutoSave(
+  userId: number,
+  toolType: "text_to_video" | "music_video" | "kids_video" | "wizpilot",
+  stateJson: string,
+  title?: string,
+  sourceJobId?: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  // Check if one already exists for this user + tool
+  const existing = await db
+    .select()
+    .from(autoSaves)
+    .where(and(eq(autoSaves.userId, userId), eq(autoSaves.toolType, toolType)))
+    .limit(1);
+  if (existing.length > 0) {
+    await db
+      .update(autoSaves)
+      .set({ stateJson, title: title ?? existing[0].title, sourceJobId: sourceJobId ?? existing[0].sourceJobId })
+      .where(eq(autoSaves.id, existing[0].id));
+  } else {
+    await db.insert(autoSaves).values({ userId, toolType, stateJson, title, sourceJobId });
+  }
+}
+
+/** Get the latest auto-save for a user + tool. */
+export async function getAutoSave(
+  userId: number,
+  toolType: "text_to_video" | "music_video" | "kids_video" | "wizpilot"
+): Promise<AutoSave | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(autoSaves)
+    .where(and(eq(autoSaves.userId, userId), eq(autoSaves.toolType, toolType)))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+/** Delete an auto-save (e.g. after successful render). */
+export async function deleteAutoSave(
+  userId: number,
+  toolType: "text_to_video" | "music_video" | "kids_video" | "wizpilot"
+): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(autoSaves).where(and(eq(autoSaves.userId, userId), eq(autoSaves.toolType, toolType)));
+}
+
+// ── Debug Log Helpers ────────────────────────────────────────────────────────
+
+/** Write a structured debug log entry. */
+export async function writeDebugLog(data: InsertDebugLog): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) return; // silently skip if DB unavailable — never block production
+    await db.insert(debugLogs).values(data);
+  } catch (err) {
+    console.error("[DebugLog] Failed to write:", err);
+  }
+}
+
+/** Get recent debug logs (admin use). */
+export async function getRecentDebugLogs(limit: number = 100): Promise<DebugLog[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const { desc } = await import("drizzle-orm");
+  return db.select().from(debugLogs).orderBy(desc(debugLogs.createdAt)).limit(limit);
 }

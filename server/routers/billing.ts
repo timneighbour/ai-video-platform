@@ -958,13 +958,14 @@ export const renderRouter = router({
    * These are pre-generated static files — no auth required.
    */
   getWizSoundPreviews: publicProcedure.query(() => {
+    // ALL THREE tiers use the SAME source track (SubwooferTension) processed differently:
     return {
-      // Standard: SubwooferTension — flat, dry, unprocessed original audio (the "before")
-      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3",
-      // Enhanced: SubwooferTension — same base track, represents light processing tier
-      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3",
-      // Cinematic: Sub-bassRavel — deep bass, wide stereo, full WizSound mastering (the "wow")
-      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-cinematic-v2_20cc6479.mp3",
+      // Standard: normalized at -20 LUFS — quieter, flatter, unprocessed feel
+      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-subwoofer_df98cac4.mp3",
+      // Enhanced: light EQ (+2dB bass, +1.5dB presence), gentle compression, -16 LUFS — noticeably better
+      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-mid-subwoofer_4460e788.mp3",
+      // Cinematic: full EQ (+4dB bass, +3dB presence, +2dB air), compression, stereo widening, -14 LUFS — the "wow"
+      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3",
     };
   }),
 
