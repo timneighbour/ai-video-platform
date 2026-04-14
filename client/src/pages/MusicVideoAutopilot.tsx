@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { EnhancePromptButton } from "@/components/EnhancePromptButton";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -1532,16 +1531,7 @@ export default function MusicVideoAutopilot() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <div className="flex items-center justify-between">
-                      <Label className="text-zinc-300">Theme & Concept *</Label>
-                      <EnhancePromptButton
-                        prompt={themePrompt}
-                        toolType="music_video"
-                        style={selectedStyle || undefined}
-                        onEnhanced={(enhanced) => setThemePrompt(enhanced)}
-                        disabled={themePrompt.length < 3}
-                      />
-                    </div>
+                    <Label className="text-zinc-300">Theme & Concept *</Label>
                     <Textarea
                       value={themePrompt}
                       onChange={(e) => setThemePrompt(e.target.value)}

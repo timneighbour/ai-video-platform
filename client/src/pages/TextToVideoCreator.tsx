@@ -18,9 +18,6 @@ import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
-import { EnhancePromptButton } from "@/components/EnhancePromptButton";
-import { useAutoSave } from "@/hooks/useAutoSave";
-import { ResumeBanner } from "@/components/ResumeBanner";
 
 const VIDEO_STYLES = [
   { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "🎬" },
@@ -122,34 +119,6 @@ export default function TextToVideoCreator() {
   const [regenerating, setRegenerating] = useState(false);
 
   const [projectId, setProjectId] = useState<number | null>(null);
-
-  /* ── Auto-save ── */
-  const { showResumeBanner, resumeSave, dismissSave, clearSave } = useAutoSave({
-    toolType: "text_to_video",
-    getState: () => ({
-      prompt,
-      style,
-      duration,
-      aspectRatio,
-      storyboard: storyboard.length > 0 ? JSON.stringify(storyboard) : undefined,
-    }),
-    restoreState: (state) => {
-      const d = state as Record<string, string>;
-      if (d.prompt) setPrompt(d.prompt);
-      if (d.style) setStyle(d.style);
-      if (d.duration) setDuration(d.duration);
-      if (d.aspectRatio) setAspectRatio(d.aspectRatio);
-      if (d.storyboard) {
-        try {
-          const scenes = JSON.parse(d.storyboard);
-          setStoryboard(scenes);
-          setStep("storyboard");
-        } catch { /* ignore */ }
-      }
-      toast.success("Previous session restored!");
-    },
-    enabled: step === "input" && prompt.trim().length > 0,
-  });
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(null);
   const [progressPct, setProgressPct] = useState(0);
   const [progressStage, setProgressStage] = useState(0);
@@ -406,13 +375,6 @@ export default function TextToVideoCreator() {
       </div>
 
       <div className="container mx-auto px-4 py-6 sm:py-10 max-w-3xl">
-        {/* Resume Banner */}
-        {showResumeBanner && step === "input" && (
-          <ResumeBanner
-            onResume={resumeSave}
-            onDismiss={dismissSave}
-          />
-        )}
 
         {/* ── STEP 1: INPUT ── */}
         {step === "input" && (
@@ -442,16 +404,7 @@ export default function TextToVideoCreator() {
                 className="w-full h-28 sm:h-36 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50 text-sm"
               />
               <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{prompt.length} / 2000</span>
-                  <EnhancePromptButton
-                    prompt={prompt}
-                    toolType="text_to_video"
-                    style={style}
-                    onEnhanced={(enhanced) => setPrompt(enhanced)}
-                    disabled={prompt.length < 3}
-                  />
-                </div>
+                <span className="text-xs text-muted-foreground">{prompt.length} / 2000</span>
                 {prompt.length >= 10 && (
                   <span className="text-xs text-green-400 flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" /> Ready

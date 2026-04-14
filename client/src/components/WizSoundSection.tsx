@@ -4,13 +4,12 @@ import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headpho
 /* ── CDN assets ── */
 const VIDEO_SRC =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
-// SAME source track (SubwooferTension) processed two ways:
-// Standard: normalized at -20 LUFS — quieter, flatter, unprocessed feel
+// Standard = Sub-bassRavel: flat, dry, unprocessed — the "before" experience
 const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-subwoofer_df98cac4.mp3";
-// WizSound: EQ boosted, compressed, stereo-widened, -14 LUFS — louder, fuller, richer
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/sub-bassravel-wizsound_dfb47e33.mp3";
+// WizSound Cinematic = SubwooferTension: deep bass, wide stereo, cinematic — the "wow" moment
 const AUDIO_ENHANCED =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3";
 
 /* ── Simple dual-audio player ─────────────────────────────────────────────
    Video plays muted (always allowed by browsers).
