@@ -150,6 +150,20 @@ export default function MusicVideoAutopilot() {
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
 
+  // Resume from URL ?jobId param (e.g. from Projects page "Continue" link)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlJobId = params.get("jobId");
+    if (urlJobId) {
+      const parsed = parseInt(urlJobId, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        setJobId(parsed);
+        setStep(prev => prev === "upload" ? "storyboard" : prev);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
   const [title, setTitle] = useLocalStorage("musicVideo_title", "");
   const [audioDuration, setAudioDuration] = useLocalStorage("musicVideo_duration", 0);

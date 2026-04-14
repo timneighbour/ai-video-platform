@@ -103,3 +103,14 @@
 - [ ] Empty states for each section
 - [ ] Real-time polling for Rendering section (every 5s)
 - [ ] Route /dashboard wired in App.tsx
+
+## Launch Priority Fixes (Apr 15)
+- [x] Render progress stages UI: Queued → Rendering → Finalising → Complete with stage pills + progress bar
+- [x] Render-complete email sent to user (not just owner)
+- [x] Signup welcome email sent to user on account creation
+- [x] Stripe owner email includes session ID + amount
+- [x] Save/resume via URL ?jobId param in MusicVideoAutopilot
+- [x] Dashboard.tsx imports and renders BackButton
+- [x] Hero-system tests updated to match current WizVidIntro implementation
+- [x] All 335 tests passing (confirmed)
+- [x] tsc --noEmit exits 0 (zero TypeScript errors confirmed)
