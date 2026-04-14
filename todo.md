@@ -3160,3 +3160,9 @@
 - [x] Step 6: High-impact WOW clip → hold final frame → "Enter WizVid" CTA
 - [x] Generate high-impact WOW clip if not already available
 - [x] Remove all extra clips, duplicate styles, and improvised sequences
+
+## CRITICAL: Replace First Intro Clip (Apr 2026)
+- [x] Remove singer clip (intro-new-cinematic) from Step 2 position
+- [x] Generate true cinematic film scene (dramatic wide shot, no music/performance)
+- [x] Upload new cinematic clip to CDN
+- [x] Update WizVidIntro.tsx CLIP_2_CINEMATIC with new CDN URL

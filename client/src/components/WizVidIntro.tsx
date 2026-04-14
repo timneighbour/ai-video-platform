@@ -28,7 +28,7 @@ const LOGO        = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
 
 // ── FIXED 5 clips — STRICT ORDER — DO NOT ADD/REMOVE/REORDER ─────────────────
-const CLIP_2_CINEMATIC = `${CDN}/intro-new-cinematic_d6673107.mp4`;   // Step 2: Cinematic film
+const CLIP_2_CINEMATIC = `${CDN}/intro-cinematic-film_e6db52cb.mp4`;  // Step 2: Cinematic film (rain-soaked city, dramatic wide shot)
 const CLIP_3_MUSIC     = `${CDN}/intro-new-singer_fdadff1e.mp4`;      // Step 3: Music video (ONLY ONE)
 const CLIP_4_ANIMATION = `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`;     // Step 4: Pixar animation
 const CLIP_5_AIGEN     = `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`;    // Step 5: AI generation
