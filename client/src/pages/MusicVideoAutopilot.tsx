@@ -70,6 +70,7 @@ import {
   Music2,
   Info,
   Trash2,
+  BookmarkCheck,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -1909,6 +1910,22 @@ export default function MusicVideoAutopilot() {
                     <Check className="w-3.5 h-3.5 mr-1" /> Approve All
                   </Button>
                 )}
+                <Button
+                  variant="outline"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
+                  onClick={() => {
+                    // Storyboard is already auto-saved in DB (status: storyboard_ready).
+                    // Navigate to MyProjects so user can return later.
+                    toast.success("Storyboard saved!", {
+                      description: "Your storyboard is saved. Return to My Projects to continue anytime.",
+                    });
+                    setTimeout(() => { window.location.href = "/my-projects"; }, 1500);
+                  }}
+                  title="Save your storyboard and return later from My Projects"
+                >
+                  <BookmarkCheck className="w-4 h-4 mr-2" />
+                  Save &amp; Return Later
+                </Button>
                 <Button
                   variant="outline"
                   className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"

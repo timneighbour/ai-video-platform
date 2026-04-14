@@ -770,14 +770,47 @@ Rules:
             ? `Visual style: ${scene.visualStyle}. Maintain this style throughout.`
             : "";
 
+          // ── CHARACTER LOCK HARD CONSTRAINTS ───────────────────────────────────────
+          // Per the master spec: same face, same clothing, same role, same instrument.
+          // NO variation allowed. These are injected as explicit hard constraints.
+          const characterLockBlock = compactTags.length > 0
+            ? [
+                "CHARACTER LOCK (MANDATORY): DO NOT change any character's face, hairstyle, skin tone, clothing, or instrument from the storyboard reference image.",
+                "Every character MUST look IDENTICAL to their appearance in the reference image.",
+                "NO new characters. NO substitutions. NO variations. Use ONLY the characters shown in the storyboard.",
+              ].join(" ")
+            : "";
+
+          // ── PROP LOCK BLOCK ─────────────────────────────────────────────────
+          // Per the master spec: same instrument model, same colour, same position.
+          const propLockParts: string[] = [];
+          for (const name of assignedNames) {
+            const charData = fullCharMap.get(name.toLowerCase());
+            if (charData) {
+              const instrument = (charData as any).instrument as string | undefined;
+              const outfit = (charData as any).outfit as string | undefined;
+              if (instrument) {
+                propLockParts.push(`${charData.name}'s ${instrument} MUST remain the SAME model, colour, and position as the storyboard.`);
+              }
+              if (outfit) {
+                propLockParts.push(`${charData.name} is wearing: ${outfit}. DO NOT change outfit.`);
+              }
+            }
+          }
+          const propLockBlock = propLockParts.length > 0
+            ? `PROP LOCK: ${propLockParts.join(" ")}`
+            : "";
+
           const enrichedScenePrompt = compactTags.length > 0
             ? [
                 compactTags.join(" "),
                 scene.prompt,
                 styleBlock,
+                characterLockBlock,
+                propLockBlock,
                 lyricContextBlock,
                 performanceBlock,
-                "Maintain exact character appearance, same person in every scene, no variation in hair, face, or clothing."
+                "CONSISTENCY RULE: This scene is a direct animation of the approved storyboard frame. Maintain exact character appearance, same face, same clothing, same instrument in every scene."
               ].filter(Boolean).join(" ")
             : [scene.prompt, styleBlock, lyricContextBlock, performanceBlock].filter(Boolean).join(" ");
 

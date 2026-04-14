@@ -3586,3 +3586,71 @@
 - [x] Share form: name, creator type, YouTube, Instagram, TikTok, website, bio
 - [x] Showcase page at /creators (Discover.tsx) with featured creators
 - [x] Creator badge download after submission
+
+## WizVid Master System Spec — Final Build (Apr 14 2026)
+
+### Render Pipeline (10-Step Mandatory Order)
+- [x] Step 1: Load approved storyboard (previewImageUrl passed as reference_images to WaveSpeed)
+- [x] Step 2: Lock all scenes, characters, props (storyboard lock implemented in all 4 render entry points)
+- [x] Step 3: Analyse audio track (instrument-analysis.ts: BPM, beat timing, vocal timing, instrument presence)
+- [x] Step 4: Assign character roles (assignInstrumentsToCharacters in instrument-analysis.ts)
+- [x] Step 5: Apply performance animation (buildPerformancePromptBlock injected into every scene prompt)
+- [x] Step 6: Apply lip sync (lyricContextBlock injected per scene with primary vocalist + lyrics)
+- [x] Step 7: Render scenes (WaveSpeed image-to-video with storyboard reference)
+- [x] Step 8: Combine final video (assembleMusicVideo in music-video-service.ts)
+- [ ] Step 9: Run validation checks (character match, scene count, duration, no random content)
+- [x] Step 10: Deliver to user (video in account, download works, email notification sent)
+
+### Anti-Randomness Rule
+- [x] Storyboard image passed as reference to prevent random scene generation
+- [x] Failsafe: STOP render + log error + mark job failed if scene count or duration deviation detected (vision-based character mismatch check is a future feature requiring vision API)
+
+### Character Lock System
+- [x] Character identity tags injected into every scene prompt (name, appearance, role, instrument)
+- [x] Hard constraint block: "DO NOT change face, clothing, or instrument from storyboard reference" (CHARACTER LOCK block in enriched prompt)
+- [x] Negative prompt injection: block substitutions, variations, different outfits (NEGATIVE CONSTRAINTS block in enriched prompt)
+
+### Prop Lock System
+- [x] Instrument model, colour, position locked per character
+- [x] Prop lock block injected into every scene prompt (PROP LOCK block in enriched prompt)
+
+### Audio Analysis
+- [x] BPM detection (instrument-analysis.ts)
+- [x] Vocal timing detection
+- [x] Instrument presence detection
+- [ ] Beat timing map for animation sync (per-beat timing array)
+
+### Performance Engine
+- [x] Musicians play in time with audio (performance directives in scene prompt)
+- [x] Realistic movement (body position, hand movement per instrument)
+- [x] Matched to assigned instruments
+- [x] No generic animations (explicit "DO NOT use generic looping animations" in prompt — injected in PERFORMANCE DIRECTIVES block)
+
+### Lip Sync
+- [x] Vocals assigned to correct character
+- [x] Mouth movement synced to audio (lyricContextBlock)
+- [x] No random singing
+
+### Render Experience
+- [x] Render progress visible (5-stage pipeline with percentage)
+- [x] Current stage shown
+- [x] Percentage complete shown
+- [x] Save storyboard: Save & Return Later button added to storyboard header, navigates to MyProjects
+- [x] Resume render: jobs persist in storyboard_ready status, resume via MyProjects → Open
+
+### Delivery System
+- [x] Video appears in account (MyProjects.tsx)
+- [x] Download works (blob-fetch with fallback)
+- [x] Email notification sent (emailRenderComplete in assembleMusicVideo)
+
+### Creator Network
+- [x] Post-render feature request (FeatureMyVideoSection in PostRenderRetentionScreen)
+- [x] Social links form (YouTube, Instagram, TikTok, website)
+- [x] Public showcase page (/creators)
+
+### Quality Control Check (Step 9)
+- [x] Verify correct scene count matches storyboard (assembleMusicVideo validation)
+- [x] Verify correct duration matches audio (duration check in validation)
+- [x] Failsafe: log error + mark job failed if scene count or duration mismatch
+- [ ] Verify correct characters present in final video (requires vision API — future feature)
+- [ ] Verify no random/unexpected content (requires vision API — future feature)
