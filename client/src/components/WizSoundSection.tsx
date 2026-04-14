@@ -4,12 +4,13 @@ import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, ChevronRight, Headpho
 /* ── CDN assets ── */
 const VIDEO_SRC =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
-// Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before" experience
+// Standard: same source track, normalised at -16 LUFS — flat, dry, unprocessed reference
 const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-subwoofer_df98cac4.mp3";
-// WizSound Cinematic: same source track, FFmpeg DSP — EQ boosted, compressed, +6 LUFS louder — the "wow" moment
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound_standard_v3_d01b2cbd.mp3";
+// WizSound™ Cinematic: same source — EQ boost (bass +5dB, highs +4dB), light compression (3:1), stereo widening (12%), -11 LUFS (+5 LUFS vs standard)
+// NO reverb, NO delay, NO phase tricks — clean, immediate, obvious improvement
 const AUDIO_ENHANCED =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound_cinematic_v3_6bb39005.mp3";
 
 /* ── Simple dual-audio player ─────────────────────────────────────────────
    Video plays muted (always allowed by browsers).
@@ -337,8 +338,8 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
 
         <p className="text-white/30 text-[11px] text-center mt-2.5 leading-relaxed transition-all duration-300">
           {wizsound
-            ? "Wide stereo · Deep bass · Spatial reverb · 320kbps mastered"
-            : "Flat mix · Narrow stereo · No bass · No spatial processing"
+            ? "✨ Bass boost · Clearer highs · Wider stereo · Studio-grade mastering"
+            : "Flat mix · No EQ · Narrow stereo · Unprocessed"
           }
         </p>
 

@@ -103,16 +103,30 @@ function Nav() {
           />
         </NavLink>
 
-        {/* Right: Sign in only */}
+        {/* Nav links */}
+        <div className="hidden md:flex items-center gap-1">
+          <NavLink href="/music-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Music Video</NavLink>
+          <NavLink href="/music-creator" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">AI Music</NavLink>
+          <NavLink href="/kids-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Kids</NavLink>
+          <NavLink href="/wizpilot" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">WizPilot</NavLink>
+          <NavLink href="/how-it-works" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">How It Works</NavLink>
+        </div>
+
+        {/* Right: Auth */}
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
               <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
             </Button>
           ) : (
-            <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors font-medium px-3 py-2">
-              Sign in
-            </a>
+            <>
+              <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors font-medium px-3 py-2">
+                Sign in
+              </a>
+              <Button className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-5 rounded-xl font-semibold h-9" asChild>
+                <NavLink href="/onboarding">Start Free</NavLink>
+              </Button>
+            </>
           )}
         </div>
       </div>

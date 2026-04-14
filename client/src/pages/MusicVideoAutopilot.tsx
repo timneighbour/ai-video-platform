@@ -145,8 +145,8 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
 export default function MusicVideoAutopilot() {
   const { user, isAuthenticated } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
-  const [step, setStep] = useState<Step>("upload");
-  const [jobId, setJobId] = useState<number | null>(null);
+  const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
+  const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
 
   // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
   const [title, setTitle] = useLocalStorage("musicVideo_title", "");
