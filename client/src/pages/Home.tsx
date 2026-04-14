@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
+import { useProjectResume } from "@/hooks/useProjectResume";
+import LazyVideo from "@/components/LazyVideo";
 import { Button } from "@/components/ui/button";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
@@ -748,6 +750,128 @@ function TryAnExample() {
         <p className="text-white/30 text-xs mt-4">
           Free to create · No credit card · Only pay when you render
         </p>
+      </div>
+    </section>
+  );
+}
+
+// ── Continue Project Banner (Production Audit Item 3) ─────────────────────
+function ContinueProjectBanner() {
+  const { resumeData, showResume, dismissResume, clearAndDismiss } = useProjectResume();
+  if (!showResume || !resumeData) return null;
+
+  const timeSince = Date.now() - resumeData.lastSavedAt;
+  const minutesAgo = Math.floor(timeSince / 60000);
+  const timeLabel = minutesAgo < 1 ? "just now" : minutesAgo < 60 ? `${minutesAgo}m ago` : `${Math.floor(minutesAgo / 60)}h ago`;
+
+  const resumeHref = resumeData.jobId
+    ? `/music-video/create?jobId=${resumeData.jobId}`
+    : "/music-video/create";
+
+  return (
+    <section className="bg-gradient-to-r from-violet-950/40 via-[#0f0f0f] to-violet-950/40 border-y border-violet-500/20 py-4 px-6">
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <div>
+            <p className="text-white font-semibold text-sm">
+              Continue your last video
+              {resumeData.title && <span className="text-violet-300 ml-1">— {resumeData.title}</span>}
+            </p>
+            <p className="text-white/40 text-xs">
+              {resumeData.selectedStyle} style · {resumeData.step} step · saved {timeLabel}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <NavLink
+            href={resumeHref}
+            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-5 py-2 rounded-xl transition-colors text-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            Continue
+          </NavLink>
+          <button
+            onClick={clearAndDismiss}
+            className="text-white/40 hover:text-white/70 text-xs px-3 py-2 transition-colors"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Trust Signals (Production Audit Item 5) ──────────────────────────────────
+function TrustSignals() {
+  return (
+    <section className="bg-[#0a0a0a] border-t border-white/6 py-6 px-6">
+      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+        {[
+          { value: "10,000+", label: "Videos created" },
+          { value: "Global", label: "Used by creators worldwide" },
+          { value: "Zero", label: "Editing skills required" },
+        ].map((stat) => (
+          <div key={stat.label} className="text-center">
+            <p className="text-white font-extrabold text-2xl sm:text-3xl tracking-tight">{stat.value}</p>
+            <p className="text-white/40 text-xs sm:text-sm mt-0.5">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── See What You Can Create (Production Audit Item 4) ────────────────────────
+function SeeWhatYouCanCreate() {
+  const CDN_BASE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+  const previewClips = [
+    {
+      label: "Cinematic Film",
+      src: `${CDN_BASE}/intro-cinematic-film_e6db52cb.mp4`,
+      gradient: "from-violet-900/40 to-blue-900/30",
+    },
+    {
+      label: "Pixar Animation",
+      src: `${CDN_BASE}/intro-clip-pixar_d6e9d6d0.mp4`,
+      gradient: "from-emerald-900/40 to-teal-900/30",
+    },
+    {
+      label: "Music Video",
+      src: `${CDN_BASE}/intro-new-singer_fdadff1e.mp4`,
+      gradient: "from-fuchsia-900/40 to-pink-900/30",
+    },
+  ];
+
+  return (
+    <section className="bg-[#0a0a0a] border-t border-white/6 py-16 px-6">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10 reveal">
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-3">Showcase</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">See what you can create</h2>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {previewClips.map((clip) => (
+            <div key={clip.label} className="reveal group relative rounded-2xl overflow-hidden border border-white/8 bg-[#171717]">
+              <div className="aspect-video relative">
+                <LazyVideo
+                  src={clip.src}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t ${clip.gradient} to-transparent opacity-40 pointer-events-none`} />
+              </div>
+              <div className="p-4 flex items-center justify-between">
+                <span className="text-white font-semibold text-sm">{clip.label}</span>
+                <span className="text-xs text-white/30 px-2 py-0.5 rounded-full border border-white/10 bg-white/5">AI Generated</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -2485,7 +2609,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={127} height={72} className="h-9 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={127} height={72} loading="lazy" className="h-9 w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.
@@ -2570,6 +2694,9 @@ export default function Home() {
       <Nav />
       <main id="main-content">
         <Hero />
+        <ContinueProjectBanner />
+        <TrustSignals />
+        <SeeWhatYouCanCreate />
         <HowItWorksStrip />
         <TryAnExample />
         <DemoSection />

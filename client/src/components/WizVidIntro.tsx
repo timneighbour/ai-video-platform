@@ -1,21 +1,20 @@
 /**
  * WizVidIntro — FIXED Directed Cinematic Sequence (Apr 2026)
  *
- * This is NOT an AI montage. This is a DIRECTED cinematic sequence.
- * No improvisation allowed.
+ * PRODUCTION AUDIT FIXES:
+ * - Audio starts MUTED — no autoplay sound unless user clicks unmute
+ * - Sound toggle visible (top-right) at all times
+ * - Video does NOT loop endlessly — ends at WOW clip and HOLDS
+ * - End state shows "Enter Experience" button — NO auto redirect
+ * - Skip button always available
  *
- * ARCHITECTURE: Two persistent video elements (A/B) — NO key props.
- * Clips loaded via ref.current.src. Dissolves are CSS opacity cross-fades.
- *
- * FIXED 5-clip sequence (STRICT ORDER — DO NOT CHANGE):
+ * FIXED 6-step sequence (STRICT ORDER — DO NOT CHANGE):
  *   Step 1: Black screen (2s)        — "This changes everything"
  *   Step 2: Cinematic film scene     — dramatic wide shot
  *   Step 3: Music video (ONLY ONE)   — singer performance
  *   Step 4: Pixar animation          — magical forest scene
  *   Step 5: AI generation            — sketch → cinematic transformation
  *   Step 6: WOW clip (HOLD)          — cosmic explosion → "Enter WizVid"
- *
- * Audio: Steel Thunderfall (12.48s) — muted autoplay, unmute button.
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -28,46 +27,35 @@ const LOGO        = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
 
 // ── FIXED 5 clips — STRICT ORDER — DO NOT ADD/REMOVE/REORDER ─────────────────
-const CLIP_2_CINEMATIC = `${CDN}/intro-cinematic-film_e6db52cb.mp4`;  // Step 2: Cinematic film (rain-soaked city, dramatic wide shot)
-const CLIP_3_MUSIC     = `${CDN}/intro-new-singer_fdadff1e.mp4`;      // Step 3: Music video (ONLY ONE)
-const CLIP_4_ANIMATION = `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`;     // Step 4: Pixar animation
-const CLIP_5_AIGEN     = `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`;    // Step 5: AI generation
-const CLIP_6_WOW       = `${CDN}/intro-clip-wow_8b874816.mp4`;       // Step 6: WOW clip (HOLD)
+const CLIP_2_CINEMATIC = `${CDN}/intro-cinematic-film_e6db52cb.mp4`;
+const CLIP_3_MUSIC     = `${CDN}/intro-new-singer_fdadff1e.mp4`;
+const CLIP_4_ANIMATION = `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`;
+const CLIP_5_AIGEN     = `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`;
+const CLIP_6_WOW       = `${CDN}/intro-clip-wow_8b874816.mp4`;
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
-const SOUND_KEY = "wizvid_intro_sound";
 
 // ── Timing constants ──────────────────────────────────────────────────────────
 const DISSOLVE_MS = 900;
 
-// Step 1: Black screen 0–2s
-// Step 2: Cinematic at 2s
-// Step 3: Music at 4.5s
-// Step 4: Animation at 7s
-// Step 5: AI gen at 9.5s
-// Step 6: WOW at 12s — HOLD for CTA
-const CLIP_SCHEDULE: { at: number; src: string }[] = [
+const CLIP_SCHEDULE: { at: number; src: string; isLast?: boolean }[] = [
   { at: 2000,  src: CLIP_2_CINEMATIC },
   { at: 4500,  src: CLIP_3_MUSIC     },
   { at: 7000,  src: CLIP_4_ANIMATION },
   { at: 9500,  src: CLIP_5_AIGEN     },
-  { at: 12000, src: CLIP_6_WOW       },
+  { at: 12000, src: CLIP_6_WOW, isLast: true },
 ];
 
-// ── Text overlays — one per step ──────────────────────────────────────────────
 const TEXT_SCHEDULE: { showAt: number; hideAt: number; text: string }[] = [
-  { showAt: 300,   hideAt: 1800,  text: "This changes everything" },   // Step 1: black screen
-  { showAt: 2200,  hideAt: 4200,  text: "Cinematic films"         },   // Step 2: cinematic
-  { showAt: 4700,  hideAt: 6700,  text: "Music videos"            },   // Step 3: music
-  { showAt: 7200,  hideAt: 9200,  text: "Animated worlds"         },   // Step 4: animation
-  { showAt: 9700,  hideAt: 11700, text: "AI creates anything"     },   // Step 5: AI gen
-  // Step 6: no text overlay — WOW clip speaks for itself, then CTA appears
+  { showAt: 300,   hideAt: 1800,  text: "This changes everything" },
+  { showAt: 2200,  hideAt: 4200,  text: "Cinematic films"         },
+  { showAt: 4700,  hideAt: 6700,  text: "Music videos"            },
+  { showAt: 7200,  hideAt: 9200,  text: "Animated worlds"         },
+  { showAt: 9700,  hideAt: 11700, text: "AI creates anything"     },
 ];
 
 const TEXT_FADE_IN_MS  = 500;
 const TEXT_FADE_OUT_MS = 400;
-
-// CTA appears 1.5s after WOW clip starts (at 13.5s)
 const CTA_SHOW_AT = 13500;
 
 interface WizVidIntroProps {
@@ -92,11 +80,8 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [showCTA, setShowCTA]         = useState(false);
   const [isExiting, setIsExiting]     = useState(false);
 
-  // ── Sound ─────────────────────────────────────────────────────────────────
-  const [muted, setMuted] = useState(() => {
-    try { return sessionStorage.getItem(SOUND_KEY) !== "on"; }
-    catch { return true; }
-  });
+  // ── Sound: ALWAYS starts muted (production audit requirement) ─────────────
+  const [muted, setMuted] = useState(true);
 
   // ── Refs ──────────────────────────────────────────────────────────────────
   const videoARef    = useRef<HTMLVideoElement>(null);
@@ -114,28 +99,28 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   // ── Load a clip into a video element and play it ──────────────────────────
   const loadAndPlay = useCallback((
     ref: React.RefObject<HTMLVideoElement | null>,
-    src: string
+    src: string,
+    shouldLoop: boolean = false
   ) => {
     const v = ref.current;
     if (!v) return;
     v.src = src;
-    v.muted = true;
-    v.loop = true;
+    v.muted = true; // video elements always muted (audio is separate)
+    v.loop = shouldLoop; // ONLY the last clip loops to hold the frame
     v.playsInline = true;
     v.load();
     v.play().catch(() => {});
   }, []);
 
   // ── Dissolve to a new clip ─────────────────────────────────────────────────
-  const dissolveToClip = useCallback((src: string) => {
+  const dissolveToClip = useCallback((src: string, isLast: boolean = false) => {
     if (isExitingRef.current) return;
     const isFrontA = frontIsARef.current;
     const backRef  = isFrontA ? videoBRef : videoARef;
 
-    // Load clip into back element
-    loadAndPlay(backRef, src);
+    // Load clip — only loop the LAST clip (WOW) to hold the frame
+    loadAndPlay(backRef, src, isLast);
 
-    // Cross-fade: bring back to full opacity, fade out front
     if (isFrontA) {
       setBOpacity(1);
       addTimer(() => setAOpacity(0), 80);
@@ -144,7 +129,6 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       addTimer(() => setBOpacity(0), 80);
     }
 
-    // After dissolve, swap front reference
     addTimer(() => {
       frontIsARef.current = !isFrontA;
     }, DISSOLVE_MS + 150);
@@ -168,22 +152,18 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
 
   // ── Master timeline — FIXED sequence, no randomness ────────────────────────
   useEffect(() => {
-    // Step 1: Black screen — no video loaded yet
-    // Logo at 0.5s, tagline at 1.2s
     addTimer(() => setShowLogo(true),    500);
     addTimer(() => setShowTagline(true), 1200);
 
-    // Text overlays — one per step
     TEXT_SCHEDULE.forEach(({ showAt, hideAt, text }) => {
       showTextOverlay(text, showAt, hideAt);
     });
 
-    // Clip transitions — FIXED order
-    CLIP_SCHEDULE.forEach(({ at, src }) => {
-      addTimer(() => dissolveToClip(src), at);
+    CLIP_SCHEDULE.forEach(({ at, src, isLast }) => {
+      addTimer(() => dissolveToClip(src, !!isLast), at);
     });
 
-    // CTA at 13.5s (1.5s after WOW clip starts)
+    // CTA at 13.5s — user must click to enter, NO auto redirect
     addTimer(() => setShowCTA(true), CTA_SHOW_AT);
 
     return () => {
@@ -192,33 +172,34 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Audio: start muted on mount ───────────────────────────────────────────
+  // ── Audio: start MUTED on mount (production audit: no autoplay sound) ─────
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
-    a.muted = true;
-    a.loop = false;
+    a.muted = true; // ALWAYS start muted
+    a.loop = false; // audio does NOT loop
     a.currentTime = 0;
-    a.play().catch(() => {});
+    a.play().catch(() => {}); // preload/buffer, but muted
   }, []);
 
-  // ── Audio: sync mute state ────────────────────────────────────────────────
+  // ── Audio: sync mute state when user toggles ─────────────────────────────
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
     a.muted = muted;
-    try { sessionStorage.setItem(SOUND_KEY, muted ? "off" : "on"); }
-    catch { /* ignore */ }
     if (!muted && a.paused) a.play().catch(() => {});
   }, [muted]);
 
-  // ── Dismiss ───────────────────────────────────────────────────────────────
+  // ── Dismiss — user must click CTA or Skip ─────────────────────────────────
   const dismiss = useCallback((destination?: string) => {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
     timers.current.forEach(clearTimeout);
+    // Stop all media
     audioRef.current?.pause();
+    if (videoARef.current) { videoARef.current.pause(); videoARef.current.src = ""; }
+    if (videoBRef.current) { videoBRef.current.pause(); videoBRef.current.src = ""; }
     setTimeout(() => {
       onClose();
       if (destination) navigate(destination);
@@ -237,51 +218,47 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       aria-modal="true"
       aria-label="WizVid cinematic intro"
     >
-      {/* ── Video A (persistent — no key prop) ─────────────────────────────── */}
+      {/* ── Video A ─────────────────────────────── */}
       <video
         ref={videoARef}
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover"
         style={{
           opacity: aOpacity,
           transition: `opacity ${DISSOLVE_MS}ms cubic-bezier(0.4,0,0.2,1)`,
           zIndex: 0,
+          pointerEvents: "none",
         }}
         muted
         playsInline
         crossOrigin="anonymous"
       />
 
-      {/* ── Video B (persistent — no key prop) ─────────────────────────────── */}
+      {/* ── Video B ─────────────────────────────── */}
       <video
         ref={videoBRef}
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover"
         style={{
           opacity: bOpacity,
           transition: `opacity ${DISSOLVE_MS}ms cubic-bezier(0.4,0,0.2,1)`,
           zIndex: 0,
+          pointerEvents: "none",
         }}
         muted
         playsInline
         crossOrigin="anonymous"
       />
 
-      {/* ── Cinematic vignette ──────────────────────────────────────────────── */}
+      {/* ── Cinematic vignette ──────────────────── */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0"
         style={{
           zIndex: 1,
-          background: [
-            "linear-gradient(to bottom,",
-            "  rgba(0,0,0,0.55) 0%,",
-            "  rgba(0,0,0,0.08) 30%,",
-            "  rgba(0,0,0,0.08) 65%,",
-            "  rgba(0,0,0,0.78) 100%",
-            ")",
-          ].join(""),
+          pointerEvents: "none",
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.08) 65%, rgba(0,0,0,0.78) 100%)",
         }}
       />
 
-      {/* ── Audio ──────────────────────────────────────────────────────────── */}
+      {/* ── Audio (separate element, not video audio) ── */}
       <audio
         ref={audioRef}
         src={INTRO_AUDIO}
@@ -289,22 +266,24 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         crossOrigin="anonymous"
       />
 
-      {/* ── Skip (top-right) ───────────────────────────────────────────────── */}
+      {/* ── Skip (top-left) ─────────────────────── */}
       <button
         onClick={() => dismiss()}
-        className="absolute top-5 right-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/60 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-        style={{ zIndex: 20 }}
+        onMouseDown={() => dismiss()}
+        className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/60 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20, cursor: "pointer", pointerEvents: "auto" }}
         aria-label="Skip intro"
       >
         <X className="w-3.5 h-3.5" />
         Skip
       </button>
 
-      {/* ── Sound toggle (top-left) ─────────────────────────────────────────── */}
+      {/* ── Sound toggle (top-right) — ALWAYS VISIBLE ── */}
       <button
         onClick={() => setMuted(m => !m)}
-        className="absolute top-5 left-5 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-        style={{ zIndex: 20 }}
+        onMouseDown={() => setMuted(m => !m)}
+        className="absolute top-5 right-5 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20, cursor: "pointer", pointerEvents: "auto" }}
         aria-label={muted ? "Enable sound" : "Mute audio"}
       >
         {muted ? (
@@ -314,13 +293,14 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         )}
       </button>
 
-      {/* ── Cinematic strapline text ────────────────────────────────────────── */}
+      {/* ── Cinematic strapline text ────────────── */}
       <div
-        className="absolute inset-x-0 pointer-events-none flex items-center justify-center px-8"
+        className="absolute inset-x-0 flex items-center justify-center px-8"
         style={{
           zIndex: 10,
           top: "36%",
           transform: "translateY(-50%)",
+          pointerEvents: "none",
         }}
         aria-hidden="true"
       >
@@ -339,12 +319,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         </p>
       </div>
 
-      {/* ── Bottom: logo + tagline + CTA ───────────────────────────────────── */}
+      {/* ── Bottom: logo + tagline + CTA ───────── */}
       <div
         className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
-        style={{ zIndex: 10 }}
+        style={{ zIndex: 10, pointerEvents: "none" }}
       >
-        {/* Logo — premium cinematic quality */}
+        {/* Logo */}
         <div
           style={{
             opacity: showLogo ? 1 : 0,
@@ -353,7 +333,6 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             position: "relative",
           }}
         >
-          {/* Cinematic atmosphere glow behind logo */}
           <div
             style={{
               position: "absolute",
@@ -365,7 +344,6 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
               animation: showLogo ? "logoAtmosphere 3s ease-in-out infinite alternate" : "none",
             }}
           />
-          {/* Sharp PNG logo — pixel-perfect at any resolution */}
           <img
             src={LOGO}
             alt="WizVid"
@@ -401,7 +379,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           Create anything with AI
         </p>
 
-        {/* Enter WizVid CTA — appears on WOW clip hold */}
+        {/* ENTER EXPERIENCE CTA — appears on WOW clip hold, user MUST click */}
         <div
           className="mt-10"
           style={{
@@ -413,15 +391,19 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         >
           <button
             onClick={() => dismiss("/")}
+            onMouseDown={() => dismiss("/")}
             className="group relative inline-flex items-center gap-3 px-16 py-4 rounded-full text-base font-semibold text-white transition-all duration-300 hover:scale-105"
             style={{
+              cursor: "pointer",
+              pointerEvents: "auto",
+              zIndex: 20,
               background: "linear-gradient(135deg, rgba(139,92,246,0.95) 0%, rgba(109,40,217,1) 100%)",
               boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
               animation: showCTA ? "ctaPulse 2.8s ease-in-out infinite" : "none",
               letterSpacing: "0.04em",
             }}
           >
-            Enter WizVid
+            Enter Experience
             <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
           </button>
         </div>

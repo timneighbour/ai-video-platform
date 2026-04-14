@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { mp } from "@/lib/mixpanel";
 import { useLocalStorage, useFormPersistence } from "@/hooks/useLocalStorage";
+import { useProjectAutoSave } from "@/hooks/useProjectResume";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -279,6 +280,18 @@ export default function MusicVideoAutopilot() {
     }
     return () => { if (elapsedTickerRef.current) clearInterval(elapsedTickerRef.current); };
   }, [step, renderStatus, renderStartTime]);
+
+  // ── Auto-save project progress every 5 seconds ──────────────────────────
+  useProjectAutoSave({
+    title,
+    themePrompt,
+    genre,
+    mood,
+    selectedStyle,
+    audioDuration: audioDuration || undefined,
+    jobId: jobId || undefined,
+    step,
+  });
 
   // Plan limits query — used to show length limit warning
   const { data: planLimits } = trpc.billing.getPlanLimits.useQuery(undefined, {

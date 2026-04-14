@@ -336,3 +336,36 @@ h1, h2, h3, h4 {
 .wizsound-eq-bar-3 { animation: eq-bar-3 0.55s ease-in-out infinite; }
 .wizsound-eq-bar-4 { animation: eq-bar-4 0.68s ease-in-out infinite; }
 .wizsound-eq-bar-5 { animation: eq-bar-5 0.59s ease-in-out infinite; }
+
+/* ── PRODUCTION AUDIT: Global Overlay Safety ──────────────────────────────────
+   Rule 7: ALL background/decorative elements get pointer-events:none
+           ALL CTAs get pointer-events:auto + cursor:pointer
+   This prevents invisible overlays from blocking click targets. */
+
+/* Background overlays, decorative gradients, film grain, vignettes */
+[aria-hidden="true"],
+.pointer-events-none {
+  pointer-events: none !important;
+}
+
+/* All interactive CTA elements — guaranteed clickable */
+a[href],
+button:not([disabled]),
+[role="button"],
+input,
+select,
+textarea,
+.pointer-events-auto {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+/* Ensure inputs keep their default cursor */
+input:not([type="button"]):not([type="submit"]),
+textarea,
+select {
+  cursor: text;
+}
+select {
+  cursor: pointer;
+}

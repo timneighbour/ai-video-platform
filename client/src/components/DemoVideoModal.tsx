@@ -136,14 +136,19 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return wizsoundMode ? audioStdRef.current : audioEnhRef.current;
   }, [wizsoundMode]);
 
-  /* ── Sync audio to video on mode switch ── */
+  /* ── Sync audio to video on mode switch (PRODUCTION FIX: no overlapping audio) ── */
   useEffect(() => {
     const v = videoRef.current;
     const active = getActiveAudio();
     const inactive = getInactiveAudio();
     if (!v || !active) return;
 
-    if (inactive) inactive.pause();
+    // CRITICAL: Stop inactive track FIRST to prevent overlap
+    if (inactive) {
+      inactive.pause();
+      inactive.currentTime = 0;
+    }
+    // Sync active track to video position
     active.currentTime = v.currentTime;
     active.muted = isMuted;
 
@@ -179,7 +184,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
-  /* ── Reset on close ──────────────────────────────────────────────── */
+  /* ── Reset on close (PRODUCTION FIX: guarantee all audio stops) ── */
   useEffect(() => {
     if (!open) {
       const vid = videoRef.current;
@@ -187,8 +192,15 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
         vid.pause();
         vid.currentTime = 0;
       }
-      audioStdRef.current?.pause();
-      audioEnhRef.current?.pause();
+      // Stop BOTH audio tracks and reset to prevent ghost playback
+      if (audioStdRef.current) {
+        audioStdRef.current.pause();
+        audioStdRef.current.currentTime = 0;
+      }
+      if (audioEnhRef.current) {
+        audioEnhRef.current.pause();
+        audioEnhRef.current.currentTime = 0;
+      }
       setPlaying(false);
       setCurrentTime(0);
     }

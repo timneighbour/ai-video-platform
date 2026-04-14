@@ -1,15 +1,11 @@
 /**
  * HardenedLink — Chrome-extension-resilient navigation anchor.
  *
- * Problem: Some Chrome extensions intercept React/wouter click handlers,
- * silently swallowing the event and preventing navigation.
- *
- * Solution: Use `onMouseDown` (fires before extensions can intercept `onClick`)
- * to immediately set `window.location.href`. The native `href` attribute
- * provides a third layer of fallback for keyboard navigation and right-click.
- *
- * Use this for ALL primary conversion CTAs (Hero, Pricing, Navbar, Footer).
- * For non-critical nav links, the regular NavLink is fine.
+ * PRODUCTION RULES:
+ * 1. onMouseDown → window.location.href (fires before extensions intercept)
+ * 2. cursor: pointer ALWAYS
+ * 3. pointer-events: auto ALWAYS
+ * 4. z-index: 10 minimum
  */
 import { ReactNode } from "react";
 
@@ -40,17 +36,20 @@ export function HardenedLink({
     <a
       href={href}
       id={id}
-      style={style}
+      style={{
+        cursor: "pointer",
+        pointerEvents: "auto",
+        position: "relative",
+        zIndex: 10,
+        ...style,
+      }}
       className={className}
-      // onMouseDown fires before extensions can intercept onClick
       onMouseDown={(e) => {
-        // Only handle primary (left) mouse button
         if (e.button === 0) {
           e.preventDefault();
           navigate();
         }
       }}
-      // onClick fallback for keyboard activation (Enter key) and touch
       onClick={(e) => {
         e.preventDefault();
         navigate();
