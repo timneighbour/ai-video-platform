@@ -378,7 +378,7 @@ function HeroProductPreview() {
           ))}
 
           {/* Dark overlay for readability */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.05) 100%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.05) 100%)" }} />
 
           {/* Category cycling text — top centre */}
           <div className="absolute top-4 left-0 right-0 flex justify-center">

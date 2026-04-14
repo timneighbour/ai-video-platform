@@ -246,12 +246,13 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
   /* ── Reduced motion: static ─────────────────────────────────────── */
   if (prefersReducedMotion && paused) {
     return (
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
         <img src={ASSETS.staticBg} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/50 to-black/95" />
+        {/* Play button: pointer-events-auto so it remains clickable */}
         <button
           onClick={() => { setPaused(false); setPrefersReducedMotion(false); }}
-          className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-all"
+          className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-all pointer-events-auto"
           aria-label="Play background video"
         >
           <Play className="w-3.5 h-3.5" /><span>Play</span>

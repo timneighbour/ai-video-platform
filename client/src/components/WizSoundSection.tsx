@@ -183,7 +183,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         <video
           ref={videoRef}
           src={VIDEO_SRC}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           playsInline
           loop
           muted
