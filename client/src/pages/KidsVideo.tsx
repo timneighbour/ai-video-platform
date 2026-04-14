@@ -1447,7 +1447,7 @@ export default function KidsVideo() {
                         <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl overflow-hidden aspect-video relative">
                           <img src={frame.imageUrl} alt={frame.sceneLabel} className="w-full h-full object-cover" />
                           {regeneratingSceneIndex === frame.sceneIndex && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center pointer-events-none">
                               <div className="text-center">
                                 <Loader2 className="h-8 w-8 text-pink-400 animate-spin mx-auto mb-2" />
                                 <span className="text-xs text-pink-300">Regenerating scene…</span>

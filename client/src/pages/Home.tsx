@@ -372,7 +372,7 @@ function HeroProductPreview() {
               key={p.id}
               src={p.image}
               alt={p.label}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 pointer-events-none"
               style={{ opacity: i === phase ? 1 : 0 }}
             />
           ))}
@@ -568,8 +568,8 @@ function Hero() {
                 style={{ fontSize: "clamp(0.9rem, 1.6vw, 1rem)" }}
               >
                 <span className="relative w-6 h-6 flex-shrink-0">
-                  <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" style={{ animationDuration: "2s" }} />
-                  <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center">
+                  <span className="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none" style={{ animationDuration: "2s" }} />
+                  <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center pointer-events-none">
                     <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
                   </span>
                 </span>
@@ -854,11 +854,11 @@ function DemoSection() {
               alt="WizVid demo preview"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
             {/* Play button */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
               <div className="relative w-20 h-20">
-                <span className="absolute inset-0 rounded-full bg-white/15 animate-ping" style={{ animationDuration: "2.5s" }} />
+                <span className="absolute inset-0 rounded-full bg-white/15 animate-ping pointer-events-none" style={{ animationDuration: "2.5s" }} />
                 <span className="absolute inset-0 rounded-full bg-white/20 border-2 border-white/50 group-hover:bg-white/30 group-hover:border-white/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
                   <Play className="w-8 h-8 text-white ml-1" fill="white" />
                 </span>
@@ -1163,7 +1163,7 @@ function Features() {
             {STYLE_IMAGES.map((style) => (
               <div key={style.label} className="relative rounded-2xl overflow-hidden aspect-video group cursor-pointer card-hover">
                 <img src={style.img} alt={style.label} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
                 <span className="absolute bottom-2.5 left-3 text-white text-xs font-semibold">{style.label}</span>
               </div>
             ))}
@@ -1242,8 +1242,8 @@ function WhoItsFor() {
                   decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className={`absolute inset-0 bg-gradient-to-br ${a.accent} mix-blend-multiply`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent" />
+                <div className={`absolute inset-0 bg-gradient-to-br ${a.accent} mix-blend-multiply pointer-events-none`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent pointer-events-none" />
                 <span className="absolute top-3 left-3 text-xs font-semibold text-white bg-black/50 backdrop-blur-sm border border-white/10 rounded-full px-3 py-1">{a.badge}</span>
               </div>
               {/* Text */}
@@ -1626,10 +1626,10 @@ function WizBeatSection() {
                   alt={img.label}
                   loading="lazy"
                   decoding="async"
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === activeImg ? "opacity-100" : "opacity-0"}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 pointer-events-none ${i === activeImg ? "opacity-100" : "opacity-0"}`}
                 />
               ))}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-4 left-4 right-4 flex gap-2">
                 {WIZBEAT_IMAGES.map((img, i) => (
                   <button
@@ -1892,7 +1892,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
           height={360}
         />
         {/* Cinematic gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
         {item.videoUrl && (
           <video
             ref={videoRef}
@@ -1901,7 +1901,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
             loop
             playsInline
             preload="none"
-            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
           />
         )}
         {/* Duration badge top-left */}
@@ -1912,7 +1912,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
           </div>
         )}
         {/* Play icon overlay */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-xl">
             <Play className="w-6 h-6 text-white fill-white ml-0.5" />
           </div>

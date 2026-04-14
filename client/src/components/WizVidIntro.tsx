@@ -198,7 +198,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       {/* Background video A (current) */}
       <video
         ref={videoARef}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{
           opacity: videoAReady ? (crossfading ? 0 : 1) : 0,
           transition: `opacity ${CROSSFADE_MS}ms ease`,
@@ -214,7 +214,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       {/* Background video B (next — fades in during crossfade) */}
       <video
         ref={videoBRef}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{
           opacity: crossfading ? 1 : 0,
           transition: `opacity ${CROSSFADE_MS}ms ease`,

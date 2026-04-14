@@ -392,8 +392,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               aria-label="Play demo"
             >
               <div className="relative w-20 h-20 sm:w-24 sm:h-24">
-                <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
-                <span className="absolute inset-1 rounded-full bg-white/10 animate-ping [animation-delay:0.3s]" />
+                <span className="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none" />
+                <span className="absolute inset-1 rounded-full bg-white/10 animate-ping [animation-delay:0.3s] pointer-events-none" />
                 <span className="absolute inset-0 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-all shadow-2xl">
                   <Play size={32} className="text-black ml-1" fill="black" />
                 </span>
@@ -516,7 +516,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
           {/* Loading spinner */}
           {!videoLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10 pointer-events-none">
               <div className="w-10 h-10 border-2 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           )}

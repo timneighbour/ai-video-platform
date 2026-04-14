@@ -1569,7 +1569,7 @@ export default function MusicVideoAutopilot() {
                               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                             {/* Dark overlay */}
-                            <div className={`absolute inset-0 transition-opacity ${
+                            <div className={`absolute inset-0 transition-opacity pointer-events-none ${
                               selectedStyle === style.id
                                 ? "bg-purple-900/40"
                                 : "bg-black/40 group-hover:bg-black/20"
@@ -1993,7 +1993,7 @@ export default function MusicVideoAutopilot() {
                     )}
                     {/* AI regenerating overlay — shown when image exists but is being regenerated */}
                     {scene.previewImageUrl && scene.previewImageLoading && (
-                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 rounded-t-lg">
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 rounded-t-lg pointer-events-none">
                         <Loader2 className="w-7 h-7 text-purple-400 animate-spin" />
                         <span className="text-white text-xs font-medium">AI regenerating scene...</span>
                         <span className="text-zinc-400 text-[10px]">Applying your description</span>

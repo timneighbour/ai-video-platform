@@ -134,8 +134,8 @@ export default function LandingUK() {
             </a>
             <a href={`${MAIN_APP}#demo`} className={BRAND.ctaSecondary}>
               <span className="relative w-6 h-6 flex-shrink-0">
-                <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" style={{ animationDuration: "2s" }} />
-                <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center">
+                <span className="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none" style={{ animationDuration: "2s" }} />
+                <span className="absolute inset-0 rounded-full bg-white/15 border border-white/30 flex items-center justify-center pointer-events-none">
                   <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
                 </span>
               </span>

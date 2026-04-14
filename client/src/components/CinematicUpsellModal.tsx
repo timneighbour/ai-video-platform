@@ -204,7 +204,7 @@ export default function CinematicUpsellModal({
                       )}
                       {/* Selection overlay */}
                       <div
-                        className={`absolute inset-0 transition-all ${
+                        className={`absolute inset-0 transition-all pointer-events-none ${
                           selected
                             ? "bg-amber-500/10"
                             : "bg-transparent group-hover:bg-white/5"

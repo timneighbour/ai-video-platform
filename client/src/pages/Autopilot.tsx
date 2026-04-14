@@ -811,7 +811,7 @@ export default function Autopilot() {
                   {(scene.previewLoading || scene.previewImageUrl) && (
                     <div className="mx-4 mb-3 rounded-xl overflow-hidden bg-white/5 border border-white/10 aspect-video relative">
                       {scene.previewLoading ? (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
                           <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
                           <p className="text-xs text-muted-foreground">Generating AI preview…</p>
                         </div>

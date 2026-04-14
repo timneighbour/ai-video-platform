@@ -148,8 +148,25 @@ function MixpanelIdentity() {
 }
 
 function App() {
-  // Show intro on every visit — user can skip at any time to go straight to the homepage.
-  const [showIntro, setShowIntro] = useState<boolean>(true);
+  // Start hidden — useEffect checks sessionStorage to avoid blocking first paint.
+  // This ensures the intro NEVER mounts on refresh if already seen.
+  const [showIntro, setShowIntro] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const seen = sessionStorage.getItem(INTRO_SEEN_KEY);
+      if (!seen) {
+        setShowIntro(true);
+      }
+    } catch {
+      // sessionStorage unavailable (private browsing edge case) — skip intro
+    }
+  }, []);
+
+  const handleIntroClose = () => {
+    try { sessionStorage.setItem(INTRO_SEEN_KEY, "true"); } catch {}
+    setShowIntro(false);
+  };
 
   return (
     <ErrorBoundary>
@@ -162,9 +179,9 @@ function App() {
           <MixpanelIdentity />
           <Router />
           <GlobalMuteButton />
-          {/* Intro mounts AFTER the router so it never blocks page content */}
+          {/* Intro shows once per session — sessionStorage flag prevents repeat */}
           {showIntro && (
-            <WizVidIntro onClose={() => setShowIntro(false)} />
+            <WizVidIntro onClose={handleIntroClose} />
           )}
         </TooltipProvider>
       </ThemeProvider>

@@ -226,7 +226,7 @@ export default function RenderHistory() {
                               onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
                               onMouseLeave={(e) => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                               <Play className="w-5 h-5 text-white fill-white" />
                             </div>
                           </>
@@ -458,7 +458,7 @@ export default function RenderHistory() {
                               onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
                               onMouseLeave={(e) => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                               <Play className="w-3 h-3 text-white fill-white" />
                             </div>
                           </div>

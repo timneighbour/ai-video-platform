@@ -175,7 +175,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
       {/* ── Video (always muted — audio comes from separate element) ── */}
       <div className="relative w-full aspect-video bg-black overflow-hidden rounded-t-xl">
         {!loaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black z-20">
+          <div className="absolute inset-0 flex items-center justify-center bg-black z-20 pointer-events-none">
             <div className="w-8 h-8 rounded-full border-2 border-fuchsia-500/40 border-t-fuchsia-400 animate-spin" />
           </div>
         )}

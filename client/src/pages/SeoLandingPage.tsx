@@ -59,7 +59,7 @@ function DemoVideoEmbed({ keyword }: { keyword: string }) {
         <Badge className="ml-auto bg-pink-500/20 text-pink-300 border-pink-500/30 text-xs">AI Generated</Badge>
       </div>
       <div className="aspect-video bg-black/60 flex items-center justify-center relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-black/60 pointer-events-none" />
         <div className="relative z-10 text-center">
           <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-white/20 transition-colors">
             <Play className="w-8 h-8 text-white ml-1" />

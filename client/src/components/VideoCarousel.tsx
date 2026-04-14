@@ -81,7 +81,7 @@ function AnimatedPlaceholder({ tool, title, description, tagline }: {
       />
 
       {/* Grid lines */}
-      <div className="absolute inset-0 opacity-5"
+      <div className="absolute inset-0 opacity-5 pointer-events-none"
         style={{
           backgroundImage: `linear-gradient(${config.accentColor} 1px, transparent 1px), linear-gradient(90deg, ${config.accentColor} 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
@@ -227,7 +227,7 @@ export default function VideoCarousel({ videos, autoPlayInterval = 6000 }: Video
         )}
 
         {/* Gradient overlay at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
         {/* Tool badge */}
         <div className={`absolute top-4 left-4 bg-gradient-to-r ${config.gradient} px-4 py-1.5 rounded-full`}>

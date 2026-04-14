@@ -304,7 +304,7 @@ export default function CharacterConfirmationStep({
                           : <Sparkles className="w-8 h-8 text-violet-400 animate-pulse" />
                         }
                       </div>
-                      <div className="absolute inset-0 rounded-full border-2 border-violet-500/50 animate-spin border-t-transparent" />
+                      <div className="absolute inset-0 rounded-full border-2 border-violet-500/50 animate-spin border-t-transparent pointer-events-none" />
                     </div>
                     <p className="text-zinc-400 text-sm">
                       {isGeneratingMaster ? "Creating identity anchor..." : "Generating AI preview..."}
@@ -328,7 +328,7 @@ export default function CharacterConfirmationStep({
                       </div>
                     )}
                     {char.previewApproved && (
-                      <div className="absolute inset-0 bg-emerald-900/20 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-emerald-900/20 flex items-center justify-center pointer-events-none">
                         <div className="bg-emerald-900/80 rounded-full p-3">
                           <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                         </div>

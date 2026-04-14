@@ -287,7 +287,7 @@ export function RenderPaywallModal({
                 alt="Video preview"
                 className="w-full h-full object-cover blur-sm scale-105 opacity-70"
               />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 pointer-events-none">
                 <div className="w-8 h-8 rounded-full bg-white/15 border border-white/25 backdrop-blur-sm flex items-center justify-center">
                   <Download className="w-4 h-4 text-white" />
                 </div>
