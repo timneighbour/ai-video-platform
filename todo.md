@@ -3371,3 +3371,20 @@
 - [x] Generate abstract/AI energy scene for 3–6s slot
 - [x] Assemble v6 at 24fps with crossfades, colour grading, exact 4-clip timeline
 - [x] Upload v6 to CDN and wire into WizVidIntro component
+
+## WizPilot Storyboard UI Rebuild (Apr 2026)
+- [x] Step indicator: rename steps to "Describe your video / Preview & Edit / Create your video"
+- [x] Step 1: Add Storybook and Cartoon to VIDEO_STYLES
+- [ ] Step 1: Add Suno audio creation option alongside upload
+- [ ] Step 1: Add consistency lock explainer / character lock UI improvement
+- [x] Step 2: Add Delete Scene button to each scene card
+- [x] Step 2: Add Move Up / Move Down reorder buttons to each scene card
+- [x] Step 2: Scene preview image is full-width aspect-video (already was)
+- [x] Step 2: Improve "Edit prompt" to be always visible (not hidden behind button)
+- [x] Step 3: Replace "Render & Download" CTA with "Create your video" (WizGenesisModal handles quality/audio/visual)
+- [x] Step 3: Render progress — stage labels updated (Generating scenes / Building animation / Enhancing audio / Finalising video)
+- [x] Step 3: Completion flow uses PostRenderRetentionScreen (Watch/Download/Create another)
+- [x] Step 3: Auto-save already wired via useProjectAutoSave hook
+- [x] Dashboard: "Continue your project" section verified — shows draft/storyboard_ready jobs
+- [x] Add deleteScene tRPC procedure to server router
+- [x] Add reorderScene tRPC procedure to server router

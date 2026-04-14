@@ -69,6 +69,7 @@ import {
   Cpu,
   Music2,
   Info,
+  Trash2,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -242,6 +243,18 @@ export default function MusicVideoAutopilot() {
       desc: "Dark, eerie & atmospheric",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-horror-gsFZakWZNY3wasPTthWDBJ.webp",
     },
+    {
+      id: "storybook",
+      label: "Storybook",
+      desc: "Illustrated fairy-tale art",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp",
+    },
+    {
+      id: "cartoon",
+      label: "Cartoon",
+      desc: "Bold, colourful 2D animation",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-n4CZF3mgReCEjogjqRoDKz.webp",
+    },
   ];
   const [isDragging, setIsDragging] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -331,6 +344,8 @@ export default function MusicVideoAutopilot() {
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+  const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
+  const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
 
   // Upsell checkout state
   const [upsellAddons, setUpsellAddons] = useState({ cinematicScenes: false, upgrade4K: false, removeWatermark: false });
@@ -468,6 +483,42 @@ export default function MusicVideoAutopilot() {
       // Surface the "Please assign characters" error clearly
       const msg = err?.data?.message ?? err?.message ?? "Failed to regenerate scene";
       toast.error("Cannot regenerate scene", { description: msg });
+    }
+  };
+
+  // Delete a scene from the storyboard
+  const handleDeleteScene = async (sceneId: number) => {
+    if (!jobId) return;
+    if (!confirm("Delete this scene? This cannot be undone.")) return;
+    try {
+      await deleteSceneMutation.mutateAsync({ sceneId, jobId });
+      setScenes(prev => {
+        const filtered = prev.filter(s => s.id !== sceneId);
+        // Re-index locally
+        return filtered.map((s, i) => ({ ...s, sceneIndex: i }));
+      });
+      toast.success("Scene deleted");
+    } catch (err: any) {
+      toast.error("Could not delete scene", { description: err?.message });
+    }
+  };
+
+  // Move a scene up or down
+  const handleReorderScene = async (sceneId: number, direction: "up" | "down") => {
+    if (!jobId) return;
+    try {
+      await reorderSceneMutation.mutateAsync({ sceneId, jobId, direction });
+      setScenes(prev => {
+        const arr = [...prev].sort((a, b) => a.sceneIndex - b.sceneIndex);
+        const idx = arr.findIndex(s => s.id === sceneId);
+        const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+        if (swapIdx < 0 || swapIdx >= arr.length) return prev;
+        const newArr = [...arr];
+        [newArr[idx], newArr[swapIdx]] = [newArr[swapIdx], newArr[idx]];
+        return newArr.map((s, i) => ({ ...s, sceneIndex: i }));
+      });
+    } catch (err: any) {
+      toast.error("Could not reorder scene", { description: err?.message });
     }
   };
 
@@ -1244,10 +1295,10 @@ export default function MusicVideoAutopilot() {
           {(() => {
             const STEPS: Step[] = ["upload", "character_confirmation", "storyboard", "render"];
             const STEP_LABELS: Record<Step, string> = {
-              upload: "Setup",
+              upload: "Describe your video",
               character_confirmation: "Confirm Characters",
-              storyboard: "Review Storyboard",
-              render: "Render & Download",
+              storyboard: "Preview & Edit",
+              render: "Create your video",
             };
             const currentIdx = STEPS.indexOf(step);
             // A step is accessible if: it's already been reached (index <= currentIdx)
@@ -1872,14 +1923,14 @@ export default function MusicVideoAutopilot() {
                   Regenerate
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold"
                   onClick={handleStartRender}
                   disabled={startRender.isPending || scenes.length === 0}
                 >
                   {startRender.isPending ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Starting...</>
                   ) : (
-                    <><Download className="w-4 h-4 mr-2" /> Render &amp; Download</>
+                    <><Sparkles className="w-4 h-4 mr-2" /> Create your video</>
                   )}
                 </Button>
               </div>
@@ -2071,21 +2122,53 @@ export default function MusicVideoAutopilot() {
                           </Badge>
                         )}
                       </div>
-                      {/* Regenerate button */}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-zinc-500 hover:text-purple-300 hover:bg-zinc-800 text-xs -mr-1 shrink-0"
-                        onClick={() => handleRegenerateScene(scene.id)}
-                        disabled={scene.regenerating || regenerateSceneMutation.isPending}
-                        title="Regenerate this scene only"
-                      >
-                        {scene.regenerating ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <RefreshCw className="w-3 h-3" />
-                        )}
-                      </Button>
+                      {/* Scene action buttons: Move Up, Move Down, Regenerate, Delete */}
+                      <div className="flex items-center gap-1 -mr-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          onClick={() => handleReorderScene(scene.id, "up")}
+                          disabled={scene.sceneIndex === 0 || reorderSceneMutation.isPending}
+                          title="Move scene up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          onClick={() => handleReorderScene(scene.id, "down")}
+                          disabled={scene.sceneIndex === scenes.length - 1 || reorderSceneMutation.isPending}
+                          title="Move scene down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-zinc-500 hover:text-purple-300 hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          onClick={() => handleRegenerateScene(scene.id)}
+                          disabled={scene.regenerating || regenerateSceneMutation.isPending}
+                          title="Regenerate this scene"
+                        >
+                          {scene.regenerating ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-3 h-3" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-zinc-600 hover:text-red-400 hover:bg-red-950/30 h-7 w-7 p-0 shrink-0"
+                          onClick={() => handleDeleteScene(scene.id)}
+                          disabled={deleteSceneMutation.isPending || scenes.length <= 1}
+                          title="Delete this scene"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Lyrics for this scene */}
@@ -2098,25 +2181,35 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
 
-                    {editingSceneId === scene.id ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <Sparkles className="w-3 h-3 text-purple-400" />
-                          <span className="text-purple-400 text-xs font-medium">Describe the scene — AI will regenerate the image</span>
-                        </div>
-                        <Textarea
-                          value={editPrompt}
-                          onChange={(e) => setEditPrompt(e.target.value)}
-                          placeholder="e.g. A neon-lit rooftop at midnight, rain-soaked streets below, close-up on the singer's face..."
-                          className="bg-zinc-800 border-zinc-700 text-white text-sm min-h-[100px] placeholder:text-zinc-600"
-                        />
-                        <p className="text-zinc-600 text-[10px] leading-tight">
-                          Tip: Include mood, lighting, setting, and character actions for best results.
-                        </p>
+                    {/* Always-visible scene description editor */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Pencil className="w-3 h-3 text-zinc-500" />
+                        <span className="text-zinc-500 text-xs font-medium">Scene description</span>
+                      </div>
+                      <Textarea
+                        value={editingSceneId === scene.id ? editPrompt : scene.prompt}
+                        onChange={(e) => {
+                          if (editingSceneId !== scene.id) {
+                            setEditingSceneId(scene.id);
+                          }
+                          setEditPrompt(e.target.value);
+                        }}
+                        onFocus={() => {
+                          if (editingSceneId !== scene.id) {
+                            setEditingSceneId(scene.id);
+                            setEditPrompt(scene.prompt);
+                          }
+                        }}
+                        placeholder="Describe this scene — mood, lighting, setting, character actions..."
+                        className="bg-zinc-800/60 border-zinc-700 text-white text-xs min-h-[80px] placeholder:text-zinc-600 resize-none focus:border-purple-600 transition-colors"
+                        rows={3}
+                      />
+                      {editingSceneId === scene.id && editPrompt !== scene.prompt && (
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                            className="bg-purple-600 hover:bg-purple-700 text-white text-xs h-7"
                             onClick={() => handleSaveEdit(scene.id)}
                             disabled={updateScene.isPending || !editPrompt.trim()}
                           >
@@ -2126,27 +2219,15 @@ export default function MusicVideoAutopilot() {
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
-                            onClick={() => setEditingSceneId(null)}
+                            variant="ghost"
+                            className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 text-xs h-7"
+                            onClick={() => { setEditingSceneId(null); setEditPrompt(""); }}
                           >
                             <X className="w-3 h-3 mr-1" /> Cancel
                           </Button>
                         </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="text-zinc-300 text-sm leading-relaxed line-clamp-3">{scene.prompt}</p>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="mt-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 -ml-2 text-xs"
-                          onClick={() => { setEditingSceneId(scene.id); setEditPrompt(scene.prompt); }}
-                        >
-                          <Pencil className="w-3 h-3 mr-1" /> Edit prompt
-                        </Button>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
                     {/* @Character tags + per-scene character selector */}
                     {jobCharacters.length > 0 && (
@@ -2473,11 +2554,11 @@ export default function MusicVideoAutopilot() {
                     {/* Enhanced 5-stage pipeline */}
                     {(() => {
                       const stages = [
-                        { key: "queued",     label: "Queued",           icon: <Clock className="w-4 h-4" /> },
-                        { key: "rendering",  label: "WizRender™",     icon: <Clapperboard className="w-4 h-4" /> },
-                        { key: "assembling", label: "Assembling",       icon: <Layers className="w-4 h-4" /> },
-                        { key: "wizsound",   label: "WizSound™",        icon: <Music2 className="w-4 h-4" /> },
-                        { key: "completed",  label: "Complete",         icon: <CheckCircle2 className="w-4 h-4" /> },
+                        { key: "queued",     label: "Queued",                  icon: <Clock className="w-4 h-4" /> },
+                        { key: "rendering",  label: "Generating scenes",       icon: <Clapperboard className="w-4 h-4" /> },
+                        { key: "assembling", label: "Building animation",      icon: <Layers className="w-4 h-4" /> },
+                        { key: "wizsound",   label: "Enhancing audio",         icon: <Music2 className="w-4 h-4" /> },
+                        { key: "completed",  label: "Finalising video",        icon: <CheckCircle2 className="w-4 h-4" /> },
                       ];
                       const stageOrder = ["queued", "rendering", "assembling", "wizsound", "completed"];
                       // Map legacy "assembling" to cover wizsound too until server emits it
@@ -2531,16 +2612,16 @@ export default function MusicVideoAutopilot() {
                           : <WizBrandBadge layer="render" size="sm" animated />}
                       </div>
                       <h2 className="text-xl font-bold text-white mb-1">
-                        {renderStatus === "wizsound" ? "Enhancing audio with WizSound™..."
-                          : renderStatus === "assembling" ? "Assembling Your Video..."
-                          : "Rendering with WizRender™..."}
+                        {renderStatus === "wizsound" ? "Enhancing audio..."
+                          : renderStatus === "assembling" ? "Building your animation..."
+                          : "Generating your scenes..."}
                       </h2>
                       <p className="text-zinc-400 text-sm mb-3">
                         {renderStatus === "wizsound"
-                          ? "WizSound™ is applying proprietary audio mastering to your final video..."
+                          ? "WizSound™ is applying cinematic audio mastering to your final video..."
                           : renderStatus === "assembling"
-                          ? "All scenes done! Stitching clips together with your audio track..."
-                          : `WizRender™ is generating ${totalScenes} cinematic scenes — this takes 5–15 minutes.`}
+                          ? "All scenes generated! Stitching clips together with your audio track..."
+                          : `Generating ${totalScenes} cinematic scenes — this usually takes 5–15 minutes.`}
                       </p>
                       {/* Quality & audio tier badges */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">

@@ -2572,4 +2572,93 @@ Return a JSON array of objects matching the lyric lines provided.`;
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: err?.message ?? "Failed to analyse lyrics" });
       }
     }),
+
+  // Delete a single scene from the storyboard
+  deleteScene: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.status === "rendering" || job.status === "assembling") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot delete scenes while rendering" });
+      }
+
+      await db.delete(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+
+      // Re-index remaining scenes so sceneIndex stays contiguous
+      const remaining = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex);
+
+      for (let i = 0; i < remaining.length; i++) {
+        if (remaining[i].sceneIndex !== i) {
+          await db.update(musicVideoScenes)
+            .set({ sceneIndex: i })
+            .where(eq(musicVideoScenes.id, remaining[i].id));
+        }
+      }
+
+      // Update totalScenes on the job
+      await db.update(musicVideoJobs)
+        .set({ totalScenes: remaining.length })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Scene ${input.sceneId} deleted from job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true, remainingCount: remaining.length };
+    }),
+
+  // Reorder scenes by moving one scene up or down
+  reorderScene: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      sceneId: z.number().int(),
+      direction: z.enum(["up", "down"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.status === "rendering" || job.status === "assembling") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot reorder scenes while rendering" });
+      }
+
+      const allScenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex);
+
+      const currentIdx = allScenes.findIndex(s => s.id === input.sceneId);
+      if (currentIdx === -1) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const swapIdx = input.direction === "up" ? currentIdx - 1 : currentIdx + 1;
+      if (swapIdx < 0 || swapIdx >= allScenes.length) {
+        return { success: false, message: "Already at boundary" };
+      }
+
+      const sceneA = allScenes[currentIdx];
+      const sceneB = allScenes[swapIdx];
+
+      // Swap sceneIndex values
+      await db.update(musicVideoScenes)
+        .set({ sceneIndex: swapIdx })
+        .where(eq(musicVideoScenes.id, sceneA.id));
+      await db.update(musicVideoScenes)
+        .set({ sceneIndex: currentIdx })
+        .where(eq(musicVideoScenes.id, sceneB.id));
+
+      console.log(`[MusicVideo] Scene ${input.sceneId} moved ${input.direction} in job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true };
+    }),
 });
