@@ -571,3 +571,33 @@ export const blogPosts = mysqlTable("blogPosts", {
 
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+// ── Creator Network ───────────────────────────────────────────────────────────
+export const creators = mysqlTable("creators", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"), // nullable — admin can seed creators without a user account
+  name: varchar("name", { length: 255 }).notNull(),
+  creatorType: mysqlEnum("creatorType", [
+    "music_artist",
+    "youtuber",
+    "animator",
+    "kids_creator",
+    "content_creator",
+  ]).notNull().default("content_creator"),
+  bio: text("bio"),
+  videoUrl: varchar("videoUrl", { length: 1024 }),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }),
+  youtubeUrl: varchar("youtubeUrl", { length: 512 }),
+  instagramUrl: varchar("instagramUrl", { length: 512 }),
+  tiktokUrl: varchar("tiktokUrl", { length: 512 }),
+  websiteUrl: varchar("websiteUrl", { length: 512 }),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  isFeatured: boolean("isFeatured").default(false).notNull(),
+  isTrending: boolean("isTrending").default(false).notNull(),
+  viewCount: int("viewCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Creator = typeof creators.$inferSelect;
+export type InsertCreator = typeof creators.$inferInsert;

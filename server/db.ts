@@ -1,7 +1,7 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts } from "../drizzle/schema";
-import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost } from "../drizzle/schema";
+import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts, creators } from "../drizzle/schema";
+import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost, Creator, InsertCreator } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -519,4 +519,71 @@ export async function deleteBlogPost(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("DB unavailable");
   await db.delete(blogPosts).where(eq(blogPosts.id, id));
+}
+
+// ── Creator Network Helpers ───────────────────────────────────────────────────
+
+/** List approved creators, optionally filtered by type */
+export async function listCreators(opts?: {
+  type?: Creator["creatorType"];
+  featured?: boolean;
+  trending?: boolean;
+  limit?: number;
+}): Promise<Creator[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const { and: _and, eq: _eq, desc } = await import("drizzle-orm");
+  const conditions = [_eq(creators.status, "approved")];
+  if (opts?.type) conditions.push(_eq(creators.creatorType, opts.type));
+  if (opts?.featured) conditions.push(_eq(creators.isFeatured, true));
+  if (opts?.trending) conditions.push(_eq(creators.isTrending, true));
+  return await db
+    .select()
+    .from(creators)
+    .where(_and(...conditions))
+    .orderBy(desc(creators.viewCount))
+    .limit(opts?.limit ?? 50);
+}
+
+/** Get a single creator by id */
+export async function getCreatorById(id: number): Promise<Creator | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const { eq: _eq } = await import("drizzle-orm");
+  const rows = await db.select().from(creators).where(_eq(creators.id, id)).limit(1);
+  return rows[0];
+}
+
+/** Submit a feature request (creates a pending creator record) */
+export async function submitCreatorFeatureRequest(data: InsertCreator): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const result = await db.insert(creators).values({ ...data, status: "pending" });
+  return (result[0] as any).insertId as number;
+}
+
+/** Admin: approve or reject a creator */
+export async function setCreatorStatus(
+  id: number,
+  status: "approved" | "rejected",
+  opts?: { isFeatured?: boolean; isTrending?: boolean }
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const { eq: _eq } = await import("drizzle-orm");
+  await db
+    .update(creators)
+    .set({ status, ...(opts ?? {}) })
+    .where(_eq(creators.id, id));
+}
+
+/** Increment view count for a creator */
+export async function incrementCreatorViews(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const { eq: _eq, sql: _sql } = await import("drizzle-orm");
+  await db
+    .update(creators)
+    .set({ viewCount: _sql`${creators.viewCount} + 1` })
+    .where(_eq(creators.id, id));
 }

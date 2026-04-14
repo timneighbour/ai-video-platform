@@ -107,10 +107,10 @@ function Nav() {
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-1">
           <NavLink href="/music-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Music Video</NavLink>
-          <NavLink href="/music-creator" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">AI Music</NavLink>
-          <NavLink href="/kids-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Kids</NavLink>
           <NavLink href="/wizpilot" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">WizPilot</NavLink>
-          <NavLink href="/how-it-works" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">How It Works</NavLink>
+          <NavLink href="/discover" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Discover</NavLink>
+          <NavLink href="/pricing" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Pricing</NavLink>
+          <NavLink href="/help" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Help</NavLink>
         </div>
 
         {/* Right: Auth */}
@@ -2079,12 +2079,15 @@ function MadeWithWizVid() {
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-12 reveal">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Example videos</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
-            See what WizVid creates
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">WizVid Creator Network</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">
+            Discover Creators Using WizVid
           </h2>
-          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Every video below was generated with WizVid — no editing, no animators, no studio. Just an idea.
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto mb-3">
+            Create videos. Get discovered. Grow your audience.
+          </p>
+          <p className="text-[#a1a1aa] text-base max-w-xl mx-auto">
+            Real creators using WizVid — musicians, YouTubers, animators, and kids content creators. Every video below was generated with WizVid.
           </p>
         </div>
 
@@ -2133,15 +2136,24 @@ function MadeWithWizVid() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-14 reveal">
-          <p className="text-[#a1a1aa] text-sm mb-5">Ready to create your own?</p>
-          <NavLink
-            href="/onboarding"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 text-white text-sm font-semibold hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25"
-          >
-            <Sparkles className="w-4 h-4" />
-            Create Your First Video →
-          </NavLink>
+        <div className="text-center mt-14 reveal flex flex-col items-center gap-4">
+          <p className="text-[#a1a1aa] text-sm">Want to get featured on WizVid?</p>
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <NavLink
+              href="/onboarding"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 text-white text-sm font-semibold hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create Your First Video →
+            </NavLink>
+            <NavLink
+              href="/discover"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-semibold hover:bg-white/10 transition-all"
+            >
+              <Users className="w-4 h-4" />
+              View All Creators
+            </NavLink>
+          </div>
         </div>
       </div>
     </section>

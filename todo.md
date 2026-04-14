@@ -3408,3 +3408,43 @@
 
 ## Dashboard TypeError Bug (Apr 2026)
 - [x] Fix TypeError: U is not a function crash in Dashboard component (CrispChat idempotent init)
+
+## WizVid Creator Network (Apr 2026)
+- [x] DB: Add `creators` table (id, userId, name, creatorType, bio, youtubeUrl, instagramUrl, tiktokUrl, websiteUrl, videoUrl, thumbnailUrl, status, isFeatured, isTrending, viewCount, createdAt)
+- [x] DB: Generate migration and apply via webdev_execute_sql
+- [x] Server: Add db helpers for creator CRUD in server/db.ts
+- [x] Server: Add tRPC procedures — listCreators (public, with category/status filter), submitFeatureRequest (protected), getCreatorById (public)
+- [x] Server: Add admin procedure — approveCreator/setStatus (admin only)
+- [x] Page: Build /discover page with Featured/Trending/New sections and category filter tabs
+- [x] Page: Creator card component with video preview (autoplay muted), name, type, social icons
+- [x] Homepage: Replace example-videos section with "Discover Creators Using WizVid" section (6 cards)
+- [x] Post-render: Add "Want to get featured on WizVid?" modal after video completion
+- [x] Post-render: Modal includes toggle + creator name + social link inputs
+- [x] Post-render: Wire submission to submitFeatureRequest tRPC procedure
+- [x] Badge: Generate "Featured on WizVid" downloadable badge image
+- [x] Tagline: Add "Create videos. Get discovered. Grow your audience." to homepage, post-render, and /discover
+- [x] Nav: Add "Discover" link to main navigation
+
+## Full-Site Audit — Final Trust & Completion Pass (Apr 2026)
+- [ ] Homepage: Add "What happens next?" section (5 steps: save storyboard, start creation, track progress, get notified, watch/download/share)
+- [ ] Homepage: Add "Discover Creators Using WizVid" section (replace example-videos)
+- [ ] Homepage: Add brand tagline "Create videos. Get discovered. Grow your audience."
+- [ ] Homepage: Nav cleanup — simplify to Home, Music Video, WizPilot, Pricing, Help (review Tools removal)
+- [x] Dashboard: Completed Videos Library — thumbnail, title, date, watch/download
+- [ ] Dashboard: "Continue your project" section clearly visible
+- [ ] Pricing: Replace all "render" language with creator-first language (video, full video, finished video)
+- [ ] WizPilot: Add "Improve my prompt" AI helper button in Step 1
+- [ ] WizPilot: Add explicit Save Project button with auto-save indicator
+- [ ] WizPilot: Add post-create clarity messaging ("What happens after you click Create your video")
+- [ ] Post-render: Add "Want to feature your video on WizVid?" modal
+- [ ] Post-render: Add in-account notification when video is complete
+- [ ] Post-render: Email notification to user when video is complete
+- [x] Creator Network: Build /discover page (featured/trending/new + category filter)
+- [x] Creator Network: Creator card component (video preview, name, type, social icons)
+- [x] Creator Network: Add "Discover" to nav
+- [x] Creator Network: Admin approval flow for creator submissions (setStatus procedure)
+- [x] Creator Network: "Featured on WizVid" badge asset (downloadable)
+- [ ] Tracking: GA4 events — page views, signup, onboarding start, render start, payment success
+- [ ] Tracking: Mixpanel events — Start Creating, Prompt submitted, Storyboard generated, Render started, Render completed, Upgrade clicked
+- [ ] Tracking: Email to timneighbour@wizvid.ai on new signup, new subscription, failed payment
+- [ ] Intro: Ensure intro layer does not appear on internal pages (Pricing, WizPilot, etc.)

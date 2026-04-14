@@ -267,6 +267,13 @@
       "when": 1776146225111,
       "tag": "0037_brief_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1776182944912,
+      "tag": "0038_glamorous_photon",
+      "breakpoints": true
     }
   ]
 }

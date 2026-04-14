@@ -7,11 +7,13 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import {
   Download, Play, Pause, Share2, Sparkles, Film, Music,
-  Baby, Youtube, ChevronRight, ArrowRight, Star, Zap, RefreshCw
+  Baby, Youtube, ChevronRight, ArrowRight, Star, Zap, RefreshCw,
+  Rocket, Globe, Instagram, Twitter, Users
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -266,15 +268,199 @@ export function PostRenderRetentionScreen({
         </div>
       )}
 
+      {/* ── Feature My Video ─────────────────────────────────────────── */}
+      <FeatureMyVideoSection jobId={jobId} />
+
       {/* ── Retention message ────────────────────────────────────────── */}
       <div className="text-center py-4 border-t border-white/8">
-        <p className="text-zinc-500 text-xs">Your next video could be even better.</p>
+        <p className="text-zinc-500 text-xs">Create videos. Get discovered. Grow your audience.</p>
         <a href="/music-video/create" className="inline-flex items-center gap-1.5 text-violet-400 text-xs font-medium mt-1.5 hover:text-violet-300 transition-colors">
           <Sparkles className="w-3 h-3" />
           Start creating now
           <ArrowRight className="w-3 h-3" />
         </a>
       </div>
+    </div>
+  );
+}
+
+// ── Feature My Video Section ──────────────────────────────────────────────────
+function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    creatorType: "music_artist" as "music_artist" | "youtuber" | "animator" | "kids_creator" | "content_creator",
+    youtubeUrl: "",
+    instagramUrl: "",
+    tiktokUrl: "",
+    websiteUrl: "",
+    bio: "",
+  });
+
+  const submitFeature = trpc.creator.submitFeatureRequest.useMutation({
+    onSuccess: () => {
+      setSubmitted(true);
+      mp.track("PostRender_FeatureSubmitted", { jobId });
+      toast.success("Feature request submitted!", {
+        description: "We'll review your video and reach out if selected.",
+      });
+    },
+    onError: (err) => {
+      toast.error("Submission failed", { description: err.message });
+    },
+  });
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      toast.error("Please enter your creator name");
+      return;
+    }
+    submitFeature.mutate({
+      name: form.name,
+      creatorType: form.creatorType,
+      bio: form.bio || undefined,
+      youtubeUrl: form.youtubeUrl || undefined,
+      instagramUrl: form.instagramUrl || undefined,
+      tiktokUrl: form.tiktokUrl || undefined,
+      websiteUrl: form.websiteUrl || undefined,
+    });
+  }
+
+  if (submitted) {
+    return (
+      <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
+        <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-2">
+          <Rocket className="w-5 h-5 text-emerald-400" />
+        </div>
+        <p className="text-sm font-semibold text-emerald-300 mb-1">You're in the queue!</p>
+        <p className="text-xs text-zinc-400">We'll review your video and reach out if selected for the WizVid Creator Network.</p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
+          <a href="/discover" className="inline-flex items-center gap-1.5 text-violet-400 text-xs font-medium hover:text-violet-300 transition-colors">
+            <Users className="w-3 h-3" />
+            View Creator Network
+            <ArrowRight className="w-3 h-3" />
+          </a>
+          <a
+            href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/featured-on-wizvid-badge-f57zSZBxBYSqSdFWbYUVHA.png"
+            download="featured-on-wizvid-badge.png"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-amber-400 text-xs font-medium hover:text-amber-300 transition-colors"
+          >
+            <Download className="w-3 h-3" />
+            Download your badge
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-6">
+      {!isOpen ? (
+        <button
+          onClick={() => { setIsOpen(true); mp.track("PostRender_FeatureClicked", { jobId }); }}
+          className="w-full flex items-center gap-3 rounded-xl border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 hover:border-violet-500/50 p-4 transition-all group"
+        >
+          <div className="w-9 h-9 rounded-lg bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+            <Rocket className="w-4 h-4 text-violet-400" />
+          </div>
+          <div className="text-left flex-1">
+            <p className="text-sm font-semibold text-white">🚀 Want to get featured on WizVid?</p>
+            <p className="text-xs text-zinc-400">Create videos. Get discovered. Grow your audience.</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-violet-400 transition-colors" />
+        </button>
+      ) : (
+        <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Rocket className="w-4 h-4 text-violet-400" />
+            <p className="text-sm font-semibold text-white">Feature my video on WizVid</p>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Creator name *</label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="Your name or channel"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Creator type</label>
+                <select
+                  value={form.creatorType}
+                  onChange={(e) => setForm(f => ({ ...f, creatorType: e.target.value as typeof form.creatorType }))}
+                  className="w-full h-8 text-xs bg-zinc-900 border border-white/10 text-white rounded-md px-2"
+                >
+                  {(["music_artist", "youtuber", "animator", "kids_creator", "content_creator"] as const).map(t => (
+                    <option key={t} value={t}>{t.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Youtube className="w-3 h-3" /> YouTube</label>
+                <Input
+                  value={form.youtubeUrl}
+                  onChange={(e) => setForm(f => ({ ...f, youtubeUrl: e.target.value }))}
+                  placeholder="youtube.com/..."
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Instagram className="w-3 h-3" /> Instagram</label>
+                <Input
+                  value={form.instagramUrl}
+                  onChange={(e) => setForm(f => ({ ...f, instagramUrl: e.target.value }))}
+                  placeholder="@handle"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Twitter className="w-3 h-3" /> TikTok</label>
+                <Input
+                  value={form.tiktokUrl}
+                  onChange={(e) => setForm(f => ({ ...f, tiktokUrl: e.target.value }))}
+                  placeholder="@handle"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Globe className="w-3 h-3" /> Website</label>
+                <Input
+                  value={form.websiteUrl}
+                  onChange={(e) => setForm(f => ({ ...f, websiteUrl: e.target.value }))}
+                  placeholder="yoursite.com"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="flex-1 h-8 text-xs border-white/10 text-zinc-400 bg-transparent hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitFeature.isPending}
+                className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-500 text-white"
+              >
+                {submitFeature.isPending ? "Submitting..." : "Submit for review"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
