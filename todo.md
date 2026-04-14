@@ -3216,3 +3216,52 @@
 
 ## PRICING CTA BUTTON TEXT FIX (Apr 2026)
 - [x] Shorten CTA button labels so they fit in 4-column pricing cards without overflow
+
+## PRICING PAGE CTA + NAV FIX (Apr 2026)
+- [ ] Fix pricing page CTA buttons (plan subscribe buttons not working)
+- [ ] Fix Home and Create nav links on pricing page
+
+## GLOBAL NAV FIX (Apr 2026)
+- [ ] Fix Home/Create nav links on all pages — users get stuck after navigating to any page
+- [ ] Ensure all nav links use onMouseDown + window.location.href fallback
+- [ ] Check App.tsx for any route guards blocking navigation
+
+## PROJECT RESUME FIX (Apr 2026)
+- [ ] Fix "Continue where you left off" — clicking a project must load it into the editor
+- [ ] Ensure storyboard_ready projects open at the storyboard step
+- [ ] Ensure failed projects can be retried from the editor
+- [ ] Fix global nav links (Home/Create) across all pages
+
+## DASHBOARD PREMIUM REDESIGN (Apr 2026)
+- [ ] Add cinematic hero banner with user greeting and stats
+- [ ] Add premium imagery/gradients to dashboard cards
+- [ ] Fix project resume — clicking a project loads it into the editor
+- [ ] Fix global nav links across remaining pages
+- [ ] Replace all "Pro" plan references with correct tier names (Creator/Studio)
+
+## WIZSOUND DEMO AUDIO FIX (Apr 2026)
+- [ ] Generate Standard audio track (raw, dry, unprocessed)
+- [ ] Generate WizSound Enhanced track (processed, wider stereo)
+- [ ] Generate WizSound Cinematic track (orchestral, dramatic, premium)
+- [ ] Upload all 3 tracks to CDN and wire into DemoVideoModal
+
+## WIZSOUND FULL PIPELINE FIX (Apr 2026)
+- [ ] Generate Standard audio demo track (raw, dry, flat)
+- [ ] Generate WizSound Enhanced demo track (processed, wider, cleaner)
+- [ ] Generate WizSound Cinematic demo track (orchestral, dramatic, premium)
+- [ ] Upload all 3 tracks to CDN
+- [ ] Redesign RenderPaywallModal audio section - clean UI, no technical jargon
+- [ ] Wire tier selection to correct Stripe add-on price on checkout
+- [ ] Verify server-side FFmpeg audio processing applies correct tier on render
+- [ ] Ensure audio tier is passed through job creation to video assembly
+- [ ] Demo player must default to Standard Audio on open (NOT WizSound) for maximum impact on toggle
+- [ ] Fix demo video text position (move higher, no bleed, clean/premium)
+- [ ] Wire 3 new WizSound CDN tracks into RenderPaywallModal
+- [ ] Demo player defaults to Standard Audio on open
+- [ ] Verify FFmpeg audio tier applied correctly on render
+- [ ] Replace all logo instances with new transparent CDN logo
+- [ ] Move hero video browser mockup further right and down to bottom-right corner
+- [x] Move hero browser mockup to bottom-right corner
+- [x] Enhance background video to near-4K quality with more visual impact
+- [x] Add 4-step progress strip (Describe → Storyboard → Preview → Render) below browser mockup
+- [x] Add WizCreate™ branded badge top-right above hero mockup

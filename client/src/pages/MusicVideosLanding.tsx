@@ -6,9 +6,10 @@ import BackButton from "@/components/BackButton";
 import AuthGate from "@/components/AuthGate";
 import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "lucide-react";
 import { useLocation, Link } from "wouter";
+import { NavLink } from "@/components/NavLink";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png";
+const WIZVID_LOGO_FULL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
   { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Animated Character" },
@@ -50,24 +51,25 @@ export default function MusicVideosLanding() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back to Home" />
-            <Link href="/" className="hidden md:flex items-center">
+            <NavLink href="/" className="hidden md:flex items-center">
               <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
-            </Link>
+            </NavLink>
           </div>
           <div className="hidden md:flex items-center gap-1">
             {[
+              { label: "Home", href: "/" },
               { label: "Music Video", href: "/music-video" },
               { label: "WizPilot", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
-              <Link
+              <NavLink
                 key={link.label}
                 href={link.href}
                 className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
               >
                 {link.label}
-              </Link>
+              </NavLink>
             ))}
           </div>
           <div className="flex items-center gap-3">

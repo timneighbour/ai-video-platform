@@ -11,17 +11,17 @@ const BANNER_CONTENT = {
   limit: {
     emoji: "🚀",
     text: "You've reached your video limit.",
-    cta: "Unlock unlimited videos with Pro",
+    cta: "Unlock more renders with Creator",
   },
   milestone: {
     emoji: "🎉",
     text: "You're on a roll!",
-    cta: "Unlock unlimited videos with Pro",
+    cta: "Upgrade to Creator — 15 renders/month",
   },
   watermark: {
     emoji: "✨",
     text: "Your video has a watermark.",
-    cta: "Remove it with Pro — from £49/month",
+    cta: "Remove it with Creator — from £29/month",
   },
 };
 

@@ -284,7 +284,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
           style={{
             transform: `translate(${px}px, ${py}px) scale(1.04)`,
             transition: "transform 0.4s ease-out, opacity 1.5s ease",
-            filter: "brightness(0.55) saturate(1.3)",
+            filter: "brightness(0.62) saturate(1.55) contrast(1.18)",
           }}
           aria-hidden="true"
         >
@@ -301,7 +301,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
       />
 
       {/* ── Dark gradient overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/82 via-black/38 to-black/94 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/72 via-black/25 to-black/88 pointer-events-none" />
       {/* Radial vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -317,7 +317,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
         className="absolute inset-0 pointer-events-none opacity-[0.028] mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "128px 128px",
+          backgroundSize: "96px 96px",
         }}
       />
 

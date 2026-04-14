@@ -1,4 +1,5 @@
 import { Link, useParams } from "wouter";
+import { NavLink } from "@/components/NavLink";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -202,7 +202,7 @@ export default function Subscribe() {
           <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />Back to Home
           </a>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-cropped_86dbad19.png" alt="WizVid" className="h-12 w-auto object-contain" />
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png" alt="WizVid" className="h-12 w-auto object-contain" />
           <div className="w-24" />
         </div>
       </div>

@@ -32,6 +32,7 @@ import { CharacterManager, type Character } from "@/components/CharacterManager"
 import CharacterConfirmationStep from "@/components/CharacterConfirmationStep";
 import CreditBalance from "@/components/CreditBalance";
 import { Link } from "wouter";
+import { NavLink } from "@/components/NavLink";
 import {
   Music,
   Upload,
@@ -1216,14 +1217,14 @@ export default function MusicVideoAutopilot() {
         <div className="max-w-5xl mx-auto px-4 py-6">
           {/* Top nav row: Home + Dashboard links */}
           <div className="flex items-center justify-between mb-4">
-            <Link href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+            <NavLink href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
               <span>Home</span>
-            </Link>
-            <Link href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+            </NavLink>
+            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard</span>
-            </Link>
+            </NavLink>
           </div>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
@@ -1378,7 +1379,7 @@ export default function MusicVideoAutopilot() {
                         </p>
                         <p className="text-amber-200/70 text-xs mt-1">
                           WizVid will use the first {formatDuration(maxVideoSeconds)} of your track.
-                          {planLimits?.plan === "starter" && " Upgrade to Pro for 2-minute videos, or Creator+ for 3-minute videos."}
+                          {planLimits?.plan === "starter" && " Upgrade to Basic for 2-minute videos, or Creator for 3-minute videos."}
                           {planLimits?.plan === "creator" && " Upgrade to Studio for 3-minute videos."}
                         </p>
                         <a

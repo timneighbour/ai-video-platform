@@ -339,6 +339,44 @@ function HeroProductPreview() {
 
   return (
     <div className="relative w-full max-w-[520px] mx-auto lg:mx-0">
+
+      {/* ── WizCreate™ badge — top right, above the mockup ── */}
+      <div className="flex justify-end mb-2 pr-1">
+        <div
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border"
+          style={{
+            background: "rgba(109,40,217,0.15)",
+            borderColor: "rgba(139,92,246,0.35)",
+            boxShadow: "0 0 18px rgba(139,92,246,0.2)",
+          }}
+        >
+          {/* Wiz icon — stylised W spark */}
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 3L5.5 13L8 7L10.5 13L14 3" stroke="url(#wc-grad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <defs>
+              <linearGradient id="wc-grad" x1="2" y1="3" x2="14" y2="13" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#a78bfa" />
+                <stop offset="1" stopColor="#e879f9" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span
+            className="font-black tracking-[0.12em] text-xs"
+            style={{
+              background: "linear-gradient(90deg, #c4b5fd 0%, #e879f9 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: "drop-shadow(0 0 6px rgba(167,139,250,0.7))",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            WizCreate™
+          </span>
+          <span className="text-[9px] text-white/40 font-medium tracking-wide">AI Studio</span>
+        </div>
+      </div>
+
       {/* Outer glow ring */}
       <div
         className="absolute -inset-3 rounded-3xl pointer-events-none"
@@ -450,6 +488,45 @@ function HeroProductPreview() {
         </div>
       </div>
 
+      {/* ── 4-step progress strip ── */}
+      <div className="mt-3 flex items-center justify-between px-1">
+        {[
+          { label: "Describe your idea", step: 0 },
+          { label: "AI builds storyboard", step: 1 },
+          { label: "Preview every scene", step: 2 },
+          { label: "Render final video", step: 3 },
+        ].map(({ label, step }, i) => (
+          <button
+            key={label}
+            onClick={() => setPhase(step)}
+            className="flex flex-col items-center gap-1 group cursor-pointer"
+            style={{ flex: 1 }}
+          >
+            {/* connector line */}
+            {i > 0 && (
+              <div className="absolute" style={{ display: 'none' }} />
+            )}
+            <span
+              className="text-[9px] font-semibold tracking-wide text-center leading-tight transition-colors duration-200"
+              style={{
+                color: phase === step ? "rgba(167,139,250,1)" : "rgba(255,255,255,0.3)",
+                textShadow: phase === step ? "0 0 8px rgba(167,139,250,0.6)" : "none",
+              }}
+            >
+              {label}
+            </span>
+            <div
+              className="h-0.5 w-full rounded-full transition-all duration-300"
+              style={{
+                background: phase >= step
+                  ? "linear-gradient(90deg, #8b5cf6, #d946ef)"
+                  : "rgba(255,255,255,0.1)",
+              }}
+            />
+          </button>
+        ))}
+      </div>
+
       {/* Keyframe for outer glow pulse */}
       <style>{`
         @keyframes heroPulse {
@@ -486,8 +563,8 @@ function Hero() {
       />
 
       {/* ── Two-column hero layout ── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-20">
-        <div className="grid lg:grid-cols-[1fr_480px] gap-10 lg:gap-20 items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-0">
+        <div className="grid lg:grid-cols-[1fr_540px] gap-10 lg:gap-16 items-end min-h-[80vh]">
 
           {/* ── LEFT: Copy + CTAs ── */}
           <div className="relative z-10 flex flex-col items-start text-left">
@@ -620,9 +697,9 @@ function Hero() {
             </div>
           </div>
 
-          {/* ── RIGHT: Animated product preview ── */}
-          <div className="hidden lg:flex items-center justify-end">
-            <div className="w-full max-w-[480px]">
+          {/* ── RIGHT: Animated product preview — bottom-right corner ── */}
+          <div className="hidden lg:flex items-end justify-end pb-0 self-end">
+            <div className="w-full max-w-[520px] translate-x-8 translate-y-10">
               <HeroProductPreview />
             </div>
           </div>

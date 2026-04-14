@@ -12,6 +12,7 @@
  */
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
+import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -269,12 +270,12 @@ export default function Pricing() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/6">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
+          <NavLink href="/">
             <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-20 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
-          </Link>
+          </NavLink>
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</Link>
-            <Link href="/music-video" className="text-sm text-white/50 hover:text-white transition-colors">Create</Link>
+            <NavLink href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</NavLink>
+            <NavLink href="/music-video" className="text-sm text-white/50 hover:text-white transition-colors">Create</NavLink>
             {isAuthenticated ? (
               <Button className="bg-white text-black hover:bg-white/90 text-sm px-4 h-8 rounded-lg font-semibold" asChild>
                 <Link href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</Link>

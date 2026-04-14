@@ -21,13 +21,13 @@ const POSTER_URL =
 const VIDEO_SRC =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
 
-// Standard: SubwooferTension — raw, flat, unprocessed
+// Standard: raw, dry, flat, unprocessed — the "before"
 const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-standard-v2_0af03a11.mp3";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-standard_068b4f86.mp3";
 
-// WizSound: Sub-bassRavel — cinematic, full-range
+// WizSound Cinematic: orchestral, dramatic, premium — the "wow" moment
 const AUDIO_WIZSOUND =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-enhanced-v2_31089485.mp3";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-cinematic_1369a88d.mp3";
 
 /* ── Web Audio context (singleton, created on first user gesture) ─────── */
 let sharedCtx: AudioContext | null = null;
@@ -151,7 +151,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [wizsoundMode, setWizsoundMode] = useState(true);
+  // IMPORTANT: Default to Standard Audio so user hears flat version first
+  // Toggling to WizSound™ creates the "wow" moment that sells the upgrade
+  const [wizsoundMode, setWizsoundMode] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [captions, setCaptions] = useState(false);
   // Expose analyser to EQ component only after graph is built
@@ -398,7 +400,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
       <div className="relative z-10 w-full max-w-5xl mx-4 flex flex-col gap-0">
 
-        {/* ── Header label ── */}
+          {/* ── Header label ── */}
         <div className="flex items-center justify-center gap-2 pb-3">
           <Sparkles className="w-3.5 h-3.5 text-violet-400" />
           <p
@@ -411,12 +413,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
                   }
-                : { color: "rgba(255,255,255,0.45)" }
+                : { color: "rgba(255,255,255,0.55)" }
             }
           >
             {wizsoundMode
-              ? "WizSound™ Active — Cinematic Audio Enhancement"
-              : "Standard Audio — Toggle WizSound™ to hear the difference"}
+              ? "✦ WizSound™ Cinematic — Hear the difference"
+              : "Standard Audio — Press play, then toggle WizSound™"}
           </p>
           <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
         </div>
@@ -433,8 +435,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             transition: "box-shadow 0.4s ease",
           }}
         >
-          {/* ── Toggle pill ── */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/80 border border-white/10 backdrop-blur-md p-1">
+          {/* ── Toggle pill — positioned high so it doesn't overlap video content ── */}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/85 border border-white/15 backdrop-blur-md p-1 shadow-xl">
             <button
               onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(false); }}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
@@ -485,9 +487,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           </video>
 
           {/* ── Single audio element — src swapped on toggle ── */}
+          {/* Start with Standard Audio src — user hears flat version first */}
           <audio
             ref={audioRef}
-            src={AUDIO_WIZSOUND}
+            src={AUDIO_STANDARD}
             preload="auto"
             crossOrigin="anonymous"
           />
@@ -518,7 +521,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           )}
 
           {/* ── Controls bar ── */}
-          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-4 pb-4 pt-16">
+          <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/98 via-black/70 to-transparent px-4 pb-4 pt-20">
 
             {/* Real FFT EQ bars */}
             <div className="mb-2">

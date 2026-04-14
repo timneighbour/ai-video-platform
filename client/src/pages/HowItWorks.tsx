@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { useLocation, Link } from "wouter";
+import { NavLink } from "@/components/NavLink";
 
 // ── CDN assets (same as Home.tsx) ────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = `${CDN}/wizvid-logo-cropped_86dbad19.png`;
+const WIZVID_LOGO_FULL = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
 const STEP_IMAGES = {
   upload: `${CDN}/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp`,

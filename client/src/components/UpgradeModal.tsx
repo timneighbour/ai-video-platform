@@ -12,34 +12,34 @@ const TRIGGER_CONTENT = {
   limit: {
     emoji: "🚀",
     headline: "You've hit your video limit",
-    subline: "Unlock unlimited videos with Pro",
-    body: "You're on a roll! Upgrade to Pro for unlimited video creation, no watermarks, and faster rendering.",
+    subline: "Unlock unlimited videos with Creator",
+    body: "You're on a roll! Upgrade to Creator for 15 renders/month, no watermarks, and faster rendering.",
   },
   download: {
     emoji: "⬇️",
     headline: "Remove the watermark",
     subline: "Download clean, watermark-free videos",
-    body: "Upgrade to Pro to download your videos without the WizVid watermark and in higher quality.",
+    body: "Upgrade to Creator or above to download your videos without the WizVid watermark and in higher quality.",
   },
   milestone: {
     emoji: "🎉",
     headline: "You're on a roll!",
-    subline: "Unlock unlimited videos with Pro",
-    body: "You've created multiple videos — you're clearly a creator! Upgrade to Pro for unlimited creation.",
+    subline: "Unlock more with Creator",
+    body: "You've created multiple videos — you're clearly a creator! Upgrade to Creator for 15 renders/month and no watermark.",
   },
   watermark: {
     emoji: "✨",
     headline: "Go watermark-free",
     subline: "Professional videos, no branding",
-    body: "Upgrade to Pro to remove the WizVid watermark from all your videos and unlock 4K quality.",
+    body: "Upgrade to Creator or above to remove the WizVid watermark from all your videos and unlock 4K quality.",
   },
 };
 
-const PRO_FEATURES = [
-  { icon: <Infinity className="w-4 h-4" />, text: "Unlimited videos per month" },
+const CREATOR_FEATURES = [
+  { icon: <Infinity className="w-4 h-4" />, text: "15 renders/month included" },
   { icon: <Sparkles className="w-4 h-4" />, text: "No watermark on exports" },
-  { icon: <Zap className="w-4 h-4" />, text: "Faster generation speed" },
-  { icon: <Sparkles className="w-4 h-4" />, text: "4K quality output" },
+  { icon: <Zap className="w-4 h-4" />, text: "Standard, HD & 4K quality" },
+  { icon: <Sparkles className="w-4 h-4" />, text: "Character consistency" },
 ];
 
 export default function UpgradeModal({ open, onClose, trigger = "milestone" }: UpgradeModalProps) {
@@ -69,9 +69,9 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
         <div className="px-6 py-5">
           <p className="text-white/60 text-sm mb-5 leading-relaxed">{content.body}</p>
 
-          {/* Pro features */}
+          {/* Creator features */}
           <div className="space-y-2.5 mb-6">
-            {PRO_FEATURES.map((f) => (
+            {CREATOR_FEATURES.map((f) => (
               <div key={f.text} className="flex items-center gap-3 text-sm">
                 <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center flex-shrink-0">
                   {f.icon}
@@ -83,10 +83,10 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
 
           {/* Pricing callout */}
           <div className="bg-gradient-to-r from-pink-500/10 to-purple-600/10 border border-purple-500/20 rounded-xl p-4 mb-5 text-center">
-            <span className="text-white/50 text-sm">Pro plan from </span>
-            <span className="text-white font-black text-xl">£49</span>
+            <span className="text-white/50 text-sm">Creator plan from </span>
+            <span className="text-white font-black text-xl">£29</span>
             <span className="text-white/50 text-sm">/month</span>
-            <div className="text-green-400 text-xs mt-1 font-medium">Save 33% with annual billing</div>
+            <div className="text-green-400 text-xs mt-1 font-medium">Save 20% with annual billing</div>
           </div>
 
           {/* CTAs */}
@@ -95,7 +95,7 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
               href="/pricing"
               className="w-full inline-flex items-center justify-center bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl font-bold py-3 px-4 transition-all"
             >
-              <Sparkles className="w-4 h-4 mr-2" />Unlock unlimited videos with Pro
+              <Sparkles className="w-4 h-4 mr-2" />Unlock more with Creator
             </a>
             <button
               onClick={onClose}
