@@ -3149,3 +3149,14 @@
 - [ ] Remove any duplicate video layers in hero section
 - [ ] Verify Chrome autoplay compliance (muted, playsInline, loop)
 - [ ] Fix remaining navigate() calls in mobile nav
+
+## FIXED Cinematic Intro Sequence Rewrite (Apr 2026)
+- [x] Rewrite WizVidIntro as FIXED 6-step directed cinematic sequence (no extras, no reordering)
+- [x] Step 1: Black screen (2s) with "This changes everything"
+- [x] Step 2: Cinematic film scene clip
+- [x] Step 3: Music video clip (ONLY ONE)
+- [x] Step 4: Pixar animation clip
+- [x] Step 5: AI generation transformation clip
+- [x] Step 6: High-impact WOW clip → hold final frame → "Enter WizVid" CTA
+- [x] Generate high-impact WOW clip if not already available
+- [x] Remove all extra clips, duplicate styles, and improvised sequences

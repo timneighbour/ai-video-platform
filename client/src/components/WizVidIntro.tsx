@@ -1,26 +1,21 @@
 /**
- * WizVidIntro — Cinematic Trailer (Apr 2026)
+ * WizVidIntro — FIXED Directed Cinematic Sequence (Apr 2026)
+ *
+ * This is NOT an AI montage. This is a DIRECTED cinematic sequence.
+ * No improvisation allowed.
  *
  * ARCHITECTURE: Two persistent video elements (A/B) — NO key props.
  * Clips loaded via ref.current.src. Dissolves are CSS opacity cross-fades.
  *
- * 6 visually distinct clip categories (no duplicates):
- *   1. Music video        — singer clip
- *   2. Cinematic film     — dramatic wide shot
- *   3. Animation          — Pixar-style magical forest scene
- *   4. AI generation      — sketch → cinematic transformation
- *   5. Social / creator   — creator filming content
- *   6. AI showcase        — WizVid animation sequence
+ * FIXED 5-clip sequence (STRICT ORDER — DO NOT CHANGE):
+ *   Step 1: Black screen (2s)        — "This changes everything"
+ *   Step 2: Cinematic film scene     — dramatic wide shot
+ *   Step 3: Music video (ONLY ONE)   — singer performance
+ *   Step 4: Pixar animation          — magical forest scene
+ *   Step 5: AI generation            — sketch → cinematic transformation
+ *   Step 6: WOW clip (HOLD)          — cosmic explosion → "Enter WizVid"
  *
- * Trailer timing (audio: Steel Thunderfall 12.48s):
- *   0–3s    BLACK SCREEN     "This changes everything"
- *   3–5.5s  MUSIC VIDEO      "Music videos"
- *   5.5–8s  CINEMATIC FILM   "Cinematic films"
- *   8–10.5s ANIMATION        "Animated worlds"
- *   10.5–13s AI GENERATION   "AI creates anything"
- *   13–15.5s SOCIAL CREATOR  "For every creator"
- *   15.5–18s AI SHOWCASE     "Enhanced with WizSound™"
- *   18s+    HOLD FRAME       "Enter WizVid" CTA
+ * Audio: Steel Thunderfall (12.48s) — muted autoplay, unmute button.
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -32,49 +27,48 @@ const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA
 const LOGO        = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
 
-// 6 visually distinct clips — one per category
-const CLIPS = {
-  music:     `${CDN}/intro-new-singer_fdadff1e.mp4`,                // 1. Music video
-  cinematic: `${CDN}/intro-new-cinematic_d6673107.mp4`,             // 2. Cinematic film
-  animation: `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`,               // 3. Pixar-style animation
-  aiGen:     `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`,              // 4. AI generation/transformation
-  creator:   `${CDN}/intro-clip-creator_240db80f.mp4`,             // 5. Social creator
-  showcase:  `${CDN}/wizvid-animation-v3_85969477.mp4`,            // 6. WizVid AI showcase
-};
+// ── FIXED 5 clips — STRICT ORDER — DO NOT ADD/REMOVE/REORDER ─────────────────
+const CLIP_2_CINEMATIC = `${CDN}/intro-new-cinematic_d6673107.mp4`;   // Step 2: Cinematic film
+const CLIP_3_MUSIC     = `${CDN}/intro-new-singer_fdadff1e.mp4`;      // Step 3: Music video (ONLY ONE)
+const CLIP_4_ANIMATION = `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`;     // Step 4: Pixar animation
+const CLIP_5_AIGEN     = `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`;    // Step 5: AI generation
+const CLIP_6_WOW       = `${CDN}/intro-clip-wow_8b874816.mp4`;       // Step 6: WOW clip (HOLD)
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
 const SOUND_KEY = "wizvid_intro_sound";
 
-const DISSOLVE_MS = 900; // smooth but not sluggish
+// ── Timing constants ──────────────────────────────────────────────────────────
+const DISSOLVE_MS = 900;
 
-// ── Clip schedule (ms from start) ─────────────────────────────────────────────
-const CLIP_SCHEDULE = [
-  { at: 3000,  src: CLIPS.music     },  // Music video
-  { at: 5500,  src: CLIPS.cinematic },  // Cinematic film
-  { at: 8000,  src: CLIPS.animation },  // Pixar-style animation
-  { at: 10500, src: CLIPS.aiGen     },  // AI generation/transformation
-  { at: 13000, src: CLIPS.creator   },  // Social creator
-  { at: 15500, src: CLIPS.showcase  },  // WizVid AI showcase — hold for CTA
+// Step 1: Black screen 0–2s
+// Step 2: Cinematic at 2s
+// Step 3: Music at 4.5s
+// Step 4: Animation at 7s
+// Step 5: AI gen at 9.5s
+// Step 6: WOW at 12s — HOLD for CTA
+const CLIP_SCHEDULE: { at: number; src: string }[] = [
+  { at: 2000,  src: CLIP_2_CINEMATIC },
+  { at: 4500,  src: CLIP_3_MUSIC     },
+  { at: 7000,  src: CLIP_4_ANIMATION },
+  { at: 9500,  src: CLIP_5_AIGEN     },
+  { at: 12000, src: CLIP_6_WOW       },
 ];
 
-// ── Text schedule (ms from start) ─────────────────────────────────────────────
-// Synced to Steel Thunderfall (12.48s):
-//   0–3s:   deep bass impact
-//   3–7s:   tension build
-//   7–12s:  energy peak / drop
-//   12s+:   resolution / silence
-const TEXT_SCHEDULE = [
-  { showAt: 700,   hideAt: 2700,  text: "This changes everything" },
-  { showAt: 3200,  hideAt: 5200,  text: "Music videos"            },
-  { showAt: 5700,  hideAt: 7700,  text: "Cinematic films"         },
-  { showAt: 8200,  hideAt: 10200, text: "Animated worlds"         },
-  { showAt: 10700, hideAt: 12700, text: "AI creates anything"     },
-  { showAt: 13200, hideAt: 15200, text: "For every creator"       },
-  { showAt: 15700, hideAt: 17700, text: "Enhanced with WizSound™" },
+// ── Text overlays — one per step ──────────────────────────────────────────────
+const TEXT_SCHEDULE: { showAt: number; hideAt: number; text: string }[] = [
+  { showAt: 300,   hideAt: 1800,  text: "This changes everything" },   // Step 1: black screen
+  { showAt: 2200,  hideAt: 4200,  text: "Cinematic films"         },   // Step 2: cinematic
+  { showAt: 4700,  hideAt: 6700,  text: "Music videos"            },   // Step 3: music
+  { showAt: 7200,  hideAt: 9200,  text: "Animated worlds"         },   // Step 4: animation
+  { showAt: 9700,  hideAt: 11700, text: "AI creates anything"     },   // Step 5: AI gen
+  // Step 6: no text overlay — WOW clip speaks for itself, then CTA appears
 ];
 
 const TEXT_FADE_IN_MS  = 500;
 const TEXT_FADE_OUT_MS = 400;
+
+// CTA appears 1.5s after WOW clip starts (at 13.5s)
+const CTA_SHOW_AT = 13500;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -172,27 +166,25 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     }, showAt);
   }, [addTimer]);
 
-  // ── Master timeline ────────────────────────────────────────────────────────
+  // ── Master timeline — FIXED sequence, no randomness ────────────────────────
   useEffect(() => {
-    // Preload first clip into video B immediately — ready at 3s
-    loadAndPlay(videoBRef, CLIPS.music);
+    // Step 1: Black screen — no video loaded yet
+    // Logo at 0.5s, tagline at 1.2s
+    addTimer(() => setShowLogo(true),    500);
+    addTimer(() => setShowTagline(true), 1200);
 
-    // Logo at 0.8s, tagline at 1.8s
-    addTimer(() => setShowLogo(true),    800);
-    addTimer(() => setShowTagline(true), 1800);
-
-    // Text overlays
+    // Text overlays — one per step
     TEXT_SCHEDULE.forEach(({ showAt, hideAt, text }) => {
       showTextOverlay(text, showAt, hideAt);
     });
 
-    // Clip transitions
+    // Clip transitions — FIXED order
     CLIP_SCHEDULE.forEach(({ at, src }) => {
       addTimer(() => dissolveToClip(src), at);
     });
 
-    // CTA at 18.5s
-    addTimer(() => setShowCTA(true), 18500);
+    // CTA at 13.5s (1.5s after WOW clip starts)
+    addTimer(() => setShowCTA(true), CTA_SHOW_AT);
 
     return () => {
       timers.current.forEach(clearTimeout);
@@ -289,7 +281,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         }}
       />
 
-      {/* ── Steel Thunderfall audio ─────────────────────────────────────────── */}
+      {/* ── Audio ──────────────────────────────────────────────────────────── */}
       <audio
         ref={audioRef}
         src={INTRO_AUDIO}
@@ -383,7 +375,6 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
               display: "block",
               margin: "0 auto",
               imageRendering: "auto",
-              /* Multi-layer drop-shadow for cinematic depth */
               filter: [
                 "drop-shadow(0 0 12px rgba(139,92,246,1))",
                 "drop-shadow(0 0 40px rgba(139,92,246,0.85))",
@@ -410,7 +401,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           Create anything with AI
         </p>
 
-        {/* Enter WizVid CTA */}
+        {/* Enter WizVid CTA — appears on WOW clip hold */}
         <div
           className="mt-10"
           style={{
