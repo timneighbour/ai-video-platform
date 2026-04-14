@@ -111,9 +111,9 @@ export function HowWizVidWorks() {
         {/* CTA */}
         <div className="text-center mt-16">
           <a
-            href="/create"
+            href="/music-video/create"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold text-base hover:from-violet-500 hover:to-fuchsia-500 transition-all duration-300 shadow-[0_0_40px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.5)]"
-            onClick={(e) => { e.preventDefault(); window.location.href = "/create"; }}
+            onClick={(e) => { e.preventDefault(); window.location.href = "/music-video/create"; }}
           >
             Start Creating Free
             <span className="text-white/70">→</span>

@@ -44,7 +44,7 @@ const NEXT_ACTIONS = [
     title: "Kids animation",
     subtitle: "Fun animated story for children",
     icon: Baby,
-    href: "/kids-video/create",
+    href: "/kids-video",
     gradient: "from-pink-600 to-rose-700",
   },
   {

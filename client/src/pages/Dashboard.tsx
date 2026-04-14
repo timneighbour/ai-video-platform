@@ -46,7 +46,7 @@ const CREATE_ACTIONS = [
     title: "Kids Animation",
     subtitle: "Fun animated stories for children",
     icon: Baby,
-    href: "/kids-video/create",
+    href: "/kids-video",
     gradient: "from-pink-600 to-rose-700",
     glow: "shadow-pink-500/25",
     badge: null,

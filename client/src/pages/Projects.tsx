@@ -533,7 +533,7 @@ export default function Projects() {
           : "Generate your first AI video from a text prompt in seconds."}
       </p>
       <a
-        href={activeTab === "music_videos" ? "/music-video/create" : "/create"}
+        href={activeTab === "music_videos" ? "/music-video/create" : "/text-to-video"}
         className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold px-6 py-3 transition-all shadow-lg shadow-purple-900/30"
       >
         <Sparkles className="h-4 w-4" />
@@ -652,7 +652,7 @@ export default function Projects() {
             {/* ── New project CTA ─────────────────────────────────────────── */}
             <div className="mt-8 pt-6 border-t border-white/8 flex justify-center">
               <a
-                href={activeTab === "music_videos" ? "/music-video/create" : "/create"}
+                href={activeTab === "music_videos" ? "/music-video/create" : "/text-to-video"}
                 className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 text-zinc-300 hover:text-white font-medium px-6 py-3 transition-all"
               >
                 <Sparkles className="h-4 w-4 text-purple-400" />

@@ -10,8 +10,8 @@ import { Eye, Sparkles, Film, Palette, Sun, Layers } from "lucide-react";
 
 const WIZLUMINA_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-W8B2HDZw99Ld29Xm46xqXN.webp";
 
-// Demo video — same source used in WizSoundSection
-const DEMO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-video_6b0a3c2d.mp4";
+// Demo video — same working source as WizSoundSection
+const DEMO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
 
 type VisualMode = "standard" | "cinematic";
 
@@ -78,24 +78,21 @@ export function WizLuminaSection() {
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-3 mb-5">
-            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-10 h-10 rounded-full" />
-            <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold tracking-[0.2em] text-amber-400/70 uppercase">Introducing</span>
-              <span className="text-lg font-bold text-white tracking-tight">WizLumina™</span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/25 text-amber-300 text-[10px] font-bold tracking-wider uppercase">
-              Cinematic Visual Engine
-            </span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/25 bg-amber-500/8 mb-6">
+            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-3.5 h-3.5 rounded-full" />
+            <span className="text-amber-300 text-xs font-bold tracking-wider uppercase">Powered by WizLumina™</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-            Film-Level Visuals.<br />
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+            See the difference with{" "}
             <span className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 bg-clip-text text-transparent">
-              Every Frame.
+              WizLumina™
             </span>
           </h2>
-          <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            WizLumina™ applies advanced colour grading, HDR tone mapping, and cinematic sharpening to transform your AI video from flat to film-quality — instantly.
+          <p className="text-white/50 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Press play, then toggle between Standard and WizLumina Cinematic.
+          </p>
+          <p className="text-white/40 text-sm max-w-xl mx-auto mt-2">
+            The difference is <strong className="text-white/60">immediate</strong>. WizLumina™ transforms flat AI video into rich, vivid, cinema-quality visuals — deeper blacks, brighter highlights, and film-level colour grading.
           </p>
         </div>
 

@@ -22,6 +22,7 @@ import {
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
+const WIZLUMINA_ORB = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-orb-v2_fc002bef.png";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
 // Official WizVid logo — transparent background, violet glow
@@ -2406,13 +2407,38 @@ function EcosystemSection() {
       logo: WIZSOUND_LOGO,
       name: "WizSound™",
       tagline: "Cinematic Audio Engine",
-      desc: "Proprietary spatial sound enhancement that transforms standard audio into an immersive, Dolby Atmos-quality cinematic experience.",
+      desc: "Proprietary audio enhancement that transforms standard sound into studio-grade, immersive cinematic audio — richer bass, clearer highs, fuller presence.",
       colour: "indigo",
       border: "border-indigo-500/30",
       glow: "hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]",
       bg: "bg-indigo-500/5",
       badge: "text-indigo-300 bg-indigo-500/10 border-indigo-500/25",
       href: "/#wizsound",
+    },
+    {
+      logo: WIZLUMINA_ORB,
+      name: "WizLumina™",
+      tagline: "Visual Enhancement Engine",
+      desc: "Cinematic colour grading, HDR tone mapping, and film-level sharpening that transforms flat AI video into rich, vivid, cinema-quality visuals.",
+      colour: "amber",
+      border: "border-amber-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]",
+      bg: "bg-amber-500/5",
+      badge: "text-amber-300 bg-amber-500/10 border-amber-500/25",
+      href: "/#wizlumina",
+    },
+    {
+      logo: null,
+      icon: "🎬",
+      name: "WizGenesis™",
+      tagline: "Render Engine",
+      desc: "The final stage of creation. WizGenesis™ renders your video at studio quality — 720p, 1080p, or 4K — with WizSound™ and WizLumina™ baked in.",
+      colour: "rose",
+      border: "border-rose-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(244,63,94,0.2)]",
+      bg: "bg-rose-500/5",
+      badge: "text-rose-300 bg-rose-500/10 border-rose-500/25",
+      href: "/music-video/create",
     },
     {
       logo: WIZPILOT_LOGO,
@@ -2442,7 +2468,7 @@ function EcosystemSection() {
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
             One platform.
-            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"> Four powerful engines.</span>
+            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"> Five powerful engines.</span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto">
             WizVid is built on a stack of proprietary AI engines — each one engineered for a specific part of the video creation process.
@@ -2461,7 +2487,7 @@ function EcosystemSection() {
               <h3 className="text-xl font-bold text-white">WizVid</h3>
               <span className="text-xs px-2 py-0.5 rounded-full border border-white/20 text-white/50 font-mono">Platform</span>
             </div>
-            <p className="text-white/60 text-sm">All-in-one cinematic video creation platform — the unified experience that brings WizCreate™, WizSound™, and WizPilot™ together.</p>
+            <p className="text-white/60 text-sm">All-in-one cinematic video creation platform — the unified experience that brings WizCreate™, WizSound™, WizLumina™, WizGenesis™, and WizPilot™ together.</p>
           </div>
         </div>
 
@@ -2475,11 +2501,15 @@ function EcosystemSection() {
             >
               {/* Logo */}
               <div className="mb-4 flex items-center justify-center h-28">
-                <img
-                  src={engine.logo}
-                  alt={engine.name}
-                  className="h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_16px_rgba(139,92,246,0.5)]"
-                />
+                {engine.logo ? (
+                  <img
+                    src={engine.logo}
+                    alt={engine.name}
+                    className="h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_16px_rgba(139,92,246,0.5)]"
+                  />
+                ) : (
+                  <span className="text-7xl transition-transform duration-300 group-hover:scale-105">{(engine as { icon?: string }).icon}</span>
+                )}
               </div>
 
               {/* Badge */}

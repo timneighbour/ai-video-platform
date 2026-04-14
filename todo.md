@@ -3351,3 +3351,18 @@
 - [ ] Email notification: New Subscription → timneighbour@wizvid.ai (email, plan, amount, billing type, Stripe session ID, timestamp)
 - [ ] Email notification: Failed payment (optional)
 - [ ] Wire Stripe webhook: checkout.session.completed
+
+## Ecosystem Section & Route Fixes (Apr 2026)
+- [x] Add WizLumina™ and WizGenesis™ to Ecosystem section on Home page
+- [x] Replace WizLumina section heading with "See the difference with WizLumina™" matching WizSound style
+- [x] Fix broken /create route in HowWizVidWorks.tsx → /music-video/create
+- [x] Fix broken /create routes in Projects.tsx → /text-to-video
+- [x] Verify all nav links and back buttons across all pages
+
+## Intro Trailer v5 (Apr 2026)
+- [x] Generate cinematic trailer score (deep bass, slow build, emotional rise, impact drop)
+- [x] Generate 4 visual variety scenes: cinematic film, Pixar animation, social vertical, AI transformation
+- [x] Assemble v5 trailer with FFmpeg: dark hook → scenes → text cards → logo reveal
+- [x] "If ever there was a Wiz... / There is!" ending sequence
+- [x] Wire v5 trailer into WizVidIntro component (CTA_SHOW_AT_MS updated to 38000)
+- [x] Build passes with no TypeScript errors
