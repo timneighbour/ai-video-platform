@@ -1,12 +1,15 @@
 /**
- * WizVidIntro — Cinematic Trailer v9 FINAL (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v10 FINAL (Apr 2026)
  *
- * Upgrades from v8:
- * - WizLumina HDR grading: deeper blacks, brighter highlights, richer saturation
- * - WizSound audio: stereo widening, EQ clarity, bass build, subwoofer impact on logo
- * - Text: pure white #FFFFFF, bold, strong shadow
- * - 4K source (2160p), served as 1080p web-optimised
- * - Single logo at end only
+ * Upgrades from v9:
+ * - New cinematic trailer score with build → rise → strong drop at logo reveal (15.3s)
+ * - Fixed text timing: "If ever there was a Wiz..." (2.5s) → pause (0.8s) → "There is." (2.5s) → logo
+ * - High-contrast pure white text, bold, strong shadow — no faded text
+ * - Slower clip pacing — each scene breathes (3–3.5s per clip)
+ * - Logo reveal synced to music drop at 15.3s
+ * - Smooth 0.5s crossfade transitions between all clips
+ * - WizSound: stereo widening, EQ, bass build, subwoofer impact at logo
+ * - 25.4s total duration
  *
  * Cross-device compatible:
  * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
@@ -20,16 +23,16 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v9 FINAL — WizLumina HDR + WizSound audio, H.264 Baseline, faststart, 24fps, 17.7MB, iOS Safari compatible
-const TRAILER_URL = `${CDN}/wizvid-intro-v9_3c56a28a.mp4`;
-// 4K version available for download: `${CDN}/wizvid-intro-v9-4k_36299eb5.mp4`
+// v10 FINAL — New cinematic score, slow pacing, logo at 15.3s, H.264 Baseline, faststart, 24fps, 20MB, iOS Safari compatible
+const TRAILER_URL = `${CDN}/wizvid-intro-v10_b83be573.mp4`;
+// 4K version: will be added when 4K encode completes
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v9_seen"; // v9 FINAL — WizLumina + WizSound upgrade
+export const INTRO_SEEN_KEY = "wizvid_intro_v10_seen"; // v10 FINAL — cinematic score + slow pacing + logo sync
 
-// CTA appears when video ends (~28.5s); timer fires at 27s as backup
-const CTA_SHOW_AT_MS = 27000;
-// v9 duration: 28.56s
+// CTA appears when video ends (~25.4s); timer fires at 24s as backup
+const CTA_SHOW_AT_MS = 24000;
+// v10 duration: 25.42s
 
 interface WizVidIntroProps {
   onClose: () => void;
