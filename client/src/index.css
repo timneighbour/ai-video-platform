@@ -4,8 +4,8 @@
 @custom-variant dark (&.dark, .dark &);
 
 @theme inline {
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Open Sans', system-ui, sans-serif;
+  --font-display: 'Sora', system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -144,11 +144,32 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   background: linear-gradient(135deg, oklch(0.08 0 0) 0%, oklch(0.12 0.01 260) 100%);
 }
 
-/* ── Premium SaaS typography ── */
-h1, h2, h3, h4 {
-  font-family: 'Inter', system-ui, sans-serif;
-  letter-spacing: -0.02em;
+/* ── Premium Cinematic Typography ── */
+/* Sora: headings, CTAs, key messaging */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Sora', system-ui, sans-serif;
+  letter-spacing: -0.025em;
   font-weight: 700;
+  line-height: 1.15;
+}
+
+/* Open Sans: body, descriptions, UI labels, forms */
+body, p, span, label, input, textarea, select, td, th, li {
+  font-family: 'Open Sans', system-ui, sans-serif;
+  line-height: 1.65;
+}
+
+/* CTA buttons use Sora SemiBold */
+button {
+  font-family: 'Sora', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Navigation links use Sora Medium */
+nav a, nav button {
+  font-family: 'Sora', system-ui, sans-serif;
+  font-weight: 500;
 }
 
 /* ── Scroll fade-in animation ── */

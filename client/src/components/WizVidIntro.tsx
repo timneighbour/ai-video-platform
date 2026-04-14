@@ -1,62 +1,26 @@
 /**
- * WizVidIntro — FIXED Directed Cinematic Sequence (Apr 2026)
+ * WizVidIntro — Cinematic Trailer (Apr 2026)
  *
- * PRODUCTION AUDIT FIXES:
- * - Audio starts MUTED — no autoplay sound unless user clicks unmute
- * - Sound toggle visible (top-right) at all times
- * - Video does NOT loop endlessly — ends at WOW clip and HOLDS
- * - End state shows "Enter Experience" button — NO auto redirect
+ * Single-file 30s trailer with burned-in text and BGM.
+ * - Starts MUTED (browser autoplay policy compliance)
+ * - Sound toggle always visible
+ * - Video STOPS at final frame (does NOT loop)
+ * - "Enter Site" CTA appears at end
  * - Skip button always available
- *
- * FIXED 6-step sequence (STRICT ORDER — DO NOT CHANGE):
- *   Step 1: Black screen (2s)        — "This changes everything"
- *   Step 2: Cinematic film scene     — dramatic wide shot
- *   Step 3: Music video (ONLY ONE)   — singer performance
- *   Step 4: Pixar animation          — magical forest scene
- *   Step 5: AI generation            — sketch → cinematic transformation
- *   Step 6: WOW clip (HOLD)          — cosmic explosion → "Enter WizVid"
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
-// ── CDN ───────────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const LOGO        = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
-const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
+const TRAILER_URL = `${CDN}/wizvid_intro_trailer_c99d5852.mp4`;
+const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-// ── FIXED 5 clips — STRICT ORDER — DO NOT ADD/REMOVE/REORDER ─────────────────
-const CLIP_2_CINEMATIC = `${CDN}/intro-cinematic-film_e6db52cb.mp4`;
-const CLIP_3_MUSIC     = `${CDN}/intro-new-singer_fdadff1e.mp4`;
-const CLIP_4_ANIMATION = `${CDN}/intro-clip-pixar_d6e9d6d0.mp4`;
-const CLIP_5_AIGEN     = `${CDN}/intro-clip-ai-gen_4c8568e5.mp4`;
-const CLIP_6_WOW       = `${CDN}/intro-clip-wow_8b874816.mp4`;
+export const INTRO_SEEN_KEY = "wizvid_intro_v4_seen";
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
-
-// ── Timing constants ──────────────────────────────────────────────────────────
-const DISSOLVE_MS = 900;
-
-const CLIP_SCHEDULE: { at: number; src: string; isLast?: boolean }[] = [
-  { at: 2000,  src: CLIP_2_CINEMATIC },
-  { at: 4500,  src: CLIP_3_MUSIC     },
-  { at: 7000,  src: CLIP_4_ANIMATION },
-  { at: 9500,  src: CLIP_5_AIGEN     },
-  { at: 12000, src: CLIP_6_WOW, isLast: true },
-];
-
-const TEXT_SCHEDULE: { showAt: number; hideAt: number; text: string }[] = [
-  { showAt: 300,   hideAt: 1800,  text: "This changes everything" },
-  { showAt: 2200,  hideAt: 4200,  text: "Cinematic films"         },
-  { showAt: 4700,  hideAt: 6700,  text: "Music videos"            },
-  { showAt: 7200,  hideAt: 9200,  text: "Animated worlds"         },
-  { showAt: 9700,  hideAt: 11700, text: "AI creates anything"     },
-];
-
-const TEXT_FADE_IN_MS  = 500;
-const TEXT_FADE_OUT_MS = 400;
-const CTA_SHOW_AT = 13500;
+// CTA appears 1s before video ends (video is 30s)
+const CTA_SHOW_AT_MS = 27500;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -65,141 +29,70 @@ interface WizVidIntroProps {
 export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [, navigate] = useLocation();
 
-  // ── Video A/B opacity — cross-fade dissolve ───────────────────────────────
-  const [aOpacity, setAOpacity] = useState(0);
-  const [bOpacity, setBOpacity] = useState(0);
-  const frontIsARef = useRef(true);
-
-  // ── Text overlay ──────────────────────────────────────────────────────────
-  const [overlayText, setOverlayText]       = useState<string | null>(null);
-  const [overlayOpacity, setOverlayOpacity] = useState(0);
-
-  // ── UI state ──────────────────────────────────────────────────────────────
-  const [showLogo, setShowLogo]       = useState(false);
-  const [showTagline, setShowTagline] = useState(false);
-  const [showCTA, setShowCTA]         = useState(false);
-  const [isExiting, setIsExiting]     = useState(false);
-
-  // ── Sound: ALWAYS starts muted (production audit requirement) ─────────────
   const [muted, setMuted] = useState(true);
+  const [showCTA, setShowCTA] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
 
-  // ── Refs ──────────────────────────────────────────────────────────────────
-  const videoARef    = useRef<HTMLVideoElement>(null);
-  const videoBRef    = useRef<HTMLVideoElement>(null);
-  const audioRef     = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const isExitingRef = useRef(false);
-  const timers       = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const ctaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const addTimer = useCallback((fn: () => void, ms: number) => {
-    const id = setTimeout(fn, ms);
-    timers.current.push(id);
-    return id;
+  // Start CTA timer when video begins playing
+  const startCTATimer = useCallback(() => {
+    if (ctaTimer.current) return;
+    ctaTimer.current = setTimeout(() => {
+      if (!isExitingRef.current) setShowCTA(true);
+    }, CTA_SHOW_AT_MS);
   }, []);
 
-  // ── Load a clip into a video element and play it ──────────────────────────
-  const loadAndPlay = useCallback((
-    ref: React.RefObject<HTMLVideoElement | null>,
-    src: string,
-    shouldLoop: boolean = false
-  ) => {
-    const v = ref.current;
-    if (!v) return;
-    v.src = src;
-    v.muted = true; // video elements always muted (audio is separate)
-    v.loop = shouldLoop; // ONLY the last clip loops to hold the frame
-    v.playsInline = true;
-    v.load();
-    v.play().catch(() => {});
+  // When video ends, show CTA immediately
+  const handleVideoEnd = useCallback(() => {
+    if (!isExitingRef.current) setShowCTA(true);
   }, []);
 
-  // ── Dissolve to a new clip ─────────────────────────────────────────────────
-  const dissolveToClip = useCallback((src: string, isLast: boolean = false) => {
-    if (isExitingRef.current) return;
-    const isFrontA = frontIsARef.current;
-    const backRef  = isFrontA ? videoBRef : videoARef;
-
-    // Load clip — only loop the LAST clip (WOW) to hold the frame
-    loadAndPlay(backRef, src, isLast);
-
-    if (isFrontA) {
-      setBOpacity(1);
-      addTimer(() => setAOpacity(0), 80);
-    } else {
-      setAOpacity(1);
-      addTimer(() => setBOpacity(0), 80);
-    }
-
-    addTimer(() => {
-      frontIsARef.current = !isFrontA;
-    }, DISSOLVE_MS + 150);
-  }, [addTimer, loadAndPlay]);
-
-  // ── Show a text overlay ───────────────────────────────────────────────────
-  const showTextOverlay = useCallback((text: string, showAt: number, hideAt: number) => {
-    addTimer(() => {
-      if (isExitingRef.current) return;
-      setOverlayText(text);
-      setOverlayOpacity(0);
-      requestAnimationFrame(() => requestAnimationFrame(() => setOverlayOpacity(1)));
-
-      const holdDuration = hideAt - showAt - TEXT_FADE_OUT_MS;
-      addTimer(() => {
-        setOverlayOpacity(0);
-        addTimer(() => setOverlayText(null), TEXT_FADE_OUT_MS + 50);
-      }, holdDuration);
-    }, showAt);
-  }, [addTimer]);
-
-  // ── Master timeline — FIXED sequence, no randomness ────────────────────────
   useEffect(() => {
-    addTimer(() => setShowLogo(true),    500);
-    addTimer(() => setShowTagline(true), 1200);
+    const v = videoRef.current;
+    if (!v) return;
 
-    TEXT_SCHEDULE.forEach(({ showAt, hideAt, text }) => {
-      showTextOverlay(text, showAt, hideAt);
-    });
+    v.muted = true;
+    v.playsInline = true;
+    v.loop = false; // MUST NOT loop — stop at final frame
 
-    CLIP_SCHEDULE.forEach(({ at, src, isLast }) => {
-      addTimer(() => dissolveToClip(src, !!isLast), at);
-    });
+    const onCanPlay = () => {
+      setVideoReady(true);
+      v.play().catch(() => {});
+      startCTATimer();
+    };
 
-    // CTA at 13.5s — user must click to enter, NO auto redirect
-    addTimer(() => setShowCTA(true), CTA_SHOW_AT);
+    const onPlay = () => startCTATimer();
+
+    v.addEventListener("canplay", onCanPlay, { once: true });
+    v.addEventListener("play", onPlay);
+    v.addEventListener("ended", handleVideoEnd);
 
     return () => {
-      timers.current.forEach(clearTimeout);
-      timers.current = [];
+      v.removeEventListener("canplay", onCanPlay);
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("ended", handleVideoEnd);
+      if (ctaTimer.current) clearTimeout(ctaTimer.current);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [startCTATimer, handleVideoEnd]);
 
-  // ── Audio: start MUTED on mount (production audit: no autoplay sound) ─────
+  // Sync mute state
   useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    a.muted = true; // ALWAYS start muted
-    a.loop = false; // audio does NOT loop
-    a.currentTime = 0;
-    a.play().catch(() => {}); // preload/buffer, but muted
-  }, []);
-
-  // ── Audio: sync mute state when user toggles ─────────────────────────────
-  useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    a.muted = muted;
-    if (!muted && a.paused) a.play().catch(() => {});
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = muted;
   }, [muted]);
 
-  // ── Dismiss — user must click CTA or Skip ─────────────────────────────────
   const dismiss = useCallback((destination?: string) => {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
-    timers.current.forEach(clearTimeout);
-    // Stop all media
-    audioRef.current?.pause();
-    if (videoARef.current) { videoARef.current.pause(); videoARef.current.src = ""; }
-    if (videoBRef.current) { videoBRef.current.pause(); videoBRef.current.src = ""; }
+    if (ctaTimer.current) clearTimeout(ctaTimer.current);
+    const v = videoRef.current;
+    if (v) { v.pause(); v.src = ""; }
     setTimeout(() => {
       onClose();
       if (destination) navigate(destination);
@@ -211,42 +104,36 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       className="fixed inset-0 z-[9999] overflow-hidden bg-black select-none"
       style={{
         opacity: isExiting ? 0 : 1,
-        transition: isExiting ? "opacity 600ms ease" : "opacity 1000ms ease",
+        transition: isExiting ? "opacity 600ms ease" : "opacity 800ms ease",
         pointerEvents: isExiting ? "none" : "auto",
       }}
       role="dialog"
       aria-modal="true"
       aria-label="WizVid cinematic intro"
     >
-      {/* ── Video A ─────────────────────────────── */}
+      {/* ── Trailer video ─────────────────────────── */}
       <video
-        ref={videoARef}
+        ref={videoRef}
+        src={TRAILER_URL}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          opacity: aOpacity,
-          transition: `opacity ${DISSOLVE_MS}ms cubic-bezier(0.4,0,0.2,1)`,
+          opacity: videoReady ? 1 : 0,
+          transition: "opacity 800ms ease",
           zIndex: 0,
           pointerEvents: "none",
         }}
         muted
         playsInline
+        preload="auto"
         crossOrigin="anonymous"
       />
 
-      {/* ── Video B ─────────────────────────────── */}
-      <video
-        ref={videoBRef}
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{
-          opacity: bOpacity,
-          transition: `opacity ${DISSOLVE_MS}ms cubic-bezier(0.4,0,0.2,1)`,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-        muted
-        playsInline
-        crossOrigin="anonymous"
-      />
+      {/* ── Loading state — black screen while buffering ── */}
+      {!videoReady && (
+        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 2 }}>
+          <div className="w-10 h-10 rounded-full border-2 border-violet-500/30 border-t-violet-400 animate-spin" />
+        </div>
+      )}
 
       {/* ── Cinematic vignette ──────────────────── */}
       <div
@@ -254,45 +141,31 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         style={{
           zIndex: 1,
           pointerEvents: "none",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.08) 65%, rgba(0,0,0,0.78) 100%)",
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 75%, rgba(0,0,0,0.65) 100%)",
         }}
-      />
-
-      {/* ── Audio (separate element, not video audio) ── */}
-      <audio
-        ref={audioRef}
-        src={INTRO_AUDIO}
-        preload="auto"
-        crossOrigin="anonymous"
       />
 
       {/* ── Skip (top-left) ─────────────────────── */}
       <button
         onClick={() => dismiss()}
-        onMouseDown={() => dismiss()}
         className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/60 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-        style={{ zIndex: 20, cursor: "pointer", pointerEvents: "auto" }}
+        style={{ zIndex: 20, cursor: "pointer" }}
         aria-label="Skip intro"
       >
         <X className="w-3.5 h-3.5" />
         Skip
       </button>
 
-      {/* ── Sound toggle + WizSound™ badge (top-right) — ALWAYS VISIBLE ── */}
-      <div
-        className="absolute top-5 right-5 flex items-center gap-2"
-        style={{ zIndex: 20, pointerEvents: "auto" }}
-      >
-        {/* WizSound™ branding badge — visible on sm+ screens */}
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-fuchsia-500/35 bg-black/40 backdrop-blur-sm">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+      {/* ── Sound toggle (top-right) ─────────────── */}
+      <div className="absolute top-5 right-5 flex items-center gap-2" style={{ zIndex: 20 }}>
+        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-fuchsia-500/30 backdrop-blur-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#d946ef" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span className="text-fuchsia-300 text-[11px] font-bold tracking-wide">WizSound™</span>
         </div>
         <button
           onClick={() => setMuted(m => !m)}
-          onMouseDown={() => setMuted(m => !m)}
           className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
           style={{ cursor: "pointer" }}
           aria-label={muted ? "Enable sound" : "Mute audio"}
@@ -305,152 +178,71 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         </button>
       </div>
 
-      {/* ── Cinematic strapline text ────────────── */}
-      <div
-        className="absolute inset-x-0 flex items-center justify-center px-8"
-        style={{
-          zIndex: 10,
-          top: "36%",
-          transform: "translateY(-50%)",
-          pointerEvents: "none",
-        }}
-        aria-hidden="true"
-      >
-        <p
-          style={{
-            opacity: overlayText ? overlayOpacity : 0,
-            transition: `opacity ${overlayOpacity > 0 ? TEXT_FADE_IN_MS : TEXT_FADE_OUT_MS}ms cubic-bezier(0.4,0,0.2,1)`,
-            fontFamily: "'Bebas Neue', 'Barlow Condensed', 'Impact', sans-serif",
-            textShadow: "0 2px 60px rgba(0,0,0,0.99), 0 0 120px rgba(139,92,246,0.45)",
-            letterSpacing: "0.2em",
-            lineHeight: 1.05,
-          }}
-          className="text-center text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase"
-        >
-          {overlayText ?? "\u00A0"}
-        </p>
-      </div>
-
-      {/* ── Bottom: logo + tagline + CTA ───────── */}
+      {/* ── Logo (bottom centre) ─────────────────── */}
       <div
         className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
         style={{ zIndex: 10, pointerEvents: "none" }}
       >
-        {/* Logo */}
-        <div
-          style={{
-            opacity: showLogo ? 1 : 0,
-            transform: showLogo ? "scale(1) translateY(0)" : "scale(0.82) translateY(32px)",
-            transition: "opacity 1200ms cubic-bezier(0.16,1,0.3,1), transform 1200ms cubic-bezier(0.16,1,0.3,1)",
-            position: "relative",
-          }}
-        >
+        <div style={{ position: "relative" }}>
           <div
             style={{
               position: "absolute",
               inset: "-60px -80px",
-              background: "radial-gradient(ellipse 70% 55% at 50% 55%, rgba(139,92,246,0.28) 0%, rgba(109,40,217,0.12) 45%, transparent 75%)",
+              background: "radial-gradient(ellipse 70% 55% at 50% 55%, rgba(139,92,246,0.22) 0%, transparent 75%)",
               filter: "blur(32px)",
               pointerEvents: "none",
               zIndex: -1,
-              animation: showLogo ? "logoAtmosphere 3s ease-in-out infinite alternate" : "none",
             }}
           />
           <img
             src={LOGO}
-            alt="WizVid"
+            alt="WizVid AI"
             style={{
-              width: "clamp(240px, 38vw, 480px)",
+              width: "clamp(180px, 28vw, 360px)",
               height: "auto",
               display: "block",
               margin: "0 auto",
-              imageRendering: "auto",
               filter: [
-                "drop-shadow(0 0 12px rgba(139,92,246,1))",
-                "drop-shadow(0 0 40px rgba(139,92,246,0.85))",
-                "drop-shadow(0 0 80px rgba(139,92,246,0.55))",
-                "drop-shadow(0 0 160px rgba(109,40,217,0.35))",
-                "drop-shadow(0 4px 24px rgba(0,0,0,0.9))",
+                "drop-shadow(0 0 10px rgba(139,92,246,0.9))",
+                "drop-shadow(0 0 30px rgba(139,92,246,0.6))",
+                "drop-shadow(0 4px 20px rgba(0,0,0,0.9))",
               ].join(" "),
-              animation: showLogo ? "logoPulse 3.5s ease-in-out infinite" : "none",
             }}
             draggable={false}
           />
         </div>
 
-        {/* Tagline */}
-        <p
-          className="mt-3 text-white/65 font-light tracking-[0.35em] uppercase text-xs sm:text-sm"
-          style={{
-            opacity: showTagline ? 1 : 0,
-            transform: showTagline ? "translateY(0)" : "translateY(10px)",
-            transition: "opacity 700ms ease 0.15s, transform 700ms ease 0.15s",
-            textShadow: "0 2px 20px rgba(0,0,0,0.95)",
-          }}
-        >
-          Create anything with AI
-        </p>
-
-        {/* ENTER EXPERIENCE CTA — appears on WOW clip hold, user MUST click */}
+        {/* "Enter Site" CTA — appears near end of trailer */}
         <div
           className="mt-10"
           style={{
             opacity: showCTA ? 1 : 0,
             transform: showCTA ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
-            transition: "opacity 800ms cubic-bezier(0.16,1,0.3,1), transform 800ms cubic-bezier(0.16,1,0.3,1)",
+            transition: "opacity 900ms cubic-bezier(0.16,1,0.3,1), transform 900ms cubic-bezier(0.16,1,0.3,1)",
             pointerEvents: showCTA ? "auto" : "none",
           }}
         >
           <button
             onClick={() => dismiss("/")}
-            onMouseDown={() => dismiss("/")}
-            className="group relative inline-flex items-center gap-3 px-16 py-4 rounded-full text-base font-semibold text-white transition-all duration-300 hover:scale-105"
+            className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-semibold text-white transition-all duration-300 hover:scale-105"
             style={{
               cursor: "pointer",
-              pointerEvents: "auto",
-              zIndex: 20,
               background: "linear-gradient(135deg, rgba(139,92,246,0.95) 0%, rgba(109,40,217,1) 100%)",
               boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-              animation: showCTA ? "ctaPulse 2.8s ease-in-out infinite" : "none",
+              animation: "ctaPulse 2.8s ease-in-out infinite",
               letterSpacing: "0.04em",
             }}
           >
-            Enter Experience
+            Enter Site
             <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
           </button>
         </div>
       </div>
 
       <style>{`
-        @keyframes logoAtmosphere {
-          0%   { opacity: 0.7; transform: scale(0.97); }
-          100% { opacity: 1;   transform: scale(1.03); }
-        }
-        @keyframes logoPulse {
-          0%, 100% {
-            filter:
-              drop-shadow(0 0 12px rgba(139,92,246,1))
-              drop-shadow(0 0 40px rgba(139,92,246,0.85))
-              drop-shadow(0 0 80px rgba(139,92,246,0.55))
-              drop-shadow(0 0 160px rgba(109,40,217,0.35))
-              drop-shadow(0 4px 24px rgba(0,0,0,0.9));
-          }
-          50% {
-            filter:
-              drop-shadow(0 0 18px rgba(167,139,250,1))
-              drop-shadow(0 0 60px rgba(139,92,246,0.95))
-              drop-shadow(0 0 120px rgba(139,92,246,0.7))
-              drop-shadow(0 0 200px rgba(109,40,217,0.5))
-              drop-shadow(0 4px 24px rgba(0,0,0,0.9));
-          }
-        }
         @keyframes ctaPulse {
-          0%, 100% {
-            box-shadow: 0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
-          }
-          50% {
-            box-shadow: 0 0 80px rgba(139,92,246,0.85), 0 0 150px rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
-          }
+          0%, 100% { box-shadow: 0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18); }
+          50%       { box-shadow: 0 0 80px rgba(139,92,246,0.85), 0 0 150px rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.18); }
         }
       `}</style>
     </div>

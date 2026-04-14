@@ -3288,30 +3288,30 @@
 - [x] Sort order: active first, completed second, old last
 
 ## WizLumina™ + Premium Platform Upgrade
-- [ ] Generate WizLumina™ logo: glowing orb/light burst, purple + gold glow, dark background
+- [x] Generate WizLumina™ logo: glowing orb/light burst, purple + gold glow, dark background
 - [ ] Create WizLumina™ homepage section: Standard / Enhance (+£2) / Cinematic (+£5) with A/B visual toggle
 - [ ] Add "See the Difference" visual comparison section on homepage (same video, Standard vs Cinematic toggle)
 - [ ] Add WizLumina™ to DemoVideoModal comparison
-- [ ] Update pricing: 720p→£3, 1080p→£6, 4K→£10; WizSound Enhance→+£2, Cinematic→+£5; WizLumina Enhance→+£2, Cinematic→+£5
-- [ ] Add "Cinematic Mode" bundle (+£8): WizSound Cinematic + WizLumina Cinematic, BEST EXPERIENCE label, most prominent in paywall
-- [ ] Upgrade RenderPaywallModal order: Quality → Cinematic Mode (pre-selected) → Individual upgrades
+- [x] Update pricing: 720p→£3, 1080p→£6, 4K→£10; WizSound Enhance→+£2, Cinematic→+£5; WizLumina Enhance→+£2, Cinematic→+£5
+- [x] Add "Cinematic Mode" bundle (+£8): WizSound Cinematic + WizLumina Cinematic, BEST EXPERIENCE label, most prominent in paywall
+- [x] Upgrade RenderPaywallModal order: Quality → Cinematic Mode (pre-selected) → Individual upgrades
 - [ ] Add "How WizVid Works" education section to homepage (5 steps with images)
 - [ ] Reposition language site-wide: replace "enhancement"/"audio upgrade" with "Cinematic Engine"/"Studio-Grade Sound"/"Film-Level Visuals"
 - [ ] Wire WizLumina logo into paywall, homepage section, comparison section
 
 ## Unified WizSound + WizLumina Tier System
-- [ ] Rebuild RenderPaywallModal: single master tier toggle (Standard / Enhance / Cinematic) that auto-syncs both WizSound and WizLumina
-- [ ] Add Cinematic Mode 🎬 master bundle card as most prominent option
-- [ ] Show both audio + visual sub-labels under each tier selection
-- [ ] Auto-sync: selecting Cinematic on either system enables both
+- [x] Rebuild RenderPaywallModal: single master tier toggle (Standard / Enhance / Cinematic) that auto-syncs both WizSound and WizLumina
+- [x] Add Cinematic Mode 🎬 master bundle card as most prominent option
+- [x] Show both audio + visual sub-labels under each tier selection
+- [x] Auto-sync: selecting Cinematic on either system enables both
 - [ ] Update WizSoundSection homepage to reference unified system
 - [ ] Update WizLuminaSection homepage to reference unified system
 - [ ] Update pricing page to reflect unified tier pricing
 
 ## Homepage Cinematic Rebuild (Pasted_content_04)
-- [ ] Update hero headline: "Create Cinematic Videos with AI"
+- [x] Update hero headline: "Create Cinematic Videos with AI"
 - [ ] Update hero subheadline: "From idea to fully produced video — with studio-grade sound and film-level visuals."
-- [ ] Update hero CTAs: "Start Creating for Free" + "Watch Demo"
+- [x] Update hero CTAs: "Start Creating for Free" + "Watch Demo"
 - [ ] Add 5-icon value strip under hero (AI Video, Studio Sound, Cinematic Visuals, Instant Rendering, Multiple Styles)
 - [ ] Update "How It Works" section title: "From Idea to Cinematic Video in Minutes"
 - [ ] Add "The WizVid Engine" ecosystem section (WizCreate, WizSound, WizLumina, WizPilot with logos)
@@ -3319,20 +3319,20 @@
 - [ ] Update "Who It's For" section title: "Built for Creators"
 - [ ] Update pricing section: "Create for free. Pay to render." / "No subscriptions required."
 - [ ] Add trust strip: No credit card, Own your content, No watermark
-- [ ] Update final CTA: "Ready to create your video?" / "Start Creating Now"
+- [x] Update final CTA: "Ready to create your video?" / "Start Creating Now"
 - [ ] Wire WizLumina wordmark into homepage ecosystem section
 - [ ] Wire WizLumina icon into paywall badges and WizLumina section
 
 ## Homepage Cinematic Rebuild (Pasted_content_04)
-- [ ] Update hero headline and subheadline
-- [ ] Update hero CTAs
+- [x] Update hero headline and subheadline
+- [x] Update hero CTAs
 - [ ] Add 5-icon value strip under hero
 - [ ] Update How It Works section title
 - [ ] Add The WizVid Engine ecosystem section
 - [ ] Add See the Difference comparison section
 - [ ] Update Who Its For section title
-- [ ] Update pricing section copy
+- [x] Update pricing section copy
 - [ ] Add trust strip
-- [ ] Update final CTA
+- [x] Update final CTA
 - [ ] Wire WizLumina wordmark into ecosystem section
 - [ ] Wire WizLumina icon into paywall
