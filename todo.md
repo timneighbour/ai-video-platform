@@ -3458,3 +3458,9 @@
 - [x] Remove any static overlapping logo — only ONE logo reveal at the end
 - [x] Ensure all text is pure white, SemiBold/Bold, with text-shadow and dark gradient overlay
 - [x] Optimise for mobile: 13.7MB (under 15MB target)
+
+## Storyboard Render Rate-Limit Fix (Apr 2026)
+- [ ] Fix "Retry-After: unknowns" — parse Retry-After header correctly in render router
+- [ ] Fix "Previous render failed" banner appearing on fresh storyboard loads
+- [ ] Add countdown timer UX when rate-limited (show "Try again in Xs")
+- [ ] Add auto-retry after Retry-After delay expires

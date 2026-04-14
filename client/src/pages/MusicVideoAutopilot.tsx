@@ -247,13 +247,13 @@ export default function MusicVideoAutopilot() {
       id: "storybook",
       label: "Storybook",
       desc: "Illustrated fairy-tale art",
-      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-storybook-2zTAFMYrywVXfecaMu9hUE.webp",
     },
     {
       id: "cartoon",
       label: "Cartoon",
       desc: "Bold, colourful 2D animation",
-      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-n4CZF3mgReCEjogjqRoDKz.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cartoon-oAVVLbZ5UhTAB8EzzrjENd.webp",
     },
   ];
   const [isDragging, setIsDragging] = useState(false);

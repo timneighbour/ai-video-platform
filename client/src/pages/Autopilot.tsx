@@ -24,17 +24,17 @@ import AuthGate from "@/components/AuthGate";
 const YT_RED = "#FF0000";
 
 const VIDEO_STYLES = [
-  { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism" },
-  { id: "anime", label: "Anime", desc: "Japanese animation style" },
-  { id: "pixar", label: "Pixar 3D", desc: "Vibrant 3D animation" },
-  { id: "documentary", label: "Documentary", desc: "Authentic & raw footage" },
-  { id: "abstract", label: "Abstract", desc: "Artistic visual journey" },
-  { id: "vintage", label: "Vintage", desc: "Retro film aesthetic" },
-  { id: "neon_noir", label: "Neon Noir", desc: "Dark cyberpunk neon glow" },
-  { id: "disney", label: "Disney", desc: "Magical Disney animation" },
-  { id: "epic_fantasy", label: "Epic Fantasy", desc: "Dramatic magical landscapes" },
-  { id: "realistic", label: "Realistic", desc: "True-to-life photorealism" },
-  { id: "horror", label: "Horror", desc: "Dark, eerie & atmospheric" },
+  { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-8EttbpJCG8aAwirxMzv25p.webp" },
+  { id: "anime", label: "Anime", desc: "Japanese animation style", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-76BJuATsMcjhGJHYLXERiU.webp" },
+  { id: "pixar", label: "Pixar 3D", desc: "Vibrant 3D animation", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-GUBPsNDXp3m9kijU7REvzt.webp" },
+  { id: "documentary", label: "Documentary", desc: "Authentic & raw footage", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-GUdvUoXuDBve4gBc7mKpgx.webp" },
+  { id: "abstract", label: "Abstract", desc: "Artistic visual journey", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-WkAJQNtpbvfE2E9GnzkjxJ.webp" },
+  { id: "vintage", label: "Vintage", desc: "Retro film aesthetic", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-mkatVcuLLHQ5oBRYWdLWtp.webp" },
+  { id: "neon_noir", label: "Neon Noir", desc: "Dark cyberpunk neon glow", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-5FS7RgdStYibD2k7cDsLtT.webp" },
+  { id: "disney", label: "Disney", desc: "Magical Disney animation", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-BXphR76pPK3kZHkhrNoegX.webp" },
+  { id: "epic_fantasy", label: "Epic Fantasy", desc: "Dramatic magical landscapes", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-drtG5fAopz4o94Uw3Nwycx.webp" },
+  { id: "realistic", label: "Realistic", desc: "True-to-life photorealism", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-aoCsFQg7RrHiDwviHBmAKk.webp" },
+  { id: "horror", label: "Horror", desc: "Dark, eerie & atmospheric", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-horror-V8mWQPZYZySQZ5xPr9y3q4.webp" },
 ];
 
 const DURATIONS = [
@@ -275,6 +275,7 @@ export default function Autopilot() {
       toast.error("Please enter a prompt of at least 10 characters.");
       return;
     }
+    setGenerationError(null); // Clear any previous render error
     const scenes = generateStoryboardFromPrompt(prompt, style);
     setStoryboard(scenes);
     setStep("storyboard");
@@ -283,6 +284,7 @@ export default function Autopilot() {
   }, [prompt, style, generateAllPreviews]);
 
   const handleRegenerateStoryboard = useCallback(() => {
+    setGenerationError(null); // Clear any previous render error
     setRegenerating(true);
     setTimeout(() => {
       const scenes = generateStoryboardFromPrompt(
@@ -589,14 +591,32 @@ export default function Autopilot() {
                   <button
                     key={s.id}
                     onClick={() => setStyle(s.id)}
-                    className={`rounded-xl border p-3 text-left transition-all ${
+                    className={`rounded-xl border overflow-hidden text-left transition-all ${
                       style === s.id
-                        ? "border-purple-500 bg-purple-500/20 text-white"
-                        : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
+                        ? "border-purple-500 ring-2 ring-purple-500/40"
+                        : "border-white/10 hover:border-white/30"
                     }`}
                   >
-                    <div className="font-medium text-sm">{s.label}</div>
-                    <div className="text-xs opacity-70 mt-0.5">{s.desc}</div>
+                    {s.image && (
+                      <div className="relative w-full aspect-video overflow-hidden">
+                        <img
+                          src={s.image}
+                          alt={s.label}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                        {style === s.id && (
+                          <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                              <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className={`p-2 ${style === s.id ? "bg-purple-500/20" : "bg-white/5"}`}>
+                      <div className="font-medium text-sm text-white">{s.label}</div>
+                      <div className="text-xs text-white/60 mt-0.5 hidden sm:block">{s.desc}</div>
+                    </div>
                   </button>
                 ))}
               </div>
