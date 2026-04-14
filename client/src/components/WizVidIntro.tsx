@@ -1,8 +1,12 @@
 /**
  * WizVidIntro — Cinematic Trailer (Apr 2026)
  *
- * Structure (not a montage — a trailer):
- *   HOOK      0–3s    Black screen + bass hit → "This changes everything"
+ * ARCHITECTURE: Two persistent video elements (A and B) — NO key props.
+ * Clips are loaded by setting ref.current.src directly.
+ * Dissolves are pure CSS opacity transitions.
+ *
+ * Trailer structure:
+ *   HOOK      0–3s    Black screen + "This changes everything"
  *   BUILD     3–7s    Singer clip → "Create anything"
  *   EXPANSION 7–12s   Band clip → "Music videos · Films · Animation"
  *   POWER     12–16s  Cinematic clip → "Powered by AI"
@@ -10,7 +14,6 @@
  *   END       20s+    Hold final frame → CTA "Enter WizVid"
  *
  * Audio: Steel Thunderfall (12.48s) — plays once, no loop
- * Chrome Autoplay Policy: video muted, audio muted until user clicks Enable Sound
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -19,85 +22,40 @@ import { useLocation } from "wouter";
 
 // ── CDN Assets ────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
+const LOGO       = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 const INTRO_AUDIO = `${CDN}/SteelThunderfall_a37defe2.mp3`;
 
-// Intentional clip sequence — each plays ONCE, in order, no random cycling
-const CLIPS = {
-  singer:    `${CDN}/intro-new-singer_fdadff1e.mp4`,
-  band:      `${CDN}/intro-new-band_b014ba31.mp4`,
-  cinematic: `${CDN}/intro-new-cinematic_d6673107.mp4`,
-  creator:   `${CDN}/intro-new-creator_cdb4f41a.mp4`,
-};
+const CLIPS = [
+  `${CDN}/intro-new-singer_fdadff1e.mp4`,    // 0 — BUILD
+  `${CDN}/intro-new-band_b014ba31.mp4`,       // 1 — EXPANSION
+  `${CDN}/intro-new-cinematic_d6673107.mp4`,  // 2 — POWER
+  `${CDN}/intro-new-creator_cdb4f41a.mp4`,    // 3 — USP CLOSE
+  `${CDN}/intro-new-cinematic_d6673107.mp4`,  // 4 — END (same as POWER)
+];
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
 const SOUND_KEY = "wizvid_intro_sound";
 
-// ── Trailer Phases ────────────────────────────────────────────────────────────
-// Each phase: when it starts (ms), which clip to show (null = black), text overlay
-type TrailerPhase = {
-  startMs: number;
-  clip: string | null;    // null = black screen
-  text: string | null;    // null = no text
-  textStartMs: number;    // ms after phase start when text appears
-  textEndMs: number;      // ms after phase start when text fades out (0 = hold until next phase)
-};
+const DISSOLVE_MS = 1200;
 
-const DISSOLVE_MS = 1200; // slow cinematic dissolve between clips
-
-const PHASES: TrailerPhase[] = [
-  // HOOK: black screen, bass hit, impactful text
-  {
-    startMs:    0,
-    clip:       null,
-    text:       "This changes everything",
-    textStartMs: 800,
-    textEndMs:  2600,
-  },
-  // BUILD: singer clip fades in, "Create anything"
-  {
-    startMs:    3000,
-    clip:       CLIPS.singer,
-    text:       "Create anything",
-    textStartMs: 600,
-    textEndMs:  3200,
-  },
-  // EXPANSION: band clip, "Music videos · Films · Animation"
-  {
-    startMs:    7000,
-    clip:       CLIPS.band,
-    text:       "Music videos · Films · Animation",
-    textStartMs: 600,
-    textEndMs:  4200,
-  },
-  // POWER MOMENT: cinematic clip, "Powered by AI"
-  {
-    startMs:    12000,
-    clip:       CLIPS.cinematic,
-    text:       "Powered by AI",
-    textStartMs: 600,
-    textEndMs:  3200,
-  },
-  // USP CLOSE: creator clip, "Enhanced with WizSound™"
-  {
-    startMs:    16000,
-    clip:       CLIPS.creator,
-    text:       "Enhanced with WizSound™",
-    textStartMs: 600,
-    textEndMs:  3200,
-  },
-  // END STATE: hold cinematic clip, CTA appears (handled separately)
-  {
-    startMs:    20000,
-    clip:       CLIPS.cinematic,
-    text:       null,
-    textStartMs: 0,
-    textEndMs:  0,
-  },
+// ── Text overlay schedule (absolute ms from start) ────────────────────────────
+const TEXT_SCHEDULE = [
+  { showAt: 800,   hideAt: 2600,  text: "This changes everything" },
+  { showAt: 3600,  hideAt: 6600,  text: "Create anything" },
+  { showAt: 7600,  hideAt: 11600, text: "Music videos · Films · Animation" },
+  { showAt: 12600, hideAt: 15600, text: "Powered by AI" },
+  { showAt: 16600, hideAt: 19600, text: "Enhanced with WizSound™" },
 ];
 
-const TEXT_FADE_IN_MS  = 500;
-const TEXT_FADE_OUT_MS = 400;
+// ── Clip transition schedule (absolute ms from start) ─────────────────────────
+// Each entry: when to start dissolving the next clip in
+const CLIP_SCHEDULE = [
+  { at: 3000,  clipIdx: 0 },  // Singer at 3s
+  { at: 7000,  clipIdx: 1 },  // Band at 7s
+  { at: 12000, clipIdx: 2 },  // Cinematic at 12s
+  { at: 16000, clipIdx: 3 },  // Creator at 16s
+  { at: 20000, clipIdx: 4 },  // Back to cinematic at 20s (END)
+];
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -106,114 +64,116 @@ interface WizVidIntroProps {
 export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [, navigate] = useLocation();
 
-  // ── Trailer state ──────────────────────────────────────────────────────────
-  const [phaseIdx, setPhaseIdx]       = useState(0);
-  const [nextPhaseIdx, setNextPhaseIdx] = useState<number | null>(null);
-  const [dissolving, setDissolving]   = useState(false);
-  const [showCTA, setShowCTA]         = useState(false);
-  const [isExiting, setIsExiting]     = useState(false);
+  // ── Which video element is "front" (visible) ──────────────────────────────
+  // We alternate between video A and B for dissolves
+  const [frontIsA, setFrontIsA]   = useState(true);
+  const [aOpacity, setAOpacity]   = useState(0); // starts at 0 (HOOK = black)
+  const [bOpacity, setBOpacity]   = useState(0);
 
-  // Text overlay state
+  // ── Text overlay ──────────────────────────────────────────────────────────
   const [overlayText, setOverlayText]       = useState<string | null>(null);
   const [overlayOpacity, setOverlayOpacity] = useState(0);
 
-  // Logo/tagline state (appear early, persist)
+  // ── UI state ──────────────────────────────────────────────────────────────
   const [showLogo, setShowLogo]       = useState(false);
   const [showTagline, setShowTagline] = useState(false);
+  const [showCTA, setShowCTA]         = useState(false);
+  const [isExiting, setIsExiting]     = useState(false);
 
-  // Sound
+  // ── Sound ─────────────────────────────────────────────────────────────────
   const [muted, setMuted] = useState(() => {
     try { return sessionStorage.getItem(SOUND_KEY) !== "on"; }
     catch { return true; }
   });
 
-  // Clip video elements
-  const videoARef = useRef<HTMLVideoElement>(null); // current clip
-  const videoBRef = useRef<HTMLVideoElement>(null); // next clip (preloaded)
-  const audioRef  = useRef<HTMLAudioElement>(null);
+  // ── Refs ──────────────────────────────────────────────────────────────────
+  const videoARef    = useRef<HTMLVideoElement>(null);
+  const videoBRef    = useRef<HTMLVideoElement>(null);
+  const audioRef     = useRef<HTMLAudioElement>(null);
   const isExitingRef = useRef(false);
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const frontIsARef  = useRef(true); // tracks which is front without stale closure
+  const timers       = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const addTimer = (fn: () => void, ms: number) => {
+  const addTimer = useCallback((fn: () => void, ms: number) => {
     const id = setTimeout(fn, ms);
     timers.current.push(id);
     return id;
-  };
+  }, []);
 
-  // ── Load clip into a video element ────────────────────────────────────────
-  const loadClip = (ref: React.RefObject<HTMLVideoElement | null>, src: string) => {
+  // ── Load a clip into a specific video element and play it ─────────────────
+  const loadAndPlay = useCallback((ref: React.RefObject<HTMLVideoElement | null>, src: string) => {
     const v = ref.current;
     if (!v) return;
     v.src = src;
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
     v.load();
     v.play().catch(() => {});
-  };
-
-  // ── Show a text overlay with fade in/out ──────────────────────────────────
-  const showText = useCallback((text: string, holdMs: number) => {
-    setOverlayText(text);
-    setOverlayOpacity(0);
-    // Fade in
-    requestAnimationFrame(() => requestAnimationFrame(() => setOverlayOpacity(1)));
-    // Fade out
-    addTimer(() => {
-      setOverlayOpacity(0);
-      addTimer(() => setOverlayText(null), TEXT_FADE_OUT_MS + 50);
-    }, holdMs);
   }, []);
 
-  // ── Transition to next phase ───────────────────────────────────────────────
-  const transitionToPhase = useCallback((idx: number) => {
+  // ── Dissolve to a new clip ─────────────────────────────────────────────────
+  // Loads the clip into the BACK element, then cross-fades to it
+  const dissolveToClip = useCallback((src: string) => {
     if (isExitingRef.current) return;
-    const phase = PHASES[idx];
-    if (!phase) return;
 
-    // If new phase has a clip, preload into video B then dissolve
-    if (phase.clip) {
-      setNextPhaseIdx(idx);
-      loadClip(videoBRef, phase.clip);
-      setDissolving(true);
+    const isFrontA = frontIsARef.current;
+    const backRef  = isFrontA ? videoBRef : videoARef;
+
+    // Load clip into back element
+    loadAndPlay(backRef, src);
+
+    // Start dissolve: fade in back, fade out front
+    if (isFrontA) {
+      setBOpacity(1);
+      setAOpacity(0);
+    } else {
+      setAOpacity(1);
+      setBOpacity(0);
+    }
+
+    // After dissolve completes, swap front
+    addTimer(() => {
+      frontIsARef.current = !isFrontA;
+      setFrontIsA(!isFrontA);
+    }, DISSOLVE_MS);
+  }, [addTimer, loadAndPlay]);
+
+  // ── Show text overlay ─────────────────────────────────────────────────────
+  const showTextOverlay = useCallback((text: string, showAt: number, hideAt: number) => {
+    addTimer(() => {
+      if (isExitingRef.current) return;
+      setOverlayText(text);
+      setOverlayOpacity(0);
+      requestAnimationFrame(() => requestAnimationFrame(() => setOverlayOpacity(1)));
 
       addTimer(() => {
-        // Swap: B becomes A
-        setPhaseIdx(idx);
-        setNextPhaseIdx(null);
-        setDissolving(false);
-        // Now load the same clip into A ref
-        loadClip(videoARef, phase.clip!);
-      }, DISSOLVE_MS);
-    } else {
-      // Black screen phase — just update state
-      setPhaseIdx(idx);
-    }
-
-    // Schedule text overlay for this phase
-    if (phase.text) {
-      const holdMs = phase.textEndMs - phase.textStartMs - TEXT_FADE_OUT_MS;
-      addTimer(() => showText(phase.text!, holdMs), phase.textStartMs);
-    }
-  }, [showText]);
+        setOverlayOpacity(0);
+        addTimer(() => setOverlayText(null), 450);
+      }, hideAt - showAt - 450);
+    }, showAt);
+  }, [addTimer]);
 
   // ── Master timeline ────────────────────────────────────────────────────────
   useEffect(() => {
-    // Logo appears at 1s, tagline at 1.8s
-    addTimer(() => setShowLogo(true),    1000);
-    addTimer(() => setShowTagline(true), 1800);
+    // Preload first clip into video B immediately so it's ready at 3s
+    loadAndPlay(videoBRef, CLIPS[0]);
 
-    // Show text for HOOK phase (phase 0 — starts immediately)
-    const hookPhase = PHASES[0];
-    if (hookPhase.text) {
-      const holdMs = hookPhase.textEndMs - hookPhase.textStartMs - TEXT_FADE_OUT_MS;
-      addTimer(() => showText(hookPhase.text!, holdMs), hookPhase.textStartMs);
-    }
+    // Logo and tagline
+    addTimer(() => setShowLogo(true),    800);
+    addTimer(() => setShowTagline(true), 1600);
 
-    // Schedule all subsequent phases
-    for (let i = 1; i < PHASES.length; i++) {
-      const idx = i;
-      addTimer(() => transitionToPhase(idx), PHASES[idx].startMs);
-    }
+    // Text overlays
+    TEXT_SCHEDULE.forEach(({ showAt, hideAt, text }) => {
+      showTextOverlay(text, showAt, hideAt);
+    });
 
-    // Show CTA at 20.5s
+    // Clip transitions
+    CLIP_SCHEDULE.forEach(({ at, clipIdx }) => {
+      addTimer(() => dissolveToClip(CLIPS[clipIdx]), at);
+    });
+
+    // CTA
     addTimer(() => setShowCTA(true), 20500);
 
     return () => {
@@ -222,7 +182,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Audio: autoplay muted on mount ────────────────────────────────────────
+  // ── Audio: start muted on mount ───────────────────────────────────────────
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
@@ -231,41 +191,28 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     a.play().catch(() => {});
   }, []);
 
-  // ── Audio: mute/unmute sync ────────────────────────────────────────────────
+  // ── Audio: sync mute state ────────────────────────────────────────────────
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
     a.muted = muted;
     try { sessionStorage.setItem(SOUND_KEY, muted ? "off" : "on"); }
     catch { /* ignore */ }
-    if (!muted && a.paused) {
-      a.play().catch(() => {});
-    }
+    if (!muted && a.paused) a.play().catch(() => {});
   }, [muted]);
 
-  // ── Initial clip load (BUILD phase clip preloaded into video A) ───────────
-  useEffect(() => {
-    // Preload the first clip (singer) so it's ready when phase 1 starts at 3s
-    loadClip(videoBRef, CLIPS.singer);
-  }, []);
-
-  // ── Dismiss ────────────────────────────────────────────────────────────────
+  // ── Dismiss ───────────────────────────────────────────────────────────────
   const dismiss = useCallback((destination?: string) => {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
     timers.current.forEach(clearTimeout);
-    const a = audioRef.current;
-    if (a) a.pause();
+    audioRef.current?.pause();
     setTimeout(() => {
       onClose();
       if (destination) navigate(destination);
     }, 600);
   }, [onClose, navigate]);
-
-  // ── Current and next clip sources ─────────────────────────────────────────
-  const currentClip = PHASES[phaseIdx]?.clip;
-  const nextClip    = nextPhaseIdx !== null ? PHASES[nextPhaseIdx]?.clip : null;
 
   return (
     <div
@@ -277,16 +224,16 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="WizVid intro"
+      aria-label="WizVid cinematic intro"
     >
-      {/* ── Background: current clip (video A) ─────────────────────────────── */}
+      {/* ── Video A (persistent — no key prop) ─────────────────────────────── */}
       <video
         ref={videoARef}
-        key={`a-${currentClip ?? "black"}`}
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{
-          opacity: currentClip && !dissolving ? 1 : 0,
+          opacity: aOpacity,
           transition: `opacity ${DISSOLVE_MS}ms ease`,
+          zIndex: 0,
         }}
         autoPlay
         muted
@@ -295,14 +242,14 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         crossOrigin="anonymous"
       />
 
-      {/* ── Background: next clip (video B — dissolves in) ─────────────────── */}
+      {/* ── Video B (persistent — no key prop) ─────────────────────────────── */}
       <video
         ref={videoBRef}
-        key={`b-${nextClip ?? "none"}`}
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         style={{
-          opacity: dissolving && nextClip ? 1 : 0,
+          opacity: bOpacity,
           transition: `opacity ${DISSOLVE_MS}ms ease`,
+          zIndex: 0,
         }}
         autoPlay
         muted
@@ -311,11 +258,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         crossOrigin="anonymous"
       />
 
-      {/* ── Cinematic gradient overlay ──────────────────────────────────────── */}
+      {/* ── Cinematic vignette overlay ──────────────────────────────────────── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.75) 100%)",
+          zIndex: 1,
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.7) 100%)",
         }}
       />
 
@@ -327,10 +275,11 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         crossOrigin="anonymous"
       />
 
-      {/* ── Skip button (top-right) ─────────────────────────────────────────── */}
+      {/* ── Skip (top-right) ───────────────────────────────────────────────── */}
       <button
         onClick={() => dismiss()}
-        className="absolute top-5 right-5 z-20 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/60 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+        className="absolute top-5 right-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/60 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20 }}
         aria-label="Skip intro"
       >
         <X className="w-3.5 h-3.5" />
@@ -339,53 +288,48 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
 
       {/* ── Sound toggle (top-left) ─────────────────────────────────────────── */}
       <button
-        onClick={() => setMuted((m) => !m)}
-        className="absolute top-5 left-5 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+        onClick={() => setMuted(m => !m)}
+        className="absolute top-5 left-5 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20 }}
         aria-label={muted ? "Enable sound" : "Mute audio"}
       >
         {muted ? (
-          <>
-            <VolumeX className="w-4 h-4" />
-            <span className="hidden sm:inline">Enable Sound</span>
-          </>
+          <><VolumeX className="w-4 h-4" /><span className="hidden sm:inline">Enable Sound</span></>
         ) : (
-          <>
-            <Volume2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Mute</span>
-          </>
+          <><Volume2 className="w-4 h-4" /><span className="hidden sm:inline">Mute</span></>
         )}
       </button>
 
-      {/* ── Phase text overlay (cinematic straplines) ───────────────────────── */}
+      {/* ── Cinematic strapline text overlay ───────────────────────────────── */}
       <div
-        className="absolute inset-x-0 pointer-events-none z-10"
-        style={{ top: "50%", transform: "translateY(-50%)" }}
+        className="absolute inset-x-0 pointer-events-none flex items-center justify-center px-8"
+        style={{
+          zIndex: 10,
+          top: "38%",
+          transform: "translateY(-50%)",
+        }}
         aria-hidden="true"
       >
-        <div
+        <p
           style={{
             opacity: overlayText ? overlayOpacity : 0,
-            transition: `opacity ${overlayOpacity > 0 ? TEXT_FADE_IN_MS : TEXT_FADE_OUT_MS}ms cubic-bezier(0.4,0,0.2,1)`,
+            transition: `opacity ${overlayOpacity > 0 ? 500 : 400}ms cubic-bezier(0.4,0,0.2,1)`,
+            fontFamily: "'Bebas Neue', 'Barlow Condensed', 'Inter', sans-serif",
+            textShadow: "0 2px 40px rgba(0,0,0,0.98), 0 0 80px rgba(139,92,246,0.35)",
+            letterSpacing: "0.15em",
+            lineHeight: 1.1,
           }}
-          className="flex items-center justify-center px-8"
+          className="text-center text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.15em] uppercase"
         >
-          <p
-            className="text-center text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.15em] uppercase"
-            style={{
-              fontFamily: "'Bebas Neue', 'Barlow Condensed', 'Inter', sans-serif",
-              textShadow: "0 2px 40px rgba(0,0,0,0.98), 0 0 80px rgba(139,92,246,0.35)",
-              letterSpacing: "0.15em",
-              lineHeight: 1.1,
-            }}
-          >
-            {overlayText}
-          </p>
-        </div>
+          {overlayText ?? "\u00A0"}
+        </p>
       </div>
 
-      {/* ── Centre content: logo, tagline, CTA ─────────────────────────────── */}
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 px-6 text-center">
-
+      {/* ── Bottom content: logo + tagline + CTA ───────────────────────────── */}
+      <div
+        className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
+        style={{ zIndex: 10 }}
+      >
         {/* Logo */}
         <div
           style={{
@@ -400,30 +344,25 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             className="w-48 sm:w-64 md:w-72 mx-auto"
             style={{
               filter: "drop-shadow(0 0 40px rgba(139,92,246,0.9)) drop-shadow(0 0 80px rgba(139,92,246,0.45))",
-              mixBlendMode: "screen",
             }}
             draggable={false}
           />
         </div>
 
         {/* Tagline */}
-        <div
-          className="mt-3"
+        <p
+          className="mt-3 text-white/70 font-light tracking-[0.3em] uppercase text-xs sm:text-sm"
           style={{
             opacity: showTagline ? 1 : 0,
             transform: showTagline ? "translateY(0)" : "translateY(8px)",
             transition: "opacity 600ms ease 0.1s, transform 600ms ease 0.1s",
+            textShadow: "0 2px 20px rgba(0,0,0,0.9)",
           }}
         >
-          <p
-            className="text-white/70 font-light tracking-[0.3em] uppercase text-xs sm:text-sm"
-            style={{ textShadow: "0 2px 20px rgba(0,0,0,0.9)" }}
-          >
-            AI Music Video Creator
-          </p>
-        </div>
+          AI Music Video Creator
+        </p>
 
-        {/* Enter WizVid CTA — appears at 20.5s */}
+        {/* Enter WizVid CTA */}
         <div
           className="mt-8"
           style={{
