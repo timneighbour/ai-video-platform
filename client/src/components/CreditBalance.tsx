@@ -13,7 +13,7 @@
 import { Zap, AlertCircle, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 
 /** Low credit warning threshold — matches server/products.ts LOW_CREDIT_THRESHOLD */
 const LOW_CREDIT_THRESHOLD = 20;
@@ -31,14 +31,12 @@ interface CreditBalanceProps {
   onBuyCredits?: () => void;
 }
 
-/** Reliable navigation button for credits page — uses both onClick + onMouseDown */
+/** Reliable navigation button for credits page — uses window.location.href for guaranteed navigation */
 function GoToCredits({ isEmpty, label }: { isEmpty: boolean; label?: string }) {
-  const [, setLocation] = useLocation();
-  const go = (e: React.MouseEvent) => { e.preventDefault(); setLocation("/credits"); };
   return (
     <button
-      onClick={go}
-      onMouseDown={go}
+      type="button"
+      onClick={() => { window.location.href = "/credits"; }}
       className={cn(
         "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer",
         isEmpty

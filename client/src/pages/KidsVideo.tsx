@@ -50,7 +50,7 @@ const KIDS_STYLES = [
     bg: "bg-blue-950/40",
     selectedBg: "bg-blue-600/20",
     example: "Toy Story · Finding Nemo · Up",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar3d_e747cdf9.jpg",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-pixar3d_e61a549d.jpg",
   },
   {
     id: "disney",
@@ -63,7 +63,7 @@ const KIDS_STYLES = [
     bg: "bg-purple-950/40",
     selectedBg: "bg-purple-600/20",
     example: "Frozen · Moana · Encanto",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney_64f736bd.webp",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-disney_9c9b6894.jpg",
   },
   {
     id: "anime",
@@ -76,7 +76,7 @@ const KIDS_STYLES = [
     bg: "bg-pink-950/40",
     selectedBg: "bg-pink-600/20",
     example: "My Neighbor Totoro · Spirited Away",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime_cde245ce.jpg",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-anime_e5435cad.jpg",
   },
   {
     id: "cartoon",
@@ -89,7 +89,7 @@ const KIDS_STYLES = [
     bg: "bg-orange-950/40",
     selectedBg: "bg-orange-600/20",
     example: "Bluey · Peppa Pig · Paw Patrol",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-cartoon-dragon_bfc45246.jpg",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-cartoon_1ed8ac1b.jpg",
   },
   {
     id: "storybook",
@@ -102,7 +102,7 @@ const KIDS_STYLES = [
     bg: "bg-green-950/40",
     selectedBg: "bg-green-600/20",
     example: "Winnie the Pooh · Peter Rabbit",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook-QzPVorZPaSTtxgboyNtpFb.webp",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook_4bc666a9.jpg",
   },
   {
     id: "claymation",
@@ -115,7 +115,7 @@ const KIDS_STYLES = [
     bg: "bg-amber-950/40",
     selectedBg: "bg-amber-600/20",
     example: "Wallace & Gromit · Shaun the Sheep",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation-HjhQBH5zz7Rpo3hb78P3Tt.webp",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation_65d3102c.jpg",
   },
 ] as const;
 

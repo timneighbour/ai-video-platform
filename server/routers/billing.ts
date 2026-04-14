@@ -959,12 +959,12 @@ export const renderRouter = router({
    */
   getWizSoundPreviews: publicProcedure.query(() => {
     return {
-      // Standard: SubwooferTension — flat, dry, unprocessed original audio (the "before")
-      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3",
-      // Enhanced: SubwooferTension — same base track, represents light processing tier
-      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/subwoofertension-wizsound_8d9f3a0f.mp3",
-      // Cinematic: Sub-bassRavel — deep bass, wide stereo, full WizSound mastering (the "wow")
-      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-cinematic-v2_20cc6479.mp3",
+      // Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before"
+      standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-subwoofer_df98cac4.mp3",
+      // Enhanced: same source track, light FFmpeg DSP — -16 LUFS, 3-band EQ, gentle compression
+      enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-mid-subwoofer_3cb0b73b.mp3",
+      // Cinematic: same source track, full FFmpeg DSP — -14 LUFS, 5-band EQ, pro mastering, stereo widening
+      cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3",
     };
   }),
 
