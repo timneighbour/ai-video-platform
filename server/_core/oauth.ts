@@ -7,6 +7,7 @@ import { notifyOwner } from "./notification";
 import { FREE_TRIAL_CREDITS } from "../products";
 import { ENV } from "./env";
 import { addCredits, getUserCredits } from "../credit-service";
+import { emailNewSignup } from "../email";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -75,6 +76,13 @@ export function registerOAuthRoutes(app: Express) {
             title: "New WizVid Sign-Up",
             content: `New user signed up: ${userInfo.name || "Unknown"} (${userInfo.email || "no email"}) — ${FREE_TRIAL_CREDITS} trial credits granted.`,
           }).catch(() => {}); // Non-blocking
+          // Email notification to timneighbour@wizvid.ai
+          await emailNewSignup({
+            name: userInfo.name || "Unknown",
+            email: userInfo.email || "",
+            id: savedUser.id,
+            createdAt: new Date(),
+          }).catch(() => {});
         }
       }
 

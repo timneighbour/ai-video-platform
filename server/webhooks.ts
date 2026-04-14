@@ -9,6 +9,11 @@ import { eq } from "drizzle-orm";
 import { subscriptions, creditTransactions, credits } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits } from "./credit-service";
+import {
+  emailCreditPurchase,
+  emailNewSubscription,
+  emailFailedPayment,
+} from "./email";
 
 // Lazy-init Stripe client (avoids crash if key not set at import time)
 function getStripe() {
@@ -25,6 +30,8 @@ export async function handleStripeWebhook(event: any) {
       return await handleSubscriptionDeleted(event.data.object);
     case "invoice.paid":
       return await handleInvoicePaid(event.data.object);
+    case "invoice.payment_failed":
+      return await handleInvoicePaymentFailed(event.data.object);
     default:
       return { received: true };
   }
@@ -116,6 +123,14 @@ async function handleCheckoutSessionCompleted(session: any) {
         title: "New Credit Purchase",
         content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased ${creditsToAdd} credits for £${(session.amount_total ?? 0) / 100}`,
       }).catch(() => {}); // non-fatal
+      // Email notification to timneighbour@wizvid.ai
+      await emailCreditPurchase({
+        name: metadata.customer_name || "Unknown",
+        email: metadata.customer_email || "",
+        credits: creditsToAdd,
+        amount: session.amount_total ?? 0,
+        packLabel: metadata.pack_label || metadata.pack || metadata.pack_id,
+      }).catch(() => {});
     } else {
       // Handle subscription — metadata.plan from billing router
       const planId = metadata.plan || metadata.plan_id;
@@ -161,6 +176,14 @@ async function handleCheckoutSessionCompleted(session: any) {
         title: "New Subscription",
         content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan (£${(session.amount_total ?? 0) / 100}/month)`,
       }).catch(() => {}); // non-fatal
+      // Email notification to timneighbour@wizvid.ai
+      await emailNewSubscription({
+        name: metadata.customer_name || "Unknown",
+        email: metadata.customer_email || "",
+        plan: planId || "unknown",
+        amount: session.amount_total ?? 0,
+        interval: "month",
+      }).catch(() => {});
     }
 
     return { success: true };
@@ -206,6 +229,27 @@ async function handleSubscriptionDeleted(subscription: any) {
     return { success: true };
   } catch (error) {
     console.error("Error deleting subscription:", error);
+    return { success: false, error };
+  }
+}
+
+async function handleInvoicePaymentFailed(invoice: any) {
+  try {
+    const customerEmail = invoice.customer_email || invoice.customer_details?.email;
+    const customerName = invoice.customer_name || invoice.customer_details?.name;
+    await emailFailedPayment({
+      name: customerName,
+      email: customerEmail,
+      amount: invoice.amount_due,
+      reason: invoice.last_payment_error?.message || "Payment declined",
+    }).catch(() => {});
+    await notifyOwner({
+      title: "Failed Payment",
+      content: `Payment failed for ${customerName || "Unknown"} (${customerEmail || "—"}): £${(invoice.amount_due ?? 0) / 100}`,
+    }).catch(() => {});
+    return { received: true };
+  } catch (error) {
+    console.error("[Stripe Webhook] Error handling failed payment:", error);
     return { success: false, error };
   }
 }

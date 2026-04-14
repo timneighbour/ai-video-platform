@@ -3336,3 +3336,18 @@
 - [x] Update final CTA
 - [ ] Wire WizLumina wordmark into ecosystem section
 - [ ] Wire WizLumina icon into paywall
+
+## Launch-Ready Sprint (Apr 14)
+
+- [ ] Rebuild cinematic intro video: Scene 1 dark/dull B&W, Scene 2 tension, Scene 3 colour explosion, Scene 4 film+Pixar+social, Scene 5 WizVid UI toggle, Scene 6 climax, logo reveal
+- [ ] New powerful cinematic BGM: deep bass, strong build, emotional rise+drop
+- [ ] Assemble trailer with B&W→colour transition synced to beat drop
+- [ ] Fix logo: remove static centre logo, keep only animated logo at end, small logo top-right near Skip
+- [ ] Fix Skip button: top-right, no loop, hold end frame with "Enter Site" CTA
+- [ ] Implement Microsoft Clarity (session recordings + heatmaps)
+- [ ] Implement GA4 tracking: page_view, signup, onboarding_start, render_start, payment_success
+- [ ] Implement Mixpanel events: Start Creating, Prompt submitted, Storyboard generated, Render started, Render completed, Upgrade clicked
+- [ ] Email notification: New Signup → timneighbour@wizvid.ai (username, email, timestamp, plan)
+- [ ] Email notification: New Subscription → timneighbour@wizvid.ai (email, plan, amount, billing type, Stripe session ID, timestamp)
+- [ ] Email notification: Failed payment (optional)
+- [ ] Wire Stripe webhook: checkout.session.completed

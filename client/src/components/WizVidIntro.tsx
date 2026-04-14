@@ -14,13 +14,13 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid_intro_trailer_v2_dd2b72e4.mp4`;
+const TRAILER_URL = `${CDN}/wizvid-intro-v4-final_244c4f3a.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v4_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v5_seen";
 
-// CTA appears 1s before video ends (video is 30s)
-const CTA_SHOW_AT_MS = 27500;
+// CTA appears 1s before video ends (video is 28s)
+const CTA_SHOW_AT_MS = 25000;
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -178,43 +178,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         </button>
       </div>
 
-      {/* ── Logo (bottom centre) ─────────────────── */}
+      {/* ── Enter Site CTA — appears near end of trailer (bottom centre) ── */}
       <div
         className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
-        style={{ zIndex: 10, pointerEvents: "none" }}
+        style={{ zIndex: 10 }}
       >
-        <div style={{ position: "relative" }}>
-          <div
-            style={{
-              position: "absolute",
-              inset: "-60px -80px",
-              background: "radial-gradient(ellipse 70% 55% at 50% 55%, rgba(139,92,246,0.22) 0%, transparent 75%)",
-              filter: "blur(32px)",
-              pointerEvents: "none",
-              zIndex: -1,
-            }}
-          />
-          <img
-            src={LOGO}
-            alt="WizVid AI"
-            style={{
-              width: "clamp(180px, 28vw, 360px)",
-              height: "auto",
-              display: "block",
-              margin: "0 auto",
-              filter: [
-                "drop-shadow(0 0 10px rgba(139,92,246,0.9))",
-                "drop-shadow(0 0 30px rgba(139,92,246,0.6))",
-                "drop-shadow(0 4px 20px rgba(0,0,0,0.9))",
-              ].join(" "),
-            }}
-            draggable={false}
-          />
-        </div>
-
-        {/* "Enter Site" CTA — appears near end of trailer */}
         <div
-          className="mt-10"
           style={{
             opacity: showCTA ? 1 : 0,
             transform: showCTA ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
