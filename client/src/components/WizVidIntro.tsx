@@ -14,7 +14,7 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid_intro_trailer_c99d5852.mp4`;
+const TRAILER_URL = `${CDN}/wizvid_intro_trailer_v2_dd2b72e4.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v4_seen";
