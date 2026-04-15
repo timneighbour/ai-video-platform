@@ -293,8 +293,12 @@ export default function KidsVideo() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   type RenderStatus = "not_started" | "queued" | "processing" | "completed" | "failed";
   const [renderStatus, setRenderStatus] = useState<RenderStatus>("not_started");
+  const [renderProgress, setRenderProgress] = useState(0);
+  const [renderStage, setRenderStage] = useState<string>("queued");
+  const [renderMessage, setRenderMessage] = useState<string>("Queued — starting soon…");
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const renderStartRef = useRef<number | null>(null);
 
   const utils = trpc.useUtils();
   const selectedLength = VIDEO_LENGTHS.find((v) => v.id === videoLength)!;
@@ -341,12 +345,19 @@ export default function KidsVideo() {
   // ── Polling for render completion ──
   const startPollingRender = useCallback((id: number) => {
     if (pollRef.current) clearInterval(pollRef.current);
+    renderStartRef.current = Date.now();
     pollRef.current = setInterval(async () => {
       try {
         const job = await utils.kidsVideo.getJob.fetch({ jobId: id });
         setRenderStatus(job.renderStatus as RenderStatus);
+        if (job.renderProgress !== undefined) setRenderProgress(job.renderProgress);
+        if (job.renderStage) setRenderStage(job.renderStage);
+        if (job.renderMessage) setRenderMessage(job.renderMessage);
         if (job.renderStatus === "completed" && job.videoUrl) {
           setVideoUrl(job.videoUrl);
+          setRenderProgress(100);
+          setRenderStage("complete");
+          setRenderMessage("Your animation is ready!");
           clearInterval(pollRef.current!);
           toast.success("🎉 Your kids animation is ready!");
         } else if (job.renderStatus === "failed") {
@@ -356,7 +367,7 @@ export default function KidsVideo() {
       } catch {
         // network hiccup — keep polling
       }
-    }, 8000);
+    }, 5000);
   }, [utils]);
 
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
@@ -1592,60 +1603,113 @@ export default function KidsVideo() {
           {/* ── STEP 4: RENDER ── */}
           {step === "render" && (
             <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
-                  {renderStatus === "completed" ? "🎉 Your Animation is Ready!" :
-                   renderStatus === "failed" ? "❌ Render Failed" :
-                   "🎬 Rendering Your Animation…"}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {renderStatus === "completed" ? "Your animated kids video has been created. Watch it below!" :
-                   renderStatus === "failed" ? "Something went wrong. Please contact support or try again." :
-                   "Our AI is bringing your story to life! This usually takes 2–5 minutes."}
-                </p>
-              </div>
 
-              {/* Rendering progress */}
+              {/* ── RENDERING IN PROGRESS ── */}
               {(renderStatus === "queued" || renderStatus === "processing") && (
-                <div className="rounded-2xl border border-pink-500/30 bg-pink-500/5 p-8 text-center space-y-6">
-                  <div className="text-5xl animate-bounce">🎬</div>
-                  <div className="space-y-3 max-w-sm mx-auto">
-                    <Progress value={renderStatus === "processing" ? 65 : 20} className="h-3 rounded-full" />
-                    <p className="text-sm text-pink-300 font-medium">
-                      {renderStatus === "processing" ? "Rendering your scenes…" : "Queued — starting soon…"}
-                    </p>
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-2 bg-pink-500/10 border border-pink-500/30 rounded-full px-4 py-1.5 mb-4">
+                      <Loader2 className="h-3.5 w-3.5 text-pink-400 animate-spin" />
+                      <span className="text-xs font-medium text-pink-300">Rendering your video</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">🎬 Rendering Your Animation…</h2>
+                    <p className="text-sm text-muted-foreground">This may take a few minutes depending on complexity. You can leave this page — we’ll email you when it’s ready.</p>
                   </div>
-                  <div className="space-y-2 text-left max-w-xs mx-auto">
-                    {[
-                      { label: "Payment confirmed", done: true },
-                      { label: "Render job queued", done: (renderStatus as string) === "processing" || (renderStatus as string) === "completed" },
-                      { label: "Generating animation frames", done: (renderStatus as string) === "completed" },
-                      { label: "Compositing final video", done: (renderStatus as string) === "completed" },
-                    ].map((s, i) => (
-                      <div key={i} className="flex items-center gap-3 text-sm">
-                        {s.done ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
-                        ) : (
-                          <Loader2 className="h-4 w-4 text-pink-400 animate-spin flex-shrink-0" />
-                        )}
-                        <span className={s.done ? "text-white" : "text-muted-foreground/70"}>{s.label}</span>
-                      </div>
-                    ))}
+
+                  {/* Progress bar */}
+                  <div className="rounded-2xl border border-pink-500/30 bg-gradient-to-b from-pink-500/5 to-transparent p-6 space-y-4">
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-pink-300 font-medium">{renderMessage}</span>
+                      <span className="text-white font-bold tabular-nums">{renderProgress}%</span>
+                    </div>
+                    <div className="relative h-3 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-pink-600 via-orange-500 to-yellow-400 rounded-full transition-all duration-700 ease-out"
+                        style={{ width: `${Math.max(renderProgress, 5)}%` }}
+                      />
+                      {/* Shimmer animation */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+                    </div>
+
+                    {/* Stage indicators */}
+                    <div className="grid grid-cols-1 gap-2 mt-4">
+                      {[
+                        { key: "queued",            label: "Queued",               icon: Clock,         threshold: 0  },
+                        { key: "preparing_scenes",  label: "Preparing scenes",     icon: Sparkles,      threshold: 5  },
+                        { key: "rendering_visuals", label: "Rendering visuals",    icon: Film,          threshold: 20 },
+                        { key: "syncing_audio",     label: "Syncing audio",        icon: Music,         threshold: 68 },
+                        { key: "finalising",        label: "Finalising video",     icon: Zap,           threshold: 90 },
+                        { key: "complete",          label: "Complete",             icon: CheckCircle2,  threshold: 100 },
+                      ].map((stage) => {
+                        const isDone = renderProgress >= stage.threshold && renderStage !== stage.key;
+                        const isCurrent = renderStage === stage.key || (renderProgress >= stage.threshold && renderProgress < (stage.threshold + 30));
+                        const isUpcoming = renderProgress < stage.threshold;
+                        const Icon = stage.icon;
+                        return (
+                          <div key={stage.key} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 ${
+                            isCurrent ? "bg-pink-500/15 border border-pink-500/30" :
+                            isDone ? "opacity-60" : "opacity-30"
+                          }`}>
+                            {isDone ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                            ) : isCurrent ? (
+                              <Loader2 className="h-4 w-4 text-pink-400 animate-spin flex-shrink-0" />
+                            ) : (
+                              <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            )}
+                            <span className={`text-sm font-medium ${
+                              isCurrent ? "text-white" : isDone ? "text-white/70" : "text-muted-foreground"
+                            }`}>{stage.label}</span>
+                            {isCurrent && (
+                              <span className="ml-auto text-xs text-pink-400 animate-pulse">In progress…</span>
+                            )}
+                            {isDone && (
+                              <span className="ml-auto text-xs text-green-400">✓ Done</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Time estimate */}
+                    <div className="text-center pt-2">
+                      {renderProgress < 25 ? (
+                        <p className="text-xs text-muted-foreground">Estimated time: <span className="text-white">~3–5 minutes</span></p>
+                      ) : renderProgress < 65 ? (
+                        <p className="text-xs text-muted-foreground">Estimated time: <span className="text-white">~2–3 minutes remaining</span></p>
+                      ) : renderProgress < 90 ? (
+                        <p className="text-xs text-muted-foreground"><span className="text-yellow-400">Almost done</span> — assembling your video…</p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground"><span className="text-green-400">Almost ready!</span> Finishing up…</p>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">This page will update automatically when your animation is ready 🌈</p>
+
+                  <p className="text-center text-xs text-muted-foreground">
+                    📧 We’ll send you an email when your animation is ready — you don’t need to stay on this page.
+                  </p>
                 </div>
               )}
 
-              {/* Completed video */}
+              {/* ── COMPLETED ── */}
               {renderStatus === "completed" && videoUrl && (
-                <div className="space-y-4">
-                  <div className="w-full rounded-2xl overflow-hidden border border-pink-500/30 bg-black">
-                    <video src={videoUrl} controls autoPlay muted playsInline className="w-full" style={{ maxHeight: "400px" }} />
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-1.5 mb-4">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
+                      <span className="text-xs font-medium text-green-300">Your video is ready</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">🎉 Your Animation is Ready!</h2>
+                    <p className="text-sm text-muted-foreground">Your animated kids video has been created. Watch it below or download it!</p>
                   </div>
+
+                  <div className="w-full rounded-2xl overflow-hidden border border-green-500/20 bg-black shadow-xl shadow-green-500/5">
+                    <video src={videoUrl} controls autoPlay muted playsInline className="w-full" style={{ maxHeight: "420px" }} />
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button
-                      variant="outline"
-                      className="gap-2 border-white/20 text-white hover:bg-white/10 flex-1"
+                      className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white flex-1 font-semibold"
                       onClick={() => {
                         const a = document.createElement("a");
                         a.href = videoUrl;
@@ -1655,7 +1719,7 @@ export default function KidsVideo() {
                       }}
                     >
                       <Download className="h-4 w-4" />
-                      Download
+                      Download Video
                     </Button>
                     <Button
                       variant="outline"
@@ -1666,41 +1730,72 @@ export default function KidsVideo() {
                       Open in New Tab
                     </Button>
                     <a
-                      href="/projects"
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
+                      href="/my-videos"
+                      className="inline-flex items-center justify-center gap-2 rounded-md border border-white/20 text-white hover:bg-white/10 flex-1 px-4 py-2 text-sm font-medium transition-all"
                     >
                       <Film className="h-4 w-4" />
-                      View All Projects
+                      My Videos
                     </a>
                   </div>
                 </div>
               )}
 
-              {/* Failed state */}
+              {/* ── FAILED ── */}
               {renderStatus === "failed" && (
-                <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 text-center space-y-4">
-                  <AlertCircle className="h-8 w-8 text-red-400 mx-auto" />
-                  <p className="text-sm text-muted-foreground">Something went wrong during rendering. Please contact support with your job ID: {jobId}</p>
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep("storyboard")}
-                    className="gap-2 border-white/20 text-white hover:bg-white/10"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Storyboard
-                  </Button>
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-1.5 mb-4">
+                      <AlertCircle className="h-3.5 w-3.5 text-red-400" />
+                      <span className="text-xs font-medium text-red-300">Render failed</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">❌ Something Went Wrong</h2>
+                    <p className="text-sm text-muted-foreground">We encountered an error while rendering your animation. Your payment has been recorded and you can try again.</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-white font-medium">What to do next:</p>
+                        <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside">
+                          <li>Try rendering again from your storyboard</li>
+                          <li>Contact support with Job ID: <span className="text-white font-mono">{jobId}</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white flex-1"
+                      onClick={() => setStep("storyboard")}
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Try Again
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="gap-2 border-white/20 text-white hover:bg-white/10 flex-1"
+                      onClick={() => window.open("mailto:support@wizvid.ai?subject=Render%20Failed%20Job%20" + jobId, "_blank")}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Contact Support
+                    </Button>
+                  </div>
                 </div>
               )}
 
               {/* Create another */}
-              <div className="text-center">
-                <button
-                  onClick={handleReset}
-                  className="text-sm text-muted-foreground hover:text-white transition underline underline-offset-4"
-                >
-                  Create another kids animation 🌈
-                </button>
-              </div>
+              {renderStatus === "completed" && (
+                <div className="text-center">
+                  <button
+                    onClick={handleReset}
+                    className="text-sm text-muted-foreground hover:text-white transition underline underline-offset-4"
+                  >
+                    Create another kids animation 🌈
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

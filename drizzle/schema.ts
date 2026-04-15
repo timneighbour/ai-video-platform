@@ -532,6 +532,9 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
 
   // Render (paid)
   renderStatus: mysqlEnum("kidsRenderStatus", ["not_started", "queued", "processing", "completed", "failed"]).default("not_started").notNull(),
+  renderStage: varchar("renderStage", { length: 64 }), // queued | preparing_scenes | rendering_visuals | syncing_audio | finalising | complete
+  renderProgress: int("renderProgress").default(0).notNull(), // 0-100 percentage
+  renderMessage: varchar("renderMessage", { length: 255 }), // Human-readable current status message
   videoUrl: varchar("videoUrl", { length: 1024 }),
   videoKey: varchar("videoKey", { length: 512 }),
   creditsCharged: int("creditsCharged").default(0).notNull(),
