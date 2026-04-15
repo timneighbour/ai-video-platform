@@ -3931,3 +3931,10 @@
 ## Manus Branding Removal - COMPLETED ✅
 - [x] Remove "Manus OAuth login" reference from Privacy.tsx
 - [x] Rebrand ManusDialog component to WizVid branding
+
+## AI Creator Tools Hub Page
+- [x] Build /create hub page with cards for all 8 AI creator tools
+- [x] Register /create route in App.tsx
+- [x] Update homepage nav 'Create' link to /create
+- [x] Update homepage 'Start Creating' CTA to /create (authenticated users)
+- [x] Fix Projects.tsx isPublic TypeScript error (data.shareSlug check)

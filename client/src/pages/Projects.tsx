@@ -233,7 +233,7 @@ export default function Projects() {
   const togglePublicMutation = trpc.musicVideo.togglePublic.useMutation({
     onSuccess: (data) => {
       utils.musicVideo.listJobs.invalidate();
-      if (data.isPublic && data.shareSlug) {
+      if (data.shareSlug) {
         const url = `${window.location.origin}/watch/${data.shareSlug}`;
         navigator.clipboard.writeText(url).catch(() => {});
         toast.success("Video is now public! Link copied to clipboard.");

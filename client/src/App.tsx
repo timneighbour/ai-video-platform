@@ -50,6 +50,7 @@ const LandingApp = lazy(() => import("@/pages/LandingApp"));
 const LandingStudio = lazy(() => import("@/pages/LandingStudio"));
 const RenderSuccess = lazy(() => import("@/pages/RenderSuccess"));
 const Discover = lazy(() => import("@/pages/Discover"));
+const Create = lazy(() => import("@/pages/Create"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -87,6 +88,7 @@ function Router() {
       <Suspense fallback={<PageFallback />}>
         <Switch>
         <Route path={"/"} component={Home} />
+        <Route path={"/create"} component={Create} />
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
         <Route path={"/dashboard"} component={Dashboard} />

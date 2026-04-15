@@ -82,7 +82,7 @@ function useReveal() {
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
-  { href: "/music-video", label: "Create" },
+  { href: "/create", label: "Create" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/creators", label: "Examples" },
   { href: "/pricing", label: "Pricing" },
@@ -542,7 +542,7 @@ function Hero() {
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
               <NavLink
                 id="hero-cta"
-                href={isAuthenticated ? "/music-video/create" : "/onboarding"}
+                href={isAuthenticated ? "/create" : "/onboarding"}
                 className="inline-flex items-center gap-3 btn-primary px-9 py-4 rounded-2xl font-bold transition-all duration-300"
                 style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)" }}
                 onClick={() => mp.heroCTAClicked()}
