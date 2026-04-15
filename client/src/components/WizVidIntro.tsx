@@ -12,7 +12,7 @@
  * - Any click/tap anywhere unmutes the video
  * - Small mute toggle in corner for users who want to mute after entering
  *
- * Video: v15 — WizSound™ Immersive (user-uploaded MP3, perfectly balanced L=R=0.00dB) + WizLumina™ 4K, 28.5s total
+ * Video: v16 — WizSound™ Immersive + WizLumina™ 4K + crisp logo overlay + cinematic boom at reveal
  * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
  */
 
@@ -21,15 +21,17 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// WizSound™ Immersive + WizLumina™ Subtle 4K — v15 FINAL
+// WizSound™ Immersive + WizLumina™ 4K + crisp logo overlay + cinematic boom — v16 FINAL
 // Source audio: user-uploaded MP3 (wizvid-intro-v9_3c56a28a.mp3)
-// Audio: mono-balanced (L=R=-15.44 dBRMS, 0.00 dB difference), 6-band piano EQ,
+// Audio: mono-balanced (L=R=-19.52 dBRMS), 6-band piano EQ,
 //        extrastereo m=1.8, hall reverb, 2:1 compressor, -14 LUFS loudnorm
-// Video: WizLumina™ 4K stream copied as-is (no re-encode)
-const TRAILER_URL = `${CDN}/wizvid-intro-v15-final_228020b8.mp4`;
+//        + cinematic boom at 18.75s (logo reveal)
+// Video: WizLumina™ 4K + sharpened logo overlay (18.75s–26.5s)
+const TRAILER_URL = `${CDN}/wizvid-intro-v16-final_f8595375.mp4`;
+const POSTER_URL = `${CDN}/wizvid-intro-poster_cca3f6ca.jpg`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v15_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v16_seen";
 
 // CTA appears when video ends (~25.4s); timer fires at 25s as backup
 const CTA_SHOW_AT_MS = 25000;
@@ -49,6 +51,10 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [showCTA, setShowCTA] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [showSoundHint, setShowSoundHint] = useState(true);
+
+  const [isPortrait, setIsPortrait] = useState(() =>
+    typeof window !== "undefined" ? window.innerHeight > window.innerWidth : false
+  );
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const isExitingRef = useRef(false);
@@ -95,6 +101,17 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       setShowCTA(true);
     }
   }, [startCTATimer, startSoundHintTimer]);
+
+  // Track orientation changes for portrait/landscape video fit
+  useEffect(() => {
+    const handleResize = () => setIsPortrait(window.innerHeight > window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
 
   // Preload the video as soon as component mounts (so it's ready when user taps)
   useEffect(() => {
@@ -176,6 +193,11 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         opacity: isExiting ? 0 : 1,
         transition: isExiting ? "opacity 600ms ease" : "opacity 800ms ease",
         pointerEvents: isExiting ? "none" : "auto",
+        /* iOS safe area support */
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        touchAction: "manipulation",
+        WebkitTouchCallout: "none" as any,
+        WebkitUserSelect: "none" as any,
       }}
       role="dialog"
       aria-modal="true"
@@ -186,16 +208,21 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       <video
         ref={videoRef}
         src={TRAILER_URL}
-        className="absolute inset-0 w-full h-full object-cover"
+        poster={POSTER_URL}
+        className="absolute inset-0 w-full h-full"
         style={{
           opacity: phase === "playing" && videoReady ? 1 : 0,
           transition: "opacity 800ms ease",
           zIndex: 0,
           pointerEvents: "none",
+          /* Portrait: contain to show full video; Landscape: cover to fill */
+          objectFit: isPortrait ? "contain" : "cover",
         }}
         muted
         playsInline
         preload="auto"
+        /* Cross-browser attributes */
+        {...({ 'webkit-playsinline': '' } as any)}
       />
 
       {/* ── Cinematic vignette overlay ──────────────────── */}
@@ -220,12 +247,12 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           className="absolute inset-0 flex flex-col items-center justify-center gap-8 px-6 text-center"
           style={{ zIndex: 30 }}
         >
-          {/* Logo */}
+          {/* Logo — responsive for portrait mobile */}
           <img
             src={LOGO}
             alt="WizVid"
-            className="w-32 sm:w-40 opacity-95"
-            style={{ filter: "drop-shadow(0 0 30px rgba(139,92,246,0.7))" }}
+            className="w-24 xs:w-28 sm:w-40 opacity-95"
+            style={{ filter: "drop-shadow(0 0 30px rgba(139,92,246,0.7))", maxWidth: "60vw" }}
           />
 
           {/* Headline */}
@@ -241,7 +268,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           {/* Tap to Enter button */}
           <button
             onClick={(e) => { e.stopPropagation(); handleTapToEnter(); }}
-            className="relative flex items-center gap-3 px-12 py-5 rounded-full text-white text-lg sm:text-xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+            className="relative flex items-center gap-2 sm:gap-3 px-8 py-4 sm:px-12 sm:py-5 rounded-full text-white text-base sm:text-lg md:text-xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
             style={{
               background: "linear-gradient(135deg, rgba(139,92,246,1) 0%, rgba(109,40,217,1) 100%)",
               boxShadow: "0 0 60px rgba(139,92,246,0.7), 0 0 120px rgba(139,92,246,0.35)",
@@ -350,8 +377,8 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
 
           {/* Enter Site CTA — appears near end of trailer */}
           <div
-            className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
-            style={{ zIndex: 10 }}
+            className="absolute inset-x-0 bottom-0 flex flex-col items-center px-4 sm:px-6 text-center"
+            style={{ zIndex: 10, paddingBottom: "max(4rem, calc(env(safe-area-inset-bottom, 0px) + 3rem))" }}
           >
             <div
               style={{
@@ -364,7 +391,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
               <button
                 onClick={(e) => { e.stopPropagation(); dismiss("/"); }}
                 onMouseDown={(e) => { e.stopPropagation(); dismiss("/"); }}
-                className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-bold text-white transition-all duration-300 hover:scale-105"
+                className="group relative inline-flex items-center gap-2 sm:gap-3 px-8 py-3 sm:px-14 sm:py-4 rounded-full text-sm sm:text-base font-bold text-white transition-all duration-300 hover:scale-105"
                 style={{
                   cursor: "pointer",
                   background: "linear-gradient(135deg, rgba(139,92,246,0.98) 0%, rgba(109,40,217,1) 100%)",
@@ -384,6 +411,19 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
       )}
 
       <style>{`
+        /* Portrait mode: ensure video is visible without heavy cropping */
+        @media (orientation: portrait) {
+          video { object-fit: contain !important; }
+        }
+        @media (orientation: landscape) {
+          video { object-fit: cover !important; }
+        }
+        /* Safe area for iPhone X+ notch/home indicator */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+          .intro-cta-area { padding-bottom: calc(env(safe-area-inset-bottom) + 3rem); }
+        }
+        /* Touch action for all interactive elements */
+        button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         @keyframes tapPulse {
           0%, 100% { box-shadow: 0 0 60px rgba(139,92,246,0.7), 0 0 120px rgba(139,92,246,0.35); }
           50%       { box-shadow: 0 0 90px rgba(139,92,246,0.95), 0 0 180px rgba(139,92,246,0.55); }

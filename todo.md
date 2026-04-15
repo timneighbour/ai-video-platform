@@ -125,3 +125,13 @@
 - [x] Add all missing product routes to App.tsx (/products/wizcreate, /products/wizpilot, /products/wizsound, /products/wizlumina, /products/wizboost, /showcase, /my-projects)
 - [ ] Audit all pages for missing back/home buttons and fix them
 - [ ] Fix mobile portrait layout: all text, titles, intro video fit on small screens
+
+## Intro Video v16 + Cross-Platform Compatibility (Apr 15)
+- [x] Overlay crisp sharpened logo PNG on intro video logo segment (18.75s–26.5s)
+- [x] Add cinematic boom sound at logo reveal (18.75s)
+- [x] Update intro video to v16 with all enhancements
+- [x] Audit WizVidIntro for iOS Safari, Android Chrome, Firefox, Edge, Brave compatibility
+- [x] Ensure intro video displays correctly in portrait mode on all mobile phones
+- [x] Verify video codec compatibility (H.264 High Profile Level 5.1 — iOS 11+/Android 7+ supported)
+- [x] Test touch events and gesture handling on mobile (touch-action: manipulation added)
+- [x] Ensure all CTA buttons and navigation work on touch devices (-webkit-tap-highlight-color: transparent)
