@@ -3003,7 +3003,7 @@ Return a JSON array of objects matching the lyric lines provided.`;
       await db.update(musicVideoJobs)
         .set({ isPublic: input.isPublic, shareSlug: input.isPublic ? shareSlug : job.shareSlug, updatedAt: new Date() } as any)
         .where(eq(musicVideoJobs.id, input.jobId));
-      return { success: true, shareSlug: input.isPublic ? shareSlug : null, watchUrl: input.isPublic ? `/watch/${shareSlug}` : null };
+      return { success: true, isPublic: input.isPublic, shareSlug: input.isPublic ? shareSlug : null, watchUrl: input.isPublic ? `/watch/${shareSlug}` : null };
     }),
 
   // Fetch a public video by its share slug (no auth required)
