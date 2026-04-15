@@ -3945,3 +3945,20 @@
 - [x] Update OG title and Twitter title to match
 - [x] Update all JSON-LD schema names to remove old "Visionary AI" branding
 - [x] Add Organization JSON-LD schema with logo for Google logo display
+
+## Cinematic Intro Fix (Apr 15) - COMPLETED ✅
+- [x] Fix text visibility: white #FFFFFF with strong drop shadow on all text
+- [x] Fix text timing: each line visible 2.5-3 seconds minimum with fade in/out
+- [x] Fix scene variety: cinematic film, concert, Pixar-style, AI transformation
+- [x] Fix final sequence: "If ever there was a Wiz..." pause → "There is." pause → animated logo
+- [x] Fix logo: remove static/duplicate logos, use only animated logo
+- [x] Fix transitions: smooth cinematic flow, no jitter or stuttering
+- [x] Ensure audio remains completely untouched
+- [x] Upload v17 final to CDN and update WizVidIntro.tsx
+
+## Social Launch Video (Apr 15)
+- [ ] Create 1:1 (Facebook feed) version of launch video
+- [ ] Create 9:16 (Reels) version of launch video
+- [ ] Include all WizVid products: WizCreate, WizSound, WizLumina, WizPilot
+- [ ] Bold text overlays with captions for no-sound viewing
+- [ ] Hook + core message + USP + credibility + emotional close + CTA

@@ -1,8 +1,9 @@
 /**
- * WizVidIntro — Cinematic Trailer v16 FINAL (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v17 FINAL (Apr 2026)
  *
- * Restored v16 trailer with original WizSound-enhanced audio track.
- * - 48kHz stereo AAC, 273kbps — full WizSound processing
+ * Re-rendered with new cinematic film + Pixar clips, baked-in text & logo.
+ * Original WizSound-enhanced audio track preserved untouched.
+ * - 48kHz stereo AAC — full WizSound processing
  * - 29s total duration
  *
  *
@@ -18,12 +19,12 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v16 FINAL — Original WizSound-enhanced audio, 48kHz stereo, 29s duration
-const TRAILER_URL = `${CDN}/wizvid-intro-v16-final_f8595375.mp4`;
+// v17 FINAL — Re-rendered with new cinematic + Pixar clips, baked text/logo, WizSound audio untouched
+const TRAILER_URL = `${CDN}/wizvid-intro-v17-final_f4c6cbb0.mp4`;
 // 4K version: will be added when 4K encode completes
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v16_seen"; // v16 FINAL — restored original WizSound-enhanced audio
+export const INTRO_SEEN_KEY = "wizvid_intro_v17_seen"; // v17 FINAL — re-rendered with baked text/logo
 
 // CTA appears when video ends (~29s); timer fires at 27s as backup
 const CTA_SHOW_AT_MS = 27000;
