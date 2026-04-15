@@ -79,103 +79,59 @@ function useReveal() {
 }
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { href: "/music-video", label: "Create" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/creators", label: "Examples" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/help", label: "Help" },
-];
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
   return (
-    <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-[#0a0a0a]/96 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]" : "bg-transparent"
-      }`}>
-        <div className="max-w-6xl mx-auto px-5 py-2.5 flex items-center justify-between">
-          {/* Logo */}
-          <NavLink href="/" className="flex items-center flex-shrink-0 hover:opacity-85 transition-opacity duration-200">
-            <img
-              src={WIZVID_LOGO_FULL}
-              alt="WizVid"
-              width={320}
-              height={180}
-              className="h-16 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.55)]"
-            />
-          </NavLink>
-          {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-0.5">
-            {NAV_LINKS.map(({ href, label }) => (
-              <NavLink key={href} href={href} className="text-[13px] text-white/60 hover:text-white/95 transition-colors duration-150 font-medium px-3.5 py-2 rounded-lg hover:bg-white/[0.05]">{label}</NavLink>
-            ))}
-          </div>
-          {/* Right: Auth + mobile toggle */}
-          <div className="flex items-center gap-2.5">
-            {isAuthenticated ? (
-              <Button className="btn-primary text-sm px-5 rounded-xl h-9" asChild>
-                <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      scrolled ? "bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8 shadow-lg" : "bg-transparent"
+    }`}>
+      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <NavLink href="/" className="flex items-center group flex-shrink-0 hover:opacity-80 transition-opacity">
+          <img
+            src={WIZVID_LOGO_FULL}
+            alt="WizVid"
+            width={320}
+            height={180}
+            className="h-20 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
+          />
+        </NavLink>
+
+        {/* Nav links */}
+        <div className="hidden md:flex items-center gap-1">
+          <NavLink href="/music-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Create</NavLink>
+          <NavLink href="/how-it-works" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">How It Works</NavLink>
+          <NavLink href="/creators" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Examples</NavLink>
+          <NavLink href="/pricing" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Pricing</NavLink>
+          <NavLink href="/help" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Help</NavLink>
+        </div>
+
+        {/* Right: Auth */}
+        <div className="flex items-center gap-3">
+          {isAuthenticated ? (
+            <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
+              <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
+            </Button>
+          ) : (
+            <>
+              <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors font-medium px-3 py-2">
+                Sign in
+              </a>
+              <Button className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-5 rounded-xl font-semibold h-9" asChild>
+                <NavLink href="/onboarding">Start Free</NavLink>
               </Button>
-            ) : (
-              <>
-                <a href={getLoginUrl()} className="hidden sm:block text-[13px] text-white/55 hover:text-white/90 transition-colors duration-150 font-medium px-3 py-2">Sign in</a>
-                <Button className="btn-primary text-sm px-5 rounded-xl h-9" asChild>
-                  <NavLink href="/onboarding">Start Free</NavLink>
-                </Button>
-              </>
-            )}
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/[0.07] transition-colors duration-150 ml-1"
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            >
-              {mobileOpen ? <X className="w-5 h-5 text-white/80" /> : <Menu className="w-5 h-5 text-white/80" />}
-            </button>
-          </div>
+            </>
+          )}
         </div>
-      </nav>
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
-          <div
-            className="absolute top-[60px] left-0 right-0 bg-[#0d0d0d]/98 backdrop-blur-2xl border-b border-white/[0.07] shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-5 py-4 flex flex-col gap-1">
-              {NAV_LINKS.map(({ href, label }) => (
-                <NavLink
-                  key={href}
-                  href={href}
-                  className="text-[15px] text-white/70 hover:text-white font-medium px-4 py-3 rounded-xl hover:bg-white/[0.06] transition-colors duration-150"
-                  onClick={() => setMobileOpen(false)}
-                >{label}</NavLink>
-              ))}
-              <div className="mt-3 pt-3 border-t border-white/[0.07] flex flex-col gap-2">
-                {isAuthenticated ? (
-                  <NavLink href="/dashboard" className="btn-primary flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold" onClick={() => setMobileOpen(false)}>
-                    <Sparkles className="w-4 h-4" />Dashboard
-                  </NavLink>
-                ) : (
-                  <>
-                    <a href={getLoginUrl()} className="text-center text-sm text-white/60 hover:text-white py-2.5 transition-colors">Sign in</a>
-                    <NavLink href="/onboarding" className="btn-primary flex items-center justify-center px-5 py-3 rounded-xl text-sm font-bold" onClick={() => setMobileOpen(false)}>Start Free</NavLink>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      </div>
+    </nav>
   );
 }
 
@@ -541,7 +497,7 @@ function Hero() {
               <NavLink
                 id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
-                className="inline-flex items-center gap-3 btn-primary px-9 py-4 rounded-2xl font-bold transition-all duration-300"
+                className="inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
                 style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)" }}
                 onClick={() => mp.heroCTAClicked()}
               >
@@ -844,7 +800,7 @@ function SeeWhatYouCanCreate() {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {previewClips.map((clip) => (
-            <div key={clip.label} className="reveal group relative rounded-2xl overflow-hidden glass-card">
+            <div key={clip.label} className="reveal group relative rounded-2xl overflow-hidden border border-white/8 bg-[#171717]">
               <div className="aspect-video relative">
                 <LazyVideo
                   src={clip.src}
@@ -1186,7 +1142,7 @@ function WhyWizVid() {
             { icon: "🎬", title: "Full video, not clips", desc: "A complete, ready-to-publish video — not fragments." },
             { icon: "✅", title: "No editing required", desc: "WizVid handles everything. You just describe your idea." },
           ].map((item, i) => (
-            <div key={item.title} className={`flex gap-4 p-5 glass-card rounded-2xl hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
+            <div key={item.title} className={`flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
               <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
               <div>
                 <h3 className="font-semibold text-white mb-1">{item.title}</h3>
@@ -1292,7 +1248,7 @@ function Features() {
               { icon: <Wand2 className="w-5 h-5" />, title: "Storyboard to final cut", desc: "AI generates a storyboard, renders every scene, and delivers a complete video — automatically." },
               { icon: <Zap className="w-5 h-5" />, title: "6 cinematic styles", desc: "Choose from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
             ].map((item, i) => (
-              <div key={item.title} className={`flex gap-4 p-5 glass-card rounded-2xl hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}>
+              <div key={item.title} className={`flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}>
                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[#a1a1aa] flex-shrink-0">
                   {item.icon}
                 </div>
@@ -1376,7 +1332,7 @@ function WhoItsFor() {
           {audiences.map((a, i) => (
             <div
               key={a.title}
-              className={`group glass-card rounded-2xl hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden`}
+              className={`group rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden`}
             >
               {/* Image */}
               <div className="relative w-full aspect-[16/9] overflow-hidden">
@@ -1574,7 +1530,7 @@ function ContentEngine() {
             {features.map((f, i) => (
               <div
                 key={f.title}
-                className={`flex flex-col p-7 glass-card rounded-2xl hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+                className={`flex flex-col p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
               >
                 <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 ${f.iconBg} ${f.iconColor}`}>
                   {f.icon}
@@ -1626,7 +1582,7 @@ function ContentEngine() {
                   color: "violet",
                   dot: "bg-violet-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-violet-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-violet-500/20">
                       <p className="text-xs text-violet-300 font-semibold uppercase tracking-widest mb-2">Your idea</p>
                       <p className="text-white font-medium text-lg">"Kids pirate adventure song"</p>
                     </div>
@@ -1637,7 +1593,7 @@ function ContentEngine() {
                   color: "blue",
                   dot: "bg-blue-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-blue-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-blue-500/20">
                       <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest mb-3">Suno generates</p>
                       <div className="flex items-center gap-3">
                         <div className="flex gap-0.5 items-end h-8">
@@ -1658,7 +1614,7 @@ function ContentEngine() {
                   color: "purple",
                   dot: "bg-purple-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-purple-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-purple-500/20">
                       <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-3">WizVid generates</p>
                       <div className="grid grid-cols-3 gap-2">
                         {["Storyboard", "Animated scenes", "Final video"].map((item) => (
@@ -1676,7 +1632,7 @@ function ContentEngine() {
                   color: "green",
                   dot: "bg-green-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-green-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-green-500/20">
                       <p className="text-xs text-green-300 font-semibold uppercase tracking-widest mb-3">Ready to publish</p>
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-10 rounded-lg bg-gradient-to-br from-green-900/40 to-black border border-green-500/20 flex items-center justify-center flex-shrink-0">
@@ -1870,7 +1826,7 @@ function SocialProof() {
           {testimonials.map((t, i) => (
             <div
               key={t.author}
-              className={`p-7 glass-card rounded-2xl hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+              className={`p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex gap-1">
@@ -2021,7 +1977,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
 
   return (
     <div
-      className={`group relative rounded-2xl overflow-hidden glass-card hover:border-white/22 transition-all duration-300 shadow-lg ${colours.glow} hover:shadow-xl cursor-pointer`}
+      className={`group relative rounded-2xl overflow-hidden bg-[#171717] border border-white/8 hover:border-white/20 transition-all duration-300 shadow-lg ${colours.glow} hover:shadow-xl cursor-pointer`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -2095,7 +2051,7 @@ function ShowcaseSkeleton() {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-2xl overflow-hidden glass-card animate-pulse">
+        <div key={i} className="rounded-2xl overflow-hidden bg-[#171717] border border-white/8 animate-pulse">
           <div className="aspect-video bg-white/5" />
           <div className="p-5 space-y-3">
             <div className="h-4 w-24 bg-white/10 rounded-full" />
