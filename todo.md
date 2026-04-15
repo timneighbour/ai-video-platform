@@ -3931,3 +3931,7 @@
 ## Manus Branding Removal - COMPLETED ✅
 - [x] Remove "Manus OAuth login" reference from Privacy.tsx
 - [x] Rebrand ManusDialog component to WizVid branding
+
+## SEO Fixes - Homepage (Apr 15)
+- [x] Fix page title on homepage to be 30-60 characters
+- [x] Add missing alt text to 8 images on homepage
