@@ -15,11 +15,13 @@ import { trpc } from "@/lib/trpc";
 import {
   Music2, Sparkles, Play, Pause, Download, Loader2,
   ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
-  FileText, RefreshCw, PenLine, ChevronDown, ChevronUp,
+  FileText, RefreshCw, PenLine, ChevronDown, ChevronUp, X,
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
+import WizAudioPlayer from "@/components/WizAudioPlayer";
+import { Upload, UploadCloud } from "lucide-react";
 
 // ── Preset data ──────────────────────────────────────────────────────────────
 
@@ -183,6 +185,42 @@ export default function MusicCreator() {
   const [showLyrics, setShowLyrics] = useState(false);
   const [lyricsGenerated, setLyricsGenerated] = useState(false);
 
+  // Upload mode state
+  const [mode, setMode] = useState<"generate" | "upload">("generate");
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
+  const [uploadedAudioName, setUploadedAudioName] = useState<string>("");
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadAudioMutation = trpc.musicVideo.uploadAudio.useMutation({
+    onSuccess: (data) => {
+      setUploadedAudioUrl(data.url);
+      toast.success("Audio uploaded!", { description: "Your track is ready to play." });
+    },
+    onError: (err) => {
+      toast.error("Upload failed", { description: err.message });
+      setIsUploadingFile(false);
+    },
+  });
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.match(/audio\/(mpeg|wav|mp4|x-m4a|ogg|webm)/)) {
+      toast.error("Invalid file type", { description: "Please upload an MP3, WAV, M4A, or OGG file." });
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File too large", { description: "Maximum file size is 50MB." });
+      return;
+    }
+    setIsUploadingFile(true);
+    setUploadedAudioName(file.name);
+    const arrayBuffer = await file.arrayBuffer();
+    const bytes = Array.from(new Uint8Array(arrayBuffer));
+    const mimeType = file.type.includes("wav") ? "audio/wav" : file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+    uploadAudioMutation.mutate({ bytes, mimeType, filename: file.name });
+    setIsUploadingFile(false);
+  };
+
   // Generation state
   const [taskId, setTaskId] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -314,6 +352,32 @@ export default function MusicCreator() {
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Mode toggle */}
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <button
+            onClick={() => setMode("generate")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all ${
+              mode === "generate"
+                ? "bg-violet-500/20 border-violet-500/50 text-violet-200"
+                : "bg-white/4 border-white/10 text-white/50 hover:border-white/20 hover:text-white/80"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate with AI
+          </button>
+          <button
+            onClick={() => setMode("upload")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all ${
+              mode === "upload"
+                ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                : "bg-white/4 border-white/10 text-white/50 hover:border-white/20 hover:text-white/80"
+            }`}
+          >
+            <UploadCloud className="w-4 h-4" />
+            Upload Your Track
+          </button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-sm font-medium mb-6">
@@ -668,21 +732,81 @@ export default function MusicCreator() {
               )}
             </div>
 
-            {/* Generated tracks */}
-            {generatedTracks.length > 0 && (
+        {/* Upload mode panel */}
+        {mode === "upload" && (
+          <div className="p-6 rounded-2xl bg-[#171717] border border-white/6 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <UploadCloud className="w-5 h-5 text-blue-400" />
+              <h3 className="text-sm font-semibold text-white">Upload Your Track</h3>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".mp3,.wav,.m4a,.ogg,audio/*"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
+            />
+            {uploadedAudioUrl ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-400" />
-                  <h3 className="text-sm font-semibold text-white">Your tracks are ready</h3>
+                <WizAudioPlayer
+                  audioUrl={uploadedAudioUrl}
+                  title={uploadedAudioName || "Uploaded Track"}
+                  subtitle="Your uploaded audio"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setUploadedAudioUrl(null); setUploadedAudioName(""); }}
+                    className="flex-1 border-white/10 text-white/60 hover:text-white text-xs h-9 rounded-xl"
+                  >
+                    <X className="w-3 h-3 mr-1.5" />Remove
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-gradient-to-r from-violet-600 to-blue-600 text-white text-xs h-9 rounded-xl"
+                    asChild
+                  >
+                    <a href={`/music-video/create?audioUrl=${encodeURIComponent(uploadedAudioUrl)}`}>
+                      <ChevronRight className="w-3.5 h-3.5 mr-1" />Make a Music Video
+                    </a>
+                  </Button>
                 </div>
-                {generatedTracks.map((track, i) => (
-                  <AudioPlayer
-                    key={i}
-                    audioUrl={track.audioUrl}
-                    title={track.title || `Track ${i + 1}`}
-                    imageUrl={track.imageUrl}
-                  />
-                ))}
+              </div>
+            ) : (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFileUpload(f); }}
+                className="border-2 border-dashed border-white/12 hover:border-blue-500/40 rounded-2xl p-10 text-center cursor-pointer transition-all group"
+              >
+                {isUploadingFile ? (
+                  <><Loader2 className="w-10 h-10 text-blue-400 mx-auto mb-2 animate-spin" /><p className="text-blue-300 font-medium">Uploading…</p></>
+                ) : (
+                  <><UploadCloud className="w-10 h-10 text-white/20 group-hover:text-blue-400 mx-auto mb-3 transition-colors" />
+                  <p className="text-white/60 font-medium group-hover:text-white transition-colors">Drop your audio file here</p>
+                  <p className="text-white/30 text-sm mt-1">MP3, WAV, M4A, OGG · Max 50MB</p></>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Generated tracks */}
+        {mode === "generate" && generatedTracks.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-400" />
+              <h3 className="text-sm font-semibold text-white">Your tracks are ready</h3>
+            </div>
+            {generatedTracks.map((track, i) => (
+              <WizAudioPlayer
+                key={i}
+                audioUrl={track.audioUrl}
+                title={track.title || `Track ${i + 1}`}
+                imageUrl={track.imageUrl}
+              />
+            ))}
                 <div className="p-4 rounded-xl bg-violet-500/8 border border-violet-500/20 text-center">
                   <p className="text-sm text-violet-300 mb-3">Love your track? Turn it into a full music video.</p>
                   <Button

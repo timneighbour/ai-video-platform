@@ -3029,6 +3029,21 @@ Return a JSON array of objects matching the lyric lines provided.`;
       return job;
     }),
 
+  // Upload audio file to S3 for standalone playback (MusicCreator upload mode)
+  uploadAudio: protectedProcedure
+    .input(z.object({
+      bytes: z.array(z.number()),
+      mimeType: z.string(),
+      filename: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const buffer = Buffer.from(input.bytes);
+      const ext = input.filename.split(".").pop() || "mp3";
+      const key = `audio-uploads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { url } = await storagePut(key, buffer, input.mimeType);
+      return { url, key };
+    }),
+
   // List all public videos (for sitemap)
   listPublicVideos: publicProcedure.query(async () => {
     const db = await getDb();

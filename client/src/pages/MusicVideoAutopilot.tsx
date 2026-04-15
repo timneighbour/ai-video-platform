@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
+import WizAudioPlayer from "@/components/WizAudioPlayer";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -1402,19 +1403,15 @@ export default function MusicVideoAutopilot() {
                               Duration: {formatDuration(audioDuration)}
                               {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
                             </p>
-                            {/* Audio Preview Player with Graphic Equaliser */}
-                            <div className="mt-3 px-4" onClick={(e) => e.stopPropagation()}>
-                              <div className="mb-2">
-                                <GraphicEqualiser audioRef={audioRef} isPlaying={!audioRef.current?.paused} barCount={32} height={36} />
-                              </div>
-                              <audio
-                                ref={audioRef}
-                                controls
-                                src={URL.createObjectURL(audioFile)}
-                                className="w-full h-8 rounded-lg"
-                                style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.8)" }}
+                            {/* Audio Preview Player with WizAudioPlayer */}
+                            <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                              <WizAudioPlayer
+                                audioUrl={URL.createObjectURL(audioFile)}
+                                title={audioFile.name.replace(/\.[^.]+$/, "")}
+                                subtitle={`${formatDuration(audioDuration)} · ${(audioFile.size / 1024 / 1024).toFixed(1)} MB`}
+                                barCount={32}
                               />
-                              <p className="text-zinc-500 text-xs mt-1 text-center">Preview your track · Click outside to change file</p>
+                              <p className="text-zinc-500 text-xs mt-2 text-center">Click outside to change file</p>
                             </div>
                           </div>
                         )}

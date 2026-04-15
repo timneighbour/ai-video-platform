@@ -3949,3 +3949,10 @@
 - [x] Auto-play sequencer with hover-pause
 - [x] Replace AllInOnePlatform with PlatformFlow on homepage
 - [x] Mobile responsive (vertical stack)
+
+## Audio Upload, Graphic EQ & Playback — Suno Pages
+- [x] Build WizAudioPlayer component with animated graphic EQ (Web Audio API), waveform seek, volume slider, and WizSound™ branding
+- [x] Add uploadAudio procedure to musicVideo router for S3 upload
+- [x] Add Generate/Upload mode toggle to MusicCreator.tsx (Suno generator page)
+- [x] Replace native <audio controls> in MusicVideoAutopilot with WizAudioPlayer
+- [x] WizAudioPlayer used for all Suno-generated tracks in MusicCreator results
