@@ -3962,3 +3962,29 @@
 - [ ] Include all WizVid products: WizCreate, WizSound, WizLumina, WizPilot
 - [ ] Bold text overlays with captions for no-sound viewing
 - [ ] Hook + core message + USP + credibility + emotional close + CTA
+
+## Notification Email Branding Fix (Apr 15)
+- [ ] Replace Manus branding in notification emails with WizVid branding
+- [x] Fix "undefined plan" showing in subscription notification content
+- [x] Update planCredits map to match current plan tiers (starter/basic/creator/pro/studio)
+- [ ] Ensure notification footer says WizVid, not "Manus From Meta"
+
+## Intro Video v18 Restructure (Apr 15)
+- [x] Clear visual separation: each section (cinematic/music/animation/AI) feels distinct
+- [x] Remove repetition: no similar shots back-to-back
+- [x] Build structure: Hook → Cinematic → Music → Animation → AI Power → Drop → Logo
+- [x] Transformation moment: clear IDEA → AI → VIDEO visual with "From Idea → to Video" + "All created by AI"
+- [x] Stronger text-to-footage matching ("Cinematic Films", "Music Videos", "Animation" overlays)
+- [x] Better pacing: 4-5s per section, no slideshow feeling
+- [x] Upload v18 to CDN and update WizVidIntro.tsx
+
+## Intro Video v19 — Cinematic Trailer Rebuild (Apr 15)
+- [x] Analyze audio waveform: beats at 0.19/1.06/2.77/6.19/10.43s, PEAK at 21-25s
+- [x] Audio-driven editing: scene changes on beats (0.19, 2.77, 6.19, 10.43s)
+- [x] Energy progression: LOW(0-0.19) → MID(0.19-6.19) → HIGH(6.19-10.43) → MID(10.43-20.5) → PEAK(20.5-26) → LOW(27-29)
+- [x] Transitions: hard cuts on beats for impact, text fades between beats
+- [x] Transformation moment: AI sketch-to-reality with 'From Idea → to Video' + 'All created by AI'
+- [x] Clip purpose: cinematic=scale, music=energy, animation=emotion, AI=intelligence
+- [x] No repetition, no filler, every second intentional
+- [x] Logo reveal on PEAK energy (24s, sustained through 25-26s)
+- [x] Upload v19 to CDN and update WizVidIntro.tsx

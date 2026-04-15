@@ -19,12 +19,12 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v17 FINAL — Re-rendered with new cinematic + Pixar clips, baked text/logo, WizSound audio untouched
-const TRAILER_URL = `${CDN}/wizvid-intro-v17-final_f4c6cbb0.mp4`;
+// v19 — Cinematic trailer: audio-driven editing, beat-synced cuts, energy progression LOW→MID→HIGH→PEAK
+const TRAILER_URL = `${CDN}/wizvid-intro-v19-final_c40a623c.mp4`;
 // 4K version: will be added when 4K encode completes
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v17_seen"; // v17 FINAL — re-rendered with baked text/logo
+export const INTRO_SEEN_KEY = "wizvid_intro_v19_seen"; // v19 — cinematic trailer with audio-driven editing
 
 // CTA appears when video ends (~29s); timer fires at 27s as backup
 const CTA_SHOW_AT_MS = 27000;

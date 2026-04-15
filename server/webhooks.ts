@@ -14,6 +14,7 @@ import {
   emailNewSubscription,
   emailFailedPayment,
 } from "./email";
+import { SUBSCRIPTION_PLANS, type SubscriptionPlan } from "./products";
 
 // Lazy-init Stripe client (avoids crash if key not set at import time)
 function getStripe() {
@@ -134,10 +135,16 @@ async function handleCheckoutSessionCompleted(session: any) {
     } else {
       // Handle subscription — metadata.plan from billing router
       const planId = metadata.plan || metadata.plan_id;
+      // Resolve human-readable plan name for notifications
+      const planDisplayName = (planId && (SUBSCRIPTION_PLANS as Record<string, any>)[planId])
+        ? (SUBSCRIPTION_PLANS as Record<string, any>)[planId].name
+        : (planId ? planId.charAt(0).toUpperCase() + planId.slice(1) : "Unknown");
       const planCredits: Record<string, number> = {
-        starter: 1000,
-        pro: 3000,
-        business: 10000,
+        starter: 60,
+        basic: 150,
+        creator: 300,
+        pro: 750,
+        studio: 1500,
       };
 
       const monthlyCredits = planCredits[planId] || 0;
@@ -174,13 +181,13 @@ async function handleCheckoutSessionCompleted(session: any) {
       // Notify owner
       await notifyOwner({
         title: "New Subscription",
-        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan (£${(session.amount_total ?? 0) / 100}/month)`,
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planDisplayName} plan (£${(session.amount_total ?? 0) / 100}/month)`,
       }).catch(() => {}); // non-fatal
       // Email notification to timneighbour@wizvid.ai
       await emailNewSubscription({
         name: metadata.customer_name || "Unknown",
         email: metadata.customer_email || "",
-        plan: planId || "unknown",
+        plan: planDisplayName,
         amount: session.amount_total ?? 0,
         interval: "month",
       }).catch(() => {});
