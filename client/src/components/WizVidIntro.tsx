@@ -1,5 +1,5 @@
 /**
- * WizVidIntro — Cinematic Trailer FINAL (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v12 Enhanced (Apr 2026)
  *
  * Precision pass fixes:
  * - Enable Sound centre button auto-hides after 4s (no longer blocks video)
@@ -12,7 +12,7 @@
  * - Any click/tap anywhere unmutes the video
  * - Small mute toggle in corner for users who want to mute after entering
  *
- * Video: v11 — cinematic ELECTRONIC score (build/rise/drop), 25.4s total
+ * Video: v12 — WizSound™ + WizLumina™ Enhanced, 4K UHD (3840×2160), 25.4s total
  * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
  */
 
@@ -21,10 +21,11 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v11_379f8718.mp4`;
+// WizSound™ + WizLumina™ Enhanced — 4K UHD (3840×2160), CRF 16, 24.9 Mbps, 48kHz stereo AAC 320kbps
+const TRAILER_URL = `${CDN}/wizvid-intro-v12-enhanced-4k_73aa1e0f.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v11_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v12_seen";
 
 // CTA appears when video ends (~25.4s); timer fires at 25s as backup
 const CTA_SHOW_AT_MS = 25000;
