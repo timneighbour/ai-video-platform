@@ -3935,3 +3935,6 @@
 ## SEO Fixes - Homepage (Apr 15)
 - [x] Fix page title on homepage to be 30-60 characters
 - [x] Add missing alt text to 8 images on homepage
+
+## Google Logo in Search (Apr 15)
+- [x] Add Organization JSON-LD schema with logo URL to index.html
