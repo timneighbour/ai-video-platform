@@ -21,6 +21,7 @@ interface Tool {
   id: string;
   name: string;
   tagline: string;
+  subheading: string;
   description: string;
   href: string;
   icon: React.ReactNode;
@@ -41,6 +42,7 @@ const TOOLS: Tool[] = [
     id: "music-video",
     name: "Music Video",
     tagline: "WizBeat™ — Upload a song, get a full music video",
+    subheading: "Turn any track into a full-length, AI-directed music video — scenes, cuts, and all.",
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",
     href: "/music-video/create",
     icon: <Music className="w-6 h-6" />,
@@ -57,6 +59,7 @@ const TOOLS: Tool[] = [
     id: "wizpilot",
     name: "Cinematic Video",
     tagline: "WizPilot™ — Text to cinematic video, fully automated",
+    subheading: "Describe your idea and get a polished, scene-by-scene cinematic video in minutes.",
     description: "Type a prompt, choose a style, and WizPilot writes a full storyboard and renders a cinematic video. No editing skills needed.",
     href: "/wizpilot",
     icon: <Film className="w-6 h-6" />,
@@ -73,6 +76,7 @@ const TOOLS: Tool[] = [
     id: "kids-video",
     name: "Kids Animation",
     tagline: "Pixar-style animated stories for children",
+    subheading: "Create safe, colourful animated stories for kids — no animation skills needed.",
     description: "Turn any story idea into a fully animated Pixar-style video. Safe, fun, and completely automated — perfect for family creators.",
     href: "/kids-video",
     icon: <Baby className="w-6 h-6" />,
@@ -88,6 +92,7 @@ const TOOLS: Tool[] = [
     id: "text-to-video",
     name: "Text to Video",
     tagline: "Scene-by-scene cinematic control",
+    subheading: "Write each scene yourself for full creative control — choose your renderer and quality.",
     description: "Write each scene prompt manually for full creative control. Choose your renderer (Seedance for speed, Kling for quality) and render each scene individually.",
     href: "/text-to-video",
     icon: <Wand2 className="w-6 h-6" />,
@@ -103,6 +108,7 @@ const TOOLS: Tool[] = [
     id: "lip-sync",
     name: "Lip Sync",
     tagline: "Sync any video to any audio with AI",
+    subheading: "Perfectly match lip movements to any new audio track — ideal for dubbing and avatars.",
     description: "Upload a video and an audio track — our AI perfectly syncs the lip movements to the new audio. Ideal for dubbing, music videos, and avatar content.",
     href: "/tools/lip-sync",
     icon: <Mic className="w-6 h-6" />,
@@ -117,6 +123,7 @@ const TOOLS: Tool[] = [
     id: "enhancement-studio",
     name: "Enhancement Studio",
     tagline: "WizLumina™ + WizSound™ — Enhance any video",
+    subheading: "Upscale to 4K, apply cinematic colour grading, and boost audio quality in one step.",
     description: "Upscale to 4K, apply cinematic colour grading with WizLumina™, and enhance audio quality with WizSound™. Make any video look and sound premium.",
     href: "/enhancement-studio",
     icon: <Sparkles className="w-6 h-6" />,
@@ -132,6 +139,7 @@ const TOOLS: Tool[] = [
     id: "video-to-video",
     name: "Style Transfer",
     tagline: "Transform any video into a new visual style",
+    subheading: "Reimagine any existing video in Anime, Cinematic, Pixar, or a custom style.",
     description: "Apply Anime, Cinematic, Pixar, or any custom style to an existing video. Powered by Runway ML for high-quality style transformation.",
     href: "/tools/video-to-video",
     icon: <Layers className="w-6 h-6" />,
@@ -147,6 +155,7 @@ const TOOLS: Tool[] = [
     id: "voiceover",
     name: "AI Voiceover",
     tagline: "Studio-quality voiceovers in any language",
+    subheading: "Generate professional narration from any script — 100+ voices, 30+ languages.",
     description: "Generate professional voiceovers from any script. Choose from 100+ voices across 30+ languages. Perfect for YouTube, ads, and explainer videos.",
     href: "/tools/voiceover",
     icon: <Zap className="w-6 h-6" />,
@@ -224,10 +233,13 @@ function ToolCard({ tool }: { tool: Tool }) {
         </div>
 
         {/* Tagline */}
-        <p className="text-white/50 text-xs font-medium mb-2 leading-snug">{tool.tagline}</p>
+        <p className="text-white/50 text-xs font-medium mb-1 leading-snug">{tool.tagline}</p>
+
+        {/* Subheading */}
+        <p className="text-white/80 text-sm font-semibold mb-2 leading-snug">{tool.subheading}</p>
 
         {/* Description */}
-        <p className="text-white/65 text-sm leading-relaxed">{tool.description}</p>
+        <p className="text-white/55 text-sm leading-relaxed">{tool.description}</p>
 
         {/* CTA */}
         <div className="mt-4 flex items-center gap-2">
