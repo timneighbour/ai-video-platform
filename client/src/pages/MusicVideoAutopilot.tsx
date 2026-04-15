@@ -2188,7 +2188,15 @@ export default function MusicVideoAutopilot() {
                       </div>
                     </div>
 
-                    {/* Lyrics are used internally for prompt building but not shown on cards to keep UI clean */}
+                    {/* Lyrics for this scene */}
+                    {scene.lyrics && (
+                      <div className="mb-3 px-3 py-2 rounded-lg bg-purple-900/20 border border-purple-800/40">
+                        <p className="text-purple-300 text-xs font-medium mb-1 flex items-center gap-1">
+                          <Mic className="w-3 h-3" /> Lyrics
+                        </p>
+                        <p className="text-zinc-300 text-xs italic leading-relaxed">"{scene.lyrics}"</p>
+                      </div>
+                    )}
 
                     {/* Always-visible scene description editor */}
                     <div className="space-y-2">

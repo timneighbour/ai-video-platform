@@ -610,7 +610,7 @@ async function startSceneRenderKling(prompt: string, duration: number): Promise<
     prompt,
     duration: duration <= 5 ? "5" : "10",
     aspect_ratio: "16:9",
-    mode: "std",
+    mode: "standard",
   });
   if (!taskId) throw new Error("Kling: no task_id returned");
   return taskId;
