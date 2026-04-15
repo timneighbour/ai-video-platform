@@ -30,6 +30,8 @@ interface WizGenesisModalProps {
   jobType?: JobType;
   videoTitle?: string;
   previewImageUrl?: string;
+  /** Called after billing is confirmed — triggers the actual scene render pipeline */
+  onRenderConfirmed?: () => void;
 }
 
 const QUALITY_OPTIONS: Array<{
@@ -105,6 +107,7 @@ export function WizGenesisModal({
   jobType = "music_video",
   videoTitle,
   previewImageUrl,
+  onRenderConfirmed,
 }: WizGenesisModalProps) {
   const [quality, setQuality] = useState<Quality>("hd");
   const [enhanceTier, setEnhanceTier] = useState<EnhanceTier>("cinematic");
@@ -158,6 +161,8 @@ export function WizGenesisModal({
         if (result.used) {
           toast.success("Render started!", { description: `Your ${selectedQuality.label} render is processing.` });
           onClose();
+          // CRITICAL: trigger the actual scene render pipeline
+          onRenderConfirmed?.();
           return;
         }
       }

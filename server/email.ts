@@ -5,6 +5,9 @@
  * for key business events: new signups, subscriptions, credit purchases,
  * failed payments, and render completions.
  *
+ * Also sends render-complete notifications directly to the user who
+ * submitted the render, with a direct link to their finished video.
+ *
  * Requires RESEND_API_KEY environment variable.
  * Falls back to a no-op (console.warn) when the key is absent.
  */
@@ -33,26 +36,30 @@ interface EmailPayload {
   html: string;
 }
 
-async function sendOwnerEmail(payload: EmailPayload): Promise<void> {
+async function sendToEmail(to: string, payload: EmailPayload): Promise<void> {
   const client = getResend();
   if (!client) return;
 
   try {
     const { error } = await client.emails.send({
       from: FROM_EMAIL,
-      to: OWNER_EMAIL,
+      to,
       subject: payload.subject,
       html: payload.html,
     });
     if (error) {
       console.error("[Email] Resend error:", error);
     } else {
-      console.log("[Email] Sent:", payload.subject);
+      console.log(`[Email] Sent to ${to}:`, payload.subject);
     }
   } catch (err) {
     console.error("[Email] Failed to send email:", err);
     // Never throw — email failures must not break the main flow
   }
+}
+
+async function sendOwnerEmail(payload: EmailPayload): Promise<void> {
+  await sendToEmail(OWNER_EMAIL, payload);
 }
 
 // ── Styled email template ────────────────────────────────────────────────────
@@ -192,14 +199,17 @@ export async function emailFailedPayment(data: {
   });
 }
 
-/** Render job completed */
+/** Render job completed — notifies owner AND the user who submitted the render */
 export async function emailRenderComplete(data: {
   name: string;
   email: string;
   jobId: string;
   quality: string;
   duration?: number;
+  videoUrl?: string;
+  origin?: string;
 }): Promise<void> {
+  // 1. Notify owner (internal ops log)
   await sendOwnerEmail({
     subject: `✅ Render Complete — ${data.quality} — ${data.name}`,
     html: template("Render Job Completed", [
@@ -208,7 +218,63 @@ export async function emailRenderComplete(data: {
       ["Job ID", data.jobId],
       ["Quality", data.quality],
       ["Duration", data.duration ? `${data.duration}s` : "—"],
+      ["Video URL", data.videoUrl ? `<a href="${data.videoUrl}" style="color:#a5b4fc;">Watch</a>` : "—"],
       ["Time", new Date().toUTCString()],
     ]),
   });
+
+  // 2. Notify the user directly with a "Your video is ready" email
+  if (data.email) {
+    const videoLink = data.videoUrl ?? (data.origin ? `${data.origin}/render/history` : "https://www.wizvid.ai/render/history");
+    const client = getResend();
+    if (!client) return;
+    try {
+      await client.emails.send({
+        from: FROM_EMAIL,
+        to: data.email,
+        subject: `🎬 Your WizVid video is ready! (${data.quality})`,
+        html: `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8" /></head>
+<body style="margin:0;padding:0;background:#0f0f17;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:40px auto;">
+    <tr>
+      <td style="background:#1a1a2e;border-radius:12px;overflow:hidden;border:1px solid #2d2d4e;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
+              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WizVid AI</span>
+              <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Your video is ready 🎉</span>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 24px;">
+          <tr><td style="color:#f3f4f6;font-size:15px;padding-bottom:12px;">Hi ${data.name || "there"},</td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:20px;">
+            Your <strong style="color:#a5b4fc;">${data.quality}</strong> WizVid video has finished rendering and is ready to watch and download.
+          </td></tr>
+          <tr>
+            <td style="padding-bottom:24px;">
+              <a href="${videoLink}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
+                Watch Your Video →
+              </a>
+            </td>
+          </tr>
+          <tr><td style="color:#6b7280;font-size:12px;border-top:1px solid #2d2d4e;padding-top:16px;">
+            If the button doesn't work, copy this link:<br/>
+            <a href="${videoLink}" style="color:#a5b4fc;word-break:break-all;">${videoLink}</a>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WizVid AI · wizvid.ai · Automated notification</td></tr>
+  </table>
+</body>
+</html>`,
+      });
+      console.log(`[Email] Render complete email sent to user: ${data.email}`);
+    } catch (err) {
+      console.error("[Email] Failed to send render complete email to user:", err);
+    }
+  }
 }

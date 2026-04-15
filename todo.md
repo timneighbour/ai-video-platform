@@ -4002,3 +4002,15 @@
 - [ ] Update nav Products dropdown to link to all 7 product pages
 - [ ] Add flow diagrams and step animations to homepage Engine section
 - [ ] Ensure no text-heavy sections without visuals
+
+## Render Pipeline Fix (Critical — Apr 15 2026)
+- [x] Diagnose why renders never complete (WizGenesisModal called useFreeRender but never called musicVideo.startRender)
+- [x] Fix free render path: WizGenesisModal now calls onRenderConfirmed → handleStartRenderInternal
+- [x] Fix paid render path: confirmRenderPayment now calls triggerMusicVideoRender server-side after payment
+- [x] Fix RenderSuccess page: redirects user to /music-video/create?job_id=X&render_started=true after payment
+- [x] Add URL param handling to MusicVideoAutopilot: loads job and auto-starts polling from URL params
+- [x] Add auto-resume polling useEffect: resumes polling when step=render on page load/refresh
+- [x] Replace storyboard lock hard-stop with auto-generation of missing previews
+- [x] Fix email notifications: emailRenderComplete sends to user email with direct video link
+- [x] Add in-app toast notification when render completes with "Watch Now" action button
+- [x] Add triggerMusicVideoRender server-side function in music-video-service.ts

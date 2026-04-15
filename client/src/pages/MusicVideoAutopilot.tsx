@@ -152,6 +152,26 @@ export default function MusicVideoAutopilot() {
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
 
+  // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlJobId = params.get("job_id");
+    const renderStarted = params.get("render_started") === "true";
+    if (urlJobId) {
+      const parsedJobId = parseInt(urlJobId, 10);
+      if (!isNaN(parsedJobId)) {
+        setJobId(parsedJobId);
+        if (renderStarted) {
+          setStep("render");
+          toast.success("Payment confirmed!", { description: "Your render has started. Watch the progress below." });
+        }
+        // Clean URL without page reload
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
   const [title, setTitle] = useLocalStorage("musicVideo_title", "");
   const [audioDuration, setAudioDuration] = useLocalStorage("musicVideo_duration", 0);
@@ -526,7 +546,6 @@ export default function MusicVideoAutopilot() {
   };
 
   // No polling needed — transcription is a direct mutation that resolves when done
-
   // Cleanup poll interval on unmount
   useEffect(() => {
     return () => {
@@ -534,6 +553,18 @@ export default function MusicVideoAutopilot() {
       if (transcriptionPollRef.current) clearInterval(transcriptionPollRef.current);
     };
   }, []);
+
+  // Auto-resume polling when user returns to the render step (e.g. after page refresh or redirect from RenderSuccess)
+  useEffect(() => {
+    if (step === "render" && jobId && !isRenderingRef.current && !finalVideoUrl) {
+      // Small delay to let state settle
+      const timer = setTimeout(() => {
+        handleStartRenderInternal();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, jobId]);
 
   const handleFileDrop = useCallback((file: File) => {
     const validTypes = ["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a", "audio/x-m4a"];
@@ -1055,6 +1086,15 @@ export default function MusicVideoAutopilot() {
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
+              // In-app success notification
+              toast.success("🎬 Your video is ready!", {
+                description: "Your WizVid video has finished rendering. Check your email for a direct download link.",
+                duration: 8000,
+                action: {
+                  label: "Watch Now",
+                  onClick: () => window.open(progress.finalVideoUrl!, "_blank"),
+                },
+              });
               // Show Cinematic Pack upsell modal first (1s delay for celebration animation)
               setTimeout(() => setShowCinematicPackModal(true), 1000);
               // Scene-level cinematic upsell shown after user dismisses the pack modal
@@ -1186,6 +1226,7 @@ export default function MusicVideoAutopilot() {
           jobId={jobId}
           jobType="music_video"
           videoTitle={title || undefined}
+          onRenderConfirmed={handleStartRenderInternal}
         />
       )}
       {/* Post-Render Cinematic Pack Modal — shown immediately after render completes */}

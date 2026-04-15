@@ -1050,7 +1050,22 @@ export const renderRouter = router({
           stripePaymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : undefined,
         });
         const updatedJob = await getRenderJob(input.renderJobId);
-        return { success: true, job: updatedJob, alreadyConfirmed: false };
+        // Trigger the actual render pipeline for music video jobs
+        if (updatedJob && updatedJob.sourceJobId && updatedJob.sourceJobType === "music_video") {
+          try {
+            const { triggerMusicVideoRender } = await import("../music-video-service");
+            const triggerResult = await triggerMusicVideoRender(ctx.user.id, updatedJob.sourceJobId);
+            if (!triggerResult.success) {
+              console.warn(`[confirmRenderPayment] triggerMusicVideoRender failed for job ${updatedJob.sourceJobId}: ${triggerResult.reason}`);
+            } else {
+              console.log(`[confirmRenderPayment] Render triggered for music video job ${updatedJob.sourceJobId}`);
+            }
+          } catch (triggerErr) {
+            // Non-fatal: payment is confirmed, render will need manual retry
+            console.error("[confirmRenderPayment] Failed to trigger render:", triggerErr);
+          }
+        }
+        return { success: true, job: updatedJob, alreadyConfirmed: false, sourceJobId: updatedJob?.sourceJobId ?? null };
       }
       return { success: false, job, alreadyConfirmed: false, reason: "Payment not completed in Stripe" };
     }),

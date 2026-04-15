@@ -520,24 +520,34 @@ Rules:
       const scenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
-      // ── STORYBOARD LOCK VALIDATION ────────────────────────────────────────────
-      // Every scene MUST have an approved storyboard preview image before rendering.
-      // If any scene is missing its preview, STOP the render immediately.
-      // This enforces the "what you see is what you get" guarantee.
+      // ── STORYBOARD LOCK: Auto-generate missing previews ──────────────────────
+      // If scenes are missing preview images, generate them automatically so the
+      // user doesn't have to manually click "Generate Preview" for each scene.
       const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
       if (scenesWithoutPreview.length > 0) {
-        // Revert job status back to storyboard_ready so user can generate previews
-        await db.update(musicVideoJobs)
-          .set({ status: "storyboard_ready", updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, input.jobId));
-        const missingSceneNums = scenesWithoutPreview.map(s => s.sceneIndex + 1).join(", ");
-        console.error(`[MusicVideo] STORYBOARD LOCK VIOLATION: Job ${input.jobId} has ${scenesWithoutPreview.length} scene(s) without preview images (scenes: ${missingSceneNums}). Render stopped.`);
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `Storyboard not complete. Scene${scenesWithoutPreview.length > 1 ? 's' : ''} ${missingSceneNums} ${scenesWithoutPreview.length > 1 ? 'are' : 'is'} missing preview images. Please generate all scene previews before rendering.`,
-        });
+        console.log(`[MusicVideo] Auto-generating ${scenesWithoutPreview.length} missing scene previews for job ${input.jobId}...`);
+        await Promise.allSettled(
+          scenesWithoutPreview.map(async (scene) => {
+            try {
+              const { url } = await generateImage({ prompt: scene.prompt });
+              if (url) {
+                await db.update(musicVideoScenes)
+                  .set({ previewImageUrl: url })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                console.log(`[MusicVideo] Auto-preview generated for scene ${scene.sceneIndex + 1}`);
+              }
+            } catch (previewErr) {
+              // Non-fatal: if auto-preview fails, proceed without it
+              console.warn(`[MusicVideo] Auto-preview failed for scene ${scene.sceneIndex + 1}:`, previewErr);
+            }
+          })
+        );
+        // Reload scenes with fresh preview URLs
+        const refreshedScenes = await db.select().from(musicVideoScenes)
+          .where(eq(musicVideoScenes.jobId, input.jobId));
+        scenes.splice(0, scenes.length, ...refreshedScenes);
       }
-      console.log(`[MusicVideo] STORYBOARD LOCK: All ${scenes.length} scenes have approved preview images. Render approved.`);
+      console.log(`[MusicVideo] Storyboard check: ${scenes.filter(s => s.previewImageUrl).length}/${scenes.length} scenes have previews. Proceeding with render.`);
 
       // ── Profitability Gate 4: Scene classification + renderer routing ──────
       // Resolve user plan for renderer routing

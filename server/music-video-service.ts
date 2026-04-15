@@ -1162,6 +1162,8 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
           jobId: String(jobId),
           quality: "Standard",
           duration: job.audioDuration ?? undefined,
+          videoUrl: url,
+          origin: "https://www.wizvid.ai",
         });
       }
     } catch (emailErr) {
@@ -1309,4 +1311,96 @@ async function pollSceneStatusWaveSpeed(
     }
     return { status: "failed" };
   }
+}
+
+/**
+ * Server-side trigger for starting a music video render without requiring tRPC context.
+ * Called from confirmRenderPayment after Stripe payment is confirmed.
+ * Replicates the core of the startRender tRPC procedure.
+ */
+export async function triggerMusicVideoRender(userId: number, musicVideoJobId: number): Promise<{ success: boolean; reason?: string }> {
+  const db = await getDb();
+  if (!db) return { success: false, reason: "Database unavailable" };
+
+  const { eq, and } = await import("drizzle-orm");
+
+  const [job] = await db.select().from(musicVideoJobs)
+    .where(and(eq(musicVideoJobs.id, musicVideoJobId), eq(musicVideoJobs.userId, userId)));
+
+  if (!job) return { success: false, reason: "Music video job not found" };
+
+  // Already rendering — idempotent
+  if (job.status === "rendering" || job.status === "assembling" || job.status === "completed") {
+    console.log(`[triggerMusicVideoRender] Job ${musicVideoJobId} already in status: ${job.status}. Skipping.`);
+    return { success: true };
+  }
+
+  if (job.status !== "storyboard_ready") {
+    return { success: false, reason: `Job status is '${job.status}', expected 'storyboard_ready'` };
+  }
+
+  // Mark as rendering
+  await db.update(musicVideoJobs)
+    .set({ status: "rendering", completedScenes: 0, updatedAt: new Date() })
+    .where(eq(musicVideoJobs.id, musicVideoJobId));
+
+  const scenes = await db.select().from(musicVideoScenes)
+    .where(eq(musicVideoScenes.jobId, musicVideoJobId));
+
+  // Auto-generate missing previews
+  const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
+  if (scenesWithoutPreview.length > 0) {
+    console.log(`[triggerMusicVideoRender] Auto-generating ${scenesWithoutPreview.length} missing previews for job ${musicVideoJobId}`);
+    const { generateImage } = await import("./_core/imageGeneration");
+    await Promise.allSettled(
+      scenesWithoutPreview.map(async (scene) => {
+        try {
+          const { url } = await generateImage({ prompt: scene.prompt });
+          if (url) {
+            await db!.update(musicVideoScenes)
+              .set({ previewImageUrl: url })
+              .where(eq(musicVideoScenes.id, scene.id));
+          }
+        } catch (err) {
+          console.warn(`[triggerMusicVideoRender] Auto-preview failed for scene ${scene.sceneIndex + 1}:`, err);
+        }
+      })
+    );
+  }
+
+  // Fire-and-forget: start each scene render with 3s stagger
+  const SCENE_STAGGER_MS = 3000;
+  (async () => {
+    const freshScenes = await db!.select().from(musicVideoScenes)
+      .where(eq(musicVideoScenes.jobId, musicVideoJobId));
+    for (let i = 0; i < freshScenes.length; i++) {
+      const scene = freshScenes[i];
+      if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
+      try {
+        const rendererType: "wavespeed" = "wavespeed";
+        const taskId = await startSceneRender(
+          scene.id,
+          scene.prompt,
+          scene.duration ?? 8,
+          scene.lipSync ?? true,
+          (scene.lipSyncStyle as any) ?? "natural",
+          rendererType,
+          (scene.modelAssignment as any) ?? "bytedance/seedance-2.0/text-to-video",
+          scene.previewImageUrl ?? undefined
+        );
+        await db!.update(musicVideoScenes)
+          .set({ taskId, status: "generating", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, scene.id));
+        console.log(`[triggerMusicVideoRender] Scene ${scene.sceneIndex + 1} started, taskId: ${taskId}`);
+      } catch (err) {
+        console.error(`[triggerMusicVideoRender] Scene ${scene.id} start failed:`, err);
+        await db!.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, scene.id));
+      }
+    }
+  })();
+
+  console.log(`[triggerMusicVideoRender] Job ${musicVideoJobId} render started for user ${userId}`);
+  return { success: true };
 }
