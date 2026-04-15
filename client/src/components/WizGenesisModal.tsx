@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
+const WIZGENESIS_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp";
+
 type Quality = "standard" | "hd" | "4k";
 type EnhanceTier = "standard" | "enhance" | "cinematic";
 type JobType = "music_video" | "text_to_video" | "kids_video" | "wizpilot";
@@ -202,8 +204,8 @@ export function WizGenesisModal({
 
           <div className="relative">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-mono tracking-wider uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-mono tracking-wider uppercase">
+                <img src={WIZGENESIS_LOGO} alt="" className="w-4 h-4 rounded-full" />
                 WizGenesis™
               </span>
             </div>

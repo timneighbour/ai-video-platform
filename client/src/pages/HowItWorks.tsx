@@ -108,7 +108,7 @@ export default function HowItWorks() {
             Back to Home
           </a>
           <Link href="/">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-14 w-auto object-contain absolute left-1/2 -translate-x-1/2 drop-shadow-[0_0_10px_rgba(139,92,246,0.4)]" />
+            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-9 w-auto object-contain absolute left-1/2 -translate-x-1/2" />
           </Link>
           <a
             href="/music-video"

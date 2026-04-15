@@ -15,10 +15,9 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
-import BackButton from "@/components/BackButton";
 
 const WIZVID_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
-const WIZLUMINA_ORB = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-orb-v2-XXXXXXXX.png";
+const WIZLUMINA_ORB = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
 
 // ── Create Action Cards ──────────────────────────────────────────────────────
 const CREATE_ACTIONS = [
@@ -145,9 +144,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* ── Top Nav ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 group">
-            <img src={WIZVID_LOGO} alt="WizVid" className="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(139,92,246,0.4)] transition-transform duration-200 group-hover:scale-[1.03]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-2">
+            <img src={WIZVID_LOGO} alt="WizVid" className="h-9 w-auto" />
           </a>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/15 border border-violet-500/25 text-violet-300 text-xs font-medium">
@@ -173,17 +172,14 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-12">
 
-        {/* ── Back to home ─────────────────────────────────────────────── */}
-        <div className="hidden">
-          <BackButton fallback="/" label="Back to Home" />
-        </div>
-
         {/* ── Welcome ──────────────────────────────────────────────────── */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
-            What do you want to create today{user?.name ? `, ${user.name.split(" ")[0]}` : ""}?
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+            <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-fuchsia-400 bg-clip-text text-transparent">Welcome to your Studio</span>
           </h1>
-          <p className="text-zinc-400 mt-1 text-sm">Your creative workspace — everything in one place.</p>
+          <p className="text-zinc-400 mt-2 text-base">
+            What do you want to create today{user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Your creative workspace — everything in one place.
+          </p>
         </div>
 
         {/* ── Create Action Cards ──────────────────────────────────────── */}

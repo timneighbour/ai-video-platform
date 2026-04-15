@@ -96,74 +96,15 @@ const Onboarding: React.FC = () => {
           </div>
         </div>
 
-        {/* Options Grid — top 3 row */}
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-          {options.slice(0, 3).map((option, index) => {
+        {/* Options Grid */}
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {options.map((option, index) => {
             const Icon = option.icon;
             return (
               <a
                 key={index}
                 href={option.href}
                 className="group relative h-full transition-all duration-500 hover:-translate-y-2 outline-none block"
-              >
-                {/* Gradient glow background on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-0 group-hover:opacity-40 rounded-2xl blur-2xl transition-all duration-500 pointer-events-none`} />
-
-                {/* Main card container */}
-                <div className={`relative h-full bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-xl border border-slate-700/40 ${option.borderColor} rounded-2xl p-8 transition-all duration-500 group-hover:shadow-2xl overflow-hidden ${
-                  option.isPopular ? 'ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20' : ''
-                }`}>
-                  {/* Shine effect on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
-                  </div>
-
-                  {/* Popular badge */}
-                  {option.isPopular && (
-                    <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-xs font-semibold text-white pointer-events-none">
-                      Most popular
-                    </div>
-                  )}
-
-                  {/* Icon */}
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${option.color} p-3 mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg pointer-events-none`}>
-                    <Icon className="w-full h-full text-white" strokeWidth={1.5} />
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-slate-50 transition-colors duration-300 pointer-events-none">
-                    {option.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-slate-400 text-sm leading-relaxed mb-8 group-hover:text-slate-300 transition-colors duration-300 pointer-events-none">
-                    {option.description}
-                  </p>
-
-                  {/* CTA */}
-                  <div className="flex items-center justify-between pointer-events-none">
-                    <span className="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors duration-300">
-                      Get Started
-                    </span>
-                    <div className="w-8 h-8 rounded-full bg-slate-700/50 group-hover:bg-slate-600 flex items-center justify-center transition-all duration-300 group-hover:translate-x-1">
-                      <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-white transition-colors duration-300" />
-                    </div>
-                  </div>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-
-        {/* Options Grid — bottom 2 row, centred */}
-        <div className="w-full max-w-6xl flex justify-center gap-8 mb-16">
-          {options.slice(3).map((option, index) => {
-            const Icon = option.icon;
-            return (
-              <a
-                key={index + 3}
-                href={option.href}
-                className="group relative h-full transition-all duration-500 hover:-translate-y-2 outline-none block w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.4rem)]"
               >
                 {/* Gradient glow background on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-0 group-hover:opacity-40 rounded-2xl blur-2xl transition-all duration-500 pointer-events-none`} />

@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -149,20 +150,6 @@ export default function MusicVideoAutopilot() {
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
-
-  // Resume from URL ?jobId param (e.g. from Projects page "Continue" link)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlJobId = params.get("jobId");
-    if (urlJobId) {
-      const parsed = parseInt(urlJobId, 10);
-      if (!isNaN(parsed) && parsed > 0) {
-        setJobId(parsed);
-        setStep(prev => prev === "upload" ? "storyboard" : prev);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
   const [title, setTitle] = useLocalStorage("musicVideo_title", "");
@@ -1415,9 +1402,13 @@ export default function MusicVideoAutopilot() {
                               Duration: {formatDuration(audioDuration)}
                               {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
                             </p>
-                            {/* Audio Preview Player */}
+                            {/* Audio Preview Player with Graphic Equaliser */}
                             <div className="mt-3 px-4" onClick={(e) => e.stopPropagation()}>
+                              <div className="mb-2">
+                                <GraphicEqualiser audioRef={audioRef} isPlaying={!audioRef.current?.paused} barCount={32} height={36} />
+                              </div>
                               <audio
+                                ref={audioRef}
                                 controls
                                 src={URL.createObjectURL(audioFile)}
                                 className="w-full h-8 rounded-lg"

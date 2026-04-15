@@ -204,7 +204,7 @@ function DashboardLayoutContent({
                   <img
                     src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png"
                     alt="WizVid"
-                    className="h-20 w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
+                    className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
                   />
                 </div>
               ) : (

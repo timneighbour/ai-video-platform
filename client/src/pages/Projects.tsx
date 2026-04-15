@@ -389,41 +389,18 @@ export default function Projects() {
             </div>
           </div>
 
-          {/* Render progress — stage pills + bar */}
-          {rendering && (
+          {/* Render progress */}
+          {rendering && job.totalScenes > 0 && (
             <div className="mt-4">
-              <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-                {(["Queued", "Rendering", "Finalising", "Complete"] as const).map((stage, i) => {
-                  const pct = job.totalScenes ? (job.completedScenes / job.totalScenes) * 100 : 0;
-                  const activeIdx = job.status === "assembling" ? 2 : pct >= 100 ? 3 : pct > 0 ? 1 : 0;
-                  const isActive = i === activeIdx;
-                  const isDone = i < activeIdx;
-                  return (
-                    <span key={stage} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                      isActive ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" :
-                      isDone ? "bg-green-500/15 text-green-400 border border-green-500/30" :
-                      "bg-white/5 text-zinc-600 border border-white/8"
-                    }`}>
-                      {isActive && <Loader2 className="h-2.5 w-2.5 animate-spin" />}
-                      {isDone && <CheckCircle className="h-2.5 w-2.5" />}
-                      {stage}
-                    </span>
-                  );
-                })}
+              <div className="flex justify-between text-xs mb-1.5">
+                <span className="text-amber-400 font-medium flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Rendering your video…
+                </span>
+                <span className="text-zinc-400">{progress}% · ~{Math.ceil((job.totalScenes - job.completedScenes) * 8)}s left</span>
               </div>
-              {job.totalScenes > 0 && (
-                <>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-amber-400 font-medium">
-                      {job.status === "assembling" ? "Finalising video…" : `${job.completedScenes} of ${job.totalScenes} scenes rendered`}
-                    </span>
-                    <span className="text-zinc-400">{progress}%{progress < 100 ? ` · ~${Math.ceil((job.totalScenes - job.completedScenes) * 8)}s left` : ""}</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" style={{ width: `${job.status === "assembling" ? 95 : progress}%` }} />
-                  </div>
-                </>
-              )}
+              <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+              </div>
             </div>
           )}
 

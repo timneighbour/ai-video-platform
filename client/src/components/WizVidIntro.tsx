@@ -1,42 +1,38 @@
 /**
- * WizVidIntro — Cinematic Trailer v12 Enhanced (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v10 FINAL (Apr 2026)
  *
- * Precision pass fixes:
- * - Enable Sound centre button auto-hides after 4s (no longer blocks video)
- * - CTA timer tightened to 25s (matches v11 duration of 25.4s)
- * - Emoji removed from Enable Sound button (iOS rendering inconsistency)
- * - All Safari/iOS/Android compatibility preserved
+ * Upgrades from v9:
+ * - New cinematic trailer score with build → rise → strong drop at logo reveal (15.3s)
+ * - Fixed text timing: "If ever there was a Wiz..." (2.5s) → pause (0.8s) → "There is." (2.5s) → logo
+ * - High-contrast pure white text, bold, strong shadow — no faded text
+ * - Slower clip pacing — each scene breathes (3–3.5s per clip)
+ * - Logo reveal synced to music drop at 15.3s
+ * - Smooth 0.5s crossfade transitions between all clips
+ * - WizSound: stereo widening, EQ, bass build, subwoofer impact at logo
+ * - 25.4s total duration
  *
- * Audio UX:
- * - "Tap to Enter" pre-play overlay — user taps → video starts with sound
- * - Any click/tap anywhere unmutes the video
- * - Small mute toggle in corner for users who want to mute after entering
- *
- * Video: v16 — WizSound™ Immersive + WizLumina™ 4K + crisp logo overlay + cinematic boom at reveal
- * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
+ * Cross-device compatible:
+ * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
+ * - Android Chrome/Firefox: standard muted autoplay
+ * - Desktop: all browsers supported
+ * - Fallback: manual play button if autoplay blocked
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
+import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// WizSound™ Immersive + WizLumina™ 4K + crisp logo overlay + cinematic boom — v16 FINAL
-// Source audio: user-uploaded MP3 (wizvid-intro-v9_3c56a28a.mp3)
-// Audio: mono-balanced (L=R=-19.52 dBRMS), 6-band piano EQ,
-//        extrastereo m=1.8, hall reverb, 2:1 compressor, -14 LUFS loudnorm
-//        + cinematic boom at 18.75s (logo reveal)
-// Video: WizLumina™ 4K + sharpened logo overlay (18.75s–26.5s)
-const TRAILER_URL = `${CDN}/wizvid-intro-v16-final_f8595375.mp4`;
-const POSTER_URL = `${CDN}/wizvid-intro-poster_cca3f6ca.jpg`;
+// v10 FINAL — New cinematic score, slow pacing, logo at 15.3s, H.264 Baseline, faststart, 24fps, 20MB, iOS Safari compatible
+const TRAILER_URL = `${CDN}/wizvid-intro-v10_b83be573.mp4`;
+// 4K version: will be added when 4K encode completes
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v16_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v10_seen"; // v10 FINAL — cinematic score + slow pacing + logo sync
 
-// CTA appears when video ends (~25.4s); timer fires at 25s as backup
-const CTA_SHOW_AT_MS = 25000;
-// Enable Sound hint auto-hides after 4s of playback
-const SOUND_HINT_HIDE_MS = 4000;
+// CTA appears when video ends (~25.4s); timer fires at 24s as backup
+const CTA_SHOW_AT_MS = 24000;
+// v10 duration: 25.42s
 
 interface WizVidIntroProps {
   onClose: () => void;
@@ -45,23 +41,18 @@ interface WizVidIntroProps {
 export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const [, navigate] = useLocation();
 
-  // Phase: "tap-to-enter" | "playing" | "exiting"
-  const [phase, setPhase] = useState<"tap-to-enter" | "playing" | "exiting">("tap-to-enter");
   const [muted, setMuted] = useState(true);
   const [showCTA, setShowCTA] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [showSoundHint, setShowSoundHint] = useState(true);
-
-  const [isPortrait, setIsPortrait] = useState(() =>
-    typeof window !== "undefined" ? window.innerHeight > window.innerWidth : false
-  );
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const isExitingRef = useRef(false);
   const ctaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const soundHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasStartedRef = useRef(false);
 
+  // Start CTA timer — idempotent
   const startCTATimer = useCallback(() => {
     if (ctaTimer.current) return;
     ctaTimer.current = setTimeout(() => {
@@ -69,112 +60,108 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     }, CTA_SHOW_AT_MS);
   }, []);
 
-  const startSoundHintTimer = useCallback(() => {
-    if (soundHintTimer.current) return;
-    soundHintTimer.current = setTimeout(() => {
-      setShowSoundHint(false);
-    }, SOUND_HINT_HIDE_MS);
-  }, []);
-
   const handleVideoEnd = useCallback(() => {
     if (!isExitingRef.current) setShowCTA(true);
   }, []);
 
-  // Attempt to play the video (always muted first for iOS)
-  const attemptPlay = useCallback(async (v: HTMLVideoElement, withSound: boolean) => {
+  // Attempt to play — handles iOS autoplay policy
+  const attemptPlay = useCallback(async (v: HTMLVideoElement) => {
     if (hasStartedRef.current) return;
     try {
-      v.muted = true; // must start muted for iOS autoplay
+      v.muted = true; // MUST be muted for iOS autoplay
       await v.play();
       hasStartedRef.current = true;
+      setAutoplayBlocked(false);
       startCTATimer();
-      startSoundHintTimer();
-      if (withSound) {
-        // Small delay to let play() succeed before unmuting
-        setTimeout(() => {
-          v.muted = false;
-          setMuted(false);
-        }, 80);
-      }
     } catch {
-      // Autoplay still blocked even muted — show CTA
-      setShowCTA(true);
+      // Autoplay blocked (e.g. low-power mode on iOS)
+      setAutoplayBlocked(true);
     }
-  }, [startCTATimer, startSoundHintTimer]);
+  }, [startCTATimer]);
 
-  // Track orientation changes for portrait/landscape video fit
-  useEffect(() => {
-    const handleResize = () => setIsPortrait(window.innerHeight > window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
-    };
-  }, []);
-
-  // Preload the video as soon as component mounts (so it's ready when user taps)
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+
+    // iOS CRITICAL: these must be set as attributes AND properties
     v.muted = true;
     v.playsInline = true;
     v.loop = false;
     v.preload = "auto";
 
-    const onCanPlay = () => setVideoReady(true);
-    const onCanPlayThrough = () => setVideoReady(true);
-    const onEnded = handleVideoEnd;
+    const onCanPlayThrough = () => {
+      setVideoReady(true);
+      attemptPlay(v);
+    };
 
-    v.addEventListener("canplay", onCanPlay, { once: true });
+    const onCanPlay = () => {
+      setVideoReady(true);
+      // On iOS, canplaythrough may never fire — canplay is enough
+      attemptPlay(v);
+    };
+
+    const onLoadedMetadata = () => {
+      // Fallback for slow connections — try play as soon as metadata is ready
+      setTimeout(() => attemptPlay(v), 100);
+    };
+
+    const onPlay = () => {
+      hasStartedRef.current = true;
+      setAutoplayBlocked(false);
+      startCTATimer();
+    };
+
     v.addEventListener("canplaythrough", onCanPlayThrough, { once: true });
-    v.addEventListener("ended", onEnded);
+    v.addEventListener("canplay", onCanPlay, { once: true });
+    v.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
+    v.addEventListener("play", onPlay);
+    v.addEventListener("ended", handleVideoEnd);
+
+    // Force load on iOS (sometimes needed after setting src)
     v.load();
 
     return () => {
-      v.removeEventListener("canplay", onCanPlay);
       v.removeEventListener("canplaythrough", onCanPlayThrough);
-      v.removeEventListener("ended", onEnded);
+      v.removeEventListener("canplay", onCanPlay);
+      v.removeEventListener("loadedmetadata", onLoadedMetadata);
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("ended", handleVideoEnd);
       if (ctaTimer.current) clearTimeout(ctaTimer.current);
-      if (soundHintTimer.current) clearTimeout(soundHintTimer.current);
     };
-  }, [handleVideoEnd]);
+  }, [attemptPlay, startCTATimer, handleVideoEnd]);
 
-  // Sync muted state to video element
+  // Sync mute state — must re-apply after user interaction on iOS
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     v.muted = muted;
   }, [muted]);
 
-  // "Tap to Enter" — user taps the overlay → start video with sound
-  const handleTapToEnter = useCallback(async () => {
+  // Manual play when autoplay is blocked
+  const handleManualPlay = useCallback(async () => {
     const v = videoRef.current;
     if (!v) return;
-    setPhase("playing");
-    await attemptPlay(v, true);
-  }, [attemptPlay]);
-
-  // Any click/tap on the playing screen → unmute if still muted
-  const handleScreenTap = useCallback(() => {
-    if (phase !== "playing") return;
-    const v = videoRef.current;
-    if (!v) return;
-    if (muted) {
-      v.muted = false;
-      setMuted(false);
+    try {
+      v.muted = true;
+      await v.play();
+      hasStartedRef.current = true;
+      setAutoplayBlocked(false);
+      startCTATimer();
+    } catch {
+      // Still blocked — show CTA immediately
+      setShowCTA(true);
     }
-  }, [phase, muted]);
+  }, [startCTATimer]);
 
   const dismiss = useCallback((destination?: string) => {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
-    setPhase("exiting");
+    setIsExiting(true);
     if (ctaTimer.current) clearTimeout(ctaTimer.current);
-    if (soundHintTimer.current) clearTimeout(soundHintTimer.current);
     const v = videoRef.current;
     if (v) {
       v.pause();
+      // Properly release audio context before clearing src
       v.muted = true;
       setTimeout(() => { v.src = ""; v.load(); }, 50);
     }
@@ -184,8 +171,6 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     }, 600);
   }, [onClose, navigate]);
 
-  const isExiting = phase === "exiting";
-
   return (
     <div
       className="fixed inset-0 z-[9999] overflow-hidden bg-black select-none"
@@ -193,39 +178,64 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         opacity: isExiting ? 0 : 1,
         transition: isExiting ? "opacity 600ms ease" : "opacity 800ms ease",
         pointerEvents: isExiting ? "none" : "auto",
-        /* iOS safe area support */
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        touchAction: "manipulation",
-        WebkitTouchCallout: "none" as any,
-        WebkitUserSelect: "none" as any,
       }}
       role="dialog"
       aria-modal="true"
       aria-label="WizVid cinematic intro"
-      onClick={handleScreenTap}
     >
       {/* ── Trailer video ─────────────────────────── */}
+      {/* NOTE: crossOrigin removed — causes CORS block on iOS Safari with some CDNs */}
       <video
         ref={videoRef}
         src={TRAILER_URL}
-        poster={POSTER_URL}
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full object-cover"
         style={{
-          opacity: phase === "playing" && videoReady ? 1 : 0,
+          opacity: videoReady ? 1 : 0,
           transition: "opacity 800ms ease",
           zIndex: 0,
           pointerEvents: "none",
-          /* Portrait: contain to show full video; Landscape: cover to fill */
-          objectFit: isPortrait ? "contain" : "cover",
         }}
         muted
         playsInline
         preload="auto"
-        /* Cross-browser attributes */
-        {...({ 'webkit-playsinline': '' } as any)}
       />
 
-      {/* ── Cinematic vignette overlay ──────────────────── */}
+      {/* ── Loading spinner — shown while buffering ── */}
+      {!videoReady && !autoplayBlocked && (
+        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 2 }}>
+          <div className="w-10 h-10 rounded-full border-2 border-violet-500/30 border-t-violet-400 animate-spin" />
+        </div>
+      )}
+
+      {/* ── Autoplay blocked fallback — manual play button ── */}
+      {autoplayBlocked && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-6"
+          style={{ zIndex: 15 }}
+        >
+          {/* Logo */}
+          <img src={LOGO} alt="WizVid" className="w-28 opacity-90" />
+          <button
+            onClick={handleManualPlay}
+            className="flex items-center gap-3 px-10 py-4 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-lg font-bold transition-all duration-200 hover:scale-105"
+            style={{
+              boxShadow: "0 0 40px rgba(139,92,246,0.6)",
+              textShadow: "0px 2px 8px rgba(0,0,0,0.8)",
+            }}
+          >
+            <Play className="w-6 h-6 fill-white" />
+            Watch Intro
+          </button>
+          <button
+            onClick={() => dismiss("/")}
+            className="text-white/50 text-sm font-medium hover:text-white/80 transition-colors"
+          >
+            Skip intro →
+          </button>
+        </div>
+      )}
+
+      {/* ── Cinematic vignette + text protection overlay ──────────────────── */}
       <div
         className="absolute inset-0"
         style={{
@@ -239,199 +249,79 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         }}
       />
 
-      {/* ══════════════════════════════════════════════════════════════
-          TAP TO ENTER OVERLAY — shown before video starts
-      ══════════════════════════════════════════════════════════════ */}
-      {phase === "tap-to-enter" && (
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center gap-8 px-6 text-center"
-          style={{ zIndex: 30 }}
+      {/* ── Skip (top-left) ──────────────────── */}
+      <button
+        onClick={() => dismiss()}
+        className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+        style={{
+          zIndex: 20,
+          cursor: "pointer",
+          textShadow: "0px 2px 8px rgba(0,0,0,0.9)",
+        }}
+        aria-label="Skip intro"
+      >
+        <X className="w-3.5 h-3.5" />
+        Skip
+      </button>
+
+      {/* ── Sound toggle (top-right) ─────────────── */}
+      <div className="absolute top-5 right-5 flex items-center gap-2" style={{ zIndex: 20 }}>
+        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-fuchsia-500/30 backdrop-blur-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#d946ef" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="text-fuchsia-300 text-[11px] font-bold tracking-wide">WizSound™</span>
+        </div>
+        <button
+          onClick={() => setMuted(m => !m)}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+          style={{
+            cursor: "pointer",
+            textShadow: "0px 2px 8px rgba(0,0,0,0.9)",
+          }}
+          aria-label={muted ? "Enable sound" : "Mute audio"}
         >
-          {/* Logo — responsive for portrait mobile */}
-          <img
-            src={LOGO}
-            alt="WizVid"
-            className="w-24 xs:w-28 sm:w-40 opacity-95"
-            style={{ filter: "drop-shadow(0 0 30px rgba(139,92,246,0.7))", maxWidth: "60vw" }}
-          />
+          {muted ? (
+            <><VolumeX className="w-4 h-4" /><span className="hidden sm:inline">Enable Sound</span></>
+          ) : (
+            <><Volume2 className="w-4 h-4" /><span className="hidden sm:inline">Mute</span></>
+          )}
+        </button>
+      </div>
 
-          {/* Headline */}
-          <div className="flex flex-col items-center gap-3">
-            <p
-              className="text-white/70 text-sm sm:text-base font-medium tracking-widest uppercase"
-              style={{ textShadow: "0px 2px 12px rgba(0,0,0,0.9)" }}
-            >
-              Experience WizVid with sound
-            </p>
-          </div>
-
-          {/* Tap to Enter button */}
+      {/* ── Enter Site CTA — appears near end of trailer (bottom centre) ── */}
+      <div
+        className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
+        style={{ zIndex: 10 }}
+      >
+        <div
+          style={{
+            opacity: showCTA ? 1 : 0,
+            transform: showCTA ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
+            transition: "opacity 900ms cubic-bezier(0.16,1,0.3,1), transform 900ms cubic-bezier(0.16,1,0.3,1)",
+            pointerEvents: showCTA ? "auto" : "none",
+          }}
+        >
           <button
-            onClick={(e) => { e.stopPropagation(); handleTapToEnter(); }}
-            className="relative flex items-center gap-2 sm:gap-3 px-8 py-4 sm:px-12 sm:py-5 rounded-full text-white text-base sm:text-lg md:text-xl font-bold transition-all duration-300 hover:scale-105 active:scale-95"
+            onClick={() => dismiss("/")}
+            className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-bold text-white transition-all duration-300 hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, rgba(139,92,246,1) 0%, rgba(109,40,217,1) 100%)",
-              boxShadow: "0 0 60px rgba(139,92,246,0.7), 0 0 120px rgba(139,92,246,0.35)",
-              animation: "tapPulse 2.4s ease-in-out infinite",
-              letterSpacing: "0.04em",
+              cursor: "pointer",
+              background: "linear-gradient(135deg, rgba(139,92,246,0.98) 0%, rgba(109,40,217,1) 100%)",
+              boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
+              animation: "ctaPulse 2.8s ease-in-out infinite",
+              letterSpacing: "0.06em",
               textShadow: "0px 2px 12px rgba(0,0,0,0.8)",
+              color: "#FFFFFF",
             }}
           >
-            <Volume2 className="w-6 h-6" />
-            Tap to Enter
-          </button>
-
-          {/* Skip link */}
-          <button
-            onClick={(e) => { e.stopPropagation(); dismiss("/"); }}
-            className="text-white/40 text-sm font-medium hover:text-white/70 transition-colors mt-2"
-          >
-            Skip intro →
+            Enter Site
+            <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
           </button>
         </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════
-          PLAYING STATE UI
-      ══════════════════════════════════════════════════════════════ */}
-      {phase === "playing" && (
-        <>
-          {/* Loading spinner while buffering */}
-          {!videoReady && (
-            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 5 }}>
-              <div className="w-10 h-10 rounded-full border-2 border-violet-500/30 border-t-violet-400 animate-spin" />
-            </div>
-          )}
-
-          {/* Skip button (top-left) */}
-          <button
-            onClick={(e) => { e.stopPropagation(); dismiss(); }}
-            className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
-            style={{ zIndex: 20, cursor: "pointer", textShadow: "0px 2px 8px rgba(0,0,0,0.9)" }}
-            aria-label="Skip intro"
-          >
-            <X className="w-3.5 h-3.5" />
-            Skip
-          </button>
-
-          {/* WizSound badge + mute toggle (top-right) */}
-          <div className="absolute top-5 right-5 flex items-center gap-2" style={{ zIndex: 20 }}>
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-fuchsia-500/30 backdrop-blur-sm">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#d946ef" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="text-fuchsia-300 text-[11px] font-bold tracking-wide">WizSound™</span>
-            </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); setMuted(m => !m); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
-              style={{ cursor: "pointer", textShadow: "0px 2px 8px rgba(0,0,0,0.9)" }}
-              aria-label={muted ? "Enable sound" : "Mute audio"}
-            >
-              {muted ? (
-                <><VolumeX className="w-4 h-4" /><span className="hidden sm:inline">Enable Sound</span></>
-              ) : (
-                <><Volume2 className="w-4 h-4" /><span className="hidden sm:inline">Mute</span></>
-              )}
-            </button>
-          </div>
-
-          {/* Enable Sound hint — centre screen, shown only for first 4s if still muted */}
-          {muted && videoReady && showSoundHint && !showCTA && (
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{
-                zIndex: 10,
-                pointerEvents: "none",
-                opacity: showSoundHint ? 1 : 0,
-                transition: "opacity 600ms ease",
-              }}
-            >
-              <button
-                onClick={(e) => { e.stopPropagation(); const vid = videoRef.current; if (vid) { vid.muted = false; } setMuted(false); }}
-                className="flex flex-col items-center gap-3 px-10 py-6 rounded-2xl text-white font-bold transition-all duration-300 hover:scale-105 active:scale-95"
-                style={{
-                  pointerEvents: "auto",
-                  background: "rgba(0,0,0,0.6)",
-                  border: "1.5px solid rgba(139,92,246,0.5)",
-                  backdropFilter: "blur(12px)",
-                  boxShadow: "0 0 60px rgba(139,92,246,0.5), 0 0 120px rgba(139,92,246,0.2)",
-                  animation: "soundPulse 2.2s ease-in-out infinite",
-                  textShadow: "0px 2px 12px rgba(0,0,0,0.9)",
-                }}
-              >
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(109,40,217,0.9) 100%)",
-                    boxShadow: "0 0 40px rgba(139,92,246,0.8)",
-                  }}
-                >
-                  <Volume2 className="w-8 h-8 text-white" />
-                </div>
-                <span className="text-base sm:text-lg tracking-wide">Enable Sound</span>
-                <span className="text-white/50 text-xs font-normal">Tap anywhere to unmute</span>
-              </button>
-            </div>
-          )}
-
-          {/* Enter Site CTA — appears near end of trailer */}
-          <div
-            className="absolute inset-x-0 bottom-0 flex flex-col items-center px-4 sm:px-6 text-center"
-            style={{ zIndex: 10, paddingBottom: "max(4rem, calc(env(safe-area-inset-bottom, 0px) + 3rem))" }}
-          >
-            <div
-              style={{
-                opacity: showCTA ? 1 : 0,
-                transform: showCTA ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
-                transition: "opacity 900ms cubic-bezier(0.16,1,0.3,1), transform 900ms cubic-bezier(0.16,1,0.3,1)",
-                pointerEvents: showCTA ? "auto" : "none",
-              }}
-            >
-              <button
-                onClick={(e) => { e.stopPropagation(); dismiss("/"); }}
-                onMouseDown={(e) => { e.stopPropagation(); dismiss("/"); }}
-                className="group relative inline-flex items-center gap-2 sm:gap-3 px-8 py-3 sm:px-14 sm:py-4 rounded-full text-sm sm:text-base font-bold text-white transition-all duration-300 hover:scale-105"
-                style={{
-                  cursor: "pointer",
-                  background: "linear-gradient(135deg, rgba(139,92,246,0.98) 0%, rgba(109,40,217,1) 100%)",
-                  boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-                  animation: "ctaPulse 2.8s ease-in-out infinite",
-                  letterSpacing: "0.06em",
-                  textShadow: "0px 2px 12px rgba(0,0,0,0.8)",
-                  color: "#FFFFFF",
-                }}
-              >
-                Enter Site
-                <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      </div>
 
       <style>{`
-        /* Portrait mode: ensure video is visible without heavy cropping */
-        @media (orientation: portrait) {
-          video { object-fit: contain !important; }
-        }
-        @media (orientation: landscape) {
-          video { object-fit: cover !important; }
-        }
-        /* Safe area for iPhone X+ notch/home indicator */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-          .intro-cta-area { padding-bottom: calc(env(safe-area-inset-bottom) + 3rem); }
-        }
-        /* Touch action for all interactive elements */
-        button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        @keyframes tapPulse {
-          0%, 100% { box-shadow: 0 0 60px rgba(139,92,246,0.7), 0 0 120px rgba(139,92,246,0.35); }
-          50%       { box-shadow: 0 0 90px rgba(139,92,246,0.95), 0 0 180px rgba(139,92,246,0.55); }
-        }
-        @keyframes soundPulse {
-          0%, 100% { box-shadow: 0 0 60px rgba(139,92,246,0.5), 0 0 120px rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5); }
-          50%       { box-shadow: 0 0 90px rgba(139,92,246,0.8), 0 0 180px rgba(139,92,246,0.4); border-color: rgba(139,92,246,0.9); }
-        }
         @keyframes ctaPulse {
           0%, 100% { box-shadow: 0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18); }
           50%       { box-shadow: 0 0 80px rgba(139,92,246,0.85), 0 0 150px rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.18); }
