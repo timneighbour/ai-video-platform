@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Baby } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Baby, Sparkles, BookOpen, PlayCircle } from "lucide-react";
 import CreditBalance from "./CreditBalance";
 import { LowCreditBanner } from "./LowCreditBanner";
 import { trpc } from "@/lib/trpc";
@@ -34,8 +34,10 @@ import { Button } from "./ui/button";
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: Sparkles, label: "Create", path: "/music-video" },
+  { icon: BookOpen, label: "How It Works", path: "/how-it-works" },
+  { icon: PlayCircle, label: "Examples", path: "/creators" },
   { icon: Zap, label: "WizPilot", path: "/wizpilot" },
-  { icon: Music, label: "Music Video", path: "/music-video" },
   { icon: Music2, label: "AI Music Creator", path: "/music-creator" },
   { icon: Video, label: "Text to Video", path: "/tools/text-to-video" },
   { icon: Wand2, label: "Video Transform", path: "/tools/video-to-video" },

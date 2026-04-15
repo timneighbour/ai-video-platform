@@ -54,7 +54,7 @@ const FAQS = [
     questions: [
       { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you render and download the final video. Choose your quality (Standard £2 / HD £4 / 4K £6) and optionally add WizSound™ audio enhancement." },
       { q: "What is WizSound™?", a: "WizSound™ is our proprietary audio enhancement system. WizSound Enhance (+£1) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+£3) applies our full mastering pipeline with immersive depth and dynamic range — recommended for music videos." },
-      { q: "What plans are available?", a: "Free (50 trial credits, no card required), Starter (£9/month, 5 min/month, 720p), Creator (£29/month, 20 min/month, 1080p, no watermark), and Studio (£99/month, 60 min/month, 4K, full cinematic). Storyboard generation is always free on all plans." },
+      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (£9/month, 2 renders, 720p), Basic (£19/month, 5 renders, 1080p HD), Creator (£29/month, 10 renders, HD + 4K), Pro (£59/month, 25 renders, 4K priority), and Studio (£99/month, 50 renders, 4K + API). Storyboard generation is always free on all plans." },
       { q: "Can I cancel my subscription?", a: "Yes, cancel at any time from your Account settings. Your subscription remains active until the end of the billing period." },
       { q: "What payment methods do you accept?", a: "Visa, Mastercard, Amex, Apple Pay, and Google Pay via Stripe." },
     ],

@@ -70,6 +70,7 @@ import {
   Music2,
   Info,
   Trash2,
+  BookmarkCheck,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -148,6 +149,20 @@ export default function MusicVideoAutopilot() {
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
+
+  // Resume from URL ?jobId param (e.g. from Projects page "Continue" link)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlJobId = params.get("jobId");
+    if (urlJobId) {
+      const parsed = parseInt(urlJobId, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        setJobId(parsed);
+        setStep(prev => prev === "upload" ? "storyboard" : prev);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
   const [title, setTitle] = useLocalStorage("musicVideo_title", "");
@@ -1912,6 +1927,22 @@ export default function MusicVideoAutopilot() {
                 <Button
                   variant="outline"
                   className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
+                  onClick={() => {
+                    // Storyboard is already auto-saved in DB (status: storyboard_ready).
+                    // Navigate to MyProjects so user can return later.
+                    toast.success("Storyboard saved!", {
+                      description: "Your storyboard is saved. Return to My Projects to continue anytime.",
+                    });
+                    setTimeout(() => { window.location.href = "/my-projects"; }, 1500);
+                  }}
+                  title="Save your storyboard and return later from My Projects"
+                >
+                  <BookmarkCheck className="w-4 h-4 mr-2" />
+                  Save &amp; Return Later
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
                   onClick={handleRegenerateStoryboard}
                   disabled={generateStoryboardMutation.isPending}
                 >
@@ -2171,15 +2202,7 @@ export default function MusicVideoAutopilot() {
                       </div>
                     </div>
 
-                    {/* Lyrics for this scene */}
-                    {scene.lyrics && (
-                      <div className="mb-3 px-3 py-2 rounded-lg bg-purple-900/20 border border-purple-800/40">
-                        <p className="text-purple-300 text-xs font-medium mb-1 flex items-center gap-1">
-                          <Mic className="w-3 h-3" /> Lyrics
-                        </p>
-                        <p className="text-zinc-300 text-xs italic leading-relaxed">"{scene.lyrics}"</p>
-                      </div>
-                    )}
+                    {/* Lyrics are used internally for prompt building but not shown on cards to keep UI clean */}
 
                     {/* Always-visible scene description editor */}
                     <div className="space-y-2">

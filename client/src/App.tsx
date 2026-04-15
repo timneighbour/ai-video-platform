@@ -49,6 +49,13 @@ const LandingApp = lazy(() => import("@/pages/LandingApp"));
 const LandingStudio = lazy(() => import("@/pages/LandingStudio"));
 const RenderSuccess = lazy(() => import("@/pages/RenderSuccess"));
 const Discover = lazy(() => import("@/pages/Discover"));
+const Showcase = lazy(() => import("@/pages/Showcase"));
+const MyProjects = lazy(() => import("@/pages/MyProjects"));
+const WizCreatePage = lazy(() => import("@/pages/products/WizCreate"));
+const WizPilotPage = lazy(() => import("@/pages/products/WizPilot"));
+const WizSoundPage = lazy(() => import("@/pages/products/WizSound"));
+const WizLuminaPage = lazy(() => import("@/pages/products/WizLumina"));
+const WizBoostPage = lazy(() => import("@/pages/products/WizBoost"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -120,6 +127,13 @@ function Router() {
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />
+        <Route path={"/showcase"} component={Showcase} />
+        <Route path={"/my-projects"} component={MyProjects} />
+        <Route path={"/products/wizcreate"} component={WizCreatePage} />
+        <Route path={"/products/wizpilot"} component={WizPilotPage} />
+        <Route path={"/products/wizsound"} component={WizSoundPage} />
+        <Route path={"/products/wizlumina"} component={WizLuminaPage} />
+        <Route path={"/products/wizboost"} component={WizBoostPage} />
         <Route path={"/blog/:slug"} component={BlogPost} />
         <Route path={"/seo/:slug"} component={SeoLandingPage} />
         <Route path={"/404"} component={NotFound} />
