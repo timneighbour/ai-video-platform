@@ -17,8 +17,7 @@ import { trpc } from "@/lib/trpc";
 import {
   Sparkles, Music, Zap, Star, Play, Check, ArrowRight,
   Menu, X, Volume2, VolumeX, Film, Wand2, Users, ChevronRight,
-  Music2, Bot, Lightbulb, Video, Download, TrendingUp, Instagram, Youtube, Globe,
-  ChevronDown, Clapperboard, Headphones, Eye, Share2, Layers
+  Music2, Bot, Lightbulb, Video, Download, TrendingUp, Instagram, Youtube, Globe
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -80,249 +79,62 @@ function useReveal() {
 }
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
-const PRODUCTS = [
-  {
-    href: "/products/wizcreate",
-    name: "WizCreate™",
-    desc: "AI storyboard engine",
-    detail: "Turn any idea into a full visual storyboard in seconds.",
-    icon: Layers,
-    color: "text-violet-400",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/20",
-  },
-  {
-    href: "/products/wizpilot",
-    name: "WizPilot™",
-    desc: "Video generation",
-    detail: "Generate cinematic video clips from text or images.",
-    icon: Clapperboard,
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-  },
-  {
-    href: "/products/wizsound",
-    name: "WizSound™",
-    desc: "Audio enhancement",
-    detail: "Proprietary audio processing for richer, immersive sound.",
-    icon: Headphones,
-    color: "text-fuchsia-400",
-    bg: "bg-fuchsia-500/10",
-    border: "border-fuchsia-500/20",
-  },
-  {
-    href: "/products/wizlumina",
-    name: "WizLumina™",
-    desc: "Visual enhancement",
-    detail: "AI colour grading and visual polish for every frame.",
-    icon: Eye,
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-  },
-  {
-    href: "/products/wizboost",
-    name: "WizBoost™",
-    desc: "Creator network",
-    detail: "Grow your audience with built-in distribution tools.",
-    icon: Share2,
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/20",
-  },
+const NAV_LINKS = [
+  { href: "/music-video", label: "Create" },
+  { href: "/how-it-works", label: "How It Works" },
+  { href: "/creators", label: "Examples" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/help", label: "Help" },
 ];
-
-function ProductsDropdown({ onClose, activeIdx, setActiveIdx }: {
-  onClose: () => void;
-  activeIdx: number;
-  setActiveIdx: (i: number) => void;
-}) {
-  const active = PRODUCTS[activeIdx];
-  const ActiveIcon = active.icon;
-  return (
-    <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-3 rounded-2xl border border-white/[0.08] bg-[#0d0d0d]/98 backdrop-blur-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8)] overflow-hidden"
-      style={{ zIndex: 60, width: 520 }}
-    >
-      <div className="flex">
-        {/* Left: product list */}
-        <div className="w-52 border-r border-white/[0.06] p-2 flex flex-col gap-0.5">
-          {PRODUCTS.map((p, i) => {
-            const Icon = p.icon;
-            const isActive = i === activeIdx;
-            return (
-              <NavLink
-                key={p.href}
-                href={p.href}
-                onClick={onClose}
-                onMouseEnter={() => setActiveIdx(i)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group ${
-                  isActive ? "bg-white/[0.07]" : "hover:bg-white/[0.04]"
-                }`}
-              >
-                <div className={`w-7 h-7 rounded-lg ${p.bg} flex items-center justify-center flex-shrink-0 transition-all duration-150 ${
-                  isActive ? "scale-110" : "group-hover:scale-105"
-                }`}>
-                  <Icon className={`w-3.5 h-3.5 ${p.color}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className={`text-[12.5px] font-semibold transition-colors duration-150 ${
-                    isActive ? p.color : "text-white/70 group-hover:text-white/90"
-                  }`}>{p.name}</p>
-                  <p className="text-[10.5px] text-white/35 leading-tight">{p.desc}</p>
-                </div>
-              </NavLink>
-            );
-          })}
-        </div>
-        {/* Right: description panel */}
-        <div className="flex-1 p-5 flex flex-col justify-between">
-          <div>
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg ${active.bg} ${active.border} border mb-3`}>
-              <ActiveIcon className={`w-4 h-4 ${active.color}`} />
-              <span className={`text-[12px] font-bold ${active.color}`}>{active.name}</span>
-            </div>
-            <p className="text-[13px] text-white/50 leading-relaxed">{active.detail}</p>
-          </div>
-          <NavLink
-            href={active.href}
-            onClick={onClose}
-            className={`mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold ${active.color} hover:brightness-125 transition-all duration-150`}
-          >
-            Learn more <ChevronRight className="w-3.5 h-3.5" />
-          </NavLink>
-        </div>
-      </div>
-      {/* Footer */}
-      <div className="border-t border-white/[0.06] px-4 py-2.5 flex items-center justify-between">
-        <span className="text-[11px] text-white/30">WizVid Product Suite</span>
-        <NavLink href="/pricing" onClick={onClose} className="text-[11px] text-violet-400 hover:text-violet-300 transition-colors font-medium">View Pricing →</NavLink>
-      </div>
-    </div>
-  );
-}
-
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
-  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
-  const [activeProductIdx, setActiveProductIdx] = useState(0);
-  const productsRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    if (!productsOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (productsRef.current && !productsRef.current.contains(e.target as Node)) {
-        setProductsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [productsOpen]);
-
-  const NAV_LEFT = [
-    { href: "/onboarding", label: "Create" },
-    { href: "/how-it-works", label: "How It Works" },
-    { href: "/showcase", label: "Showcase" },
-  ];
-  const NAV_RIGHT = [
-    { href: "/pricing", label: "Pricing" },
-    { href: "/help", label: "Help" },
-  ];
-
-  const navLinkClass = "text-[13px] font-[500] text-white/55 hover:text-white transition-all duration-150 px-3.5 py-2 rounded-lg hover:bg-white/[0.05] hover:-translate-y-px";
-
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-[#080808]/95 backdrop-blur-2xl border-b border-white/[0.07] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
-          : "bg-transparent"
+        scrolled ? "bg-[#0a0a0a]/96 backdrop-blur-2xl border-b border-white/[0.06] shadow-[0_1px_0_rgba(255,255,255,0.04)]" : "bg-transparent"
       }`}>
-        <div className="max-w-6xl mx-auto px-5 h-[64px] flex items-center justify-between">
-
-          {/* Logo — left */}
-          <NavLink href="/" className="flex items-center flex-shrink-0 group">
+        <div className="max-w-6xl mx-auto px-5 py-2.5 flex items-center justify-between">
+          {/* Logo */}
+          <NavLink href="/" className="flex items-center flex-shrink-0 hover:opacity-85 transition-opacity duration-200">
             <img
               src={WIZVID_LOGO_FULL}
               alt="WizVid"
-              className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(139,92,246,0.5)] transition-transform duration-200 group-hover:scale-[1.03]"
+              width={320}
+              height={180}
+              className="h-16 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.55)]"
             />
           </NavLink>
-
-          {/* Nav — centre */}
+          {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-0.5">
-            {NAV_LEFT.map(({ href, label }) => (
-              <NavLink key={href} href={href} className={navLinkClass}>{label}</NavLink>
-            ))}
-
-            {/* Products dropdown */}
-            <div ref={productsRef} className="relative">
-              <button
-                className={`${navLinkClass} flex items-center gap-1`}
-                onMouseDown={() => setProductsOpen((v) => !v)}
-                aria-expanded={productsOpen}
-                aria-haspopup="true"
-              >
-                Products
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  productsOpen ? "rotate-180 text-white" : ""
-                }`} />
-              </button>
-              {productsOpen && (
-                <ProductsDropdown
-                  onClose={() => setProductsOpen(false)}
-                  activeIdx={activeProductIdx}
-                  setActiveIdx={setActiveProductIdx}
-                />
-              )}
-            </div>
-
-            {NAV_RIGHT.map(({ href, label }) => (
-              <NavLink key={href} href={href} className={navLinkClass}>{label}</NavLink>
+            {NAV_LINKS.map(({ href, label }) => (
+              <NavLink key={href} href={href} className="text-[13px] text-white/60 hover:text-white/95 transition-colors duration-150 font-medium px-3.5 py-2 rounded-lg hover:bg-white/[0.05]">{label}</NavLink>
             ))}
           </div>
-
-          {/* CTA — right */}
+          {/* Right: Auth + mobile toggle */}
           <div className="flex items-center gap-2.5">
             {isAuthenticated ? (
-              <Button
-                className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm font-semibold px-5 rounded-xl h-9 shadow-[0_0_20px_rgba(139,92,246,0.35)] hover:shadow-[0_0_28px_rgba(139,92,246,0.55)] hover:scale-[1.03] transition-all duration-150"
-                asChild
-              >
-                <NavLink href="/dashboard" className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />Dashboard
-                </NavLink>
+              <Button className="btn-primary text-sm px-5 rounded-xl h-9" asChild>
+                <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
               </Button>
             ) : (
               <>
-                <a
-                  href={getLoginUrl()}
-                  className="hidden sm:block text-[13px] text-white/45 hover:text-white/80 transition-colors duration-150 font-medium px-3 py-2"
-                >
-                  Sign in
-                </a>
-                <Button
-                  className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm font-semibold px-5 rounded-xl h-9 shadow-[0_0_20px_rgba(139,92,246,0.35)] hover:shadow-[0_0_28px_rgba(139,92,246,0.55)] hover:scale-[1.03] transition-all duration-150"
-                  asChild
-                >
-                  <NavLink href="/onboarding">Start Creating</NavLink>
+                <a href={getLoginUrl()} className="hidden sm:block text-[13px] text-white/55 hover:text-white/90 transition-colors duration-150 font-medium px-3 py-2">Sign in</a>
+                <Button className="btn-primary text-sm px-5 rounded-xl h-9" asChild>
+                  <NavLink href="/onboarding">Start Free</NavLink>
                 </Button>
               </>
             )}
             {/* Mobile hamburger */}
             <button
               className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/[0.07] transition-colors duration-150 ml-1"
-              onMouseDown={() => setMobileOpen((v) => !v)}
+              onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
               {mobileOpen ? <X className="w-5 h-5 text-white/80" /> : <Menu className="w-5 h-5 text-white/80" />}
@@ -330,94 +142,35 @@ function Nav() {
           </div>
         </div>
       </nav>
-
-      {/* Mobile full-screen drawer */}
+      {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
           <div
-            className="absolute inset-0 bg-[#080808]/97 backdrop-blur-2xl"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="absolute inset-0 flex flex-col pt-[64px]">
-            <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-1">
-              {NAV_LEFT.map(({ href, label }) => (
+            className="absolute top-[60px] left-0 right-0 bg-[#0d0d0d]/98 backdrop-blur-2xl border-b border-white/[0.07] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 flex flex-col gap-1">
+              {NAV_LINKS.map(({ href, label }) => (
                 <NavLink
                   key={href}
                   href={href}
-                  className="text-[17px] text-white/70 hover:text-white font-[500] px-4 py-4 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 block"
+                  className="text-[15px] text-white/70 hover:text-white font-medium px-4 py-3 rounded-xl hover:bg-white/[0.06] transition-colors duration-150"
                   onClick={() => setMobileOpen(false)}
                 >{label}</NavLink>
               ))}
-
-              {/* Products accordion */}
-              <button
-                className="flex items-center justify-between text-[17px] text-white/70 hover:text-white font-[500] px-4 py-4 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 w-full"
-                onMouseDown={() => setMobileProductsOpen((v) => !v)}
-              >
-                <span>Products</span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${mobileProductsOpen ? "rotate-180 text-violet-400" : ""}`} />
-              </button>
-              {mobileProductsOpen && (
-                <div className="flex flex-col gap-0.5 pl-4 border-l-2 border-violet-500/20 ml-4">
-                  {PRODUCTS.map((p) => {
-                    const Icon = p.icon;
-                    return (
-                      <NavLink
-                        key={p.href}
-                        href={p.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/[0.05] transition-colors"
-                      >
-                        <div className={`w-8 h-8 rounded-lg ${p.bg} flex items-center justify-center flex-shrink-0`}>
-                          <Icon className={`w-4 h-4 ${p.color}`} />
-                        </div>
-                        <div>
-                          <p className={`text-[14px] font-semibold ${p.color}`}>{p.name}</p>
-                          <p className="text-[12px] text-white/40">{p.desc}</p>
-                        </div>
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              )}
-
-              {NAV_RIGHT.map(({ href, label }) => (
-                <NavLink
-                  key={href}
-                  href={href}
-                  className="text-[17px] text-white/70 hover:text-white font-[500] px-4 py-4 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 block"
-                  onClick={() => setMobileOpen(false)}
-                >{label}</NavLink>
-              ))}
-            </div>
-
-            {/* CTA pinned at bottom */}
-            <div className="px-6 pb-8 pt-4 border-t border-white/[0.07] flex flex-col gap-3">
-              {isAuthenticated ? (
-                <NavLink
-                  href="/dashboard"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-bold px-6 py-4 rounded-xl text-[16px] shadow-[0_0_24px_rgba(139,92,246,0.4)]"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <Sparkles className="w-5 h-5" />Dashboard
-                </NavLink>
-              ) : (
-                <>
-                  <NavLink
-                    href="/onboarding"
-                    className="flex items-center justify-center bg-gradient-to-r from-violet-600 to-blue-600 text-white font-bold px-6 py-4 rounded-xl text-[16px] shadow-[0_0_24px_rgba(139,92,246,0.4)]"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Start Creating Free
+              <div className="mt-3 pt-3 border-t border-white/[0.07] flex flex-col gap-2">
+                {isAuthenticated ? (
+                  <NavLink href="/dashboard" className="btn-primary flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold" onClick={() => setMobileOpen(false)}>
+                    <Sparkles className="w-4 h-4" />Dashboard
                   </NavLink>
-                  <a
-                    href={getLoginUrl()}
-                    className="text-center text-[15px] text-white/50 hover:text-white/80 py-2 transition-colors"
-                  >
-                    Sign in
-                  </a>
-                </>
-              )}
+                ) : (
+                  <>
+                    <a href={getLoginUrl()} className="text-center text-sm text-white/60 hover:text-white py-2.5 transition-colors">Sign in</a>
+                    <NavLink href="/onboarding" className="btn-primary flex items-center justify-center px-5 py-3 rounded-xl text-sm font-bold" onClick={() => setMobileOpen(false)}>Start Free</NavLink>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -673,9 +426,9 @@ function HeroProductPreview() {
               <div className="absolute" style={{ display: 'none' }} />
             )}
             <span
-              className="text-[11px] font-semibold tracking-wide text-center leading-tight transition-colors duration-200 px-0.5"
+              className="text-[9px] font-semibold tracking-wide text-center leading-tight transition-colors duration-200"
               style={{
-                color: phase === step ? "rgba(167,139,250,1)" : "rgba(255,255,255,0.45)",
+                color: phase === step ? "rgba(167,139,250,1)" : "rgba(255,255,255,0.3)",
                 textShadow: phase === step ? "0 0 8px rgba(167,139,250,0.6)" : "none",
               }}
             >
@@ -859,8 +612,8 @@ function Hero() {
           </div>
 
           {/* ── RIGHT: Animated product preview — bottom-right corner ── */}
-          <div className="hidden lg:flex items-end justify-end pb-0 self-end">
-            <div className="w-full max-w-[540px]">
+          <div className="hidden lg:flex items-start justify-end pb-0 self-start" style={{marginTop: '4rem'}}>
+            <div className="w-full max-w-[540px] translate-x-16 -translate-y-4">
               <HeroProductPreview />
             </div>
           </div>

@@ -130,7 +130,6 @@ async function handleCheckoutSessionCompleted(session: any) {
         credits: creditsToAdd,
         amount: session.amount_total ?? 0,
         packLabel: metadata.pack_label || metadata.pack || metadata.pack_id,
-        stripeSessionId: session.id,
       }).catch(() => {});
     } else {
       // Handle subscription — metadata.plan from billing router
@@ -184,7 +183,6 @@ async function handleCheckoutSessionCompleted(session: any) {
         plan: planId || "unknown",
         amount: session.amount_total ?? 0,
         interval: "month",
-        stripeSessionId: session.id,
       }).catch(() => {});
     }
 
