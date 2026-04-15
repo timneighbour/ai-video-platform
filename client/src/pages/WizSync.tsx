@@ -416,11 +416,12 @@ export default function WizSyncPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/create" label="Back" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
-                <Mic2 className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-white">WizSync™</span>
+            <div className="flex items-center gap-3">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1-K2ytFZNzrXoNE6jw2kuhnN.webp"
+                alt="WizSync™"
+                className="h-8 w-auto object-contain"
+              />
               <Badge className="bg-violet-600/20 text-violet-300 border-violet-500/30 text-xs">Beta</Badge>
             </div>
           </div>
@@ -439,9 +440,13 @@ export default function WizSyncPage() {
             <Sparkles className="w-4 h-4" />
             Voice-to-Character Assignment System
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-violet-300 via-purple-200 to-pink-300 bg-clip-text text-transparent">
-            WizSync™
-          </h1>
+          <div className="flex justify-center mb-2">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1-K2ytFZNzrXoNE6jw2kuhnN.webp"
+              alt="WizSync™"
+              className="h-16 w-auto object-contain drop-shadow-[0_0_24px_rgba(139,92,246,0.6)]"
+            />
+          </div>
           <p className="text-zinc-400 text-lg leading-relaxed">
             Upload any audio track. WizSync detects every voice, separates instrument stems, and maps each speaker to a character — ready for AI lip-sync generation.
           </p>
