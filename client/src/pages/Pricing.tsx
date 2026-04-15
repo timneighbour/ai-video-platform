@@ -193,8 +193,8 @@ const COMPARISON_FEATURES = [
   { label: "Video styles", free: "All", starter: "All", creator: "All", studio: "All" },
   { label: "Music video maker", free: "✓", starter: "✓", creator: "✓", studio: "✓" },
   { label: "WizPilot AI creator", free: "✓", starter: "✓", creator: "✓", studio: "✓" },
-  { label: "HD quality (1080p)", free: "Pay per render", starter: "Included", creator: "Included", studio: "Included" },
-  { label: "4K quality (2160p)", free: "Pay per render", starter: "Pay per render", creator: "Included", studio: "Included" },
+  { label: "HD quality (1080p)", free: "Full Video Render", starter: "Included", creator: "Included", studio: "Included" },
+  { label: "4K quality (2160p)", free: "Full Video Render", starter: "Full Video Render", creator: "Included", studio: "Included" },
   { label: "Character consistency", free: "✓", starter: "✓", creator: "✓", studio: "✓" },
   { label: "Priority rendering", free: "—", starter: "—", creator: "✓", studio: "✓" },
   { label: "API access", free: "—", starter: "—", creator: "—", studio: "✓" },
@@ -372,8 +372,8 @@ export default function Pricing() {
         {/* ── Per-render pricing ── */}
         <div className="max-w-5xl mx-auto px-6 mb-20" id="render-pricing">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Pay per render</h2>
-            <p className="text-sm text-white/45">Pay per render, or save with monthly plans.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Full Video Render</h2>
+            <p className="text-sm text-white/45">One price per full video. Save more with monthly plans.</p>
           </div>
 
           {/* Quality tiers */}
@@ -399,7 +399,7 @@ export default function Pricing() {
                 <div className="text-lg font-bold text-white mb-0.5">{tier.label}</div>
                 <div className="text-xs text-white/40 mb-3">{tier.resolution}</div>
                 <div className="text-3xl font-extrabold text-white mb-1">£{tier.price}</div>
-                <div className="text-xs text-white/35 mb-3">per render</div>
+                <div className="text-xs text-white/35 mb-3">Full Video Render</div>
                 <p className="text-xs text-white/45 leading-relaxed">{tier.desc}</p>
               </div>
             ))}
@@ -559,7 +559,7 @@ export default function Pricing() {
                   {(plan as any).bestValue && (
                     <div className="mt-1.5 flex flex-col gap-0.5">
                       <div className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
-                        {(plan as any).perRender} per render
+                        {(plan as any).perRender} Full Video Render
                         <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>
                       </div>
                       {billingCycle === "annual" && (

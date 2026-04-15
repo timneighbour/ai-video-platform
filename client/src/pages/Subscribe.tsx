@@ -343,7 +343,7 @@ export default function Subscribe() {
                 <h3 className="font-bold text-white text-sm mb-1">{item.label}</h3>
                 <p className="text-xs text-muted-foreground mb-3">{item.res}</p>
                 <p className="text-2xl font-extrabold text-white">{item.price}</p>
-                <p className="text-xs text-muted-foreground mt-1">per render</p>
+                <p className="text-xs text-muted-foreground mt-1">Full Video Render</p>
               </div>
             ))}
           </div>

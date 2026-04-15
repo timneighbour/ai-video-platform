@@ -506,12 +506,12 @@ function Hero() {
               className="relative z-10 font-extrabold leading-[1.05] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
               style={{ fontSize: "clamp(2.4rem, 5.5vw, 5rem)" }}
             >
-              Create Cinematic Videos{" "}
+              Create a full AI video{" "}
               <span
                 className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
                 style={{ textShadow: "none" }}
               >
-                with AI
+                in minutes.
               </span>
             </h1>
 
@@ -520,16 +520,16 @@ function Hero() {
               className="text-white/70 max-w-xl mb-6 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
               style={{ fontSize: "clamp(0.95rem, 2vw, 1.15rem)" }}
             >
-              Turn your idea into a fully produced video with studio-grade sound and film-level visuals.
+              No editing. No experience. Just your idea → a finished video.
             </p>
 
             {/* Value bullets */}
             <div className="relative z-10 mb-7 flex flex-col gap-2.5">
               {[
                 { icon: "🎤", text: "Full videos — not clips" },
-                { icon: "👁️", text: "Preview before you pay" },
+                { icon: "👁️", text: "Preview every scene before you render" },
                 { icon: "🎵", text: "Cinematic audio with WizSound™" },
-                { icon: "✨", text: "No editing skills needed — just describe your video" },
+                { icon: "✨", text: "Only pay when you’re ready" },
               ].map((b) => (
                 <div key={b.text} className="inline-flex items-center gap-2.5 text-sm text-white/80 font-medium">
                   <span className="text-base leading-none">{b.icon}</span>
@@ -548,7 +548,7 @@ function Hero() {
                 onClick={() => mp.heroCTAClicked()}
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
-                {isAuthenticated ? "Start Creating" : "Start Creating for Free"}
+                {isAuthenticated ? "Start Creating" : "Create Your First Video Free"}
               </NavLink>
               <button
                 onClick={() => setDemoOpen(true)}
@@ -575,7 +575,7 @@ function Hero() {
             {/* Trust line */}
             <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium mb-6">
               <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
-              No credit card required · Create first, pay only if you love it
+              No credit card required
             </p>
 
             {/* Trust strip — avatars + stats */}
@@ -591,7 +591,7 @@ function Hero() {
                     <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-black object-cover" />
                   ))}
                 </div>
-                <span className="text-white/50 text-xs font-medium">Trusted by musicians, YouTubers &amp; creators</span>
+                <span className="text-white/50 text-xs font-medium">Trusted by creators, musicians, and YouTubers</span>
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-center">
@@ -799,9 +799,9 @@ function TrustSignals() {
     <section className="bg-[#080808] border-t border-white/6 py-5 px-6">
       <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-14">
         {[
-          { icon: "✦", text: "No editing skills needed" },
-          { icon: "⚡", text: "AI storyboard generation" },
-          { icon: "🎬", text: "Full render in minutes" },
+          { icon: "✦", text: "No editing experience needed" },
+          { icon: "⚡", text: "Preview every scene first" },
+          { icon: "🎬", text: "Full video render in minutes" },
         ].map((item) => (
           <div key={item.text} className="flex items-center gap-2.5">
             <span className="text-violet-400 text-sm font-bold">{item.icon}</span>
@@ -1138,9 +1138,9 @@ function ProductDemo() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Free</NavLink>
+            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video Free</NavLink>
           </Button>
-          <p className="text-[#a1a1aa] text-sm mt-3">Free to create · No credit card · Only pay to render</p>
+          <p className="text-[#a1a1aa] text-sm mt-3">No credit card required</p>
         </div>
       </div>
     </section>
@@ -2580,7 +2580,7 @@ function CTAPush() {
             className="bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
             asChild
           >
-            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Start Creating Now</NavLink>
+            <NavLink href="/onboarding"><Sparkles className="w-4 h-4 mr-2" />Create Your First Video Free</NavLink>
           </Button>
           <Button
             variant="outline"
@@ -2590,7 +2590,7 @@ function CTAPush() {
             <NavLink href="/pricing">View pricing</NavLink>
           </Button>
         </div>
-        <p className="text-[#a1a1aa] text-sm">Create for free · No credit card · Only pay when you render</p>
+        <p className="text-[#a1a1aa] text-sm">No credit card required</p>
       </div>
     </section>
   );
