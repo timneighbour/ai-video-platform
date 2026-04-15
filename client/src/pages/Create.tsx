@@ -25,6 +25,8 @@ interface Tool {
   description: string;
   href: string;
   icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
   logo?: string;
   badge?: string;
   badgeColor?: string;
@@ -46,6 +48,8 @@ const TOOLS: Tool[] = [
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",
     href: "/music-video/create",
     icon: <Music className="w-6 h-6" />,
+    iconBg: "bg-violet-500/20",
+    iconColor: "text-violet-400",
     badge: "Most Popular",
     badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
     accentFrom: "from-violet-600/25",
@@ -63,6 +67,8 @@ const TOOLS: Tool[] = [
     description: "Type a prompt, choose a style, and WizPilot writes a full storyboard and renders a cinematic video. No editing skills needed.",
     href: "/wizpilot",
     icon: <Film className="w-6 h-6" />,
+    iconBg: "bg-cyan-500/20",
+    iconColor: "text-cyan-400",
     logo: WIZPILOT_LOGO,
     badge: "AI Autopilot",
     badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
@@ -80,6 +86,8 @@ const TOOLS: Tool[] = [
     description: "Turn any story idea into a fully animated Pixar-style video. Safe, fun, and completely automated — perfect for family creators.",
     href: "/kids-video",
     icon: <Baby className="w-6 h-6" />,
+    iconBg: "bg-pink-500/20",
+    iconColor: "text-pink-400",
     badge: "Animated",
     badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
     accentFrom: "from-pink-600/20",
@@ -96,6 +104,8 @@ const TOOLS: Tool[] = [
     description: "Write each scene prompt manually for full creative control. Choose your renderer (Seedance for speed, Kling for quality) and render each scene individually.",
     href: "/text-to-video",
     icon: <Wand2 className="w-6 h-6" />,
+    iconBg: "bg-amber-500/20",
+    iconColor: "text-amber-400",
     badge: "Advanced",
     badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
     accentFrom: "from-amber-600/20",
@@ -112,6 +122,8 @@ const TOOLS: Tool[] = [
     description: "Upload a video and an audio track — our AI perfectly syncs the lip movements to the new audio. Ideal for dubbing, music videos, and avatar content.",
     href: "/tools/lip-sync",
     icon: <Mic className="w-6 h-6" />,
+    iconBg: "bg-emerald-500/20",
+    iconColor: "text-emerald-400",
     badge: "HeyGen AI",
     badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     accentFrom: "from-emerald-600/20",
@@ -127,6 +139,8 @@ const TOOLS: Tool[] = [
     description: "Upscale to 4K, apply cinematic colour grading with WizLumina™, and enhance audio quality with WizSound™. Make any video look and sound premium.",
     href: "/enhancement-studio",
     icon: <Sparkles className="w-6 h-6" />,
+    iconBg: "bg-purple-500/20",
+    iconColor: "text-purple-400",
     logo: WIZLUMINA_LOGO,
     badge: "WizLumina™",
     badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
@@ -143,6 +157,8 @@ const TOOLS: Tool[] = [
     description: "Apply Anime, Cinematic, Pixar, or any custom style to an existing video. Powered by Runway ML for high-quality style transformation.",
     href: "/tools/video-to-video",
     icon: <Layers className="w-6 h-6" />,
+    iconBg: "bg-rose-500/20",
+    iconColor: "text-rose-400",
     badge: "Runway ML",
     badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
     accentFrom: "from-rose-600/20",
@@ -159,6 +175,8 @@ const TOOLS: Tool[] = [
     description: "Generate professional voiceovers from any script. Choose from 100+ voices across 30+ languages. Perfect for YouTube, ads, and explainer videos.",
     href: "/tools/voiceover",
     icon: <Zap className="w-6 h-6" />,
+    iconBg: "bg-sky-500/20",
+    iconColor: "text-sky-400",
     badge: "100+ Voices",
     badgeColor: "bg-sky-500/20 text-sky-300 border-sky-500/30",
     accentFrom: "from-sky-600/20",
@@ -206,29 +224,28 @@ function ToolCard({ tool }: { tool: Tool }) {
       )}
 
       <div className="p-5">
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-3">
-            {tool.logo ? (
-              <img src={tool.logo} alt={tool.name} className="h-8 w-auto object-contain" />
-            ) : (
-              <div className="w-10 h-10 rounded-xl bg-white/8 flex items-center justify-center text-white/70 group-hover:text-white transition-colors flex-shrink-0">
-                {tool.icon}
-              </div>
-            )}
-            <div>
-              <h3 className="text-white font-bold text-base leading-tight">{tool.name}</h3>
-              {tool.badge && !tool.popular && (
-                <span className={`text-[10px] font-semibold uppercase tracking-wider border rounded-full px-2 py-0.5 ${tool.badgeColor}`}>
-                  {tool.badge}
-                </span>
-              )}
-            </div>
+        {/* Large colourful icon above title */}
+        <div className="mb-4 flex items-start justify-between">
+          <div className={`w-14 h-14 rounded-2xl ${tool.iconBg} flex items-center justify-center ${tool.iconColor} group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+            <div className="w-7 h-7">{tool.icon}</div>
           </div>
           {tool.authRequired && !isAuthenticated ? (
             <Lock className="w-4 h-4 text-white/30 flex-shrink-0 mt-1" />
           ) : (
             <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+          )}
+        </div>
+        {/* Title + badge row */}
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          {tool.logo ? (
+            <img src={tool.logo} alt={tool.name} className="h-6 w-auto object-contain" />
+          ) : (
+            <h3 className="text-white font-bold text-base leading-tight">{tool.name}</h3>
+          )}
+          {tool.badge && !tool.popular && (
+            <span className={`text-[10px] font-semibold uppercase tracking-wider border rounded-full px-2 py-0.5 ${tool.badgeColor}`}>
+              {tool.badge}
+            </span>
           )}
         </div>
 
