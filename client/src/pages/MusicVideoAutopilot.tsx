@@ -72,7 +72,6 @@ import {
   Info,
   Trash2,
   BookmarkCheck,
-  Eye,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -349,45 +348,6 @@ export default function MusicVideoAutopilot() {
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
-
-  // Quick Preview state
-  const [previewStatus, setPreviewStatus] = useState<"idle" | "generating" | "ready" | "failed">("idle");
-  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
-  const quickPreviewMutation = trpc.musicVideo.quickPreview.useMutation();
-  const musicUtils = trpc.useUtils();
-
-  const handleQuickPreview = useCallback(async () => {
-    if (!jobId || previewStatus === "generating") return;
-    setPreviewStatus("generating");
-    setPreviewVideoUrl(null);
-    try {
-      await quickPreviewMutation.mutateAsync({ jobId });
-      // Poll getJob until previewStatus is ready or failed
-      const poll = setInterval(async () => {
-        try {
-          const data = await musicUtils.musicVideo.getJob.fetch({ jobId });
-          const status = (data?.job as any)?.previewStatus;
-          const url = (data?.job as any)?.previewVideoUrl;
-          if (status === "ready" && url) {
-            setPreviewStatus("ready");
-            setPreviewVideoUrl(url);
-            clearInterval(poll);
-          } else if (status === "failed") {
-            setPreviewStatus("failed");
-            clearInterval(poll);
-          }
-        } catch { /* ignore poll errors */ }
-      }, 3000);
-      // Safety timeout after 3 minutes
-      setTimeout(() => {
-        clearInterval(poll);
-        setPreviewStatus(prev => prev === "generating" ? "failed" : prev);
-      }, 180_000);
-    } catch (err: any) {
-      setPreviewStatus("failed");
-      toast.error(err?.message || "Failed to start preview.");
-    }
-  }, [jobId, previewStatus, quickPreviewMutation, musicUtils]);
 
   // Upsell checkout state
   const [upsellAddons, setUpsellAddons] = useState({ cinematicScenes: false, upgrade4K: false, removeWatermark: false });
@@ -2418,66 +2378,6 @@ export default function MusicVideoAutopilot() {
                 </Card>
               ))}
             </div>
-
-            {/* ⚡ Quick Preview Panel — shown below scene list */}
-            {step === "storyboard" && scenes.length > 0 && (
-              <div className="mt-6 rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-4 sm:p-6 space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-lg bg-cyan-500/20 p-2 flex-shrink-0">
-                    <Eye className="h-4 w-4 text-cyan-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-semibold text-white text-sm">Quick Preview</span>
-                      <span className="text-xs bg-cyan-500/20 text-cyan-300 rounded-full px-2 py-0.5">Free</span>
-                    </div>
-                    <p className="text-xs text-zinc-400">Render a low-resolution 4-second draft of Scene 1 to check style and quality before committing to a full render.</p>
-                  </div>
-                </div>
-
-                {previewStatus === "ready" && previewVideoUrl && (
-                  <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-black">
-                    <video src={previewVideoUrl} controls autoPlay loop muted playsInline className="w-full block wiz-video-preview" style={{ maxHeight: "12rem" }} />
-                    <div className="flex items-center gap-2 px-3 py-2 border-t border-cyan-500/20">
-                      <span className="text-xs bg-cyan-500/20 text-cyan-300 rounded-full px-2 py-0.5 font-medium">480p Draft · Scene 1</span>
-                      <span className="text-xs text-zinc-500">Low-res preview — full render will be full quality.</span>
-                    </div>
-                  </div>
-                )}
-
-                {previewStatus === "generating" && (
-                  <div className="flex items-center gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3">
-                    <Loader2 className="h-4 w-4 text-cyan-400 animate-spin flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-white font-medium">Generating preview…</p>
-                      <p className="text-xs text-zinc-500">~30–60 seconds. Keep editing your storyboard while you wait.</p>
-                    </div>
-                  </div>
-                )}
-
-                {previewStatus === "failed" && (
-                  <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
-                    <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                    <p className="text-sm text-red-300">Preview failed. Please try again.</p>
-                  </div>
-                )}
-
-                <Button
-                  variant="outline"
-                  onClick={handleQuickPreview}
-                  disabled={previewStatus === "generating" || !jobId}
-                  className="gap-2 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 w-full"
-                >
-                  {previewStatus === "generating" ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Generating Preview…</>
-                  ) : previewStatus === "ready" ? (
-                    <><RefreshCw className="h-4 w-4" /> Regenerate Preview</>
-                  ) : (
-                    <><Eye className="h-4 w-4" /> Generate Quick Preview (Free)</>
-                  )}
-                </Button>
-              </div>
-            )}
           </div>
         )}
 

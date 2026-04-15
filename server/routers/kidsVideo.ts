@@ -424,7 +424,7 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
       const session = await stripe.checkout.sessions.create({
-        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal, Klarna
+        payment_method_types: ["card"],
         line_items: [
           {
             price_data: {
@@ -504,86 +504,5 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
         .where(and(eq(kidsVideoJobs.id, jobId), eq(kidsVideoJobs.userId, ctx.user.id)));
 
       return { success: true };
-    }),
-
-  /**
-   * Quick Preview — generate a free 480p 4-second draft of scene 1
-   * No credits charged. Runs in background, user polls via getJob.
-   */
-  quickPreview: protectedProcedure
-    .input(z.object({ jobId: z.number().int() }))
-    .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-      // Fetch the job and verify ownership
-      const [job] = await db.select().from(kidsVideoJobs)
-        .where(and(eq(kidsVideoJobs.id, input.jobId), eq(kidsVideoJobs.userId, ctx.user.id)))
-        .limit(1);
-
-      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
-      if (!job.storyboardFrames) throw new TRPCError({ code: "BAD_REQUEST", message: "Storyboard not ready yet" });
-      if (job.previewStatus === "generating") throw new TRPCError({ code: "BAD_REQUEST", message: "Preview already generating" });
-
-      // Parse storyboard frames and get scene 1
-      const frames: Array<{ sceneIndex: number; sceneLabel: string; imageUrl?: string; description: string }> =
-        JSON.parse(job.storyboardFrames as string);
-      const scene1 = frames[0];
-      if (!scene1) throw new TRPCError({ code: "BAD_REQUEST", message: "No storyboard frames found" });
-
-      // Mark as generating immediately
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (db.update(kidsVideoJobs) as any)
-        .set({ previewStatus: "generating" })
-        .where(eq(kidsVideoJobs.id, input.jobId));
-
-      // Build the video prompt from scene 1
-      const animStyle = STYLE_PROMPTS[job.animationStyle ?? "pixar3d"] ?? STYLE_PROMPTS.pixar3d;
-      const characterPrompt = job.characterLockData
-        ? buildCharacterLockPrompt(JSON.parse(job.characterLockData as string))
-        : "";
-      const videoPrompt = [
-        animStyle,
-        characterPrompt,
-        scene1.description,
-        "smooth cinematic motion, vibrant colours, high quality animation",
-      ].filter(Boolean).join(". ");
-
-      const aspectRatio = (job.screenFormat ?? "16:9") as "16:9" | "9:16" | "1:1";
-
-      // Fire-and-forget background render
-      const { generateFalSeedanceVideoSync } = await import("../ai-apis/fal-seedance");
-      const { storagePut } = await import("../storage");
-
-      (async () => {
-        try {
-          console.log(`[QuickPreview] Kids job ${input.jobId} — starting 480p draft of scene 1`);
-          const result = await generateFalSeedanceVideoSync(
-            { prompt: videoPrompt, aspect_ratio: aspectRatio, duration: "4", resolution: "480p", generate_audio: false },
-            180_000 // 3 min timeout for preview
-          );
-
-          // Download and re-upload to our S3 for permanence
-          const resp = await fetch(result.videoUrl);
-          const buf = Buffer.from(await resp.arrayBuffer());
-          const key = `kids-previews/${input.jobId}-preview-${Date.now()}.mp4`;
-          const { url } = await storagePut(key, buf, "video/mp4");
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (db.update(kidsVideoJobs) as any)
-            .set({ previewStatus: "ready", previewVideoUrl: url })
-            .where(eq(kidsVideoJobs.id, input.jobId));
-
-          console.log(`[QuickPreview] Kids job ${input.jobId} — preview ready: ${url}`);
-        } catch (err) {
-          console.error(`[QuickPreview] Kids job ${input.jobId} failed:`, err);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (db.update(kidsVideoJobs) as any)
-            .set({ previewStatus: "failed" })
-            .where(eq(kidsVideoJobs.id, input.jobId));
-        }
-      })();
-
-      return { started: true };
     }),
 });

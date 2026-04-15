@@ -588,7 +588,7 @@ function Hero() {
                     WHO_IMAGES.aiCreators,
                     WHO_IMAGES.kidsCreators,
                   ].map((src, i) => (
-                    <img key={i} src={src} alt={["Musician creator using WizVid", "YouTuber creator using WizVid", "AI content creator using WizVid", "Kids content creator using WizVid"][i]} className="w-8 h-8 rounded-full border-2 border-black object-cover" />
+                    <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-black object-cover" />
                   ))}
                 </div>
                 <span className="text-white/50 text-xs font-medium">Trusted by creators, musicians, and YouTubers</span>
@@ -2856,9 +2856,6 @@ function Footer() {
 // ── Page ────────────────────────────────────────────────────────────────────────────────
 export default function Home() {
   useReveal();
-  useEffect(() => {
-    document.title = "AI Music Video Generator | Create Videos with AI | WizVid";
-  }, []);
 
   return (
     <div className="bg-[#0f0f0f] text-white min-h-screen overflow-x-hidden">

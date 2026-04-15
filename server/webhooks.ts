@@ -14,8 +14,6 @@ import {
   emailNewSubscription,
   emailFailedPayment,
 } from "./email";
-import { SUBSCRIPTION_PLANS, type SubscriptionPlan } from "./products";
-import { kidsVideoJobs } from "../drizzle/schema";
 
 // Lazy-init Stripe client (avoids crash if key not set at import time)
 function getStripe() {
@@ -52,39 +50,6 @@ async function handleCheckoutSessionCompleted(session: any) {
   const metadata = session.metadata ?? {};
 
   try {
-    // ── Kids Animation Render Payment ────────────────────────────────────────
-    if (metadata.job_type === "kids_video") {
-      const kidsJobId = parseInt(metadata.kids_video_job_id, 10);
-      if (!kidsJobId || isNaN(kidsJobId)) {
-        console.error("[Stripe Webhook] kids_video: missing kids_video_job_id in metadata");
-        return { success: false, error: "Missing kids_video_job_id" };
-      }
-
-      // Mark payment as paid
-      await db.update(kidsVideoJobs)
-        .set({ paymentStatus: "paid", updatedAt: new Date() })
-        .where(eq(kidsVideoJobs.id, kidsJobId));
-
-      console.log(`[Stripe Webhook] Kids video job ${kidsJobId} payment confirmed for user ${userId}`);
-
-      // Notify owner
-      await notifyOwner({
-        title: "Kids Animation Render Paid",
-        content: `User ${metadata.customer_name} (${metadata.customer_email}) paid for kids animation job #${kidsJobId} (\u00a3${(session.amount_total ?? 0) / 100})`,
-      }).catch(() => {});
-
-      // Trigger render asynchronously (non-blocking — render runs in background)
-      import("./kids-video-service").then(({ renderKidsVideo }) => {
-        renderKidsVideo(kidsJobId).catch((err: unknown) => {
-          console.error(`[Stripe Webhook] Kids video render failed for job ${kidsJobId}:`, err);
-        });
-      }).catch((err: unknown) => {
-        console.error(`[Stripe Webhook] Failed to import kids-video-service:`, err);
-      });
-
-      return { success: true, type: "kids_video", jobId: kidsJobId };
-    }
-
     // Detect upsell purchase: billing router sends metadata.type === 'upsell'
     if (metadata.type === "upsell") {
       const jobId = parseInt(metadata.job_id, 10);
@@ -169,16 +134,10 @@ async function handleCheckoutSessionCompleted(session: any) {
     } else {
       // Handle subscription — metadata.plan from billing router
       const planId = metadata.plan || metadata.plan_id;
-      // Resolve human-readable plan name for notifications
-      const planDisplayName = (planId && (SUBSCRIPTION_PLANS as Record<string, any>)[planId])
-        ? (SUBSCRIPTION_PLANS as Record<string, any>)[planId].name
-        : (planId ? planId.charAt(0).toUpperCase() + planId.slice(1) : "Unknown");
       const planCredits: Record<string, number> = {
-        starter: 60,
-        basic: 150,
-        creator: 300,
-        pro: 750,
-        studio: 1500,
+        starter: 1000,
+        pro: 3000,
+        business: 10000,
       };
 
       const monthlyCredits = planCredits[planId] || 0;
@@ -215,13 +174,13 @@ async function handleCheckoutSessionCompleted(session: any) {
       // Notify owner
       await notifyOwner({
         title: "New Subscription",
-        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planDisplayName} plan (£${(session.amount_total ?? 0) / 100}/month)`,
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan (£${(session.amount_total ?? 0) / 100}/month)`,
       }).catch(() => {}); // non-fatal
       // Email notification to timneighbour@wizvid.ai
       await emailNewSubscription({
         name: metadata.customer_name || "Unknown",
         email: metadata.customer_email || "",
-        plan: planDisplayName,
+        plan: planId || "unknown",
         amount: session.amount_total ?? 0,
         interval: "month",
       }).catch(() => {});

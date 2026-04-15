@@ -91,19 +91,6 @@ type MusicVideoJob = {
 
 type FilterTab = "all" | "active" | "completed" | "draft";
 
-type KidsAnimationJob = {
-  id: number;
-  storyPrompt: string;
-  animationStyle: string;
-  videoLength: string;
-  renderStatus: string;
-  videoUrl: string | null;
-  thumbnailUrl?: string | null;
-  createdAt: Date;
-  renderProgress: number | null;
-  renderMessage: string | null;
-};
-
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Helpers                                                                     */
 /* ─────────────────────────────────────────────────────────────────────────── */
@@ -205,107 +192,13 @@ function PrimaryCTA({
   }
 }
 
-/* ───────────────────────────────────────────────────────────────────────────── */
-/*  KidsAnimCard                                                                */
-/* ───────────────────────────────────────────────────────────────────────────── */
-function KidsAnimCard({ job }: { job: KidsAnimationJob }) {
-  const isRendering = ["rendering", "queued", "preparing"].includes(job.renderStatus);
-  const isComplete = job.renderStatus === "completed";
-  const isFailed = job.renderStatus === "failed";
-  const progress = job.renderProgress ?? 0;
-
-  const STYLE_LABELS: Record<string, string> = {
-    anime: "Anime", pixar3d: "Pixar 3D", cartoon: "Cartoon",
-    disney: "Disney", storybook: "Storybook", claymation: "Claymation",
-  };
-
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/3 hover:bg-white/5 transition-all overflow-hidden">
-      <div className="flex gap-4 p-4">
-        {/* Thumbnail */}
-        <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-pink-900/40 to-purple-900/40 flex-shrink-0 overflow-hidden flex items-center justify-center">
-          {job.thumbnailUrl ? (
-            <img src={job.thumbnailUrl} alt="thumbnail" className="w-full h-full object-cover" />
-          ) : (
-            <Film className="h-8 w-8 text-pink-400/50" />
-          )}
-        </div>
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-white font-semibold text-sm line-clamp-1">
-                {STYLE_LABELS[job.animationStyle] ?? job.animationStyle} Animation
-              </p>
-              <p className="text-zinc-500 text-xs mt-0.5 line-clamp-2">{job.storyPrompt}</p>
-            </div>
-            <div className="flex-shrink-0">
-              {isComplete ? (
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 gap-1 text-xs"><CheckCircle className="h-3 w-3" /> Complete</Badge>
-              ) : isRendering ? (
-                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 gap-1 text-xs"><Loader2 className="h-3 w-3 animate-spin" /> Rendering</Badge>
-              ) : isFailed ? (
-                <Badge className="bg-red-500/20 text-red-400 border-red-500/30 gap-1 text-xs"><AlertCircle className="h-3 w-3" /> Failed</Badge>
-              ) : (
-                <Badge className="bg-zinc-500/20 text-zinc-400 border-zinc-500/30 gap-1 text-xs"><Clock className="h-3 w-3" /> Queued</Badge>
-              )}
-            </div>
-          </div>
-          {/* Progress bar */}
-          {isRendering && (
-            <div className="mt-2">
-              <div className="flex justify-between text-xs text-zinc-500 mb-1">
-                <span>{job.renderMessage ?? "Rendering…"}</span>
-                <span>{progress}%</span>
-              </div>
-              <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          )}
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-xs text-zinc-600">{timeAgo(job.createdAt)}</span>
-            {isComplete && job.videoUrl && (
-              <a
-                href={job.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-xs text-green-400 hover:text-green-300 transition-colors"
-              >
-                <Play className="h-3 w-3" /> Watch
-              </a>
-            )}
-            {isComplete && job.videoUrl && (
-              <a
-                href={job.videoUrl}
-                download
-                className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                <Download className="h-3 w-3" /> Download
-              </a>
-            )}
-            {isFailed && (
-              <a href="/kids-animation" className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors">
-                <RefreshCw className="h-3 w-3" /> Retry
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ───────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────────── */
 /*  Main component                                                              */
-/* ───────────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────────── */
 export default function Projects() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<"music_videos" | "kids_animation" | "generated">("music_videos");
+  const [activeTab, setActiveTab] = useState<"music_videos" | "generated">("music_videos");
   const [filter, setFilter] = useState<FilterTab>("all");
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
   const [deleteProjectId, setDeleteProjectId] = useState<number | null>(null);
@@ -329,12 +222,6 @@ export default function Projects() {
   const { data: musicJobs, isLoading: musicLoading, refetch: refetchMusic } =
     trpc.musicVideo.listJobs.useQuery(undefined, {
       enabled: isAuthenticated && activeTab === "music_videos",
-      refetchInterval: 5000,
-    });
-
-  const { data: kidsJobs, isLoading: kidsLoading } =
-    trpc.kidsVideo.listJobs.useQuery(undefined, {
-      enabled: isAuthenticated && activeTab === "kids_animation",
       refetchInterval: 5000,
     });
 
@@ -400,8 +287,8 @@ export default function Projects() {
   const projActiveCount = projects?.filter(p => ["processing","pending"].includes(p.status)).length ?? 0;
   const projCompletedCount = projects?.filter(p => p.status === "completed").length ?? 0;
 
-  const totalCount = activeTab === "music_videos" ? (musicJobs?.length ?? 0) : activeTab === "kids_animation" ? (kidsJobs?.length ?? 0) : (projects?.length ?? 0);
-  const isLoading = activeTab === "music_videos" ? musicLoading : activeTab === "kids_animation" ? kidsLoading : projectsLoading;
+  const totalCount = activeTab === "music_videos" ? (musicJobs?.length ?? 0) : (projects?.length ?? 0);
+  const isLoading = activeTab === "music_videos" ? musicLoading : projectsLoading;
 
   /* ── Primary (hero) project ─────────────────────────────────────────────── */
   const primaryMusicJob = sortedMusicJobs[0] ?? null;
@@ -490,7 +377,7 @@ export default function Projects() {
             <div className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border ${completed ? "border-green-500/30" : "border-white/10"} bg-zinc-800`}>
               {completed && job.finalVideoUrl ? (
                 <>
-                  <video src={job.finalVideoUrl} className="w-full h-full object-cover wiz-video" muted playsInline preload="metadata" />
+                  <video src={job.finalVideoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
                     <Play className="h-5 w-5 text-white fill-current drop-shadow" />
                   </div>
@@ -721,23 +608,18 @@ export default function Projects() {
           </div>
         </div>
         {/* Tab bar */}
-        <div className="max-w-4xl mx-auto px-4 flex gap-1 pb-0 overflow-x-auto">
-          {(["music_videos", "kids_animation", "generated"] as const).map(tab => (
+        <div className="max-w-4xl mx-auto px-4 flex gap-1 pb-0">
+          {(["music_videos", "generated"] as const).map(tab => (
             <button
               key={tab}
               onClick={() => { setActiveTab(tab); setFilter("all"); }}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab ? "border-purple-500 text-white" : "border-transparent text-zinc-500 hover:text-white"
               }`}
             >
-              {tab === "music_videos" ? <><Music className="h-4 w-4" /> Music Videos</> :
-               tab === "kids_animation" ? <><Film className="h-4 w-4" /> Kids Animation</> :
-               <><Zap className="h-4 w-4" /> Generated Videos</>}
+              {tab === "music_videos" ? <><Music className="h-4 w-4" /> Music Videos</> : <><Zap className="h-4 w-4" /> Generated Videos</>}
               {tab === "music_videos" && (musicJobs?.length ?? 0) > 0 && (
                 <span className="ml-1 rounded-full bg-purple-600/30 text-purple-300 text-xs px-1.5 py-0.5 leading-none">{musicJobs!.length}</span>
-              )}
-              {tab === "kids_animation" && (kidsJobs?.length ?? 0) > 0 && (
-                <span className="ml-1 rounded-full bg-pink-600/30 text-pink-300 text-xs px-1.5 py-0.5 leading-none">{kidsJobs!.length}</span>
               )}
               {tab === "generated" && (projects?.length ?? 0) > 0 && (
                 <span className="ml-1 rounded-full bg-purple-600/30 text-purple-300 text-xs px-1.5 py-0.5 leading-none">{projects!.length}</span>
@@ -792,14 +674,12 @@ export default function Projects() {
             )}
 
             {/* ── Project list ─────────────────────────────────────────────── */}
-            {(activeTab === "music_videos" ? filteredMusicJobs : activeTab === "kids_animation" ? (kidsJobs ?? []) : filteredProjects).length === 0 ? (
+            {(activeTab === "music_videos" ? filteredMusicJobs : filteredProjects).length === 0 ? (
               <div className="text-center py-12 text-zinc-500 text-sm">No projects match this filter.</div>
             ) : (
               <div className="flex flex-col gap-3">
                 {activeTab === "music_videos"
                   ? filteredMusicJobs.map(job => <MusicCard key={job.id} job={job} />)
-                  : activeTab === "kids_animation"
-                  ? (kidsJobs ?? []).map(job => <KidsAnimCard key={job.id} job={job as unknown as KidsAnimationJob} />)
                   : filteredProjects.map(project => <GeneratedCard key={project.id} project={project} />)
                 }
               </div>
@@ -831,7 +711,7 @@ export default function Projects() {
           </DialogHeader>
           {previewProject?.outputUrl && (
             <div className="bg-black aspect-video w-full">
-              <video src={previewProject.outputUrl} controls autoPlay muted playsInline className="w-full h-full object-contain wiz-video" />
+              <video src={previewProject.outputUrl} controls autoPlay muted playsInline className="w-full h-full object-contain" />
             </div>
           )}
           <div className="flex gap-3 px-5 py-4">

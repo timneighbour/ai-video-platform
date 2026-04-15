@@ -470,7 +470,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           {/* ── Video (always muted — audio from separate element) ── */}
           <video
             ref={videoRef}
-            className="w-full h-full object-cover wiz-video"
+            className="w-full h-full object-cover"
             poster={POSTER_URL}
             playsInline
             muted

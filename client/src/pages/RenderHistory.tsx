@@ -232,7 +232,7 @@ export default function RenderHistory() {
                               muted
                               playsInline
                               preload="metadata"
-                              className="w-full h-full object-cover wiz-video"
+                              className="w-full h-full object-cover"
                               onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
                               onMouseLeave={(e) => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
                             />

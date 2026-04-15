@@ -127,10 +127,6 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   captionHighlightColour: varchar("captionHighlightColour", { length: 7 }).default("#FFD700"), // Hex colour for karaoke highlight
   captionKaraokeMode: boolean("captionKaraokeMode").default(false).notNull(), // Word-by-word highlight mode
   captionSafeArea: varchar("captionSafeArea", { length: 32 }).default("bottom_center"), // bottom_center | top_center | custom
-  // Quick Preview (free, low-res draft of scene 1)
-  previewStatus: mysqlEnum("mvPreviewStatus", ["none", "generating", "ready", "failed"]).default("none").notNull(),
-  previewVideoUrl: varchar("previewVideoUrl", { length: 1024 }), // CDN URL for 480p draft preview clip
-
   status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
@@ -420,10 +416,6 @@ export const renderJobs = mysqlTable("renderJobs", {
   stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
   stripeSessionId: varchar("stripeSessionId", { length: 255 }),
 
-  // Quick Preview (free, low-res draft)
-  previewStatus: mysqlEnum("rjPreviewStatus", ["none", "generating", "ready", "failed"]).default("none").notNull(),
-  previewVideoUrl: varchar("previewVideoUrl", { length: 1024 }), // CDN URL for 480p draft preview
-
   // Render output
   renderStatus: mysqlEnum("renderStatus", ["queued", "processing", "completed", "failed"]).notNull().default("queued"),
   downloadUrl: varchar("downloadUrl", { length: 1024 }),
@@ -538,15 +530,8 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
   storyboardFrames: longtext("storyboardFrames"), // JSON: Array<{sceneIndex, sceneLabel, imageUrl, description}>
   storyboardGeneratedAt: timestamp("storyboardGeneratedAt"),
 
-  // Quick Preview (free, low-res draft of scene 1)
-  previewStatus: mysqlEnum("kidsPreviewStatus", ["none", "generating", "ready", "failed"]).default("none").notNull(),
-  previewVideoUrl: varchar("previewVideoUrl", { length: 1024 }), // CDN URL for 480p draft preview
-
   // Render (paid)
   renderStatus: mysqlEnum("kidsRenderStatus", ["not_started", "queued", "processing", "completed", "failed"]).default("not_started").notNull(),
-  renderStage: varchar("renderStage", { length: 64 }), // queued | preparing_scenes | rendering_visuals | syncing_audio | finalising | complete
-  renderProgress: int("renderProgress").default(0).notNull(), // 0-100 percentage
-  renderMessage: varchar("renderMessage", { length: 255 }), // Human-readable current status message
   videoUrl: varchar("videoUrl", { length: 1024 }),
   videoKey: varchar("videoKey", { length: 512 }),
   creditsCharged: int("creditsCharged").default(0).notNull(),

@@ -288,20 +288,6 @@
       "when": 1776245060549,
       "tag": "0040_graceful_yellowjacket",
       "breakpoints": true
-    },
-    {
-      "idx": 41,
-      "version": "5",
-      "when": 1776262553798,
-      "tag": "0041_rapid_romulus",
-      "breakpoints": true
-    },
-    {
-      "idx": 42,
-      "version": "5",
-      "when": 1776264046384,
-      "tag": "0042_broken_johnny_blaze",
-      "breakpoints": true
     }
   ]
 }
