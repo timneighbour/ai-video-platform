@@ -29,7 +29,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-bold text-white mb-3">2. What Data We Collect</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Account information:</strong> Your name, email address, and profile picture provided via Google or Manus OAuth login.</li>
+              <li><strong>Account information:</strong> Your name, email address, and profile picture provided via your social login (e.g. Google).</li>
               <li><strong>Usage data:</strong> Pages visited, features used, video creation history, and session duration.</li>
               <li><strong>Uploaded content:</strong> Audio files, images, and text prompts you submit to generate videos. These are stored securely and used solely to deliver the service.</li>
               <li><strong>Payment information:</strong> Processed entirely by Stripe. We store only a Stripe Customer ID — no card numbers or financial details are held on our servers.</li>

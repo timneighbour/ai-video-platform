@@ -3834,3 +3834,78 @@
 ### 11. Final User Flow Test
 - [x] Full flow verified: homepage → onboarding → create → preview → render
 - [x] No dead ends or broken links found in the flow
+
+## Bug Fix: Sign Out Button Not Working (Apr 15)
+- [x] Fix sign out button — added loading spinner, disabled state, error toast, and "Signing out..." feedback
+
+## STRIPE GO LIVE — Production Switch (Apr 15, CRITICAL)
+
+### 1. Switch to Live Stripe Keys
+- [ ] Replace sk_test with sk_live (STRIPE_SECRET_KEY env var)
+- [ ] Replace pk_test with pk_live (VITE_STRIPE_PUBLISHABLE_KEY env var)
+- [ ] Replace test webhook secret with live webhook secret (STRIPE_WEBHOOK_SECRET env var)
+
+### 2. Verify Live Products Exist in Stripe Dashboard
+- [ ] Confirm £9 Starter plan exists in LIVE Stripe
+- [ ] Confirm £19 Basic plan exists in LIVE Stripe
+- [ ] Confirm £29 Creator plan exists in LIVE Stripe
+- [ ] Confirm £99 Studio plan exists in LIVE Stripe
+- [ ] Confirm render pricing (£2/£4/£6 Full Video Render) exists in LIVE Stripe
+- [ ] Confirm credit packs exist in LIVE Stripe
+- [ ] Confirm audio enhancement packs exist in LIVE Stripe
+
+### 3. Update Price IDs
+- [ ] Replace ALL test price IDs with LIVE price IDs in env vars
+- [ ] Verify products.ts reads from env vars (not hardcoded test IDs)
+
+### 4. Stripe Webhook (CRITICAL)
+- [ ] Verify LIVE webhook endpoint is configured in Stripe Dashboard
+- [ ] Verify checkout.session.completed event is handled
+- [ ] Verify payment activates user access
+- [ ] Verify email notification sent on payment
+
+### 5. Email Notifications
+- [ ] Verify new signup email sent to timneighbour@wizvid.ai
+- [ ] Verify new subscription email sent to timneighbour@wizvid.ai
+- [ ] Verify server-side trigger (not frontend)
+
+### 6. Success Page
+- [ ] Verify post-payment redirect to success page
+- [ ] Show confirmation and next steps
+
+### 7. Test Live Payment
+- [ ] Perform real payment (smallest amount)
+- [ ] Verify payment succeeds, email received, access granted
+
+### 8. Failsafe Checks
+- [ ] No test keys remain in codebase
+- [ ] No test price IDs used
+- [ ] No console errors
+- [ ] No failed API calls
+
+### 9. Logging
+- [ ] Log payment success events
+- [ ] Log payment failure events
+- [ ] Log webhook trigger events
+
+## Remove Manus Branding from Customer-Facing Touchpoints (Apr 15, CRITICAL)
+- [ ] Audit all places "Manus" appears in customer-facing code
+- [ ] Replace Manus branding in email templates with WizVid AI
+- [ ] Replace Manus branding in Stripe checkout session metadata/description
+- [ ] Replace Manus branding in any OAuth/login screens
+- [ ] Update VITE_APP_TITLE to "WizVid AI" if not already
+- [ ] Ensure no "Manus" text visible to end users anywhere
+
+## FINAL GO LIVE CHECK (Apr 15)
+- [ ] 1. Stripe live keys active (not test)
+- [ ] 2. Payments working end-to-end
+- [ ] 3. Emails sending (signup + payment + render)
+- [ ] 4. Render pipeline completes successfully
+- [ ] 5. Projects save and reload
+- [ ] 6. Analytics installed (Clarity + GA4)
+- [ ] 7. No console errors
+- [ ] 8. No broken links
+- [ ] 9. Works on mobile + desktop
+- [x] Audit all Manus references in codebase (URLs, branding, emails, OAuth redirects, meta tags)
+- [x] Replace all customer-facing manus.space URLs with wizvid.ai
+- [x] Remove any Manus branding from email templates, payment flows, and auth screens

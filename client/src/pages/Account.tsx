@@ -13,6 +13,7 @@ export default function Account() {
   const [, setLocation] = useLocation();
   const [cancelLoading, setCancelLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   const { data: subData, isLoading: subLoading, refetch: refetchSub } = trpc.billing.getAccountSubscription.useQuery(
     undefined,
@@ -40,8 +41,14 @@ export default function Account() {
   });
 
   const handleLogout = async () => {
-    await logout();
-    setLocation("/");
+    setLogoutLoading(true);
+    try {
+      await logout();
+      setLocation("/");
+    } catch (err) {
+      toast.error("Sign out failed", { description: "Please try again or clear your browser cookies." });
+      setLogoutLoading(false);
+    }
   };
 
   const handleCancel = async () => {
@@ -234,9 +241,10 @@ export default function Account() {
                 variant="outline"
                 className="w-full gap-2 text-destructive hover:text-destructive"
                 onClick={handleLogout}
+                disabled={logoutLoading}
               >
-                <LogOut className="h-4 w-4" />
-                Sign Out
+                {logoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                {logoutLoading ? "Signing out..." : "Sign Out"}
               </Button>
             </CardContent>
           </Card>
