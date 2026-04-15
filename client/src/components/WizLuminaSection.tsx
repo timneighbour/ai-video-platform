@@ -1,74 +1,249 @@
 /**
  * WizLuminaSection — Homepage visual enhancement comparison section.
  *
- * Shows a side-by-side / toggle comparison of Standard vs WizLumina™ Cinematic
- * visual quality using CSS filters applied dynamically to the same video source.
- * Mirrors the WizSoundSection pattern but for visual enhancement.
+ * Shows a 3-mode toggle (Standard / Enhanced / Cinematic) with a drag
+ * comparison slider for before/after visual demonstration.
  */
-import { useState, useRef, useEffect } from "react";
-import { Eye, Sparkles, Film, Palette, Sun, Layers } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Eye, Sparkles, Film, Palette, Sun, Layers, GripVertical } from "lucide-react";
 
 const WIZLUMINA_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-W8B2HDZw99Ld29Xm46xqXN.webp";
-
-// Demo video — same working source as WizSoundSection
 const DEMO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
 
-type VisualMode = "standard" | "cinematic";
+type VisualMode = "standard" | "enhanced" | "cinematic";
 
-const STANDARD_FILTER = "brightness(0.85) contrast(0.9) saturate(0.8) grayscale(0.05)";
-const CINEMATIC_FILTER = "brightness(1.08) contrast(1.18) saturate(1.35) hue-rotate(2deg)";
+const FILTERS: Record<VisualMode, string> = {
+  standard: "brightness(0.82) contrast(0.88) saturate(0.75) grayscale(0.08)",
+  enhanced: "brightness(1.06) contrast(1.12) saturate(1.22) hue-rotate(1deg)",
+  cinematic: "brightness(1.1) contrast(1.22) saturate(1.42) hue-rotate(3deg)",
+};
+
+const MODE_META: Record<VisualMode, {
+  label: string;
+  sublabel: string;
+  description: string;
+  accentColor: string;
+  borderColor: string;
+  glow: string;
+  badgeBg: string;
+  badgeText: string;
+}> = {
+  standard: {
+    label: "Standard",
+    sublabel: "Baseline",
+    description: "Flat, unprocessed output — the raw AI video before any enhancement.",
+    accentColor: "rgba(255,255,255,0.5)",
+    borderColor: "rgba(255,255,255,0.12)",
+    glow: "",
+    badgeBg: "rgba(0,0,0,0.5)",
+    badgeText: "rgba(255,255,255,0.55)",
+  },
+  enhanced: {
+    label: "Enhanced",
+    sublabel: "WizLumina™",
+    description: "Colour grading, sharpening, and contrast boost — immediate visible improvement.",
+    accentColor: "#f59e0b",
+    borderColor: "rgba(245,158,11,0.4)",
+    glow: "0 0 40px rgba(245,158,11,0.2)",
+    badgeBg: "rgba(245,158,11,0.2)",
+    badgeText: "#fcd34d",
+  },
+  cinematic: {
+    label: "Cinematic",
+    sublabel: "WizLumina™ Ultra",
+    description: "HDR tone mapping, deep blacks, vivid highlights, and film-level colour science.",
+    accentColor: "#f59e0b",
+    borderColor: "rgba(245,158,11,0.55)",
+    glow: "0 0 60px rgba(245,158,11,0.3), 0 0 120px rgba(217,70,239,0.1)",
+    badgeBg: "linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,70,239,0.2))",
+    badgeText: "#fde68a",
+  },
+};
 
 const FEATURES = [
-  {
-    icon: Palette,
-    title: "Advanced Colour Grading",
-    description: "Hollywood-grade LUT processing transforms flat AI footage into rich, vivid cinematic colour.",
-  },
-  {
-    icon: Film,
-    title: "Cinematic Tone Mapping",
-    description: "HDR-style tone mapping delivers deeper blacks, brighter highlights, and true film-level contrast.",
-  },
-  {
-    icon: Sun,
-    title: "Film-Level Finish",
-    description: "Every frame is enhanced with professional-grade sharpening, noise reduction, and colour science.",
-  },
-  {
-    icon: Layers,
-    title: "Visual Depth & Clarity",
-    description: "Proprietary spatial enhancement adds dimension and presence to every shot — like upgrading to IMAX.",
-  },
+  { icon: Palette, title: "Colour Grading", description: "Hollywood-grade LUT processing transforms flat AI footage into rich, vivid cinematic colour." },
+  { icon: Film, title: "Tone Mapping", description: "HDR-style tone mapping delivers deeper blacks, brighter highlights, and true film-level contrast." },
+  { icon: Sun, title: "Film Finish", description: "Professional sharpening, noise reduction, and colour science applied to every frame." },
+  { icon: Layers, title: "Visual Depth", description: "Spatial enhancement adds dimension and presence — like upgrading to IMAX." },
 ];
 
-export function WizLuminaSection() {
-  const [mode, setMode] = useState<VisualMode>("standard");
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+/* ── Comparison Slider ───────────────────────────────────────────────────── */
+function ComparisonSlider({ mode }: { mode: VisualMode }) {
+  const [sliderPos, setSliderPos] = useState(50);
+  const [dragging, setDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoLeftRef = useRef<HTMLVideoElement>(null);
+  const videoRightRef = useRef<HTMLVideoElement>(null);
 
-  // Smooth transition when switching modes
-  function handleModeSwitch(newMode: VisualMode) {
-    if (newMode === mode) return;
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setMode(newMode);
-      setIsTransitioning(false);
-    }, 150);
-  }
-
+  // Autoplay both videos
   useEffect(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    vid.muted = true;
-    vid.loop = true;
-    vid.playsInline = true;
-    vid.play().catch(() => {});
+    [videoLeftRef, videoRightRef].forEach(ref => {
+      const v = ref.current;
+      if (!v) return;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.play().catch(() => {});
+    });
   }, []);
 
-  const currentFilter = mode === "cinematic" ? CINEMATIC_FILTER : STANDARD_FILTER;
+  // Sync right video to left video time
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const l = videoLeftRef.current;
+      const r = videoRightRef.current;
+      if (l && r && Math.abs(l.currentTime - r.currentTime) > 0.15) {
+        r.currentTime = l.currentTime;
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const updateSlider = useCallback((clientX: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const pos = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100));
+    setSliderPos(pos);
+  }, []);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: MouseEvent) => updateSlider(e.clientX);
+    const onTouchMove = (e: TouchEvent) => updateSlider(e.touches[0].clientX);
+    const onUp = () => setDragging(false);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [dragging, updateSlider]);
+
+  const meta = MODE_META[mode];
 
   return (
-    <section className="relative py-24 overflow-hidden bg-[#050508]">
+    <div
+      ref={containerRef}
+      className="relative w-full aspect-video rounded-2xl overflow-hidden select-none cursor-ew-resize border-2 transition-all duration-500"
+      style={{
+        borderColor: meta.borderColor,
+        boxShadow: meta.glow || "0 0 30px rgba(0,0,0,0.5)",
+      }}
+      onMouseDown={onMouseDown}
+      onTouchStart={(e) => { setDragging(true); updateSlider(e.touches[0].clientX); }}
+    >
+      {/* Left: Standard (always flat) */}
+      <video
+        ref={videoLeftRef}
+        src={DEMO_VIDEO}
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        style={{ filter: FILTERS.standard }}
+        muted loop playsInline autoPlay
+      />
+
+      {/* Right: Selected mode — clipped to right side */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
+      >
+        <video
+          ref={videoRightRef}
+          src={DEMO_VIDEO}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: FILTERS[mode], transition: "filter 0.5s ease" }}
+          muted loop playsInline autoPlay
+        />
+        {/* Cinematic vignette */}
+        {mode === "cinematic" && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.5) 100%)" }}
+          />
+        )}
+      </div>
+
+      {/* Slider handle */}
+      <div
+        className="absolute top-0 bottom-0 z-20 pointer-events-none"
+        style={{ left: `${sliderPos}%`, transform: "translateX(-50%)" }}
+      >
+        {/* Line */}
+        <div className="absolute inset-0 w-0.5 mx-auto bg-white/80 shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
+        {/* Handle */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.4)] flex items-center justify-center pointer-events-auto cursor-ew-resize"
+          onMouseDown={onMouseDown}
+          onTouchStart={(e) => { setDragging(true); updateSlider(e.touches[0].clientX); }}
+        >
+          <GripVertical className="w-4 h-4 text-black/70" />
+        </div>
+      </div>
+
+      {/* Labels */}
+      <div className="absolute top-3 left-3 z-10 pointer-events-none">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/15 bg-black/40">
+          <Eye className="w-3 h-3 text-white/60" />
+          <span className="text-[10px] font-semibold text-white/60">Standard</span>
+        </div>
+      </div>
+      <div className="absolute top-3 right-3 z-10 pointer-events-none">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm border"
+          style={{ borderColor: meta.borderColor, background: meta.badgeBg }}>
+          <img src={WIZLUMINA_LOGO} alt="" className="w-3 h-3 rounded-full" />
+          <span className="text-[10px] font-bold" style={{ color: meta.badgeText }}>{meta.sublabel}</span>
+        </div>
+      </div>
+
+      {/* Drag hint */}
+      {!dragging && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 border border-white/15 backdrop-blur-sm">
+            <span className="text-[10px] text-white/50">← drag to compare →</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Main section ────────────────────────────────────────────────────────── */
+export function WizLuminaSection() {
+  const [mode, setMode] = useState<VisualMode>("enhanced");
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const meta = MODE_META[mode];
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative py-24 overflow-hidden bg-[#050508]"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(32px)",
+        transition: "opacity 0.8s ease, transform 0.8s ease",
+      }}
+    >
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full bg-amber-500/5 blur-[120px]" />
@@ -77,7 +252,7 @@ export function WizLuminaSection() {
 
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-14">
+        <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/25 bg-amber-500/8 mb-6">
             <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-3.5 h-3.5 rounded-full" />
             <span className="text-amber-300 text-xs font-bold tracking-wider uppercase">Powered by WizLumina™</span>
@@ -89,101 +264,49 @@ export function WizLuminaSection() {
             </span>
           </h2>
           <p className="text-white/50 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Press play, then toggle between Standard and WizLumina Cinematic.
-          </p>
-          <p className="text-white/40 text-sm max-w-xl mx-auto mt-2">
-            The difference is <strong className="text-white/60">immediate</strong>. WizLumina™ transforms flat AI video into rich, vivid, cinema-quality visuals — deeper blacks, brighter highlights, and film-level colour grading.
+            Drag the slider to compare Standard vs Enhanced vs Cinematic — the difference is immediate.
           </p>
         </div>
 
-        {/* Video comparison */}
-        <div className="relative max-w-3xl mx-auto mb-14">
-          {/* Toggle pills */}
-          <div className="flex items-center justify-center gap-2 mb-5">
-            <button
-              onClick={() => handleModeSwitch("standard")}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                mode === "standard"
-                  ? "bg-white/15 border border-white/30 text-white shadow-lg"
-                  : "bg-white/5 border border-white/10 text-white/45 hover:text-white/70 hover:bg-white/8"
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Standard
-            </button>
-            <div className="w-px h-5 bg-white/15" />
-            <button
-              onClick={() => handleModeSwitch("cinematic")}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                mode === "cinematic"
-                  ? "bg-gradient-to-r from-amber-500/30 to-yellow-500/20 border border-amber-400/50 text-amber-200 shadow-[0_0_25px_rgba(245,158,11,0.3)]"
-                  : "bg-white/5 border border-white/10 text-white/45 hover:text-amber-300/70 hover:bg-amber-500/8"
-              }`}
-            >
-              <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 rounded-full" />
-              WizLumina™ Cinematic
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-300 text-[9px] font-bold">+£5</span>
-            </button>
-          </div>
-
-          {/* Video container */}
-          <div className={`relative rounded-2xl overflow-hidden border-2 transition-all duration-500 ${
-            mode === "cinematic"
-              ? "border-amber-500/50 shadow-[0_0_60px_rgba(245,158,11,0.25)]"
-              : "border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)]"
-          }`}>
-            {/* Mode label overlay */}
-            <div className="absolute top-3 left-3 z-10">
-              {mode === "cinematic" ? (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/25 border border-amber-400/40 backdrop-blur-sm">
-                  <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 rounded-full" />
-                  <span className="text-[11px] font-bold text-amber-200 tracking-wide">WizLumina™ Cinematic</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 border border-white/15 backdrop-blur-sm">
-                  <Eye className="w-3 h-3 text-white/60" />
-                  <span className="text-[11px] font-semibold text-white/60">Standard</span>
-                </div>
-              )}
-            </div>
-
-            {/* Video with dynamic CSS filter */}
-            <div
-              className="transition-all duration-300"
-              style={{ opacity: isTransitioning ? 0 : 1 }}
-            >
-              <video
-                ref={videoRef}
-                src={DEMO_VIDEO}
-                className="w-full aspect-video object-cover"
-                style={{ filter: currentFilter, transition: "filter 0.6s ease" }}
-                muted
-                loop
-                playsInline
-                autoPlay
-              />
-            </div>
-
-            {/* Cinematic vignette overlay */}
-            {mode === "cinematic" && (
-              <div
-                className="absolute inset-0 pointer-events-none transition-opacity duration-500"
-                style={{
-                  background: "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%)",
-                  opacity: isTransitioning ? 0 : 1,
+        {/* 3-mode toggle */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          {(["standard", "enhanced", "cinematic"] as VisualMode[]).map((m) => {
+            const c = MODE_META[m];
+            const active = mode === m;
+            return (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  active ? "text-white" : "text-white/40 hover:text-white/65"
+                }`}
+                style={active ? {
+                  background: m === "standard" ? "rgba(255,255,255,0.12)" : `linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,70,239,0.15))`,
+                  border: `1px solid ${c.borderColor}`,
+                  boxShadow: c.glow || undefined,
+                } : {
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                 }}
-              />
-            )}
-          </div>
+                aria-pressed={active}
+              >
+                {m === "standard" ? <Eye className="w-3.5 h-3.5" /> : <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 rounded-full" />}
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Comparison hint */}
+        {/* Comparison slider */}
+        <div className="max-w-3xl mx-auto mb-4">
+          <ComparisonSlider mode={mode} />
           <p className="text-center text-xs text-white/30 mt-3">
-            Same video source — toggle to see the WizLumina™ Cinematic Engine difference
+            Same video source — {meta.description}
           </p>
         </div>
 
         {/* Feature cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
           {FEATURES.map((feat) => {
             const Icon = feat.icon;
             return (
@@ -192,7 +315,7 @@ export function WizLuminaSection() {
                 className="group p-5 rounded-2xl bg-white/3 border border-white/8 hover:border-amber-500/25 hover:bg-amber-500/5 transition-all duration-300"
               >
                 <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/20 flex items-center justify-center mb-3 group-hover:bg-amber-500/25 transition-colors">
-                  <Icon className="w-4.5 h-4.5 text-amber-400" />
+                  <Icon className="w-4 h-4 text-amber-400" />
                 </div>
                 <h3 className="text-sm font-bold text-white mb-1.5">{feat.title}</h3>
                 <p className="text-xs text-white/45 leading-relaxed">{feat.description}</p>
@@ -210,7 +333,7 @@ export function WizLuminaSection() {
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div className="text-center">
-              <div className="text-xs text-amber-400/60 mb-0.5">WizLumina Enhance</div>
+              <div className="text-xs text-amber-400/60 mb-0.5">WizLumina Enhanced</div>
               <div className="text-lg font-bold text-amber-300">+£2</div>
             </div>
             <div className="w-px h-10 bg-white/10" />
@@ -222,7 +345,7 @@ export function WizLuminaSection() {
           <div className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-900/30 to-violet-900/20 border border-fuchsia-500/30">
             <Sparkles className="w-4 h-4 text-fuchsia-400" />
             <div>
-              <div className="text-xs font-bold text-fuchsia-300">Cinematic Mode Bundle</div>
+              <div className="text-xs font-bold text-fuchsia-300">Cinematic Bundle</div>
               <div className="text-[11px] text-white/50">WizSound + WizLumina Cinematic — <span className="text-fuchsia-300 font-semibold">+£8</span></div>
             </div>
           </div>
