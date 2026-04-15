@@ -11,6 +11,7 @@ import WizLuminaSection from "@/components/WizLuminaSection";
 import { HowWizVidWorks } from "@/components/HowWizVidWorks";
 import AllInOnePlatform from "@/components/AllInOnePlatform";
 import PlatformFlow from "@/components/PlatformFlow";
+import WizVidEngine from "@/components/WizVidEngine";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -2598,68 +2599,110 @@ function CTAPush() {
   );
 }
 
+const WIZSYNC_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1_a4fc38c0.png";
+const WIZANIMATE_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/module-wizanimate_faa7b7ea.png";
+const WIZBOOST_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/module-wizboost_ce93c033.png";
+
 // ── Ecosystem Section ─────────────────────────────────────────────────────────
 function EcosystemSection() {
   const engines = [
     {
       logo: WIZCREATE_LOGO,
       name: "WizCreate™",
+      role: "The Brain",
       tagline: "AI Creation Engine",
-      desc: "AI-powered creation engine from storyboard to final render. Generates scenes, characters, and cinematic visuals from a single prompt.",
+      desc: "Transforms any audio or idea into a fully-structured cinematic storyboard with scenes, characters, and visual direction.",
+      caps: ["AI storyboard generation", "Scene-by-scene visual planning", "Character design & consistency"],
       colour: "violet",
       border: "border-violet-500/30",
       glow: "hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]",
       bg: "bg-violet-500/5",
       badge: "text-violet-300 bg-violet-500/10 border-violet-500/25",
-      href: "/music-video",
+      href: "/products/wizcreate",
+    },
+    {
+      logo: WIZANIMATE_ICON,
+      name: "WizAnimate™",
+      role: "The Performer",
+      tagline: "Character Animation Engine",
+      desc: "Brings characters to life with fluid AI-driven animation, motion-matched to the audio beat and emotional tone.",
+      caps: ["Beat-matched character motion", "Emotion-driven performance", "Multi-character scene support"],
+      colour: "cyan",
+      border: "border-cyan-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]",
+      bg: "bg-cyan-500/5",
+      badge: "text-cyan-300 bg-cyan-500/10 border-cyan-500/25",
+      href: "/products/wizanimate",
+    },
+    {
+      logo: WIZSYNC_LOGO,
+      name: "WizSync™",
+      role: "The Lip Sync Master",
+      tagline: "Voice-to-Character Engine",
+      desc: "Detects every voice in a track, assigns each to a character, and generates frame-perfect lip sync for realistic performance.",
+      caps: ["AI speaker diarisation", "Auto voice-to-character mapping", "Hedra lip sync integration"],
+      colour: "purple",
+      border: "border-purple-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(168,85,247,0.2)]",
+      bg: "bg-purple-500/5",
+      badge: "text-purple-300 bg-purple-500/10 border-purple-500/25",
+      href: "/wizsync",
     },
     {
       logo: WIZSOUND_LOGO,
       name: "WizSound™",
+      role: "The Composer",
       tagline: "Cinematic Audio Engine",
-      desc: "Proprietary audio enhancement that transforms standard sound into studio-grade, immersive cinematic audio — richer bass, clearer highs, fuller presence.",
-      colour: "indigo",
-      border: "border-indigo-500/30",
-      glow: "hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]",
-      bg: "bg-indigo-500/5",
-      badge: "text-indigo-300 bg-indigo-500/10 border-indigo-500/25",
-      href: "/#wizsound",
+      desc: "Proprietary audio enhancement that transforms standard sound into studio-grade, immersive cinematic audio.",
+      caps: ["Studio-grade audio mastering", "Richer bass & clearer highs", "Cinematic spatial presence"],
+      colour: "emerald",
+      border: "border-emerald-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]",
+      bg: "bg-emerald-500/5",
+      badge: "text-emerald-300 bg-emerald-500/10 border-emerald-500/25",
+      href: "/products/wizsound",
     },
     {
       logo: WIZLUMINA_LOGO,
       name: "WizLumina™",
+      role: "The Cinematographer",
       tagline: "Visual Enhancement Engine",
-      desc: "Cinematic colour grading, HDR tone mapping, and film-level sharpening that transforms flat AI video into rich, vivid, cinema-quality visuals.",
+      desc: "Cinematic colour grading, HDR tone mapping, and film-level sharpening that transforms flat AI video into rich, vivid visuals.",
+      caps: ["HDR tone mapping & grading", "Film-level sharpening", "4K upscaling & enhancement"],
       colour: "amber",
       border: "border-amber-500/30",
       glow: "hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]",
       bg: "bg-amber-500/5",
       badge: "text-amber-300 bg-amber-500/10 border-amber-500/25",
-      href: "/#wizlumina",
+      href: "/products/wizlumina",
     },
     {
       logo: WIZGENESIS_LOGO,
       name: "WizGenesis™",
-      tagline: "Render Engine",
-      desc: "The final stage of creation. WizGenesis™ renders your video at studio quality — 720p, 1080p, or 4K — with WizSound™ and WizLumina™ baked in.",
+      role: "The Renderer",
+      tagline: "Final Render Engine",
+      desc: "The final stage of creation. Renders your video at studio quality — 720p, 1080p, or 4K — with WizSound™ and WizLumina™ baked in.",
+      caps: ["4K studio-quality render", "WizSound + WizLumina baked in", "Instant download & share"],
       colour: "rose",
       border: "border-rose-500/30",
       glow: "hover:shadow-[0_0_30px_rgba(244,63,94,0.2)]",
       bg: "bg-rose-500/5",
       badge: "text-rose-300 bg-rose-500/10 border-rose-500/25",
-      href: "/music-video/create",
+      href: "/products/wizgenesis",
     },
     {
-      logo: WIZPILOT_LOGO,
-      name: "WizPilot™",
-      tagline: "Automation Engine",
-      desc: "Automated workflows for faster video production. Describe any idea and WizPilot handles everything — storyboard, scenes, and final video.",
-      colour: "fuchsia",
-      border: "border-fuchsia-500/30",
-      glow: "hover:shadow-[0_0_30px_rgba(217,70,239,0.2)]",
-      bg: "bg-fuchsia-500/5",
-      badge: "text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/25",
-      href: "/wizpilot",
+      logo: WIZBOOST_ICON,
+      name: "WizBoost™",
+      role: "The Amplifier",
+      tagline: "Creator Distribution Engine",
+      desc: "Connects your finished video to real viewers, creators, and fans — amplifying reach across platforms automatically.",
+      caps: ["Multi-platform distribution", "Creator network amplification", "Audience growth analytics"],
+      colour: "orange",
+      border: "border-orange-500/30",
+      glow: "hover:shadow-[0_0_30px_rgba(249,115,22,0.2)]",
+      bg: "bg-orange-500/5",
+      badge: "text-orange-300 bg-orange-500/10 border-orange-500/25",
+      href: "/products/wizboost",
     },
   ];
 
@@ -2677,10 +2720,10 @@ function EcosystemSection() {
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
             One platform.
-            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"> Five powerful engines.</span>
+            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"> Seven powerful modules.</span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto">
-            WizVid is built on a stack of proprietary AI engines — each one engineered for a specific part of the video creation process.
+            WizVid is built on seven specialised AI modules — each one engineered for a specific stage of the video creation pipeline.
           </p>
         </div>
 
@@ -2721,13 +2764,26 @@ function EcosystemSection() {
                 )}
               </div>
 
-              {/* Badge */}
-              <div className={`inline-flex items-center self-start gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest mb-3 ${engine.badge}`}>
-                {engine.tagline}
+              {/* Role + Badge row */}
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest ${engine.badge}`}>
+                  {engine.tagline}
+                </div>
+                <span className="text-[10px] text-white/35 font-medium">{(engine as { role?: string }).role}</span>
               </div>
 
               {/* Description */}
-              <p className="text-white/55 text-sm leading-relaxed flex-1">{engine.desc}</p>
+              <p className="text-white/55 text-sm leading-relaxed mb-3">{engine.desc}</p>
+
+              {/* Capabilities */}
+              <ul className="space-y-1 flex-1">
+                {((engine as { caps?: string[] }).caps ?? []).map((cap) => (
+                  <li key={cap} className="flex items-start gap-2 text-xs text-white/40">
+                    <span className={`mt-0.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${engine.badge.split(" ")[0].replace("text-", "bg-")}`} />
+                    {cap}
+                  </li>
+                ))}
+              </ul>
 
               {/* CTA */}
               <div className={`mt-4 flex items-center gap-1.5 text-xs font-semibold ${engine.badge.split(" ")[0]} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
@@ -2877,9 +2933,11 @@ export default function Home() {
         <PlatformFlow />
         {/* 3. How It Works — 5-step pipeline */}
         <HowItWorksStrip />
-        {/* 4. Examples — grid with hover preview */}
+        {/* 4. WizVid Engine — animated 7-module pipeline */}
+        <WizVidEngine />
+        {/* 5. Examples — grid with hover preview */}
         <MadeWithWizVid />
-        {/* 5. Product Ecosystem — 5 engines */}
+        {/* 6. Product Ecosystem — 7 modules */}
         <EcosystemSection />
         {/* 6. Audio Demo — WizSound toggle */}
         <WizSoundSection />

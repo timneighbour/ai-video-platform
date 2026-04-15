@@ -3985,3 +3985,20 @@
 - [ ] Integrate WizSync with Music Video storyboard scene assignment
 - [ ] Support 2+ voices, duets, group vocals (multi-speaker already detected, scene mapping pending)
 - [ ] Instrument detection → character performance assignment (stems separated, UI assignment pending)
+
+## Engine-Based UX Redesign (Apr 2026)
+- [ ] Generate visual assets: engine flow diagram, module card icons for all 7 modules
+- [ ] Build WizVid Engine section: animated pipeline flow (Audio→WizCreate→WizAnimate+WizSync→WizSound→WizLumina→WizGenesis→WizBoost)
+- [ ] Reorder homepage sections: Hero→Trust→How It Works (5 steps)→WizVid Engine→Product Modules→Audio Demo→Visual Demo→Pricing→Post-render→WizBoost→Final CTA
+- [ ] Build Product Module Cards: Name, Role tagline, 1-line benefit, 3 bullet capabilities, clickable to product page
+- [ ] Create /products/wizcreate page: What it does, How it works, Key benefits, Example output
+- [ ] Create /products/wizanimate page: What it does, How it works, Key benefits, Example output
+- [ ] Create /products/wizsync page redirect or update existing /wizsync
+- [ ] Create /products/wizsound page: What it does, How it works, Key benefits, Example output
+- [ ] Create /products/wizlumina page: What it does, How it works, Key benefits, Example output
+- [ ] Create /products/wizgenesis page: What it does, How it works, Key benefits, Example output
+- [ ] Create /products/wizboost page: What it does, How it works, Key benefits, Example output
+- [ ] Register all 7 product routes in App.tsx
+- [ ] Update nav Products dropdown to link to all 7 product pages
+- [ ] Add flow diagrams and step animations to homepage Engine section
+- [ ] Ensure no text-heavy sections without visuals
