@@ -3938,3 +3938,8 @@
 - [x] Update homepage nav 'Create' link to /create
 - [x] Update homepage 'Start Creating' CTA to /create (authenticated users)
 - [x] Fix Projects.tsx isPublic TypeScript error (data.shareSlug check)
+
+## All-in-One Platform Section — Homepage
+- [x] Build AllInOnePlatform component with 7-step animated horizontal flow
+- [x] Insert component near top of homepage (after TrustSignals, before How It Works)
+- [x] Mobile responsive layout (vertical stack on mobile, horizontal grid on desktop)

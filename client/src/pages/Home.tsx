@@ -9,6 +9,7 @@ import { DemoVideoModal } from "@/components/DemoVideoModal";
 import WizSoundSection from "@/components/WizSoundSection";
 import WizLuminaSection from "@/components/WizLuminaSection";
 import { HowWizVidWorks } from "@/components/HowWizVidWorks";
+import AllInOnePlatform from "@/components/AllInOnePlatform";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -2871,6 +2872,8 @@ export default function Home() {
         <Hero />
         {/* 2. Trust Strip — 3 key value props */}
         <TrustSignals />
+        {/* 2b. All-in-One Platform — 7-step journey */}
+        <AllInOnePlatform />
         {/* 3. How It Works — 5-step pipeline */}
         <HowItWorksStrip />
         {/* 4. Examples — grid with hover preview */}
