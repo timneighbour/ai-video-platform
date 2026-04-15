@@ -3988,3 +3988,10 @@
 - [x] No repetition, no filler, every second intentional
 - [x] Logo reveal on PEAK energy (24s, sustained through 25-26s)
 - [x] Upload v19 to CDN and update WizVidIntro.tsx
+
+## SEO Meta Optimisation (Apr 15)
+- [x] Update meta title for Google listing (59 chars)
+- [x] Update meta description for Google listing (153 chars)
+- [x] Ensure keywords included: AI video generator, AI music video creator, animation AI, create videos with AI
+- [x] Title under 60 characters, description under 160 characters
+- [x] Updated OG, Twitter Card, and JSON-LD structured data to match
