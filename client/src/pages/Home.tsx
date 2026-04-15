@@ -673,9 +673,9 @@ function HeroProductPreview() {
               <div className="absolute" style={{ display: 'none' }} />
             )}
             <span
-              className="text-[9px] font-semibold tracking-wide text-center leading-tight transition-colors duration-200"
+              className="text-[11px] font-semibold tracking-wide text-center leading-tight transition-colors duration-200 px-0.5"
               style={{
-                color: phase === step ? "rgba(167,139,250,1)" : "rgba(255,255,255,0.3)",
+                color: phase === step ? "rgba(167,139,250,1)" : "rgba(255,255,255,0.45)",
                 textShadow: phase === step ? "0 0 8px rgba(167,139,250,0.6)" : "none",
               }}
             >
@@ -859,8 +859,8 @@ function Hero() {
           </div>
 
           {/* ── RIGHT: Animated product preview — bottom-right corner ── */}
-          <div className="hidden lg:flex items-start justify-end pb-0 self-start" style={{marginTop: '4rem'}}>
-            <div className="w-full max-w-[540px] translate-x-16 -translate-y-4">
+          <div className="hidden lg:flex items-end justify-end pb-0 self-end">
+            <div className="w-full max-w-[540px]">
               <HeroProductPreview />
             </div>
           </div>

@@ -21,10 +21,10 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v10-restored_d8bea32d.mp4`;  // v10 original music + enhanced WizSound
+const TRAILER_URL = `${CDN}/wizvid-intro-v10-4k_62f37d96.mp4`;  // v10 original music + WizLumina v2 + enhanced WizSound + Montserrat titles
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v10r_seen";  // new key forces re-show for all users
+export const INTRO_SEEN_KEY = "wizvid_intro_v10_4k_seen";  // 4K quality upgrade — forces re-show for all users
 
 // CTA appears when video ends (~25.4s); timer fires at 25s as backup
 const CTA_SHOW_AT_MS = 25000;
