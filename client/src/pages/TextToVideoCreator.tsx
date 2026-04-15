@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Wand2, Sparkles, RefreshCw, Play, ChevronRight,
   Zap, CheckCircle2, Clock, ArrowLeft, Loader2,
-  AlertCircle, Download, ExternalLink, Plus, Trash2, Copy, ImageIcon,
+  AlertCircle, Download, ExternalLink, Plus, Trash2, Copy, ImageIcon, Eye,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
@@ -194,6 +194,31 @@ export default function TextToVideoCreator() {
   });
 
   const generateScenePreviewMutation = trpc.billing.generateScenePreview.useMutation();
+
+  // ── Quick Preview state ──
+  const [qpStatus, setQpStatus] = useState<"idle" | "generating" | "ready" | "failed">("idle");
+  const [qpVideoUrl, setQpVideoUrl] = useState<string | null>(null);
+  const quickPreviewMutation = trpc.render.quickPreviewFromPrompt.useMutation();
+
+  const handleQuickPreview = useCallback(async () => {
+    if (qpStatus === "generating" || storyboard.length === 0) return;
+    const firstScene = storyboard[0];
+    const scenePrompt = `${firstScene.title}. ${firstScene.description} ${firstScene.visualNotes}`;
+    setQpStatus("generating");
+    setQpVideoUrl(null);
+    try {
+      const result = await quickPreviewMutation.mutateAsync({
+        prompt: scenePrompt,
+        style,
+        aspectRatio: aspectRatio as "16:9" | "9:16",
+      });
+      setQpVideoUrl(result.videoUrl);
+      setQpStatus("ready");
+    } catch (err: any) {
+      setQpStatus("failed");
+      toast.error(err?.message || "Preview failed. Please try again.");
+    }
+  }, [qpStatus, storyboard, style, aspectRatio, quickPreviewMutation]);
 
   const generatePreviewForScene = useCallback(async (sceneId: number) => {
     const scene = storyboard.find((s) => s.id === sceneId);
@@ -654,6 +679,66 @@ export default function TextToVideoCreator() {
                 </Button>
               </div>
             </div>
+
+            {/* ⚡ Quick Preview Panel */}
+            {storyboard.length > 0 && (
+              <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-4 sm:p-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-cyan-500/20 p-2 flex-shrink-0">
+                    <Eye className="h-4 w-4 text-cyan-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-semibold text-white text-sm">Quick Preview</span>
+                      <span className="text-xs bg-cyan-500/20 text-cyan-300 rounded-full px-2 py-0.5">Free</span>
+                    </div>
+                    <p className="text-xs text-zinc-400">Generate a free 4-second 480p draft of Scene 1 to check style and motion before spending credits on the full render.</p>
+                  </div>
+                </div>
+
+                {qpStatus === "ready" && qpVideoUrl && (
+                  <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-black">
+                    <div className="relative">
+                      <video src={qpVideoUrl} controls autoPlay loop muted playsInline className="w-full max-h-48 object-contain" />
+                      <div className="absolute top-2 left-2 bg-black/60 text-cyan-300 text-xs px-2 py-1 rounded-full">480p Draft · Scene 1</div>
+                    </div>
+                    <div className="px-3 py-2 text-xs text-zinc-500">Low-resolution draft only. Full render will be full quality.</div>
+                  </div>
+                )}
+
+                {qpStatus === "generating" && (
+                  <div className="flex items-center gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3">
+                    <Loader2 className="h-4 w-4 text-cyan-400 animate-spin flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-white font-medium">Generating preview…</p>
+                      <p className="text-xs text-zinc-500">∼30–60 seconds. Keep editing your storyboard while you wait.</p>
+                    </div>
+                  </div>
+                )}
+
+                {qpStatus === "failed" && (
+                  <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                    <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                    <p className="text-sm text-red-300">Preview failed. Please try again.</p>
+                  </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  onClick={handleQuickPreview}
+                  disabled={qpStatus === "generating" || storyboard.length === 0}
+                  className="gap-2 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 w-full"
+                >
+                  {qpStatus === "generating" ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Generating Preview…</>
+                  ) : qpStatus === "ready" ? (
+                    <><RefreshCw className="h-4 w-4" /> Regenerate Preview</>
+                  ) : (
+                    <><Eye className="h-4 w-4" /> Generate Quick Preview (Free)</>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         )}
 

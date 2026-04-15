@@ -4057,3 +4057,8 @@
 - [x] Kids Animation Quick Preview UI — cyan panel with Free badge, video player, generating/failed states, Regenerate button
 - [x] Music Video Quick Preview UI — cyan panel below scene list with Free badge, video player, generating/failed states, Regenerate button
 - [x] Kids Animation tab in Projects dashboard — KidsAnimCard with progress bar, render status badges, Watch/Download links
+
+## Quick Preview — Cinematic Video (WizPilot / TextToVideoCreator)
+- [x] Add quickPreviewFromPrompt procedure to renderRouter for WizPilot/TextToVideoCreator
+- [x] Add Quick Preview UI panel to Autopilot.tsx (WizPilot) storyboard step
+- [x] Add Quick Preview UI panel to TextToVideoCreator.tsx storyboard step

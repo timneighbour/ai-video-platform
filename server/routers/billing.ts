@@ -1139,4 +1139,40 @@ export const renderRouter = router({
       })();
       return { started: true };
     }),
+
+  /**
+   * Quick Preview from a raw prompt — for WizPilot and TextToVideoCreator.
+   * No DB job needed: takes the first scene prompt + style and fires a free
+   * 4-second 480p Seedance draft. Returns the video URL synchronously.
+   */
+  quickPreviewFromPrompt: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(5).max(2000),
+        style: z.string().optional(),
+        aspectRatio: z.enum(["16:9", "9:16", "1:1"]).default("16:9"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { generateFalSeedanceVideoSync } = await import("../ai-apis/fal-seedance");
+      const { storagePut } = await import("../storage");
+      const styleHint = input.style ? `${input.style} style. ` : "";
+      const fullPrompt = `${styleHint}${input.prompt}. Smooth cinematic motion, 480p draft quality, 4 seconds.`;
+      const result = await generateFalSeedanceVideoSync(
+        {
+          prompt: fullPrompt,
+          aspect_ratio: input.aspectRatio as "16:9" | "9:16" | "1:1",
+          duration: "4",
+          resolution: "480p",
+          generate_audio: false,
+        },
+        180_000
+      );
+      // Download and re-upload to our CDN so the URL is stable
+      const resp = await fetch(result.videoUrl);
+      const buf = Buffer.from(await resp.arrayBuffer());
+      const key = `quick-previews/prompt-${Date.now()}.mp4`;
+      const { url } = await storagePut(key, buf, "video/mp4");
+      return { videoUrl: url };
+    }),
 });
