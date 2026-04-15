@@ -17,8 +17,7 @@ import { trpc } from "@/lib/trpc";
 import {
   Sparkles, Music, Zap, Star, Play, Check, ArrowRight,
   Menu, X, Volume2, VolumeX, Film, Wand2, Users, ChevronRight,
-  Music2, Bot, Lightbulb, Video, Download, TrendingUp, Instagram, Youtube, Globe,
-  ChevronDown, Clapperboard, Headphones, Eye, Share2, Layers
+  Music2, Bot, Lightbulb, Video, Download
 } from "lucide-react";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -80,349 +79,59 @@ function useReveal() {
 }
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
-const PRODUCTS = [
-  {
-    href: "/products/wizcreate",
-    name: "WizCreate™",
-    desc: "AI storyboard engine",
-    detail: "Turn any idea into a full visual storyboard in seconds.",
-    icon: Layers,
-    color: "text-violet-400",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/20",
-  },
-  {
-    href: "/products/wizpilot",
-    name: "WizPilot™",
-    desc: "Video generation",
-    detail: "Generate cinematic video clips from text or images.",
-    icon: Clapperboard,
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-  },
-  {
-    href: "/products/wizsound",
-    name: "WizSound™",
-    desc: "Audio enhancement",
-    detail: "Proprietary audio processing for richer, immersive sound.",
-    icon: Headphones,
-    color: "text-fuchsia-400",
-    bg: "bg-fuchsia-500/10",
-    border: "border-fuchsia-500/20",
-  },
-  {
-    href: "/products/wizlumina",
-    name: "WizLumina™",
-    desc: "Visual enhancement",
-    detail: "AI colour grading and visual polish for every frame.",
-    icon: Eye,
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-  },
-  {
-    href: "/products/wizboost",
-    name: "WizBoost™",
-    desc: "Creator network",
-    detail: "Grow your audience with built-in distribution tools.",
-    icon: Share2,
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/20",
-  },
-];
-
-function ProductsDropdown({ onClose, activeIdx, setActiveIdx }: {
-  onClose: () => void;
-  activeIdx: number;
-  setActiveIdx: (i: number) => void;
-}) {
-  const active = PRODUCTS[activeIdx];
-  const ActiveIcon = active.icon;
-  return (
-    <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-3 rounded-2xl border border-white/[0.08] bg-[#0d0d0d]/98 backdrop-blur-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8)] overflow-hidden"
-      style={{ zIndex: 60, width: 520 }}
-    >
-      <div className="flex">
-        {/* Left: product list */}
-        <div className="w-52 border-r border-white/[0.06] p-2 flex flex-col gap-0.5">
-          {PRODUCTS.map((p, i) => {
-            const Icon = p.icon;
-            const isActive = i === activeIdx;
-            return (
-              <NavLink
-                key={p.href}
-                href={p.href}
-                onClick={onClose}
-                onMouseEnter={() => setActiveIdx(i)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group ${
-                  isActive ? "bg-white/[0.07]" : "hover:bg-white/[0.04]"
-                }`}
-              >
-                <div className={`w-7 h-7 rounded-lg ${p.bg} flex items-center justify-center flex-shrink-0 transition-all duration-150 ${
-                  isActive ? "scale-110" : "group-hover:scale-105"
-                }`}>
-                  <Icon className={`w-3.5 h-3.5 ${p.color}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className={`text-[12.5px] font-semibold transition-colors duration-150 ${
-                    isActive ? p.color : "text-white/70 group-hover:text-white/90"
-                  }`}>{p.name}</p>
-                  <p className="text-[10.5px] text-white/35 leading-tight">{p.desc}</p>
-                </div>
-              </NavLink>
-            );
-          })}
-        </div>
-        {/* Right: description panel */}
-        <div className="flex-1 p-5 flex flex-col justify-between">
-          <div>
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg ${active.bg} ${active.border} border mb-3`}>
-              <ActiveIcon className={`w-4 h-4 ${active.color}`} />
-              <span className={`text-[12px] font-bold ${active.color}`}>{active.name}</span>
-            </div>
-            <p className="text-[13px] text-white/50 leading-relaxed">{active.detail}</p>
-          </div>
-          <NavLink
-            href={active.href}
-            onClick={onClose}
-            className={`mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold ${active.color} hover:brightness-125 transition-all duration-150`}
-          >
-            Learn more <ChevronRight className="w-3.5 h-3.5" />
-          </NavLink>
-        </div>
-      </div>
-      {/* Footer */}
-      <div className="border-t border-white/[0.06] px-4 py-2.5 flex items-center justify-between">
-        <span className="text-[11px] text-white/30">WizVid Product Suite</span>
-        <NavLink href="/pricing" onClick={onClose} className="text-[11px] text-violet-400 hover:text-violet-300 transition-colors font-medium">View Pricing →</NavLink>
-      </div>
-    </div>
-  );
-}
-
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
-  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
-  const [activeProductIdx, setActiveProductIdx] = useState(0);
-  const productsRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    if (!productsOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (productsRef.current && !productsRef.current.contains(e.target as Node)) {
-        setProductsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [productsOpen]);
-
-  const NAV_LEFT = [
-    { href: "/onboarding", label: "Create" },
-    { href: "/how-it-works", label: "How It Works" },
-    { href: "/showcase", label: "Showcase" },
-  ];
-  const NAV_RIGHT = [
-    { href: "/pricing", label: "Pricing" },
-    { href: "/help", label: "Help" },
-  ];
-
-  const navLinkClass = "text-[13px] font-[500] text-white/55 hover:text-white transition-all duration-150 px-3.5 py-2 rounded-lg hover:bg-white/[0.05] hover:-translate-y-px";
-
   return (
-    <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-[#080808]/95 backdrop-blur-2xl border-b border-white/[0.07] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
-          : "bg-transparent"
-      }`}>
-        <div className="max-w-6xl mx-auto px-5 h-[64px] flex items-center justify-between">
-
-          {/* Logo — left */}
-          <NavLink href="/" className="flex items-center flex-shrink-0 group">
-            <img
-              src={WIZVID_LOGO_FULL}
-              alt="WizVid"
-              className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(139,92,246,0.5)] transition-transform duration-200 group-hover:scale-[1.03]"
-            />
-          </NavLink>
-
-          {/* Nav — centre */}
-          <div className="hidden md:flex items-center gap-0.5">
-            {NAV_LEFT.map(({ href, label }) => (
-              <NavLink key={href} href={href} className={navLinkClass}>{label}</NavLink>
-            ))}
-
-            {/* Products dropdown */}
-            <div ref={productsRef} className="relative">
-              <button
-                className={`${navLinkClass} flex items-center gap-1`}
-                onMouseDown={() => setProductsOpen((v) => !v)}
-                aria-expanded={productsOpen}
-                aria-haspopup="true"
-              >
-                Products
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  productsOpen ? "rotate-180 text-white" : ""
-                }`} />
-              </button>
-              {productsOpen && (
-                <ProductsDropdown
-                  onClose={() => setProductsOpen(false)}
-                  activeIdx={activeProductIdx}
-                  setActiveIdx={setActiveProductIdx}
-                />
-              )}
-            </div>
-
-            {NAV_RIGHT.map(({ href, label }) => (
-              <NavLink key={href} href={href} className={navLinkClass}>{label}</NavLink>
-            ))}
-          </div>
-
-          {/* CTA — right */}
-          <div className="flex items-center gap-2.5">
-            {isAuthenticated ? (
-              <Button
-                className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm font-semibold px-5 rounded-xl h-9 shadow-[0_0_20px_rgba(139,92,246,0.35)] hover:shadow-[0_0_28px_rgba(139,92,246,0.55)] hover:scale-[1.03] transition-all duration-150"
-                asChild
-              >
-                <NavLink href="/dashboard" className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />Dashboard
-                </NavLink>
-              </Button>
-            ) : (
-              <>
-                <a
-                  href={getLoginUrl()}
-                  className="hidden sm:block text-[13px] text-white/45 hover:text-white/80 transition-colors duration-150 font-medium px-3 py-2"
-                >
-                  Sign in
-                </a>
-                <Button
-                  className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm font-semibold px-5 rounded-xl h-9 shadow-[0_0_20px_rgba(139,92,246,0.35)] hover:shadow-[0_0_28px_rgba(139,92,246,0.55)] hover:scale-[1.03] transition-all duration-150"
-                  asChild
-                >
-                  <NavLink href="/onboarding">Start Creating</NavLink>
-                </Button>
-              </>
-            )}
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/[0.07] transition-colors duration-150 ml-1"
-              onMouseDown={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            >
-              {mobileOpen ? <X className="w-5 h-5 text-white/80" /> : <Menu className="w-5 h-5 text-white/80" />}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile full-screen drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div
-            className="absolute inset-0 bg-[#080808]/97 backdrop-blur-2xl"
-            onClick={() => setMobileOpen(false)}
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      scrolled ? "bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8 shadow-lg" : "bg-transparent"
+    }`}>
+      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <NavLink href="/" className="flex items-center group flex-shrink-0 hover:opacity-80 transition-opacity">
+          <img
+            src={WIZVID_LOGO_FULL}
+            alt="WizVid"
+            width={320}
+            height={180}
+            className="h-20 w-auto object-contain transition-all duration-300 hover:scale-105 drop-shadow-[0_0_20px_rgba(139,92,246,0.7)]"
           />
-          <div className="absolute inset-0 flex flex-col pt-[64px]">
-            <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-1">
-              {NAV_LEFT.map(({ href, label }) => (
-                <NavLink
-                  key={href}
-                  href={href}
-                  className="text-[17px] text-white/70 hover:text-white font-[500] px-4 py-4 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 block"
-                  onClick={() => setMobileOpen(false)}
-                >{label}</NavLink>
-              ))}
+        </NavLink>
 
-              {/* Products accordion */}
-              <button
-                className="flex items-center justify-between text-[17px] text-white/70 hover:text-white font-[500] px-4 py-4 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 w-full"
-                onMouseDown={() => setMobileProductsOpen((v) => !v)}
-              >
-                <span>Products</span>
-                <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${mobileProductsOpen ? "rotate-180 text-violet-400" : ""}`} />
-              </button>
-              {mobileProductsOpen && (
-                <div className="flex flex-col gap-0.5 pl-4 border-l-2 border-violet-500/20 ml-4">
-                  {PRODUCTS.map((p) => {
-                    const Icon = p.icon;
-                    return (
-                      <NavLink
-                        key={p.href}
-                        href={p.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/[0.05] transition-colors"
-                      >
-                        <div className={`w-8 h-8 rounded-lg ${p.bg} flex items-center justify-center flex-shrink-0`}>
-                          <Icon className={`w-4 h-4 ${p.color}`} />
-                        </div>
-                        <div>
-                          <p className={`text-[14px] font-semibold ${p.color}`}>{p.name}</p>
-                          <p className="text-[12px] text-white/40">{p.desc}</p>
-                        </div>
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              )}
-
-              {NAV_RIGHT.map(({ href, label }) => (
-                <NavLink
-                  key={href}
-                  href={href}
-                  className="text-[17px] text-white/70 hover:text-white font-[500] px-4 py-4 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 block"
-                  onClick={() => setMobileOpen(false)}
-                >{label}</NavLink>
-              ))}
-            </div>
-
-            {/* CTA pinned at bottom */}
-            <div className="px-6 pb-8 pt-4 border-t border-white/[0.07] flex flex-col gap-3">
-              {isAuthenticated ? (
-                <NavLink
-                  href="/dashboard"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-bold px-6 py-4 rounded-xl text-[16px] shadow-[0_0_24px_rgba(139,92,246,0.4)]"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <Sparkles className="w-5 h-5" />Dashboard
-                </NavLink>
-              ) : (
-                <>
-                  <NavLink
-                    href="/onboarding"
-                    className="flex items-center justify-center bg-gradient-to-r from-violet-600 to-blue-600 text-white font-bold px-6 py-4 rounded-xl text-[16px] shadow-[0_0_24px_rgba(139,92,246,0.4)]"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Start Creating Free
-                  </NavLink>
-                  <a
-                    href={getLoginUrl()}
-                    className="text-center text-[15px] text-white/50 hover:text-white/80 py-2 transition-colors"
-                  >
-                    Sign in
-                  </a>
-                </>
-              )}
-            </div>
-          </div>
+        {/* Nav links */}
+        <div className="hidden md:flex items-center gap-1">
+          <NavLink href="/music-video" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Music Video</NavLink>
+          <NavLink href="/wizpilot" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">WizPilot</NavLink>
+          <NavLink href="/discover" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Discover</NavLink>
+          <NavLink href="/pricing" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Pricing</NavLink>
+          <NavLink href="/help" className="text-sm text-white/70 hover:text-white transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/5">Help</NavLink>
         </div>
-      )}
-    </>
+
+        {/* Right: Auth */}
+        <div className="flex items-center gap-3">
+          {isAuthenticated ? (
+            <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9" asChild>
+              <NavLink href="/dashboard" className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</NavLink>
+            </Button>
+          ) : (
+            <>
+              <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors font-medium px-3 py-2">
+                Sign in
+              </a>
+              <Button className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-5 rounded-xl font-semibold h-9" asChild>
+                <NavLink href="/onboarding">Start Free</NavLink>
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </nav>
   );
 }
 
@@ -788,7 +497,7 @@ function Hero() {
               <NavLink
                 id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
-                className="inline-flex items-center gap-3 btn-primary px-9 py-4 rounded-2xl font-bold transition-all duration-300"
+                className="inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300"
                 style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)" }}
                 onClick={() => mp.heroCTAClicked()}
               >
@@ -808,13 +517,6 @@ function Hero() {
                 </span>
                 Watch Demo
               </button>
-              <NavLink
-                href="/creators"
-                className="inline-flex items-center gap-2 text-sm text-white/55 hover:text-white/80 transition-colors font-medium"
-              >
-                <Film className="w-3.5 h-3.5" />
-                View Examples
-              </NavLink>
 
             </div>
 
@@ -1044,16 +746,16 @@ function ContinueProjectBanner() {
 // ── Trust Signals (Production Audit Item 5) ──────────────────────────────────
 function TrustSignals() {
   return (
-    <section className="bg-[#080808] border-t border-white/6 py-5 px-6">
-      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-14">
+    <section className="bg-[#0a0a0a] border-t border-white/6 py-6 px-6">
+      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-8 sm:gap-12">
         {[
-          { icon: "✦", text: "No editing skills needed" },
-          { icon: "⚡", text: "AI storyboard generation" },
-          { icon: "🎬", text: "Full render in minutes" },
-        ].map((item) => (
-          <div key={item.text} className="flex items-center gap-2.5">
-            <span className="text-violet-400 text-sm font-bold">{item.icon}</span>
-            <span className="text-white/60 text-sm font-medium tracking-wide">{item.text}</span>
+          { value: "10,000+", label: "Videos created" },
+          { value: "Global", label: "Used by creators worldwide" },
+          { value: "Zero", label: "Editing skills required" },
+        ].map((stat) => (
+          <div key={stat.label} className="text-center">
+            <p className="text-white font-extrabold text-2xl sm:text-3xl tracking-tight">{stat.value}</p>
+            <p className="text-white/40 text-xs sm:text-sm mt-0.5">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -1091,7 +793,7 @@ function SeeWhatYouCanCreate() {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {previewClips.map((clip) => (
-            <div key={clip.label} className="reveal group relative rounded-2xl overflow-hidden glass-card">
+            <div key={clip.label} className="reveal group relative rounded-2xl overflow-hidden border border-white/8 bg-[#171717]">
               <div className="aspect-video relative">
                 <LazyVideo
                   src={clip.src}
@@ -1118,17 +820,15 @@ function SeeWhatYouCanCreate() {
 // ── How It Works Strip (4-step, directly under hero) ───────────────────────
 function HowItWorksStrip() {
   const steps = [
-    { num: "01", icon: <Sparkles className="w-5 h-5" />, title: "Prompt", desc: "Describe your video idea or upload your audio" },
-    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "Storyboard", desc: "AI builds your full storyboard in seconds" },
-    { num: "03", icon: <Film className="w-5 h-5" />, title: "Preview", desc: "Review every scene before spending a credit" },
-    { num: "04", icon: <Download className="w-5 h-5" />, title: "Full Render", desc: "Render in HD or 4K when you love it" },
-    { num: "05", icon: <Users className="w-5 h-5" />, title: "Share", desc: "Download, share, and grow with WizBoost" },
+    { num: "01", icon: <Music className="w-5 h-5" />, title: "Upload audio or idea", desc: "Drop your track or type a prompt" },
+    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "AI builds your video", desc: "Scenes, visuals, sync — all automatic" },
+    { num: "03", icon: <Film className="w-5 h-5" />, title: "Preview every scene", desc: "Review before spending a single credit" },
+    { num: "04", icon: <Download className="w-5 h-5" />, title: "Pay to render in HD or 4K", desc: "Only pay when you love it" },
   ];
   return (
     <section className="bg-[#0a0a0a] border-t border-white/6 py-10 px-6">
       <div className="max-w-5xl mx-auto">
-        <p className="text-center text-xs font-semibold text-violet-400/70 uppercase tracking-widest mb-6">Your creation journey</p>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
           {steps.map((step, i) => (
             <div key={i} className="flex flex-col items-center text-center gap-3">
               {/* Step number + connector line */}
@@ -1152,66 +852,73 @@ function HowItWorksStrip() {
   );
 }
 
-// ── Post-Render Explanation Section ──────────────────────────────────────────
+// ── Immediate Value Section ─────────────────────────────────────────────────
 function ImmediateValue() {
-  const stages = [
-    {
-      icon: "⏳",
-      title: "Render Queue",
-      desc: "Your video enters the render queue immediately. Priority renders go first — standard renders follow in order.",
-      colour: "text-blue-400",
-      bg: "bg-blue-500/8 border-blue-500/20",
-    },
-    {
-      icon: "🎬",
-      title: "Processing Stages",
-      desc: "Watch live progress: Preparing Scenes → Animating Video → Syncing Audio → Finalising. Each stage updates in real time.",
-      colour: "text-violet-400",
-      bg: "bg-violet-500/8 border-violet-500/20",
-    },
-    {
-      icon: "🔔",
-      title: "Notifications",
-      desc: "Get notified the moment your video is ready — in-app and by email. No need to stay on the page.",
-      colour: "text-amber-400",
-      bg: "bg-amber-500/8 border-amber-500/20",
-    },
-    {
-      icon: "📁",
-      title: "Dashboard & Downloads",
-      desc: "All your videos live in your dashboard — Drafts, Rendering, and Completed. Download, share, or publish with one click.",
-      colour: "text-emerald-400",
-      bg: "bg-emerald-500/8 border-emerald-500/20",
-    },
-  ];
   return (
-    <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/6">
+    <section id="main-content" className="py-20 px-6 bg-gradient-to-b from-[#0f0f0f] to-[#111] border-t border-white/6">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14 reveal">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">After you render</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            What happens after you click render?
-          </h2>
-          <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
-            Your video is processed, delivered, and ready to download — all without leaving WizVid.
-          </p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
-          {stages.map((s) => (
-            <div key={s.title} className={`rounded-2xl border p-6 flex flex-col gap-3 ${s.bg}`}>
-              <span className="text-3xl">{s.icon}</span>
-              <h3 className={`font-bold text-base ${s.colour}`}>{s.title}</h3>
-              <p className="text-white/55 text-sm leading-relaxed">{s.desc}</p>
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: copy */}
+          <div className="reveal">
+            <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">From upload to storyboard in seconds</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+              See your full video before you render a single frame
+            </h2>
+            <ul className="space-y-4 mb-8">
+              {[
+                { icon: "⚡", text: "AI builds your full storyboard in under 30 seconds" },
+                { icon: "👁️", text: "Preview every scene — edit any prompt before rendering" },
+                { icon: "🎛️", text: "Full creative control, zero technical skill required" },
+                { icon: "✨", text: "No editing skills needed — just describe your video" },
+              ].map((item) => (
+                <li key={item.text} className="flex items-start gap-3">
+                  <span className="text-xl flex-shrink-0 mt-0.5">{item.icon}</span>
+                  <span className="text-[#a1a1aa] text-lg leading-snug">{item.text}</span>
+                </li>
+              ))}
+            </ul>
+            <NavLink
+              href="/onboarding"
+              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create your first video
+            </NavLink>
+            <p className="text-xs text-[#a1a1aa]/60 mt-3">No credit card required · Free to create · Only pay to render</p>
+          </div>
+          {/* Right: visual storyboard mockup */}
+          <div className="reveal">
+            <div className="bg-[#171717] border border-white/8 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+                <span className="ml-2 text-xs text-[#a1a1aa] font-mono">AI Storyboard Preview</span>
+              </div>
+              {[
+                { time: "0:00", desc: "Opening scene — city skyline at night", status: "preview" },
+                { time: "0:08", desc: "Artist silhouette under streetlight", status: "preview" },
+                { time: "0:16", desc: "Rain in slow motion, neon reflections", status: "preview" },
+                { time: "0:24", desc: "Chorus — wide cinematic shot", status: "cinematic" },
+              ].map((scene) => (
+                <div key={scene.time} className="flex items-center gap-3 p-3 rounded-xl bg-[#0f0f0f] border border-white/5">
+                  <div className="w-12 h-8 rounded-lg bg-gradient-to-br from-violet-900/60 to-blue-900/40 border border-white/8 flex items-center justify-center text-xs text-[#a1a1aa] font-mono flex-shrink-0">
+                    {scene.time}
+                  </div>
+                  <p className="text-sm text-white/80 flex-1 leading-snug">{scene.desc}</p>
+                  {scene.status === "cinematic" ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-300 flex-shrink-0">✨ Cinematic</span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/15 text-green-400 flex-shrink-0">Preview ready</span>
+                  )}
+                </div>
+              ))}
+              <div className="pt-2 flex items-center justify-between">
+                <span className="text-xs text-[#a1a1aa]">4 scenes generated</span>
+                <span className="text-xs text-violet-400 font-medium">Edit any scene before rendering →</span>
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="mt-10 text-center reveal">
-          <NavLink
-            href="/dashboard"
-            className="inline-flex items-center gap-2 text-sm text-violet-400 hover:text-violet-300 font-semibold transition-colors"
-          >
-            View your dashboard <ArrowRight className="w-3.5 h-3.5" />
-          </NavLink>
+          </div>
         </div>
       </div>
     </section>
@@ -1433,7 +1140,7 @@ function WhyWizVid() {
             { icon: "🎬", title: "Full video, not clips", desc: "A complete, ready-to-publish video — not fragments." },
             { icon: "✅", title: "No editing required", desc: "WizVid handles everything. You just describe your idea." },
           ].map((item, i) => (
-            <div key={item.title} className={`flex gap-4 p-5 glass-card rounded-2xl hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
+            <div key={item.title} className={`flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
               <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
               <div>
                 <h3 className="font-semibold text-white mb-1">{item.title}</h3>
@@ -1539,7 +1246,7 @@ function Features() {
               { icon: <Wand2 className="w-5 h-5" />, title: "Storyboard to final cut", desc: "AI generates a storyboard, renders every scene, and delivers a complete video — automatically." },
               { icon: <Zap className="w-5 h-5" />, title: "6 cinematic styles", desc: "Choose from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
             ].map((item, i) => (
-              <div key={item.title} className={`flex gap-4 p-5 glass-card rounded-2xl hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}>
+              <div key={item.title} className={`flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}>
                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[#a1a1aa] flex-shrink-0">
                   {item.icon}
                 </div>
@@ -1623,7 +1330,7 @@ function WhoItsFor() {
           {audiences.map((a, i) => (
             <div
               key={a.title}
-              className={`group glass-card rounded-2xl hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden`}
+              className={`group rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100} overflow-hidden`}
             >
               {/* Image */}
               <div className="relative w-full aspect-[16/9] overflow-hidden">
@@ -1821,7 +1528,7 @@ function ContentEngine() {
             {features.map((f, i) => (
               <div
                 key={f.title}
-                className={`flex flex-col p-7 glass-card rounded-2xl hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+                className={`flex flex-col p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
               >
                 <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 ${f.iconBg} ${f.iconColor}`}>
                   {f.icon}
@@ -1873,7 +1580,7 @@ function ContentEngine() {
                   color: "violet",
                   dot: "bg-violet-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-violet-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-violet-500/20">
                       <p className="text-xs text-violet-300 font-semibold uppercase tracking-widest mb-2">Your idea</p>
                       <p className="text-white font-medium text-lg">"Kids pirate adventure song"</p>
                     </div>
@@ -1884,7 +1591,7 @@ function ContentEngine() {
                   color: "blue",
                   dot: "bg-blue-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-blue-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-blue-500/20">
                       <p className="text-xs text-blue-300 font-semibold uppercase tracking-widest mb-3">Suno generates</p>
                       <div className="flex items-center gap-3">
                         <div className="flex gap-0.5 items-end h-8">
@@ -1905,7 +1612,7 @@ function ContentEngine() {
                   color: "purple",
                   dot: "bg-purple-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-purple-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-purple-500/20">
                       <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-3">WizVid generates</p>
                       <div className="grid grid-cols-3 gap-2">
                         {["Storyboard", "Animated scenes", "Final video"].map((item) => (
@@ -1923,7 +1630,7 @@ function ContentEngine() {
                   color: "green",
                   dot: "bg-green-500",
                   content: (
-                    <div className="p-5 glass-card rounded-2xl border-green-500/20">
+                    <div className="p-5 rounded-2xl bg-[#171717] border border-green-500/20">
                       <p className="text-xs text-green-300 font-semibold uppercase tracking-widest mb-3">Ready to publish</p>
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-10 rounded-lg bg-gradient-to-br from-green-900/40 to-black border border-green-500/20 flex items-center justify-center flex-shrink-0">
@@ -2117,7 +1824,7 @@ function SocialProof() {
           {testimonials.map((t, i) => (
             <div
               key={t.author}
-              className={`p-7 glass-card rounded-2xl hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
+              className={`p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all card-hover reveal animate-delay-${(i + 1) * 100}`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex gap-1">
@@ -2268,7 +1975,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
 
   return (
     <div
-      className={`group relative rounded-2xl overflow-hidden glass-card hover:border-white/22 transition-all duration-300 shadow-lg ${colours.glow} hover:shadow-xl cursor-pointer`}
+      className={`group relative rounded-2xl overflow-hidden bg-[#171717] border border-white/8 hover:border-white/20 transition-all duration-300 shadow-lg ${colours.glow} hover:shadow-xl cursor-pointer`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -2342,7 +2049,7 @@ function ShowcaseSkeleton() {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-2xl overflow-hidden glass-card animate-pulse">
+        <div key={i} className="rounded-2xl overflow-hidden bg-[#171717] border border-white/8 animate-pulse">
           <div className="aspect-video bg-white/5" />
           <div className="p-5 space-y-3">
             <div className="h-4 w-24 bg-white/10 rounded-full" />
@@ -2463,157 +2170,6 @@ function PunchLine() {
           <br />
           <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Just results.</span>
         </h2>
-      </div>
-    </section>
-  );
-}
-
-// ── WizBoost Section ───────────────────────────────────────────────────────
-function WizBoostSection() {
-  const CREATOR_TYPES = [
-    {
-      icon: <Music className="w-5 h-5" />,
-      title: "Musicians",
-      color: "from-violet-600 to-purple-700",
-      borderColor: "border-violet-500/30",
-      glowColor: "shadow-violet-900/30",
-      benefits: ["Share your music videos", "Grow your fanbase", "Connect your social platforms"],
-      socials: [
-        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
-        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
-        { icon: <Globe className="w-3.5 h-3.5" />, label: "Website" },
-      ],
-      mock: { name: "Luna Ray", handle: "@lunaray", type: "Music Artist", views: "12.4K" },
-    },
-    {
-      icon: <Video className="w-5 h-5" />,
-      title: "Content Creators",
-      color: "from-blue-600 to-indigo-700",
-      borderColor: "border-blue-500/30",
-      glowColor: "shadow-blue-900/30",
-      benefits: ["Showcase your videos", "Drive traffic to your content", "Build your audience"],
-      socials: [
-        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
-        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
-        { icon: <Globe className="w-3.5 h-3.5" />, label: "TikTok" },
-      ],
-      mock: { name: "Alex Chen", handle: "@alexcreates", type: "Content Creator", views: "8.2K" },
-    },
-    {
-      icon: <Film className="w-5 h-5" />,
-      title: "Animators",
-      color: "from-emerald-600 to-teal-700",
-      borderColor: "border-emerald-500/30",
-      glowColor: "shadow-emerald-900/30",
-      benefits: ["Display your work", "Attract new opportunities", "Build a visual portfolio"],
-      socials: [
-        { icon: <Globe className="w-3.5 h-3.5" />, label: "Portfolio" },
-        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
-        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
-      ],
-      mock: { name: "Kai Studio", handle: "@kaistudio", type: "Animator", views: "5.7K" },
-    },
-    {
-      icon: <TrendingUp className="w-5 h-5" />,
-      title: "YouTubers",
-      color: "from-red-600 to-orange-700",
-      borderColor: "border-red-500/30",
-      glowColor: "shadow-red-900/30",
-      benefits: ["Promote your videos", "Increase visibility", "Expand your reach"],
-      socials: [
-        { icon: <Youtube className="w-3.5 h-3.5" />, label: "YouTube" },
-        { icon: <Globe className="w-3.5 h-3.5" />, label: "Website" },
-        { icon: <Instagram className="w-3.5 h-3.5" />, label: "Instagram" },
-      ],
-      mock: { name: "Max Vlog", handle: "@maxvlog", type: "YouTuber", views: "31.8K" },
-    },
-  ];
-
-  return (
-    <section className="py-20 px-6 bg-[#0d0d0d] border-t border-white/6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-4">
-            <TrendingUp className="w-3.5 h-3.5" />
-            WizBoost
-          </div>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Create videos. Build your audience.
-          </h2>
-          <p className="text-white/45 text-base max-w-xl mx-auto leading-relaxed">
-            WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
-          </p>
-        </div>
-
-        {/* Creator type cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
-          {CREATOR_TYPES.map((ct) => (
-            <div
-              key={ct.title}
-              className={`rounded-2xl bg-[#141414] border ${ct.borderColor} p-5 flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300`}
-            >
-              {/* Icon + title */}
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ct.color} flex items-center justify-center text-white shadow-lg ${ct.glowColor}`}>
-                  {ct.icon}
-                </div>
-                <h3 className="text-sm font-bold text-white">{ct.title}</h3>
-              </div>
-
-              {/* Mock creator profile */}
-              <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/4 border border-white/6">
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${ct.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-                  {ct.mock.name[0]}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-white truncate">{ct.mock.name}</p>
-                  <p className="text-[10px] text-white/35 truncate">{ct.mock.handle}</p>
-                </div>
-                <span className="text-[10px] text-white/30 flex-shrink-0">{ct.mock.views} views</span>
-              </div>
-
-              {/* Benefits */}
-              <ul className="space-y-1.5 flex-1">
-                {ct.benefits.map((b) => (
-                  <li key={b} className="flex items-center gap-2 text-xs text-white/55">
-                    <Check className="w-3 h-3 text-white/30 flex-shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Social icons */}
-              <div className="flex items-center gap-2 pt-2 border-t border-white/6">
-                {ct.socials.map((s) => (
-                  <div key={s.label} className="flex items-center gap-1 text-white/30 text-[10px]">
-                    {s.icon}
-                    <span>{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="/music-video"
-            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold px-7 py-3.5 rounded-2xl transition-all shadow-lg shadow-violet-900/30 text-sm"
-          >
-            <Sparkles className="w-4 h-4" />
-            Showcase your video
-          </a>
-          <a
-            href="/discover"
-            className="inline-flex items-center gap-2 border border-white/15 text-white/70 hover:text-white hover:border-white/30 px-7 py-3.5 rounded-2xl transition-all text-sm"
-          >
-            <Users className="w-4 h-4" />
-            Grow your audience with WizBoost
-            <ArrowRight className="w-4 h-4" />
-          </a>
-        </div>
       </div>
     </section>
   );
@@ -2857,7 +2413,7 @@ function EcosystemSection() {
       glow: "hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]",
       bg: "bg-violet-500/5",
       badge: "text-violet-300 bg-violet-500/10 border-violet-500/25",
-      href: "/products/wizcreate",
+      href: "/music-video",
     },
     {
       logo: WIZSOUND_LOGO,
@@ -2869,7 +2425,7 @@ function EcosystemSection() {
       glow: "hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]",
       bg: "bg-indigo-500/5",
       badge: "text-indigo-300 bg-indigo-500/10 border-indigo-500/25",
-      href: "/products/wizsound",
+      href: "/#wizsound",
     },
     {
       logo: WIZLUMINA_ORB,
@@ -2881,7 +2437,7 @@ function EcosystemSection() {
       glow: "hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]",
       bg: "bg-amber-500/5",
       badge: "text-amber-300 bg-amber-500/10 border-amber-500/25",
-      href: "/products/wizlumina",
+      href: "/#wizlumina",
     },
     {
       logo: null,
@@ -3116,30 +2672,29 @@ export default function Home() {
       </a>
       <Nav />
       <main id="main-content">
-        {/* 1. Hero — fullscreen cinematic */}
         <Hero />
-        {/* 2. Trust Strip — 3 key value props */}
-        <TrustSignals />
-        {/* 3. How It Works — 5-step pipeline */}
-        <HowItWorksStrip />
-        {/* 4. Examples — grid with hover preview */}
-        <MadeWithWizVid />
-        {/* 5. Product Ecosystem — 5 engines */}
-        <EcosystemSection />
-        {/* 6. Audio Demo — WizSound toggle */}
-        <WizSoundSection />
-        {/* 7. Visual Demo — WizLumina comparison */}
-        <WizLuminaSection />
-        {/* 8. Pricing */}
-        <HomePricing />
-        {/* 9. Post-Render explanation */}
-        <ImmediateValue />
-        {/* 10. WizBoost */}
-        <WizBoostSection />
-        {/* 11. Final CTA */}
-        <CTAPush />
-        {/* Continue project banner (contextual) */}
         <ContinueProjectBanner />
+        <TrustSignals />
+        <SeeWhatYouCanCreate />
+        <HowItWorksStrip />
+        <TryAnExample />
+        <DemoSection />
+        <WizSoundSection />
+        <WizLuminaSection />
+        <ImmediateValue />
+        <WhyWizVid />
+        <SpeedSection />
+        <Features />
+        <ContentEngine />
+        <WhoItsFor />
+        <WizBeatSection />
+        <MadeWithWizVid />
+        <SocialProof />
+        <PunchLine />
+        <HowWizVidWorks />
+        <HomePricing />
+        <CTAPush />
+        <EcosystemSection />
       </main>
       <Footer />
     </div>

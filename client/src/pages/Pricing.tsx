@@ -20,8 +20,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
-  Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Film, Package,
-  Clock, Bell, CheckCircle2, Wand2
+  Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Film, Package
 } from "lucide-react";
 import WizSoundShowcase from "@/components/WizSoundShowcase";
 
@@ -91,29 +90,6 @@ const PLANS = [
     annualPrice: 232,
     features: [
       { text: "15 renders/month included", included: true },
-      { text: "All video styles", included: true },
-      { text: "Music video maker", included: true },
-      { text: "WizPilot AI creator", included: true },
-      { text: "Standard, HD & 4K quality", included: true },
-      { text: "Character consistency", included: true },
-      { text: "Priority rendering", included: true },
-      { text: "API access", included: false },
-    ],
-  },
-  {
-    id: "pro" as const,
-    name: "Pro",
-    icon: <Sparkles className="w-4 h-4" />,
-    monthlyPrice: 59,
-    label: "Power creators",
-    desc: "25 renders/month included. 4K quality, priority rendering, character consistency.",
-    popular: false,
-    badge: null as string | null,
-    rendersPerMonth: 25,
-    perRender: "£2.36",
-    annualPrice: 590,
-    features: [
-      { text: "25 renders/month included", included: true },
       { text: "All video styles", included: true },
       { text: "Music video maker", included: true },
       { text: "WizPilot AI creator", included: true },
@@ -745,53 +721,6 @@ export default function Pricing() {
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      {/* ── Post-render explanation ── */}
-      <section className="border-t border-white/8 bg-[#0d0d0d] py-16 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-4">
-              After you render
-            </div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">What happens after rendering?</h2>
-            <p className="text-white/45 text-sm max-w-lg mx-auto">Your video goes through four processing stages. You'll be notified when it's ready — no need to stay on the page.</p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4 mb-8">
-            {[
-              { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Higher-tier plans get priority processing.", color: "text-white/50" },
-              { icon: <Wand2 className="w-5 h-5" />, stage: "Rendering", desc: "AI animates each scene from your approved storyboard images — no new content is generated.", color: "text-violet-300" },
-              { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina enhancements are applied.", color: "text-blue-300" },
-              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly from your dashboard or share directly.", color: "text-emerald-300" },
-            ].map((item) => (
-              <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-white/4 border border-white/8">
-                <div className={`flex-shrink-0 mt-0.5 ${item.color}`}>{item.icon}</div>
-                <div>
-                  <p className={`text-sm font-semibold mb-1 ${item.color}`}>{item.stage}</p>
-                  <p className="text-xs text-white/45 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 p-4 rounded-xl bg-violet-500/8 border border-violet-500/20 flex items-start gap-3">
-              <Bell className="w-4 h-4 text-violet-300 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-white/80 mb-1">Email notification</p>
-                <p className="text-xs text-white/45">We'll email you when your render is complete so you don't need to wait on the page.</p>
-              </div>
-            </div>
-            <div className="flex-1 p-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20 flex items-start gap-3">
-              <Download className="w-4 h-4 text-emerald-300 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-white/80 mb-1">Instant download</p>
-                <p className="text-xs text-white/45">Your completed video appears in your dashboard. Download MP4 immediately — no waiting.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── Footer ── */}
       <footer className="border-t border-white/6 py-8 px-6 text-center text-xs text-white/25">
         <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-20 w-auto object-contain mx-auto mb-4 opacity-60" />

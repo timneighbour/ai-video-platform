@@ -15,7 +15,6 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
-import BackButton from "@/components/BackButton";
 
 const WIZVID_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png";
 const WIZLUMINA_ORB = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-orb-v2-XXXXXXXX.png";
@@ -172,11 +171,6 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-12">
-
-        {/* ── Back to home ─────────────────────────────────────────────── */}
-        <div className="hidden">
-          <BackButton fallback="/" label="Back to Home" />
-        </div>
 
         {/* ── Welcome ──────────────────────────────────────────────────── */}
         <div>
