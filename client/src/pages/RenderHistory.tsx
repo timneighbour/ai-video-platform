@@ -98,6 +98,7 @@ export default function RenderHistory() {
   const [retryingJobId, setRetryingJobId] = useState<number | null>(null);
   const [confirmRetryJob, setConfirmRetryJob] = useState<{ id: number; title: string; failedCount: number } | null>(null);
   const [cinematicPackJob, setCinematicPackJob] = useState<{ id: number; videoUrl: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ jobId: number; title: string } | null>(null);
 
   const jobsQuery = trpc.musicVideo.listJobs.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -349,11 +350,7 @@ export default function RenderHistory() {
                           variant="outline"
                           className="h-7 px-2 text-xs border-zinc-700 text-zinc-500 bg-transparent hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400"
                           disabled={deletingJobId === job.id}
-                          onClick={() => {
-                            if (!confirm(`Delete "${job.title || `Project #${job.id}`}"? This cannot be undone.`)) return;
-                            setDeletingJobId(job.id);
-                            deleteJobMutation.mutate({ jobId: job.id }, { onSettled: () => setDeletingJobId(null) });
-                          }}
+                          onClick={() => setDeleteTarget({ jobId: job.id, title: job.title })}
                         >
                           {deletingJobId === job.id
                             ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Deleting</>
@@ -549,6 +546,39 @@ export default function RenderHistory() {
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
               Confirm Retry
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30">
+                <AlertCircle className="w-5 h-5 text-red-400" />
+              </div>
+              <AlertDialogTitle className="text-lg font-semibold text-white">Delete Project</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-zinc-400 text-sm leading-relaxed">
+              Are you sure you want to delete <span className="text-white font-medium">"{deleteTarget?.title || `Project #${deleteTarget?.jobId}`}"</span>? This will permanently remove the project and all associated scenes, renders, and files. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!deleteTarget) return;
+                setDeletingJobId(deleteTarget.jobId);
+                deleteJobMutation.mutate({ jobId: deleteTarget.jobId }, { onSettled: () => setDeletingJobId(null) });
+                setDeleteTarget(null);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white border-0 focus:ring-red-500"
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Delete Project
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

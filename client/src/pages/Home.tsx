@@ -485,10 +485,10 @@ function Hero() {
 
       {/* ── Hero layout: two-column — text left, video player right ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-8">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10 min-h-[85vh]">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-10 min-h-[85vh]">
 
           {/* ── LEFT COLUMN: Copy + CTAs + Trust ── */}
-          <div className="relative z-10 flex flex-col items-start text-left flex-1 justify-center">
+          <div className="relative z-10 flex flex-col items-start text-left flex-1">
             {/* Extra dark backdrop behind text for guaranteed readability */}
             <div
               className="absolute -inset-x-4 -inset-y-6 rounded-2xl pointer-events-none"
@@ -612,8 +612,8 @@ function Hero() {
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN: Video player mockup — bottom-aligned with trust stats ── */}
-          <div className="hidden lg:flex lg:items-end lg:self-end lg:w-[480px] lg:flex-shrink-0" style={{ marginBottom: '264px' }}>
+          {/* ── RIGHT COLUMN: Video player mockup — vertically centered with content ── */}
+          <div className="hidden lg:flex lg:items-center lg:w-[440px] lg:flex-shrink-0">
             <HeroProductPreview />
           </div>
         </div>

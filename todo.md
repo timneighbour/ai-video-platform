@@ -3777,3 +3777,12 @@
 - [x] Fix NotFound page — restyle from light theme to dark theme matching site
 - [x] Fix TRPCError import in billing.ts cancelSubscription procedure
 - [x] Fix Account page — replace useToast with sonner toast (consistent with rest of site)
+## Delete Confirmation — Styled AlertDialog Upgrade (Apr 15)
+- [x] Replace browser confirm() with AlertDialog on Dashboard delete buttons
+- [x] Replace browser confirm() with AlertDialog on RenderHistory delete buttons
+- [x] Show project name and warning text in confirmation modal
+- [x] Match dark theme styling consistent with rest of site
+
+## Hero Video Player Alignment Fix (Apr 15)
+- [x] Fix WizCreate video player mockup to sit inline/vertically centered with content
+- [x] Ensure proper vertical alignment between left content and right video player

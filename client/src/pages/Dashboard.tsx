@@ -9,8 +9,18 @@ import {
   Sparkles, Film, Music, Baby, Youtube, Clock, Download,
   ChevronRight, Play, Zap, Star, ArrowRight, Plus,
   TrendingUp, Clapperboard, Wand2, Settings, Crown,
-  CheckCircle2, RefreshCw, Eye, Users, Trash2
+  CheckCircle2, RefreshCw, Eye, Users, Trash2, AlertTriangle, Loader2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -113,18 +123,29 @@ export default function Dashboard() {
   const { data: renderStatus } = trpc.render.getRenderStatus.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   const utils = trpc.useUtils();
   const { data: recentJobsData } = trpc.musicVideo.listJobs.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
+  const [deleteTarget, setDeleteTarget] = useState<{ jobId: number; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const deleteJobMutation = trpc.musicVideo.deleteJob.useMutation({
     onSuccess: () => {
       toast.success("Project deleted");
       utils.musicVideo.listJobs.invalidate();
+      setDeleteTarget(null);
+      setIsDeleting(false);
     },
-    onError: (err) => toast.error("Delete failed", { description: err.message }),
+    onError: (err) => {
+      toast.error("Delete failed", { description: err.message });
+      setIsDeleting(false);
+    },
   });
-  const handleDeleteJob = (e: React.MouseEvent, jobId: number, title: string) => {
+  const openDeleteDialog = (e: React.MouseEvent, jobId: number, title: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm(`Delete "${title || `Project #${jobId}`}"? This cannot be undone.`)) return;
-    deleteJobMutation.mutate({ jobId });
+    setDeleteTarget({ jobId, title });
+  };
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    deleteJobMutation.mutate({ jobId: deleteTarget.jobId });
   };
 
   const creditBalance = creditData?.balance ?? 0;
@@ -309,7 +330,7 @@ export default function Dashboard() {
                         Continue
                       </div>
                       <button
-                        onClick={(e) => handleDeleteJob(e, job.id, job.title)}
+                        onClick={(e) => openDeleteDialog(e, job.id, job.title)}
                         className="p-1 rounded hover:bg-red-500/20 text-zinc-600 hover:text-red-400 transition-all"
                         title="Delete project"
                       >
@@ -457,7 +478,7 @@ export default function Dashboard() {
                         <Download className="w-3 h-3" /> Download
                       </a>
                       <button
-                        onClick={(e) => handleDeleteJob(e, job.id, job.title)}
+                        onClick={(e) => openDeleteDialog(e, job.id, job.title)}
                         className="flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 text-xs transition-all"
                         title="Delete project"
                       >
@@ -553,6 +574,39 @@ export default function Dashboard() {
         )}
 
       </main>
+
+      {/* ── Delete Confirmation Dialog ─────────────────────────────── */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <AlertDialogTitle className="text-lg font-semibold text-white">Delete Project</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-zinc-400 text-sm leading-relaxed">
+              Are you sure you want to delete <span className="text-white font-medium">"{deleteTarget?.title || `Project #${deleteTarget?.jobId}`}"</span>? This will permanently remove the project and all associated scenes, renders, and files. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white border-0 focus:ring-red-500"
+            >
+              {isDeleting ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deleting...</>
+              ) : (
+                <><Trash2 className="w-4 h-4 mr-2" /> Delete Project</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
