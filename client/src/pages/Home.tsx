@@ -2857,7 +2857,7 @@ function EcosystemSection() {
       glow: "hover:shadow-[0_0_30px_rgba(139,92,246,0.2)]",
       bg: "bg-violet-500/5",
       badge: "text-violet-300 bg-violet-500/10 border-violet-500/25",
-      href: "/music-video",
+      href: "/products/wizcreate",
     },
     {
       logo: WIZSOUND_LOGO,
@@ -2869,7 +2869,7 @@ function EcosystemSection() {
       glow: "hover:shadow-[0_0_30px_rgba(99,102,241,0.2)]",
       bg: "bg-indigo-500/5",
       badge: "text-indigo-300 bg-indigo-500/10 border-indigo-500/25",
-      href: "/#wizsound",
+      href: "/products/wizsound",
     },
     {
       logo: WIZLUMINA_ORB,
@@ -2881,7 +2881,7 @@ function EcosystemSection() {
       glow: "hover:shadow-[0_0_30px_rgba(245,158,11,0.2)]",
       bg: "bg-amber-500/5",
       badge: "text-amber-300 bg-amber-500/10 border-amber-500/25",
-      href: "/#wizlumina",
+      href: "/products/wizlumina",
     },
     {
       logo: null,

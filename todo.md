@@ -114,3 +114,14 @@
 - [x] Hero-system tests updated to match current WizVidIntro implementation
 - [x] All 335 tests passing (confirmed)
 - [x] tsc --noEmit exits 0 (zero TypeScript errors confirmed)
+
+## Full Quality + Navigation Pass (Apr 15 — on e26520c1 base)
+- [ ] Extract audio from b0e49c8b intro video and use it in new quality-upgraded intro
+- [ ] Re-encode intro with WizSound+WizLumina quality upgrade and display both logos in video
+- [ ] Fix 404 page: dark theme, cross-platform visible
+- [ ] Create WizLumina product page with CTAs, back/home buttons
+- [ ] Create WizBoost product page with CTAs, back/home buttons
+- [ ] Create Showcase page and wire route
+- [ ] Add all missing product routes to App.tsx (/products/wizlumina, /products/wizboost, /showcase)
+- [ ] Audit all pages for missing back/home buttons and fix them
+- [ ] Fix mobile portrait layout: all text, titles, intro video fit on small screens
