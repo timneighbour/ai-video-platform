@@ -17,6 +17,7 @@ import {
   ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
   FileText, RefreshCw, PenLine, ChevronDown, ChevronUp,
 } from "lucide-react";
+import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { Link } from "wouter";
 import { toast } from "sonner";
 
@@ -59,6 +60,7 @@ const PROMPT_EXAMPLES = [
 function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: string; imageUrl?: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [showEqualiser, setShowEqualiser] = useState(false);
   const { isMuted, requestAudioFocus } = useGlobalAudio();
 
   // Sync global mute to audio element
@@ -92,7 +94,7 @@ function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: s
     else {
       if (!isMuted) requestAudioFocus("music-creator");
       audio.muted = isMuted;
-      audio.play().then(() => setPlaying(true)).catch(() => {});
+      audio.play().then(() => { setPlaying(true); setShowEqualiser(true); }).catch(() => {});
     }
   };
 
@@ -107,53 +109,67 @@ function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: s
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
-    <div className="flex gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-white/8 hover:border-white/14 transition-all">
-      {/* Album art */}
-      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-violet-900/60 to-blue-900/60 border border-white/8 flex items-center justify-center">
-        {imageUrl ? (
-          <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
-        ) : (
-          <Music2 className="w-6 h-6 text-violet-300" />
-        )}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <p className="text-white font-medium text-sm truncate mb-2">{title}</p>
-
-        {/* Waveform progress bar */}
-        <div
-          className="h-1.5 bg-white/10 rounded-full cursor-pointer mb-2 relative overflow-hidden"
-          onClick={seek}
-        >
-          <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-violet-500 to-blue-500 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
+    <div className="rounded-2xl bg-[#1a1a1a] border border-white/8 hover:border-white/14 transition-all overflow-hidden">
+      {/* Graphic equaliser visualisation */}
+      {showEqualiser && (
+        <div className="px-4 pt-4">
+          <GraphicEqualiser
+            audioElement={audioRef.current}
+            isPlaying={playing}
+            barCount={32}
+            height={48}
           />
         </div>
+      )}
 
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-[#a1a1aa]">{fmt(currentTime)} / {duration ? fmt(duration) : "--:--"}</span>
-          <div className="flex gap-2">
-            <button
-              onClick={togglePlay}
-              className="w-8 h-8 rounded-full bg-white/8 hover:bg-white/14 flex items-center justify-center transition-colors"
-              aria-label={playing ? "Pause" : "Play"}
-            >
-              {playing ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white ml-0.5" />}
-            </button>
-            <a
-              href={audioUrl}
-              download
-              className="w-8 h-8 rounded-full bg-white/8 hover:bg-white/14 flex items-center justify-center transition-colors"
-              aria-label="Download"
-            >
-              <Download className="w-3.5 h-3.5 text-white" />
-            </a>
+      <div className="flex gap-4 p-4">
+        {/* Album art */}
+        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-violet-900/60 to-blue-900/60 border border-white/8 flex items-center justify-center">
+          {imageUrl ? (
+            <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+          ) : (
+            <Music2 className="w-6 h-6 text-violet-300" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-medium text-sm truncate mb-2">{title}</p>
+
+          {/* Waveform progress bar */}
+          <div
+            className="h-1.5 bg-white/10 rounded-full cursor-pointer mb-2 relative overflow-hidden"
+            onClick={seek}
+          >
+            <div
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-violet-500 to-blue-500 rounded-full transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#a1a1aa]">{fmt(currentTime)} / {duration ? fmt(duration) : "--:--"}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={togglePlay}
+                className="w-8 h-8 rounded-full bg-white/8 hover:bg-white/14 flex items-center justify-center transition-colors"
+                aria-label={playing ? "Pause" : "Play"}
+              >
+                {playing ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white ml-0.5" />}
+              </button>
+              <a
+                href={audioUrl}
+                download
+                className="w-8 h-8 rounded-full bg-white/8 hover:bg-white/14 flex items-center justify-center transition-colors"
+                aria-label="Download"
+              >
+                <Download className="w-3.5 h-3.5 text-white" />
+              </a>
+            </div>
           </div>
         </div>
-      </div>
 
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+        <audio ref={audioRef} src={audioUrl} preload="metadata" crossOrigin="anonymous" />
+      </div>
     </div>
   );
 }

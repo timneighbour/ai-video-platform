@@ -720,20 +720,20 @@ function Hero() {
       {/* ── Full-bleed cinematic background ── */}
       <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
-      {/* ── Dark scrim: left-side text readability ── */}
+      {/* ── Dark scrim: centre-out text readability ── */}
       <div
         className="absolute inset-0 pointer-events-none z-[1]"
         style={{
-          background: "linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.15) 65%, transparent 100%)",
+          background: "radial-gradient(ellipse 120% 100% at 50% 30%, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.15) 100%)",
         }}
       />
 
-      {/* ── Two-column hero layout ── */}
+      {/* ── Stacked hero layout: text on top, product preview below ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-0">
-        <div className="grid lg:grid-cols-[1fr_540px] gap-10 lg:gap-16 items-end min-h-[80vh]">
+        <div className="flex flex-col items-center">
 
-          {/* ── LEFT: Copy + CTAs ── */}
-          <div className="relative z-10 flex flex-col items-start text-left">
+          {/* ── TOP: Copy + CTAs — centred ── */}
+          <div className="relative z-10 flex flex-col items-center text-center w-full max-w-3xl">
             {/* Extra dark backdrop behind text for guaranteed readability */}
             <div
               className="absolute -inset-x-4 -inset-y-6 rounded-2xl pointer-events-none"
@@ -769,7 +769,7 @@ function Hero() {
             </p>
 
             {/* Value bullets */}
-            <div className="relative z-10 mb-7 flex flex-col gap-2.5">
+            <div className="relative z-10 mb-7 flex flex-col items-center gap-2.5">
               {[
                 { icon: "🎤", text: "Full videos — not clips" },
                 { icon: "👁️", text: "Preview before you pay" },
@@ -784,7 +784,7 @@ function Hero() {
             </div>
 
             {/* CTA row */}
-            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
               <NavLink
                 id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
@@ -819,13 +819,13 @@ function Hero() {
             </div>
 
             {/* Trust line */}
-            <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium">
+            <p className="relative z-10 flex items-center justify-center gap-1.5 text-sm text-white/40 font-medium">
               <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
               No credit card required · Create first, pay only if you love it
             </p>
 
             {/* Trust strip */}
-            <div className="relative z-10 mt-8 flex flex-wrap items-center gap-4 sm:gap-6">
+            <div className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2">
                   {[
@@ -858,17 +858,10 @@ function Hero() {
             </div>
           </div>
 
-          {/* ── RIGHT: Animated product preview — bottom-right corner ── */}
-          <div className="hidden lg:flex items-start justify-end pb-0 self-start" style={{marginTop: '4rem'}}>
-            <div className="w-full max-w-[540px] translate-x-16 -translate-y-4">
-              <HeroProductPreview />
-            </div>
+          {/* ── BOTTOM: Animated product preview — centred below CTAs ── */}
+          <div className="w-full max-w-[600px] mt-10 mb-6">
+            <HeroProductPreview />
           </div>
-        </div>
-
-        {/* Mobile: product preview below CTAs */}
-        <div className="lg:hidden mt-10">
-          <HeroProductPreview />
         </div>
       </div>
 

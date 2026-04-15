@@ -138,3 +138,21 @@
 
 ## Brand Logo + Remaining Fixes (Apr 15)
 - [x] Check and fix brand logo size in header/nav so it stands out on every page (Home h-16, Dashboard h-12, all product/showcase pages 48px with purple glow)
+
+## AI Music Generation Enhancements (Apr 15)
+- [ ] Add audio upload with playback preview (user can hear uploaded track before generating)
+- [ ] Add AI lyric generator button (generates lyrics from prompt/genre/mood using LLM)
+- [ ] Add style input field (free-text tags like Suno's Advanced mode for custom style description)
+- [ ] Allow users to edit AI-generated lyrics before submitting
+- [ ] Backend: audio upload to S3, lyric generation procedure, pass style + audio to Suno API
+- [ ] Frontend: Suno-like Advanced mode UI with audio upload, lyrics editor, style tags
+- [x] Centralise bottom 2 app cards (Text to Video, AI Music Generator) on the Onboarding page
+
+## Create Page Layout Fix (Apr 15)
+- [x] Move WizCreate video player/mockup from upper-right to bottom of the Create page hero section
+- [x] Ensure Create page hero has proper layout: text/CTAs on top, video player mockup below
+
+## AI Music Page - Graphic Equaliser (Apr 15)
+- [x] Add graphic equaliser visualisation to the audio uploader/player on the AI Music Generation page
+- [x] Equaliser should animate in real-time when audio is playing (Web Audio API AnalyserNode)
+- [x] Visual style: purple/violet gradient bars matching WizVid brand
