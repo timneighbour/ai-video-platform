@@ -1037,47 +1037,6 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
 
   if (scenes.length === 0) throw new Error("No completed scenes to assemble");
 
-  // ── STEP 9: QUALITY CONTROL CHECK ────────────────────────────────────────────
-  // Before assembly, verify the render matches the approved storyboard.
-  // Failsafe: STOP and log if critical deviations are detected.
-  const allScenes = await dbConn.select()
-    .from(musicVideoScenes)
-    .where(eq(musicVideoScenes.jobId, jobId));
-  const expectedSceneCount = job.totalScenes;
-  const completedSceneCount = scenes.length;
-  const qcIssues: string[] = [];
-
-  // Check 1: Scene count matches storyboard
-  if (expectedSceneCount > 0 && completedSceneCount < expectedSceneCount) {
-    const missing = expectedSceneCount - completedSceneCount;
-    qcIssues.push(`Scene count mismatch: expected ${expectedSceneCount}, got ${completedSceneCount} (${missing} scenes missing or failed)`);
-  }
-
-  // Check 2: All completed scenes have a video URL (no empty renders)
-  const scenesWithoutVideo = scenes.filter(s => !s.videoUrl);
-  if (scenesWithoutVideo.length > 0) {
-    qcIssues.push(`${scenesWithoutVideo.length} scene(s) completed but have no video URL — possible render deviation`);
-  }
-
-  // Check 3: All completed scenes were rendered from the storyboard (had a previewImageUrl)
-  const scenesWithoutStoryboard = scenes.filter(s => !s.previewImageUrl);
-  if (scenesWithoutStoryboard.length > 0) {
-    console.warn(`[QC] Job ${jobId}: ${scenesWithoutStoryboard.length} scene(s) rendered without storyboard reference image — consistency may be reduced`);
-    // Log but don't block — some scenes may have been rendered before storyboard was generated
-  }
-
-  // Log QC result
-  if (qcIssues.length > 0) {
-    const qcReport = `[QC FAIL] Job ${jobId}: ${qcIssues.join(" | ")}`;
-    console.error(qcReport);
-    // Update job with QC warning (don't stop — assemble what we have and flag it)
-    await dbConn.update(musicVideoJobs)
-      .set({ errorMessage: `QC Warning: ${qcIssues.join("; ")}`, updatedAt: new Date() })
-      .where(eq(musicVideoJobs.id, jobId));
-  } else {
-    console.log(`[QC PASS] Job ${jobId}: ${completedSceneCount}/${expectedSceneCount} scenes validated. All scenes have video URLs and storyboard references.`);
-  }
-
   scenes.sort((a, b) => a.sceneIndex - b.sceneIndex);
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `wizvid-job-${jobId}-`));
