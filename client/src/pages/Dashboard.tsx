@@ -145,9 +145,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* ── Top Nav ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
-            <img src={WIZVID_LOGO} alt="WizVid" className="h-7 w-auto" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-2 group">
+            <img src={WIZVID_LOGO} alt="WizVid" className="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(139,92,246,0.4)] transition-transform duration-200 group-hover:scale-[1.03]" />
           </a>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/15 border border-violet-500/25 text-violet-300 text-xs font-medium">

@@ -248,14 +248,14 @@ function Nav() {
           ? "bg-[#080808]/95 backdrop-blur-2xl border-b border-white/[0.07] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
           : "bg-transparent"
       }`}>
-        <div className="max-w-6xl mx-auto px-5 h-[64px] flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-5 h-[72px] flex items-center justify-between">
 
           {/* Logo — left */}
           <NavLink href="/" className="flex items-center flex-shrink-0 group">
             <img
               src={WIZVID_LOGO_FULL}
               alt="WizVid"
-              className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(139,92,246,0.5)] transition-transform duration-200 group-hover:scale-[1.03]"
+              className="h-16 w-auto object-contain drop-shadow-[0_0_14px_rgba(139,92,246,0.6)] transition-transform duration-200 group-hover:scale-[1.03]"
             />
           </NavLink>
 

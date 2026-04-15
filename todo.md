@@ -116,8 +116,8 @@
 - [x] tsc --noEmit exits 0 (zero TypeScript errors confirmed)
 
 ## Full Quality + Navigation Pass (Apr 15 — on e26520c1 base)
-- [ ] Extract audio from b0e49c8b intro video and use it in new quality-upgraded intro
-- [ ] Re-encode intro with WizSound+WizLumina quality upgrade and display both logos in video
+- [x] Extract audio from b0e49c8b intro video and use it in new quality-upgraded intro (user provided MP3 directly)
+- [x] Re-encode intro with WizSound+WizLumina quality upgrade (v16 — logo overlay + boom + 4K)
 - [x] Fix 404 page: dark theme, cross-platform visible
 - [x] Create WizLumina product page with CTAs, back/home buttons
 - [x] Create WizBoost product page with CTAs, back/home buttons
@@ -135,3 +135,6 @@
 - [x] Verify video codec compatibility (H.264 High Profile Level 5.1 — iOS 11+/Android 7+ supported)
 - [x] Test touch events and gesture handling on mobile (touch-action: manipulation added)
 - [x] Ensure all CTA buttons and navigation work on touch devices (-webkit-tap-highlight-color: transparent)
+
+## Brand Logo + Remaining Fixes (Apr 15)
+- [x] Check and fix brand logo size in header/nav so it stands out on every page (Home h-16, Dashboard h-12, all product/showcase pages 48px with purple glow)
