@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, Headphones, Sparkles } from "lucide-react";
+import GraphicEqualiser from "@/components/GraphicEqualiser";
 
 /* ── CDN assets ── */
 const VIDEO_SRC =
@@ -318,8 +319,18 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         )}
       </div>
 
+      {/* ── Equaliser ── */}
+      <div className="px-5 pt-3">
+        <GraphicEqualiser
+          audioRef={mode === "normal" ? audioNormalRef : mode === "enhanced" ? audioEnhancedRef : audioCinematicRef}
+          isPlaying={playing}
+          barCount={32}
+          height={36}
+        />
+      </div>
+
       {/* ── Controls ── */}
-      <div className="px-5 pt-3 pb-2 flex items-center gap-3">
+      <div className="px-5 pt-2 pb-2 flex items-center gap-3">
         <button
           onClick={togglePlay}
           className="w-9 h-9 rounded-full bg-white/8 hover:bg-white/15 flex items-center justify-center transition-colors duration-200 flex-shrink-0"

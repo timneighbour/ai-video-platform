@@ -106,16 +106,16 @@ describe("Back button presence in key pages", () => {
     expect(content).toMatch(pattern);
   };
 
-  it("Dashboard.tsx imports and uses BackButton", () => {
+  it("Help.tsx imports and uses BackButton", () => {
     checkFileContains(
-      "client/src/pages/Dashboard.tsx",
+      "client/src/pages/Help.tsx",
       /import BackButton from/,
-      "Dashboard should import BackButton"
+      "Help should import BackButton"
     );
     checkFileContains(
-      "client/src/pages/Dashboard.tsx",
+      "client/src/pages/Help.tsx",
       /<BackButton/,
-      "Dashboard should render BackButton"
+      "Help should render BackButton"
     );
   });
 

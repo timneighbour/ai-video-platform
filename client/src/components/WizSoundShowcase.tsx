@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useGlobalAudio } from "@/contexts/AudioContext";
+import GraphicEqualiser from "@/components/GraphicEqualiser";
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 type Tier = "standard" | "enhanced" | "cinematic";
@@ -280,8 +281,17 @@ export default function WizSoundShowcase() {
               </button>
             </div>
 
-            {/* Spectrum bars */}
-            <SpectrumBars bars={tier.bars} colour={tier.colour} playing={playingTier === tier.id} />
+            {/* Spectrum bars / Equaliser */}
+            {playingTier === tier.id && audioRefs.current[tier.id] ? (
+              <GraphicEqualiser
+                audioRef={{ current: audioRefs.current[tier.id] } as React.RefObject<HTMLAudioElement>}
+                isPlaying={true}
+                barCount={32}
+                height={36}
+              />
+            ) : (
+              <SpectrumBars bars={tier.bars} colour={tier.colour} playing={false} />
+            )}
 
             {/* Progress bar (only when playing) */}
             {playingTier === tier.id && (

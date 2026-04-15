@@ -271,7 +271,7 @@ export default function MusicVideosLanding() {
       {/* Footer */}
       <footer className="bg-[#0f0f0f] border-t border-white/8 py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-          <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-16 w-auto object-contain" />
+          <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-[6.5rem] w-auto object-contain" />
           <p>© 2025 WizVid. All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>

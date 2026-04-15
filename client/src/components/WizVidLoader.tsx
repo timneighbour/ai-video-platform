@@ -74,7 +74,7 @@ export function WizVidLoader({ done = false, minDuration = 600 }: WizVidLoaderPr
         <img
           src={WIZVID_ICON}
           alt="WizVid"
-          className="w-20 h-20 object-contain select-none"
+          className="w-[6.5rem] h-[6.5rem] object-contain select-none"
           draggable={false}
         />
       </div>

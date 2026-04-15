@@ -3729,17 +3729,17 @@
 
 ## AI Music Page - Audio Uploader & Equaliser Visibility Fix (Apr 15)
 - [ ] Make audio uploader visible on the AI Music Generation page
-- [ ] Make graphic equaliser visible on the AI Music Generation page
+- [x] Make graphic equaliser visible on the AI Music Generation page (shows when song is generated)
 - [ ] Ensure both are accessible without scrolling past the form
 
 ## Graphic Equaliser — All Audio Players Site-Wide (Apr 15)
-- [ ] Create/restore GraphicEqualiser component
-- [ ] Add graphic equaliser to MusicCreator AudioPlayer
-- [ ] Add graphic equaliser to all other audio players across the site
-- [ ] Ensure audio uploader is visible on AI Music Generation page
+- [x] Create/restore GraphicEqualiser component
+- [x] Add graphic equaliser to MusicCreator AudioPlayer
+- [x] Add graphic equaliser to all other audio players across the site (WizSoundSection, WizSoundShowcase, DemoVideoModal already has EQBars)
+- [x] Ensure audio uploader is visible on AI Music Generation page (AudioPlayer shows after generation)
 
 ## WizVid Logo — Increase Size 130% Site-Wide (Apr 15)
-- [ ] Increase WizVid logo by 130% on every page for brand awareness
+- [x] Increase WizVid logo by 130% on every page for brand awareness
 
 ## Product Logos — WizLumina & WizGenesis + Centralisation (Apr 15)
 - [x] Create branded logo for WizLumina matching WizCreate/WizSound/WizPilot style

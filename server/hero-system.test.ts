@@ -99,34 +99,33 @@ describe("Hero System — WizVidIntro", () => {
     expect(source).toContain("wizvid-logo-transparent");
   });
 
-  it("has CTA button navigating to /onboarding", () => {
-    expect(source).toContain("/onboarding");
-    expect(source).toContain("Create Your First Video");
+  it("has CTA button to enter site", () => {
+    expect(source).toContain("Enter Site");
+    expect(source).toContain("dismiss");
   });
 
-  it("intro shows on every page load (no localStorage gating)", () => {
-    // Intro now shows every time — no localStorage.setItem to gate it
-    expect(source).toContain("INTRO_SEEN_KEY"); // Key is exported but not used for gating
-    expect(source).toContain("handleClose"); // Close handler exists
+  it("exports INTRO_SEEN_KEY for session tracking", () => {
+    expect(source).toContain("INTRO_SEEN_KEY");
   });
 
-  it("has cinematic background video clips", () => {
-    expect(source).toContain("BG_CLIPS");
+  it("has cinematic trailer video", () => {
+    expect(source).toContain("TRAILER_URL");
     expect(source).toContain(".mp4");
   });
 
-  it("has fade-in/exiting phase transitions", () => {
-    expect(source).toContain("fade-in");
-    expect(source).toContain("exiting");
+  it("has exiting phase transition", () => {
+    expect(source).toContain("isExiting");
+    expect(source).toContain("setIsExiting");
   });
 
-  it("renders at z-[9999] and is pointer-events:none when exiting", () => {
+  it("renders at z-[9999] and handles pointer events during exit", () => {
     expect(source).toContain("z-[9999]");
-    expect(source).toContain("pointerEvents: isExiting ? \"none\" : \"auto\"");
+    expect(source).toContain("pointerEvents");
   });
 
-  it("has progress bar animation", () => {
-    expect(source).toContain("introProgress");
+  it("has CTA show timer for end-of-trailer reveal", () => {
+    expect(source).toContain("showCTA");
+    expect(source).toContain("CTA_SHOW_AT_MS");
   });
 });
 

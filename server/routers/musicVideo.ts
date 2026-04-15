@@ -2926,8 +2926,9 @@ Return a JSON array of objects matching the lyric lines provided.`;
 
       // Parse stored instrument analysis if available
       let instrumentAnalysis = null;
-      if (job.instrumentAnalysis) {
-        try { instrumentAnalysis = JSON.parse(job.instrumentAnalysis); } catch {}
+      const jobAny = job as Record<string, unknown>;
+      if (jobAny.instrumentAnalysis) {
+        try { instrumentAnalysis = JSON.parse(jobAny.instrumentAnalysis as string); } catch {}
       }
 
       // Build assignments from characters' lockedRole field (set during render)
@@ -2976,7 +2977,7 @@ Return a JSON array of objects matching the lyric lines provided.`;
 
       // Also clear cached instrument analysis so it gets re-run with new roles
       await db.update(musicVideoJobs)
-        .set({ instrumentAnalysis: null, updatedAt: new Date() })
+        .set({ instrumentAnalysis: null, updatedAt: new Date() } as any)
         .where(eq(musicVideoJobs.id, input.jobId));
 
       console.log(`[MusicVideo] Character ${char.name} in job ${input.jobId} role updated to: ${input.performanceRole}`);

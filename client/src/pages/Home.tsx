@@ -110,7 +110,7 @@ function Nav() {
               alt="WizVid"
               width={320}
               height={180}
-              className="h-20 w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.55)]"
+              className="h-[6.5rem] w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.55)]"
             />
           </NavLink>
           {/* Desktop nav links */}
@@ -2693,7 +2693,7 @@ function EcosystemSection() {
           <img
             src={WIZVID_LOGO_FULL}
             alt="WizVid"
-            className="h-32 w-auto object-contain drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]"
+            className="h-[10.4rem] w-auto object-contain drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]"
           />
           <div className="flex-1 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
@@ -2789,7 +2789,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={165} height={94} loading="lazy" className="h-20 w-auto object-contain" />
+              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={165} height={94} loading="lazy" className="h-[6.5rem] w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.

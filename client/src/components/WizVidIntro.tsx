@@ -214,7 +214,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           style={{ zIndex: 15 }}
         >
           {/* Logo */}
-          <img src={LOGO} alt="WizVid" className="w-28 opacity-90" />
+          <img src={LOGO} alt="WizVid" className="w-[9.1rem] opacity-90" />
           <button
             onClick={handleManualPlay}
             className="flex items-center gap-3 px-10 py-4 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-lg font-bold transition-all duration-200 hover:scale-105"
