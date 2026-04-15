@@ -3943,3 +3943,9 @@
 - [x] Build AllInOnePlatform component with 7-step animated horizontal flow
 - [x] Insert component near top of homepage (after TrustSignals, before How It Works)
 - [x] Mobile responsive layout (vertical stack on mobile, horizontal grid on desktop)
+
+## Visual Platform Flow — Cinematic UX Section
+- [x] Build PlatformFlow component with 7 animated steps and per-step micro-animations
+- [x] Auto-play sequencer with hover-pause
+- [x] Replace AllInOnePlatform with PlatformFlow on homepage
+- [x] Mobile responsive (vertical stack)
