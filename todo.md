@@ -156,3 +156,27 @@
 - [x] Add graphic equaliser visualisation to the audio uploader/player on the AI Music Generation page
 - [x] Equaliser should animate in real-time when audio is playing (Web Audio API AnalyserNode)
 - [x] Visual style: purple/violet gradient bars matching WizVid brand
+
+## PRE-LAUNCH FULL SITE AUDIT (Apr 15)
+- [ ] 1. Global link check — all nav, buttons, CTAs, footer, internal links
+- [ ] 2. CTA functionality — Start Creating, Watch Demo, Pricing, Upgrade, WizSound/WizLumina
+- [ ] 3. Video & media check — intro video, audio, playback across pages
+- [ ] 4. Creation flow — prompt → storyboard → edit → preview → render
+- [ ] 5. Render system — start, progress, status updates, completion
+- [ ] 6. Output validation — final video matches storyboard
+- [ ] 7. Save + resume — project persistence and reload
+- [ ] 8. Dashboard — My Projects, My Videos, drafts, completed
+- [ ] 9. Download function — button works, file plays
+- [ ] 10. Payment system (Stripe) — plan select, checkout, success
+- [ ] 11. Email system — signup, render complete, payment notifications
+- [ ] 12. WizSound / WizLumina UX — links, demos, audio/visual clarity
+- [ ] 13. Mobile UX — responsive layout, navigation, CTAs, video
+- [ ] 14. Performance — page load, no lag, no blocking scripts
+- [ ] 15. Error handling — failed render, failed payment, network drop messages
+- [ ] 16. Logging — actions logged, errors tracked
+- [ ] 17. Full user journey test — end-to-end from homepage to download
+- [ ] Produce full audit report with issues, severity, and fixes
+
+## Hero Layout — Left-Align Text (Apr 15)
+- [x] Move hero text, CTAs, trust indicators back to left-aligned layout (asymmetric)
+- [x] Keep WizCreate video player mockup below the hero content

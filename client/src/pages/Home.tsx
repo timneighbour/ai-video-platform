@@ -728,12 +728,12 @@ function Hero() {
         }}
       />
 
-      {/* ── Stacked hero layout: text on top, product preview below ── */}
+      {/* ── Hero layout: text left-aligned, product preview below ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-0">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col">
 
-          {/* ── TOP: Copy + CTAs — centred ── */}
-          <div className="relative z-10 flex flex-col items-center text-center w-full max-w-3xl">
+          {/* ── TOP: Copy + CTAs — left-aligned ── */}
+          <div className="relative z-10 flex flex-col items-start text-left w-full max-w-3xl">
             {/* Extra dark backdrop behind text for guaranteed readability */}
             <div
               className="absolute -inset-x-4 -inset-y-6 rounded-2xl pointer-events-none"
@@ -769,7 +769,7 @@ function Hero() {
             </p>
 
             {/* Value bullets */}
-            <div className="relative z-10 mb-7 flex flex-col items-center gap-2.5">
+            <div className="relative z-10 mb-7 flex flex-col items-start gap-2.5">
               {[
                 { icon: "🎤", text: "Full videos — not clips" },
                 { icon: "👁️", text: "Preview before you pay" },
@@ -784,7 +784,7 @@ function Hero() {
             </div>
 
             {/* CTA row */}
-            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-start gap-3 mb-4">
               <NavLink
                 id="hero-cta"
                 href={isAuthenticated ? "/music-video/create" : "/onboarding"}
@@ -819,13 +819,13 @@ function Hero() {
             </div>
 
             {/* Trust line */}
-            <p className="relative z-10 flex items-center justify-center gap-1.5 text-sm text-white/40 font-medium">
+            <p className="relative z-10 flex items-center justify-start gap-1.5 text-sm text-white/40 font-medium">
               <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
               No credit card required · Create first, pay only if you love it
             </p>
 
             {/* Trust strip */}
-            <div className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+            <div className="relative z-10 mt-8 flex flex-wrap items-center justify-start gap-4 sm:gap-6">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2">
                   {[
@@ -859,7 +859,7 @@ function Hero() {
           </div>
 
           {/* ── BOTTOM: Animated product preview — centred below CTAs ── */}
-          <div className="w-full max-w-[600px] mt-10 mb-6">
+          <div className="w-full max-w-[600px] mt-10 mb-6 mx-auto">
             <HeroProductPreview />
           </div>
         </div>
