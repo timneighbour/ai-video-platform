@@ -468,6 +468,57 @@ export const billingRouter = router({
       const { url } = await generateImage(options);
       return { imageUrl: url };
     }),
+  /**
+   * Get detailed subscription info for the Account page.
+   */
+  getAccountSubscription: protectedProcedure.query(async ({ ctx }) => {
+    const sub = await getUserSubscription(ctx.user.id);
+    if (!sub || sub.status !== "active") {
+      return { plan: "Free", planKey: "free", status: "inactive", isActive: false, pricePerMonth: 0, currentPeriodEnd: null, stripeSubscriptionId: null };
+    }
+    const planKey = sub.plan as keyof typeof SUBSCRIPTION_PLANS;
+    const planInfo = SUBSCRIPTION_PLANS[planKey];
+    return {
+      plan: planInfo?.name ?? sub.plan,
+      planKey: sub.plan,
+      status: sub.status,
+      isActive: true,
+      pricePerMonth: planInfo?.pricePerMonth ?? 0,
+      currentPeriodEnd: sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toISOString() : null,
+      stripeSubscriptionId: sub.stripeSubscriptionId ?? null,
+      canceledAt: sub.canceledAt ? new Date(sub.canceledAt).toISOString() : null,
+    };
+  }),
+  /**
+   * Cancel the user's subscription (sets cancel_at_period_end).
+   */
+  cancelSubscription: protectedProcedure.mutation(async ({ ctx }) => {
+    const { TRPCError } = await import("@trpc/server");
+    const sub = await getUserSubscription(ctx.user.id);
+    if (!sub || !sub.stripeSubscriptionId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "No active subscription found" });
+    }
+    const { cancelSubscription: stripeCancelSub } = await import("../stripe");
+    await stripeCancelSub(sub.stripeSubscriptionId);
+    const { updateSubscription: updateSub } = await import("../db");
+    await updateSub(sub.id, { canceledAt: new Date() });
+    console.log(`[Billing] Subscription ${sub.stripeSubscriptionId} canceled by user ${ctx.user.id}`);
+    return { success: true };
+  }),
+  /**
+   * Create a Stripe Billing Portal session for updating payment method.
+   */
+  createBillingPortalSession: protectedProcedure
+    .input(z.object({ origin: z.string().url() }))
+    .mutation(async ({ ctx, input }) => {
+      const { getOrCreateCustomer } = await import("../stripe");
+      const customer = await getOrCreateCustomer(ctx.user.email ?? "", ctx.user.name ?? null);
+      const session = await stripe.billingPortal.sessions.create({
+        customer: customer.id,
+        return_url: `${input.origin}/account`,
+      });
+      return { url: session.url };
+    }),
 });
 
 // ── Render Paywall Procedures ──────────────────────────────────────────────

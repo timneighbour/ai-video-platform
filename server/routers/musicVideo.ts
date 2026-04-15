@@ -605,8 +605,8 @@ Rules:
       // Step 1: Get or generate instrument analysis for this job
       let instrumentAnalysis: InstrumentAnalysis | null = null;
       try {
-        if (job.instrumentAnalysis) {
-          instrumentAnalysis = JSON.parse(job.instrumentAnalysis) as InstrumentAnalysis;
+        if ((job as any).instrumentAnalysis) {
+          instrumentAnalysis = JSON.parse((job as any).instrumentAnalysis) as InstrumentAnalysis;
           console.log(`[MusicVideo] Loaded existing instrument analysis for job ${input.jobId}: ${instrumentAnalysis.instruments.map(i => i.label).join(", ")}`);
         } else {
           console.log(`[MusicVideo] Running instrument analysis for job ${input.jobId}...`);
@@ -620,7 +620,7 @@ Rules:
           });
           // Persist to DB for future renders
           await db!.update(musicVideoJobs)
-            .set({ instrumentAnalysis: JSON.stringify(instrumentAnalysis), updatedAt: new Date() })
+            .set({ instrumentAnalysis: JSON.stringify(instrumentAnalysis), updatedAt: new Date() } as any)
             .where(eq(musicVideoJobs.id, input.jobId));
           console.log(`[MusicVideo] Instrument analysis complete for job ${input.jobId}: ${instrumentAnalysis.instruments.map(i => i.label).join(", ")} at ${instrumentAnalysis.tempo} BPM`);
         }

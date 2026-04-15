@@ -9,7 +9,7 @@ import {
   Sparkles, Film, Music, Baby, Youtube, Clock, Download,
   ChevronRight, Play, Zap, Star, ArrowRight, Plus,
   TrendingUp, Clapperboard, Wand2, Settings, Crown,
-  CheckCircle2, RefreshCw, Eye, Users
+  CheckCircle2, RefreshCw, Eye, Users, Trash2
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -111,7 +111,21 @@ export default function Dashboard() {
   const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, { enabled: isAuthenticated });
   const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, { enabled: isAuthenticated });
   const { data: renderStatus } = trpc.render.getRenderStatus.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
+  const utils = trpc.useUtils();
   const { data: recentJobsData } = trpc.musicVideo.listJobs.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
+  const deleteJobMutation = trpc.musicVideo.deleteJob.useMutation({
+    onSuccess: () => {
+      toast.success("Project deleted");
+      utils.musicVideo.listJobs.invalidate();
+    },
+    onError: (err) => toast.error("Delete failed", { description: err.message }),
+  });
+  const handleDeleteJob = (e: React.MouseEvent, jobId: number, title: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!confirm(`Delete "${title || `Project #${jobId}`}"? This cannot be undone.`)) return;
+    deleteJobMutation.mutate({ jobId });
+  };
 
   const creditBalance = creditData?.balance ?? 0;
   const currentPlan = subData?.plan ? subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1) : "Free";
@@ -289,9 +303,18 @@ export default function Dashboard() {
                         <ProgressBar value={job.completedScenes} max={job.totalScenes} />
                       </div>
                     )}
-                    <div className="mt-3 flex items-center gap-1.5 text-xs text-violet-400 font-medium">
-                      <Play className="w-3 h-3" />
-                      Continue
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs text-violet-400 font-medium">
+                        <Play className="w-3 h-3" />
+                        Continue
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteJob(e, job.id, job.title)}
+                        className="p-1 rounded hover:bg-red-500/20 text-zinc-600 hover:text-red-400 transition-all"
+                        title="Delete project"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </a>
@@ -433,6 +456,13 @@ export default function Dashboard() {
                       >
                         <Download className="w-3 h-3" /> Download
                       </a>
+                      <button
+                        onClick={(e) => handleDeleteJob(e, job.id, job.title)}
+                        className="flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 text-xs transition-all"
+                        title="Delete project"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
                 ))}

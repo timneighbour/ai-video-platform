@@ -35,6 +35,7 @@ import {
   Sparkles,
   FileVideo,
   History,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -116,6 +117,14 @@ export default function RenderHistory() {
 
   const retryAllMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const utils = trpc.useUtils();
+  const deleteJobMutation = trpc.musicVideo.deleteJob.useMutation({
+    onSuccess: () => {
+      toast.success("Project deleted");
+      utils.musicVideo.listJobs.invalidate();
+    },
+    onError: (err: any) => toast.error("Delete failed", { description: err.message }),
+  });
+  const [deletingJobId, setDeletingJobId] = useState<number | null>(null);
 
   if (!isAuthenticated) {
     return (
@@ -334,6 +343,22 @@ export default function RenderHistory() {
                               : <><RefreshCw className="w-3 h-3 mr-1" />Retry Failed</>}
                           </Button>
                         )}
+                        {/* Delete project */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-xs border-zinc-700 text-zinc-500 bg-transparent hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400"
+                          disabled={deletingJobId === job.id}
+                          onClick={() => {
+                            if (!confirm(`Delete "${job.title || `Project #${job.id}`}"? This cannot be undone.`)) return;
+                            setDeletingJobId(job.id);
+                            deleteJobMutation.mutate({ jobId: job.id }, { onSettled: () => setDeletingJobId(null) });
+                          }}
+                        >
+                          {deletingJobId === job.id
+                            ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Deleting</>
+                            : <><Trash2 className="w-3 h-3 mr-1" />Delete</>}
+                        </Button>
                       </div>
                     </div>
                   </div>

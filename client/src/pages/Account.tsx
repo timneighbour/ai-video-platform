@@ -2,25 +2,72 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Copy, Home, Key, LogOut } from "lucide-react";
+import { ArrowLeft, CreditCard, Home, Key, Loader2, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function Account() {
   const { user, isAuthenticated, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const [copied, setCopied] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const { data: subData, isLoading: subLoading, refetch: refetchSub } = trpc.billing.getAccountSubscription.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
+  const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, { enabled: isAuthenticated });
+
+  const cancelMutation = trpc.billing.cancelSubscription.useMutation({
+    onSuccess: () => {
+      toast.success("Subscription cancelled", { description: "Your subscription will remain active until the end of the current billing period." });
+      refetchSub();
+    },
+    onError: (err) => {
+      toast.error("Error", { description: err.message });
+    },
+  });
+
+  const portalMutation = trpc.billing.createBillingPortalSession.useMutation({
+    onSuccess: (data) => {
+      if (data.url) window.open(data.url, "_blank");
+    },
+    onError: (err) => {
+      toast.error("Error", { description: err.message });
+    },
+  });
 
   const handleLogout = async () => {
     await logout();
     setLocation("/");
   };
 
-  const handleCopyApiKey = () => {
-    navigator.clipboard.writeText("sk_test_123456789abcdef");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCancel = async () => {
+    if (!confirm("Are you sure you want to cancel your subscription? You'll keep access until the end of your billing period.")) return;
+    setCancelLoading(true);
+    try {
+      await cancelMutation.mutateAsync();
+    } finally {
+      setCancelLoading(false);
+    }
   };
+
+  const handleUpdatePayment = async () => {
+    setPortalLoading(true);
+    try {
+      await portalMutation.mutateAsync({ origin: window.location.origin });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const planName = subData?.plan ?? "Free";
+  const isActive = subData?.isActive ?? false;
+  const pricePerMonth = subData?.pricePerMonth ?? 0;
+  const periodEnd = subData?.currentPeriodEnd ? new Date(subData.currentPeriodEnd).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";
+  const isCanceled = !!subData?.canceledAt;
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,32 +125,59 @@ export default function Account() {
               <CardDescription>Manage your subscription plan</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Current Plan</p>
-                  <p className="text-lg font-semibold text-foreground">Pro</p>
+              {subLoading ? (
+                <div className="flex items-center justify-center py-6">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Billing Cycle</p>
-                  <p className="text-lg font-semibold text-foreground">£49/month</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Next Renewal</p>
-                  <p className="text-lg font-semibold text-foreground">May 8, 2026</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Monthly Credits</p>
-                  <p className="text-lg font-semibold text-foreground">3,000</p>
-                </div>
-              </div>
-              <div className="flex gap-2 pt-4">
-                <a href="/subscribe" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
-                  Change Plan
-                </a>
-                <Button variant="outline" className="text-destructive hover:text-destructive">
-                  Cancel Subscription
-                </Button>
-              </div>
+              ) : (
+                <>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Current Plan</p>
+                      <p className="text-lg font-semibold text-foreground">{planName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Billing Cycle</p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {isActive ? `£${pricePerMonth}/month` : "—"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {isCanceled ? "Access Until" : "Next Renewal"}
+                      </p>
+                      <p className="text-lg font-semibold text-foreground">{isActive ? periodEnd : "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Credit Balance</p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {creditData?.balance?.toLocaleString() ?? "0"}
+                      </p>
+                    </div>
+                  </div>
+                  {isCanceled && (
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-300">
+                      Your subscription has been cancelled and will end on {periodEnd}. You'll keep full access until then.
+                    </div>
+                  )}
+                  <div className="flex gap-2 pt-4">
+                    <a href="/subscribe" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+                      {isActive ? "Change Plan" : "Upgrade"}
+                    </a>
+                    {isActive && !isCanceled && (
+                      <Button
+                        variant="outline"
+                        className="text-destructive hover:text-destructive"
+                        onClick={handleCancel}
+                        disabled={cancelLoading}
+                      >
+                        {cancelLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                        Cancel Subscription
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -111,17 +185,21 @@ export default function Account() {
           <Card className="border-border/40 bg-card/50 backdrop-blur">
             <CardHeader>
               <CardTitle>Billing & Payment</CardTitle>
-              <CardDescription>Manage your payment method</CardDescription>
+              <CardDescription>Manage your payment method via Stripe</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Payment Method</label>
-                <div className="flex items-center justify-between p-3 border border-border/40 rounded-lg bg-muted/50">
-                  <span className="text-sm">Visa ending in 4242</span>
-                  <span className="text-xs text-muted-foreground">Expires 12/26</span>
-                </div>
-              </div>
-              <Button variant="outline">Update Payment Method</Button>
+              <p className="text-sm text-muted-foreground">
+                View invoices, update your card, or change billing details through the Stripe customer portal.
+              </p>
+              <Button
+                variant="outline"
+                onClick={handleUpdatePayment}
+                disabled={portalLoading}
+                className="gap-2"
+              >
+                {portalLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+                Manage Billing
+              </Button>
             </CardContent>
           </Card>
 

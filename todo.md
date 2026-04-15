@@ -3761,3 +3761,19 @@
 
 ## Hero — Video Player Bottom Alignment (Apr 15)
 - [x] Align video player bottom ("Describe your idea" tabs) perfectly with trust stats strip ("pay to render only")
+
+## Delete Video Projects & Completed Videos (User Request)
+- [x] Add backend tRPC procedure to delete a music video job (already existed - deleteJob in musicVideo router)
+- [x] Add delete button with confirmation dialog to Render History page
+- [x] Add delete button with confirmation dialog to Dashboard completed videos
+- [x] Add delete option to Dashboard "Continue where you left off" section
+- [x] Ensure delete properly handles associated data (scenes, renders, etc.)
+
+## Pre-Launch Audit Fixes (Apr 15)
+- [x] Fix Account page — wire up Cancel Subscription button with real Stripe cancel
+- [x] Fix Account page — wire up Manage Billing button with Stripe Billing Portal
+- [x] Fix Account page — fetch real subscription data from DB instead of hardcoded values
+- [x] Fix Account page — show real credit balance from DB
+- [x] Fix NotFound page — restyle from light theme to dark theme matching site
+- [x] Fix TRPCError import in billing.ts cancelSubscription procedure
+- [x] Fix Account page — replace useToast with sonner toast (consistent with rest of site)
