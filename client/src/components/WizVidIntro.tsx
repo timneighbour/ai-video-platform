@@ -3,7 +3,7 @@
  *
  * Precision pass fixes:
  * - Enable Sound centre button auto-hides after 4s (no longer blocks video)
- * - CTA timer tightened to 25s (matches v11 duration of 25.4s)
+ * - CTA timer tightened to 25s (matches restored v10 duration of 25.4s)
  * - Emoji removed from Enable Sound button (iOS rendering inconsistency)
  * - All Safari/iOS/Android compatibility preserved
  *
@@ -12,7 +12,7 @@
  * - Any click/tap anywhere unmutes the video
  * - Small mute toggle in corner for users who want to mute after entering
  *
- * Video: v11 — cinematic ELECTRONIC score (build/rise/drop), 25.4s total
+ * Video: v10-restored — ORIGINAL cinematic score (wizvid-trailer-score-v10), enhanced WizSound, 25.4s total
  * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
  */
 
@@ -21,10 +21,10 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wizvid-intro-v11_379f8718.mp4`;
+const TRAILER_URL = `${CDN}/wizvid-intro-v10-restored_d8bea32d.mp4`;  // v10 original music + enhanced WizSound
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v11_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v10r_seen";  // new key forces re-show for all users
 
 // CTA appears when video ends (~25.4s); timer fires at 25s as backup
 const CTA_SHOW_AT_MS = 25000;

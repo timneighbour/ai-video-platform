@@ -96,12 +96,16 @@ client/src/pages/Home.tsx(281,18): error TS2739: Type '{ onClose: () => void; }'
 
 
 7:47:45 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H8:02:02 PM - File change detected. Starting incremental compilation...
+
+
+8:02:07 PM - Found 0 errors. Watching for file changes.
 changes.
-[2J[3J[H7:46:13 PM - File change detected. Starting incremental compilation...
-
-
-7:46:19 PM - Found 0 errors. Watching for file changes.
 [2J[3J[H7:47:44 PM - File change detected. Starting incremental compilation...
 
 
 7:47:45 PM - Found 0 errors. Watching for file changes.
+[2J[3J[H8:02:02 PM - File change detected. Starting incremental compilation...
+
+
+8:02:07 PM - Found 0 errors. Watching for file changes.

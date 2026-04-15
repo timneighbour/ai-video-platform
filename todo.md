@@ -114,3 +114,9 @@
 - [x] Hero-system tests updated to match current WizVidIntro implementation
 - [x] All 335 tests passing (confirmed)
 - [x] tsc --noEmit exits 0 (zero TypeScript errors confirmed)
+
+## Intro Video Restore + Quality Upgrade (Apr 15)
+- [x] Identify strongest previous intro version (v9/v10 era with original music)
+- [x] Apply WizSound audio enhancement to original track (EQ, stereo width, depth) — do NOT change music
+- [x] Re-encode with sharpness filter and enhanced audio, upload to CDN
+- [x] Update WizVidIntro component with restored+enhanced version
