@@ -12,7 +12,7 @@
  * - Any click/tap anywhere unmutes the video
  * - Small mute toggle in corner for users who want to mute after entering
  *
- * Video: v12 — WizSound™ + WizLumina™ Enhanced, 4K UHD (3840×2160), 25.4s total
+ * Video: v13 — WizSound™ Immersive Cinematic (piano score, stereo-balanced) + WizLumina™ 4K, 25.4s total
  * Cross-device: iOS Safari / Chrome, Android, Desktop — all supported
  */
 
@@ -21,11 +21,13 @@ import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// WizSound™ + WizLumina™ Enhanced — 4K UHD (3840×2160), CRF 16, 24.9 Mbps, 48kHz stereo AAC 320kbps
-const TRAILER_URL = `${CDN}/wizvid-intro-v12-enhanced-4k_73aa1e0f.mp4`;
+// WizSound™ Immersive Cinematic + WizLumina™ 4K — v13
+// Source: v10 original piano/orchestral score, stereo-balanced (L/R within 0.12 dB), 4K UHD (3840×2160)
+// Audio: stereo correction, 6-band EQ (piano presence/air), extrastereo width, hall reverb, compression, -14 LUFS
+const TRAILER_URL = `${CDN}/wizvid-intro-v13-immersive-4k_6b3fad0c.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v12_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v13_seen";
 
 // CTA appears when video ends (~25.4s); timer fires at 25s as backup
 const CTA_SHOW_AT_MS = 25000;
