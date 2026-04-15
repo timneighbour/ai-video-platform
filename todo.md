@@ -118,10 +118,10 @@
 ## Full Quality + Navigation Pass (Apr 15 — on e26520c1 base)
 - [ ] Extract audio from b0e49c8b intro video and use it in new quality-upgraded intro
 - [ ] Re-encode intro with WizSound+WizLumina quality upgrade and display both logos in video
-- [ ] Fix 404 page: dark theme, cross-platform visible
-- [ ] Create WizLumina product page with CTAs, back/home buttons
-- [ ] Create WizBoost product page with CTAs, back/home buttons
-- [ ] Create Showcase page and wire route
-- [ ] Add all missing product routes to App.tsx (/products/wizlumina, /products/wizboost, /showcase)
+- [x] Fix 404 page: dark theme, cross-platform visible
+- [x] Create WizLumina product page with CTAs, back/home buttons
+- [x] Create WizBoost product page with CTAs, back/home buttons
+- [x] Create Showcase page and wire route
+- [x] Add all missing product routes to App.tsx (/products/wizcreate, /products/wizpilot, /products/wizsound, /products/wizlumina, /products/wizboost, /showcase, /my-projects)
 - [ ] Audit all pages for missing back/home buttons and fix them
 - [ ] Fix mobile portrait layout: all text, titles, intro video fit on small screens
