@@ -21,7 +21,7 @@ interface KlingVideoRequest {
   prompt: string;
   negative_prompt?: string;
   duration?: string; // "5" or "10"
-  mode?: "standard" | "pro";
+  mode?: "std" | "pro"; // "std" = standard, "pro" = professional. NOTE: kling-v2 does NOT support mode parameter.
   sound?: "on" | "off";
   aspect_ratio?: "1:1" | "9:16" | "16:9";
   callback_url?: string;
@@ -103,7 +103,11 @@ export class KlingAIClient {
               prompt: request.prompt,
               negative_prompt: request.negative_prompt || "",
               duration: request.duration || "5",
-              mode: request.mode || "pro",
+              // NOTE: kling-v2 does NOT support mode parameter (per Kling API update notice).
+              // Only include mode for kling-v1.x and kling-v3 models.
+              ...(request.model_name && request.model_name.startsWith("kling-v2")
+                ? {} // omit mode for v2
+                : { mode: request.mode || "std" }),
               sound: request.sound || "on",
               aspect_ratio: request.aspect_ratio || "16:9",
               callback_url: request.callback_url || "",

@@ -105,7 +105,7 @@ export async function generateVideo(
         taskId = await kling.createTextToVideo({
           prompt: request.prompt,
           duration: klingDuration,
-          mode: "pro",
+          mode: "std",
           aspect_ratio: aspectRatio,
         });
         apiProvider = "kling";
