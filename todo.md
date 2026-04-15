@@ -3956,3 +3956,32 @@
 - [x] Add Generate/Upload mode toggle to MusicCreator.tsx (Suno generator page)
 - [x] Replace native <audio controls> in MusicVideoAutopilot with WizAudioPlayer
 - [x] WizAudioPlayer used for all Suno-generated tracks in MusicCreator results
+
+## WizSync™ — Voice to Character Assignment System
+- [x] Research speaker diarisation API (AssemblyAI, Pyannote, Deepgram)
+- [ ] Research instrument detection API (Essentia, Spleeter/Demucs via fal.ai)
+- [ ] Design wizSyncJobs and wizSyncSegments database schema
+- [ ] Build wizSync.analyseAudio tRPC procedure (diarisation + gender + instruments)
+- [ ] Build wizSync.assignCharacters tRPC procedure (auto-assign + manual override)
+- [ ] Build WizSync UI panel: detected voices, character assignment mapping, scene timeline
+- [ ] Integrate WizSync with Hedra lip sync per audio segment
+- [ ] Integrate WizSync with Music Video storyboard scene assignment
+- [ ] Support 2+ voices, duets, group vocals
+- [ ] Instrument detection → character performance assignment (drummer, guitarist, etc.)
+
+## WizSync™ — Completion Status (Apr 2026)
+- [x] Research speaker diarisation API → AssemblyAI Universal-2 selected
+- [x] Research instrument detection API → fal.ai Demucs 6-stem selected
+- [x] Design wizSyncJobs, wizSyncSpeakers, wizSyncSegments database schema
+- [x] Build wizSync.analyseAudio tRPC procedure (AssemblyAI + Demucs parallel submission)
+- [x] Build wizSync.pollAnalysis tRPC procedure (polling with speaker/segment persistence)
+- [x] Build wizSync.assignCharacter tRPC procedure (manual override)
+- [x] Build wizSync.getJob and wizSync.listJobs procedures
+- [x] Build WizSync UI page (/wizsync): audio upload, voice timeline, speaker cards, stem player
+- [x] Add WizSync™ card to /create hub
+- [x] Register /wizsync route in App.tsx
+- [x] Write vitest tests for WizSync router (6 tests passing)
+- [ ] Integrate WizSync with Hedra lip sync per audio segment (CTA added, API integration pending)
+- [ ] Integrate WizSync with Music Video storyboard scene assignment
+- [ ] Support 2+ voices, duets, group vocals (multi-speaker already detected, scene mapping pending)
+- [ ] Instrument detection → character performance assignment (stems separated, UI assignment pending)

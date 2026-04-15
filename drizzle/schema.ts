@@ -608,3 +608,62 @@ export const creators = mysqlTable("creators", {
 
 export type Creator = typeof creators.$inferSelect;
 export type InsertCreator = typeof creators.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WizSync™ — Voice to Character Assignment System
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Top-level WizSync analysis job (one per audio track) */
+export const wizSyncJobs = mysqlTable("wizSyncJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  audioUrl: varchar("audioUrl", { length: 1024 }).notNull(),
+  audioName: varchar("audioName", { length: 255 }),
+  audioDuration: decimal("audioDuration", { precision: 10, scale: 3 }),
+  status: mysqlEnum("wizSyncStatus", ["pending", "analysing", "ready", "error"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  assemblyAiTranscriptId: varchar("assemblyAiTranscriptId", { length: 255 }),
+  demucsRequestId: varchar("demucsRequestId", { length: 255 }),
+  stems: json("stems"),
+  speakerCount: int("speakerCount"),
+  utterances: json("utterances"),
+  musicVideoJobId: int("musicVideoJobId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type WizSyncJob = typeof wizSyncJobs.$inferSelect;
+export type InsertWizSyncJob = typeof wizSyncJobs.$inferInsert;
+
+/** Individual speaker detected in the audio */
+export const wizSyncSpeakers = mysqlTable("wizSyncSpeakers", {
+  id: int("id").autoincrement().primaryKey(),
+  wizSyncJobId: int("wizSyncJobId").notNull(),
+  speakerLabel: varchar("speakerLabel", { length: 8 }).notNull(),
+  inferredGender: mysqlEnum("wizSyncGender", ["male", "female", "unknown"]).default("unknown").notNull(),
+  assignedCharacterId: int("assignedCharacterId"),
+  isManualOverride: boolean("isManualOverride").default(false).notNull(),
+  displayName: varchar("displayName", { length: 128 }),
+  totalDuration: decimal("totalDuration", { precision: 10, scale: 3 }),
+  instrumentRole: varchar("instrumentRole", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type WizSyncSpeaker = typeof wizSyncSpeakers.$inferSelect;
+export type InsertWizSyncSpeaker = typeof wizSyncSpeakers.$inferInsert;
+
+/** Timestamped audio segment for a speaker */
+export const wizSyncSegments = mysqlTable("wizSyncSegments", {
+  id: int("id").autoincrement().primaryKey(),
+  wizSyncJobId: int("wizSyncJobId").notNull(),
+  wizSyncSpeakerId: int("wizSyncSpeakerId").notNull(),
+  startMs: int("startMs").notNull(),
+  endMs: int("endMs").notNull(),
+  text: text("text"),
+  confidence: decimal("confidence", { precision: 5, scale: 4 }),
+  clipUrl: varchar("clipUrl", { length: 1024 }),
+  hedraGenerationId: varchar("hedraGenerationId", { length: 255 }),
+  lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }),
+  lipSyncStatus: mysqlEnum("wizSyncLipStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type WizSyncSegment = typeof wizSyncSegments.$inferSelect;
+export type InsertWizSyncSegment = typeof wizSyncSegments.$inferInsert;

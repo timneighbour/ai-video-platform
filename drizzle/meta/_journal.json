@@ -309,6 +309,13 @@
       "when": 1776268613610,
       "tag": "0043_mature_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "5",
+      "when": 1776286201661,
+      "tag": "0044_perfect_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }

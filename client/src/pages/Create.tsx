@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Music, Film, Baby, Wand2, Mic, Layers, Zap, Sparkles,
-  ArrowRight, ChevronRight, Lock
+  ArrowRight, ChevronRight, Lock, Mic2,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
@@ -182,6 +182,23 @@ const TOOLS: Tool[] = [
     accentFrom: "from-sky-600/20",
     accentTo: "to-blue-600/5",
     borderColor: "border-sky-500/20 hover:border-sky-400/45",
+    authRequired: true,
+  },
+  {
+    id: "wizsync",
+    name: "WizSync™",
+    tagline: "Voice-to-character assignment system",
+    subheading: "Detect every voice, separate stems, and map speakers to characters for AI lip-sync.",
+    description: "Upload any audio track. WizSync detects every speaker with timestamps, separates 6 instrument stems, and maps each voice to a character — ready for AI lip-sync generation.",
+    href: "/wizsync",
+    icon: <Mic2 className="w-6 h-6" />,
+    iconBg: "bg-violet-500/20",
+    iconColor: "text-violet-400",
+    badge: "Beta",
+    badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+    accentFrom: "from-violet-600/20",
+    accentTo: "to-purple-600/5",
+    borderColor: "border-violet-500/20 hover:border-violet-400/45",
     authRequired: true,
   },
 ];

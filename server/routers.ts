@@ -14,6 +14,7 @@ import { batchRegenRouter } from "./routers/batchRegen";
 import { blogRouter } from "./routers/blog";
 import { kidsVideoRouter } from "./routers/kidsVideo";
 import { creatorRouter } from "./routers/creator";
+import { wizSyncRouter } from "./routers/wizSync";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -30,6 +31,7 @@ export const appRouter = router({
   blog: blogRouter,
   kidsVideo: kidsVideoRouter,
   creator: creatorRouter,
+  wizSync: wizSyncRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
