@@ -4062,3 +4062,15 @@
 - [x] Add quickPreviewFromPrompt procedure to renderRouter for WizPilot/TextToVideoCreator
 - [x] Add Quick Preview UI panel to Autopilot.tsx (WizPilot) storyboard step
 - [x] Add Quick Preview UI panel to TextToVideoCreator.tsx storyboard step
+
+## Quick Preview Video Player — Text Bleed Fix
+- [x] Fix text bleeding into the Quick Preview video player (absolute overlay label overflows video bounds)
+
+## Visual Enhancement Sprint (Apr 15)
+- [x] Fix text bleed in KidsVideo.tsx Quick Preview video player
+- [x] Fix text bleed in MusicVideoAutopilot.tsx Quick Preview video player
+- [x] Add animated logo reveal to WizVidIntro component
+- [x] Apply WizSound™ and WizLumina™ branding badges to intro video overlay
+- [x] Balance colour grading on intro video (CSS filter: contrast/saturation/brightness)
+- [x] Add consistent cinematic CSS filter to all Quick Preview video players
+- [x] Add consistent cinematic CSS filter to all full video players (render done screens, projects)

@@ -490,7 +490,7 @@ export default function Projects() {
             <div className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border ${completed ? "border-green-500/30" : "border-white/10"} bg-zinc-800`}>
               {completed && job.finalVideoUrl ? (
                 <>
-                  <video src={job.finalVideoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  <video src={job.finalVideoUrl} className="w-full h-full object-cover wiz-video" muted playsInline preload="metadata" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
                     <Play className="h-5 w-5 text-white fill-current drop-shadow" />
                   </div>
@@ -831,7 +831,7 @@ export default function Projects() {
           </DialogHeader>
           {previewProject?.outputUrl && (
             <div className="bg-black aspect-video w-full">
-              <video src={previewProject.outputUrl} controls autoPlay muted playsInline className="w-full h-full object-contain" />
+              <video src={previewProject.outputUrl} controls autoPlay muted playsInline className="w-full h-full object-contain wiz-video" />
             </div>
           )}
           <div className="flex gap-3 px-5 py-4">

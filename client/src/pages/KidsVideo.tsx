@@ -1608,22 +1608,19 @@ export default function KidsVideo() {
                     {/* Preview player */}
                     {previewStatus === "ready" && previewVideoUrl && (
                       <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-black">
-                        <div className="relative">
-                          <video
-                            src={previewVideoUrl}
-                            controls
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full max-h-48 object-contain"
-                          />
-                          <div className="absolute top-2 left-2 bg-black/60 text-cyan-300 text-xs px-2 py-1 rounded-full">
-                            480p Draft · Scene 1
-                          </div>
-                        </div>
-                        <div className="px-3 py-2 text-xs text-muted-foreground">
-                          This is a low-resolution draft. The final render will be full quality.
+                        <video
+                          src={previewVideoUrl}
+                          controls
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full block wiz-video-preview"
+                          style={{ maxHeight: "12rem" }}
+                        />
+                        <div className="flex items-center gap-2 px-3 py-2 border-t border-cyan-500/20">
+                          <span className="text-xs bg-cyan-500/20 text-cyan-300 rounded-full px-2 py-0.5 font-medium">480p Draft · Scene 1</span>
+                          <span className="text-xs text-zinc-500">Low-res preview — full render will be full quality.</span>
                         </div>
                       </div>
                     )}
@@ -1813,7 +1810,7 @@ export default function KidsVideo() {
                   </div>
 
                   <div className="w-full rounded-2xl overflow-hidden border border-green-500/20 bg-black shadow-xl shadow-green-500/5">
-                    <video src={videoUrl} controls autoPlay muted playsInline className="w-full" style={{ maxHeight: "420px" }} />
+                    <video src={videoUrl} controls autoPlay muted playsInline className="w-full wiz-video" style={{ maxHeight: "420px" }} />
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3">

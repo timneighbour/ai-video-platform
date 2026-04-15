@@ -124,7 +124,7 @@ export default function WatchPage() {
                   src={video.finalVideoUrl}
                   poster={video.thumbnailUrl ?? undefined}
                   controls
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain wiz-video"
                   preload="metadata"
                 />
               ) : (

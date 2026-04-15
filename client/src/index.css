@@ -454,3 +454,19 @@ select {
 select {
   cursor: pointer;
 }
+
+/* ── WizLumina™ Cinematic Video Filter ──────────────────────────────────────────────────────────────────────
+ * Applied to all user-facing video players for a consistent premium look.
+ * Slight contrast boost, warm saturation, subtle brightness lift, and a
+ * gentle cool-to-warm hue shift for cinematic colour balance.
+ * ──────────────────────────────────────────────────────────────────────────────────────── */
+.wiz-video {
+  filter: contrast(1.07) saturate(1.15) brightness(1.03) hue-rotate(-2deg);
+  border-radius: inherit;
+}
+
+/* Quick Preview draft player — same filter, slightly cooler tone */
+.wiz-video-preview {
+  filter: contrast(1.06) saturate(1.10) brightness(1.02) hue-rotate(-1deg);
+  border-radius: inherit;
+}

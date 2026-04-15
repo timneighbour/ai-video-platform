@@ -698,11 +698,11 @@ export default function TextToVideoCreator() {
 
                 {qpStatus === "ready" && qpVideoUrl && (
                   <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-black">
-                    <div className="relative">
-                      <video src={qpVideoUrl} controls autoPlay loop muted playsInline className="w-full max-h-48 object-contain" />
-                      <div className="absolute top-2 left-2 bg-black/60 text-cyan-300 text-xs px-2 py-1 rounded-full">480p Draft · Scene 1</div>
+                    <video src={qpVideoUrl} controls autoPlay loop muted playsInline className="w-full block wiz-video-preview" style={{ maxHeight: "12rem" }} />
+                    <div className="flex items-center gap-2 px-3 py-2 border-t border-cyan-500/20">
+                      <span className="text-xs bg-cyan-500/20 text-cyan-300 rounded-full px-2 py-0.5 font-medium">480p Draft · Scene 1</span>
+                      <span className="text-xs text-zinc-500">Low-res preview — full render will be full quality.</span>
                     </div>
-                    <div className="px-3 py-2 text-xs text-zinc-500">Low-resolution draft only. Full render will be full quality.</div>
                   </div>
                 )}
 

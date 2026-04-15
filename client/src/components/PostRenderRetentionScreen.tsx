@@ -181,7 +181,7 @@ export function PostRenderRetentionScreen({
           autoPlay
           muted
           playsInline
-          className="w-full max-h-72 bg-black"
+          className="w-full max-h-72 bg-black wiz-video"
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
         />
