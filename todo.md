@@ -4024,3 +4024,36 @@
 - [x] Failure handling: clear error message + Retry button
 - [x] Render job logging: all jobs, failures, completions tracked in DB
 - [x] PayPal and Klarna: auto-enabled via Stripe Dashboard → Payment Methods (no code changes needed)
+
+## Quick Preview Feature (Apr 15)
+- [ ] Add quickPreview tRPC procedure to kidsVideo router — renders scene 1 at low resolution (480p, 3s clip)
+- [ ] Use fal.ai Seedance with reduced quality settings for fast draft generation
+- [ ] Store previewVideoUrl on the kidsVideoJobs record
+- [ ] Add "Quick Preview" button to storyboard_ready state in KidsVideo.tsx
+- [ ] Show preview progress state (spinning indicator + "Generating preview...")
+- [ ] Display preview video player inline when preview is ready
+- [ ] Show cost label: "Free preview — no credits used"
+- [ ] Add "Looks good — Full Render" CTA below preview player
+- [ ] Add "Regenerate Preview" option to try a different scene
+
+## Quick Preview — ALL Generators (Apr 15)
+- [ ] Kids Animation: add previewStatus + previewVideoUrl to schema, run migration
+- [ ] Kids Animation: add quickPreview tRPC procedure — renders scene 1 at 480p, 4s, free
+- [ ] Kids Animation: Quick Preview button + progress + inline player in KidsVideo.tsx
+- [ ] Music Video (WizBeat): add previewStatus + previewVideoUrl to musicVideoJobs schema
+- [ ] Music Video: add quickPreview tRPC procedure — renders scene 1 at 480p, free
+- [ ] Music Video: Quick Preview button + progress + inline player in MusicVideo.tsx
+- [ ] Text-to-Video: add quickPreview option — generate 480p 4s draft before full render
+- [ ] Text-to-Video: Quick Preview button + progress + inline player in TextToVideo.tsx
+- [ ] Shared: "Free preview — no credits used" label on all Quick Preview buttons
+- [ ] Shared: "Looks good — Full Render" CTA below all preview players
+- [ ] Shared: "Regenerate Preview" option on all preview players
+
+## Quick Preview Feature - COMPLETED ✅
+- [x] Schema migration: added previewStatus, previewVideoUrl to kidsVideoJobs, musicVideoJobs, renderJobs tables
+- [x] Kids Animation quickPreview backend procedure (kidsVideo router) — fires fal.ai Seedance 480p scene 1 draft
+- [x] Music Video quickPreview backend procedure (musicVideo router) — fires fal.ai Seedance 480p scene 1 draft
+- [x] Render Jobs quickPreview backend procedure (render router in billing.ts) — uses source job prompt, fires fal.ai Seedance 480p draft
+- [x] Kids Animation Quick Preview UI — cyan panel with Free badge, video player, generating/failed states, Regenerate button
+- [x] Music Video Quick Preview UI — cyan panel below scene list with Free badge, video player, generating/failed states, Regenerate button
+- [x] Kids Animation tab in Projects dashboard — KidsAnimCard with progress bar, render status badges, Watch/Download links

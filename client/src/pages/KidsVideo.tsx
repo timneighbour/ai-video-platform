@@ -299,7 +299,43 @@ export default function KidsVideo() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const renderStartRef = useRef<number | null>(null);
-
+  // ── Quick Preview state ──
+  const [previewStatus, setPreviewStatus] = useState<"none" | "generating" | "ready" | "failed">("none");
+  const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
+  const previewPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const quickPreviewMutation = trpc.kidsVideo.quickPreview.useMutation();
+  const kidsUtils = trpc.useUtils();
+  const handleQuickPreview = useCallback(async () => {
+    if (!jobId) { toast.error("Generate a storyboard first."); return; }
+    if (previewStatus === "generating") return;
+    setPreviewStatus("generating");
+    setPreviewVideoUrl(null);
+    try {
+      await quickPreviewMutation.mutateAsync({ jobId });
+      toast.info("Quick preview generating… (~30–60 seconds)");
+      // Poll for preview completion
+      if (previewPollRef.current) clearInterval(previewPollRef.current);
+      previewPollRef.current = setInterval(async () => {
+        try {
+          const job = await kidsUtils.kidsVideo.getJob.fetch({ jobId });
+          const status = (job as any).previewStatus ?? "none";
+          const url = (job as any).previewVideoUrl ?? null;
+          setPreviewStatus(status as "none" | "generating" | "ready" | "failed");
+          if (status === "ready" && url) {
+            setPreviewVideoUrl(url);
+            clearInterval(previewPollRef.current!);
+            toast.success("🎬 Quick preview ready!");
+          } else if (status === "failed") {
+            clearInterval(previewPollRef.current!);
+            toast.error("Preview generation failed. Try again.");
+          }
+        } catch { /* keep polling */ }
+      }, 4000);
+    } catch (err: any) {
+      setPreviewStatus("failed");
+      toast.error(err?.message || "Failed to start preview.");
+    }
+  }, [jobId, previewStatus, quickPreviewMutation, kidsUtils]);
   const utils = trpc.useUtils();
   const selectedLength = VIDEO_LENGTHS.find((v) => v.id === videoLength)!;
   const creditCost = selectedLength.credits;
@@ -1553,6 +1589,79 @@ export default function KidsVideo() {
               {!isGeneratingStoryboard && storyboardFrames.length > 0 && (
                 <>
                   <LowCreditBanner balance={creditBalance} estimatedCost={creditCost} variant="inline" dismissible />
+
+                  {/* ⚡ Quick Preview Panel */}
+                  <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-4 sm:p-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-lg bg-cyan-500/20 p-2 flex-shrink-0">
+                        <Eye className="h-4 w-4 text-cyan-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-white text-sm">Quick Preview</span>
+                          <span className="text-xs bg-cyan-500/20 text-cyan-300 rounded-full px-2 py-0.5">Free</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Render a low-resolution 4-second draft of Scene 1 to check style and quality before committing credits.</p>
+                      </div>
+                    </div>
+
+                    {/* Preview player */}
+                    {previewStatus === "ready" && previewVideoUrl && (
+                      <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-black">
+                        <div className="relative">
+                          <video
+                            src={previewVideoUrl}
+                            controls
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full max-h-48 object-contain"
+                          />
+                          <div className="absolute top-2 left-2 bg-black/60 text-cyan-300 text-xs px-2 py-1 rounded-full">
+                            480p Draft · Scene 1
+                          </div>
+                        </div>
+                        <div className="px-3 py-2 text-xs text-muted-foreground">
+                          This is a low-resolution draft. The final render will be full quality.
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Generating state */}
+                    {previewStatus === "generating" && (
+                      <div className="flex items-center gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3">
+                        <Loader2 className="h-4 w-4 text-cyan-400 animate-spin flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-white font-medium">Generating preview…</p>
+                          <p className="text-xs text-muted-foreground">~30–60 seconds. You can keep editing your storyboard.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Failed state */}
+                    {previewStatus === "failed" && (
+                      <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                        <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                        <p className="text-sm text-red-300">Preview failed. Try again.</p>
+                      </div>
+                    )}
+
+                    <Button
+                      variant="outline"
+                      onClick={handleQuickPreview}
+                      disabled={previewStatus === "generating" || !jobId}
+                      className="gap-2 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 w-full"
+                    >
+                      {previewStatus === "generating" ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Generating Preview…</>
+                      ) : previewStatus === "ready" ? (
+                        <><RefreshCw className="h-4 w-4" /> Regenerate Preview</>
+                      ) : (
+                        <><Eye className="h-4 w-4" /> Generate Quick Preview (Free)</>
+                      )}
+                    </Button>
+                  </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-4">
                     <div>

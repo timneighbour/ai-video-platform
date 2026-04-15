@@ -3044,4 +3044,71 @@ Return a JSON array of objects matching the lyric lines provided.`;
       .where(and(eq(musicVideoJobs.isPublic, true), eq(musicVideoJobs.status, "completed")))
       .orderBy(desc(musicVideoJobs.createdAt));
   }),
+
+  /**
+   * Quick Preview — generate a free 480p 4-second draft of scene 1
+   * No credits charged. Runs in background, user polls via getJob.
+   */
+  quickPreview: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+      if (job.status === "draft") throw new TRPCError({ code: "BAD_REQUEST", message: "Generate storyboard first" });
+      if ((job as any).previewStatus === "generating") throw new TRPCError({ code: "BAD_REQUEST", message: "Preview already generating" });
+
+      // Get scene 1
+      const scenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex)
+        .limit(1);
+      const scene1 = scenes[0];
+      if (!scene1) throw new TRPCError({ code: "BAD_REQUEST", message: "No scenes found" });
+
+      // Mark as generating
+      await db.update(musicVideoJobs)
+        .set({ previewStatus: "generating" } as Partial<typeof musicVideoJobs.$inferInsert>)
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      const videoPrompt = [
+        scene1.prompt ?? "",
+        "smooth cinematic motion, 480p draft quality, 4 seconds",
+      ].filter(Boolean).join(". ");
+
+      // Fire-and-forget
+      (async () => {
+        try {
+          console.log(`[QuickPreview] Music job ${input.jobId} — starting 480p draft of scene 1`);
+          const { generateFalSeedanceVideoSync } = await import("../ai-apis/fal-seedance");
+          const result = await generateFalSeedanceVideoSync(
+            { prompt: videoPrompt, aspect_ratio: "16:9", duration: "4", resolution: "480p", generate_audio: false },
+            180_000
+          );
+
+          const resp = await fetch(result.videoUrl);
+          const buf = Buffer.from(await resp.arrayBuffer());
+          const key = `music-previews/${input.jobId}-preview-${Date.now()}.mp4`;
+          const { url } = await storagePut(key, buf, "video/mp4");
+
+          await db.update(musicVideoJobs)
+            .set({ previewStatus: "ready", previewVideoUrl: url } as Partial<typeof musicVideoJobs.$inferInsert>)
+            .where(eq(musicVideoJobs.id, input.jobId));
+
+          console.log(`[QuickPreview] Music job ${input.jobId} — preview ready: ${url}`);
+        } catch (err) {
+          console.error(`[QuickPreview] Music job ${input.jobId} failed:`, err);
+          await db.update(musicVideoJobs)
+            .set({ previewStatus: "failed" } as Partial<typeof musicVideoJobs.$inferInsert>)
+            .where(eq(musicVideoJobs.id, input.jobId));
+        }
+      })();
+
+      return { started: true };
+    }),
 });
