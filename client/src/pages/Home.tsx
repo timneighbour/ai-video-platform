@@ -483,11 +483,11 @@ function Hero() {
         }}
       />
 
-      {/* ── Hero layout: text left, video player bottom-right ── */}
+      {/* ── Hero layout: two-column — text left, video player right ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 pt-28 pb-8">
-        <div className="flex flex-col min-h-[85vh]">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-10 min-h-[85vh]">
 
-          {/* ── TOP: Copy + CTAs — left-aligned, takes up most of the vertical space ── */}
+          {/* ── LEFT COLUMN: Copy + CTAs + Trust ── */}
           <div className="relative z-10 flex flex-col items-start text-left flex-1 justify-center">
             {/* Extra dark backdrop behind text for guaranteed readability */}
             <div
@@ -570,22 +570,16 @@ function Hero() {
                 <Film className="w-3.5 h-3.5" />
                 View Examples
               </NavLink>
-
             </div>
 
             {/* Trust line */}
-            <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium">
+            <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium mb-6">
               <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
               No credit card required · Create first, pay only if you love it
             </p>
 
-            {/* Trust strip + Video Player — side by side at bottom */}
-          </div>
-
-          {/* ── BOTTOM ROW: Trust stats left + Video player right ── */}
-          <div className="relative z-10 mt-6 flex flex-col lg:flex-row items-end lg:items-end gap-6 lg:gap-10 w-full">
-            {/* Trust stats — left side */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 flex-shrink-0">
+            {/* Trust strip — avatars + stats */}
+            <div className="relative z-10 flex flex-wrap items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2">
                   {[
@@ -616,11 +610,11 @@ function Hero() {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Video player mockup — right side, bottom-aligned */}
-            <div className="hidden lg:block flex-1 max-w-[480px] ml-auto">
-              <HeroProductPreview />
-            </div>
+          {/* ── RIGHT COLUMN: Video player mockup — bottom-aligned with trust stats ── */}
+          <div className="hidden lg:flex lg:items-end lg:self-end lg:w-[480px] lg:flex-shrink-0" style={{ marginBottom: '264px' }}>
+            <HeroProductPreview />
           </div>
         </div>
 

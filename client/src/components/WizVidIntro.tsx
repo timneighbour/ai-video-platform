@@ -1,15 +1,10 @@
 /**
- * WizVidIntro — Cinematic Trailer v10 FINAL (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v16 FINAL (Apr 2026)
  *
- * Upgrades from v9:
- * - New cinematic trailer score with build → rise → strong drop at logo reveal (15.3s)
- * - Fixed text timing: "If ever there was a Wiz..." (2.5s) → pause (0.8s) → "There is." (2.5s) → logo
- * - High-contrast pure white text, bold, strong shadow — no faded text
- * - Slower clip pacing — each scene breathes (3–3.5s per clip)
- * - Logo reveal synced to music drop at 15.3s
- * - Smooth 0.5s crossfade transitions between all clips
- * - WizSound: stereo widening, EQ, bass build, subwoofer impact at logo
- * - 25.4s total duration
+ * Restored v16 trailer with original WizSound-enhanced audio track.
+ * - 48kHz stereo AAC, 273kbps — full WizSound processing
+ * - 29s total duration
+ *
  *
  * Cross-device compatible:
  * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
@@ -23,16 +18,16 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v10 FINAL — New cinematic score, slow pacing, logo at 15.3s, H.264 Baseline, faststart, 24fps, 20MB, iOS Safari compatible
-const TRAILER_URL = `${CDN}/wizvid-intro-v10_b83be573.mp4`;
+// v16 FINAL — Original WizSound-enhanced audio, 48kHz stereo, 29s duration
+const TRAILER_URL = `${CDN}/wizvid-intro-v16-final_f8595375.mp4`;
 // 4K version: will be added when 4K encode completes
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v10_seen"; // v10 FINAL — cinematic score + slow pacing + logo sync
+export const INTRO_SEEN_KEY = "wizvid_intro_v16_seen"; // v16 FINAL — restored original WizSound-enhanced audio
 
-// CTA appears when video ends (~25.4s); timer fires at 24s as backup
-const CTA_SHOW_AT_MS = 24000;
-// v10 duration: 25.42s
+// CTA appears when video ends (~29s); timer fires at 27s as backup
+const CTA_SHOW_AT_MS = 27000;
+// v16 duration: 29s
 
 interface WizVidIntroProps {
   onClose: () => void;

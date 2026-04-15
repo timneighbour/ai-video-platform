@@ -3750,3 +3750,14 @@
 
 ## Dashboard — Welcome Title (Apr 15)
 - [x] Add large "Welcome to your Studio" title on the Dashboard page
+
+## Intro Video Audio Issue (Apr 15 - URGENT)
+- [x] Investigate: intro video had wrong audio track (v10 instead of v16)
+- [x] Restore the correct original audio track — switched to v16 trailer with WizSound-enhanced audio
+
+## Hero Layout — WizCreate Player Overlapping/Jumbled (Apr 15 - URGENT)
+- [x] Fix WizCreate video player mockup overlapping with trust stats strip
+- [x] Ensure clean separation between hero text, trust stats, and video player mockup
+
+## Hero — Video Player Bottom Alignment (Apr 15)
+- [x] Align video player bottom ("Describe your idea" tabs) perfectly with trust stats strip ("pay to render only")
