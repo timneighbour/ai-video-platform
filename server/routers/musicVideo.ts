@@ -3,7 +3,7 @@
  */
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
@@ -2983,4 +2983,65 @@ Return a JSON array of objects matching the lyric lines provided.`;
       console.log(`[MusicVideo] Character ${char.name} in job ${input.jobId} role updated to: ${input.performanceRole}`);
       return { success: true };
     }),
+
+  // ── PUBLIC WATCH PAGE ──────────────────────────────────────────────────────
+  // Toggle whether a completed video is publicly accessible/indexable by Google
+  togglePublic: protectedProcedure
+    .input(z.object({ jobId: z.number().int(), isPublic: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.status !== "completed") throw new TRPCError({ code: "BAD_REQUEST", message: "Only completed videos can be made public" });
+      let shareSlug = job.shareSlug;
+      if (input.isPublic && !shareSlug) {
+        const { randomBytes } = await import("crypto");
+        shareSlug = randomBytes(6).toString("hex");
+      }
+      await db.update(musicVideoJobs)
+        .set({ isPublic: input.isPublic, shareSlug: input.isPublic ? shareSlug : job.shareSlug, updatedAt: new Date() } as any)
+        .where(eq(musicVideoJobs.id, input.jobId));
+      return { success: true, shareSlug: input.isPublic ? shareSlug : null, watchUrl: input.isPublic ? `/watch/${shareSlug}` : null };
+    }),
+
+  // Fetch a public video by its share slug (no auth required)
+  getPublicVideo: publicProcedure
+    .input(z.object({ slug: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        genre: musicVideoJobs.genre,
+        mood: musicVideoJobs.mood,
+        finalVideoUrl: musicVideoJobs.finalVideoUrl,
+        thumbnailUrl: musicVideoJobs.thumbnailUrl,
+        audioDuration: musicVideoJobs.audioDuration,
+        createdAt: musicVideoJobs.createdAt,
+        shareSlug: musicVideoJobs.shareSlug,
+        isPublic: musicVideoJobs.isPublic,
+      }).from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.shareSlug, input.slug), eq(musicVideoJobs.isPublic, true)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found or is not public" });
+      return job;
+    }),
+
+  // List all public videos (for sitemap)
+  listPublicVideos: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return db.select({
+      shareSlug: musicVideoJobs.shareSlug,
+      title: musicVideoJobs.title,
+      updatedAt: musicVideoJobs.updatedAt,
+      thumbnailUrl: musicVideoJobs.thumbnailUrl,
+      finalVideoUrl: musicVideoJobs.finalVideoUrl,
+      audioDuration: musicVideoJobs.audioDuration,
+    }).from(musicVideoJobs)
+      .where(and(eq(musicVideoJobs.isPublic, true), eq(musicVideoJobs.status, "completed")))
+      .orderBy(desc(musicVideoJobs.createdAt));
+  }),
 });

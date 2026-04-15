@@ -37,6 +37,8 @@ import {
   Sparkles,
   ChevronRight,
   Save,
+  Globe,
+  Link2,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -82,6 +84,9 @@ type MusicVideoJob = {
   createdAt: Date;
   genre: string | null;
   mood: string | null;
+  isPublic?: boolean;
+  shareSlug?: string | null;
+  thumbnailUrl?: string | null;
 };
 
 type FilterTab = "all" | "active" | "completed" | "draft";
@@ -223,6 +228,20 @@ export default function Projects() {
   const deleteMusicJobMutation = trpc.musicVideo.deleteJob.useMutation({
     onSuccess: () => { toast.success("Music video deleted."); utils.musicVideo.listJobs.invalidate(); setDeleteMusicJobId(null); },
     onError: (err) => { toast.error(err.message || "Failed to delete."); setDeleteMusicJobId(null); },
+  });
+
+  const togglePublicMutation = trpc.musicVideo.togglePublic.useMutation({
+    onSuccess: (data) => {
+      utils.musicVideo.listJobs.invalidate();
+      if (data.isPublic && data.shareSlug) {
+        const url = `${window.location.origin}/watch/${data.shareSlug}`;
+        navigator.clipboard.writeText(url).catch(() => {});
+        toast.success("Video is now public! Link copied to clipboard.");
+      } else {
+        toast.success("Video set to private.");
+      }
+    },
+    onError: (err) => toast.error(err.message || "Failed to update visibility."),
   });
 
   useEffect(() => { if (!isAuthenticated) setLocation("/"); }, [isAuthenticated, setLocation]);
@@ -420,6 +439,23 @@ export default function Projects() {
             {job.audioUrl && (
               <Button size="sm" variant="outline" onClick={() => handleMusicDownloadAudio(job)} className="gap-1.5 border-white/20 text-zinc-300 hover:bg-white/10 hover:text-white">
                 <Music className="h-3.5 w-3.5" /> Audio
+              </Button>
+            )}
+            {completed && job.finalVideoUrl && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => togglePublicMutation.mutate({ jobId: job.id, isPublic: !job.isPublic })}
+                disabled={togglePublicMutation.isPending}
+                className={`gap-1.5 border-white/20 hover:bg-white/10 ${
+                  job.isPublic
+                    ? "text-green-400 border-green-500/30 hover:text-green-300"
+                    : "text-zinc-300 hover:text-white"
+                }`}
+                title={job.isPublic ? `Public — click to make private` : "Make public for Google indexing"}
+              >
+                {job.isPublic ? <Link2 className="h-3.5 w-3.5" /> : <Globe className="h-3.5 w-3.5" />}
+                {job.isPublic ? "Public" : "Share"}
               </Button>
             )}
             <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete">

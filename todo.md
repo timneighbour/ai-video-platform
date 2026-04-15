@@ -3909,3 +3909,25 @@
 - [x] Audit all Manus references in codebase (URLs, branding, emails, OAuth redirects, meta tags)
 - [x] Replace all customer-facing manus.space URLs with wizvid.ai
 - [x] Remove any Manus branding from email templates, payment flows, and auth screens
+
+## Google Video Indexing - COMPLETED ✅
+- [x] Add isPublic, shareSlug, thumbnailUrl columns to musicVideoJobs schema
+- [x] Apply DB migration for new columns
+- [x] Add togglePublic tRPC procedure (protected)
+- [x] Add getPublicVideo tRPC procedure (public)
+- [x] Add listPublicVideos tRPC procedure (for sitemap)
+- [x] Build /watch/:slug public watch page with VideoObject JSON-LD structured data
+- [x] Register /watch/:slug route in App.tsx
+- [x] Add "Share" / "Public" toggle button to completed video cards in Projects.tsx
+- [x] Add dynamic /sitemap.xml endpoint that includes all public watch page URLs
+- [x] Copy link to clipboard when video is made public
+
+## Stripe Live Mode - COMPLETED ✅
+- [x] Swap Stripe test keys for live keys (sk_live_, pk_live_, whsec_)
+- [x] Create all missing live products in Stripe (Render Standard/HD/4K, bundles, cinematic packs, audio add-ons)
+- [x] Update all 18 Stripe price ID environment variables to live mode
+- [x] Validate all live price IDs against Stripe API
+
+## Manus Branding Removal - COMPLETED ✅
+- [x] Remove "Manus OAuth login" reference from Privacy.tsx
+- [x] Rebrand ManusDialog component to WizVid branding

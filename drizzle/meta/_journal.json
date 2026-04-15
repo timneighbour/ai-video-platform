@@ -281,6 +281,13 @@
       "when": 1776188150444,
       "tag": "0039_flaky_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1776245060549,
+      "tag": "0040_graceful_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

@@ -42,6 +42,7 @@ const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
 const EnhancementStudio = lazy(() => import("@/pages/EnhancementStudio"));
 const BatchRegeneration = lazy(() => import("@/pages/BatchRegeneration"));
 const Blog = lazy(() => import("@/pages/Blog"));
+const WatchPage = lazy(() => import("@/pages/WatchPage"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const BlogAdmin = lazy(() => import("@/pages/BlogAdmin"));
 const LandingUK = lazy(() => import("@/pages/LandingUK"));
@@ -122,6 +123,7 @@ function Router() {
         <Route path={"/creators"} component={Discover} />
         <Route path={"/blog/:slug"} component={BlogPost} />
         <Route path={"/seo/:slug"} component={SeoLandingPage} />
+        <Route path={"/watch/:slug"} component={WatchPage} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />

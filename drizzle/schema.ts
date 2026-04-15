@@ -148,6 +148,10 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // --- Realistic Music Performance System ------------------------------------
   // JSON: InstrumentAnalysis { instruments: InstrumentTrack[], tempo: number, timeSignature: string, key: string, analysedAt: string }
   instrumentAnalysis: longtext("instrumentAnalysis"),
+  // --- Public Watch Page ---
+  isPublic: boolean("isPublic").default(false).notNull(), // Whether this video is publicly shareable/indexable
+  shareSlug: varchar("shareSlug", { length: 64 }), // Unique slug for public watch page e.g. "abc123xyz"
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }), // First scene image used as video thumbnail
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

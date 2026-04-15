@@ -251,6 +251,62 @@ async function startServer() {
     next();
   });
 
+  // Dynamic sitemap.xml — includes static pages + all public watch pages
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const { musicVideoJobs: mvJobs } = await import("../../drizzle/schema");
+      const { eq: eqOp } = await import("drizzle-orm");
+      const db = await getDb();
+      const publicVideos = db ? await db.select({
+        shareSlug: mvJobs.shareSlug,
+        updatedAt: mvJobs.updatedAt,
+      }).from(mvJobs).where(eqOp(mvJobs.isPublic, true)) : [];
+
+      const base = "https://www.wizvid.ai";
+      const staticUrls = [
+        { loc: base, priority: "1.0", changefreq: "weekly" },
+        { loc: `${base}/pricing`, priority: "0.9", changefreq: "monthly" },
+        { loc: `${base}/music-video`, priority: "0.9", changefreq: "weekly" },
+        { loc: `${base}/how-it-works`, priority: "0.8", changefreq: "monthly" },
+        { loc: `${base}/blog`, priority: "0.8", changefreq: "weekly" },
+        { loc: `${base}/discover`, priority: "0.7", changefreq: "daily" },
+        { loc: `${base}/privacy`, priority: "0.3", changefreq: "yearly" },
+        { loc: `${base}/terms`, priority: "0.3", changefreq: "yearly" },
+      ];
+
+      const watchUrls = publicVideos
+        .filter(v => v.shareSlug)
+        .map(v => ({
+          loc: `${base}/watch/${v.shareSlug}`,
+          priority: "0.6",
+          changefreq: "monthly",
+          lastmod: v.updatedAt ? new Date(v.updatedAt).toISOString().split("T")[0] : undefined,
+        }));
+
+      const allUrls = [...staticUrls, ...watchUrls];
+      const xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        ...allUrls.map(u => [
+          "  <url>",
+          `    <loc>${u.loc}</loc>`,
+          (u as any).lastmod ? `    <lastmod>${(u as any).lastmod}</lastmod>` : "",
+          `    <changefreq>${u.changefreq}</changefreq>`,
+          `    <priority>${u.priority}</priority>`,
+          "  </url>",
+        ].filter(Boolean).join("\n")),
+        "</urlset>",
+      ].join("\n");
+
+      res.setHeader("Content-Type", "application/xml");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.send(xml);
+    } catch (err) {
+      console.error("[Sitemap] Error generating sitemap:", err);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
