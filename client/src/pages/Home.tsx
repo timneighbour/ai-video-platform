@@ -579,10 +579,10 @@ function Hero() {
             {/* Value bullets */}
             <div className="relative z-10 mb-7 flex flex-col gap-2.5">
               {[
-                { icon: "🎤", text: "Full videos — not clips" },
-                { icon: "👁️", text: "Preview every scene before you render" },
-                { icon: "🎵", text: "Cinematic audio with WizSound™" },
-                { icon: "✨", text: "Only pay when you’re ready" },
+                { icon: "▸", text: "Full videos — not clips" },
+                { icon: "▸", text: "Preview every scene before you render" },
+                { icon: "▸", text: "Cinematic audio with WizSound™" },
+                { icon: "▸", text: "Only pay when you're ready" },
               ].map((b) => (
                 <div key={b.text} className="inline-flex items-center gap-2.5 text-sm text-white/80 font-medium">
                   <span className="text-base leading-none">{b.icon}</span>
@@ -703,11 +703,11 @@ function Hero() {
 
 // ── Try an Example ─────────────────────────────────────────────────────────
 const EXAMPLE_PROMPTS = [
-  { label: "🎤 Hip-Hop", prompt: "A cinematic hip-hop music video — artist performing on a rooftop at golden hour, city skyline, slow-motion crowd shots, neon lights", genre: "Hip-Hop" },
-  { label: "🎸 Rock", prompt: "An epic rock music video — electric guitar solo on a stormy mountain peak, lightning strikes, dramatic wide shots, dark cinematic atmosphere", genre: "Rock" },
-  { label: "🌙 R&B", prompt: "A moody R&B music video — artist in a rain-soaked city street at midnight, neon reflections, intimate close-ups, cinematic slow motion", genre: "R&B" },
-  { label: "🎹 Pop", prompt: "A vibrant pop music video — colourful dance sequences, confetti, bright studio lights, high-energy choreography, fun and upbeat", genre: "Pop" },
-  { label: "🎻 Cinematic", prompt: "A sweeping cinematic orchestral video — aerial shots of mountain ranges at sunrise, dramatic clouds, epic scale, emotional storytelling", genre: "Cinematic" },
+  { label: "Hip-Hop", prompt: "A cinematic hip-hop music video — artist performing on a rooftop at golden hour, city skyline, slow-motion crowd shots, neon lights", genre: "Hip-Hop" },
+  { label: "Rock", prompt: "An epic rock music video — electric guitar solo on a stormy mountain peak, lightning strikes, dramatic wide shots, dark cinematic atmosphere", genre: "Rock" },
+  { label: "R&B", prompt: "A moody R&B music video — artist in a rain-soaked city street at midnight, neon reflections, intimate close-ups, cinematic slow motion", genre: "R&B" },
+  { label: "Pop", prompt: "A vibrant pop music video — colourful dance sequences, confetti, bright studio lights, high-energy choreography, fun and upbeat", genre: "Pop" },
+  { label: "Cinematic", prompt: "A sweeping cinematic orchestral video — aerial shots of mountain ranges at sunrise, dramatic clouds, epic scale, emotional storytelling", genre: "Cinematic" },
 ];
 
 function TryAnExample() {
@@ -852,9 +852,9 @@ function TrustSignals() {
     <section className="bg-[#080808] border-t border-white/6 py-5 px-6">
       <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-14">
         {[
-          { icon: "✦", text: "No editing experience needed" },
-          { icon: "⚡", text: "Preview every scene first" },
-          { icon: "🎬", text: "Full video render in minutes" },
+          { icon: "—", text: "No editing experience needed" },
+          { icon: "—", text: "Preview every scene first" },
+          { icon: "—", text: "Full video render in minutes" },
         ].map((item) => (
           <div key={item.text} className="flex items-center gap-2.5">
             <span className="text-violet-400 text-sm font-bold">{item.icon}</span>
@@ -968,21 +968,21 @@ function ImmediateValue() {
       bg: "bg-blue-500/8 border-blue-500/20",
     },
     {
-      icon: "🎬",
+      icon: "▶",
       title: "Processing Stages",
       desc: "Watch live progress: Preparing Scenes → Animating Video → Syncing Audio → Finalising. Each stage updates in real time.",
       colour: "text-violet-400",
       bg: "bg-violet-500/8 border-violet-500/20",
     },
     {
-      icon: "🔔",
+      icon: "◉",
       title: "Notifications",
       desc: "Get notified the moment your video is ready — in-app and by email. No need to stay on the page.",
       colour: "text-amber-400",
       bg: "bg-amber-500/8 border-amber-500/20",
     },
     {
-      icon: "📁",
+      icon: "▦",
       title: "Dashboard & Downloads",
       desc: "All your videos live in your dashboard — Drafts, Rendering, and Completed. Download, share, or publish with one click.",
       colour: "text-emerald-400",
@@ -1081,14 +1081,14 @@ function ProductDemo() {
   const steps = [
     {
       label: "Your input",
-      icon: "✍️",
+      icon: "I",
       color: "border-violet-500/30 bg-violet-500/5",
       badge: "bg-violet-500/20 text-violet-300",
       content: (
         <div className="space-y-3">
           <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Example lyrics</div>
           <div className="p-4 rounded-xl bg-[#0f0f0f] border border-white/8 text-sm text-white/80 leading-relaxed font-mono">
-            <p className="text-violet-300">🎵 Verse 1:</p>
+            <p className="text-violet-300">Verse 1:</p>
             <p className="mt-2">"Lights fade out, city sleeps,</p>
             <p>Neon signs and broken dreams,</p>
             <p>I walk alone through midnight rain,</p>
@@ -1103,7 +1103,7 @@ function ProductDemo() {
     },
     {
       label: "AI storyboard",
-      icon: "🎨",
+      icon: "II",
       color: "border-blue-500/30 bg-blue-500/5",
       badge: "bg-blue-500/20 text-blue-300",
       content: (
@@ -1125,7 +1125,7 @@ function ProductDemo() {
     },
     {
       label: "Final video",
-      icon: "🎬",
+      icon: "III",
       color: "border-green-500/30 bg-green-500/5",
       badge: "bg-green-500/20 text-green-300",
       content: (
@@ -1204,17 +1204,17 @@ function ProductDemo() {
 function WhyWizVid() {
   const reasons = [
     {
-      icon: "👁️",
+      icon: "01",
       title: "See your video before rendering",
       desc: "WizVid generates a full AI storyboard instantly. Preview every scene, edit any prompt, and approve your video before a single frame is rendered.",
     },
     {
-      icon: "🧑‍🎤",
+      icon: "02",
       title: "Keep characters consistent across every scene",
       desc: "Your characters stay identical from scene to scene — same look, same style, same energy. No jarring changes between cuts.",
     },
     {
-      icon: "✨",
+      icon: "03",
       title: "Upgrade your video to cinematic quality",
       desc: "Choose which scenes get premium cinematic rendering — chorus, climax, hero moments. You stay in control of quality and credits.",
     },
@@ -1233,10 +1233,10 @@ function WhyWizVid() {
         {/* 4 core value bullets */}
         <div className="grid sm:grid-cols-2 gap-4 mb-10 reveal">
           {[
-            { icon: "🎨", title: "AI builds full storyboard instantly", desc: "Every scene written and visualised in under 30 seconds." },
-            { icon: "👁️", title: "Preview every scene before paying", desc: "Edit any prompt, swap styles, approve before rendering." },
-            { icon: "🎬", title: "Full video, not clips", desc: "A complete, ready-to-publish video — not fragments." },
-            { icon: "✅", title: "No editing required", desc: "WizVid handles everything. You just describe your idea." },
+            { icon: "01", title: "AI builds full storyboard instantly", desc: "Every scene written and visualised in under 30 seconds." },
+            { icon: "02", title: "Preview every scene before paying", desc: "Edit any prompt, swap styles, approve before rendering." },
+            { icon: "03", title: "Full video, not clips", desc: "A complete, ready-to-publish video — not fragments." },
+            { icon: "04", title: "No editing required", desc: "WizVid handles everything. You just describe your idea." },
           ].map((item, i) => (
             <div key={item.title} className={`flex gap-4 p-5 glass-card rounded-2xl hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
               <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
@@ -1265,10 +1265,10 @@ function SpeedSection() {
     return () => clearInterval(t);
   }, []);
   const steps = [
-    { num: "01", label: "Describe your idea", sub: "Type a prompt or upload your song", icon: "💡", color: "violet" },
-    { num: "02", label: "AI builds storyboard", sub: "Every scene written in seconds", icon: "🎨", color: "blue" },
-    { num: "03", label: "Preview scenes", sub: "Approve before spending a credit", icon: "👁️", color: "purple" },
-    { num: "04", label: "Render final video", sub: "Full video, ready to publish", icon: "🎬", color: "green" },
+    { num: "01", label: "Describe your idea", sub: "Type a prompt or upload your song", icon: "01", color: "violet" },
+    { num: "02", label: "AI builds storyboard", sub: "Every scene written in seconds", icon: "02", color: "blue" },
+    { num: "03", label: "Preview scenes", sub: "Approve before spending a credit", icon: "03", color: "purple" },
+    { num: "04", label: "Render final video", sub: "Full video, ready to publish", icon: "04", color: "green" },
   ];
   const colorMap: Record<string, { border: string; bg: string; text: string; dot: string }> = {
     violet: { border: "border-violet-500/40", bg: "bg-violet-500/10", text: "text-violet-300", dot: "bg-violet-500" },
@@ -1382,7 +1382,7 @@ function WhoItsFor() {
       cta: "Make a music video",
       href: "/music-video",
       accent: "from-violet-500/20 to-purple-500/5",
-      badge: "🎤 Music Video",
+      badge: "Music Video",
     },
     {
       img: WHO_IMAGES.youtubers,
@@ -1392,7 +1392,7 @@ function WhoItsFor() {
       cta: "Create YouTube content",
       href: "/wizpilot",
       accent: "from-red-500/20 to-orange-500/5",
-      badge: "🎥 YouTube & Podcast",
+      badge: "YouTube & Podcast",
     },
     {
       img: WHO_IMAGES.aiCreators,
@@ -1402,7 +1402,7 @@ function WhoItsFor() {
       cta: "Start automating",
       href: "/wizpilot",
       accent: "from-cyan-500/20 to-blue-500/5",
-      badge: "🤖 AI Content",
+      badge: "AI Content",
     },
     {
       img: WHO_IMAGES.kidsCreators,
@@ -1412,7 +1412,7 @@ function WhoItsFor() {
       cta: "Explore WizAnimate",
       href: "/products/wizanimate",
       accent: "from-cyan-500/20 to-blue-500/5",
-      badge: "✨ AI Animation",
+      badge: "AI Animation",
     },
   ];
 
@@ -1840,7 +1840,7 @@ function WizBeatSection() {
               </div>
             </div>
             <div className="absolute -top-3 -right-3 bg-[#171717] border border-white/10 rounded-xl px-3 py-1.5 shadow-lg">
-              <span className="text-white text-xs font-semibold">🎵 WizBeat</span>
+              <span className="text-white text-xs font-semibold">WizBeat</span>
             </div>
           </div>
 
@@ -2517,7 +2517,6 @@ function HomePricing() {
           </p>
           {/* Annual savings banner */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/25 text-green-400 text-sm font-semibold mb-2">
-            <span>🎁</span>
             <span>Annual billing saves up to £198/year — 2 months free</span>
           </div>
           <p className="text-sm text-violet-300/80 font-medium mt-2">Start free — upgrade only when you're ready</p>
@@ -2526,7 +2525,6 @@ function HomePricing() {
         {/* Decision guidance banner */}
         <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 rounded-2xl border border-violet-500/30 bg-gradient-to-r from-violet-950/50 to-indigo-950/30">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">👋</span>
             <div className="text-left">
               <p className="text-white font-bold text-sm">Most creators start here — <span className="text-violet-300">Creator at £29/mo</span></p>
               <p className="text-white/50 text-xs mt-0.5">10 renders · HD + 4K · WizSound included · No editing skills needed</p>
@@ -2551,12 +2549,12 @@ function HomePricing() {
             >
               {plan.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-violet-600 text-white text-[9px] font-bold tracking-wide shadow-lg">
-                  👋 Most creators start here
+                  Most creators start here
                 </div>
               )}
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-white text-base">
-                  {plan.highlight ? "⭐ " : ""}{plan.name}
+                  {plan.name}
                 </span>
                 {plan.badge && (
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${

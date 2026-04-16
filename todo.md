@@ -4024,12 +4024,12 @@
 - [ ] Show duration badge on generated tracks in history
 
 ## WizScore — Video-to-Music AI Composer (Next Major Feature)
-- [ ] Create WizScore page and route
-- [ ] Build video upload and analysis flow (AI watches video, extracts mood/pacing/energy/duration)
-- [ ] Auto-generate Suno prompt from video analysis
-- [ ] Generate music matched exactly to video duration
-- [ ] Deliver synced soundtrack — music ends on final frame
-- [ ] Add WizScore to navigation and landing page
+- [x] Create WizScore page and route
+- [x] Build video upload and analysis flow (AI watches video, extracts mood/pacing/energy/duration)
+- [x] Auto-generate Suno prompt from video analysis
+- [x] Generate music matched exactly to video duration
+- [x] Deliver synced soundtrack — music ends on final frame
+- [x] Add WizScore to navigation and landing page
 
 ## Low-Credit Top-Up Modal
 - [ ] Build low-credit detection (threshold: 50 credits)
@@ -4053,7 +4053,7 @@
 - [x] Add duration slider to WizSound (10s–5min, quick-select buttons)
 - [x] Add server-side audio trimming with fade-out for exact duration matching
 - [ ] Homepage redesign — premium imagery, no emojis, simplified messaging
-- [ ] WizScore — video-to-music feature (AI watches video, generates matching score)
+- [x] WizScore — video-to-music feature (AI watches video, generates matching score)
 - [ ] Low-credit top-up modal with slider (£5–£250, one-tap charge to saved card)
 
 - [x] Regenerate all 7 icon images larger/more impactful for PlatformFlow and AllInOnePlatform (Audio, Video, Character, Storyboard, Render, Notify, WizBoost)

@@ -1,30 +1,31 @@
 /**
- * QuickTopUpModal — inline credit pack selector that opens from the low credit banner.
+ * QuickTopUpModal — credit pack selector with optional custom amount slider.
  *
- * Shows 3 standard packs with credits, price, and cost-per-video helper text.
+ * Shows 3 standard packs + a custom slider (£5–£250) for flexible top-ups.
  * Dispatches Stripe checkout in a new tab without navigating away.
  */
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Zap, Check, Loader2, ExternalLink } from "lucide-react";
+import { Zap, Check, Loader2, ExternalLink, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Pack {
-  key: "starter" | "creator" | "pro";
+  key: "starter" | "creator" | "pro" | "custom";
   label: string;
   credits: number;
   price: string;
   priceGBP: number;
-  videosApprox: number; // approx 1-min videos (30 credits each)
+  videosApprox: number;
   badge?: string;
   highlight?: boolean;
 }
 
-const PACKS: Pack[] = [
+const STANDARD_PACKS: Pack[] = [
   {
     key: "starter",
     label: "Starter Pack",
@@ -53,12 +54,17 @@ const PACKS: Pack[] = [
   },
 ];
 
+/** Credits per £1 at each tier — higher spend = better rate */
+function creditsForAmount(gbp: number): number {
+  if (gbp >= 50) return Math.round(gbp * 40.7); // ~£59/2400cr rate
+  if (gbp >= 20) return Math.round(gbp * 37.5); // ~£24/900cr rate
+  return Math.round(gbp * 33.3);                // ~£9/300cr rate
+}
+
 interface QuickTopUpModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Current balance — used to highlight the recommended pack */
   currentBalance?: number;
-  /** Estimated cost of the next video — used to pre-select the right pack */
   estimatedCost?: number;
 }
 
@@ -68,17 +74,20 @@ export function QuickTopUpModal({
   currentBalance = 0,
   estimatedCost,
 }: QuickTopUpModalProps) {
-  // Pre-select the smallest pack that covers the shortfall, defaulting to creator
   const getDefaultPack = (): Pack["key"] => {
     if (!estimatedCost) return "creator";
     const shortfall = estimatedCost - currentBalance;
     if (shortfall <= 0) return "creator";
-    const covering = PACKS.find(p => p.credits >= shortfall);
+    const covering = STANDARD_PACKS.find(p => p.credits >= shortfall);
     return covering?.key ?? "pro";
   };
 
   const [selectedPack, setSelectedPack] = useState<Pack["key"]>(getDefaultPack);
+  const [customAmount, setCustomAmount] = useState(25);
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const customCredits = creditsForAmount(customAmount);
+  const customVideos = Math.floor(customCredits / 30);
 
   const checkoutMutation = trpc.billing.createCreditCheckout.useMutation({
     onSuccess: (data) => {
@@ -100,15 +109,26 @@ export function QuickTopUpModal({
     },
   });
 
-  const handlePurchase = () => {
+  const handlePurchase = useCallback(() => {
     setIsRedirecting(true);
+    // For custom amounts, pick the closest standard pack key by price tier
+    let packKey: "starter" | "creator" | "pro" = "starter";
+    if (customAmount >= 50) packKey = "pro";
+    else if (customAmount >= 20) packKey = "creator";
+
+    const packToUse = selectedPack === "custom" ? packKey : selectedPack as "starter" | "creator" | "pro";
     checkoutMutation.mutate({
-      pack: selectedPack,
+      pack: packToUse,
       origin: window.location.origin,
     });
-  };
+  }, [selectedPack, customAmount, checkoutMutation]);
 
-  const selected = PACKS.find(p => p.key === selectedPack)!;
+  const selected = selectedPack === "custom"
+    ? null
+    : STANDARD_PACKS.find(p => p.key === selectedPack)!;
+
+  const ctaCredits = selected ? selected.credits : customCredits;
+  const ctaPrice = selected ? selected.price : `£${customAmount}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -135,9 +155,9 @@ export function QuickTopUpModal({
           </div>
         )}
 
-        {/* Pack selector */}
+        {/* Standard pack selector */}
         <div className="space-y-2">
-          {PACKS.map((pack) => (
+          {STANDARD_PACKS.map((pack) => (
             <button
               key={pack.key}
               onClick={() => setSelectedPack(pack.key)}
@@ -150,7 +170,6 @@ export function QuickTopUpModal({
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* Selection indicator */}
                   <div className={cn(
                     "h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
                     selectedPack === pack.key
@@ -161,7 +180,6 @@ export function QuickTopUpModal({
                       <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
                     )}
                   </div>
-
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-foreground">{pack.label}</span>
@@ -177,7 +195,6 @@ export function QuickTopUpModal({
                     </p>
                   </div>
                 </div>
-
                 <div className="text-right shrink-0">
                   <span className="text-base font-bold text-foreground">{pack.price}</span>
                   <p className="text-[10px] text-muted-foreground">
@@ -187,6 +204,56 @@ export function QuickTopUpModal({
               </div>
             </button>
           ))}
+
+          {/* Custom amount option */}
+          <button
+            onClick={() => setSelectedPack("custom")}
+            className={cn(
+              "w-full rounded-lg border p-3.5 text-left transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              selectedPack === "custom"
+                ? "border-primary bg-primary/8 ring-1 ring-primary/30"
+                : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
+            )}
+          >
+            <div className="flex items-center gap-3 mb-1">
+              <div className={cn(
+                "h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
+                selectedPack === "custom"
+                  ? "border-primary bg-primary"
+                  : "border-muted-foreground/40"
+              )}>
+                {selectedPack === "custom" && (
+                  <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-1">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-sm font-semibold text-foreground">Custom Amount</span>
+              </div>
+              <div className="text-right">
+                <span className="text-base font-bold text-foreground">£{customAmount}</span>
+                <p className="text-[10px] text-muted-foreground">{customCredits.toLocaleString()} Credits</p>
+              </div>
+            </div>
+
+            {selectedPack === "custom" && (
+              <div className="mt-3 px-1 space-y-2" onClick={(e) => e.stopPropagation()}>
+                <Slider
+                  min={5}
+                  max={250}
+                  step={5}
+                  value={[customAmount]}
+                  onValueChange={([v]) => setCustomAmount(v)}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>£5</span>
+                  <span className="text-foreground font-medium">≈ {customVideos} standard videos</span>
+                  <span>£250</span>
+                </div>
+              </div>
+            )}
+          </button>
         </div>
 
         {/* Cost-per-video helper */}
@@ -217,7 +284,7 @@ export function QuickTopUpModal({
             ) : (
               <>
                 <ExternalLink className="h-4 w-4" />
-                Get {selected.credits.toLocaleString()} Credits · {selected.price}
+                Get {ctaCredits.toLocaleString()} Credits · {ctaPrice}
               </>
             )}
           </Button>
