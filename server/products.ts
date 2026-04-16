@@ -162,11 +162,11 @@ export const SUBSCRIPTION_PLANS = {
   },
   creator: {
     name: "Creator",
-    pricePerMonth: 39,
-    pricePerYear: 390, // £39 × 10 = £390 (2 months free)
-    credits: 300,
-    videosPerMonth: 10,
-    maxVideosPerMonth: 10,
+    pricePerMonth: 29,
+    pricePerYear: 290, // £29 × 10 = £290 (2 months free)
+    credits: 180,
+    videosPerMonth: 6,
+    maxVideosPerMonth: 6,
     maxVideoSeconds: 120,
     maxPremiumScenesPerVideo: 2,
     has4K: true,
@@ -174,7 +174,7 @@ export const SUBSCRIPTION_PLANS = {
     popular: true,
     wizSoundDiscount: 0.20,
     features: [
-      "10 renders per month",
+      "6 renders per month",
       "HD + 4K access",
       "Faster rendering",
       "20% WizSound\u2122 discount",
@@ -188,11 +188,11 @@ export const SUBSCRIPTION_PLANS = {
   },
   pro: {
     name: "Pro",
-    pricePerMonth: 89,
-    pricePerYear: 890, // £89 × 10 = £890 (2 months free)
-    credits: 750,
-    videosPerMonth: 25,
-    maxVideosPerMonth: 25,
+    pricePerMonth: 59,
+    pricePerYear: 590, // £59 × 10 = £590 (2 months free)
+    credits: 360,
+    videosPerMonth: 12,
+    maxVideosPerMonth: 12,
     maxVideoSeconds: 150,
     maxPremiumScenesPerVideo: 5,
     has4K: true,
@@ -200,7 +200,7 @@ export const SUBSCRIPTION_PLANS = {
     popular: false,
     wizSoundDiscount: 0.40,
     features: [
-      "25 renders per month",
+      "12 renders per month",
       "4K quality included",
       "Priority rendering",
       "40% WizSound\u2122 discount",
@@ -214,11 +214,11 @@ export const SUBSCRIPTION_PLANS = {
   },
   studio: {
     name: "Studio",
-    pricePerMonth: 179,
-    pricePerYear: 1790, // £179 × 10 = £1790 (2 months free)
-    credits: 1500,
-    videosPerMonth: 50,
-    maxVideosPerMonth: 50,
+    pricePerMonth: 99,
+    pricePerYear: 990, // £99 × 10 = £990 (2 months free)
+    credits: 600,
+    videosPerMonth: 20,
+    maxVideosPerMonth: 20,
     maxVideoSeconds: 180,
     maxPremiumScenesPerVideo: 10,
     has4K: true,
@@ -226,7 +226,7 @@ export const SUBSCRIPTION_PLANS = {
     popular: false,
     wizSoundDiscount: 0.60,
     features: [
-      "50 renders per month",
+      "20 renders per month",
       "4K quality included",
       "Fastest rendering",
       "60% WizSound\u2122 discount",
