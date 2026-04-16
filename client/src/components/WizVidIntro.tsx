@@ -1,10 +1,8 @@
-/**
- * WizVidIntro — Cinematic Trailer v16 FINAL (Apr 2026)
+/*
+ * WizVidIntro — Cinematic Trailer v2 (Apr 2026)
  *
- * Restored v16 trailer with original WizSound-enhanced audio track.
- * - 48kHz stereo AAC, 273kbps — full WizSound processing
- * - 29s total duration
- *
+ * Live concert → movie set → animation sequence.
+ * No logo reveal overlay — video speaks for itself.
  *
  * Cross-device compatible:
  * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
@@ -18,16 +16,14 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v16 FINAL — Original WizSound-enhanced audio, 48kHz stereo, 29s duration
-const TRAILER_URL = `${CDN}/wizvid-intro-v16-final_f8595375.mp4`;
-// 4K version: will be added when 4K encode completes
+// v2 — concert → movie set → animation sequence
+const TRAILER_URL = `${CDN}/wizvid-intro-v2_48bf89a9.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v16_seen"; // v16 FINAL — restored original WizSound-enhanced audio
+export const INTRO_SEEN_KEY = "wizvid_intro_v2_seen";
 
-// CTA appears when video ends (~29s); timer fires at 27s as backup
-const CTA_SHOW_AT_MS = 27000;
-// v16 duration: 29s
+// CTA appears when video ends (~38s); timer fires at 36s as backup
+const CTA_SHOW_AT_MS = 36000;
 
 interface WizVidIntroProps {
   onClose: () => void;
