@@ -88,13 +88,24 @@ const NAV_LINKS = [
   { href: "/create", label: "Create" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/creators", label: "Examples" },
-  { href: "/#ecosystem", label: "Products" },
   { href: "/pricing", label: "Pricing" },
   { href: "/help", label: "Help" },
 ];
+
+const PRODUCT_LINKS = [
+  { href: "/products/wizcreate", label: "WizCreate™", desc: "AI storyboard engine", colour: "text-violet-400" },
+  { href: "/products/wizanimate", label: "WizAnimate™", desc: "Character animation engine", colour: "text-cyan-400" },
+  { href: "/wizsync", label: "WizSync™", desc: "Voice-to-character lip sync", colour: "text-purple-400" },
+  { href: "/products/wizsound", label: "WizSound™", desc: "Cinematic audio engine", colour: "text-emerald-400" },
+  { href: "/products/wizlumina", label: "WizLumina™", desc: "Visual enhancement engine", colour: "text-amber-400" },
+  { href: "/products/wizgenesis", label: "WizGenesis™", desc: "Final render engine", colour: "text-rose-400" },
+  { href: "/products/wizboost", label: "WizBoost™", desc: "Creator distribution engine", colour: "text-orange-400" },
+];
+
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -122,6 +133,30 @@ function Nav() {
             {NAV_LINKS.map(({ href, label }) => (
               <NavLink key={href} href={href} className="text-[13px] text-white/60 hover:text-white/95 transition-colors duration-150 font-medium px-3.5 py-2 rounded-lg hover:bg-white/[0.05]">{label}</NavLink>
             ))}
+            {/* Products dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+            >
+              <button className="flex items-center gap-1 text-[13px] text-white/60 hover:text-white/95 transition-colors duration-150 font-medium px-3.5 py-2 rounded-lg hover:bg-white/[0.05]">
+                Products <ChevronRight className={`w-3 h-3 transition-transform duration-200 ${productsOpen ? "rotate-90" : ""}`} />
+              </button>
+              {productsOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-64 bg-[#0d0d0d]/98 backdrop-blur-2xl border border-white/[0.08] rounded-2xl shadow-2xl p-2 z-50">
+                  {PRODUCT_LINKS.map(({ href, label, desc, colour }) => (
+                    <a
+                      key={href}
+                      href={href}
+                      className="flex flex-col px-3.5 py-2.5 rounded-xl hover:bg-white/[0.05] transition-colors duration-150 group"
+                    >
+                      <span className={`text-[13px] font-semibold ${colour} group-hover:opacity-100 opacity-90`}>{label}</span>
+                      <span className="text-[11px] text-white/40 mt-0.5">{desc}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           {/* Right: Auth + mobile toggle */}
           <div className="flex items-center gap-2.5">
@@ -165,6 +200,20 @@ function Nav() {
                   onClick={() => setMobileOpen(false)}
                 >{label}</NavLink>
               ))}
+              {/* Products section in mobile */}
+              <div className="mt-2 pt-2 border-t border-white/[0.05]">
+                <p className="text-[11px] text-white/30 font-semibold uppercase tracking-widest px-4 py-1.5">Products</p>
+                {PRODUCT_LINKS.map(({ href, label, colour }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    className="text-[14px] font-medium px-4 py-2.5 rounded-xl hover:bg-white/[0.06] transition-colors duration-150 block"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <span className={colour}>{label}</span>
+                  </a>
+                ))}
+              </div>
               <div className="mt-3 pt-3 border-t border-white/[0.07] flex flex-col gap-2">
                 {isAuthenticated ? (
                   <NavLink href="/dashboard" className="btn-primary flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold" onClick={() => setMobileOpen(false)}>

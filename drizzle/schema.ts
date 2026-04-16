@@ -669,3 +669,31 @@ export const wizSyncSegments = mysqlTable("wizSyncSegments", {
 });
 export type WizSyncSegment = typeof wizSyncSegments.$inferSelect;
 export type InsertWizSyncSegment = typeof wizSyncSegments.$inferInsert;
+
+// --- WizScore Jobs (Video → AI Analysis → Matched Soundtrack) -------------------
+// User uploads a video; AI analyses mood/pacing/energy/duration and auto-generates
+// a Suno music prompt, then produces a synced soundtrack that ends on the final frame.
+export const wizScoreJobs = mysqlTable("wizScoreJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** S3 key of the uploaded video */
+  videoKey: varchar("videoKey", { length: 512 }).notNull(),
+  /** Public CDN URL of the uploaded video */
+  videoUrl: varchar("videoUrl", { length: 1024 }).notNull(),
+  /** Duration of the video in seconds (extracted by AI analysis) */
+  videoDuration: int("videoDuration"),
+  /** AI-generated analysis: mood, pacing, energy, genre suggestion */
+  analysis: text("analysis"), // JSON: { mood, pacing, energy, genre, sunoPrompt, sunoStyle }
+  /** Auto-generated Suno prompt derived from the video analysis */
+  sunoPrompt: text("sunoPrompt"),
+  /** Suno music task ID (references suno_music_tasks.id) */
+  sunoTaskId: int("sunoTaskId"),
+  /** Final synced audio URL (trimmed to video duration) */
+  audioUrl: varchar("audioUrl", { length: 1024 }),
+  status: mysqlEnum("wizScoreStatus", ["pending", "analyzing", "generating", "trimming", "complete", "failed"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type WizScoreJob = typeof wizScoreJobs.$inferSelect;
+export type InsertWizScoreJob = typeof wizScoreJobs.$inferInsert;

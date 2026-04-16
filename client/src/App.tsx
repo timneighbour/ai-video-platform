@@ -52,6 +52,7 @@ const RenderSuccess = lazy(() => import("@/pages/RenderSuccess"));
 const Discover = lazy(() => import("@/pages/Discover"));
 const Create = lazy(() => import("@/pages/Create"));
 const WizSync = lazy(() => import("@/pages/WizSync"));
+const WizScore = lazy(() => import("@/pages/WizScore"));
 const WizCreatePage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizCreatePage })));
 const WizAnimatePage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizAnimatePage })));
 const WizSoundPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizSoundPage })));
@@ -97,6 +98,7 @@ function Router() {
         <Route path={"/"} component={Home} />
         <Route path={"/create"} component={Create} />
         <Route path={"/wizsync"} component={WizSync} />
+        <Route path={"/wizscore"} component={WizScore} />
         <Route path={"/products/wizcreate"} component={WizCreatePage} />
         <Route path={"/products/wizanimate"} component={WizAnimatePage} />
         <Route path={"/products/wizsound"} component={WizSoundPage} />

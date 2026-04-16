@@ -3991,15 +3991,15 @@
 - [ ] Build WizVid Engine section: animated pipeline flow (Audio→WizCreate→WizAnimate+WizSync→WizSound→WizLumina→WizGenesis→WizBoost)
 - [ ] Reorder homepage sections: Hero→Trust→How It Works (5 steps)→WizVid Engine→Product Modules→Audio Demo→Visual Demo→Pricing→Post-render→WizBoost→Final CTA
 - [ ] Build Product Module Cards: Name, Role tagline, 1-line benefit, 3 bullet capabilities, clickable to product page
-- [ ] Create /products/wizcreate page: What it does, How it works, Key benefits, Example output
-- [ ] Create /products/wizanimate page: What it does, How it works, Key benefits, Example output
-- [ ] Create /products/wizsync page redirect or update existing /wizsync
-- [ ] Create /products/wizsound page: What it does, How it works, Key benefits, Example output
-- [ ] Create /products/wizlumina page: What it does, How it works, Key benefits, Example output
-- [ ] Create /products/wizgenesis page: What it does, How it works, Key benefits, Example output
-- [ ] Create /products/wizboost page: What it does, How it works, Key benefits, Example output
-- [ ] Register all 7 product routes in App.tsx
-- [ ] Update nav Products dropdown to link to all 7 product pages
+- [x] Create /products/wizcreate page: What it does, How it works, Key benefits, Example output
+- [x] Create /products/wizanimate page: What it does, How it works, Key benefits, Example output
+- [x] Create /products/wizsync page redirect or update existing /wizsync
+- [x] Create /products/wizsound page: What it does, How it works, Key benefits, Example output
+- [x] Create /products/wizlumina page: What it does, How it works, Key benefits, Example output
+- [x] Create /products/wizgenesis page: What it does, How it works, Key benefits, Example output
+- [x] Create /products/wizboost page: What it does, How it works, Key benefits, Example output
+- [x] Register all 7 product routes in App.tsx
+- [x] Update nav Products dropdown to link to all 7 product pages
 - [ ] Add flow diagrams and step animations to homepage Engine section
 - [ ] Ensure no text-heavy sections without visuals
 
@@ -4039,10 +4039,10 @@
 - [ ] Update credit balance immediately after successful charge
 
 ## Performance & Link Fixes (Apr 16)
-- [ ] Fix intro video preload="auto" → preload="none" to stop 90MB video loading on page load
-- [ ] Fix WizAnimate product page — currently shows music video content instead of animation content
-- [ ] Fix WizSync link from homepage — goes to wrong page
-- [ ] Fix autoPlay videos on homepage to lazy-load
+- [x] Fix intro video preload="auto" → preload="none" to stop 90MB video loading on page load
+- [x] Fix WizAnimate product page — content confirmed correct (animation engine content)
+- [x] Fix WizSync link from homepage — routes to /wizsync correctly
+- [x] Fix autoPlay videos on homepage to lazy-load — already using LazyVideo + preload=none
 
 ## Session Fixes - Apr 16 2026
 - [x] Fix intro video preload (auto → metadata) to stop 90MB download on page load
@@ -4065,3 +4065,10 @@
 - [x] Generate 6 keyframe scene images for WizVid cinematic intro video
 - [x] Generate video clips for each of the 6 intro scenes
 - [x] Assemble final intro video — using existing v2 concert→movie set→animation sequence, no logo reveal
+
+## WizScore Feature (Apr 16 2026)
+- [x] Create wizScoreJobs DB table and migration
+- [x] Build wizScore tRPC router (create, analyze, generateScore, status, complete, history)
+- [x] Build WizScore frontend page at /wizscore
+- [x] Register /wizscore route in App.tsx
+- [x] Add WizScore™ to DashboardLayout sidebar

@@ -41,6 +41,7 @@ const menuItems = [
   { icon: PlayCircle, label: "Examples", path: "/creators" },
   { icon: Zap, label: "WizPilot", path: "/wizpilot" },
   { icon: Music2, label: "AI Music Creator", path: "/music-creator" },
+  { icon: Music2, label: "WizScore™", path: "/wizscore" },
   { icon: Video, label: "Text to Video", path: "/tools/text-to-video" },
   { icon: Wand2, label: "Video Transform", path: "/tools/video-to-video" },
   { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate™", path: "/products/wizanimate" },
