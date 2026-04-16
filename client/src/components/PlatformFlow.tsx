@@ -18,6 +18,8 @@ const STEPS = [
     pill: "bg-violet-500/15 text-violet-300 border-violet-500/25",
     dot: "bg-violet-500",
     animType: "waveform",
+    ctaLink: "https://www.wizvid.ai/music-creator",
+    ctaLabel: "Start with Audio",
   },
   {
     id: 2,
@@ -541,6 +543,25 @@ export default function PlatformFlow() {
                 >
                   {step.desc}
                 </p>
+
+                {/* Step CTA link (if defined) */}
+                {(step as any).ctaLink && (
+                  <a
+                    href={(step as any).ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 mt-6 mb-2 text-xs font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105"
+                    style={{
+                      background: `${step.accent}22`,
+                      border: `1px solid ${step.accent}55`,
+                      color: step.accent,
+                    }}
+                  >
+                    <img src={step.iconImg} alt={step.label} className="w-3.5 h-3.5 object-contain" />
+                    {(step as any).ctaLabel}
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                )}
 
                 {/* Step dots */}
                 <div className="flex gap-1.5 mt-8">
