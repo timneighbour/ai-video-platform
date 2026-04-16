@@ -4085,3 +4085,17 @@
 - [ ] Generate slow-paced cinematic video clips for each scene
 - [ ] Assemble final video: slow clips (0.5x speed), deep bass score, text overlays, freeze frame CTA with Enter Site button
 - [ ] Upload to CDN and update WizVidIntro component
+
+## Intro Video v5 — COMPLETED ✅
+- [x] Scene 1 keyframe: B&W eerie empty interior (v5-scene1-bw.png)
+- [x] Scene 2 keyframe: cinematic energy vortex (v5-scene2-vortex.png)
+- [x] Scene 3 keyframe: full-colour cinematic world explosion (v5-scene3-colour.png)
+- [x] Video clip 1: B&W eerie room (v5-clip1-bw.mp4, 4s)
+- [x] Video clip 2: cinematic vortex (v5-clip2-vortex.mp4, 4s)
+- [x] Video clip 3: colour explosion worlds (v5-clip3-colour.mp4, 4s)
+- [x] Audio score: cinematic impact cue (v5-score.mp3)
+- [x] ffmpeg assembly: 6.9s final video with saturation ramp at 3s, contrast boost, glow, WizAI gold logo final frame
+- [x] Cinematic text overlays baked in: Inter 600/700, bottom-centre at 22%, fade+rise animation, violet glow post-impact
+- [x] Text lines: "Every idea begins as nothing" / "Then it becomes something powerful" / "Create without limits" / "Welcome to WizVid" / "Powered by WizGenesis™"
+- [x] CDN uploaded: wizvid-intro-v5_db18e7fb.mp4
+- [x] WizVidIntro.tsx updated: v5 URL, INTRO_SEEN_KEY = wizvid_intro_v5_seen, CTA_SHOW_AT_MS = 6500

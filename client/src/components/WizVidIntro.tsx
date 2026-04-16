@@ -1,8 +1,8 @@
 /*
- * WizVidIntro — Cinematic Trailer v2 (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v5 (Apr 2026)
  *
- * Live concert → movie set → animation sequence.
- * No logo reveal overlay — video speaks for itself.
+ * B&W eerie opening → cinematic vortex → colour explosion at 3s → vibrant worlds → WizAI logo.
+ * Text overlays baked in: Inter 600/700, bottom-centre, cinematic fade+rise, violet glow post-impact.
  *
  * Cross-device compatible:
  * - iOS Safari / Chrome: playsinline + muted autoplay + canplaythrough fallback
@@ -16,14 +16,14 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v4 — cinematic IMAX intro: dark room → monochrome city → tornado → colour explosion → worlds → brand reveal
-const TRAILER_URL = `${CDN}/wizvid-intro-v4-final_82eb3162.mp4`;
+// v5 — 6.9s cinematic: B&W eerie → vortex → colour explosion at 3s → worlds → WizAI logo reveal
+const TRAILER_URL = `${CDN}/wizvid-intro-v5_db18e7fb.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v4_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v5_seen";
 
-// CTA appears when video ends (~60s); timer fires at 57s as backup
-const CTA_SHOW_AT_MS = 57000;
+// CTA appears when video ends (~6.9s); timer fires at 6.5s as backup
+const CTA_SHOW_AT_MS = 6500;
 
 interface WizVidIntroProps {
   onClose: () => void;
