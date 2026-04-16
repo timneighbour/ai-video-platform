@@ -1,7 +1,8 @@
 /*
- * WizVidIntro — Cinematic Trailer v5 (Apr 2026)
+ * WizVidIntro — Cinematic Trailer v6 (Apr 2026)
  *
- * B&W eerie opening → cinematic vortex → colour explosion at 3s → vibrant worlds → WizAI logo.
+ * B&W eerie opening → vortex → near-silence drop at 4s → IMPACT "There is." at 4.5s → colour explosion → WizAI logo.
+ * Signature line: "Every idea begins as nothing" → "If ever there was a Wiz…" → PAUSE → "There is." → "Create without limits" → "Welcome to WizVid".
  * Text overlays baked in: Inter 600/700, bottom-centre, cinematic fade+rise, violet glow post-impact.
  *
  * Cross-device compatible:
@@ -16,14 +17,14 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v5 — 6.9s cinematic: B&W eerie → vortex → colour explosion at 3s → worlds → WizAI logo reveal
-const TRAILER_URL = `${CDN}/wizvid-intro-v5_db18e7fb.mp4`;
+// v6 — 10.5s cinematic: B&W → vortex → near-silence drop → IMPACT "There is." at 4.5s → colour → worlds → WizAI logo
+const TRAILER_URL = `${CDN}/wizvid-intro-v6_3c5b4ab8.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v5_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v6_seen";
 
-// CTA appears when video ends (~6.9s); timer fires at 6.5s as backup
-const CTA_SHOW_AT_MS = 6500;
+// CTA appears when video ends (~10.5s); timer fires at 10s as backup
+const CTA_SHOW_AT_MS = 10000;
 
 interface WizVidIntroProps {
   onClose: () => void;
