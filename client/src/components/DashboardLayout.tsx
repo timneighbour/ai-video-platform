@@ -41,7 +41,7 @@ const menuItems = [
   { icon: Music2, label: "AI Music Creator", path: "/music-creator" },
   { icon: Video, label: "Text to Video", path: "/tools/text-to-video" },
   { icon: Wand2, label: "Video Transform", path: "/tools/video-to-video" },
-  { icon: Baby, label: "Kids Animation", path: "/kids-video" },
+  { icon: Baby, label: "WizAnimate™", path: "/products/wizanimate" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: FolderOpen, label: "Projects", path: "/projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },

@@ -1895,12 +1895,12 @@ function SocialProof() {
 
 // ── Category colour map ───────────────────────────────────────────────────────
 const CATEGORY_COLOURS: Record<string, { badge: string; glow: string; dot: string }> = {
-  "Kids Animation":     { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30", glow: "group-hover:shadow-cyan-500/20",  dot: "bg-cyan-400" },
-  "Kids YouTube":       { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20",  dot: "bg-yellow-400" },
+  "Animation":          { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30", glow: "group-hover:shadow-cyan-500/20",  dot: "bg-cyan-400" },
+  "Anime":              { badge: "bg-rose-500/20 text-rose-300 border border-rose-500/30", glow: "group-hover:shadow-rose-500/20",  dot: "bg-rose-400" },
+  "Faceless Content":   { badge: "bg-slate-500/20 text-slate-300 border border-slate-500/30", glow: "group-hover:shadow-slate-500/20",  dot: "bg-slate-400" },
   "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
   "WizBeat":            { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
   "Story Animation":    { badge: "bg-pink-500/20 text-pink-300 border border-pink-500/30",       glow: "group-hover:shadow-pink-500/20",    dot: "bg-pink-400" },
-  "Faceless Content":   { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",       glow: "group-hover:shadow-cyan-500/20",    dot: "bg-cyan-400" },
   "Social Short":       { badge: "bg-green-500/20 text-green-300 border border-green-500/30",    glow: "group-hover:shadow-green-500/20",   dot: "bg-green-400" },
   "Cinematic":          { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20",  dot: "bg-orange-400" },
   "Cinematic AI Video": { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20",  dot: "bg-orange-400" },
@@ -2009,6 +2009,14 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const colours = CATEGORY_COLOURS[item.category] ?? { badge: "bg-white/10 text-white/70 border border-white/20", glow: "group-hover:shadow-white/10", dot: "bg-white/40" };
 
+  // Route CTA to the correct tool based on category or tool label
+  const ctaHref = (() => {
+    if (item.category === "Music Video" || item.tool === "Music Video Creator" || item.tool === "WizBeat") return "/music-video/create";
+    if (item.category === "Animation" || item.category === "Story Animation" || item.tool === "WizAnimate™") return "/products/wizanimate";
+    if (item.category === "Anime" || item.category === "Cinematic" || item.tool === "WizPilot") return "/wizpilot";
+    return "/onboarding";
+  })();
+
   const handleMouseEnter = () => {
     if (videoRef.current && item.videoUrl) {
       videoRef.current.play().catch(() => {});
@@ -2081,7 +2089,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
         <h3 className="font-bold text-white text-base mb-2 leading-snug group-hover:text-violet-200 transition-colors">{item.title}</h3>
         <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4 line-clamp-2">{item.description}</p>
         <NavLink
-          href="/onboarding"
+          href={ctaHref}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors group/cta"
         >
           Create something like this
@@ -2600,7 +2608,7 @@ function CTAPush() {
 }
 
 const WIZSYNC_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1_a4fc38c0.png";
-const WIZANIMATE_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/module-wizanimate_faa7b7ea.png";
+const WIZANIMATE_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_b363ca67.png";
 const WIZBOOST_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/module-wizboost_ce93c033.png";
 
 // ── Ecosystem Section ─────────────────────────────────────────────────────────
@@ -2623,6 +2631,7 @@ function EcosystemSection() {
     {
       logo: WIZANIMATE_ICON,
       name: "WizAnimate™",
+      nameSub: "+ WizSync™",
       role: "The Performer",
       tagline: "Character Animation Engine",
       desc: "Brings characters to life with fluid AI-driven animation, motion-matched to the audio beat and emotional tone.",
@@ -2763,6 +2772,14 @@ function EcosystemSection() {
                   <span className="text-7xl transition-transform duration-300 group-hover:scale-105">{(engine as { icon?: string }).icon}</span>
                 )}
               </div>
+
+              {/* Name + nameSub */}
+              {(engine as { nameSub?: string }).nameSub && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-sm font-bold text-white">{engine.name}</span>
+                  <span className="text-xs font-semibold text-cyan-400/80">{(engine as { nameSub?: string }).nameSub}</span>
+                </div>
+              )}
 
               {/* Role + Badge row */}
               <div className="flex items-center gap-2 mb-3 flex-wrap">

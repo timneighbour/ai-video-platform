@@ -28,7 +28,7 @@ const SHOWCASE_ITEMS = [
     isActive: 1,
   },
   {
-    category: "Kids YouTube",
+    category: "Animation",
     title: "Star Quest — Kids Channel Intro",
     description: "Vibrant Pixar-style 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
     posterUrl: `${CDN}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`,

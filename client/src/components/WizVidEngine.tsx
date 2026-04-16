@@ -57,7 +57,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(6,182,212,0.35)]",
     border: "border-cyan-500/40",
     bg: "bg-cyan-500/8",
-    icon: `${CDN}/module-wizanimate_faa7b7ea.png`,
+    icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_b363ca67.png",
     href: "/products/wizanimate",
     isBranch: true,
     branchWith: "WizSync™",
