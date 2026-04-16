@@ -1356,13 +1356,13 @@ function WhoItsFor() {
     },
     {
       img: WHO_IMAGES.kidsCreators,
-      imgAlt: "Cute Pixar-style 3D animated child character in a colorful world",
-      title: "Kids Content Creators",
-      desc: "Generate full animated videos in minutes — safe, fun, and fully automated.",
-      cta: "Create kids content",
-      href: "/kids-video",
-      accent: "from-pink-500/20 to-yellow-500/5",
-      badge: "🧒 Kids & Family",
+      imgAlt: "Cinematic AI-animated character in a vibrant, stylised world",
+      title: "WizAnimate™ — Character Animation",
+      desc: "Bring any character to life with fluid, beat-matched AI animation. Pixar-quality output in minutes.",
+      cta: "Explore WizAnimate",
+      href: "/products/wizanimate",
+      accent: "from-cyan-500/20 to-blue-500/5",
+      badge: "✨ AI Animation",
     },
   ];
 
@@ -1895,7 +1895,7 @@ function SocialProof() {
 
 // ── Category colour map ───────────────────────────────────────────────────────
 const CATEGORY_COLOURS: Record<string, { badge: string; glow: string; dot: string }> = {
-  "Kids Animation":     { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20",  dot: "bg-yellow-400" },
+  "Kids Animation":     { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30", glow: "group-hover:shadow-cyan-500/20",  dot: "bg-cyan-400" },
   "Kids YouTube":       { badge: "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30", glow: "group-hover:shadow-yellow-500/20",  dot: "bg-yellow-400" },
   "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
   "WizBeat":            { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
@@ -1940,33 +1940,33 @@ const STATIC_SHOWCASE_ITEMS = [
   },
   {
     id: -4,
-    category: "Kids Animation",
+    category: "Animation",
     title: "The Enchanted Forest",
     description: "Two young adventurers discover a magical glowing forest — Pixar 3D style, vibrant colours, and a whimsical original score.",
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-pixar-adventure-BKhZNEWoXbX6EXPmv6vDHr.webp",
     videoUrl: null,
     duration: "5:10",
-    tool: "Kids Animation Creator",
+    tool: "WizAnimate™",
   },
   {
     id: -5,
-    category: "Kids Animation",
+    category: "Animation",
     title: "Cosmic Explorers",
     description: "A cheerful astronaut and friendly alien companions float through a vibrant galaxy — joyful, colourful, and perfectly paced for young audiences.",
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-space-explorer-gUrADwNHSJSJCBHQnA9TKr.webp",
     videoUrl: null,
     duration: "4:45",
-    tool: "Kids Animation Creator",
+    tool: "WizAnimate™",
   },
   {
     id: -6,
-    category: "Kids Animation",
+    category: "Animation",
     title: "Dragon Rider",
     description: "A brave girl soars through rainbow clouds on her friendly dragon — Disney cartoon style with a catchy original kids song.",
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-cartoon-dragon-fHkz9VL8sBdfDvLuy8RYqd.webp",
     videoUrl: null,
     duration: "3:30",
-    tool: "Kids Animation Creator",
+    tool: "WizAnimate™",
   },
   {
     id: -7,
@@ -1996,11 +1996,11 @@ const STATIC_SHOWCASE_ITEMS = [
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-story-ghibli-EtQk9cWKXAQvDGRgrHfBt3.webp",
     videoUrl: null,
     duration: "4:02",
-    tool: "Kids Animation Creator",
+    tool: "WizAnimate™",
   },
 ];
 
-const SHOWCASE_FILTER_TABS = ["All", "Music Video", "Kids Animation", "Cinematic", "Story Animation"] as const;
+const SHOWCASE_FILTER_TABS = ["All", "Music Video", "Animation", "Cinematic", "Story Animation"] as const;
 
 // ── Individual showcase card ───────────────────────────────────────────────────────
 type ShowcaseItem = { id: number; category: string; title: string; description: string; posterUrl: string; videoUrl: string | null; duration?: string; tool?: string };

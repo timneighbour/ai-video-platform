@@ -641,9 +641,9 @@ export default function KidsVideo() {
           </button>
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🧒</span>
-            <span className="font-bold text-white text-sm sm:text-base">Kids Animation Creator</span>
-            <Badge className="bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs hidden sm:inline-flex">
-              Child-Safe AI
+            <span className="font-bold text-white text-sm sm:text-base">WizAnimate™</span>
+            <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs hidden sm:inline-flex">
+              AI Animation
             </Badge>
           </div>
 
@@ -706,13 +706,13 @@ export default function KidsVideo() {
                 Character Lock System · Strict Scene Consistency
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                Kids Animation
-                <span className="block bg-gradient-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                  Creator
+                WizAnimate™
+                <span className="block bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
+                  Character Animation
                 </span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Create stunning animated kids videos in Pixar, Disney, cartoon, or storybook styles.
+                Bring your characters to life with fluid, beat-matched AI animation — Pixar-quality output in minutes.
               </p>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-sm text-muted-foreground mb-10">
                 {[

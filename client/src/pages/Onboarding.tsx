@@ -21,12 +21,12 @@ const options = [
     isPopular: false,
   },
   {
-    href: '/kids-video',
+    href: '/products/wizanimate',
     icon: Sparkles,
-    title: 'Kids Animation Creator',
-    description: 'Create stunning animated kids videos in Pixar, cartoon, or storybook styles',
-    color: 'from-pink-600 to-rose-600',
-    borderColor: 'hover:border-pink-500/50',
+    title: 'WizAnimate™',
+    description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
+    color: 'from-cyan-600 to-blue-600',
+    borderColor: 'hover:border-cyan-500/50',
     isPopular: false,
   },
   {

@@ -4060,3 +4060,4 @@
 - [x] Update PlatformFlow.tsx and AllInOnePlatform.tsx with new larger icon CDN URLs
 
 - [x] Upload WizAnimate logo v2 to CDN and replace old WizAnimate logo everywhere on the site
+- [x] Revamp Kids Animation Creator card to WizAnimate — new name, description, and link to WizAnimate
