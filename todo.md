@@ -4072,3 +4072,9 @@
 - [x] Build WizScore frontend page at /wizscore
 - [x] Register /wizscore route in App.tsx
 - [x] Add WizScore™ to DashboardLayout sidebar
+
+## WizVid AI Tornado Intro Video (Apr 16 2026)
+- [ ] Generate 5 keyframe scene images for tornado intro (AI streams → tornado → colour explosion → cinematic scenes → logo reveal)
+- [ ] Generate video clips for each of the 5 scenes
+- [ ] Assemble 25-second intro with ffmpeg — text overlays ("If ever there was a Wiz…" / "There is." / WizVid AI / "Welcome to the wonderful world of WizVid AI"), logo reveal, music sync
+- [ ] Upload to CDN and update WizVidIntro component on homepage
