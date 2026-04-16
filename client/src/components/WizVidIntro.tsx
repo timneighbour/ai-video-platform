@@ -17,15 +17,15 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// Land of Wiz — 28s IMAX cinematic: B&W struggle → tension/light leaks → IMPACT colour explosion at 12s → Land of Wiz showcase → Wiz AI logo
-// Signature: "If ever there was a Wiz…" → PAUSE → "There is." → "Welcome to the Land of Wiz." → "Wiz AI / Powered by WizVid"
-const TRAILER_URL = `${CDN}/land-of-wiz-intro_03fc045e.mp4`;
+// v7 Superman-style theatrical — 25s: B&W oppressive stillness → violent tornado → IMPACT "There is." at 11.5s → magical Land of Wiz → Wiz AI logo
+// Score: slow majestic orchestral build → violent chaos hit at 12s → triumphant golden swell
+const TRAILER_URL = `${CDN}/wiz-intro-v7_224b66a8.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_land_of_wiz_seen";
+export const INTRO_SEEN_KEY = "wizvid_v7_superman_seen";
 
-// CTA appears when video ends (~28s); timer fires at 27s as backup
-const CTA_SHOW_AT_MS = 27000;
+// CTA appears when video ends (~25s); timer fires at 24s as backup
+const CTA_SHOW_AT_MS = 24000;
 
 interface WizVidIntroProps {
   onClose: () => void;
