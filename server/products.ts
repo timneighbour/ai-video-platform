@@ -162,8 +162,8 @@ export const SUBSCRIPTION_PLANS = {
   },
   creator: {
     name: "Creator",
-    pricePerMonth: 29,
-    pricePerYear: 290, // £29 × 10 = £290 (2 months free)
+    pricePerMonth: 39,
+    pricePerYear: 390, // £39 × 10 = £390 (2 months free)
     credits: 300,
     videosPerMonth: 10,
     maxVideosPerMonth: 10,
@@ -188,8 +188,8 @@ export const SUBSCRIPTION_PLANS = {
   },
   pro: {
     name: "Pro",
-    pricePerMonth: 59,
-    pricePerYear: 590, // £59 × 10 = £590 (2 months free)
+    pricePerMonth: 89,
+    pricePerYear: 890, // £89 × 10 = £890 (2 months free)
     credits: 750,
     videosPerMonth: 25,
     maxVideosPerMonth: 25,
@@ -214,8 +214,8 @@ export const SUBSCRIPTION_PLANS = {
   },
   studio: {
     name: "Studio",
-    pricePerMonth: 99,
-    pricePerYear: 990, // £99 × 10 = £990 (2 months free)
+    pricePerMonth: 179,
+    pricePerYear: 1790, // £179 × 10 = £1790 (2 months free)
     credits: 1500,
     videosPerMonth: 50,
     maxVideosPerMonth: 50,
