@@ -17,14 +17,14 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v6 — 10.5s cinematic: B&W → vortex → near-silence drop → IMPACT "There is." at 4.5s → colour → worlds → WizAI logo
-const TRAILER_URL = `${CDN}/wizvid-intro-v6_3c5b4ab8.mp4`;
+// v6 shine — 11s cinematic: B&W → vortex → near-silence drop → IMPACT "There is." at 4.5s → colour → worlds → WizAI logo (diagonal shine sweep + fade-in)
+const TRAILER_URL = `${CDN}/wizvid-intro-v6_46eb4f62.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
 export const INTRO_SEEN_KEY = "wizvid_intro_v6_seen";
 
-// CTA appears when video ends (~10.5s); timer fires at 10s as backup
-const CTA_SHOW_AT_MS = 10000;
+// CTA appears when video ends (~11s); timer fires at 10.5s as backup
+const CTA_SHOW_AT_MS = 10500;
 
 interface WizVidIntroProps {
   onClose: () => void;
