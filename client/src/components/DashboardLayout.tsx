@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Baby, Sparkles, BookOpen, PlayCircle } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle } from "lucide-react";
 import CreditBalance from "./CreditBalance";
 import { LowCreditBanner } from "./LowCreditBanner";
 import { trpc } from "@/lib/trpc";
@@ -30,6 +30,8 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+
+const WIZANIMATE_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_e4d3081b.png";
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -41,7 +43,7 @@ const menuItems = [
   { icon: Music2, label: "AI Music Creator", path: "/music-creator" },
   { icon: Video, label: "Text to Video", path: "/tools/text-to-video" },
   { icon: Wand2, label: "Video Transform", path: "/tools/video-to-video" },
-  { icon: Baby, label: "WizAnimate™", path: "/products/wizanimate" },
+  { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate™", path: "/products/wizanimate" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: FolderOpen, label: "Projects", path: "/projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },
@@ -221,6 +223,11 @@ function DashboardLayoutContent({
             <SidebarMenu className="px-2 py-1">
               {menuItems.map(item => {
                 const isActive = location === item.path;
+                const iconEl = (item as any).imgSrc ? (
+                  <img src={(item as any).imgSrc} alt={item.label} className="h-5 w-5 object-contain" />
+                ) : item.icon ? (
+                  <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
+                ) : null;
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
@@ -230,9 +237,7 @@ function DashboardLayoutContent({
                       className={`h-10 transition-all font-normal`}
                     >
                       <a href={item.path}>
-                        <item.icon
-                          className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                        />
+                        {iconEl}
                         <span>{item.label}</span>
                       </a>
                     </SidebarMenuButton>

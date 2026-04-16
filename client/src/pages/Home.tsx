@@ -88,6 +88,7 @@ const NAV_LINKS = [
   { href: "/create", label: "Create" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/creators", label: "Examples" },
+  { href: "/#ecosystem", label: "Products" },
   { href: "/pricing", label: "Pricing" },
   { href: "/help", label: "Help" },
 ];
@@ -2608,7 +2609,7 @@ function CTAPush() {
 }
 
 const WIZSYNC_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1_a4fc38c0.png";
-const WIZANIMATE_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_b363ca67.png";
+const WIZANIMATE_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_e4d3081b.png";
 const WIZBOOST_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/module-wizboost_ce93c033.png";
 
 // ── Ecosystem Section ─────────────────────────────────────────────────────────

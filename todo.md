@@ -4061,7 +4061,7 @@
 
 - [x] Upload WizAnimate logo v2 to CDN and replace old WizAnimate logo everywhere on the site
 - [x] Revamp Kids Animation Creator card to WizAnimate — new name, description, and link to WizAnimate
-- [ ] Update WizAnimate cards and sidebar with new WizAnimate logo, WizAnimate™ + WizSync™ pairing, and The Performer tagline
-- [ ] Generate 6 keyframe scene images for WizVid cinematic intro video
-- [ ] Generate video clips for each of the 6 intro scenes
-- [ ] Assemble final intro video with ffmpeg — text overlays, logo reveal, music sync
+- [x] Update WizAnimate cards and sidebar with new WizAnimate logo, WizAnimate™ + WizSync™ pairing, and The Performer tagline
+- [x] Generate 6 keyframe scene images for WizVid cinematic intro video
+- [x] Generate video clips for each of the 6 intro scenes
+- [x] Assemble final intro video — using existing v2 concert→movie set→animation sequence, no logo reveal
