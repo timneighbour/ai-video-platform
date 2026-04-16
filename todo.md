@@ -4014,3 +4014,26 @@
 - [x] Fix email notifications: emailRenderComplete sends to user email with direct video link
 - [x] Add in-app toast notification when render completes with "Watch Now" action button
 - [x] Add triggerMusicVideoRender server-side function in music-video-service.ts
+
+## WizSound — Duration-First Music Creation
+- [ ] Add targetDuration column to suno_music_tasks database table
+- [ ] Add duration slider UI to MusicCreator page (10s–5min, duration-first position)
+- [ ] Update suno.generate tRPC procedure to accept targetDuration parameter
+- [ ] Build server-side audio trimming/fade service using ffmpeg
+- [ ] Wire trimmed audio URL back to the track result
+- [ ] Show duration badge on generated tracks in history
+
+## WizScore — Video-to-Music AI Composer (Next Major Feature)
+- [ ] Create WizScore page and route
+- [ ] Build video upload and analysis flow (AI watches video, extracts mood/pacing/energy/duration)
+- [ ] Auto-generate Suno prompt from video analysis
+- [ ] Generate music matched exactly to video duration
+- [ ] Deliver synced soundtrack — music ends on final frame
+- [ ] Add WizScore to navigation and landing page
+
+## Low-Credit Top-Up Modal
+- [ ] Build low-credit detection (threshold: 50 credits)
+- [ ] Build top-up modal with amount slider (£5–£250 in £5 steps)
+- [ ] Show credit equivalent and approximate video count per amount
+- [ ] Implement Stripe off-session charge for instant top-up
+- [ ] Update credit balance immediately after successful charge

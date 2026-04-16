@@ -11,7 +11,7 @@ import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno } from "../ai-apis/suno";
 import { invokeLLM } from "../_core/llm";
-
+import { trimAudioToLength } from "../audioTrim";
 export const sunoRouter = router({
   /**
    * Submit a music generation task.
@@ -32,6 +32,8 @@ export const sunoRouter = router({
         model: z.enum(["V3_5", "V4"]).default("V4"),
         /** Frontend must pass window.location.origin so we can build the callback URL */
         origin: z.string().url().optional(),
+        /** Target duration in seconds (10–300). Track will be trimmed/faded to this length after generation. */
+        targetDuration: z.number().int().min(10).max(300).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -80,6 +82,7 @@ export const sunoRouter = router({
         prompt: input.prompt,
         style: input.style ?? null,
         instrumental: input.instrumental,
+        targetDuration: input.targetDuration ?? null,
         status: "pending",
         updatedAt: new Date(),
       });
@@ -124,12 +127,33 @@ export const sunoRouter = router({
 
       const result = await suno.getTaskStatus(task.taskId);
 
+      // If complete and targetDuration is set, trim each track to the requested length
+      let finalTracks = result.tracks ?? [];
+      if (result.status === "complete" && task.targetDuration && finalTracks.length > 0) {
+        try {
+          finalTracks = await Promise.all(
+            finalTracks.map(async (track: { audioUrl: string; [key: string]: unknown }) => {
+              if (!track.audioUrl) return track;
+              const trimmedUrl = await trimAudioToLength(
+                track.audioUrl,
+                task.targetDuration!,
+                ctx.user.id
+              );
+              return { ...track, audioUrl: trimmedUrl, trimmedDuration: task.targetDuration };
+            })
+          );
+        } catch (trimErr) {
+          // Trimming failed — return original tracks rather than failing the whole request
+          console.error("[WizSound] Audio trim failed, returning original:", trimErr);
+        }
+      }
+
       // Update DB
       await db
         .update(sunoMusicTasks)
         .set({
           status: result.status,
-          tracks: result.tracks ? JSON.stringify(result.tracks) : null,
+          tracks: finalTracks.length > 0 ? JSON.stringify(finalTracks) : null,
           updatedAt: new Date(),
         })
         .where(eq(sunoMusicTasks.id, task.id));
@@ -137,8 +161,9 @@ export const sunoRouter = router({
       return {
         id: task.id,
         status: result.status,
-        tracks: result.tracks ?? [],
+        tracks: finalTracks,
         errorMessage: result.errorMessage,
+        targetDuration: task.targetDuration,
       };
     }),
 
@@ -163,6 +188,7 @@ export const sunoRouter = router({
       style: t.style,
       instrumental: t.instrumental,
       status: t.status,
+      targetDuration: t.targetDuration,
       tracks: t.tracks ? JSON.parse(t.tracks) : [],
       createdAt: t.createdAt,
     }));

@@ -1,0 +1,1 @@
+ALTER TABLE `suno_music_tasks` ADD `targetDuration` int;

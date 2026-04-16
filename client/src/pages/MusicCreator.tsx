@@ -179,6 +179,7 @@ export default function MusicCreator() {
   const [title, setTitle] = useState("");
   const [instrumental, setInstrumental] = useState(false);
   const [model, setModel] = useState<"V3_5" | "V4">("V4");
+  const [targetDuration, setTargetDuration] = useState<number | null>(null); // null = no limit
 
   // Lyrics state
   const [lyrics, setLyrics] = useState("");
@@ -319,6 +320,7 @@ export default function MusicCreator() {
       instrumental: isInstrumental,
       model,
       origin: window.location.origin,
+      targetDuration: targetDuration ?? undefined,
     });
   };
 
@@ -398,6 +400,83 @@ export default function MusicCreator() {
         <div className="grid lg:grid-cols-[1fr_380px] gap-8">
           {/* Left: Form */}
           <div className="space-y-6">
+            {/* Duration Slider — first control, duration-first approach */}
+            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+              <div className="flex items-center justify-between mb-4">
+                <label className="text-sm font-semibold text-white flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-violet-400" />
+                  Track Duration
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setTargetDuration(null)}
+                    className={`text-xs px-3 py-1 rounded-full border transition-all ${
+                      targetDuration === null
+                        ? "bg-violet-500/20 border-violet-500/50 text-violet-200"
+                        : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
+                    }`}
+                  >
+                    No limit
+                  </button>
+                  {targetDuration !== null && (
+                    <span className="text-sm font-bold text-violet-300">
+                      {targetDuration >= 60
+                        ? `${Math.floor(targetDuration / 60)}:${String(targetDuration % 60).padStart(2, "0")}`
+                        : `0:${String(targetDuration).padStart(2, "0")}`}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {targetDuration === null ? (
+                <div className="text-center py-3">
+                  <p className="text-xs text-[#a1a1aa] mb-3">Set a specific duration for your video or content</p>
+                  <button
+                    onClick={() => setTargetDuration(60)}
+                    className="text-xs text-violet-400 hover:text-violet-300 transition-colors underline-offset-2 hover:underline"
+                  >
+                    + Set target duration
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="range"
+                    min={10}
+                    max={300}
+                    step={5}
+                    value={targetDuration}
+                    onChange={(e) => setTargetDuration(Number(e.target.value))}
+                    className="w-full accent-violet-500 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-[#a1a1aa] mt-1">
+                    <span>0:10</span>
+                    <span>1:00</span>
+                    <span>2:00</span>
+                    <span>3:00</span>
+                    <span>5:00</span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[15, 30, 45, 60, 90, 120, 180].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => setTargetDuration(s)}
+                        className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                          targetDuration === s
+                            ? "bg-violet-500/20 border-violet-500/50 text-violet-200"
+                            : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
+                        }`}
+                      >
+                        {s >= 60 ? `${Math.floor(s / 60)}m${s % 60 ? ` ${s % 60}s` : ""}` : `${s}s`}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#a1a1aa] mt-3">
+                    The generated track will be trimmed and faded to exactly this length — perfect for videos, intros, and ads.
+                  </p>
+                </>
+              )}
+            </div>
+
             {/* Prompt */}
             <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
               <label className="block text-sm font-semibold text-white mb-3">

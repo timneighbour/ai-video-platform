@@ -383,6 +383,8 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   style: varchar("style", { length: 200 }),
   instrumental: boolean("instrumental").default(false),
   status: mysqlEnum("status", ["pending", "processing", "complete", "failed"]).default("pending"),
+  /** Target duration in seconds requested by user (null = no limit) */
+  targetDuration: int("targetDuration"),
   /** Two tracks are returned per task - stored as JSON array */
   tracks: longtext("tracks"), // JSON: Array<{ audioUrl, imageUrl, title, tags, duration }>
   errorMessage: text("errorMessage"),
