@@ -7,7 +7,7 @@ import { ArrowRight, Pause, Play } from "lucide-react";
 const STEPS = [
   {
     id: 1,
-    emoji: "🎵",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-audio_9450e28b.png",
     label: "Audio",
     title: "Create or upload your track",
     desc: "Generate an original song with AI or upload your own audio file to begin.",
@@ -21,7 +21,7 @@ const STEPS = [
   },
   {
     id: 2,
-    emoji: "🎬",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-video_c47a727f.png",
     label: "Video",
     title: "Turn sound into video",
     desc: "Our AI transforms your audio into a fully cinematic, scene-by-scene video.",
@@ -35,7 +35,7 @@ const STEPS = [
   },
   {
     id: 3,
-    emoji: "👤",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-character_5e9b94c6.png",
     label: "Character",
     title: "Lock your character across every scene",
     desc: "Upload a photo or generate an AI character — consistent in every frame.",
@@ -49,7 +49,7 @@ const STEPS = [
   },
   {
     id: 4,
-    emoji: "🧠",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-storyboard_1171ec0e.png",
     label: "Storyboard",
     title: "Control every scene before rendering",
     desc: "Preview and refine your storyboard — adjust prompts, styles, and timing.",
@@ -63,7 +63,7 @@ const STEPS = [
   },
   {
     id: 5,
-    emoji: "⚡",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-render_6265791e.png",
     label: "Render",
     title: "Render your full video",
     desc: "Only render when you're happy. Choose quality, resolution, and style.",
@@ -77,7 +77,7 @@ const STEPS = [
   },
   {
     id: 6,
-    emoji: "📩",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify_e79f6c2c.png",
     label: "Notify",
     title: "Get notified when ready",
     desc: "Receive an email or dashboard alert the moment your video is complete.",
@@ -91,7 +91,7 @@ const STEPS = [
   },
   {
     id: 7,
-    emoji: "🚀",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost_eea8a4c5.png",
     label: "WizBoost",
     title: "Share your content and grow your audience",
     desc: "Publish, share, and promote your creation across every platform.",
@@ -304,7 +304,7 @@ function NotificationAnim({ active }: { active: boolean }) {
       >
         <div className="flex items-start gap-2.5">
           <div className="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-500/30 flex items-center justify-center flex-shrink-0 text-sm">
-            📩
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify_e79f6c2c.png" alt="Notify" className="w-4 h-4 object-contain" />
           </div>
           <div>
             <p className="text-sky-200 text-[11px] font-bold leading-tight">Your video is ready!</p>
@@ -324,7 +324,7 @@ function BoostAnim({ active }: { active: boolean }) {
   const platforms = [
     { icon: "▶", color: "bg-red-500/20 border-red-500/30 text-red-400", delay: 0 },
     { icon: "📸", color: "bg-pink-500/20 border-pink-500/30 text-pink-400", delay: 80 },
-    { icon: "🎵", color: "bg-rose-500/20 border-rose-500/30 text-rose-400", delay: 160 },
+    { icon: "♪", color: "bg-rose-500/20 border-rose-500/30 text-rose-400", delay: 160 },
     { icon: "🐦", color: "bg-sky-500/20 border-sky-500/30 text-sky-400", delay: 240 },
   ];
   return (
@@ -338,7 +338,7 @@ function BoostAnim({ active }: { active: boolean }) {
           animation: active ? "rocketBob 2s ease-in-out infinite" : "none",
         }}
       >
-        🚀
+        <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost_eea8a4c5.png" alt="WizBoost" className="w-8 h-8 object-contain" />
       </div>
       {/* Platform icons */}
       <div className="flex gap-1.5">
@@ -480,7 +480,7 @@ export default function PlatformFlow() {
                       : "bg-white/4 border-white/8 text-white/40 hover:text-white/70 hover:bg-white/8"
                   }`}
                 >
-                  <span>{s.emoji}</span>
+                  <img src={s.iconImg} alt={s.label} className="w-4 h-4 object-contain" />
                   <span>{s.label}</span>
                 </button>
               );
@@ -524,7 +524,7 @@ export default function PlatformFlow() {
               {/* Left: text content */}
               <div className="flex flex-col justify-center p-10">
                 <div className={`inline-flex items-center gap-2 ${step.pill} border rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest w-fit mb-5`}>
-                  <span>{step.emoji}</span>
+                  <img src={step.iconImg} alt={step.label} className="w-4 h-4 object-contain" />
                   <span>Step {step.id} of {STEPS.length}</span>
                 </div>
                 <h3
@@ -584,7 +584,7 @@ export default function PlatformFlow() {
                     isActive ? "bg-white/6" : isPast ? "bg-white/2" : "bg-transparent"
                   } hover:bg-white/5`}
                 >
-                  <span className="text-lg mb-1">{s.emoji}</span>
+                  <img src={s.iconImg} alt={s.label} className="w-6 h-6 object-contain mb-1" />
                   <span className={`text-[10px] font-semibold ${isActive ? "text-white" : "text-white/35"}`}>
                     {s.label}
                   </span>
@@ -621,7 +621,7 @@ export default function PlatformFlow() {
                     className={`w-10 h-10 rounded-xl border ${s.border} flex items-center justify-center text-lg flex-shrink-0`}
                     style={{ background: `${s.accent}15` }}
                   >
-                    {s.emoji}
+                    <img src={s.iconImg} alt={s.label} className="w-6 h-6 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">

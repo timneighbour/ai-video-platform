@@ -8,7 +8,7 @@ import {
 const STEPS = [
   {
     step: 1,
-    emoji: "🎵",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-audio_9450e28b.png",
     icon: Music2,
     title: "Create or Upload Audio",
     desc: "Create a song with AI or upload your own track",
@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     step: 2,
-    emoji: "🎬",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-video_c47a727f.png",
     icon: Film,
     title: "Generate Your Video",
     desc: "Turn your audio into a cinematic video or animation",
@@ -36,7 +36,7 @@ const STEPS = [
   },
   {
     step: 3,
-    emoji: "👤",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-character_5e9b94c6.png",
     icon: User,
     title: "Lock Your Character",
     desc: "Upload a photo or generate your own AI character — locked across every scene",
@@ -50,7 +50,7 @@ const STEPS = [
   },
   {
     step: 4,
-    emoji: "🧠",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-storyboard_1171ec0e.png",
     icon: Brain,
     title: "Build Your Storyboard",
     desc: "Preview and refine every scene before rendering your full video",
@@ -64,7 +64,7 @@ const STEPS = [
   },
   {
     step: 5,
-    emoji: "⚡",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-render_6265791e.png",
     icon: Zap,
     title: "Full Video Render",
     desc: "Render your complete video only when you're happy",
@@ -78,7 +78,7 @@ const STEPS = [
   },
   {
     step: 6,
-    emoji: "📩",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify_e79f6c2c.png",
     icon: Bell,
     title: "Get Notified",
     desc: "Get notified when your video is ready — by email or dashboard",
@@ -92,7 +92,7 @@ const STEPS = [
   },
   {
     step: 7,
-    emoji: "🚀",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost_eea8a4c5.png",
     icon: Rocket,
     title: "Share & Grow",
     desc: "Share your creation, grow your audience, and promote your content",
@@ -194,7 +194,7 @@ export default function AllInOnePlatform() {
                       <span className={`text-[10px] font-bold uppercase tracking-widest ${s.iconColor} opacity-60 mb-1`}>
                         Step {s.step}
                       </span>
-                      <Icon className={`w-8 h-8 ${s.iconColor}`} />
+                      <img src={s.iconImg} alt={s.title} className="w-10 h-10 object-contain" />
                     </div>
 
                     {/* Arrow between steps (not after last) */}
@@ -232,7 +232,7 @@ export default function AllInOnePlatform() {
               >
                 {/* Icon */}
                 <div className={`w-12 h-12 rounded-xl ${s.iconBg} border ${s.borderColor} flex items-center justify-center flex-shrink-0`}>
-                  <Icon className={`w-6 h-6 ${s.iconColor}`} />
+                  <img src={s.iconImg} alt={s.title} className="w-7 h-7 object-contain" />
                 </div>
                 {/* Text */}
                 <div className="flex-1 min-w-0">
