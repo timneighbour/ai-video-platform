@@ -9,7 +9,7 @@ import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { initSuno } from "../ai-apis/suno";
+import { initSuno, SunoTrack } from "../ai-apis/suno";
 import { invokeLLM } from "../_core/llm";
 import { trimAudioToLength } from "../audioTrim";
 export const sunoRouter = router({
@@ -132,7 +132,7 @@ export const sunoRouter = router({
       if (result.status === "complete" && task.targetDuration && finalTracks.length > 0) {
         try {
           finalTracks = await Promise.all(
-            finalTracks.map(async (track: { audioUrl: string; [key: string]: unknown }) => {
+            finalTracks.map(async (track: SunoTrack) => {
               if (!track.audioUrl) return track;
               const trimmedUrl = await trimAudioToLength(
                 track.audioUrl,

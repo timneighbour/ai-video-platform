@@ -4037,3 +4037,21 @@
 - [ ] Show credit equivalent and approximate video count per amount
 - [ ] Implement Stripe off-session charge for instant top-up
 - [ ] Update credit balance immediately after successful charge
+
+## Performance & Link Fixes (Apr 16)
+- [ ] Fix intro video preload="auto" → preload="none" to stop 90MB video loading on page load
+- [ ] Fix WizAnimate product page — currently shows music video content instead of animation content
+- [ ] Fix WizSync link from homepage — goes to wrong page
+- [ ] Fix autoPlay videos on homepage to lazy-load
+
+## Session Fixes - Apr 16 2026
+- [x] Fix intro video preload (auto → metadata) to stop 90MB download on page load
+- [x] Fix WizAnimate and WizSync product page CTAs pointing to correct destinations
+- [x] Redesign WizAnimate logo with animation-specific visuals and brand font
+- [x] Fix TypeScript error in suno.ts (SunoTrack type import)
+- [x] Add targetDuration column to suno_music_tasks schema
+- [x] Add duration slider to WizSound (10s–5min, quick-select buttons)
+- [x] Add server-side audio trimming with fade-out for exact duration matching
+- [ ] Homepage redesign — premium imagery, no emojis, simplified messaging
+- [ ] WizScore — video-to-music feature (AI watches video, generates matching score)
+- [ ] Low-credit top-up modal with slider (£5–£250, one-tap charge to saved card)

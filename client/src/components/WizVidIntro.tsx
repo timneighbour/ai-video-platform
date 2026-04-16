@@ -82,7 +82,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
     v.muted = true;
     v.playsInline = true;
     v.loop = false;
-    v.preload = "auto";
+    v.preload = "metadata";
 
     const onCanPlayThrough = () => {
       setVideoReady(true);
@@ -192,7 +192,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         }}
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
       />
 
       {/* ── Loading spinner — shown while buffering ── */}
