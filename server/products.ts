@@ -253,10 +253,10 @@ export const CREDIT_PACKS = {
   },
   creator: {
     name: "Creator Pack",
-    description: "~30 standard videos",
+    description: "~20 standard videos",
     tagline: "Best value for regular creators",
     price: 24,
-    credits: 900,   // 900 credits ≈ 30 × 30-credit videos
+    credits: 600,   // 600 credits ≈ 20 × 30-credit videos
     popular: true,
     stripePriceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID || "price_medium_pack_placeholder",
   },
@@ -280,7 +280,7 @@ export const CINEMATIC_PACKS = {
   ten: {
     name: "10 Cinematic Scenes",
     description: "Apply premium rendering to 10 key scenes",
-    price: 12,
+    price: 15,
     credits: 200,   // 10 × 20 credits per cinematic scene
     scenes: 10,
     stripePriceId: process.env.STRIPE_CINEMATIC_10_PRICE_ID || "price_cinematic_10_placeholder",
@@ -288,7 +288,7 @@ export const CINEMATIC_PACKS = {
   twentyfive: {
     name: "25 Cinematic Scenes",
     description: "Apply premium rendering to 25 key scenes",
-    price: 25,
+    price: 32,
     credits: 500,   // 25 × 20 credits
     scenes: 25,
     stripePriceId: process.env.STRIPE_CINEMATIC_25_PRICE_ID || "price_cinematic_25_placeholder",
@@ -296,7 +296,7 @@ export const CINEMATIC_PACKS = {
   fifty: {
     name: "50 Cinematic Scenes",
     description: "Apply premium rendering to 50 key scenes",
-    price: 45,
+    price: 58,
     credits: 1000,  // 50 × 20 credits
     scenes: 50,
     stripePriceId: process.env.STRIPE_CINEMATIC_50_PRICE_ID || "price_cinematic_50_placeholder",
