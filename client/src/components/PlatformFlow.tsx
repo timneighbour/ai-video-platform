@@ -7,7 +7,7 @@ import { ArrowRight, Pause, Play } from "lucide-react";
 const STEPS = [
   {
     id: 1,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-audio_9450e28b.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-audio-v2_7fd434c8.png",
     label: "Audio",
     title: "Create or upload your track",
     desc: "Generate an original song with AI or upload your own audio file to begin.",
@@ -21,7 +21,7 @@ const STEPS = [
   },
   {
     id: 2,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-video_c47a727f.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-video-v2_0f90d571.png",
     label: "Video",
     title: "Turn sound into video",
     desc: "Our AI transforms your audio into a fully cinematic, scene-by-scene video.",
@@ -35,7 +35,7 @@ const STEPS = [
   },
   {
     id: 3,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-character_5e9b94c6.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-character-v2_9b47c6b6.png",
     label: "Character",
     title: "Lock your character across every scene",
     desc: "Upload a photo or generate an AI character — consistent in every frame.",
@@ -49,7 +49,7 @@ const STEPS = [
   },
   {
     id: 4,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-storyboard_1171ec0e.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-storyboard-v2_3e59ab78.png",
     label: "Storyboard",
     title: "Control every scene before rendering",
     desc: "Preview and refine your storyboard — adjust prompts, styles, and timing.",
@@ -63,7 +63,7 @@ const STEPS = [
   },
   {
     id: 5,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-render_6265791e.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-render-v2_39bae441.png",
     label: "Render",
     title: "Render your full video",
     desc: "Only render when you're happy. Choose quality, resolution, and style.",
@@ -77,7 +77,7 @@ const STEPS = [
   },
   {
     id: 6,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify_e79f6c2c.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify-v2_a1f9d86c.png",
     label: "Notify",
     title: "Get notified when ready",
     desc: "Receive an email or dashboard alert the moment your video is complete.",
@@ -91,7 +91,7 @@ const STEPS = [
   },
   {
     id: 7,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost_eea8a4c5.png",
+    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost-v2_24dfd2f9.png",
     label: "WizBoost",
     title: "Share your content and grow your audience",
     desc: "Publish, share, and promote your creation across every platform.",
@@ -304,7 +304,7 @@ function NotificationAnim({ active }: { active: boolean }) {
       >
         <div className="flex items-start gap-2.5">
           <div className="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-500/30 flex items-center justify-center flex-shrink-0 text-sm">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify_e79f6c2c.png" alt="Notify" className="w-4 h-4 object-contain" />
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify-v2_a1f9d86c.png" alt="Notify" className="w-4 h-4 object-contain" />
           </div>
           <div>
             <p className="text-sky-200 text-[11px] font-bold leading-tight">Your video is ready!</p>
@@ -338,7 +338,7 @@ function BoostAnim({ active }: { active: boolean }) {
           animation: active ? "rocketBob 2s ease-in-out infinite" : "none",
         }}
       >
-        <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost_eea8a4c5.png" alt="WizBoost" className="w-8 h-8 object-contain" />
+        <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost-v2_24dfd2f9.png" alt="WizBoost" className="w-8 h-8 object-contain" />
       </div>
       {/* Platform icons */}
       <div className="flex gap-1.5">

@@ -4055,3 +4055,8 @@
 - [ ] Homepage redesign — premium imagery, no emojis, simplified messaging
 - [ ] WizScore — video-to-music feature (AI watches video, generates matching score)
 - [ ] Low-credit top-up modal with slider (£5–£250, one-tap charge to saved card)
+
+- [x] Regenerate all 7 icon images larger/more impactful for PlatformFlow and AllInOnePlatform (Audio, Video, Character, Storyboard, Render, Notify, WizBoost)
+- [x] Update PlatformFlow.tsx and AllInOnePlatform.tsx with new larger icon CDN URLs
+
+- [x] Upload WizAnimate logo v2 to CDN and replace old WizAnimate logo everywhere on the site

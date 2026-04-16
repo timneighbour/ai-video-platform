@@ -67,7 +67,7 @@ const WIZANIMATE: ProductPageProps = {
   tagline: "Character Animation Engine",
   headline: "Characters that move, feel, and perform",
   subheadline: "WizAnimate™ takes your storyboard and breathes life into every character — generating fluid, beat-matched animation that looks like it was directed by a professional.",
-  logo: `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2-HqqeRnu9fixLgVkUw6G7Pe.png`,
+  logo: `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_e4d3081b.png`,
   accentFrom: "from-cyan-300",
   accentTo: "to-blue-300",
   accentGlow: "rgba(6,182,212,0.25)",
