@@ -4078,3 +4078,10 @@
 - [ ] Generate video clips for each of the 5 scenes
 - [ ] Assemble 25-second intro with ffmpeg — text overlays ("If ever there was a Wiz…" / "There is." / WizVid AI / "Welcome to the wonderful world of WizVid AI"), logo reveal, music sync
 - [ ] Upload to CDN and update WizVidIntro component on homepage
+
+## Cinematic Intro Video Rebuild v4 (Apr 16 2026)
+- [ ] Compose deep-bass cinematic trailer score (60-70s, slow build, spatial/immersive)
+- [ ] Generate 8 new 4K IMAX-style keyframe images for 4-act narrative
+- [ ] Generate slow-paced cinematic video clips for each scene
+- [ ] Assemble final video: slow clips (0.5x speed), deep bass score, text overlays, freeze frame CTA with Enter Site button
+- [ ] Upload to CDN and update WizVidIntro component

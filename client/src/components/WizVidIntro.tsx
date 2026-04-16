@@ -16,14 +16,14 @@ import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
 import { useLocation } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-// v3 — tornado intro: AI streams → dark tornado → colour explosion → WizVid AI brand reveal
-const TRAILER_URL = `${CDN}/wizvid-tornado-intro_4ec24464.mp4`;
+// v4 — cinematic IMAX intro: dark room → monochrome city → tornado → colour explosion → worlds → brand reveal
+const TRAILER_URL = `${CDN}/wizvid-intro-v4-final_82eb3162.mp4`;
 const LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
 
-export const INTRO_SEEN_KEY = "wizvid_intro_v3_seen";
+export const INTRO_SEEN_KEY = "wizvid_intro_v4_seen";
 
-// CTA appears when video ends (~28s); timer fires at 26s as backup
-const CTA_SHOW_AT_MS = 26000;
+// CTA appears when video ends (~60s); timer fires at 57s as backup
+const CTA_SHOW_AT_MS = 57000;
 
 interface WizVidIntroProps {
   onClose: () => void;
