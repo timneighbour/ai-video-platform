@@ -1,13 +1,13 @@
 /**
- * HowWizVidWorks — Homepage education section.
- * Shows 5 steps of the WizVid creation process with images.
+ * HowWizAIWorks — Homepage education section.
+ * Shows 5 steps of the WIZ AI creation process with images.
  */
 
 const STEPS = [
   {
     number: "01",
     title: "Upload Audio or Type a Prompt",
-    description: "Drop in your track or describe your vision. WizVid accepts any audio file or a simple text prompt to kick off the creative process.",
+    description: "Drop in your track or describe your vision. WIZ AI accepts any audio file or a simple text prompt to kick off the creative process.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step1-PezKstNEpNvaVTiKdFVnXf.webp",
     accent: "from-violet-500 to-purple-600",
     glow: "rgba(139,92,246,0.3)",
@@ -63,7 +63,7 @@ export function HowWizVidWorks() {
             Simple 5-Step Process
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-            How WizVid Works
+            How WIZ AI Works
           </h2>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
             From idea to cinematic video in minutes. No editing skills required — just your creativity and our Cinematic Engine.

@@ -1095,7 +1095,7 @@ export default function MusicVideoAutopilot() {
               isRenderingRef.current = false;
               // In-app success notification
               toast.success("Your video is ready!", {
-                description: "Your WizVid video has finished rendering. Check your email for a direct download link.",
+                description: "Your WIZ AI video has finished rendering. Check your email for a direct download link.",
                 duration: 8000,
                 action: {
                   label: "Watch Now",
@@ -1105,7 +1105,7 @@ export default function MusicVideoAutopilot() {
               // Browser push notification (works even if tab is in background)
               try {
                 if ("Notification" in window && Notification.permission === "granted") {
-                  new Notification("WizVid — Your video is ready!", {
+                  new Notification("WIZ AI — Your video is ready!", {
                     body: `"${title || "Your video"}" has finished rendering. Click to watch.`,
                     icon: "/favicon.ico",
                     tag: "wizvid-render-complete",
@@ -1492,7 +1492,7 @@ export default function MusicVideoAutopilot() {
                           Your song is {formatDuration(audioDuration)} — your plan allows up to {formatDuration(maxVideoSeconds)}
                         </p>
                         <p className="text-amber-200/70 text-xs mt-1">
-                          WizVid will use the first {formatDuration(maxVideoSeconds)} of your track.
+                          WIZ AI will use the first {formatDuration(maxVideoSeconds)} of your track.
                           {planLimits?.plan === "starter" && " Upgrade to Basic for 2-minute videos, or Creator for 3-minute videos."}
                           {planLimits?.plan === "creator" && " Upgrade to Studio for 3-minute videos."}
                         </p>

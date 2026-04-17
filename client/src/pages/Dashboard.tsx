@@ -26,7 +26,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
-const WIZVID_LOGO = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 const WIZLUMINA_ORB = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
 
 // ── Create Action Cards ──────────────────────────────────────────────────────
@@ -181,7 +181,7 @@ export default function Dashboard() {
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
-            <img src={WIZVID_LOGO} alt="WizVid" className="h-12 w-auto" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-12 w-auto" />
           </a>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/15 border border-violet-500/25 text-violet-300 text-xs font-medium">
@@ -418,7 +418,7 @@ export default function Dashboard() {
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Let's create your first video</h2>
             <p className="text-zinc-400 mb-8 max-w-md mx-auto">
-              Upload a track, describe your vision, and WizVid will generate a fully produced cinematic music video in minutes.
+              Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
             </p>
             <a href="/music-video/create">
               <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 h-12 text-base font-semibold shadow-lg shadow-violet-900/40">

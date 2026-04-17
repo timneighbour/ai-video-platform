@@ -620,7 +620,7 @@ export default function Projects() {
       <h3 className="text-xl font-bold text-white mb-2">No projects yet</h3>
       <p className="text-zinc-500 text-sm mb-8 max-w-xs leading-relaxed">
         {activeTab === "music_videos"
-          ? "Create your first AI music video — upload a song and let WizVid handle the rest."
+          ? "Create your first AI music video — upload a song and let WIZ AI handle the rest."
           : "Generate your first AI video from a text prompt in seconds."}
       </p>
       <a

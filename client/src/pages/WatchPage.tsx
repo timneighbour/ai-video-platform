@@ -24,7 +24,7 @@ export default function WatchPage() {
       "@context": "https://schema.org",
       "@type": "VideoObject",
       name: video.title,
-      description: `AI-generated music video${video.genre ? ` — ${video.genre}` : ""}${video.mood ? `, ${video.mood} mood` : ""}. Created with WizVid AI.`,
+      description: `AI-generated music video${video.genre ? ` — ${video.genre}` : ""}${video.mood ? `, ${video.mood} mood` : ""}. Created with WIZ AI.`,
       thumbnailUrl: video.thumbnailUrl ?? "https://www.wizvid.ai/og-image.jpg",
       uploadDate: video.createdAt ? new Date(video.createdAt).toISOString() : new Date().toISOString(),
       duration: video.audioDuration ? `PT${Math.floor(video.audioDuration / 60)}M${video.audioDuration % 60}S` : undefined,
@@ -32,7 +32,7 @@ export default function WatchPage() {
       embedUrl: `https://www.wizvid.ai/watch/${video.shareSlug}`,
       publisher: {
         "@type": "Organization",
-        name: "WizVid AI",
+        name: "WIZ AI",
         logo: {
           "@type": "ImageObject",
           url: "https://www.wizvid.ai/logo.png",
@@ -42,10 +42,10 @@ export default function WatchPage() {
     document.head.appendChild(script);
 
     // Update page title and meta for SEO
-    document.title = `${video.title} — WizVid AI`;
+    document.title = `${video.title} — WIZ AI`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", `Watch "${video.title}" — an AI-generated music video created with WizVid AI.`);
+      metaDesc.setAttribute("content", `Watch "${video.title}" — an AI-generated music video created with WIZ AI.`);
     }
 
     return () => {
@@ -85,7 +85,7 @@ export default function WatchPage() {
           <Link href="/">
             <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to WizVid
+              Back to WIZ AI
             </Button>
           </Link>
         </div>
@@ -101,7 +101,7 @@ export default function WatchPage() {
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer group">
               <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
-              <span className="text-white font-bold text-lg">WizVid AI</span>
+              <span className="text-white font-bold text-lg">WIZ AI</span>
             </div>
           </Link>
           <Link href="/create">
@@ -171,11 +171,11 @@ export default function WatchPage() {
               <div className="text-center space-y-2">
                 <Sparkles className="w-8 h-8 text-purple-400 mx-auto" />
                 <h2 className="text-white font-bold text-lg">Create Your Own AI Music Video</h2>
-                <p className="text-white/60 text-sm">Upload any song and WizVid AI generates a full cinematic music video in minutes.</p>
+                <p className="text-white/60 text-sm">Upload any song and WIZ AI generates a full cinematic music video in minutes.</p>
               </div>
               <Link href="/">
                 <Button className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold">
-                  Try WizVid Free
+                  Try WIZ AI Free
                 </Button>
               </Link>
               <p className="text-center text-white/40 text-xs">50 free credits — no credit card required</p>
@@ -183,7 +183,7 @@ export default function WatchPage() {
 
             {/* Features list */}
             <div className="rounded-xl bg-white/5 border border-white/10 p-5 space-y-3">
-              <h3 className="text-white/80 font-semibold text-sm">What WizVid Creates</h3>
+              <h3 className="text-white/80 font-semibold text-sm">What WIZ AI Creates</h3>
               {[
                 "Cinematic AI-generated scenes",
                 "Lip-synced character videos",
@@ -203,7 +203,7 @@ export default function WatchPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 mt-12 py-6 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/40">
-          <span>© 2026 WizVid AI — AI-Powered WizVideo</span>
+          <span>© 2026 WIZ AI — AI-Powered WIZ AIeo</span>
           <div className="flex gap-4">
             <Link href="/privacy"><span className="hover:text-white/70 cursor-pointer transition-colors">Privacy</span></Link>
             <Link href="/terms"><span className="hover:text-white/70 cursor-pointer transition-colors">Terms</span></Link>

@@ -222,7 +222,7 @@ export default function Account() {
             <CardContent className="space-y-4">
               <div className="p-4 bg-muted/50 rounded-lg border border-border/40 text-center">
                 <p className="text-sm text-muted-foreground mb-3">
-                  Upgrade to Business plan to access API keys and integrate WizVid into your applications
+                  Upgrade to Business plan to access API keys and integrate WIZ AI into your applications
                 </p>
                 <a href="/subscribe" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
                   Upgrade to Business

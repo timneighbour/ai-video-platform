@@ -77,7 +77,7 @@ export default function BlogAdmin() {
             </Link>
             <div>
               <h1 className="text-2xl font-extrabold text-white">Blog Admin</h1>
-              <p className="text-white/40 text-sm mt-0.5">Manage WizVid blog posts</p>
+              <p className="text-white/40 text-sm mt-0.5">Manage WIZ AI blog posts</p>
             </div>
           </div>
           <Button

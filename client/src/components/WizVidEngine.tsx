@@ -1,5 +1,5 @@
 /**
- * WizVid Engine Section
+ * WIZ AI Engine Section
  * Animated pipeline flow: Audio/Idea → WizCreate → WizAnimate + WizSync → WizSound → WizLumina → WizGenesis → WizBoost
  */
 import { useEffect, useRef, useState } from "react";
@@ -142,7 +142,7 @@ export default function WizVidEngine() {
     <section
       ref={ref}
       className="py-24 px-6 bg-[#080808] relative overflow-hidden"
-      aria-label="The WizVid Engine"
+      aria-label="The WIZ AI Engine"
     >
       {/* Background radial glow */}
       <div
@@ -162,7 +162,7 @@ export default function WizVidEngine() {
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
             The{" "}
             <span className="bg-gradient-to-r from-violet-300 via-cyan-200 to-emerald-300 bg-clip-text text-transparent">
-              WizVid Engine
+              WIZ AI Engine
             </span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto">

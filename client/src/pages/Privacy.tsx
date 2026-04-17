@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-const WIZVID_LOGO_FULL = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 
 export default function Privacy() {
   return (
@@ -7,7 +7,7 @@ export default function Privacy() {
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
           </Link>
           <Link href="/" className="text-sm text-[#a1a1aa] hover:text-white transition-colors">← Back to Home</Link>
         </div>
@@ -22,7 +22,7 @@ export default function Privacy() {
         <div className="prose prose-invert max-w-none space-y-8 text-[#d4d4d8] leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-white mb-3">1. Who We Are</h2>
-            <p>WizVid ("we", "us", "our") is an AI-powered video creation platform operated at <strong>www.wizvid.ai</strong>. We are committed to protecting your personal data and being transparent about how we use it.</p>
+            <p>WIZ AI ("we", "us", "our") is an AI-powered video creation platform operated at <strong>www.wizvid.ai</strong>. We are committed to protecting your personal data and being transparent about how we use it.</p>
             <p className="mt-2">For any privacy-related questions, contact us at: <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a></p>
           </section>
 
@@ -40,7 +40,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-bold text-white mb-3">3. How We Use Your Data</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>To provide, operate, and improve the WizVid platform.</li>
+              <li>To provide, operate, and improve the WIZ AI platform.</li>
               <li>To process payments and manage your subscription.</li>
               <li>To send transactional emails (receipts, password resets, service updates).</li>
               <li>To detect and prevent fraud or abuse.</li>

@@ -63,7 +63,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
             Sign in to {featureName}
           </h2>
           <p className="text-[#a1a1aa] text-sm mb-6">
-            Create your free WizVid account in seconds. No credit card required to get started.
+            Create your free WIZ AI account in seconds. No credit card required to get started.
           </p>
 
           {/* Benefits */}

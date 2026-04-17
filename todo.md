@@ -4563,3 +4563,27 @@
 - [x] Legacy copy cleanup: all old naming replaced across all pages (i18n en/es/pt/fr, Help, Home, MusicCreator, MusicVideosLanding, Create, Projects, Onboarding, HabitLoopPanel, DashboardLayout)
 - [ ] Homepage product story: consolidate duplicate sections, clear creation paths
 - [ ] Final QA: verify all 10 checklist items from the rebrand spec
+
+## WIZ AI Full Rebrand (Master Spec v2)
+- [x] Global: WizVid master brand → WIZ AI everywhere (header, footer, hero, meta, OG, Twitter, legal, billing, copyright, support, notifications)
+- [x] Header logo/brand → WIZ AI (new wizai-logo-v3.png across all pages)
+- [x] Browser title / VITE_APP_TITLE → WIZ AI (built-in secret, user can update in Settings)
+- [ ] Hero rewrite: "Create anything. Instantly." + new subheadline, CTAs, microcopy
+- [ ] Homepage restructure: Hero → Products → Demo Video → How It Works → Why WIZ AI → Showcase → CTA (remove duplicates)
+- [ ] Product cards: update descriptions/benefits to match spec exactly
+- [ ] Mini-brand system: premium icon, label, descriptor, card styling per product
+- [ ] Brand/Demo video section: "Welcome to WIZ AI" heading
+- [x] Nav: Home | Products | Pricing | Help (clean, no old links)
+- [x] Footer: WIZ AI company name, copyright, tagline
+- [x] SEO/metadata: all page titles, meta descriptions, OG, Twitter → WIZ AI
+- [x] seoPages.ts: updated all entries to WIZ AI branding
+- [x] i18n: updated all WizVid references → WIZ AI across all languages
+- [x] Help page: rebranded all FAQ copy from WizVid to WIZ AI
+- [x] Onboarding: rebranded to WIZ AI
+- [x] Billing/checkout/Stripe: labels → WIZ AI
+- [x] Legal/privacy/terms: WIZ AI naming
+- [x] Intro shell: replaced with MP4 video intro (WizAIIntroVid1.mp4) — all old canvas/overlay layers removed
+- [ ] Projects page: CTAs (Continue Editing, Build Video, View Progress, Watch/Download)
+- [x] "Why WizVid" → "Why WIZ AI" section
+- [x] All "Created with WizVid" → "Created with WIZ AI"
+- [ ] Final QA: verify all 15 checklist items from spec

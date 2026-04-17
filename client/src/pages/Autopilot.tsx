@@ -461,7 +461,7 @@ export default function Autopilot() {
                 Describe Your Video
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Tell WizVid what you want to create. We'll generate a free storyboard you can refine before spending any credits.
+                Tell WIZ AI what you want to create. We'll generate a free storyboard you can refine before spending any credits.
               </p>
             </div>
 
@@ -729,7 +729,7 @@ export default function Autopilot() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  WizVid will automatically compose a soundtrack based on your prompt and chosen style.
+                  WIZ AI will automatically compose a soundtrack based on your prompt and chosen style.
                 </p>
               )}
             </div>
@@ -937,7 +937,7 @@ export default function Autopilot() {
             <div className="flex items-start gap-2 rounded-xl border border-green-500/20 bg-green-500/5 p-4 text-sm text-green-300">
               <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>
-                <strong>WizVid advantage:</strong> Unlike other platforms that charge credits every time you regenerate, WizVid lets you refine your vision completely free. You only pay when you're ready to render.
+                <strong>WIZ AI advantage:</strong> Unlike other platforms that charge credits every time you regenerate, WIZ AI lets you refine your vision completely free. You only pay when you're ready to render.
               </span>
             </div>
           </div>

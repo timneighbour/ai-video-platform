@@ -1,5 +1,5 @@
 /**
- * ProductPageTemplate — reusable layout for all 7 WizVid product module pages
+ * ProductPageTemplate — reusable layout for all 7 WIZ AI product module pages
  * Used by: WizCreate, WizAnimate, WizSync, WizSound, WizLumina, WizGenesis, WizBoost
  */
 import { ReactNode } from "react";
@@ -252,7 +252,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       <section className="py-20 px-6 bg-[#0a0a0a]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-extrabold text-white mb-2">Part of the WizVid Engine</h2>
+            <h2 className="text-2xl font-extrabold text-white mb-2">Part of the WIZ AI Engine</h2>
             <p className="text-white/40 text-sm">Each module works in sequence — explore the full pipeline</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">

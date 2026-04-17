@@ -1,7 +1,7 @@
 /**
- * WizVid Renderer Router
+ * WIZ AI Renderer Router
  *
- * Implements the WizVid System Controller cost-optimised rendering logic.
+ * Implements the WIZ AI System Controller cost-optimised rendering logic.
  * Routes each classified scene to the appropriate renderer based on:
  *   1. Scene importance (hero / performance / narrative / filler)
  *   2. Plan tier (starter / pro / creator_plus / free)

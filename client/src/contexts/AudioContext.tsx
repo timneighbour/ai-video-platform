@@ -1,7 +1,7 @@
 /**
  * Global Audio Context
  *
- * Single source of truth for all audio state across WizVid.
+ * Single source of truth for all audio state across WIZ AI.
  *
  * Rules enforced:
  * 1. SINGLE AUDIO SOURCE — only one element can have sound at a time

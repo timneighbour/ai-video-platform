@@ -310,7 +310,7 @@ function NotificationAnim({ active }: { active: boolean }) {
           </div>
           <div>
             <p className="text-sky-200 text-[11px] font-bold leading-tight">Your video is ready!</p>
-            <p className="text-sky-400/70 text-[10px] mt-0.5">WizVid · Just now</p>
+            <p className="text-sky-400/70 text-[10px] mt-0.5">WIZ AI · Just now</p>
           </div>
         </div>
         {/* Notification dot */}

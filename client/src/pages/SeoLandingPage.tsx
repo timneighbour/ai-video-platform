@@ -65,7 +65,7 @@ function DemoVideoEmbed({ keyword }: { keyword: string }) {
             <Play className="w-8 h-8 text-white ml-1" />
           </div>
           <p className="text-white/60 text-sm">Click to watch AI-generated demo</p>
-          <p className="text-white/40 text-xs mt-1">Real output from WizVid AI</p>
+          <p className="text-white/40 text-xs mt-1">Real output from WIZ AI</p>
         </div>
       </div>
     </div>
@@ -182,15 +182,15 @@ export default function SeoLandingPage() {
       },
       {
         q: `How long does it take to create a video with ${page.keyword}?`,
-        a: "WizVid generates a full storyboard in under 30 seconds and renders a complete video in under 5 minutes — no editing required.",
+        a: "WIZ AI generates a full storyboard in under 30 seconds and renders a complete video in under 5 minutes — no editing required.",
       },
       {
         q: `Do I need any video editing skills to use ${page.keyword}?`,
-        a: "No. WizVid is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final render.",
+        a: "No. WIZ AI is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final render.",
       },
       {
         q: `Is ${page.keyword} free to try?`,
-        a: "Yes. WizVid is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
+        a: "Yes. WIZ AI is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
       },
     ];
 
@@ -208,16 +208,16 @@ export default function SeoLandingPage() {
     injectJsonLd("schema-video", {
       "@context": "https://schema.org",
       "@type": "VideoObject",
-      name: `${page.keyword} Demo — WizVid AI`,
-      description: `Watch a demo of WizVid's ${page.keyword} in action. See how AI generates a complete music video from audio in minutes.`,
+      name: `${page.keyword} Demo — WIZ AI`,
+      description: `Watch a demo of WIZ AI's ${page.keyword} in action. See how AI generates a complete music video from audio in minutes.`,
       thumbnailUrl: ogImage,
       uploadDate: "2026-04-09",
       publisher: {
         "@type": "Organization",
-        name: "WizVid",
+        name: "WIZ AI",
         logo: {
           "@type": "ImageObject",
-          url: "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J",
+          url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
         },
       },
     });
@@ -239,7 +239,7 @@ export default function SeoLandingPage() {
     setMeta("og:description", page.metaDescription, true);
     setMeta("og:url", canonicalUrl, true);
     setMeta("og:image", ogImage, true);
-    setMeta("og:site_name", "WizVid", true);
+    setMeta("og:site_name", "WIZ AI", true);
 
     // Twitter Card
     setMeta("twitter:card", "summary_large_image");
@@ -274,15 +274,15 @@ export default function SeoLandingPage() {
     },
     {
       q: `How long does it take to create a video with ${page.keyword}?`,
-      a: "WizVid generates a full storyboard in under 30 seconds and renders a complete video in under 5 minutes — no editing required.",
+      a: "WIZ AI generates a full storyboard in under 30 seconds and renders a complete video in under 5 minutes — no editing required.",
     },
     {
       q: `Do I need any video editing skills to use ${page.keyword}?`,
-      a: "No. WizVid is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final render.",
+      a: "No. WIZ AI is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final render.",
     },
     {
       q: `Is ${page.keyword} free to try?`,
-      a: "Yes. WizVid is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
+      a: "Yes. WIZ AI is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
     },
   ];
 
@@ -294,14 +294,14 @@ export default function SeoLandingPage() {
           <Link href="/">
             <div className="flex items-center cursor-pointer">
               <img
-                src="https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J"
-                alt="WizVid"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+                alt="WIZ AI"
                 className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
               />
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-white/60">
-            <Link href="/music-video" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizVideo</Link>
+            <Link href="/music-video" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WIZ AIeo</Link>
             <Link href="/autopilot" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizScript</Link>
             <Link href="/pricing" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">Pricing</Link>
           </div>
@@ -368,7 +368,7 @@ export default function SeoLandingPage() {
         {/* Mid CTA */}
         <div className="my-12 p-8 rounded-2xl bg-gradient-to-r from-pink-900/30 to-purple-900/30 border border-pink-500/20 text-center">
           <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
-          <p className="text-white/60 mb-2">Join thousands of creators already using WizVid</p>
+          <p className="text-white/60 mb-2">Join thousands of creators already using WIZ AI</p>
           <p className="text-white/40 text-sm mb-6">No credit card required · Free to create · Only pay to render</p>
           <CTAButton text="Create Your First AI Video — Free" keyword={page.keyword} className="justify-center" />
         </div>
@@ -399,11 +399,11 @@ export default function SeoLandingPage() {
           <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/40 to-pink-900/20 border border-purple-500/20">
             <div className="flex items-center gap-3 mb-4">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png"
-                alt="WizVid"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+                alt="WIZ AI"
                 className="w-10 h-10 rounded-xl object-cover"
               />
-              <span className="text-xl font-bold">WizVid AI</span>
+              <span className="text-xl font-bold">WIZ AI</span>
               <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Recommended</Badge>
             </div>
             <p className="text-white/80 leading-relaxed text-lg">{page.bestToolParagraph}</p>
@@ -413,7 +413,7 @@ export default function SeoLandingPage() {
         {/* Use Cases */}
         <section className="my-16">
           <h2 className="text-3xl font-bold mb-8">
-            Who Uses WizVid for {page.keyword.replace(/^AI /i, "")}
+            Who Uses WIZ AI for {page.keyword.replace(/^AI /i, "")}
           </h2>
           <div className="grid sm:grid-cols-2 gap-6">
             {page.useCases.map((uc, i) => (
@@ -480,7 +480,7 @@ export default function SeoLandingPage() {
           <Sparkles className="w-12 h-12 text-pink-400 mx-auto mb-4" />
           <h2 className="text-4xl font-black mb-4">Ready to Create Your First AI Video?</h2>
           <p className="text-white/60 text-lg mb-8 max-w-xl mx-auto">
-            No editing. No experience needed. Just upload your audio or idea and let WizVid do the rest.
+            No editing. No experience needed. Just upload your audio or idea and let WIZ AI do the rest.
           </p>
           <CTAButton text="Create Your First AI Video Now — Free" keyword={page.keyword} className="justify-center" />
           <p className="text-white/30 text-sm mt-4">No credit card required • Free to create • Only pay to render</p>
@@ -489,12 +489,12 @@ export default function SeoLandingPage() {
         {/* SEO paragraph */}
         <div className="my-12 p-6 rounded-2xl bg-white/3 border border-white/5">
           <p className="text-white/40 text-sm leading-relaxed">
-            WizVid is an advanced AI video platform designed for musicians, YouTubers, kids content creators, and social
+            WIZ AI is an advanced AI video platform designed for musicians, YouTubers, kids content creators, and social
             media creators. Our {page.keyword.toLowerCase()} technology allows anyone to create professional-quality
             videos without editing skills. Whether you need an {page.keyword.toLowerCase()} for YouTube, TikTok, or any
-            platform, WizVid delivers stunning results in minutes.{" "}
+            platform, WIZ AI delivers stunning results in minutes.{" "}
             <Link href="/" className="text-purple-400 hover:text-purple-300 ml-1">
-              Learn more about WizVid →
+              Learn more about WIZ AI →
             </Link>
           </p>
         </div>
@@ -505,13 +505,13 @@ export default function SeoLandingPage() {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <Link href="/">
             <span className="font-bold text-xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent cursor-pointer">
-              WizVid
+              WIZ AI
             </span>
           </Link>
           <p className="text-white/40 text-sm mt-2">AI Music Video Generator • Create Videos in Minutes</p>
           <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm text-white/40">
             <Link href="/" className="hover:text-white/70 transition-colors">Home</Link>
-            <Link href="/music-video" className="hover:text-white/70 transition-colors">WizVideo</Link>
+            <Link href="/music-video" className="hover:text-white/70 transition-colors">WIZ AIeo</Link>
             <Link href="/autopilot" className="hover:text-white/70 transition-colors">WizScript</Link>
             <Link href="/pricing" className="hover:text-white/70 transition-colors">Pricing</Link>
           </div>

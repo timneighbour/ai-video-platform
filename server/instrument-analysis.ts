@@ -1,7 +1,7 @@
 /**
  * Audio-to-Character Assignment Engine
  *
- * WizVid's core USP: each character is bound to a specific audio track and
+ * WIZ AI's core USP: each character is bound to a specific audio track and
  * instrument. Every animation directive in the render prompt is derived from
  * the actual audio — no generic looped animations, no random strumming.
  *

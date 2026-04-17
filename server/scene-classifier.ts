@@ -1,5 +1,5 @@
 /**
- * WizVid Scene Classifier
+ * WIZ AI Scene Classifier
  *
  * Classifies each storyboard scene into one of four importance tiers
  * to drive cost-aware renderer routing:

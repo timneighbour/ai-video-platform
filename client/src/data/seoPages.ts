@@ -18,14 +18,14 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-music-video-generator",
     keyword: "AI music video generator",
-    metaTitle: "AI Music Video Generator | WizVid",
-    metaDescription: "Create stunning AI music videos in minutes. No editing needed. WizVid turns your audio into a full animated music video instantly.",
+    metaTitle: "AI Music Video Generator | WIZ AI",
+    metaDescription: "Create stunning AI music videos in minutes. No editing needed. WIZ AI turns your audio into a full animated music video instantly.",
     h1: "AI Music Video Generator (No Editing Needed)",
-    intro: "Creating a music video used to mean hiring directors, renting studios, and spending thousands. Not anymore. WizVid is an AI music video generator that transforms your audio into a fully animated, cinematic music video in minutes — no editing skills, no expensive software, no stress. Whether you're an indie artist, a band, or a content creator, WizVid handles everything from storyboard to final render automatically.",
+    intro: "Creating a music video used to mean hiring directors, renting studios, and spending thousands. Not anymore. WIZ AI is an AI music video generator that transforms your audio into a fully animated, cinematic music video in minutes — no editing skills, no expensive software, no stress. Whether you're an indie artist, a band, or a content creator, WIZ AI handles everything from storyboard to final render automatically.",
     howToSteps: [
       "Upload your audio file or paste your song idea",
       "Choose your animation style — Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage",
-      "Let WizVid's AI generate your complete music video automatically",
+      "Let WIZ AI's AI generate your complete music video automatically",
     ],
     whyBullets: [
       "Save hours of editing time — AI handles everything",
@@ -33,9 +33,9 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated from audio to finished video",
       "Scale your content output without scaling your workload",
     ],
-    bestToolParagraph: "WizVid is not just another AI clip editor — it creates complete music videos from scratch. Feed it your audio, and it generates a full storyboard, renders each scene in your chosen style, syncs visuals to your track, and delivers a finished video. It's the fastest way for musicians and creators to produce professional-quality music videos without touching a timeline.",
+    bestToolParagraph: "WIZ AI is not just another AI clip editor — it creates complete music videos from scratch. Feed it your audio, and it generates a full storyboard, renders each scene in your chosen style, syncs visuals to your track, and delivers a finished video. It's the fastest way for musicians and creators to produce professional-quality music videos without touching a timeline.",
     useCases: [
-      { title: "Musicians & Bands", description: "Release music videos for every track without a production budget. WizVid makes it possible to have a cinematic video for every single you drop." },
+      { title: "Musicians & Bands", description: "Release music videos for every track without a production budget. WIZ AI makes it possible to have a cinematic video for every single you drop." },
       { title: "YouTube Creators", description: "Boost your channel's production value with AI-generated music videos that keep viewers watching longer." },
       { title: "Social Media Creators", description: "Create shareable, visually stunning content for Instagram Reels, TikTok, and YouTube Shorts in minutes." },
     ],
@@ -45,10 +45,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-music-video-generator-for-youtube",
     keyword: "AI music video generator for YouTube",
-    metaTitle: "AI Music Video Generator for YouTube | WizVid",
-    metaDescription: "Generate AI music videos for YouTube in minutes. No editing needed. WizVid creates full animated music videos from your audio automatically.",
+    metaTitle: "AI Music Video Generator for YouTube | WIZ AI",
+    metaDescription: "Generate AI music videos for YouTube in minutes. No editing needed. WIZ AI creates full animated music videos from your audio automatically.",
     h1: "AI Music Video Generator for YouTube (No Editing Needed)",
-    intro: "YouTube rewards consistency — but producing a new music video for every upload is exhausting. WizVid changes that. As an AI music video generator built for YouTube creators, it lets you turn any audio track into a fully animated, high-quality music video in minutes. Upload more, edit less, and grow your channel faster than ever before.",
+    intro: "YouTube rewards consistency — but producing a new music video for every upload is exhausting. WIZ AI changes that. As an AI music video generator built for YouTube creators, it lets you turn any audio track into a fully animated, high-quality music video in minutes. Upload more, edit less, and grow your channel faster than ever before.",
     howToSteps: [
       "Upload your audio track or describe your music concept",
       "Select a visual style that matches your channel's aesthetic",
@@ -60,9 +60,9 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated pipeline from audio to published-ready video",
       "Scale your upload frequency without burning out",
     ],
-    bestToolParagraph: "WizVid is purpose-built for YouTube creators who want to grow without grinding. Unlike tools that just trim clips or add filters, WizVid creates complete music videos from scratch — full scenes, synced visuals, and professional output. It's the unfair advantage your channel needs.",
+    bestToolParagraph: "WIZ AI is purpose-built for YouTube creators who want to grow without grinding. Unlike tools that just trim clips or add filters, WIZ AI creates complete music videos from scratch — full scenes, synced visuals, and professional output. It's the unfair advantage your channel needs.",
     useCases: [
-      { title: "Music Channels", description: "Release a new music video every week without a production team. WizVid keeps your channel active and your audience engaged." },
+      { title: "Music Channels", description: "Release a new music video every week without a production team. WIZ AI keeps your channel active and your audience engaged." },
       { title: "Lyric Video Channels", description: "Automate your lyric video production pipeline and focus on finding great music instead of editing." },
       { title: "Faceless YouTube Channels", description: "Build a thriving music channel without ever appearing on camera. AI generates all the visuals for you." },
     ],
@@ -72,10 +72,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-music-video-generator-for-tiktok",
     keyword: "AI music video generator for TikTok",
-    metaTitle: "AI Music Video Generator for TikTok | WizVid",
-    metaDescription: "Create AI music videos for TikTok in minutes. WizVid generates animated, vertical music videos from your audio — no editing needed.",
+    metaTitle: "AI Music Video Generator for TikTok | WIZ AI",
+    metaDescription: "Create AI music videos for TikTok in minutes. WIZ AI generates animated, vertical music videos from your audio — no editing needed.",
     h1: "AI Music Video Generator for TikTok (No Editing Needed)",
-    intro: "TikTok moves fast — and so does WizVid. Create AI-powered music videos optimised for TikTok's vertical format in minutes. Whether you're a musician promoting a new track or a creator building a music-focused account, WizVid generates eye-catching animated videos that stop the scroll and drive engagement.",
+    intro: "TikTok moves fast — and so does WIZ AI. Create AI-powered music videos optimised for TikTok's vertical format in minutes. Whether you're a musician promoting a new track or a creator building a music-focused account, WIZ AI generates eye-catching animated videos that stop the scroll and drive engagement.",
     howToSteps: [
       "Upload your audio or describe your TikTok music concept",
       "Choose a visual style — bold, cinematic, or animated",
@@ -87,7 +87,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No editing experience needed — fully automated",
       "Post more consistently and grow your TikTok following faster",
     ],
-    bestToolParagraph: "TikTok's algorithm rewards frequent posting and high visual quality. WizVid lets you hit both targets without spending hours editing. Generate a new music video for every track, every remix, every trend — and keep your audience coming back for more.",
+    bestToolParagraph: "TikTok's algorithm rewards frequent posting and high visual quality. WIZ AI lets you hit both targets without spending hours editing. Generate a new music video for every track, every remix, every trend — and keep your audience coming back for more.",
     useCases: [
       { title: "TikTok Musicians", description: "Promote every track with a unique animated music video that captures attention in the first second." },
       { title: "Music Promoters", description: "Create promotional content for multiple artists at scale without a video production team." },
@@ -99,14 +99,14 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-music-video-generator-for-rap",
     keyword: "AI music video generator for rap",
-    metaTitle: "AI Music Video Generator for Rap | WizVid",
-    metaDescription: "Create AI rap music videos in minutes. WizVid generates cinematic, animated rap videos from your audio — no editing required.",
+    metaTitle: "AI Music Video Generator for Rap | WIZ AI",
+    metaDescription: "Create AI rap music videos in minutes. WIZ AI generates cinematic, animated rap videos from your audio — no editing required.",
     h1: "AI Music Video Generator for Rap (No Editing Needed)",
-    intro: "Every rap track deserves a visual. WizVid is an AI music video generator built to bring rap and hip-hop music to life with cinematic visuals, urban aesthetics, and dynamic animation. Upload your track, choose your style, and get a full music video that matches the energy of your music — no director, no studio, no budget required.",
+    intro: "Every rap track deserves a visual. WIZ AI is an AI music video generator built to bring rap and hip-hop music to life with cinematic visuals, urban aesthetics, and dynamic animation. Upload your track, choose your style, and get a full music video that matches the energy of your music — no director, no studio, no budget required.",
     howToSteps: [
       "Upload your rap track or freestyle audio",
       "Choose a visual style — Cinematic, Urban, Abstract, or Animated",
-      "Let WizVid generate a complete rap music video automatically",
+      "Let WIZ AI generate a complete rap music video automatically",
     ],
     whyBullets: [
       "Create professional rap videos without a production budget",
@@ -114,9 +114,9 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated — no editing or design skills needed",
       "Release videos for every track, every mixtape, every drop",
     ],
-    bestToolParagraph: "WizVid understands the visual language of rap and hip-hop. Its AI generates scenes that match the mood, tempo, and energy of your track — from gritty urban cinematics to bold animated sequences. It's the fastest way for independent rap artists to build a visual brand.",
+    bestToolParagraph: "WIZ AI understands the visual language of rap and hip-hop. Its AI generates scenes that match the mood, tempo, and energy of your track — from gritty urban cinematics to bold animated sequences. It's the fastest way for independent rap artists to build a visual brand.",
     useCases: [
-      { title: "Independent Rap Artists", description: "Build your visual brand without a label budget. WizVid creates professional music videos for every track you release." },
+      { title: "Independent Rap Artists", description: "Build your visual brand without a label budget. WIZ AI creates professional music videos for every track you release." },
       { title: "Hip-Hop Producers", description: "Create promotional videos for your beats and instrumentals to attract artists and grow your audience." },
       { title: "Freestyle Creators", description: "Turn your freestyle sessions into shareable video content for YouTube, TikTok, and Instagram." },
     ],
@@ -126,10 +126,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-music-video-generator-for-kids",
     keyword: "AI music video generator for kids",
-    metaTitle: "AI Music Video Generator for Kids | WizVid",
-    metaDescription: "Create AI kids music videos in minutes. WizVid generates fun, animated children's music videos from your audio — no editing needed.",
+    metaTitle: "AI Music Video Generator for Kids | WIZ AI",
+    metaDescription: "Create AI kids music videos in minutes. WIZ AI generates fun, animated children's music videos from your audio — no editing needed.",
     h1: "AI Music Video Generator for Kids (No Editing Needed)",
-    intro: "Kids' music content is one of the most watched categories on YouTube — but creating animated videos for children's songs is time-consuming and expensive. WizVid solves this. As an AI music video generator for kids, it creates bright, engaging, animated music videos from your audio in minutes. Perfect for nursery rhymes, educational songs, and children's entertainment channels.",
+    intro: "Kids' music content is one of the most watched categories on YouTube — but creating animated videos for children's songs is time-consuming and expensive. WIZ AI solves this. As an AI music video generator for kids, it creates bright, engaging, animated music videos from your audio in minutes. Perfect for nursery rhymes, educational songs, and children's entertainment channels.",
     howToSteps: [
       "Upload your kids' song or nursery rhyme audio",
       "Choose a child-friendly animation style — Pixar 3D, Cartoon, or Animated",
@@ -141,7 +141,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated — produce multiple videos quickly",
       "Perfect for building a kids' YouTube channel at scale",
     ],
-    bestToolParagraph: "WizVid is the fastest way to build a kids' music content library. Whether you're creating nursery rhymes, educational songs, or animated music stories, WizVid generates complete videos that children love — without the cost and complexity of traditional animation.",
+    bestToolParagraph: "WIZ AI is the fastest way to build a kids' music content library. Whether you're creating nursery rhymes, educational songs, or animated music stories, WIZ AI generates complete videos that children love — without the cost and complexity of traditional animation.",
     useCases: [
       { title: "Kids' YouTube Channels", description: "Build a library of animated music videos for your children's channel without hiring animators." },
       { title: "Educational Content Creators", description: "Turn educational songs and learning content into engaging animated videos that kids actually watch." },
@@ -153,10 +153,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-music-video-generator-for-songs",
     keyword: "AI music video generator for songs",
-    metaTitle: "AI Music Video Generator for Songs | WizVid",
-    metaDescription: "Turn any song into an AI music video in minutes. WizVid creates full animated videos from your audio — no editing required.",
+    metaTitle: "AI Music Video Generator for Songs | WIZ AI",
+    metaDescription: "Turn any song into an AI music video in minutes. WIZ AI creates full animated videos from your audio — no editing required.",
     h1: "AI Music Video Generator for Songs (No Editing Needed)",
-    intro: "Every song tells a story — and WizVid brings that story to life. As an AI music video generator for songs, WizVid transforms any audio track into a complete, animated music video in minutes. From pop to rock, hip-hop to classical, WizVid creates visuals that match the mood and energy of your music automatically.",
+    intro: "Every song tells a story — and WIZ AI brings that story to life. As an AI music video generator for songs, WIZ AI transforms any audio track into a complete, animated music video in minutes. From pop to rock, hip-hop to classical, WIZ AI creates visuals that match the mood and energy of your music automatically.",
     howToSteps: [
       "Upload your song in any format (MP3, WAV, or streaming link)",
       "Choose a visual style that matches your song's mood",
@@ -168,7 +168,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No editing or production experience required",
       "Create a music video for every song you release",
     ],
-    bestToolParagraph: "WizVid analyses your song's structure, tempo, and energy to generate visuals that feel purpose-made for your track. It's not just a template tool — it creates unique, AI-generated scenes for every song, ensuring your music video is as individual as your music.",
+    bestToolParagraph: "WIZ AI analyses your song's structure, tempo, and energy to generate visuals that feel purpose-made for your track. It's not just a template tool — it creates unique, AI-generated scenes for every song, ensuring your music video is as individual as your music.",
     useCases: [
       { title: "Singer-Songwriters", description: "Release a music video with every single without a production budget or editing skills." },
       { title: "Bands & Groups", description: "Create visuals for your entire back catalogue and give every track the video it deserves." },
@@ -180,14 +180,14 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "create-music-video-with-ai",
     keyword: "create music video with AI",
-    metaTitle: "Create Music Video with AI | WizVid",
-    metaDescription: "Create a music video with AI in minutes. No editing needed. WizVid turns your audio into a full animated music video instantly.",
+    metaTitle: "Create Music Video with AI | WIZ AI",
+    metaDescription: "Create a music video with AI in minutes. No editing needed. WIZ AI turns your audio into a full animated music video instantly.",
     h1: "Create a Music Video with AI (No Editing Needed)",
-    intro: "Creating a music video used to take days, expensive software, and editing skills. Now, you can create a full music video in minutes using AI. Whether you're a musician, YouTuber, or content creator, WizVid lets you turn your audio into a fully animated video instantly. No timelines. No editing. No experience needed.",
+    intro: "Creating a music video used to take days, expensive software, and editing skills. Now, you can create a full music video in minutes using AI. Whether you're a musician, YouTuber, or content creator, WIZ AI lets you turn your audio into a fully animated video instantly. No timelines. No editing. No experience needed.",
     howToSteps: [
       "Upload your audio or song",
       "Choose your animation style",
-      "Let WizVid generate your video automatically",
+      "Let WIZ AI generate your video automatically",
     ],
     whyBullets: [
       "Save hours of editing time",
@@ -195,7 +195,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated video creation",
       "Perfect for YouTube and social media",
     ],
-    bestToolParagraph: "WizVid is built specifically for creators who want to generate full videos, not just edit clips. Unlike traditional tools, WizVid creates complete animated music videos from scratch using AI. It's the fastest, simplest way to go from audio file to finished music video.",
+    bestToolParagraph: "WIZ AI is built specifically for creators who want to generate full videos, not just edit clips. Unlike traditional tools, WIZ AI creates complete animated music videos from scratch using AI. It's the fastest, simplest way to go from audio file to finished music video.",
     useCases: [
       { title: "Musicians", description: "Create a professional music video for every track you release — without a production budget." },
       { title: "YouTubers", description: "Boost your channel's production value and upload frequency with AI-generated music videos." },
@@ -207,14 +207,14 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-lyric-video-generator",
     keyword: "AI lyric video generator",
-    metaTitle: "AI Lyric Video Generator | WizVid",
-    metaDescription: "Generate AI lyric videos in minutes. WizVid creates animated lyric videos from your audio and lyrics automatically — no editing needed.",
+    metaTitle: "AI Lyric Video Generator | WIZ AI",
+    metaDescription: "Generate AI lyric videos in minutes. WIZ AI creates animated lyric videos from your audio and lyrics automatically — no editing needed.",
     h1: "AI Lyric Video Generator (No Editing Needed)",
-    intro: "Lyric videos are one of the most-watched video formats on YouTube — and WizVid makes them effortless to create. As an AI lyric video generator, WizVid takes your audio and lyrics, syncs them automatically, and generates a visually stunning animated lyric video in minutes. No After Effects, no Premiere, no design skills required.",
+    intro: "Lyric videos are one of the most-watched video formats on YouTube — and WIZ AI makes them effortless to create. As an AI lyric video generator, WIZ AI takes your audio and lyrics, syncs them automatically, and generates a visually stunning animated lyric video in minutes. No After Effects, no Premiere, no design skills required.",
     howToSteps: [
       "Upload your audio and paste your lyrics",
       "Choose a visual style and typography theme",
-      "Let WizVid generate your synced lyric video automatically",
+      "Let WIZ AI generate your synced lyric video automatically",
     ],
     whyBullets: [
       "Automatic lyric sync — no manual timing required",
@@ -222,7 +222,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No video editing software or skills needed",
       "Create lyric videos for your entire catalogue quickly",
     ],
-    bestToolParagraph: "WizVid's AI reads your lyrics, analyses your audio, and generates a fully synced lyric video with animated text, visual effects, and background scenes. It's the fastest way to create professional lyric videos that keep viewers watching and singing along.",
+    bestToolParagraph: "WIZ AI's AI reads your lyrics, analyses your audio, and generates a fully synced lyric video with animated text, visual effects, and background scenes. It's the fastest way to create professional lyric videos that keep viewers watching and singing along.",
     useCases: [
       { title: "Musicians", description: "Release lyric videos alongside every single to maximise streaming and YouTube engagement." },
       { title: "Lyric Video Channels", description: "Build a lyric video channel at scale — create dozens of videos per week without editing." },
@@ -234,10 +234,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animated-music-video-maker",
     keyword: "AI animated music video maker",
-    metaTitle: "AI Animated Music Video Maker | WizVid",
-    metaDescription: "Create AI animated music videos in minutes. WizVid generates stunning animated videos from your audio — no editing or animation skills needed.",
+    metaTitle: "AI Animated Music Video Maker | WIZ AI",
+    metaDescription: "Create AI animated music videos in minutes. WIZ AI generates stunning animated videos from your audio — no editing or animation skills needed.",
     h1: "AI Animated Music Video Maker (No Editing Needed)",
-    intro: "Animated music videos are the most shareable, most memorable format in music content — and WizVid makes them accessible to every creator. As an AI animated music video maker, WizVid generates fully animated scenes, characters, and visuals that bring your music to life. No animation studio. No budget. Just your audio and your imagination.",
+    intro: "Animated music videos are the most shareable, most memorable format in music content — and WIZ AI makes them accessible to every creator. As an AI animated music video maker, WIZ AI generates fully animated scenes, characters, and visuals that bring your music to life. No animation studio. No budget. Just your audio and your imagination.",
     howToSteps: [
       "Upload your audio track",
       "Choose your animation style — Anime, Pixar 3D, Cartoon, or Abstract",
@@ -249,7 +249,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated — no animation skills required",
       "Create animated videos for every track you release",
     ],
-    bestToolParagraph: "WizVid creates animated music videos that look like they took weeks to produce — in minutes. Its AI generates unique animated scenes for each section of your track, ensuring your video feels crafted, not templated. It's the animated music video studio in your browser.",
+    bestToolParagraph: "WIZ AI creates animated music videos that look like they took weeks to produce — in minutes. Its AI generates unique animated scenes for each section of your track, ensuring your video feels crafted, not templated. It's the animated music video studio in your browser.",
     useCases: [
       { title: "Indie Artists", description: "Stand out with animated music videos that look expensive but cost a fraction of traditional production." },
       { title: "Kids' Music Creators", description: "Create colourful, character-driven animated videos that children love and parents share." },
@@ -261,10 +261,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-musicians",
     keyword: "AI video generator for musicians",
-    metaTitle: "AI Video Generator for Musicians | WizVid",
-    metaDescription: "WizVid is the AI video generator built for musicians. Create music videos, lyric videos, and animated content from your audio in minutes.",
+    metaTitle: "AI Video Generator for Musicians | WIZ AI",
+    metaDescription: "WIZ AI is the AI video generator built for musicians. Create music videos, lyric videos, and animated content from your audio in minutes.",
     h1: "AI Video Generator for Musicians (No Editing Needed)",
-    intro: "Musicians make music — not videos. But in today's world, visuals are as important as the audio. WizVid is an AI video generator built specifically for musicians, letting you create professional music videos, lyric videos, and animated content from your audio in minutes. Focus on your music. Let WizVid handle the visuals.",
+    intro: "Musicians make music — not videos. But in today's world, visuals are as important as the audio. WIZ AI is an AI video generator built specifically for musicians, letting you create professional music videos, lyric videos, and animated content from your audio in minutes. Focus on your music. Let WIZ AI handle the visuals.",
     howToSteps: [
       "Upload your track, EP, or album audio",
       "Choose your visual style and mood",
@@ -276,7 +276,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Multiple video formats: music video, lyric video, animated",
       "Fast, automated, and affordable for independent artists",
     ],
-    bestToolParagraph: "WizVid is the video creation platform that musicians actually need. It doesn't require you to learn editing software or hire a director. Just upload your music, choose your style, and get a complete video that represents your sound and your brand.",
+    bestToolParagraph: "WIZ AI is the video creation platform that musicians actually need. It doesn't require you to learn editing software or hire a director. Just upload your music, choose your style, and get a complete video that represents your sound and your brand.",
     useCases: [
       { title: "Independent Artists", description: "Build a complete visual catalogue for your music without a label or production budget." },
       { title: "Bands & Groups", description: "Create cohesive visual branding across your entire discography with consistent AI-generated aesthetics." },
@@ -290,10 +290,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-youtube",
     keyword: "AI video generator for YouTube",
-    metaTitle: "AI Video Generator for YouTube | WizVid",
-    metaDescription: "Generate AI videos for YouTube in minutes. WizVid creates full animated videos from your ideas or audio — no editing needed.",
+    metaTitle: "AI Video Generator for YouTube | WIZ AI",
+    metaDescription: "Generate AI videos for YouTube in minutes. WIZ AI creates full animated videos from your ideas or audio — no editing needed.",
     h1: "AI Video Generator for YouTube (No Editing Needed)",
-    intro: "Creating consistent YouTube content is one of the biggest challenges for creators. WizVid solves this by allowing you to generate full AI videos in minutes, helping you scale your channel faster without editing. Whether you need music videos, animated content, or visual storytelling, WizVid creates complete videos from scratch — not just clips.",
+    intro: "Creating consistent YouTube content is one of the biggest challenges for creators. WIZ AI solves this by allowing you to generate full AI videos in minutes, helping you scale your channel faster without editing. Whether you need music videos, animated content, or visual storytelling, WIZ AI creates complete videos from scratch — not just clips.",
     howToSteps: [
       "Upload your audio, idea, or script",
       "Choose your visual style and format",
@@ -305,7 +305,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Improve video quality with AI-generated animation",
       "Boost click-through rates with stunning visuals",
     ],
-    bestToolParagraph: "WizVid is designed for creators who want to produce content at scale. Instead of spending hours editing, you can create multiple videos in a fraction of the time. It's the AI-powered production studio that fits in your browser.",
+    bestToolParagraph: "WIZ AI is designed for creators who want to produce content at scale. Instead of spending hours editing, you can create multiple videos in a fraction of the time. It's the AI-powered production studio that fits in your browser.",
     useCases: [
       { title: "Music Channels", description: "Release new music videos consistently and keep your audience engaged without a production team." },
       { title: "Animation Channels", description: "Build a library of animated content that drives subscriptions and watch time." },
@@ -317,10 +317,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-youtube-creators",
     keyword: "AI video generator for YouTube creators",
-    metaTitle: "AI Video Generator for YouTube Creators | WizVid",
-    metaDescription: "WizVid is the AI video generator built for YouTube creators. Create full videos from audio or ideas in minutes — no editing needed.",
+    metaTitle: "AI Video Generator for YouTube Creators | WIZ AI",
+    metaDescription: "WIZ AI is the AI video generator built for YouTube creators. Create full videos from audio or ideas in minutes — no editing needed.",
     h1: "AI Video Generator for YouTube Creators (No Editing Needed)",
-    intro: "YouTube creators face a constant pressure to produce high-quality content at scale. WizVid is the AI video generator built specifically for YouTube creators — letting you turn ideas, audio, and concepts into complete, professional videos in minutes. Spend less time editing and more time creating.",
+    intro: "YouTube creators face a constant pressure to produce high-quality content at scale. WIZ AI is the AI video generator built specifically for YouTube creators — letting you turn ideas, audio, and concepts into complete, professional videos in minutes. Spend less time editing and more time creating.",
     howToSteps: [
       "Upload your audio, idea, or video concept",
       "Select a visual style that fits your channel brand",
@@ -332,11 +332,11 @@ export const SEO_PAGES: SeoPage[] = [
       "Consistent quality that builds channel authority",
       "More uploads, more views, faster channel growth",
     ],
-    bestToolParagraph: "WizVid understands what YouTube creators need: speed, quality, and consistency. It creates complete videos — not just clips or effects — so you can maintain a publishing schedule that grows your channel without sacrificing your sanity.",
+    bestToolParagraph: "WIZ AI understands what YouTube creators need: speed, quality, and consistency. It creates complete videos — not just clips or effects — so you can maintain a publishing schedule that grows your channel without sacrificing your sanity.",
     useCases: [
       { title: "Growing Channels", description: "Accelerate your channel growth by uploading more frequently with AI-generated content." },
       { title: "Established Creators", description: "Maintain your upload schedule even during busy periods with automated video creation." },
-      { title: "Multi-Channel Operators", description: "Manage multiple YouTube channels simultaneously with WizVid's fast, scalable production." },
+      { title: "Multi-Channel Operators", description: "Manage multiple YouTube channels simultaneously with WIZ AI's fast, scalable production." },
     ],
     relatedSlugs: ["ai-video-generator-for-youtube", "ai-content-creation-for-youtube", "ai-video-generator-for-youtube-automation"],
     category: "youtube",
@@ -344,10 +344,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-youtube-automation",
     keyword: "AI video generator for YouTube automation",
-    metaTitle: "AI Video Generator for YouTube Automation | WizVid",
-    metaDescription: "Automate your YouTube video creation with AI. WizVid generates full videos from audio or ideas in minutes — no editing needed.",
+    metaTitle: "AI Video Generator for YouTube Automation | WIZ AI",
+    metaDescription: "Automate your YouTube video creation with AI. WIZ AI generates full videos from audio or ideas in minutes — no editing needed.",
     h1: "AI Video Generator for YouTube Automation (No Editing Needed)",
-    intro: "YouTube automation is the strategy of building channels that generate income with minimal ongoing effort. The missing piece for most automation creators is video production — and WizVid solves it. As an AI video generator for YouTube automation, WizVid creates complete, high-quality videos from audio or ideas in minutes, making fully automated channels a reality.",
+    intro: "YouTube automation is the strategy of building channels that generate income with minimal ongoing effort. The missing piece for most automation creators is video production — and WIZ AI solves it. As an AI video generator for YouTube automation, WIZ AI creates complete, high-quality videos from audio or ideas in minutes, making fully automated channels a reality.",
     howToSteps: [
       "Define your niche and upload your audio or script",
       "Choose a consistent visual style for your channel",
@@ -359,7 +359,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Scale to multiple channels without extra effort",
       "The missing piece in your YouTube automation stack",
     ],
-    bestToolParagraph: "WizVid is the production engine that YouTube automation creators have been waiting for. It creates complete videos — not just slideshows or static images — giving your automated channel the visual quality it needs to compete and grow.",
+    bestToolParagraph: "WIZ AI is the production engine that YouTube automation creators have been waiting for. It creates complete videos — not just slideshows or static images — giving your automated channel the visual quality it needs to compete and grow.",
     useCases: [
       { title: "Faceless YouTube Channels", description: "Build profitable faceless channels with AI-generated video content that requires no on-camera presence." },
       { title: "Music Automation Channels", description: "Create automated music channels with AI-generated music videos that generate passive income." },
@@ -371,12 +371,12 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-youtube-content-generator",
     keyword: "AI YouTube content generator",
-    metaTitle: "AI YouTube Content Generator | WizVid",
-    metaDescription: "Generate YouTube content with AI in minutes. WizVid creates full animated videos from your ideas or audio — no editing needed.",
+    metaTitle: "AI YouTube Content Generator | WIZ AI",
+    metaDescription: "Generate YouTube content with AI in minutes. WIZ AI creates full animated videos from your ideas or audio — no editing needed.",
     h1: "AI YouTube Content Generator (No Editing Needed)",
-    intro: "Content is the currency of YouTube — and WizVid is your AI-powered content mint. As an AI YouTube content generator, WizVid transforms your ideas, audio, and concepts into complete, engaging YouTube videos in minutes. Stop staring at a blank timeline and start publishing content that grows your channel.",
+    intro: "Content is the currency of YouTube — and WIZ AI is your AI-powered content mint. As an AI YouTube content generator, WIZ AI transforms your ideas, audio, and concepts into complete, engaging YouTube videos in minutes. Stop staring at a blank timeline and start publishing content that grows your channel.",
     howToSteps: [
-      "Share your content idea, audio, or script with WizVid",
+      "Share your content idea, audio, or script with WIZ AI",
       "Choose your visual style and content format",
       "Generate complete YouTube content automatically",
     ],
@@ -386,7 +386,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Consistent output that keeps your channel active",
       "More content means more opportunities to rank and grow",
     ],
-    bestToolParagraph: "WizVid doesn't just help you edit content — it creates it. From concept to finished video, WizVid's AI handles every step of the production process, giving you professional-quality YouTube content without the production overhead.",
+    bestToolParagraph: "WIZ AI doesn't just help you edit content — it creates it. From concept to finished video, WIZ AI's AI handles every step of the production process, giving you professional-quality YouTube content without the production overhead.",
     useCases: [
       { title: "New YouTubers", description: "Launch your channel with a library of professional content from day one, without editing experience." },
       { title: "Busy Creators", description: "Maintain your upload schedule even when life gets in the way with automated content generation." },
@@ -398,10 +398,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-tool-for-youtube-videos",
     keyword: "AI tool for YouTube videos",
-    metaTitle: "AI Tool for YouTube Videos | WizVid",
-    metaDescription: "WizVid is the AI tool for YouTube videos. Create full animated videos from audio or ideas in minutes — no editing needed.",
+    metaTitle: "AI Tool for YouTube Videos | WIZ AI",
+    metaDescription: "WIZ AI is the AI tool for YouTube videos. Create full animated videos from audio or ideas in minutes — no editing needed.",
     h1: "AI Tool for YouTube Videos (No Editing Needed)",
-    intro: "There are hundreds of AI tools that claim to help with YouTube — but most just edit or enhance existing footage. WizVid is different. It's an AI tool for YouTube videos that creates complete, original video content from scratch. Upload your audio or idea, choose your style, and get a finished YouTube video in minutes.",
+    intro: "There are hundreds of AI tools that claim to help with YouTube — but most just edit or enhance existing footage. WIZ AI is different. It's an AI tool for YouTube videos that creates complete, original video content from scratch. Upload your audio or idea, choose your style, and get a finished YouTube video in minutes.",
     howToSteps: [
       "Upload your audio, idea, or concept",
       "Choose from multiple visual styles",
@@ -413,7 +413,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No editing software or technical skills required",
       "The only AI tool that goes from idea to finished video",
     ],
-    bestToolParagraph: "WizVid is the AI tool YouTube creators actually need. While other tools help you edit, WizVid helps you create — generating complete, original videos from audio, ideas, and concepts. It's the fastest path from inspiration to published content.",
+    bestToolParagraph: "WIZ AI is the AI tool YouTube creators actually need. While other tools help you edit, WIZ AI helps you create — generating complete, original videos from audio, ideas, and concepts. It's the fastest path from inspiration to published content.",
     useCases: [
       { title: "Music Video Channels", description: "Create a new music video for every track you release, keeping your channel fresh and active." },
       { title: "Animation Channels", description: "Build an animated YouTube channel without animation skills or expensive software." },
@@ -425,10 +425,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-faceless-youtube",
     keyword: "AI video generator for faceless YouTube",
-    metaTitle: "AI Video Generator for Faceless YouTube | WizVid",
-    metaDescription: "Build a faceless YouTube channel with AI. WizVid creates full animated videos from audio or ideas — no camera, no editing needed.",
+    metaTitle: "AI Video Generator for Faceless YouTube | WIZ AI",
+    metaDescription: "Build a faceless YouTube channel with AI. WIZ AI creates full animated videos from audio or ideas — no camera, no editing needed.",
     h1: "AI Video Generator for Faceless YouTube (No Editing Needed)",
-    intro: "Faceless YouTube channels are one of the fastest-growing strategies for building passive income online — and WizVid makes them easier than ever. As an AI video generator for faceless YouTube, WizVid creates complete, visually stunning videos from your audio or ideas without you ever appearing on camera. Build your channel. Protect your privacy. Grow your income.",
+    intro: "Faceless YouTube channels are one of the fastest-growing strategies for building passive income online — and WIZ AI makes them easier than ever. As an AI video generator for faceless YouTube, WIZ AI creates complete, visually stunning videos from your audio or ideas without you ever appearing on camera. Build your channel. Protect your privacy. Grow your income.",
     howToSteps: [
       "Choose your niche and upload your audio or script",
       "Select a visual style that fits your faceless channel concept",
@@ -440,7 +440,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fully automated production pipeline",
       "Build multiple faceless channels simultaneously",
     ],
-    bestToolParagraph: "WizVid is the perfect production partner for faceless YouTube creators. It generates complete, original videos from audio and ideas — giving your channel the visual quality it needs to compete without requiring you to be on screen.",
+    bestToolParagraph: "WIZ AI is the perfect production partner for faceless YouTube creators. It generates complete, original videos from audio and ideas — giving your channel the visual quality it needs to compete without requiring you to be on screen.",
     useCases: [
       { title: "Privacy-Conscious Creators", description: "Build a successful YouTube channel without revealing your identity or appearing on camera." },
       { title: "Passive Income Builders", description: "Create a library of faceless content that generates views and revenue on autopilot." },
@@ -452,10 +452,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-shorts",
     keyword: "AI video generator for shorts",
-    metaTitle: "AI Video Generator for YouTube Shorts | WizVid",
-    metaDescription: "Create AI videos for YouTube Shorts in minutes. WizVid generates animated short-form videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Video Generator for YouTube Shorts | WIZ AI",
+    metaDescription: "Create AI videos for YouTube Shorts in minutes. WIZ AI generates animated short-form videos from audio or ideas — no editing needed.",
     h1: "AI Video Generator for YouTube Shorts (No Editing Needed)",
-    intro: "YouTube Shorts is the fastest-growing format on the platform — and WizVid helps you dominate it. As an AI video generator for Shorts, WizVid creates vertical, short-form animated videos from your audio or ideas in minutes. Post more Shorts, reach more viewers, and grow your channel faster than ever.",
+    intro: "YouTube Shorts is the fastest-growing format on the platform — and WIZ AI helps you dominate it. As an AI video generator for Shorts, WIZ AI creates vertical, short-form animated videos from your audio or ideas in minutes. Post more Shorts, reach more viewers, and grow your channel faster than ever.",
     howToSteps: [
       "Upload your audio clip or short-form idea",
       "Choose a bold, eye-catching visual style",
@@ -467,7 +467,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Eye-catching animation that stops the scroll",
       "No editing skills or software required",
     ],
-    bestToolParagraph: "YouTube Shorts rewards frequency and visual quality — and WizVid delivers both. Create a new Short in minutes, post consistently, and let the algorithm do the rest. It's the fastest way to grow your channel with short-form content.",
+    bestToolParagraph: "YouTube Shorts rewards frequency and visual quality — and WIZ AI delivers both. Create a new Short in minutes, post consistently, and let the algorithm do the rest. It's the fastest way to grow your channel with short-form content.",
     useCases: [
       { title: "Music Artists", description: "Promote your tracks with animated Shorts that drive streams and grow your fanbase." },
       { title: "Growing Channels", description: "Use Shorts to reach new audiences and funnel them to your long-form content." },
@@ -479,10 +479,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-tiktok",
     keyword: "AI video generator for TikTok",
-    metaTitle: "AI Video Generator for TikTok | WizVid",
-    metaDescription: "Create AI videos for TikTok in minutes. WizVid generates animated vertical videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Video Generator for TikTok | WIZ AI",
+    metaDescription: "Create AI videos for TikTok in minutes. WIZ AI generates animated vertical videos from audio or ideas — no editing needed.",
     h1: "AI Video Generator for TikTok (No Editing Needed)",
-    intro: "TikTok's algorithm rewards creativity and consistency — and WizVid delivers both. As an AI video generator for TikTok, WizVid creates vertical, animated videos from your audio or ideas in minutes. Stand out in a crowded feed, post more consistently, and grow your TikTok following with AI-generated content that actually gets watched.",
+    intro: "TikTok's algorithm rewards creativity and consistency — and WIZ AI delivers both. As an AI video generator for TikTok, WIZ AI creates vertical, animated videos from your audio or ideas in minutes. Stand out in a crowded feed, post more consistently, and grow your TikTok following with AI-generated content that actually gets watched.",
     howToSteps: [
       "Upload your audio or TikTok concept",
       "Choose a bold, scroll-stopping visual style",
@@ -494,7 +494,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Create multiple TikToks per day without editing",
       "Stand out with unique AI-generated visuals",
     ],
-    bestToolParagraph: "WizVid creates TikTok content that gets watched, shared, and followed. Its AI generates unique animated visuals for every video — no templates, no repetition — giving your TikTok account the creative edge it needs to grow.",
+    bestToolParagraph: "WIZ AI creates TikTok content that gets watched, shared, and followed. Its AI generates unique animated visuals for every video — no templates, no repetition — giving your TikTok account the creative edge it needs to grow.",
     useCases: [
       { title: "TikTok Musicians", description: "Promote your music with animated TikToks that capture attention and drive streams." },
       { title: "Content Creators", description: "Build a consistent TikTok presence with AI-generated content that requires no editing." },
@@ -506,10 +506,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-reels",
     keyword: "AI video generator for reels",
-    metaTitle: "AI Video Generator for Instagram Reels | WizVid",
-    metaDescription: "Create AI videos for Instagram Reels in minutes. WizVid generates animated vertical videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Video Generator for Instagram Reels | WIZ AI",
+    metaDescription: "Create AI videos for Instagram Reels in minutes. WIZ AI generates animated vertical videos from audio or ideas — no editing needed.",
     h1: "AI Video Generator for Instagram Reels (No Editing Needed)",
-    intro: "Instagram Reels is one of the most powerful tools for growing an audience online — and WizVid makes creating Reels effortless. As an AI video generator for Reels, WizVid creates vertical, animated videos from your audio or ideas in minutes. Post more Reels, reach more people, and grow your Instagram following with AI-generated content.",
+    intro: "Instagram Reels is one of the most powerful tools for growing an audience online — and WIZ AI makes creating Reels effortless. As an AI video generator for Reels, WIZ AI creates vertical, animated videos from your audio or ideas in minutes. Post more Reels, reach more people, and grow your Instagram following with AI-generated content.",
     howToSteps: [
       "Upload your audio or Reels concept",
       "Choose a visually striking animation style",
@@ -521,7 +521,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Create multiple Reels per day without editing",
       "Consistent posting schedule without the burnout",
     ],
-    bestToolParagraph: "WizVid creates Reels that Instagram's algorithm loves — visually rich, engaging, and unique. Its AI generates original animated content for every Reel, ensuring your account stands out and grows consistently.",
+    bestToolParagraph: "WIZ AI creates Reels that Instagram's algorithm loves — visually rich, engaging, and unique. Its AI generates original animated content for every Reel, ensuring your account stands out and grows consistently.",
     useCases: [
       { title: "Musicians", description: "Promote your music with animated Reels that reach new audiences and drive streams." },
       { title: "Influencers", description: "Maintain a consistent posting schedule with AI-generated Reels that keep your audience engaged." },
@@ -533,10 +533,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-content-creation-for-youtube",
     keyword: "AI content creation for YouTube",
-    metaTitle: "AI Content Creation for YouTube | WizVid",
-    metaDescription: "Create YouTube content with AI in minutes. WizVid generates full animated videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Content Creation for YouTube | WIZ AI",
+    metaDescription: "Create YouTube content with AI in minutes. WIZ AI generates full animated videos from audio or ideas — no editing needed.",
     h1: "AI Content Creation for YouTube (No Editing Needed)",
-    intro: "AI content creation for YouTube is no longer a future concept — it's here, and WizVid is leading it. WizVid lets you create complete, professional YouTube videos from audio, ideas, or scripts in minutes. It's the fastest, most accessible way to build a YouTube channel without traditional video production skills.",
+    intro: "AI content creation for YouTube is no longer a future concept — it's here, and WIZ AI is leading it. WIZ AI lets you create complete, professional YouTube videos from audio, ideas, or scripts in minutes. It's the fastest, most accessible way to build a YouTube channel without traditional video production skills.",
     howToSteps: [
       "Share your content idea, audio, or script",
       "Choose your visual style and content format",
@@ -548,11 +548,11 @@ export const SEO_PAGES: SeoPage[] = [
       "Consistent output that keeps your channel growing",
       "The future of YouTube content creation is here",
     ],
-    bestToolParagraph: "WizVid represents the next generation of YouTube content creation. It doesn't just assist with editing — it creates complete, original videos from scratch. For creators who want to build channels at scale, WizVid is the platform that makes it possible.",
+    bestToolParagraph: "WIZ AI represents the next generation of YouTube content creation. It doesn't just assist with editing — it creates complete, original videos from scratch. For creators who want to build channels at scale, WIZ AI is the platform that makes it possible.",
     useCases: [
       { title: "New Creators", description: "Launch your YouTube channel with professional content from day one, without any production experience." },
       { title: "Scaling Creators", description: "Multiply your content output without multiplying your workload using AI-powered creation." },
-      { title: "Content Agencies", description: "Deliver YouTube content for multiple clients at scale with WizVid's automated production pipeline." },
+      { title: "Content Agencies", description: "Deliver YouTube content for multiple clients at scale with WIZ AI's automated production pipeline." },
     ],
     relatedSlugs: ["ai-video-generator-for-youtube", "ai-youtube-content-generator", "ai-tool-for-youtube-videos"],
     category: "youtube",
@@ -562,10 +562,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-kids-video-generator",
     keyword: "AI kids video generator",
-    metaTitle: "AI Kids Video Generator | WizVid",
-    metaDescription: "Create AI kids videos in minutes. WizVid generates fun, animated children's videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Kids Video Generator | WIZ AI",
+    metaDescription: "Create AI kids videos in minutes. WIZ AI generates fun, animated children's videos from audio or ideas — no editing needed.",
     h1: "AI Kids Video Generator (No Editing Needed)",
-    intro: "Kids content is one of the biggest categories on YouTube, but creating animated videos can be time-consuming and expensive. WizVid makes it easy to generate engaging kids videos using AI in just minutes. Whether you're creating nursery rhymes, educational content, or animated stories, WizVid handles everything automatically.",
+    intro: "Kids content is one of the biggest categories on YouTube, but creating animated videos can be time-consuming and expensive. WIZ AI makes it easy to generate engaging kids videos using AI in just minutes. Whether you're creating nursery rhymes, educational content, or animated stories, WIZ AI handles everything automatically.",
     howToSteps: [
       "Upload your kids' audio or describe your content idea",
       "Choose a child-friendly animation style",
@@ -577,7 +577,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Faster production than traditional animation",
       "Ideal for scaling kids' content channels",
     ],
-    bestToolParagraph: "WizVid allows creators to build full kids videos without needing animation skills. Simply upload your idea or audio and let the AI handle the rest. It's the fastest way to build a kids' content library that children love.",
+    bestToolParagraph: "WIZ AI allows creators to build full kids videos without needing animation skills. Simply upload your idea or audio and let the AI handle the rest. It's the fastest way to build a kids' content library that children love.",
     useCases: [
       { title: "Kids' YouTube Channels", description: "Build a library of animated kids' videos without hiring animators or editors." },
       { title: "Educational Creators", description: "Turn educational audio and scripts into engaging animated content that kids actually watch." },
@@ -589,10 +589,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-for-kids-youtube",
     keyword: "AI animation for kids YouTube",
-    metaTitle: "AI Animation for Kids YouTube | WizVid",
-    metaDescription: "Create AI animation for kids YouTube in minutes. WizVid generates colourful animated kids' videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Animation for Kids YouTube | WIZ AI",
+    metaDescription: "Create AI animation for kids YouTube in minutes. WIZ AI generates colourful animated kids' videos from audio or ideas — no editing needed.",
     h1: "AI Animation for Kids YouTube (No Editing Needed)",
-    intro: "Building a kids' animation channel on YouTube is one of the most rewarding — and most challenging — content strategies. WizVid makes it achievable for everyone. As an AI animation tool for kids' YouTube, WizVid creates colourful, engaging animated videos from your audio or ideas in minutes. No animation software. No design skills. Just great kids' content.",
+    intro: "Building a kids' animation channel on YouTube is one of the most rewarding — and most challenging — content strategies. WIZ AI makes it achievable for everyone. As an AI animation tool for kids' YouTube, WIZ AI creates colourful, engaging animated videos from your audio or ideas in minutes. No animation software. No design skills. Just great kids' content.",
     howToSteps: [
       "Upload your kids' audio, song, or story idea",
       "Choose a bright, child-friendly animation style",
@@ -604,7 +604,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Consistent output for regular uploads",
       "Affordable alternative to traditional animation studios",
     ],
-    bestToolParagraph: "WizVid creates kids' animation that captures attention and keeps children watching. Its AI generates bright, character-driven animated scenes that are perfect for YouTube's kids' audience — and parents love the quality too.",
+    bestToolParagraph: "WIZ AI creates kids' animation that captures attention and keeps children watching. Its AI generates bright, character-driven animated scenes that are perfect for YouTube's kids' audience — and parents love the quality too.",
     useCases: [
       { title: "Kids' Channel Creators", description: "Build a thriving kids' animation channel with consistent, high-quality AI-generated content." },
       { title: "Educational Publishers", description: "Create animated educational content for children that makes learning fun and engaging." },
@@ -616,10 +616,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-nursery-rhyme-video-generator",
     keyword: "AI nursery rhyme video generator",
-    metaTitle: "AI Nursery Rhyme Video Generator | WizVid",
-    metaDescription: "Create AI nursery rhyme videos in minutes. WizVid generates animated nursery rhyme videos from audio — no editing needed.",
+    metaTitle: "AI Nursery Rhyme Video Generator | WIZ AI",
+    metaDescription: "Create AI nursery rhyme videos in minutes. WIZ AI generates animated nursery rhyme videos from audio — no editing needed.",
     h1: "AI Nursery Rhyme Video Generator (No Editing Needed)",
-    intro: "Nursery rhyme videos are among the most-watched content on YouTube Kids — and WizVid makes them effortless to create. As an AI nursery rhyme video generator, WizVid transforms your nursery rhyme audio into a fully animated, colourful video in minutes. Build your nursery rhyme channel faster than ever before.",
+    intro: "Nursery rhyme videos are among the most-watched content on YouTube Kids — and WIZ AI makes them effortless to create. As an AI nursery rhyme video generator, WIZ AI transforms your nursery rhyme audio into a fully animated, colourful video in minutes. Build your nursery rhyme channel faster than ever before.",
     howToSteps: [
       "Upload your nursery rhyme audio",
       "Choose a bright, child-friendly animation style",
@@ -631,7 +631,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Build a full nursery rhyme catalogue quickly",
       "No animation or editing skills required",
     ],
-    bestToolParagraph: "WizVid creates nursery rhyme videos that children watch on repeat. Its AI generates colourful, character-driven animated scenes that bring classic and original nursery rhymes to life — giving your channel the quality it needs to compete with the biggest kids' channels.",
+    bestToolParagraph: "WIZ AI creates nursery rhyme videos that children watch on repeat. Its AI generates colourful, character-driven animated scenes that bring classic and original nursery rhymes to life — giving your channel the quality it needs to compete with the biggest kids' channels.",
     useCases: [
       { title: "Nursery Rhyme Channels", description: "Build a complete nursery rhyme video library at scale without hiring animators." },
       { title: "Educational Publishers", description: "Create animated nursery rhyme content for educational platforms and apps." },
@@ -643,10 +643,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-cartoon-video-generator",
     keyword: "AI cartoon video generator",
-    metaTitle: "AI Cartoon Video Generator | WizVid",
-    metaDescription: "Create AI cartoon videos in minutes. WizVid generates animated cartoon videos from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Cartoon Video Generator | WIZ AI",
+    metaDescription: "Create AI cartoon videos in minutes. WIZ AI generates animated cartoon videos from audio or ideas — no editing or animation skills needed.",
     h1: "AI Cartoon Video Generator (No Editing Needed)",
-    intro: "Cartoon videos are one of the most engaging content formats on YouTube — and WizVid makes them accessible to every creator. As an AI cartoon video generator, WizVid creates fully animated cartoon videos from your audio or ideas in minutes. No animation software, no drawing skills, no production team required.",
+    intro: "Cartoon videos are one of the most engaging content formats on YouTube — and WIZ AI makes them accessible to every creator. As an AI cartoon video generator, WIZ AI creates fully animated cartoon videos from your audio or ideas in minutes. No animation software, no drawing skills, no production team required.",
     howToSteps: [
       "Upload your audio or cartoon video concept",
       "Choose your cartoon animation style",
@@ -658,7 +658,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No animation skills or software required",
       "Create cartoon content at scale for any platform",
     ],
-    bestToolParagraph: "WizVid creates cartoon videos that look professionally produced — in minutes. Its AI generates unique animated scenes, characters, and visual storytelling that brings your ideas to life in cartoon form.",
+    bestToolParagraph: "WIZ AI creates cartoon videos that look professionally produced — in minutes. Its AI generates unique animated scenes, characters, and visual storytelling that brings your ideas to life in cartoon form.",
     useCases: [
       { title: "Kids' Content Creators", description: "Create engaging cartoon content for children without animation skills or expensive software." },
       { title: "Storytellers", description: "Bring your stories and characters to life in animated cartoon form." },
@@ -670,10 +670,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-kids-animation-maker",
     keyword: "AI kids animation maker",
-    metaTitle: "AI Kids Animation Maker | WizVid",
-    metaDescription: "Create AI kids animations in minutes. WizVid generates colourful animated kids' videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Kids Animation Maker | WIZ AI",
+    metaDescription: "Create AI kids animations in minutes. WIZ AI generates colourful animated kids' videos from audio or ideas — no editing needed.",
     h1: "AI Kids Animation Maker (No Editing Needed)",
-    intro: "Creating kids' animation used to require expensive software, professional animators, and weeks of production time. WizVid changes everything. As an AI kids animation maker, WizVid creates colourful, engaging animated videos for children from your audio or ideas in minutes. It's the most accessible kids' animation tool ever built.",
+    intro: "Creating kids' animation used to require expensive software, professional animators, and weeks of production time. WIZ AI changes everything. As an AI kids animation maker, WIZ AI creates colourful, engaging animated videos for children from your audio or ideas in minutes. It's the most accessible kids' animation tool ever built.",
     howToSteps: [
       "Upload your kids' audio, song, or story concept",
       "Choose a bright, child-friendly animation style",
@@ -685,7 +685,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fast production for consistent content output",
       "Affordable alternative to traditional animation",
     ],
-    bestToolParagraph: "WizVid is the kids' animation maker that every children's content creator has been waiting for. It creates complete, high-quality animated videos from scratch — giving your kids' channel the production value it needs to grow.",
+    bestToolParagraph: "WIZ AI is the kids' animation maker that every children's content creator has been waiting for. It creates complete, high-quality animated videos from scratch — giving your kids' channel the production value it needs to grow.",
     useCases: [
       { title: "Kids' Channel Creators", description: "Build a kids' animation channel without hiring animators or learning complex software." },
       { title: "Children's Book Authors", description: "Bring your characters and stories to life in animated video form." },
@@ -697,10 +697,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-storytelling-video-generator",
     keyword: "AI storytelling video generator",
-    metaTitle: "AI Storytelling Video Generator | WizVid",
-    metaDescription: "Create AI storytelling videos in minutes. WizVid generates animated story videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Storytelling Video Generator | WIZ AI",
+    metaDescription: "Create AI storytelling videos in minutes. WIZ AI generates animated story videos from audio or ideas — no editing needed.",
     h1: "AI Storytelling Video Generator (No Editing Needed)",
-    intro: "Great stories deserve great visuals — and WizVid makes it possible for every storyteller to create them. As an AI storytelling video generator, WizVid transforms your stories, scripts, and audio into fully animated video narratives in minutes. Whether you're creating children's stories, educational content, or narrative-driven videos, WizVid brings your stories to life.",
+    intro: "Great stories deserve great visuals — and WIZ AI makes it possible for every storyteller to create them. As an AI storytelling video generator, WIZ AI transforms your stories, scripts, and audio into fully animated video narratives in minutes. Whether you're creating children's stories, educational content, or narrative-driven videos, WIZ AI brings your stories to life.",
     howToSteps: [
       "Upload your story audio or describe your narrative concept",
       "Choose a visual style that matches your story's tone",
@@ -712,7 +712,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Create compelling narrative videos for any audience",
       "Perfect for YouTube, educational platforms, and social media",
     ],
-    bestToolParagraph: "WizVid understands narrative structure and creates animated videos that tell stories effectively. Its AI generates scenes that build tension, introduce characters, and resolve narratives — making your storytelling videos genuinely engaging.",
+    bestToolParagraph: "WIZ AI understands narrative structure and creates animated videos that tell stories effectively. Its AI generates scenes that build tension, introduce characters, and resolve narratives — making your storytelling videos genuinely engaging.",
     useCases: [
       { title: "Children's Storytellers", description: "Create animated story videos for children that bring beloved characters and tales to life." },
       { title: "Educational Creators", description: "Tell educational stories through animation to make complex topics accessible and memorable." },
@@ -724,10 +724,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-kids-content-creator",
     keyword: "AI kids content creator",
-    metaTitle: "AI Kids Content Creator | WizVid",
-    metaDescription: "Create kids' content with AI in minutes. WizVid generates animated children's videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Kids Content Creator | WIZ AI",
+    metaDescription: "Create kids' content with AI in minutes. WIZ AI generates animated children's videos from audio or ideas — no editing needed.",
     h1: "AI Kids Content Creator (No Editing Needed)",
-    intro: "Building a kids' content channel is one of the most rewarding strategies in YouTube — but creating consistent, high-quality content for children is challenging. WizVid is the AI kids content creator that makes it easy. Generate engaging, animated kids' videos from your audio or ideas in minutes, and build the kids' channel you've always imagined.",
+    intro: "Building a kids' content channel is one of the most rewarding strategies in YouTube — but creating consistent, high-quality content for children is challenging. WIZ AI is the AI kids content creator that makes it easy. Generate engaging, animated kids' videos from your audio or ideas in minutes, and build the kids' channel you've always imagined.",
     howToSteps: [
       "Upload your kids' audio or content concept",
       "Choose a bright, engaging animation style",
@@ -739,7 +739,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Bright, engaging visuals that children love",
       "Build a kids' channel at scale without a production team",
     ],
-    bestToolParagraph: "WizVid is the AI kids content creator that gives every creator the tools to build a successful children's channel. It creates complete, original animated content from scratch — giving your channel the quality and consistency it needs to grow.",
+    bestToolParagraph: "WIZ AI is the AI kids content creator that gives every creator the tools to build a successful children's channel. It creates complete, original animated content from scratch — giving your channel the quality and consistency it needs to grow.",
     useCases: [
       { title: "Kids' Channel Builders", description: "Launch and grow a kids' YouTube channel with consistent AI-generated content." },
       { title: "Educational Publishers", description: "Create a library of educational kids' content for multiple platforms simultaneously." },
@@ -751,10 +751,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-children",
     keyword: "AI video generator for children",
-    metaTitle: "AI Video Generator for Children | WizVid",
-    metaDescription: "Create AI videos for children in minutes. WizVid generates animated kids' videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Video Generator for Children | WIZ AI",
+    metaDescription: "Create AI videos for children in minutes. WIZ AI generates animated kids' videos from audio or ideas — no editing needed.",
     h1: "AI Video Generator for Children (No Editing Needed)",
-    intro: "Children's video content is one of the most-watched categories online — and WizVid makes creating it effortless. As an AI video generator for children, WizVid creates bright, engaging, animated videos from your audio or ideas in minutes. Whether you're building a kids' YouTube channel or creating educational content, WizVid has you covered.",
+    intro: "Children's video content is one of the most-watched categories online — and WIZ AI makes creating it effortless. As an AI video generator for children, WIZ AI creates bright, engaging, animated videos from your audio or ideas in minutes. Whether you're building a kids' YouTube channel or creating educational content, WIZ AI has you covered.",
     howToSteps: [
       "Upload your children's audio or video concept",
       "Choose a child-friendly animation style",
@@ -766,7 +766,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Consistent output for building a children's channel",
       "Affordable and fast — create multiple videos per day",
     ],
-    bestToolParagraph: "WizVid creates children's videos that parents trust and kids love. Its AI generates safe, appropriate, and visually engaging content that's perfect for YouTube Kids and other children's platforms.",
+    bestToolParagraph: "WIZ AI creates children's videos that parents trust and kids love. Its AI generates safe, appropriate, and visually engaging content that's perfect for YouTube Kids and other children's platforms.",
     useCases: [
       { title: "Children's Channel Creators", description: "Build a successful children's channel with consistent, high-quality AI-generated content." },
       { title: "Educational Institutions", description: "Create animated educational content for children that makes learning enjoyable." },
@@ -778,10 +778,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-for-nursery-rhymes",
     keyword: "AI animation for nursery rhymes",
-    metaTitle: "AI Animation for Nursery Rhymes | WizVid",
-    metaDescription: "Create AI animation for nursery rhymes in minutes. WizVid generates animated nursery rhyme videos from audio — no editing needed.",
+    metaTitle: "AI Animation for Nursery Rhymes | WIZ AI",
+    metaDescription: "Create AI animation for nursery rhymes in minutes. WIZ AI generates animated nursery rhyme videos from audio — no editing needed.",
     h1: "AI Animation for Nursery Rhymes (No Editing Needed)",
-    intro: "Nursery rhyme animation is one of the most-watched content categories for young children — and WizVid makes creating it accessible to everyone. As an AI animation tool for nursery rhymes, WizVid creates colourful, character-driven animated videos from your nursery rhyme audio in minutes. Build your nursery rhyme library faster than ever.",
+    intro: "Nursery rhyme animation is one of the most-watched content categories for young children — and WIZ AI makes creating it accessible to everyone. As an AI animation tool for nursery rhymes, WIZ AI creates colourful, character-driven animated videos from your nursery rhyme audio in minutes. Build your nursery rhyme library faster than ever.",
     howToSteps: [
       "Upload your nursery rhyme audio",
       "Choose a bright, colourful animation style",
@@ -793,7 +793,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No animation skills or software required",
       "Consistent quality across all your nursery rhyme content",
     ],
-    bestToolParagraph: "WizVid creates nursery rhyme animations that children watch on repeat. Its AI generates bright, character-driven scenes that bring classic and original nursery rhymes to life — with the visual quality that parents expect and children love.",
+    bestToolParagraph: "WIZ AI creates nursery rhyme animations that children watch on repeat. Its AI generates bright, character-driven scenes that bring classic and original nursery rhymes to life — with the visual quality that parents expect and children love.",
     useCases: [
       { title: "Nursery Rhyme Channels", description: "Build a complete animated nursery rhyme library for your YouTube channel." },
       { title: "Early Childhood Educators", description: "Create animated nursery rhyme content for classroom and educational use." },
@@ -805,10 +805,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-cartoon-video-maker",
     keyword: "AI cartoon video maker",
-    metaTitle: "AI Cartoon Video Maker | WizVid",
-    metaDescription: "Create AI cartoon videos in minutes. WizVid generates animated cartoon videos from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Cartoon Video Maker | WIZ AI",
+    metaDescription: "Create AI cartoon videos in minutes. WIZ AI generates animated cartoon videos from audio or ideas — no editing or animation skills needed.",
     h1: "AI Cartoon Video Maker (No Editing Needed)",
-    intro: "Cartoon videos capture attention like nothing else — and WizVid makes creating them effortless. As an AI cartoon video maker, WizVid creates fully animated cartoon videos from your audio or ideas in minutes. No drawing skills, no animation software, no production team. Just your idea and WizVid's AI.",
+    intro: "Cartoon videos capture attention like nothing else — and WIZ AI makes creating them effortless. As an AI cartoon video maker, WIZ AI creates fully animated cartoon videos from your audio or ideas in minutes. No drawing skills, no animation software, no production team. Just your idea and WIZ AI's AI.",
     howToSteps: [
       "Upload your audio or cartoon concept",
       "Choose your cartoon style and visual theme",
@@ -820,7 +820,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fast production — create multiple videos per day",
       "Perfect for YouTube, social media, and educational platforms",
     ],
-    bestToolParagraph: "WizVid is the AI cartoon video maker that turns ideas into animated reality. Its AI creates complete cartoon videos with characters, scenes, and visual storytelling — giving your content the production value of a professional animation studio.",
+    bestToolParagraph: "WIZ AI is the AI cartoon video maker that turns ideas into animated reality. Its AI creates complete cartoon videos with characters, scenes, and visual storytelling — giving your content the production value of a professional animation studio.",
     useCases: [
       { title: "Kids' Content Creators", description: "Create engaging cartoon content for children without expensive animation tools." },
       { title: "Educators", description: "Make educational content more engaging with animated cartoon explanations." },
@@ -834,10 +834,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-video-maker",
     keyword: "AI animation video maker",
-    metaTitle: "AI Animation Video Maker | WizVid",
-    metaDescription: "Create AI animation videos in minutes. WizVid generates stunning animated videos from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Animation Video Maker | WIZ AI",
+    metaDescription: "Create AI animation videos in minutes. WIZ AI generates stunning animated videos from audio or ideas — no editing or animation skills needed.",
     h1: "AI Animation Video Maker (Create Animated Videos Instantly)",
-    intro: "Animation used to require expensive software and professional skills. With WizVid, you can create animated videos using AI in minutes — no design or editing experience needed. WizVid is an AI animation video maker that generates complete, professional-quality animated videos from your audio or ideas automatically.",
+    intro: "Animation used to require expensive software and professional skills. With WIZ AI, you can create animated videos using AI in minutes — no design or editing experience needed. WIZ AI is an AI animation video maker that generates complete, professional-quality animated videos from your audio or ideas automatically.",
     howToSteps: [
       "Upload your audio or describe your animation concept",
       "Choose your animation style — Anime, Pixar 3D, Cartoon, Abstract, or Cinematic",
@@ -849,7 +849,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Perfect for beginners and professional creators alike",
       "Ideal for YouTube, social media, and educational content",
     ],
-    bestToolParagraph: "Unlike other tools, WizVid focuses on full video creation rather than editing. This means you can go from idea to finished animation in minutes. It's the AI animation studio that fits in your browser.",
+    bestToolParagraph: "Unlike other tools, WIZ AI focuses on full video creation rather than editing. This means you can go from idea to finished animation in minutes. It's the AI animation studio that fits in your browser.",
     useCases: [
       { title: "YouTube Creators", description: "Create animated YouTube content that drives engagement and channel growth." },
       { title: "Musicians", description: "Generate animated music videos that bring your music to life visually." },
@@ -861,10 +861,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-generator",
     keyword: "AI animation generator",
-    metaTitle: "AI Animation Generator | WizVid",
-    metaDescription: "Generate AI animations in minutes. WizVid creates stunning animated videos from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Animation Generator | WIZ AI",
+    metaDescription: "Generate AI animations in minutes. WIZ AI creates stunning animated videos from audio or ideas — no editing or animation skills needed.",
     h1: "AI Animation Generator (No Editing Needed)",
-    intro: "The AI animation generator that creators have been waiting for is here. WizVid transforms your audio, ideas, and concepts into fully animated videos in minutes — with no animation software, no drawing skills, and no production experience required. It's the fastest, most accessible animation generator ever built.",
+    intro: "The AI animation generator that creators have been waiting for is here. WIZ AI transforms your audio, ideas, and concepts into fully animated videos in minutes — with no animation software, no drawing skills, and no production experience required. It's the fastest, most accessible animation generator ever built.",
     howToSteps: [
       "Upload your audio or describe your animation idea",
       "Choose your animation style and visual theme",
@@ -876,7 +876,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Fast, automated, and affordable",
       "Create animations for any platform or purpose",
     ],
-    bestToolParagraph: "WizVid is the AI animation generator that makes professional animation accessible to everyone. Its AI creates complete, original animations from scratch — not templates — giving every creator the ability to produce stunning animated content.",
+    bestToolParagraph: "WIZ AI is the AI animation generator that makes professional animation accessible to everyone. Its AI creates complete, original animations from scratch — not templates — giving every creator the ability to produce stunning animated content.",
     useCases: [
       { title: "Content Creators", description: "Generate animated content for YouTube, TikTok, and Instagram without animation skills." },
       { title: "Musicians", description: "Create animated music videos that stand out and drive engagement." },
@@ -888,10 +888,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animated-video-creator",
     keyword: "AI animated video creator",
-    metaTitle: "AI Animated Video Creator | WizVid",
-    metaDescription: "Create AI animated videos in minutes. WizVid generates stunning animations from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Animated Video Creator | WIZ AI",
+    metaDescription: "Create AI animated videos in minutes. WIZ AI generates stunning animations from audio or ideas — no editing or animation skills needed.",
     h1: "AI Animated Video Creator (No Editing Needed)",
-    intro: "WizVid is the AI animated video creator that turns your ideas into stunning animated reality. Whether you're a musician, YouTuber, educator, or brand creator, WizVid generates complete animated videos from your audio or ideas in minutes. No animation software. No editing skills. Just your creativity and WizVid's AI.",
+    intro: "WIZ AI is the AI animated video creator that turns your ideas into stunning animated reality. Whether you're a musician, YouTuber, educator, or brand creator, WIZ AI generates complete animated videos from your audio or ideas in minutes. No animation software. No editing skills. Just your creativity and WIZ AI's AI.",
     howToSteps: [
       "Upload your audio or animated video concept",
       "Choose your animation style",
@@ -903,7 +903,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Multiple animation styles for any purpose",
       "Fast, affordable, and accessible to every creator",
     ],
-    bestToolParagraph: "WizVid creates animated videos that look like they took a professional studio weeks to produce — in minutes. Its AI generates unique, original animated content for every project, ensuring your videos stand out from the crowd.",
+    bestToolParagraph: "WIZ AI creates animated videos that look like they took a professional studio weeks to produce — in minutes. Its AI generates unique, original animated content for every project, ensuring your videos stand out from the crowd.",
     useCases: [
       { title: "Musicians", description: "Create animated music videos that bring your music to life and grow your audience." },
       { title: "YouTubers", description: "Build an animated YouTube channel without animation skills or expensive software." },
@@ -915,10 +915,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-cartoon-animation-generator",
     keyword: "AI cartoon animation generator",
-    metaTitle: "AI Cartoon Animation Generator | WizVid",
-    metaDescription: "Generate AI cartoon animations in minutes. WizVid creates animated cartoon videos from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Cartoon Animation Generator | WIZ AI",
+    metaDescription: "Generate AI cartoon animations in minutes. WIZ AI creates animated cartoon videos from audio or ideas — no editing or animation skills needed.",
     h1: "AI Cartoon Animation Generator (No Editing Needed)",
-    intro: "Cartoon animation has never been more accessible. WizVid is an AI cartoon animation generator that creates fully animated cartoon videos from your audio or ideas in minutes. No drawing skills, no animation software, no production team — just your idea and WizVid's powerful AI.",
+    intro: "Cartoon animation has never been more accessible. WIZ AI is an AI cartoon animation generator that creates fully animated cartoon videos from your audio or ideas in minutes. No drawing skills, no animation software, no production team — just your idea and WIZ AI's powerful AI.",
     howToSteps: [
       "Upload your audio or cartoon animation concept",
       "Choose your cartoon style and character aesthetic",
@@ -930,7 +930,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Create cartoon animations for any audience or platform",
       "Fast production for consistent content output",
     ],
-    bestToolParagraph: "WizVid's AI cartoon animation generator creates complete, character-driven cartoon videos that capture attention and drive engagement. It's the fastest way to bring cartoon ideas to life without traditional animation tools.",
+    bestToolParagraph: "WIZ AI's AI cartoon animation generator creates complete, character-driven cartoon videos that capture attention and drive engagement. It's the fastest way to bring cartoon ideas to life without traditional animation tools.",
     useCases: [
       { title: "Kids' Content Creators", description: "Create engaging cartoon animations for children without expensive animation software." },
       { title: "Storytellers", description: "Bring your characters and stories to life in animated cartoon form." },
@@ -942,10 +942,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-character-animation-generator",
     keyword: "AI character animation generator",
-    metaTitle: "AI Character Animation Generator | WizVid",
-    metaDescription: "Generate AI character animations in minutes. WizVid creates animated character videos from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "AI Character Animation Generator | WIZ AI",
+    metaDescription: "Generate AI character animations in minutes. WIZ AI creates animated character videos from audio or ideas — no editing or animation skills needed.",
     h1: "AI Character Animation Generator (No Editing Needed)",
-    intro: "Character animation is the heart of the most engaging video content — and WizVid makes it accessible to every creator. As an AI character animation generator, WizVid creates animated characters from your reference images or descriptions and brings them to life in complete animated videos. Up to 4 unique characters per video, with consistent visual identity across every scene.",
+    intro: "Character animation is the heart of the most engaging video content — and WIZ AI makes it accessible to every creator. As an AI character animation generator, WIZ AI creates animated characters from your reference images or descriptions and brings them to life in complete animated videos. Up to 4 unique characters per video, with consistent visual identity across every scene.",
     howToSteps: [
       "Upload reference images for your characters (up to 4 per video)",
       "Describe your characters' roles and animation style",
@@ -957,7 +957,7 @@ export const SEO_PAGES: SeoPage[] = [
       "AI maintains character consistency across all scenes",
       "Perfect for storytelling, music videos, and educational content",
     ],
-    bestToolParagraph: "WizVid's character animation system uses your reference images to create consistent, recognisable animated characters across every scene. Whether you're creating a music video with a lead singer, a kids' story with animal characters, or an educational video with a host, WizVid brings your characters to life.",
+    bestToolParagraph: "WIZ AI's character animation system uses your reference images to create consistent, recognisable animated characters across every scene. Whether you're creating a music video with a lead singer, a kids' story with animal characters, or an educational video with a host, WIZ AI brings your characters to life.",
     useCases: [
       { title: "Musicians with Characters", description: "Create music videos featuring consistent animated versions of yourself or original characters." },
       { title: "Kids' Content Creators", description: "Build beloved animated characters for your kids' channel that children recognise and love." },
@@ -969,10 +969,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-storytelling-animation-tool",
     keyword: "AI storytelling animation tool",
-    metaTitle: "AI Storytelling Animation Tool | WizVid",
-    metaDescription: "Create AI storytelling animations in minutes. WizVid generates animated story videos from audio or ideas — no editing needed.",
+    metaTitle: "AI Storytelling Animation Tool | WIZ AI",
+    metaDescription: "Create AI storytelling animations in minutes. WIZ AI generates animated story videos from audio or ideas — no editing needed.",
     h1: "AI Storytelling Animation Tool (No Editing Needed)",
-    intro: "The best stories deserve the best visuals — and WizVid is the AI storytelling animation tool that makes it possible. Transform your stories, scripts, and audio into fully animated narrative videos in minutes. Whether you're creating children's stories, brand narratives, or educational content, WizVid brings your stories to life with AI-powered animation.",
+    intro: "The best stories deserve the best visuals — and WIZ AI is the AI storytelling animation tool that makes it possible. Transform your stories, scripts, and audio into fully animated narrative videos in minutes. Whether you're creating children's stories, brand narratives, or educational content, WIZ AI brings your stories to life with AI-powered animation.",
     howToSteps: [
       "Upload your story audio or describe your narrative",
       "Choose an animation style that matches your story's tone",
@@ -984,7 +984,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Create narrative-driven videos for any audience",
       "Perfect for YouTube, educational platforms, and social media",
     ],
-    bestToolParagraph: "WizVid understands narrative structure and creates animations that tell stories effectively. Its AI generates scenes that build, develop, and resolve your narrative — creating animated storytelling videos that genuinely engage audiences.",
+    bestToolParagraph: "WIZ AI understands narrative structure and creates animations that tell stories effectively. Its AI generates scenes that build, develop, and resolve your narrative — creating animated storytelling videos that genuinely engage audiences.",
     useCases: [
       { title: "Children's Storytellers", description: "Create animated story videos for children that bring beloved characters and tales to life." },
       { title: "Brand Storytellers", description: "Tell your brand's story through animation that connects emotionally with your audience." },
@@ -996,10 +996,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-for-beginners",
     keyword: "AI animation for beginners",
-    metaTitle: "AI Animation for Beginners | WizVid",
-    metaDescription: "Create AI animations as a beginner in minutes. WizVid generates animated videos from audio or ideas — no skills or experience needed.",
+    metaTitle: "AI Animation for Beginners | WIZ AI",
+    metaDescription: "Create AI animations as a beginner in minutes. WIZ AI generates animated videos from audio or ideas — no skills or experience needed.",
     h1: "AI Animation for Beginners (No Skills Needed)",
-    intro: "You don't need animation skills to create stunning animated videos anymore. WizVid is the AI animation tool built for beginners — making it possible for anyone to create professional-quality animated videos from their audio or ideas in minutes. No software to learn, no skills to develop, no experience required. Just your creativity.",
+    intro: "You don't need animation skills to create stunning animated videos anymore. WIZ AI is the AI animation tool built for beginners — making it possible for anyone to create professional-quality animated videos from their audio or ideas in minutes. No software to learn, no skills to develop, no experience required. Just your creativity.",
     howToSteps: [
       "Upload your audio or describe your animation idea",
       "Choose from beginner-friendly animation styles",
@@ -1009,9 +1009,9 @@ export const SEO_PAGES: SeoPage[] = [
       "No animation skills or experience required",
       "Intuitive, beginner-friendly interface",
       "Professional results from your very first video",
-      "Learn as you create — WizVid guides you through every step",
+      "Learn as you create — WIZ AI guides you through every step",
     ],
-    bestToolParagraph: "WizVid is the animation tool that removes every barrier for beginners. It creates complete, professional-quality animated videos from scratch — so your first animation looks as good as your hundredth. It's the fastest way to start your animation journey.",
+    bestToolParagraph: "WIZ AI is the animation tool that removes every barrier for beginners. It creates complete, professional-quality animated videos from scratch — so your first animation looks as good as your hundredth. It's the fastest way to start your animation journey.",
     useCases: [
       { title: "First-Time Creators", description: "Create your first animated video with professional quality, even with zero experience." },
       { title: "Students", description: "Create animated projects and presentations without animation software or skills." },
@@ -1023,12 +1023,12 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-software-online",
     keyword: "AI animation software online",
-    metaTitle: "AI Animation Software Online | WizVid",
-    metaDescription: "WizVid is AI animation software online. Create animated videos from audio or ideas in minutes — no download or installation needed.",
+    metaTitle: "AI Animation Software Online | WIZ AI",
+    metaDescription: "WIZ AI is AI animation software online. Create animated videos from audio or ideas in minutes — no download or installation needed.",
     h1: "AI Animation Software Online (No Download Needed)",
-    intro: "Traditional animation software is expensive, complex, and requires a powerful computer. WizVid is different — it's AI animation software that runs entirely online, in your browser, with no download or installation required. Create professional-quality animated videos from your audio or ideas in minutes, from any device, anywhere in the world.",
+    intro: "Traditional animation software is expensive, complex, and requires a powerful computer. WIZ AI is different — it's AI animation software that runs entirely online, in your browser, with no download or installation required. Create professional-quality animated videos from your audio or ideas in minutes, from any device, anywhere in the world.",
     howToSteps: [
-      "Open WizVid in your browser — no download needed",
+      "Open WIZ AI in your browser — no download needed",
       "Upload your audio or animation concept",
       "Generate your complete animation online automatically",
     ],
@@ -1038,7 +1038,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Professional animation quality without expensive software",
       "Access your projects from anywhere, on any device",
     ],
-    bestToolParagraph: "WizVid is the online AI animation software that replaces expensive desktop tools. It creates complete, professional-quality animated videos in your browser — making animation accessible to every creator, regardless of their device or technical skills.",
+    bestToolParagraph: "WIZ AI is the online AI animation software that replaces expensive desktop tools. It creates complete, professional-quality animated videos in your browser — making animation accessible to every creator, regardless of their device or technical skills.",
     useCases: [
       { title: "Remote Creators", description: "Create animated content from anywhere in the world using just a browser and internet connection." },
       { title: "Students", description: "Access professional animation tools online without expensive software licences." },
@@ -1050,10 +1050,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "create-animated-videos-with-ai",
     keyword: "create animated videos with AI",
-    metaTitle: "Create Animated Videos with AI | WizVid",
-    metaDescription: "Create animated videos with AI in minutes. WizVid generates stunning animations from audio or ideas — no editing or animation skills needed.",
+    metaTitle: "Create Animated Videos with AI | WIZ AI",
+    metaDescription: "Create animated videos with AI in minutes. WIZ AI generates stunning animations from audio or ideas — no editing or animation skills needed.",
     h1: "Create Animated Videos with AI (No Editing Needed)",
-    intro: "Creating animated videos with AI has never been easier — and WizVid is leading the way. WizVid lets you create complete, professional-quality animated videos from your audio or ideas in minutes. No animation software, no editing skills, no production experience. Just your creativity and WizVid's powerful AI.",
+    intro: "Creating animated videos with AI has never been easier — and WIZ AI is leading the way. WIZ AI lets you create complete, professional-quality animated videos from your audio or ideas in minutes. No animation software, no editing skills, no production experience. Just your creativity and WIZ AI's powerful AI.",
     howToSteps: [
       "Upload your audio or animated video concept",
       "Choose your animation style",
@@ -1065,7 +1065,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Professional quality from your very first video",
       "Scale your animated content production effortlessly",
     ],
-    bestToolParagraph: "WizVid makes creating animated videos with AI as simple as uploading a file and clicking generate. Its AI creates complete, original animated videos from scratch — not templates — ensuring every video is unique and visually stunning.",
+    bestToolParagraph: "WIZ AI makes creating animated videos with AI as simple as uploading a file and clicking generate. Its AI creates complete, original animated videos from scratch — not templates — ensuring every video is unique and visually stunning.",
     useCases: [
       { title: "Content Creators", description: "Create animated content for any platform without animation skills or expensive software." },
       { title: "Musicians", description: "Create animated music videos that bring your music to life and grow your audience." },
@@ -1077,10 +1077,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-animation-video-tool",
     keyword: "AI animation video tool",
-    metaTitle: "AI Animation Video Tool | WizVid",
-    metaDescription: "WizVid is the AI animation video tool for creators. Generate animated videos from audio or ideas in minutes — no editing needed.",
+    metaTitle: "AI Animation Video Tool | WIZ AI",
+    metaDescription: "WIZ AI is the AI animation video tool for creators. Generate animated videos from audio or ideas in minutes — no editing needed.",
     h1: "AI Animation Video Tool (No Editing Needed)",
-    intro: "WizVid is the AI animation video tool that every creator needs. It creates complete, professional-quality animated videos from your audio or ideas in minutes — without any animation software, editing skills, or production experience. It's the most powerful animation tool ever built for creators.",
+    intro: "WIZ AI is the AI animation video tool that every creator needs. It creates complete, professional-quality animated videos from your audio or ideas in minutes — without any animation software, editing skills, or production experience. It's the most powerful animation tool ever built for creators.",
     howToSteps: [
       "Upload your audio or animation concept",
       "Choose your animation style and visual theme",
@@ -1092,10 +1092,10 @@ export const SEO_PAGES: SeoPage[] = [
       "Multiple animation styles for any purpose",
       "Fast, affordable, and accessible to every creator",
     ],
-    bestToolParagraph: "WizVid is the AI animation video tool that replaces an entire production studio. It creates complete, original animated videos from scratch — giving every creator the ability to produce stunning animated content without traditional tools or skills.",
+    bestToolParagraph: "WIZ AI is the AI animation video tool that replaces an entire production studio. It creates complete, original animated videos from scratch — giving every creator the ability to produce stunning animated content without traditional tools or skills.",
     useCases: [
       { title: "Professional Creators", description: "Elevate your content production with AI-powered animation that looks professionally made." },
-      { title: "Agencies", description: "Deliver animated video content for multiple clients at scale with WizVid's fast production pipeline." },
+      { title: "Agencies", description: "Deliver animated video content for multiple clients at scale with WIZ AI's fast production pipeline." },
       { title: "Indie Creators", description: "Compete with big-budget creators using AI-generated animation that looks expensive." },
     ],
     relatedSlugs: ["ai-animation-video-maker", "ai-animation-generator", "ai-animated-video-creator"],
@@ -1106,10 +1106,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "turn-audio-into-video-ai",
     keyword: "turn audio into video AI",
-    metaTitle: "Turn Audio into Video with AI | WizVid",
-    metaDescription: "Turn audio into video with AI in minutes. WizVid creates full animated videos from your audio automatically — no editing needed.",
+    metaTitle: "Turn Audio into Video with AI | WIZ AI",
+    metaDescription: "Turn audio into video with AI in minutes. WIZ AI creates full animated videos from your audio automatically — no editing needed.",
     h1: "Turn Audio into Video with AI Instantly",
-    intro: "Have audio but no visuals? WizVid lets you turn audio into a complete video automatically. Whether it's a song, podcast, or idea, you can generate a full video in minutes. WizVid's AI analyses your audio, generates a storyboard, and creates a complete animated video that brings your sound to life.",
+    intro: "Have audio but no visuals? WIZ AI lets you turn audio into a complete video automatically. Whether it's a song, podcast, or idea, you can generate a full video in minutes. WIZ AI's AI analyses your audio, generates a storyboard, and creates a complete animated video that brings your sound to life.",
     howToSteps: [
       "Upload your audio file",
       "Select a visual style",
@@ -1121,7 +1121,7 @@ export const SEO_PAGES: SeoPage[] = [
       "Reach more platforms with video format",
       "Enhance content quality with AI-generated visuals",
     ],
-    bestToolParagraph: "WizVid is designed to convert audio into fully animated videos without editing. It's fast, simple, and built for creators. Whether you have a song, a podcast clip, or a voiceover, WizVid creates the visuals automatically.",
+    bestToolParagraph: "WIZ AI is designed to convert audio into fully animated videos without editing. It's fast, simple, and built for creators. Whether you have a song, a podcast clip, or a voiceover, WIZ AI creates the visuals automatically.",
     useCases: [
       { title: "Musicians", description: "Turn every audio track into a visual music video that drives engagement and streams." },
       { title: "Podcasters", description: "Convert your podcast audio into video content for YouTube and social media." },
@@ -1133,10 +1133,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-audio-to-video-generator",
     keyword: "AI audio to video generator",
-    metaTitle: "AI Audio to Video Generator | WizVid",
-    metaDescription: "Convert audio to video with AI in minutes. WizVid generates full animated videos from your audio automatically — no editing needed.",
+    metaTitle: "AI Audio to Video Generator | WIZ AI",
+    metaDescription: "Convert audio to video with AI in minutes. WIZ AI generates full animated videos from your audio automatically — no editing needed.",
     h1: "AI Audio to Video Generator (No Editing Needed)",
-    intro: "Audio is powerful — but video is what gets shared. WizVid is an AI audio to video generator that transforms any audio file into a complete, animated video in minutes. Music, podcasts, voiceovers, sound effects — whatever your audio, WizVid creates stunning visuals that bring it to life.",
+    intro: "Audio is powerful — but video is what gets shared. WIZ AI is an AI audio to video generator that transforms any audio file into a complete, animated video in minutes. Music, podcasts, voiceovers, sound effects — whatever your audio, WIZ AI creates stunning visuals that bring it to life.",
     howToSteps: [
       "Upload your audio file in any format",
       "Choose a visual style that matches your audio's mood",
@@ -1148,7 +1148,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No editing skills or video production experience required",
       "Reach more platforms and audiences with video format",
     ],
-    bestToolParagraph: "WizVid's AI audio to video generator analyses your audio's structure, tempo, and mood to create visuals that feel purpose-made for your content. It's the fastest way to give your audio a visual dimension that drives engagement.",
+    bestToolParagraph: "WIZ AI's AI audio to video generator analyses your audio's structure, tempo, and mood to create visuals that feel purpose-made for your content. It's the fastest way to give your audio a visual dimension that drives engagement.",
     useCases: [
       { title: "Musicians", description: "Convert every audio track into a visual music video automatically." },
       { title: "Podcasters", description: "Create video versions of your podcast episodes for YouTube and social media." },
@@ -1160,10 +1160,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-from-audio",
     keyword: "AI video generator from audio",
-    metaTitle: "AI Video Generator from Audio | WizVid",
-    metaDescription: "Generate AI videos from audio in minutes. WizVid creates full animated videos from your audio automatically — no editing needed.",
+    metaTitle: "AI Video Generator from Audio | WIZ AI",
+    metaDescription: "Generate AI videos from audio in minutes. WIZ AI creates full animated videos from your audio automatically — no editing needed.",
     h1: "AI Video Generator from Audio (No Editing Needed)",
-    intro: "Your audio deserves visuals — and WizVid creates them automatically. As an AI video generator from audio, WizVid transforms any audio file into a complete, animated video in minutes. Upload your audio, choose your style, and watch WizVid's AI generate stunning visuals that match your sound perfectly.",
+    intro: "Your audio deserves visuals — and WIZ AI creates them automatically. As an AI video generator from audio, WIZ AI transforms any audio file into a complete, animated video in minutes. Upload your audio, choose your style, and watch WIZ AI's AI generate stunning visuals that match your sound perfectly.",
     howToSteps: [
       "Upload your audio file",
       "Choose a visual style that complements your audio",
@@ -1175,7 +1175,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No video production skills or software required",
       "Transform audio content into shareable video instantly",
     ],
-    bestToolParagraph: "WizVid is the AI video generator from audio that musicians, podcasters, and content creators rely on. It creates complete, original videos from your audio — not just waveform visualisers or static images — giving your audio content the visual quality it deserves.",
+    bestToolParagraph: "WIZ AI is the AI video generator from audio that musicians, podcasters, and content creators rely on. It creates complete, original videos from your audio — not just waveform visualisers or static images — giving your audio content the visual quality it deserves.",
     useCases: [
       { title: "Musicians", description: "Generate music videos from your audio tracks automatically and release them instantly." },
       { title: "Podcasters", description: "Create engaging video versions of your podcast for YouTube and social media platforms." },
@@ -1187,10 +1187,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "convert-song-into-video-ai",
     keyword: "convert song into video AI",
-    metaTitle: "Convert Song into Video with AI | WizVid",
-    metaDescription: "Convert any song into a video with AI in minutes. WizVid creates full animated music videos from your audio — no editing needed.",
+    metaTitle: "Convert Song into Video with AI | WIZ AI",
+    metaDescription: "Convert any song into a video with AI in minutes. WIZ AI creates full animated music videos from your audio — no editing needed.",
     h1: "Convert Song into Video with AI (No Editing Needed)",
-    intro: "Every song has a story — and WizVid tells it visually. WizVid lets you convert any song into a complete animated music video in minutes. Upload your song, choose your visual style, and let WizVid's AI create a stunning music video that brings your music to life. No director, no studio, no budget required.",
+    intro: "Every song has a story — and WIZ AI tells it visually. WIZ AI lets you convert any song into a complete animated music video in minutes. Upload your song, choose your visual style, and let WIZ AI's AI create a stunning music video that brings your music to life. No director, no studio, no budget required.",
     howToSteps: [
       "Upload your song in any audio format",
       "Choose a visual style that matches your music's mood",
@@ -1202,7 +1202,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No music video production experience required",
       "Release a music video for every song you create",
     ],
-    bestToolParagraph: "WizVid converts songs into music videos that feel crafted, not generated. Its AI analyses your song's structure and creates unique visual scenes for each section — ensuring your music video is as individual as your music.",
+    bestToolParagraph: "WIZ AI converts songs into music videos that feel crafted, not generated. Its AI analyses your song's structure and creates unique visual scenes for each section — ensuring your music video is as individual as your music.",
     useCases: [
       { title: "Independent Artists", description: "Convert every song into a professional music video without a production budget." },
       { title: "Bands", description: "Create music videos for your entire catalogue and give every track the visual it deserves." },
@@ -1214,10 +1214,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-from-sound",
     keyword: "AI video generator from sound",
-    metaTitle: "AI Video Generator from Sound | WizVid",
-    metaDescription: "Generate AI videos from sound in minutes. WizVid creates full animated videos from any audio — no editing needed.",
+    metaTitle: "AI Video Generator from Sound | WIZ AI",
+    metaDescription: "Generate AI videos from sound in minutes. WIZ AI creates full animated videos from any audio — no editing needed.",
     h1: "AI Video Generator from Sound (No Editing Needed)",
-    intro: "Sound is the starting point — WizVid creates the visuals. As an AI video generator from sound, WizVid transforms any audio or sound into a complete animated video in minutes. Whether it's music, spoken word, ambient sound, or any other audio, WizVid's AI generates stunning visuals that complement and enhance your sound.",
+    intro: "Sound is the starting point — WIZ AI creates the visuals. As an AI video generator from sound, WIZ AI transforms any audio or sound into a complete animated video in minutes. Whether it's music, spoken word, ambient sound, or any other audio, WIZ AI's AI generates stunning visuals that complement and enhance your sound.",
     howToSteps: [
       "Upload your sound or audio file",
       "Choose a visual style that matches your sound's character",
@@ -1229,7 +1229,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No video production skills required",
       "Transform any audio content into shareable video",
     ],
-    bestToolParagraph: "WizVid's AI video generator from sound creates visuals that feel intrinsically connected to your audio. It's not just a visualiser — it creates complete, narrative-driven animated videos that give your sound a visual story.",
+    bestToolParagraph: "WIZ AI's AI video generator from sound creates visuals that feel intrinsically connected to your audio. It's not just a visualiser — it creates complete, narrative-driven animated videos that give your sound a visual story.",
     useCases: [
       { title: "Sound Artists", description: "Create visual representations of your sound art for galleries, platforms, and social media." },
       { title: "Musicians", description: "Generate music videos from your audio tracks automatically." },
@@ -1241,10 +1241,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-from-music-generator",
     keyword: "AI video from music generator",
-    metaTitle: "AI Video from Music Generator | WizVid",
-    metaDescription: "Generate AI videos from music in minutes. WizVid creates full animated music videos from your audio — no editing needed.",
+    metaTitle: "AI Video from Music Generator | WIZ AI",
+    metaDescription: "Generate AI videos from music in minutes. WIZ AI creates full animated music videos from your audio — no editing needed.",
     h1: "AI Video from Music Generator (No Editing Needed)",
-    intro: "Music is the inspiration — WizVid creates the video. As an AI video from music generator, WizVid transforms your music into a complete animated music video in minutes. Upload your track, choose your visual style, and let WizVid's AI generate a stunning video that captures the essence of your music.",
+    intro: "Music is the inspiration — WIZ AI creates the video. As an AI video from music generator, WIZ AI transforms your music into a complete animated music video in minutes. Upload your track, choose your visual style, and let WIZ AI's AI generate a stunning video that captures the essence of your music.",
     howToSteps: [
       "Upload your music track",
       "Choose a visual style that matches your music's mood",
@@ -1256,7 +1256,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No music video production experience required",
       "Create a video for every piece of music you produce",
     ],
-    bestToolParagraph: "WizVid's AI video from music generator creates videos that feel like they were made for your specific track. Its AI analyses your music's tempo, mood, and structure to generate unique visual scenes that enhance and complement your sound.",
+    bestToolParagraph: "WIZ AI's AI video from music generator creates videos that feel like they were made for your specific track. Its AI analyses your music's tempo, mood, and structure to generate unique visual scenes that enhance and complement your sound.",
     useCases: [
       { title: "Musicians", description: "Generate a professional music video for every track you release, automatically." },
       { title: "Music Producers", description: "Create promotional videos for your beats and productions to attract artists and fans." },
@@ -1268,10 +1268,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-video-generator-for-podcasts",
     keyword: "AI video generator for podcasts",
-    metaTitle: "AI Video Generator for Podcasts | WizVid",
-    metaDescription: "Create AI videos for podcasts in minutes. WizVid generates animated podcast videos from your audio — no editing needed.",
+    metaTitle: "AI Video Generator for Podcasts | WIZ AI",
+    metaDescription: "Create AI videos for podcasts in minutes. WIZ AI generates animated podcast videos from your audio — no editing needed.",
     h1: "AI Video Generator for Podcasts (No Editing Needed)",
-    intro: "Podcasts that have video get significantly more views, subscribers, and engagement — but creating video versions of your episodes is time-consuming. WizVid solves this. As an AI video generator for podcasts, WizVid creates complete, animated video versions of your podcast episodes from your audio in minutes. Reach more listeners, grow your audience, and dominate YouTube with your podcast.",
+    intro: "Podcasts that have video get significantly more views, subscribers, and engagement — but creating video versions of your episodes is time-consuming. WIZ AI solves this. As an AI video generator for podcasts, WIZ AI creates complete, animated video versions of your podcast episodes from your audio in minutes. Reach more listeners, grow your audience, and dominate YouTube with your podcast.",
     howToSteps: [
       "Upload your podcast episode audio",
       "Choose a visual style that matches your podcast's brand",
@@ -1283,7 +1283,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No video editing skills or software required",
       "Create video versions of every episode automatically",
     ],
-    bestToolParagraph: "WizVid creates podcast videos that go beyond static images and waveforms. Its AI generates animated visual content that keeps viewers watching — increasing your podcast's reach, engagement, and subscriber count.",
+    bestToolParagraph: "WIZ AI creates podcast videos that go beyond static images and waveforms. Its AI generates animated visual content that keeps viewers watching — increasing your podcast's reach, engagement, and subscriber count.",
     useCases: [
       { title: "Podcast Creators", description: "Create video versions of every episode and grow your audience on YouTube." },
       { title: "Interview Podcasts", description: "Generate animated visual summaries of your interviews for social media promotion." },
@@ -1295,10 +1295,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-voice-to-video-generator",
     keyword: "AI voice to video generator",
-    metaTitle: "AI Voice to Video Generator | WizVid",
-    metaDescription: "Convert voice to video with AI in minutes. WizVid generates animated videos from your voice or audio — no editing needed.",
+    metaTitle: "AI Voice to Video Generator | WIZ AI",
+    metaDescription: "Convert voice to video with AI in minutes. WIZ AI generates animated videos from your voice or audio — no editing needed.",
     h1: "AI Voice to Video Generator (No Editing Needed)",
-    intro: "Your voice is the content — WizVid creates the visuals. As an AI voice to video generator, WizVid transforms your voice recordings into complete animated videos in minutes. Whether you're narrating a story, recording a voiceover, or creating spoken-word content, WizVid generates stunning visuals that bring your voice to life.",
+    intro: "Your voice is the content — WIZ AI creates the visuals. As an AI voice to video generator, WIZ AI transforms your voice recordings into complete animated videos in minutes. Whether you're narrating a story, recording a voiceover, or creating spoken-word content, WIZ AI generates stunning visuals that bring your voice to life.",
     howToSteps: [
       "Upload your voice recording or narration audio",
       "Choose a visual style that matches your content",
@@ -1310,7 +1310,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No video production skills required",
       "Perfect for storytelling, education, and content creation",
     ],
-    bestToolParagraph: "WizVid's AI voice to video generator creates animated videos that visually represent your spoken content. It's the perfect tool for narrators, educators, storytellers, and content creators who want to give their voice recordings a visual dimension.",
+    bestToolParagraph: "WIZ AI's AI voice to video generator creates animated videos that visually represent your spoken content. It's the perfect tool for narrators, educators, storytellers, and content creators who want to give their voice recordings a visual dimension.",
     useCases: [
       { title: "Narrators", description: "Create animated videos from your narration recordings for YouTube and audiobook platforms." },
       { title: "Educators", description: "Generate animated educational videos from your voice recordings and lectures." },
@@ -1322,10 +1322,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-text-to-video-generator",
     keyword: "AI text to video generator",
-    metaTitle: "AI Text to Video Generator | WizVid",
-    metaDescription: "Generate AI videos from text in minutes. WizVid creates full animated videos from your text or script — no editing needed.",
+    metaTitle: "AI Text to Video Generator | WIZ AI",
+    metaDescription: "Generate AI videos from text in minutes. WIZ AI creates full animated videos from your text or script — no editing needed.",
     h1: "AI Text to Video Generator (No Editing Needed)",
-    intro: "Turn your words into stunning videos with WizVid's AI text to video generator. Write your script, describe your concept, or paste your lyrics — and WizVid's AI creates a complete animated video in minutes. No filming, no editing, no production experience required. Just your words and WizVid's powerful AI.",
+    intro: "Turn your words into stunning videos with WIZ AI's AI text to video generator. Write your script, describe your concept, or paste your lyrics — and WIZ AI's AI creates a complete animated video in minutes. No filming, no editing, no production experience required. Just your words and WIZ AI's powerful AI.",
     howToSteps: [
       "Write your script, concept, or text description",
       "Choose a visual style that matches your content",
@@ -1337,7 +1337,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No filming, editing, or production skills required",
       "The fastest way from written idea to finished video",
     ],
-    bestToolParagraph: "WizVid's AI text to video generator creates complete, animated videos from your written content. Whether you have a script, a concept description, or a set of lyrics, WizVid creates the visuals automatically — making video creation as simple as writing.",
+    bestToolParagraph: "WIZ AI's AI text to video generator creates complete, animated videos from your written content. Whether you have a script, a concept description, or a set of lyrics, WIZ AI creates the visuals automatically — making video creation as simple as writing.",
     useCases: [
       { title: "Writers & Scriptwriters", description: "Bring your scripts and stories to life in animated video form without a production team." },
       { title: "Marketers", description: "Create animated promotional videos from your marketing copy and product descriptions." },
@@ -1349,10 +1349,10 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "ai-script-to-video-generator",
     keyword: "AI script to video generator",
-    metaTitle: "AI Script to Video Generator | WizVid",
-    metaDescription: "Convert scripts to video with AI in minutes. WizVid generates full animated videos from your script — no editing needed.",
+    metaTitle: "AI Script to Video Generator | WIZ AI",
+    metaDescription: "Convert scripts to video with AI in minutes. WIZ AI generates full animated videos from your script — no editing needed.",
     h1: "AI Script to Video Generator (No Editing Needed)",
-    intro: "Your script is the blueprint — WizVid builds the video. As an AI script to video generator, WizVid transforms your written scripts into complete animated videos in minutes. Whether you're creating YouTube content, educational videos, or promotional material, WizVid brings your script to life with AI-generated animation.",
+    intro: "Your script is the blueprint — WIZ AI builds the video. As an AI script to video generator, WIZ AI transforms your written scripts into complete animated videos in minutes. Whether you're creating YouTube content, educational videos, or promotional material, WIZ AI brings your script to life with AI-generated animation.",
     howToSteps: [
       "Upload or paste your script",
       "Choose a visual style that matches your script's tone",
@@ -1364,7 +1364,7 @@ export const SEO_PAGES: SeoPage[] = [
       "No video production or animation skills required",
       "The fastest way from script to finished video",
     ],
-    bestToolParagraph: "WizVid's AI script to video generator reads your script, understands its structure and narrative, and creates animated scenes that bring your words to life. It's the production pipeline that every scriptwriter has been waiting for.",
+    bestToolParagraph: "WIZ AI's AI script to video generator reads your script, understands its structure and narrative, and creates animated scenes that bring your words to life. It's the production pipeline that every scriptwriter has been waiting for.",
     useCases: [
       { title: "YouTube Scriptwriters", description: "Turn your YouTube scripts into complete animated videos without filming or editing." },
       { title: "Marketing Teams", description: "Convert marketing scripts into animated promotional videos for any platform." },

@@ -117,7 +117,7 @@ export async function generateVideo(
         const heygen = initHeyGen();
         taskId = await heygen.createVideo({
           input_text: request.prompt,
-          title: `WizVid Lip-Sync - ${new Date().toISOString()}`,
+          title: `WIZ AI Lip-Sync - ${new Date().toISOString()}`,
         });
         apiProvider = "heygen";
         break;
@@ -194,7 +194,7 @@ export async function generateVideo(
         const heygen = initHeyGen();
         taskId = await heygen.createVideo({
           input_text: request.prompt,
-          title: `WizVid Voiceover - ${new Date().toISOString()}`,
+          title: `WIZ AI Voiceover - ${new Date().toISOString()}`,
         });
         apiProvider = "heygen";
         break;

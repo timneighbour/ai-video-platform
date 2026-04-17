@@ -4,8 +4,8 @@
  * Architecture:
  * - ONE <audio> element whose src is swapped on toggle (guarantees zero overlap)
  * - Web Audio API AnalyserNode reads real FFT data → drives EQ bars from actual signal
- * - Standard track: SubwooferTension-WizVid (flat, dry, unprocessed)
- * - WizSound track: Sub-bassRavel-WizVid (cinematic, boosted bass + presence)
+ * - Standard track: SubwooferTension-WizAI (flat, dry, unprocessed)
+ * - WizSound track: Sub-bassRavel-WizAI (cinematic, boosted bass + presence)
  * - BiquadFilter chain applied in Web Audio graph for WizSound mode:
  *     lowShelf +8dB @ 120Hz, peaking +5dB @ 3kHz, highShelf +3dB @ 8kHz
  *   giving an immediately audible difference on the SAME signal path
@@ -389,7 +389,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       className="fixed inset-0 z-[9999] flex items-center justify-center"
       role="dialog"
       aria-modal="true"
-      aria-label="WizVid product demo"
+      aria-label="WIZ AI product demo"
     >
       {/* Backdrop */}
       <div

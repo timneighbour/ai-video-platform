@@ -84,7 +84,7 @@ const Onboarding: React.FC = () => {
           </h1>
 
           <p className="text-xl text-slate-300 font-light mb-8">
-            No editing skills needed — just describe your video and WizVid does the rest
+            No editing skills needed — just describe your video and WIZ AI does the rest
           </p>
 
           <div className="flex items-center justify-center gap-4 text-sm text-slate-400">
@@ -158,7 +158,7 @@ const Onboarding: React.FC = () => {
         {/* Footer */}
         <div className="text-center text-slate-500 text-xs">
           <p>
-            By continuing, you agree to WizVid's{' '}
+            By continuing, you agree to WIZ AI's{' '}
             <a href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors font-medium">
               Terms of Service
             </a>

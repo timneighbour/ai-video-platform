@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 
 const PRODUCTS = [
   {
-    name: "WizVid",
+    name: "WIZ AI",
     tagline: "Turn ideas into cinematic AI videos.",
     description: "Full music videos, animations, and visual stories — generated from a single prompt.",
     href: "/",
@@ -126,7 +126,7 @@ export default function WizAI() {
             <span className="text-white/90"> AI</span>
           </a>
           <div className="flex items-center gap-8">
-            <Link href="/" className="text-sm text-white/60 hover:text-white transition-colors">WizVid</Link>
+            <Link href="/" className="text-sm text-white/60 hover:text-white transition-colors">WIZ AI</Link>
             <Link href="/products/wizsound" className="text-sm text-white/60 hover:text-white transition-colors">WizSound</Link>
             <Link href="/wizpilot" className="text-sm text-white/60 hover:text-white transition-colors">WizScript</Link>
             <Link href="/pricing" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</Link>
@@ -271,7 +271,7 @@ export default function WizAI() {
             <p className="text-xs text-white/30 mt-1">Creative Intelligence Platform</p>
           </div>
           <div className="flex items-center gap-6 text-sm text-white/40">
-            <Link href="/" className="hover:text-white transition-colors">WizVid</Link>
+            <Link href="/" className="hover:text-white transition-colors">WIZ AI</Link>
             <Link href="/products/wizsound" className="hover:text-white transition-colors">WizSound</Link>
             <Link href="/wizpilot" className="hover:text-white transition-colors">WizScript</Link>
             <Link href="/products/wizgenesis" className="hover:text-white transition-colors">WizGenesis</Link>

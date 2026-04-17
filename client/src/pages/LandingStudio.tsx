@@ -5,7 +5,7 @@
  * Also accessible at /studio for testing.
  *
  * Strategy: Premium "coming soon" page that communicates
- * WizVid Studio as a professional-tier product.
+ * WIZ AI Studio as a professional-tier product.
  * Captures email interest. Same design system as main site.
  */
 
@@ -122,12 +122,12 @@ export default function LandingStudio() {
             <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
           <div>
-            <span className="font-extrabold text-white text-lg tracking-tight">WizVid</span>
+            <span className="font-extrabold text-white text-lg tracking-tight">WIZ AI</span>
             <span className="text-fuchsia-400 font-extrabold text-lg tracking-tight"> Studio</span>
           </div>
         </div>
         <a href={MAIN_APP} className="text-white/40 hover:text-white/70 text-sm transition-colors">
-          ← Back to WizVid.ai
+          ← Back to WIZ AI.ai
         </a>
       </nav>
 
@@ -228,7 +228,7 @@ export default function LandingStudio() {
           <div className="text-center mb-12">
             <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest mb-3">What's coming</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
-              Everything in WizVid,<br />
+              Everything in WIZ AI,<br />
               <span style={{
                 background: "linear-gradient(90deg, #c4b5fd, #e879f9)",
                 WebkitBackgroundClip: "text",
@@ -251,12 +251,12 @@ export default function LandingStudio() {
         </div>
       </section>
 
-      {/* ── Try WizVid now CTA ── */}
+      {/* ── Try WIZ AI now CTA ── */}
       <section className="py-20 px-6 text-center border-t border-white/6 bg-[#06060c]">
         <div className="max-w-xl mx-auto">
           <p className="text-white/40 text-sm mb-3">While you wait for Studio…</p>
           <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4">
-            Start creating with WizVid today
+            Start creating with WIZ AI today
           </h2>
           <p className="text-white/50 mb-6 text-sm">
             The full AI video creation platform is live now. Free to create — only pay when you render.
@@ -266,7 +266,7 @@ export default function LandingStudio() {
             className="inline-flex items-center gap-2.5 bg-white text-black font-bold px-8 py-4 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,255,255,0.35)] hover:bg-white/95 transition-all text-sm"
           >
             <Sparkles className="w-4 h-4" />
-            Try WizVid for Free
+            Try WIZ AI for Free
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>
@@ -279,13 +279,13 @@ export default function LandingStudio() {
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
-            <span className="text-white/60 text-sm font-semibold">WizVid Studio</span>
+            <span className="text-white/60 text-sm font-semibold">WIZ AI Studio</span>
           </div>
           <div className="flex items-center gap-5 text-xs text-white/30">
             <a href={`${MAIN_APP}/privacy`} className="hover:text-white/60 transition-colors">Privacy</a>
             <a href={`${MAIN_APP}/terms`} className="hover:text-white/60 transition-colors">Terms</a>
-            <a href={MAIN_APP} className="hover:text-white/60 transition-colors">WizVid.ai</a>
-            <span>© 2025 WizVid. All rights reserved.</span>
+            <a href={MAIN_APP} className="hover:text-white/60 transition-colors">WIZ AI.ai</a>
+            <span>© 2025 WIZ AI. All rights reserved.</span>
           </div>
         </div>
       </footer>

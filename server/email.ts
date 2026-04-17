@@ -1,7 +1,7 @@
 /**
- * WizVid Email Notifications — Resend
+ * WIZ AI Email Notifications — Resend
  *
- * Sends transactional emails to the WizVid owner (timneighbour@wizvid.ai)
+ * Sends transactional emails to the WIZ AI owner (timneighbour@wizvid.ai)
  * for key business events: new signups, subscriptions, credit purchases,
  * failed payments, and render completions.
  *
@@ -16,7 +16,7 @@ import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const OWNER_EMAIL = "timneighbour@wizvid.ai";
-const FROM_EMAIL = "WizVid Notifications <notifications@wizvid.ai>";
+const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
 
 let resend: Resend | null = null;
 
@@ -85,7 +85,7 @@ function template(title: string, rows: [string, string][], note?: string): strin
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
-              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WizVid AI</span>
+              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WIZ AI</span>
               <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">${title}</span>
             </td>
           </tr>
@@ -107,7 +107,7 @@ function template(title: string, rows: [string, string][], note?: string): strin
     </tr>
     <tr>
       <td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">
-        WizVid AI · wizvid.ai · Automated notification
+        WIZ AI · wizvid.ai · Automated notification
       </td>
     </tr>
   </table>
@@ -232,7 +232,7 @@ export async function emailRenderComplete(data: {
       await client.emails.send({
         from: FROM_EMAIL,
         to: data.email,
-        subject: `🎬 Your WizVid video is ready! (${data.quality})`,
+        subject: `🎬 Your WIZ AI video is ready! (${data.quality})`,
         html: `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8" /></head>
@@ -243,7 +243,7 @@ export async function emailRenderComplete(data: {
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
-              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WizVid AI</span>
+              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WIZ AI</span>
               <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Your video is ready 🎉</span>
             </td>
           </tr>
@@ -251,7 +251,7 @@ export async function emailRenderComplete(data: {
         <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 24px;">
           <tr><td style="color:#f3f4f6;font-size:15px;padding-bottom:12px;">Hi ${data.name || "there"},</td></tr>
           <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:20px;">
-            Your <strong style="color:#a5b4fc;">${data.quality}</strong> WizVid video has finished rendering and is ready to watch and download.
+            Your <strong style="color:#a5b4fc;">${data.quality}</strong> WIZ AI video has finished rendering and is ready to watch and download.
           </td></tr>
           <tr>
             <td style="padding-bottom:24px;">
@@ -267,7 +267,7 @@ export async function emailRenderComplete(data: {
         </table>
       </td>
     </tr>
-    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WizVid AI · wizvid.ai · Automated notification</td></tr>
+    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WIZ AI · wizvid.ai · Automated notification</td></tr>
   </table>
 </body>
 </html>`,

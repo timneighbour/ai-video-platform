@@ -1,6 +1,6 @@
 /**
  * Stripe Products & Pricing Configuration
- * WizVid GBP pricing: Starter £9/mo | Basic £19/mo | Creator £29/mo (Most Popular) | Pro £59/mo | Studio £99/mo
+ * WIZ AI GBP pricing: Starter £9/mo | Basic £19/mo | Creator £29/mo (Most Popular) | Pro £59/mo | Studio £99/mo
  * Annual: 2 months free (£90/£190/£290/£590/£990)
  *
  * Profitability Control System integrated — see PLAN_COST_TARGETS and RENDERER_COSTS.
@@ -110,7 +110,7 @@ export const SUBSCRIPTION_PLANS = {
       "2 free videos (watermarked)",
       "All AI tools",
       "Standard quality",
-      "WizVideo music video maker",
+      "WIZ AIeo music video maker",
       "WizScript AI video creator",
     ],
     stripePriceId: null,

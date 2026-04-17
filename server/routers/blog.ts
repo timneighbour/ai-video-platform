@@ -74,7 +74,7 @@ export const blogRouter = router({
         content: input.content,
         excerpt: input.excerpt ?? null,
         coverImage: input.coverImage ?? null,
-        author: input.author ?? "WizVid Team",
+        author: input.author ?? "WIZ AI Team",
         status: input.status,
         tags: input.tags ? JSON.stringify(input.tags) : null,
         metaTitle: input.metaTitle ?? null,

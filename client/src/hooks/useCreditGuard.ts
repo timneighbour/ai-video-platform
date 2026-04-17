@@ -1,5 +1,5 @@
 /**
- * useCreditGuard — behavioural credit triggers for WizVid.
+ * useCreditGuard — behavioural credit triggers for WIZ AI.
  *
  * Provides three trigger functions:
  *  1. checkLowCredits()  — shows a toast when balance < LOW_CREDIT_THRESHOLD

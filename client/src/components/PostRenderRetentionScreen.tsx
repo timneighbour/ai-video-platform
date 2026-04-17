@@ -132,7 +132,7 @@ export function PostRenderRetentionScreen({
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: videoTitle || "My WizVid video", url: finalVideoUrl })
+      navigator.share({ title: videoTitle || "My WIZ AI video", url: finalVideoUrl })
         .catch(() => {});
     } else {
       navigator.clipboard.writeText(finalVideoUrl);
@@ -362,7 +362,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
           <Rocket className="w-5 h-5 text-emerald-400" />
         </div>
         <p className="text-sm font-semibold text-emerald-300 mb-1">You're in the queue!</p>
-        <p className="text-xs text-zinc-400">We'll review your video and reach out if selected for the WizVid Creator Network.</p>
+        <p className="text-xs text-zinc-400">We'll review your video and reach out if selected for the WIZ AI Creator Network.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
           <a href="/discover" className="inline-flex items-center gap-1.5 text-violet-400 text-xs font-medium hover:text-violet-300 transition-colors">
             <Users className="w-3 h-3" />
@@ -395,7 +395,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             <Rocket className="w-4 h-4 text-violet-400" />
           </div>
           <div className="text-left flex-1">
-            <p className="text-sm font-semibold text-white">🚀 Want to get featured on WizVid?</p>
+            <p className="text-sm font-semibold text-white">🚀 Want to get featured on WIZ AI?</p>
             <p className="text-xs text-zinc-400">Create videos. Get discovered. Grow your audience.</p>
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-violet-400 transition-colors" />
@@ -404,7 +404,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
         <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4">
           <div className="flex items-center gap-2 mb-4">
             <Rocket className="w-4 h-4 text-violet-400" />
-            <p className="text-sm font-semibold text-white">Feature my video on WizVid</p>
+            <p className="text-sm font-semibold text-white">Feature my video on WIZ AI</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid grid-cols-2 gap-2">

@@ -196,7 +196,7 @@ export default function WizScore() {
       {/* Header */}
       <div className="border-b border-white/[0.06] bg-[#0a0a0c]/80 backdrop-blur-xl sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-5 py-4 flex items-center gap-3">
-          <a href="/" className="text-white/40 hover:text-white/70 transition-colors text-sm">WizVid</a>
+          <a href="/" className="text-white/40 hover:text-white/70 transition-colors text-sm">WIZ AI</a>
           <ChevronRight className="w-3.5 h-3.5 text-white/20" />
           <span className="text-white/80 font-semibold text-sm">WizScore™</span>
         </div>

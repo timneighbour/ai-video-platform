@@ -1,5 +1,5 @@
 /**
- * WizVid Analytics — GA4 event tracking helpers
+ * WIZ AI Analytics — GA4 event tracking helpers
  *
  * Usage:
  *   import { trackEvent } from "@/lib/analytics";

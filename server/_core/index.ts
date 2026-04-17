@@ -220,7 +220,7 @@ async function startServer() {
     }
     try {
       const upstream = await fetch(audioUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; WizVid/1.0)", "Accept": "audio/mpeg, audio/*, */*" },
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; WIZ AI/1.0)", "Accept": "audio/mpeg, audio/*, */*" },
       });
       if (!upstream.ok) { res.status(upstream.status).json({ error: "Upstream error" }); return; }
       const contentType = upstream.headers.get("content-type") ?? "audio/mpeg";

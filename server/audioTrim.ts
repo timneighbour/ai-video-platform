@@ -35,7 +35,7 @@ async function downloadWithRetry(url: string, maxAttempts = 3): Promise<Buffer> 
       const response = await fetch(url, {
         signal: controller.signal,
         headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; WizVid/1.0; +https://wizvid.ai)",
+          "User-Agent": "Mozilla/5.0 (compatible; WIZ AI/1.0; +https://wizvid.ai)",
           "Accept": "audio/mpeg, audio/*, */*",
           "Referer": "https://suno.ai/",
         },

@@ -11,7 +11,7 @@ import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
@@ -42,7 +42,7 @@ interface Tool {
 const TOOLS: Tool[] = [
   {
     id: "music-video",
-    name: "WizVideo",
+    name: "WIZ AIeo",
     tagline: "WizVideo™ — Upload a song, get a full music video",
     subheading: "Turn any track into a full-length, AI-directed music video — scenes, cuts, and all.",
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",
@@ -331,7 +331,7 @@ export default function Create() {
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Home" />
             <NavLink href="/" className="hidden md:flex items-center">
-              <img src={WIZVID_LOGO} alt="WizVid" className="h-20 w-auto object-contain" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-20 w-auto object-contain" />
             </NavLink>
           </div>
           <div className="hidden md:flex items-center gap-1">

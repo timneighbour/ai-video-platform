@@ -1,5 +1,5 @@
 /**
- * WizVid Mixpanel Analytics
+ * WIZ AI Mixpanel Analytics
  *
  * Centralised module for all Mixpanel event tracking.
  * Token is read from VITE_MIXPANEL_TOKEN env var.

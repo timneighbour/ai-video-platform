@@ -30,12 +30,12 @@ const WIZLUMINA_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908
 const WIZGENESIS_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
-// Official WizVid logo — transparent background, violet glow
-const WIZVID_LOGO_FULL = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
-const WIZVID_LOGO_BRAND = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
-const WIZVID_LOGO_FOOTER = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
-const WIZVID_LOGO_ICON = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
-const WIZVID_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
+// Official WIZ AI logo — transparent background, violet glow
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO_BRAND = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO_FOOTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO_ICON = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO_VIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-animation-v3_85969477.mp4";
 const HERO_VIDEOS = [
   `${CDN}/hero-nightclub-web_3a88ea3e.mp4`,
   `${CDN}/hero-abstract-web_ed099aea.mp4`,
@@ -118,8 +118,8 @@ function Nav() {
           {/* Logo */}
           <NavLink href="/" className="flex items-center flex-shrink-0 hover:opacity-85 transition-opacity duration-200">
             <img
-              src={WIZVID_LOGO_FULL}
-              alt="WizVid"
+              src={WIZAI_LOGO}
+              alt="WIZ AI"
               width={320}
               height={180}
               className="h-[6.5rem] w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.55)]"
@@ -548,7 +548,7 @@ function Hero() {
             {/* Eyebrow badge */}
             <div className="relative z-10 mb-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              WizVid by Wiz AI
+              WIZ AI by Wiz AI
             </div>
 
             {/* Headline */}
@@ -729,7 +729,7 @@ const PRODUCT_CARDS = [
     label: "Create Videos",
     desc: "Turn songs and ideas into cinematic full-length AI videos.",
     usps: ["Full videos, not just clips", "Storyboard and scenes generated automatically", "Preview before render"],
-    cta: "Start with WizVideo",
+    cta: "Start with WIZ AIeo",
     href: "/music-video/create",
     colour: "from-violet-500/20 to-violet-900/10",
     border: "border-violet-500/20 hover:border-violet-400/40",
@@ -869,7 +869,7 @@ function TryAnExample() {
           Try an example — one click to start
         </h2>
         <p className="text-white/50 text-base mb-8 max-w-xl mx-auto">
-          No editing skills needed. Just describe your video and WizVid does the rest.
+          No editing skills needed. Just describe your video and WIZ AI does the rest.
         </p>
 
         {/* Prompt selector tabs */}
@@ -1092,7 +1092,7 @@ function SeeWhatYouCanCreate() {
 // ── How It Works Strip (4-step, directly under hero) ───────────────────────
 function HowItWorksStrip() {
   const steps = [
-    { num: "01", icon: <Sparkles className="w-5 h-5" />, title: "Describe your idea", desc: "Tell WizVid what you want to create — a music video, animation, cinematic short, or anything else." },
+    { num: "01", icon: <Sparkles className="w-5 h-5" />, title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else." },
     { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "AI builds your storyboard", desc: "WizCreate\u2122 generates a full visual storyboard with scenes, characters, and direction." },
     { num: "03", icon: <Film className="w-5 h-5" />, title: "Render your video", desc: "Preview every scene, then render in HD or 4K with WizSound\u2122 and WizLumina\u2122 baked in." },
   ];
@@ -1164,7 +1164,7 @@ function ImmediateValue() {
             What happens after you click render?
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
-            Your video is processed, delivered, and ready to download — all without leaving WizVid.
+            Your video is processed, delivered, and ready to download — all without leaving WIZ AI.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
@@ -1198,10 +1198,10 @@ function BrandDemoVideo() {
         <div className="reveal mb-10">
           <p className="text-xs tracking-[0.3em] uppercase text-violet-400/80 mb-4">Powered by Wiz AI</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
-            Introducing WizVid
+            Introducing WIZ AI
           </h2>
           <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-            See how WizVid turns ideas into full videos in minutes. No editing. No experience. Just describe your idea.
+            See how WIZ AI turns ideas into full videos in minutes. No editing. No experience. Just describe your idea.
           </p>
         </div>
         {/* Large central play button */}
@@ -1214,7 +1214,7 @@ function BrandDemoVideo() {
             {/* Poster image */}
             <img
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp"
-              alt="WizVid demo preview"
+              alt="WIZ AI demo preview"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
@@ -1304,7 +1304,7 @@ function ProductDemo() {
       badge: "bg-green-500/20 text-green-300",
       content: (
         <div className="space-y-3">
-          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Real video generated with WizVid</div>
+          <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Real video generated with WIZ AI</div>
           <div className="relative rounded-xl overflow-hidden bg-[#0f0f0f] border border-white/8 aspect-video group cursor-pointer">
             <video
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic_13667434.mp4"
@@ -1317,7 +1317,7 @@ function ProductDemo() {
               aria-label="Real AI-generated cinematic video output"
             />
             <div className="absolute bottom-2 left-2 px-2 py-1 rounded-md bg-black/70 backdrop-blur-sm text-[10px] font-semibold text-white/80 border border-white/10">
-              Real WizVid output
+              Real WIZ AI output
             </div>
           </div>
           <div className="flex gap-2">
@@ -1338,7 +1338,7 @@ function ProductDemo() {
             From lyrics to storyboard to final video
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Describe your idea or upload your song. WizVid writes the storyboard, generates every scene, and delivers a complete video.
+            Describe your idea or upload your song. WIZ AI writes the storyboard, generates every scene, and delivers a complete video.
           </p>
         </div>
 
@@ -1374,13 +1374,13 @@ function ProductDemo() {
   );
 }
 
-// ── Why WizVid ────────────────────────────────────────────────────────────────
-function WhyWizVid() {
+// ── Why WIZ AI ────────────────────────────────────────────────────────────────
+function WhyWizAI() {
   const reasons = [
     {
       icon: "01",
       title: "See your video before rendering",
-      desc: "WizVid generates a full AI storyboard instantly. Preview every scene, edit any prompt, and approve your video before a single frame is rendered.",
+      desc: "WIZ AI generates a full AI storyboard instantly. Preview every scene, edit any prompt, and approve your video before a single frame is rendered.",
     },
     {
       icon: "02",
@@ -1398,7 +1398,7 @@ function WhyWizVid() {
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12 reveal">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Why WizVid is different</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Why WIZ AI is different</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
             See it. Approve it.<br />
             <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Then render it.</span>
@@ -1410,7 +1410,7 @@ function WhyWizVid() {
             { icon: "01", title: "AI builds full storyboard instantly", desc: "Every scene written and visualised in under 30 seconds." },
             { icon: "02", title: "Preview every scene before paying", desc: "Edit any prompt, swap styles, approve before rendering." },
             { icon: "03", title: "Full video, not clips", desc: "A complete, ready-to-publish video — not fragments." },
-            { icon: "04", title: "No editing required", desc: "WizVid handles everything. You just describe your idea." },
+            { icon: "04", title: "No editing required", desc: "WIZ AI handles everything. You just describe your idea." },
           ].map((item, i) => (
             <div key={item.title} className={`flex gap-4 p-5 glass-card rounded-2xl hover:border-violet-500/25 transition-all reveal animate-delay-${(i + 1) * 100}`}>
               <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
@@ -1424,7 +1424,7 @@ function WhyWizVid() {
         {/* Differentiation callout */}
         <div className="p-7 rounded-2xl bg-gradient-to-r from-violet-500/8 via-blue-500/5 to-violet-500/8 border border-violet-500/20 text-center reveal">
           <h3 className="text-2xl font-extrabold text-white mb-2">Not just clips. Full videos.</h3>
-          <p className="text-[#a1a1aa] max-w-xl mx-auto">Most AI tools generate fragments. WizVid creates complete, ready-to-publish videos.</p>
+          <p className="text-[#a1a1aa] max-w-xl mx-auto">Most AI tools generate fragments. WIZ AI creates complete, ready-to-publish videos.</p>
         </div>
       </div>
     </section>
@@ -1500,20 +1500,20 @@ function Features() {
     <section className="py-28 px-6 bg-[#0f0f0f]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">What WizVid does</p>
+          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">What WIZ AI does</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
             Create full videos —<br />
             <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">not just clips</span>
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Most AI tools edit content. WizVid creates it from scratch — storyboard to final cut.
+            Most AI tools edit content. WIZ AI creates it from scratch — storyboard to final cut.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-6 reveal">
             {[
-              { icon: <Music className="w-5 h-5" />, title: "Music video autopilot", desc: "Upload your song, pick a style, and WizVid builds the entire music video — synced to your lyrics." },
+              { icon: <Music className="w-5 h-5" />, title: "Music video autopilot", desc: "Upload your song, pick a style, and WIZ AI builds the entire music video — synced to your lyrics." },
               { icon: <Film className="w-5 h-5" />, title: "AI animation from text", desc: "Describe any scene or concept and watch it become a fully animated video in minutes." },
               { icon: <Wand2 className="w-5 h-5" />, title: "Storyboard to final cut", desc: "AI generates a storyboard, renders every scene, and delivers a complete video — automatically." },
               { icon: <Zap className="w-5 h-5" />, title: "6 cinematic styles", desc: "Choose from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
@@ -1595,8 +1595,8 @@ function WhoItsFor() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 reveal">
           <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">Who it's for</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">Built for creators like you</h2>
-          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">Whether you're a musician, YouTuber, or kids content creator — WizVid is your AI video studio.</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">Built for creators with WIZ AI</h2>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">Whether you're a musician, YouTuber, or kids content creator — WIZ AI is your AI video studio.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
           {audiences.map((a, i) => (
@@ -1705,9 +1705,9 @@ function ContentEngine() {
       iconColor: "text-violet-400",
       iconBg: "bg-violet-500/10 border-violet-500/20",
       title: "WizVideo",
-      desc: "Upload your song and WizVid builds a complete music video for you — every scene synced to your lyrics, with animated characters and cinematic visuals.",
+      desc: "Upload your song and WIZ AI builds a complete music video for you — every scene synced to your lyrics, with animated characters and cinematic visuals.",
       bullets: ["Every scene synced to lyrics", "Animated characters & styles", "YouTube & socials ready"],
-      cta: "Start with WizVideo",
+      cta: "Start with WIZ AIeo",
       href: "/music-video",
     },
     {
@@ -1737,7 +1737,7 @@ function ContentEngine() {
               <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-green-400 bg-clip-text text-transparent">in four simple steps</span>
             </h2>
             <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
-              Type a prompt. WizVid generates your song, builds the storyboard, renders every scene, and delivers a complete video — no tools to juggle, no editing required.
+              Type a prompt. WIZ AI generates your song, builds the storyboard, renders every scene, and delivers a complete video — no tools to juggle, no editing required.
             </p>
           </div>
 
@@ -1880,12 +1880,12 @@ function ContentEngine() {
                   ),
                 },
                 {
-                  step: "WizVid creates",
+                  step: "WIZ AI creates",
                   color: "purple",
                   dot: "bg-purple-500",
                   content: (
                     <div className="p-5 glass-card rounded-2xl border-purple-500/20">
-                      <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-3">WizVid generates</p>
+                      <p className="text-xs text-purple-300 font-semibold uppercase tracking-widest mb-3">WIZ AI generates</p>
                       <div className="grid grid-cols-3 gap-2">
                         {["Storyboard", "Animated scenes", "Final video"].map((item) => (
                           <div key={item} className="p-3 rounded-xl bg-purple-500/8 border border-purple-500/15 text-center">
@@ -2014,19 +2014,19 @@ function WizVideoSection() {
               </div>
             </div>
             <div className="absolute -top-3 -right-3 bg-[#171717] border border-white/10 rounded-xl px-3 py-1.5 shadow-lg">
-              <span className="text-white text-xs font-semibold">WizVideo</span>
+              <span className="text-white text-xs font-semibold">WIZ AIeo</span>
             </div>
           </div>
 
           {/* Text */}
           <div className="reveal">
-            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WizVideo</p>
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WIZ AIeo</p>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5 leading-tight">
               Your music.<br />Your story.<br />
               <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Brought to life.</span>
             </h2>
             <p className="text-[#a1a1aa] text-base leading-relaxed mb-3">
-              WizVideo turns songs and ideas into full cinematic AI videos. Describe your vision, and every scene is generated automatically.
+              WIZ AIeo turns songs and ideas into full cinematic AI videos. Describe your vision, and every scene is generated automatically.
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-6">
               <Volume2 className="w-3.5 h-3.5" />
@@ -2049,7 +2049,7 @@ function WizVideoSection() {
               className="bg-white text-black hover:bg-white/90 text-sm px-6 py-2.5 rounded-xl font-semibold h-auto shadow-md hover:shadow-lg transition-all"
               asChild
             >
-              <NavLink href="/music-video/create"><Film className="w-4 h-4 mr-2" />Start with WizVideo</NavLink>
+              <NavLink href="/music-video/create"><Film className="w-4 h-4 mr-2" />Start with WIZ AIeo</NavLink>
             </Button>
           </div>
         </div>
@@ -2061,10 +2061,10 @@ function WizVideoSection() {
 // ── Social proof ──────────────────────────────────────────────────────────────
 function SocialProof() {
   const testimonials = [
-    { text: "I described the vibe, uploaded my track, and WizVideo had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers", highlight: "Storyboard in 90 seconds" },
-    { text: "I was spending £280/month on a freelance animator for my kids channel. WizVid replaced that entirely. I now create 3 videos a week, my upload consistency went from twice a month to daily, and my CTR is up 40%.", author: "James K.", role: "Kids Content Creator · 28K subscribers", highlight: "Saved £280/month" },
-    { text: "Other AI tools give you a 10-second clip. WizVid gave me a complete 3-minute animated music video for my kids channel — scenes, characters, the lot — in under 4 minutes. My kids watch it on repeat.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI", highlight: "Full 3-min video in 4 minutes" },
-    { text: "I started a faceless YouTube channel from scratch. WizVid handled every video — storyboard, scenes, everything. 30 days later I had 4,800 subscribers and my first video hit 11K views. I haven't edited a single frame.", author: "Tom B.", role: "Faceless YouTube Creator · 0 to 4.8K subscribers in 30 days", highlight: "0 → 4.8K subs in 30 days" },
+    { text: "I described the vibe, uploaded my track, and WIZ AIeo had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers", highlight: "Storyboard in 90 seconds" },
+    { text: "I was spending £280/month on a freelance animator for my kids channel. WIZ AI replaced that entirely. I now create 3 videos a week, my upload consistency went from twice a month to daily, and my CTR is up 40%.", author: "James K.", role: "Kids Content Creator · 28K subscribers", highlight: "Saved £280/month" },
+    { text: "Other AI tools give you a 10-second clip. WIZ AI gave me a complete 3-minute animated music video for my kids channel — scenes, characters, the lot — in under 4 minutes. My kids watch it on repeat.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI", highlight: "Full 3-min video in 4 minutes" },
+    { text: "I started a faceless YouTube channel from scratch. WIZ AI handled every video — storyboard, scenes, everything. 30 days later I had 4,800 subscribers and my first video hit 11K views. I haven't edited a single frame.", author: "Tom B.", role: "Faceless YouTube Creator · 0 to 4.8K subscribers in 30 days", highlight: "0 → 4.8K subs in 30 days" },
   ];
 
   const stats = [
@@ -2295,9 +2295,9 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
             <Play className="w-6 h-6 text-white fill-white ml-0.5" />
           </div>
         </div>
-        {/* Made with WizVid badge bottom-right */}
+        {/* Made with WIZ AI badge bottom-right */}
         <div className="absolute bottom-3 right-3 px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-semibold text-white/70 border border-white/10">
-          Made with WizVid
+          Made with WIZ AI
         </div>
       </div>
 
@@ -2339,8 +2339,8 @@ function ShowcaseSkeleton() {
       ))}
     </div>
   );
-}// ── Made with WizVid (showcase gallery) ──────────────────────────────────────────────
-function MadeWithWizVid() {
+}// ── Made with WIZ AI (showcase gallery) ──────────────────────────────────────────────
+function MadeWithWizAI() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const [activeFilter, setActiveFilter] = useState<string>("All");
 
@@ -2358,15 +2358,15 @@ function MadeWithWizVid() {
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-12 reveal">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">WizVid Creator Network</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">WIZ AI Creator Network</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-3">
-            Discover Creators Using WizVid
+            Discover Creators Using WIZ AI
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto mb-3">
             Create videos. Get discovered. Grow your audience.
           </p>
           <p className="text-[#a1a1aa] text-base max-w-xl mx-auto">
-            Real creators using WizVid — musicians, YouTubers, animators, and kids content creators. Every video below was generated with WizVid.
+            Real creators using WIZ AI — musicians, YouTubers, animators, and kids content creators. Every video below was generated with WIZ AI.
           </p>
         </div>
 
@@ -2416,7 +2416,7 @@ function MadeWithWizVid() {
 
         {/* Bottom CTA */}
         <div className="text-center mt-14 reveal flex flex-col items-center gap-4">
-          <p className="text-[#a1a1aa] text-sm">Want to get featured on WizVid?</p>
+          <p className="text-[#a1a1aa] text-sm">Want to get featured on WIZ AI?</p>
           <div className="flex items-center gap-4 flex-wrap justify-center">
             <NavLink
               href="/onboarding"
@@ -2615,7 +2615,7 @@ function UseCaseCards() {
       color: "from-violet-600 to-purple-700",
       border: "border-violet-500/25",
       glow: "hover:shadow-violet-500/15",
-      cta: "Start with WizVideo",
+      cta: "Start with WIZ AIeo",
       href: "/music-video/create",
     },
     {
@@ -2660,7 +2660,7 @@ function UseCaseCards() {
             <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">results, not tools</span>
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Whether you're a musician, YouTuber, animator, or brand — WizVid handles the entire video creation process.
+            Whether you're a musician, YouTuber, animator, or brand — WIZ AI handles the entire video creation process.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
@@ -3029,27 +3029,27 @@ function EcosystemSection() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/25 bg-violet-500/8 text-violet-300 text-xs font-mono tracking-widest uppercase font-semibold mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-            The WizVid Ecosystem
+            The WIZ AI Ecosystem
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
             One platform.
             <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"> Seven powerful modules.</span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto">
-            WizVid is built on seven specialised AI modules — each one engineered for a specific stage of the video creation pipeline.
+            WIZ AI is built on seven specialised AI modules — each one engineered for a specific stage of the video creation pipeline.
           </p>
         </div>
 
-        {/* WizVid platform card */}
+        {/* WIZ AI platform card */}
         <div className="mb-8 p-6 rounded-2xl border border-white/10 bg-white/3 flex flex-col md:flex-row items-center gap-6">
           <img
-            src={WIZVID_LOGO_FULL}
-            alt="WizVid"
+            src={WIZAI_LOGO}
+            alt="WIZ AI"
             className="h-[10.4rem] w-auto object-contain drop-shadow-[0_0_20px_rgba(139,92,246,0.5)]"
           />
           <div className="flex-1 text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-              <h3 className="text-xl font-bold text-white">WizVid</h3>
+              <h3 className="text-xl font-bold text-white">WIZ AI</h3>
               <span className="text-xs px-2 py-0.5 rounded-full border border-white/20 text-white/50 font-mono">Platform</span>
             </div>
             <p className="text-white/60 text-sm">All-in-one cinematic video creation platform — the unified experience that brings WizCreate™, WizSound™, WizLumina™, WizGenesis™, and WizScript together.</p>
@@ -3134,7 +3134,7 @@ function Footer() {
     {
       title: "Wiz AI Ecosystem",
       links: [
-        { label: "WizVid — Video Creation", href: "/" },
+        { label: "WIZ AI — Video Creation", href: "/" },
         { label: "WizSound — Spatial Audio", href: "/products/wizsound" },
         { label: "WizScript — AI Workflow", href: "/wizpilot" },
         { label: "WizGenesis — Intelligence", href: "/products/wizgenesis" },
@@ -3165,7 +3165,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={WIZVID_LOGO_FOOTER} alt="WizVid" width={165} height={94} loading="lazy" className="h-[6.5rem] w-auto object-contain" />
+              <img src={WIZAI_LOGO_FOOTER} alt="WIZ AI" width={165} height={94} loading="lazy" className="h-[6.5rem] w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
               AI Music Video Generator — create full videos in minutes. No editing needed.
@@ -3215,7 +3215,7 @@ function Footer() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-            <p>© 2026 WizVid by Wiz AI. All rights reserved.</p>
+            <p>© 2026 WIZ AI by Wiz AI. All rights reserved.</p>
             <div className="flex gap-6">
               <NavLink href="/privacy" className="hover:text-white transition-colors">Privacy Policy</NavLink>
               <NavLink href="/terms" className="hover:text-white transition-colors">Terms of Service</NavLink>
@@ -3224,7 +3224,7 @@ function Footer() {
           </div>
           <div className="mt-6 text-center space-y-1">
             <p className="text-xs text-[#a1a1aa]/50 tracking-widest uppercase">
-              WizVid ecosystem:{" "}
+              WIZ AI ecosystem:{" "}
               <span className="text-violet-400/70">WizCreate™</span>
               {" · "}
               <span className="text-indigo-400/70">WizSound™</span>
@@ -3277,8 +3277,8 @@ export default function Home() {
         <EcosystemSection />
         {/* 6. Use-case cards */}
         <UseCaseCards />
-        {/* 7. Created with WizVid examples */}
-        <MadeWithWizVid />
+        {/* 7. Created with WIZ AI examples */}
+        <MadeWithWizAI />
         {/* 8. Final CTA */}
         <CTAPush />
         {/* Continue project banner (contextual) */}

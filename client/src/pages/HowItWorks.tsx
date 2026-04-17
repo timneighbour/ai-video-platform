@@ -3,7 +3,7 @@ import { Link } from "wouter";
 
 // ── CDN assets ────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO_FULL = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 const STEP_IMAGES = {
   upload: `${CDN}/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp`,
   styles: `${CDN}/step2-style-collage-P6HWeTbd9g6UsLFLRWYJEi.webp`,
@@ -18,7 +18,7 @@ const PIPELINE_STEPS = [
     color: "violet",
     title: "Prompt",
     headline: "Describe your video idea",
-    desc: "Type a prompt, upload your audio, or let AI generate the music. WizVid understands natural language — no technical skills needed.",
+    desc: "Type a prompt, upload your audio, or let AI generate the music. WIZ AI understands natural language — no technical skills needed.",
     details: [
       "Upload your song or describe your concept",
       "Choose from 11 cinematic styles (Cinematic, Anime, Pixar 3D, Neon Noir, and more)",
@@ -33,7 +33,7 @@ const PIPELINE_STEPS = [
     color: "blue",
     title: "Storyboard",
     headline: "AI builds your full storyboard",
-    desc: "In under 30 seconds, WizVid generates a complete scene-by-scene storyboard with AI images, scene descriptions, and visual prompts.",
+    desc: "In under 30 seconds, WIZ AI generates a complete scene-by-scene storyboard with AI images, scene descriptions, and visual prompts.",
     details: [
       "Full storyboard generated instantly — no waiting",
       "Each scene has its own image, prompt, and timing",
@@ -63,7 +63,7 @@ const PIPELINE_STEPS = [
     color: "amber",
     title: "Full Render",
     headline: "Render your video in HD or 4K",
-    desc: "When you're happy with the storyboard, click Render. WizVid animates every scene, syncs audio, and delivers your complete video.",
+    desc: "When you're happy with the storyboard, click Render. WIZ AI animates every scene, syncs audio, and delivers your complete video.",
     details: [
       "Choose HD (1080p) or 4K resolution",
       "WizSound audio enhancement included",
@@ -78,11 +78,11 @@ const PIPELINE_STEPS = [
     color: "fuchsia",
     title: "Share",
     headline: "Download, share, and grow",
-    desc: "Download your video instantly. Share to YouTube, Instagram, TikTok, or publish to the WizVid platform to grow your audience with WizBoost.",
+    desc: "Download your video instantly. Share to YouTube, Instagram, TikTok, or publish to the WIZ AI platform to grow your audience with WizBoost.",
     details: [
       "Download MP4 immediately after render",
       "Share directly to social platforms",
-      "Publish to WizVid and grow with WizBoost",
+      "Publish to WIZ AI and grow with WizBoost",
     ],
     badge: "Your video, your rights",
     badgeColor: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25",
@@ -108,7 +108,7 @@ export default function HowItWorks() {
             Back to Home
           </a>
           <Link href="/">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-12 w-auto object-contain absolute left-1/2 -translate-x-1/2" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-12 w-auto object-contain absolute left-1/2 -translate-x-1/2" />
           </Link>
           <a
             href="/music-video"
@@ -130,7 +130,7 @@ export default function HowItWorks() {
           <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-blue-400 bg-clip-text text-transparent">in five steps</span>
         </h1>
         <p className="text-white/50 text-lg max-w-xl mx-auto mb-8">
-          WizVid handles the entire creation pipeline — you just describe what you want.
+          WIZ AI handles the entire creation pipeline — you just describe what you want.
         </p>
 
         {/* Pipeline strip */}
@@ -208,7 +208,7 @@ export default function HowItWorks() {
               { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Position is based on your plan tier.", color: "text-white/50" },
               { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images.", color: "text-violet-300" },
               { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina are applied.", color: "text-blue-300" },
-              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WizVid.", color: "text-emerald-300" },
+              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WIZ AI.", color: "text-emerald-300" },
             ].map((item) => (
               <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-white/4 border border-white/8">
                 <div className={`flex-shrink-0 mt-0.5 ${item.color}`}>{item.icon}</div>
@@ -244,7 +244,7 @@ export default function HowItWorks() {
           <div className="flex flex-wrap justify-center gap-3">
             {[
               { icon: <Share2 className="w-3.5 h-3.5" />, label: "Share to YouTube, Instagram, TikTok" },
-              { icon: <Users className="w-3.5 h-3.5" />, label: "Publish to WizVid platform" },
+              { icon: <Users className="w-3.5 h-3.5" />, label: "Publish to WIZ AI platform" },
               { icon: <Sparkles className="w-3.5 h-3.5" />, label: "Grow your fanbase" },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/65">

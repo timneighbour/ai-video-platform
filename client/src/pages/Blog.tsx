@@ -27,9 +27,9 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>Blog — WizVid AI | AI WizVideo Tips & Tutorials</title>
-        <meta name="description" content="Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WizVid team." />
-        <meta property="og:title" content="WizVid Blog — AI WizVideo" />
+        <title>Blog — WIZ AI | AI WIZ AIeo Tips & Tutorials</title>
+        <meta name="description" content="Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WIZ AI team." />
+        <meta property="og:title" content="WIZ AI Blog — AI WIZ AIeo" />
         <meta property="og:description" content="Tips, tutorials, and insights on AI video creation." />
         <link rel="canonical" href="https://www.wizvid.ai/blog" />
       </Helmet>
@@ -60,7 +60,7 @@ export default function Blog() {
           <div className="relative max-w-6xl mx-auto px-4 py-20 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium mb-6">
               <Rss className="w-3 h-3" />
-              WizVid Blog
+              WIZ AI Blog
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               AI Video Creation{" "}

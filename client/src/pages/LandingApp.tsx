@@ -101,7 +101,7 @@ export default function LandingApp() {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-extrabold text-white text-lg tracking-tight">WizVid</span>
+          <span className="font-extrabold text-white text-lg tracking-tight">WIZ AI</span>
         </div>
         <a href={CREATE_URL} className="bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors">
           Start Free →
@@ -234,7 +234,7 @@ export default function LandingApp() {
           <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 to-fuchsia-950/30 p-8 text-center">
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">Not just clips. Full videos.</h2>
             <p className="text-white/55 text-lg max-w-xl mx-auto">
-              Most AI tools generate fragments. WizVid creates complete, ready-to-publish videos — with storyboard, scenes, audio, and final render all in one place.
+              Most AI tools generate fragments. WIZ AI creates complete, ready-to-publish videos — with storyboard, scenes, audio, and final render all in one place.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2 text-sm text-white/60">
@@ -287,13 +287,13 @@ export default function LandingApp() {
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
-            <span className="text-white/60 text-sm font-semibold">WizVid</span>
+            <span className="text-white/60 text-sm font-semibold">WIZ AI</span>
           </div>
           <div className="flex items-center gap-5 text-xs text-white/30">
             <a href={`${MAIN_APP}/privacy`} className="hover:text-white/60 transition-colors">Privacy</a>
             <a href={`${MAIN_APP}/terms`} className="hover:text-white/60 transition-colors">Terms</a>
             <a href={`${MAIN_APP}/help`} className="hover:text-white/60 transition-colors">Help</a>
-            <span>© 2025 WizVid. All rights reserved.</span>
+            <span>© 2025 WIZ AI. All rights reserved.</span>
           </div>
         </div>
       </footer>

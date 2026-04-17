@@ -73,7 +73,7 @@ export function registerOAuthRoutes(app: Express) {
           );
           // Notify owner of new sign-up
           await notifyOwner({
-            title: "New WizVid Sign-Up",
+            title: "New WIZ AI Sign-Up",
             content: `New user signed up: ${userInfo.name || "Unknown"} (${userInfo.email || "no email"}) — ${FREE_TRIAL_CREDITS} trial credits granted.`,
           }).catch(() => {}); // Non-blocking
           // Email notification to timneighbour@wizvid.ai

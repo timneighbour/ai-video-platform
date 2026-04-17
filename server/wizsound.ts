@@ -1,5 +1,5 @@
 /**
- * WizSound™ — Proprietary audio enhancement pipeline for WizVid.
+ * WizSound™ — Proprietary audio enhancement pipeline for WIZ AI.
  *
  * Three tiers:
  *   standard   — No processing. Original audio passed through as-is.

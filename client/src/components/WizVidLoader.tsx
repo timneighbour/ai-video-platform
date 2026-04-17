@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const WIZVID_ICON =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-icon_0f4f3569.png";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 
 interface WizVidLoaderProps {
   /** When true the loader fades out and unmounts */
@@ -49,7 +49,7 @@ export function WizVidLoader({ done = false, minDuration = 600 }: WizVidLoaderPr
         transition: "opacity 500ms ease-out",
         pointerEvents: fading ? "none" : "auto",
       }}
-      aria-label="Loading WizVid"
+      aria-label="Loading WIZ AI"
       role="status"
     >
       {/* Ambient glow behind icon */}
@@ -73,7 +73,7 @@ export function WizVidLoader({ done = false, minDuration = 600 }: WizVidLoaderPr
       >
         <img
           src={WIZVID_ICON}
-          alt="WizVid"
+          alt="WIZ AI"
           className="w-[6.5rem] h-[6.5rem] object-contain select-none"
           draggable={false}
         />

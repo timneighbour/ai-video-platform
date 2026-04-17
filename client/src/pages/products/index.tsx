@@ -1,5 +1,5 @@
 /**
- * WizVid Product Pages — all 7 modules
+ * WIZ AI Product Pages — all 7 modules
  * Routes: /products/wizcreate, /products/wizanimate, /products/wizsound,
  *         /products/wizlumina, /products/wizgenesis, /products/wizboost
  * WizSync has its own dedicated page at /wizsync
@@ -24,7 +24,7 @@ const WIZCREATE: ProductPageProps = {
   role: "The Brain",
   tagline: "AI Creation Engine",
   headline: "Turn any idea into a cinematic storyboard",
-  subheadline: "WizCreate™ is the intelligence layer of WizVid — it transforms your audio track or text prompt into a fully-structured scene-by-scene visual plan, ready for animation and rendering.",
+  subheadline: "WizCreate™ is the intelligence layer of WIZ AI — it transforms your audio track or text prompt into a fully-structured scene-by-scene visual plan, ready for animation and rendering.",
   logo: `${CDN}/wizcreate-logo-final_9f61f0de.png`,
   accentFrom: "from-violet-300",
   accentTo: "to-purple-300",
@@ -76,7 +76,7 @@ const WIZANIMATE: ProductPageProps = {
   badgeClass: "text-cyan-300 bg-cyan-500/10 border-cyan-500/25",
   ctaHref: "/wizsync",
   ctaLabel: "Animate Your Video",
-  whatItDoes: "WizAnimate™ is the performance engine of WizVid. It takes the storyboard from WizCreate™ and generates character animation that is precisely matched to the audio — every movement, gesture, and expression timed to the beat, mood, and energy of the track.",
+  whatItDoes: "WizAnimate™ is the performance engine of WIZ AI. It takes the storyboard from WizCreate™ and generates character animation that is precisely matched to the audio — every movement, gesture, and expression timed to the beat, mood, and energy of the track.",
   capabilities: [
     "Beat-matched character motion and gestures",
     "Emotion-driven performance (happy, intense, melancholic)",
@@ -118,7 +118,7 @@ const WIZSOUND: ProductPageProps = {
   badgeClass: "text-emerald-300 bg-emerald-500/10 border-emerald-500/25",
   ctaHref: "/music-creator",
   ctaLabel: "Create Music Now",
-  whatItDoes: "WizSound™ is WizVid's proprietary audio enhancement engine. It applies multi-band compression, harmonic enhancement, spatial widening, and cinematic EQ curves to your audio track — transforming it from a standard recording into a rich, immersive cinematic experience.",
+  whatItDoes: "WizSound™ is WIZ AI's proprietary audio enhancement engine. It applies multi-band compression, harmonic enhancement, spatial widening, and cinematic EQ curves to your audio track — transforming it from a standard recording into a rich, immersive cinematic experience.",
   capabilities: [
     "Multi-band dynamic compression and limiting",
     "Harmonic enhancement for warmth and presence",
@@ -139,7 +139,7 @@ const WIZSOUND: ProductPageProps = {
     { title: "Cinematic spatial field", desc: "Stereo widening creates an immersive listening experience that draws viewers in." },
     { title: "Broadcast-ready loudness", desc: "Automatic normalisation ensures your video meets YouTube, Spotify, and streaming platform standards." },
     { title: "Transparent processing", desc: "WizSound enhances without destroying — your original track's character is preserved." },
-    { title: "Automatic in the pipeline", desc: "WizSound runs automatically as part of every WizVid render — no manual steps needed." },
+    { title: "Automatic in the pipeline", desc: "WizSound runs automatically as part of every WIZ AI render — no manual steps needed." },
   ],
   related: ALL_RELATED.filter(r => r.name !== "WizSound™"),
 };
@@ -160,7 +160,7 @@ const WIZLUMINA: ProductPageProps = {
   badgeClass: "text-amber-300 bg-amber-500/10 border-amber-500/25",
   ctaHref: "/enhancement-studio",
   ctaLabel: "Enhance Your Video",
-  whatItDoes: "WizLumina™ is WizVid's visual post-processing engine. It analyses each frame of your AI-generated video and applies a cinematic enhancement pipeline — colour grading, HDR tone mapping, sharpening, and 4K upscaling — that transforms the output from flat AI imagery into rich, film-quality visuals.",
+  whatItDoes: "WizLumina™ is WIZ AI's visual post-processing engine. It analyses each frame of your AI-generated video and applies a cinematic enhancement pipeline — colour grading, HDR tone mapping, sharpening, and 4K upscaling — that transforms the output from flat AI imagery into rich, film-quality visuals.",
   capabilities: [
     "Cinematic colour grading with film LUT library",
     "HDR tone mapping for vivid highlights and deep shadows",
@@ -181,7 +181,7 @@ const WIZLUMINA: ProductPageProps = {
     { title: "4K upscaling", desc: "AI super-resolution upscales your video to 4K without the blocky artefacts of traditional upscaling." },
     { title: "Film-grade colour", desc: "Professional LUT library with cinematic colour grades used in real film production." },
     { title: "Scene consistency", desc: "WizLumina maintains consistent colour grading across all scenes for a cohesive visual style." },
-    { title: "Automatic in the pipeline", desc: "WizLumina runs automatically as part of every WizVid render — no manual colour grading needed." },
+    { title: "Automatic in the pipeline", desc: "WizLumina runs automatically as part of every WIZ AI render — no manual colour grading needed." },
   ],
   related: ALL_RELATED.filter(r => r.name !== "WizLumina™"),
 };
@@ -192,7 +192,7 @@ const WIZGENESIS: ProductPageProps = {
   role: "The Intelligence Layer",
   tagline: "AI Render Intelligence Engine",
   headline: "The brain behind every render \u2014 intelligence meets cinema",
-  subheadline: "WizGenesis\u2122 is the intelligence layer of WizVid. It ensures character consistency across scenes, enhances prompts for accuracy, and orchestrates the final 4K output with WizSound\u2122 spatial audio and WizLumina\u2122 baked in.",
+  subheadline: "WizGenesis\u2122 is the intelligence layer of WIZ AI. It ensures character consistency across scenes, enhances prompts for accuracy, and orchestrates the final 4K output with WizSound\u2122 spatial audio and WizLumina\u2122 baked in.",
   logo: `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp`,
   accentFrom: "from-rose-300",
   accentTo: "to-pink-300",
@@ -202,7 +202,7 @@ const WIZGENESIS: ProductPageProps = {
   badgeClass: "text-rose-300 bg-rose-500/10 border-rose-500/25",
   ctaHref: "/music-video/create",
   ctaLabel: "Render Your Video",
-  whatItDoes: "WizGenesis\u2122 is the intelligence layer of WizVid. It analyses your storyboard for character consistency, enhances prompts for scene accuracy, and orchestrates the complete render pipeline \u2014 combining animated scenes from WizAnimate\u2122, spatial audio from WizSound\u2122, and graded visuals from WizLumina\u2122 into a single, polished video file at studio quality.",
+  whatItDoes: "WizGenesis\u2122 is the intelligence layer of WIZ AI. It analyses your storyboard for character consistency, enhances prompts for scene accuracy, and orchestrates the complete render pipeline \u2014 combining animated scenes from WizAnimate\u2122, spatial audio from WizSound\u2122, and graded visuals from WizLumina\u2122 into a single, polished video file at studio quality.",
   capabilities: [
     "Character consistency across all scenes",
     "Prompt enhancement for scene accuracy",
@@ -244,7 +244,7 @@ const WIZBOOST: ProductPageProps = {
   badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
   ctaHref: "/dashboard",
   ctaLabel: "Go to Dashboard",
-  whatItDoes: "WizBoost™ is the distribution and growth layer of WizVid. After your video is rendered by WizGenesis™, WizBoost™ helps you reach your audience — connecting your content to the WizVid creator network, optimising it for platform algorithms, and tracking performance across channels.",
+  whatItDoes: "WizBoost™ is the distribution and growth layer of WIZ AI. After your video is rendered by WizGenesis™, WizBoost™ helps you reach your audience — connecting your content to the WIZ AI creator network, optimising it for platform algorithms, and tracking performance across channels.",
   capabilities: [
     "Multi-platform distribution (YouTube, Instagram, TikTok)",
     "Creator network amplification and cross-promotion",
@@ -260,12 +260,12 @@ const WIZBOOST: ProductPageProps = {
     { num: "04", icon: "📊", title: "Performance tracked", desc: "Analytics track views, engagement, and growth across all platforms in real time." },
   ],
   benefits: [
-    { title: "Reach beyond your followers", desc: "WizBoost connects your content to the WizVid creator network for cross-promotion and discovery." },
+    { title: "Reach beyond your followers", desc: "WizBoost connects your content to the WIZ AI creator network for cross-promotion and discovery." },
     { title: "Platform-native optimisation", desc: "Each platform gets a version of your video optimised for its algorithm and format requirements." },
     { title: "Growth while you create", desc: "WizBoost works in the background — your audience grows while you focus on making more content." },
-    { title: "Real-time analytics", desc: "Track performance across YouTube, Instagram, and TikTok from a single WizVid dashboard." },
+    { title: "Real-time analytics", desc: "Track performance across YouTube, Instagram, and TikTok from a single WIZ AI dashboard." },
     { title: "SEO and discoverability", desc: "Automatic hashtag and metadata optimisation ensures your content is found by the right audience." },
-    { title: "Creator network access", desc: "Join a network of WizVid creators for collaboration, cross-promotion, and shared growth." },
+    { title: "Creator network access", desc: "Join a network of WIZ AI creators for collaboration, cross-promotion, and shared growth." },
   ],
   related: ALL_RELATED.filter(r => r.name !== "WizBoost™"),
 };

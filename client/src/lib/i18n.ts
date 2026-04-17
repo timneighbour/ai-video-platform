@@ -6,7 +6,7 @@ const resources = {
   en: {
     translation: {
       nav: {
-        wizbeat: "WizVideo",
+        wizbeat: "WIZ AIeo",
         wizpilot: "WizScript",
         tools: "Tools",
         pricing: "Pricing",
@@ -29,21 +29,21 @@ const resources = {
       whatItDoes: {
         badge: "Full Video Creation",
         title: "Create full videos… not just clips",
-        subtitle: "Most AI tools edit content. WizVid creates it from scratch.",
+        subtitle: "Most AI tools edit content. WIZ AI creates it from scratch.",
         point1: "🎵 Turn songs into music videos",
         point2: "🎬 Generate animated scenes automatically",
         point3: "🤖 AI handles everything",
         footer: "No timelines. No editing. No stress.",
       },
       audience: {
-        title: "Built for creators like you",
+        title: "Built for creators with WIZ AI",
         musicians: { title: "Musicians", desc: "Create music videos instantly — no director, no studio, no budget needed." },
         youtubers: { title: "YouTubers", desc: "Boost CTR with AI animation. Stand out in a crowded feed." },
         aiCreators: { title: "AI Creators", desc: "Automate your content pipeline. Scale without limits." },
         kidsContent: { title: "Kids Content Creators", desc: "Perfect for animated channels, nursery rhymes, and family content." },
       },
       usp: {
-        title: "Why WizVid?",
+        title: "Why WIZ AI?",
         point1: "⚡ Fully automated video creation",
         point2: "🎨 Built for animation + music (NOT editing tools)",
         point3: "🧠 No learning curve",
@@ -54,17 +54,17 @@ const resources = {
         title: "Create your video in 3 simple steps",
         step1: { title: "Upload your audio or idea", desc: "Drop in your song, describe your concept, or let AI generate the music with Suno." },
         step2: { title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
-        step3: { title: "Let WizVid generate your video", desc: "AI builds your storyboard, renders every scene, and delivers a complete video." },
+        step3: { title: "Let WIZ AI generate your video", desc: "AI builds your storyboard, renders every scene, and delivers a complete video." },
         footer: "Done in minutes.",
       },
       wizbeat: {
-        badge: "WizVideo",
+        badge: "WIZ AIeo",
         title: "Your Music. Your Story. Brought to Life.",
-        subtitle: "WizVideo turns songs and ideas into full cinematic AI videos. Every scene is generated automatically.",
+        subtitle: "WIZ AIeo turns songs and ideas into full cinematic AI videos. Every scene is generated automatically.",
         feature1: "Lyrics drive the visuals — every line becomes a scene",
         feature2: "Up to 4 characters with lip-sync",
         feature3: "Real artists or animated characters",
-        cta: "Start with WizVideo",
+        cta: "Start with WIZ AIeo",
       },
       wizpilot: {
         badge: "WizScript",
@@ -126,16 +126,16 @@ const resources = {
       },
       cta: {
         title: "Ready to create your first AI video?",
-        subtitle: "No editing. No experience needed. Just upload your audio or idea and let WizVid do the rest.",
+        subtitle: "No editing. No experience needed. Just upload your audio or idea and let WIZ AI do the rest.",
         button: "Create Your First Video Now",
         note: "No credit card required • Create free • Only pay when you render",
       },
       footer: {
         tagline: "AI Video Creation Platform • Create Videos in Minutes",
-        copyright: "© 2025 WizVid. All rights reserved.",
+        copyright: "© 2025 WIZ AI. All rights reserved.",
         links: {
           home: "Home",
-          wizbeat: "WizVideo",
+          wizbeat: "WIZ AIeo",
           wizpilot: "WizScript",
           pricing: "Pricing",
           privacy: "Privacy Policy",
@@ -147,7 +147,7 @@ const resources = {
   es: {
     translation: {
       nav: {
-        wizbeat: "WizVideo",
+        wizbeat: "WIZ AIeo",
         wizpilot: "WizScript",
         tools: "Herramientas",
         pricing: "Precios",
@@ -170,7 +170,7 @@ const resources = {
       whatItDoes: {
         badge: "Creación completa de vídeo",
         title: "Crea vídeos completos… no solo clips",
-        subtitle: "La mayoría de herramientas IA editan contenido. WizVid lo crea desde cero.",
+        subtitle: "La mayoría de herramientas IA editan contenido. WIZ AI lo crea desde cero.",
         point1: "🎵 Convierte canciones en videoclips",
         point2: "🎬 Genera escenas animadas automáticamente",
         point3: "🤖 La IA se encarga de todo",
@@ -184,7 +184,7 @@ const resources = {
         kidsContent: { title: "Creadores de contenido infantil", desc: "Perfecto para canales animados, canciones infantiles y contenido familiar." },
       },
       usp: {
-        title: "¿Por qué WizVid?",
+        title: "¿Por qué WIZ AI?",
         point1: "⚡ Creación de vídeo totalmente automatizada",
         point2: "🎨 Diseñado para animación + música (NO herramientas de edición)",
         point3: "🧠 Sin curva de aprendizaje",
@@ -195,13 +195,13 @@ const resources = {
         title: "Crea tu vídeo en 3 pasos simples",
         step1: { title: "Sube tu audio o idea", desc: "Añade tu canción, describe tu concepto o deja que la IA genere la música con Suno." },
         step2: { title: "Elige tu estilo", desc: "Elige entre Cinematográfico, Anime, Pixar 3D, Documental, Abstracto o Vintage." },
-        step3: { title: "Deja que WizVid genere tu vídeo", desc: "La IA construye tu guión gráfico, renderiza cada escena y entrega un vídeo completo." },
+        step3: { title: "Deja que WIZ AI genere tu vídeo", desc: "La IA construye tu guión gráfico, renderiza cada escena y entrega un vídeo completo." },
         footer: "Listo en minutos.",
       },
       wizbeat: {
-        badge: "WizVideo",
+        badge: "WIZ AIeo",
         title: "Tu música. Tu historia. Hecha realidad.",
-        subtitle: "WizVideo convierte canciones e ideas en vídeos cinematográficos completos con IA.",
+        subtitle: "WIZ AIeo convierte canciones e ideas en vídeos cinematográficos completos con IA.",
         feature1: "Las letras impulsan los visuales — cada línea se convierte en una escena",
         feature2: "Hasta 4 personajes con sincronización labial",
         feature3: "Artistas reales o personajes animados",
@@ -234,21 +234,21 @@ const resources = {
       },
       cta: {
         title: "¿Listo para crear tu primer vídeo IA?",
-        subtitle: "Sin edición. Sin experiencia. Solo sube tu audio o idea y deja que WizVid haga el resto.",
+        subtitle: "Sin edición. Sin experiencia. Solo sube tu audio o idea y deja que WIZ AI haga el resto.",
         button: "Crea tu primer vídeo ahora",
         note: "Sin tarjeta de crédito • Empieza gratis hoy",
       },
       footer: {
         tagline: "Generador de videoclips IA • Crea vídeos en minutos",
-        copyright: "© 2025 WizVid. Todos los derechos reservados.",
-        links: { home: "Inicio", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Precios", privacy: "Política de privacidad", terms: "Términos de servicio" },
+        copyright: "© 2025 WIZ AI. Todos los derechos reservados.",
+        links: { home: "Inicio", wizbeat: "WIZ AIeo", wizpilot: "WizScript", pricing: "Precios", privacy: "Política de privacidad", terms: "Términos de servicio" },
       },
     },
   },
   "pt-BR": {
     translation: {
       nav: {
-        wizbeat: "WizVideo",
+        wizbeat: "WIZ AIeo",
         wizpilot: "WizScript",
         tools: "Ferramentas",
         pricing: "Preços",
@@ -271,7 +271,7 @@ const resources = {
       whatItDoes: {
         badge: "Criação completa de vídeo",
         title: "Crie vídeos completos… não apenas clipes",
-        subtitle: "A maioria das ferramentas de IA edita conteúdo. O WizVid cria do zero.",
+        subtitle: "A maioria das ferramentas de IA edita conteúdo. O WIZ AI cria do zero.",
         point1: "🎵 Transforme músicas em videoclipes",
         point2: "🎬 Gere cenas animadas automaticamente",
         point3: "🤖 A IA cuida de tudo",
@@ -285,7 +285,7 @@ const resources = {
         kidsContent: { title: "Criadores de conteúdo infantil", desc: "Perfeito para canais animados, músicas infantis e conteúdo familiar." },
       },
       usp: {
-        title: "Por que WizVid?",
+        title: "Por que WIZ AI?",
         point1: "⚡ Criação de vídeo totalmente automatizada",
         point2: "🎨 Feito para animação + música (NÃO ferramentas de edição)",
         point3: "🧠 Sem curva de aprendizado",
@@ -296,13 +296,13 @@ const resources = {
         title: "Crie seu vídeo em 3 passos simples",
         step1: { title: "Envie seu áudio ou ideia", desc: "Adicione sua música, descreva seu conceito ou deixe a IA gerar a música com Suno." },
         step2: { title: "Escolha seu estilo", desc: "Escolha entre Cinematográfico, Anime, Pixar 3D, Documentário, Abstrato ou Vintage." },
-        step3: { title: "Deixe o WizVid gerar seu vídeo", desc: "A IA constrói seu storyboard, renderiza cada cena e entrega um vídeo completo." },
+        step3: { title: "Deixe o WIZ AI gerar seu vídeo", desc: "A IA constrói seu storyboard, renderiza cada cena e entrega um vídeo completo." },
         footer: "Pronto em minutos.",
       },
       wizbeat: {
-        badge: "WizVideo",
+        badge: "WIZ AIeo",
         title: "Sua música. Sua história. Ganha vida.",
-        subtitle: "WizVideo transforma músicas e ideias em vídeos cinematográficos completos com IA.",
+        subtitle: "WIZ AIeo transforma músicas e ideias em vídeos cinematográficos completos com IA.",
         feature1: "As letras impulsionam os visuais — cada linha vira uma cena",
         feature2: "Até 4 personagens com sincronização labial",
         feature3: "Artistas reais ou personagens animados",
@@ -335,21 +335,21 @@ const resources = {
       },
       cta: {
         title: "Pronto para criar seu primeiro vídeo IA?",
-        subtitle: "Sem edição. Sem experiência. Apenas envie seu áudio ou ideia e deixe o WizVid fazer o resto.",
+        subtitle: "Sem edição. Sem experiência. Apenas envie seu áudio ou ideia e deixe o WIZ AI fazer o resto.",
         button: "Crie seu primeiro vídeo agora",
         note: "Sem cartão de crédito • Comece grátis hoje",
       },
       footer: {
         tagline: "Gerador de videoclipes IA • Crie vídeos em minutos",
-        copyright: "© 2025 WizVid. Todos os direitos reservados.",
-        links: { home: "Início", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Preços", privacy: "Política de privacidade", terms: "Termos de serviço" },
+        copyright: "© 2025 WIZ AI. Todos os direitos reservados.",
+        links: { home: "Início", wizbeat: "WIZ AIeo", wizpilot: "WizScript", pricing: "Preços", privacy: "Política de privacidade", terms: "Termos de serviço" },
       },
     },
   },
   fr: {
     translation: {
       nav: {
-        wizbeat: "WizVideo",
+        wizbeat: "WIZ AIeo",
         wizpilot: "WizScript",
         tools: "Outils",
         pricing: "Tarifs",
@@ -372,7 +372,7 @@ const resources = {
       whatItDoes: {
         badge: "Création vidéo complète",
         title: "Créez des vidéos complètes… pas seulement des clips",
-        subtitle: "La plupart des outils IA éditent du contenu. WizVid le crée de zéro.",
+        subtitle: "La plupart des outils IA éditent du contenu. WIZ AI le crée de zéro.",
         point1: "🎵 Transformez des chansons en clips musicaux",
         point2: "🎬 Générez des scènes animées automatiquement",
         point3: "🤖 L'IA gère tout",
@@ -386,7 +386,7 @@ const resources = {
         kidsContent: { title: "Créateurs de contenu pour enfants", desc: "Parfait pour les chaînes animées, les comptines et le contenu familial." },
       },
       usp: {
-        title: "Pourquoi WizVid ?",
+        title: "Pourquoi WIZ AI ?",
         point1: "⚡ Création vidéo entièrement automatisée",
         point2: "🎨 Conçu pour l'animation + la musique (PAS des outils de montage)",
         point3: "🧠 Aucune courbe d'apprentissage",
@@ -397,13 +397,13 @@ const resources = {
         title: "Créez votre vidéo en 3 étapes simples",
         step1: { title: "Téléchargez votre audio ou idée", desc: "Ajoutez votre chanson, décrivez votre concept ou laissez l'IA générer la musique avec Suno." },
         step2: { title: "Choisissez votre style", desc: "Choisissez parmi Cinématographique, Anime, Pixar 3D, Documentaire, Abstrait ou Vintage." },
-        step3: { title: "Laissez WizVid générer votre vidéo", desc: "L'IA construit votre storyboard, rend chaque scène et livre une vidéo complète." },
+        step3: { title: "Laissez WIZ AI générer votre vidéo", desc: "L'IA construit votre storyboard, rend chaque scène et livre une vidéo complète." },
         footer: "Terminé en minutes.",
       },
       wizbeat: {
-        badge: "WizVideo",
+        badge: "WIZ AIeo",
         title: "Votre musique. Votre histoire. Prend vie.",
-        subtitle: "WizVideo transforme chansons et idées en vidéos cinématiques complètes avec IA.",
+        subtitle: "WIZ AIeo transforme chansons et idées en vidéos cinématiques complètes avec IA.",
         feature1: "Les paroles guident les visuels — chaque ligne devient une scène",
         feature2: "Jusqu'à 4 personnages avec synchronisation labiale",
         feature3: "Vrais artistes ou personnages animés",
@@ -436,14 +436,14 @@ const resources = {
       },
       cta: {
         title: "Prêt à créer votre première vidéo IA ?",
-        subtitle: "Sans montage. Sans expérience. Téléchargez simplement votre audio ou idée et laissez WizVid faire le reste.",
+        subtitle: "Sans montage. Sans expérience. Téléchargez simplement votre audio ou idée et laissez WIZ AI faire le reste.",
         button: "Créez votre première vidéo maintenant",
         note: "Sans carte de crédit • Commencez gratuitement aujourd'hui",
       },
       footer: {
         tagline: "Générateur de clips musicaux IA • Créez des vidéos en minutes",
-        copyright: "© 2025 WizVid. Tous droits réservés.",
-        links: { home: "Accueil", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Tarifs", privacy: "Politique de confidentialité", terms: "Conditions d'utilisation" },
+        copyright: "© 2025 WIZ AI. Tous droits réservés.",
+        links: { home: "Accueil", wizbeat: "WIZ AIeo", wizpilot: "WizScript", pricing: "Tarifs", privacy: "Politique de confidentialité", terms: "Conditions d'utilisation" },
       },
     },
   },

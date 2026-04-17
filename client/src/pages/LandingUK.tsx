@@ -53,7 +53,7 @@ export default function LandingUK() {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-extrabold text-white text-lg tracking-tight">WizVid</span>
+          <span className="font-extrabold text-white text-lg tracking-tight">WIZ AI</span>
           <span className="text-xs text-white/30 font-mono ml-1">.co.uk</span>
         </a>
         <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function LandingUK() {
       <section className="py-20 px-6 border-t border-white/6 bg-gradient-to-b from-[#0a0a0f] to-[#0f0f18]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest mb-3">Why WizVid</p>
+            <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest mb-3">Why WIZ AI</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">See it. Approve it. Then render it.</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -256,13 +256,13 @@ export default function LandingUK() {
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
-            <span className="text-white/60 text-sm font-semibold">WizVid.co.uk</span>
+            <span className="text-white/60 text-sm font-semibold">WIZ AI.co.uk</span>
           </div>
           <div className="flex items-center gap-5 text-xs text-white/30">
             <a href={`${MAIN_APP}/privacy`} className="hover:text-white/60 transition-colors">Privacy</a>
             <a href={`${MAIN_APP}/terms`} className="hover:text-white/60 transition-colors">Terms</a>
             <a href={`${MAIN_APP}/help`} className="hover:text-white/60 transition-colors">Help</a>
-            <span>© 2025 WizVid. All rights reserved.</span>
+            <span>© 2025 WIZ AI. All rights reserved.</span>
           </div>
         </div>
       </footer>

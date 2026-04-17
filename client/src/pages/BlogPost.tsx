@@ -91,8 +91,8 @@ export default function BlogPost() {
   }
 
   const canonicalUrl = `https://www.wizvid.ai/blog/${post.slug}`;
-  const metaTitle = post.metaTitle ?? `${post.title} — WizVid AI Blog`;
-  const metaDesc = post.metaDescription ?? post.excerpt ?? "Read this article on the WizVid blog.";
+  const metaTitle = post.metaTitle ?? `${post.title} — WIZ AI Blog`;
+  const metaDesc = post.metaDescription ?? post.excerpt ?? "Read this article on the WIZ AI blog.";
 
   return (
     <>
@@ -114,7 +114,7 @@ export default function BlogPost() {
           "author": { "@type": "Person", "name": post.author },
           "datePublished": post.publishedAt,
           "image": post.coverImage,
-          "publisher": { "@type": "Organization", "name": "WizVid AI", "url": "https://www.wizvid.ai" },
+          "publisher": { "@type": "Organization", "name": "WIZ AI", "url": "https://www.wizvid.ai" },
         })}</script>
       </Helmet>
 

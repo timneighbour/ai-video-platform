@@ -131,7 +131,7 @@ export const billingRouter = router({
               currency: "gbp",
               product_data: {
                 name: "Remove Watermark",
-                description: "Download your video without the WizVid watermark",
+                description: "Download your video without the WIZ AI watermark",
               },
               unit_amount: 200, // £2.00
             },

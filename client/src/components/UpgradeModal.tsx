@@ -19,7 +19,7 @@ const TRIGGER_CONTENT = {
     emoji: "⬇️",
     headline: "Remove the watermark",
     subline: "Download clean, watermark-free videos",
-    body: "Upgrade to Creator or above to download your videos without the WizVid watermark and in higher quality.",
+    body: "Upgrade to Creator or above to download your videos without the WIZ AI watermark and in higher quality.",
   },
   milestone: {
     emoji: "🎉",
@@ -31,7 +31,7 @@ const TRIGGER_CONTENT = {
     emoji: "✨",
     headline: "Go watermark-free",
     subline: "Professional videos, no branding",
-    body: "Upgrade to Creator or above to remove the WizVid watermark from all your videos and unlock 4K quality.",
+    body: "Upgrade to Creator or above to remove the WIZ AI watermark from all your videos and unlock 4K quality.",
   },
 };
 

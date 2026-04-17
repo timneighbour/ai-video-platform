@@ -280,7 +280,7 @@ export default function MyProjects() {
             <Film className="w-16 h-16 text-white/10 mb-4" />
             <h2 className="text-xl font-semibold text-white mb-2">No projects yet</h2>
             <p className="text-white/40 mb-6 max-w-sm text-sm">
-              Create your first AI music video to get started. Upload a song and let WizVid do the rest.
+              Create your first AI music video to get started. Upload a song and let WIZ AI do the rest.
             </p>
             <a
               href="/music-video"

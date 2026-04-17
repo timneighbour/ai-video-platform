@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import WizSoundShowcase from "@/components/WizSoundShowcase";
 
-const WIZVID_LOGO_FULL = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 
 // ── Subscription plans ───────────────────────────────────────────────────────
 const PLANS = [
@@ -298,7 +298,7 @@ export default function Pricing() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/6">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <NavLink href="/">
-            <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-[9.1rem] w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[9.1rem] w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
           </NavLink>
           <div className="flex items-center gap-4">
             <NavLink href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</NavLink>
@@ -829,8 +829,8 @@ export default function Pricing() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-white/6 py-8 px-6 text-center text-xs text-white/25">
-        <img src={WIZVID_LOGO_FULL} alt="WizVid" className="h-[6.5rem] w-auto object-contain mx-auto mb-4 opacity-60" />
-        <p>© 2025 WizVid. All rights reserved.</p>
+        <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain mx-auto mb-4 opacity-60" />
+        <p>© 2025 WIZ AI. All rights reserved.</p>
         <div className="flex items-center justify-center gap-4 mt-3">
           <Link href="/privacy" className="hover:text-white/50 transition-colors">Privacy</Link>
           <Link href="/terms" className="hover:text-white/50 transition-colors">Terms</Link>

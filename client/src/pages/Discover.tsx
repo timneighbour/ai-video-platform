@@ -180,7 +180,7 @@ function EmptyState({ category }: { category: string }) {
       <h3 className="text-lg font-semibold text-white mb-2">No creators yet</h3>
       <p className="text-white/50 text-sm max-w-xs">
         {category === "all"
-          ? "Be the first to get featured on WizVid."
+          ? "Be the first to get featured on WIZ AI."
           : `No ${CREATOR_TYPE_LABELS[category] ?? category} creators featured yet.`}
       </p>
       <Link href="/music-video/create">
@@ -226,7 +226,7 @@ export default function Discover() {
         <div className="relative max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            WizVid Creator Network
+            WIZ AI Creator Network
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
             Discover Creators
@@ -235,7 +235,7 @@ export default function Discover() {
             Create videos. Get discovered. Grow your audience.
           </p>
           <p className="text-white/40 max-w-xl mx-auto mb-8">
-            Real creators using WizVid to produce music videos, animations, kids content, and more. Get featured by creating your first video.
+            Real creators using WIZ AI to produce music videos, animations, kids content, and more. Get featured by creating your first video.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link href="/music-video/create">
@@ -261,11 +261,11 @@ export default function Discover() {
             >
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/featured-on-wizvid-badge-WXFCgjGNQGdfmakysCuF7t.webp"
-                alt="Featured on WizVid badge"
+                alt="Featured on WIZ AI badge"
                 className="w-12 h-12 object-contain"
               />
               <div className="text-left">
-                <p className="text-white text-sm font-semibold">Featured on WizVid</p>
+                <p className="text-white text-sm font-semibold">Featured on WIZ AI</p>
                 <p className="text-amber-400/70 text-xs">Download your badge &rarr;</p>
               </div>
             </a>
@@ -384,7 +384,7 @@ export default function Discover() {
           <div className="relative">
             <h2 className="text-3xl font-bold text-white mb-3">Want to get featured?</h2>
             <p className="text-white/60 mb-6 max-w-lg mx-auto">
-              Create a video with WizVid, then submit your creator profile. We feature the best creators every week.
+              Create a video with WIZ AI, then submit your creator profile. We feature the best creators every week.
             </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link href="/music-video/create">
