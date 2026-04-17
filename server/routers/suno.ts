@@ -75,12 +75,20 @@ export const sunoRouter = router({
       // ── ElevenLabs Sound Effects (≤30s, exact duration) ─────────────────────
       if (provider === "elevenlabs_sfx") {
         const durationSec = input.targetDuration ?? 10;
-        console.log(`[WizSound] ElevenLabs SFX — ${durationSec}s: "${input.prompt.substring(0, 80)}"`);
+
+        // Build enriched prompt: genre, mood, vocal style appended as context
+        const sfxContextParts: string[] = [];
+        if (input.style) sfxContextParts.push(input.style);
+        const sfxEnrichedPrompt = sfxContextParts.length > 0
+          ? `${input.prompt} [${sfxContextParts.join(", ")}]`
+          : input.prompt;
+
+        console.log(`[WizSound] ElevenLabs SFX — ${durationSec}s\n  prompt: "${sfxEnrichedPrompt.substring(0, 200)}"`);
 
         let result;
         try {
           result = await generateSoundEffect({
-            prompt: input.prompt,
+            prompt: sfxEnrichedPrompt,
             durationSeconds: durationSec,
             promptInfluence: 0.3,
             userId: ctx.user.id,
@@ -122,7 +130,21 @@ export const sunoRouter = router({
 
       // ── ElevenLabs Music (30s–5min, full composition) ────────────────────────
       if (provider === "elevenlabs_music") {
-        console.log(`[WizSound] ElevenLabs Music — ${input.targetDuration ?? "?"}s: "${input.prompt.substring(0, 80)}"`);
+        // Build enriched prompt with genre, mood, vocal style context
+        const contextParts: string[] = [];
+        if (input.style) contextParts.push(input.style);
+        const enrichedPromptForEleven = contextParts.length > 0
+          ? `${input.prompt} [${contextParts.join(", ")}]`
+          : input.prompt;
+        const isInstrumentalForEleven = input.instrumental ||
+          input.generationMode === "score" ||
+          (input.style?.toLowerCase().includes("instrumental") ?? false);
+
+        console.log(
+          `[WizSound] ElevenLabs Music — ${input.targetDuration ?? "?"}s\n` +
+          `  make_instrumental: ${isInstrumentalForEleven}\n` +
+          `  enriched prompt (${enrichedPromptForEleven.length} chars): "${enrichedPromptForEleven.substring(0, 300)}"`
+        );
 
         // Insert as "pending" immediately so frontend can start polling
         const [inserted] = await db.insert(sunoMusicTasks).values({
@@ -139,17 +161,6 @@ export const sunoRouter = router({
           updatedAt: new Date(),
         });
         const taskDbId = (inserted as any).insertId as number;
-
-        // Run generation in background (non-blocking)
-        // Build enriched prompt with genre, mood, vocal style context
-        const contextParts: string[] = [];
-        if (input.style) contextParts.push(input.style);
-        const enrichedPromptForEleven = contextParts.length > 0
-          ? `${input.prompt} [${contextParts.join(", ")}]`
-          : input.prompt;
-        const isInstrumentalForEleven = input.instrumental ||
-          input.generationMode === "score" ||
-          (input.style?.toLowerCase().includes("instrumental") ?? false);
         generateMusic({
           prompt: enrichedPromptForEleven,
           durationSeconds: input.targetDuration,

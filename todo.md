@@ -4541,3 +4541,7 @@
 - [x] ElevenLabs prompt enrichment: pass genre, mood, vocal style, and makeInstrumental to ElevenLabs Music
 - [x] Delete track: backend deleteTask procedure with ownership check + frontend trash button
 - [x] Regenerate track: button to re-run generation with same settings without clearing the form
+- [ ] Music Creator loading animation: multi-phase waveform animation (queued/generating/trimming) with phase-aware colors and status messaging
+- [x] ElevenLabs 429 rate-limit: retry-with-exponential-backoff (3 retries, 10s/20s/40s) for both SFX and Music submit/poll calls
+- [x] ElevenLabs prompt logging: full enriched prompt (prompt + style/genre/mood context) now logged at INFO level before every API call
+- [x] ElevenLabs SFX path: now uses enriched prompt (genre/mood/style appended as context) same as Music path
