@@ -11,7 +11,7 @@ import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno, SunoTrack } from "../ai-apis/suno";
 import { invokeLLM } from "../_core/llm";
-import { trimAudioToLength } from "../audioTrim";
+import { enqueueTrim } from "../trimWorker";
 export const sunoRouter = router({
   /**
    * Submit a music generation task.
@@ -111,62 +111,47 @@ export const sunoRouter = router({
       if (task.status === "complete" || task.status === "failed") {
         const cachedTracks: SunoTrack[] = task.tracks ? JSON.parse(task.tracks) : [];
 
-        // Check if trim is needed (targetDuration set, not yet trimmed, not currently trimming)
-        const needsTrim =
+        // Check if tracks are still being trimmed by the background worker
+        const isCurrentlyTrimming = cachedTracks.some((t: any) => t.trimming === true);
+
+        // Check if trim is needed but hasn't been enqueued yet
+        const needsEnqueue =
           task.status === "complete" &&
           task.targetDuration &&
           cachedTracks.length > 0 &&
           !(cachedTracks[0] as any).trimmedDuration &&
           !(cachedTracks[0] as any).trimFailed &&
-          !(cachedTracks[0] as any).trimming;
+          !isCurrentlyTrimming;
 
-        if (needsTrim) {
-          console.log(`[WizSound] Task ${task.id} needs trim to ${task.targetDuration}s — starting background job...`);
-          // Mark as trimming immediately so concurrent polls don't double-trigger
-          const trimmingTracks = cachedTracks.map((t: SunoTrack) => ({ ...t, trimming: true }));
+        if (needsEnqueue) {
+          // Mark tracks as trimming and enqueue with the worker
+          console.log(`[WizSound] Task ${task.id} needs trim — marking and enqueuing...`);
+          const trimmingTracks = cachedTracks.map((t: SunoTrack) => ({
+            ...t,
+            trimming: true,
+            originalUrl: (t as any).originalUrl ?? t.audioUrl,
+          }));
           await db
             .update(sunoMusicTasks)
             .set({ tracks: JSON.stringify(trimmingTracks), updatedAt: new Date() })
             .where(eq(sunoMusicTasks.id, task.id));
-
-          // Run trim in background — do NOT await, return immediately
-          (async () => {
-            const dbBg = await getDb();
-            if (!dbBg) return;
-            try {
-              const trimmedTracks = await Promise.all(
-                cachedTracks.map(async (track: SunoTrack) => {
-                  if (!track.audioUrl) return track;
-                  console.log(`[WizSound] BG trim: "${track.title}" → ${task.targetDuration}s`);
-                  const trimmedUrl = await trimAudioToLength(
-                    track.audioUrl,
-                    task.targetDuration!,
-                    task.userId
-                  );
-                  console.log(`[WizSound] BG trim done → ${trimmedUrl.substring(0, 60)}...`);
-                  return { ...track, audioUrl: trimmedUrl, originalUrl: track.audioUrl, trimmedDuration: task.targetDuration, trimming: false };
-                })
-              );
-              await dbBg
-                .update(sunoMusicTasks)
-                .set({ tracks: JSON.stringify(trimmedTracks), updatedAt: new Date() })
-                .where(eq(sunoMusicTasks.id, task.id));
-              console.log(`[WizSound] BG trim saved for task ${task.id}`);
-            } catch (trimErr) {
-              console.error(`[WizSound] BG trim failed for task ${task.id}:`, trimErr);
-              const failedTracks = cachedTracks.map((t: SunoTrack) => ({ ...t, trimFailed: true, trimming: false }));
-              await dbBg
-                .update(sunoMusicTasks)
-                .set({ tracks: JSON.stringify(failedTracks), updatedAt: new Date() })
-                .where(eq(sunoMusicTasks.id, task.id));
-            }
-          })();
-
-          // Return immediately with trimming status — frontend will poll again
+          enqueueTrim(task.id);
           return {
             id: task.id,
             status: "trimming" as any,
             tracks: trimmingTracks,
+            errorMessage: task.errorMessage,
+            targetDuration: task.targetDuration,
+          };
+        }
+
+        if (isCurrentlyTrimming) {
+          // Worker is still processing — return trimming status so frontend keeps polling
+          enqueueTrim(task.id); // nudge the worker
+          return {
+            id: task.id,
+            status: "trimming" as any,
+            tracks: cachedTracks,
             errorMessage: task.errorMessage,
             targetDuration: task.targetDuration,
           };
@@ -191,30 +176,20 @@ export const sunoRouter = router({
 
       const result = await suno.getTaskStatus(task.taskId);
 
-      // If complete and targetDuration is set, trim each track to the requested length
+      // If complete and targetDuration is set, mark tracks for background trimming
       let finalTracks = result.tracks ?? [];
       if (result.status === "complete" && task.targetDuration && finalTracks.length > 0) {
-        try {
-          finalTracks = await Promise.all(
-            finalTracks.map(async (track: SunoTrack) => {
-              if (!track.audioUrl) return track;
-              const trimmedUrl = await trimAudioToLength(
-                track.audioUrl,
-                task.targetDuration!,
-                ctx.user.id
-              );
-              return { ...track, audioUrl: trimmedUrl, trimmedDuration: task.targetDuration };
-            })
-          );
-        } catch (trimErr) {
-          // Trimming failed — log full error and return original tracks
-          console.error("[WizSound] Audio trim failed, returning original tracks. Error:", trimErr);
-          // Mark tracks with a flag so we don't retry endlessly on cached path
-          finalTracks = finalTracks.map((t: SunoTrack) => ({ ...t, trimFailed: true }));
-        }
+        // Mark tracks as needing trim — the background worker will handle the actual trim
+        finalTracks = finalTracks.map((t: SunoTrack) => ({
+          ...t,
+          trimming: true,
+          originalUrl: t.audioUrl,
+        }));
+        console.log(`[WizSound] Task ${task.id} complete — marking ${finalTracks.length} tracks for background trim to ${task.targetDuration}s`);
       }
 
       // Update DB
+      const hasTrimming = finalTracks.some((t: any) => t.trimming === true);
       await db
         .update(sunoMusicTasks)
         .set({
@@ -224,9 +199,14 @@ export const sunoRouter = router({
         })
         .where(eq(sunoMusicTasks.id, task.id));
 
+      // Enqueue background trim if needed
+      if (hasTrimming) {
+        enqueueTrim(task.id);
+      }
+
       return {
         id: task.id,
-        status: result.status,
+        status: hasTrimming ? ("trimming" as any) : result.status,
         tracks: finalTracks,
         errorMessage: result.errorMessage,
         targetDuration: task.targetDuration,

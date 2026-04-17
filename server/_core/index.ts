@@ -366,3 +366,7 @@ startServer().catch(console.error);
 // Start re-engagement cron job (hourly check for incomplete renders → in-app reminders)
 import { startReEngagementJob } from "../reEngagementJob";
 startReEngagementJob();
+
+// Start background audio trim worker (polls every 10s for tasks needing trim)
+import { startTrimWorker } from "../trimWorker";
+startTrimWorker();

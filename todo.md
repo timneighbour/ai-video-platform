@@ -4493,3 +4493,11 @@
 - [x] Fix trim pipeline: trimmed audio saved to S3 and returned as S3 URL
 - [x] Fix audio playback: aiquickdraw.com added to proxy allowlist + resolveAudioUrl
 - [x] Ensure custom duration (e.g. 2:41) is passed correctly through generate → getStatus → trim
+
+## BUG FIX: Music Creator — Definitive Architecture Fix (Apr 17 2026)
+- [ ] Change trim to run synchronously inside getStatus BEFORE setting status to "complete"
+- [ ] Task stays in "processing" state while trim runs, flips to "complete" only when trimmed S3 URL is ready
+- [ ] Fix audio proxy: set Content-Length, Accept-Ranges, Content-Type headers correctly
+- [ ] Fix WizAudioPlayer: add crossOrigin="anonymous" and preload="metadata"
+- [ ] Retroactively fix all existing untrimmed DB tasks
+- [ ] Verify trimmed audio plays and shows correct duration in browser
