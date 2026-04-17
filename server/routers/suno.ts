@@ -63,9 +63,29 @@ export const sunoRouter = router({
         ? `${input.origin}/api/suno/callback`
         : `${process.env.VITE_FRONTEND_FORGE_API_URL ?? "https://api.manus.im"}/api/suno/callback`;
 
+      // Inject duration hint into the prompt so Suno generates a track of the right length.
+      // Suno has no native duration parameter — the only way to influence length is via the prompt.
+      let enrichedPrompt = input.prompt;
+      if (input.targetDuration) {
+        const mins = Math.floor(input.targetDuration / 60);
+        const secs = input.targetDuration % 60;
+        const durationLabel = mins > 0
+          ? `${mins} minute${mins > 1 ? 's' : ''}${secs > 0 ? ` ${secs} second` : ''}`
+          : `${secs} second`;
+        // For very short clips (≤15s) use "sting" / "stinger" language which Suno understands
+        if (input.targetDuration <= 15) {
+          enrichedPrompt = `[${durationLabel} stinger/sting, very short, no verse structure] ${input.prompt}`;
+        } else if (input.targetDuration <= 60) {
+          enrichedPrompt = `[${durationLabel} short clip, no full song structure] ${input.prompt}`;
+        } else {
+          enrichedPrompt = `[${durationLabel} track] ${input.prompt}`;
+        }
+        console.log(`[WizSound] Enriched prompt with duration hint: "${enrichedPrompt.substring(0, 120)}..."`);
+      }
+
       // Submit to Suno API
       const externalTaskId = await suno.generate({
-        prompt: input.prompt,
+        prompt: enrichedPrompt,
         lyrics: input.lyrics,
         style: input.style,
         title: input.title,

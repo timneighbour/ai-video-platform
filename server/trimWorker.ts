@@ -59,9 +59,14 @@ async function processTrimQueue() {
       const allTrimmed = tracks.every((t: any) => t.trimmedDuration != null);
       if (allTrimmed) continue;
 
-      // Skip if no tracks need trimming (no trimming:true flag and no missing trimmedDuration)
+      // Skip if no tracks need trimming:
+      // - trimming:true means explicitly marked for trim
+      // - has audioUrl + no trimmedDuration + no trimFailed = needs first trim
+      // - has audioUrl + trimFailed = retry (trimFailed tracks with valid URLs are retried)
       const needsTrim = tracks.some(
-        (t: any) => t.trimming === true || (t.audioUrl && !t.trimmedDuration && !t.trimFailed)
+        (t: any) =>
+          t.trimming === true ||
+          (t.audioUrl && t.audioUrl.length > 0 && !t.trimmedDuration)
       );
       if (!needsTrim) continue;
 
@@ -77,15 +82,16 @@ async function processTrimQueue() {
             continue;
           }
 
-          // Skip tracks with no audio URL
-          if (!track.audioUrl && !track.originalUrl) {
-            console.warn(`[TrimWorker] Track "${track.title}" has no audioUrl — skipping`);
+          // Skip tracks with no audio URL (Suno never delivered audio for this track)
+          const effectiveUrl = track.originalUrl || track.audioUrl;
+          if (!effectiveUrl || effectiveUrl.trim().length === 0) {
+            console.warn(`[TrimWorker] Track "${track.title}" has no audioUrl — permanently skipping`);
             trimmedTracks.push({ ...track, trimming: false, trimFailed: true });
             continue;
           }
 
           // Use originalUrl if available (in case we're retrying after a failed trim)
-          const sourceUrl = track.originalUrl ?? track.audioUrl;
+          const sourceUrl = effectiveUrl;
 
           console.log(`[TrimWorker] Trimming "${track.title}" from ${sourceUrl.substring(0, 60)}...`);
           try {
