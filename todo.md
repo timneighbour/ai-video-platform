@@ -4549,3 +4549,17 @@
 - [x] Music Creator duration picker: add 10s, 15s, 20s, 25s, 30s quick-select options (grouped into Short ≤30s and Long 1m–10m rows)
 - [x] ElevenLabs SFX promptInfluence: raised from 0.3 to 0.85; prompt now built as natural-language sentence (description + Style: ... + No vocals. Instrumental only.) for maximum adherence
 - [x] Music Creator engine rename: Score/BG → Sound FX, Full Song → Precision Audio, Suno Creative → WizAudio; updated all labels, descriptions, and helper text
+
+## WIZ AI Full Product Suite Rebrand
+- [x] Navigation rebuild: Products dropdown with WizAudio, WizImage, WizVideo, WizShorts, WizAnimate, WizScript
+- [x] Homepage product entry section: 6 premium product cards with descriptions, USPs, and CTAs
+- [x] Rename: AI Music Generation / Generate a Song → WizAudio
+- [x] Rename: Music Video Creation / Create Music Video → WizVideo
+- [x] Rename: WizBeat → WizVideo across all pages
+- [x] Rename: WizPilot → WizScript across all pages
+- [x] Rename: Text to Video → WizScript
+- [ ] Mini-brand system: each product gets icon, badge, descriptor, consistent premium card style
+- [x] Status language: Rendering → Building Your Video (Dashboard, MyProjects, RenderHistory, HowItWorks, Pricing)
+- [x] Legacy copy cleanup: all old naming replaced across all pages (i18n en/es/pt/fr, Help, Home, MusicCreator, MusicVideosLanding, Create, Projects, Onboarding, HabitLoopPanel, DashboardLayout)
+- [ ] Homepage product story: consolidate duplicate sections, clear creation paths
+- [ ] Final QA: verify all 10 checklist items from the rebrand spec

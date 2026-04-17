@@ -27,9 +27,9 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>Blog — WizVid AI | AI Music Video Creation Tips & Tutorials</title>
+        <title>Blog — WizVid AI | AI WizVideo Tips & Tutorials</title>
         <meta name="description" content="Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WizVid team." />
-        <meta property="og:title" content="WizVid Blog — AI Music Video Creation" />
+        <meta property="og:title" content="WizVid Blog — AI WizVideo" />
         <meta property="og:description" content="Tips, tutorials, and insights on AI video creation." />
         <link rel="canonical" href="https://www.wizvid.ai/blog" />
       </Helmet>

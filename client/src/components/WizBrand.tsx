@@ -62,10 +62,10 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
     Icon: ({ className }) => <Music2 className={className} />,
   },
   pilot: {
-    name: "WizPilot™",
+    name: "WizScript",
     verb: "Automated by",
     pastVerb: "Automated by",
-    processingLabel: "Automating with WizPilot™…",
+    processingLabel: "Automating with WizScript…",
     tagline: "Automated video production workflows",
     colour: "fuchsia",
     glow: "0 0 12px rgba(217,70,239,0.45)",

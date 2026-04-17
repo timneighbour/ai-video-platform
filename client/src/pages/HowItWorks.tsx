@@ -206,7 +206,7 @@ export default function HowItWorks() {
           <div className="grid sm:grid-cols-2 gap-4">
             {[
               { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Position is based on your plan tier.", color: "text-white/50" },
-              { icon: <Wand2 className="w-5 h-5" />, stage: "Rendering", desc: "AI animates each scene from your approved storyboard images.", color: "text-violet-300" },
+              { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images.", color: "text-violet-300" },
               { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina are applied.", color: "text-blue-300" },
               { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WizVid.", color: "text-emerald-300" },
             ].map((item) => (

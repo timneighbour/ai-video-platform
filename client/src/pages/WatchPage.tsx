@@ -203,7 +203,7 @@ export default function WatchPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 mt-12 py-6 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/40">
-          <span>© 2026 WizVid AI — AI-Powered Music Video Creation</span>
+          <span>© 2026 WizVid AI — AI-Powered WizVideo</span>
           <div className="flex gap-4">
             <Link href="/privacy"><span className="hover:text-white/70 cursor-pointer transition-colors">Privacy</span></Link>
             <Link href="/terms"><span className="hover:text-white/70 cursor-pointer transition-colors">Terms</span></Link>

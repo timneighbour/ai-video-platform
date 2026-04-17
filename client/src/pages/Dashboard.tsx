@@ -87,7 +87,7 @@ const INSPIRATION = [
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     completed: { label: "Complete", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20" },
-    rendering: { label: "Rendering", cls: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
+    rendering: { label: "Building Your Video", cls: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
     assembling: { label: "Assembling", cls: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
     storyboard_ready: { label: "Ready", cls: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
     failed: { label: "Failed", cls: "bg-red-500/15 text-red-400 border-red-500/20" },

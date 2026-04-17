@@ -51,7 +51,7 @@ import CreditBalance from "@/components/CreditBalance";
 /*  Types                                                                       */
 /* ─────────────────────────────────────────────────────────────────────────── */
 const TOOL_LABELS: Record<string, string> = {
-  text_to_video: "Text to Video",
+  text_to_video: "WizScript",
   lip_sync: "Lip Sync",
   video_to_video: "Video to Video",
   voiceover: "Voiceover",

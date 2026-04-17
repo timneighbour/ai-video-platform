@@ -42,8 +42,8 @@ interface Tool {
 const TOOLS: Tool[] = [
   {
     id: "music-video",
-    name: "Music Video",
-    tagline: "WizBeat™ — Upload a song, get a full music video",
+    name: "WizVideo",
+    tagline: "WizVideo™ — Upload a song, get a full music video",
     subheading: "Turn any track into a full-length, AI-directed music video — scenes, cuts, and all.",
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",
     href: "/music-video/create",
@@ -62,9 +62,9 @@ const TOOLS: Tool[] = [
   {
     id: "wizpilot",
     name: "Cinematic Video",
-    tagline: "WizPilot™ — Text to cinematic video, fully automated",
+    tagline: "WizScript — Text to cinematic video, fully automated",
     subheading: "Describe your idea and get a polished, scene-by-scene cinematic video in minutes.",
-    description: "Type a prompt, choose a style, and WizPilot writes a full storyboard and renders a cinematic video. No editing skills needed.",
+    description: "Type a prompt, choose a style, and WizScript writes a full storyboard and renders a cinematic video. No editing skills needed.",
     href: "/wizpilot",
     icon: <Film className="w-6 h-6" />,
     iconBg: "bg-cyan-500/20",
@@ -98,7 +98,7 @@ const TOOLS: Tool[] = [
   },
   {
     id: "text-to-video",
-    name: "Text to Video",
+    name: "WizScript",
     tagline: "Scene-by-scene cinematic control",
     subheading: "Write each scene yourself for full creative control — choose your renderer and quality.",
     description: "Write each scene prompt manually for full creative control. Choose your renderer (Seedance for speed, Kling for quality) and render each scene individually.",

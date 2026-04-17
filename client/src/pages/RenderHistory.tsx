@@ -70,7 +70,7 @@ function StatusBadge({ status }: { status: JobStatus | string }) {
   const map: Record<string, { label: string; className: string }> = {
     draft: { label: "Draft", className: "bg-zinc-700 text-zinc-300 border-zinc-600" },
     storyboard_ready: { label: "Ready", className: "bg-blue-500/20 text-blue-300 border-blue-500/40" },
-    rendering: { label: "Rendering", className: "bg-purple-500/20 text-purple-300 border-purple-500/40" },
+    rendering: { label: "Building Your Video", className: "bg-purple-500/20 text-purple-300 border-purple-500/40" },
     assembling: { label: "Assembling", className: "bg-yellow-500/20 text-yellow-300 border-yellow-500/40" },
     completed: { label: "Completed", className: "bg-green-500/20 text-green-300 border-green-500/40" },
     failed: { label: "Failed", className: "bg-red-500/20 text-red-300 border-red-500/40" },
@@ -311,7 +311,7 @@ export default function RenderHistory() {
                           </Button>
                         )}
 
-                        {/* Resume in WizPilot */}
+                        {/* Resume in WizScript */}
                         {(job.status === "draft" || job.status === "storyboard_ready" || job.status === "rendering") && (
                           <Button
                             size="sm"

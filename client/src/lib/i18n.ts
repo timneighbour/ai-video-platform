@@ -6,8 +6,8 @@ const resources = {
   en: {
     translation: {
       nav: {
-        wizbeat: "WizBeat",
-        wizpilot: "WizPilot",
+        wizbeat: "WizVideo",
+        wizpilot: "WizScript",
         tools: "Tools",
         pricing: "Pricing",
         signIn: "Sign In",
@@ -58,18 +58,18 @@ const resources = {
         footer: "Done in minutes.",
       },
       wizbeat: {
-        badge: "WizBeat",
+        badge: "WizVideo",
         title: "Your Music. Your Story. Brought to Life.",
-        subtitle: "WizBeat is the world's first AI music video maker that syncs visuals to your lyrics automatically.",
+        subtitle: "WizVideo turns songs and ideas into full cinematic AI videos. Every scene is generated automatically.",
         feature1: "Lyrics drive the visuals — every line becomes a scene",
         feature2: "Up to 4 characters with lip-sync",
         feature3: "Real artists or animated characters",
-        cta: "Make a Music Video",
+        cta: "Start with WizVideo",
       },
       wizpilot: {
-        badge: "WizPilot",
+        badge: "WizScript",
         title: "Create Any Video From a Prompt",
-        subtitle: "WizPilot is your AI video director — describe what you want and watch it come to life.",
+        subtitle: "WizScript turns written prompts into visual scenes and full AI videos.",
         feature1: "Text, image, or video input",
         feature2: "Cinematic storyboard generation",
         feature3: "Multi-scene video assembly",
@@ -94,7 +94,7 @@ const resources = {
           desc: "Perfect for getting started",
           feature1: "30 videos per month",
           feature2: "All 6 video styles",
-          feature3: "WizBeat + WizPilot access",
+          feature3: "Full product suite access",
           feature4: "Watermark on exports",
           cta: "Get Started",
         },
@@ -106,7 +106,7 @@ const resources = {
           desc: "For serious creators",
           feature1: "Unlimited videos",
           feature2: "No watermark",
-          feature3: "Faster rendering",
+          feature3: "Faster video building",
           feature4: "Priority support",
           feature5: "4K export",
           cta: "Go Pro",
@@ -131,12 +131,12 @@ const resources = {
         note: "No credit card required • Create free • Only pay when you render",
       },
       footer: {
-        tagline: "AI Music Video Generator • Create Videos in Minutes",
+        tagline: "AI Video Creation Platform • Create Videos in Minutes",
         copyright: "© 2025 WizVid. All rights reserved.",
         links: {
           home: "Home",
-          wizbeat: "WizBeat",
-          wizpilot: "WizPilot",
+          wizbeat: "WizVideo",
+          wizpilot: "WizScript",
           pricing: "Pricing",
           privacy: "Privacy Policy",
           terms: "Terms of Service",
@@ -147,8 +147,8 @@ const resources = {
   es: {
     translation: {
       nav: {
-        wizbeat: "WizBeat",
-        wizpilot: "WizPilot",
+        wizbeat: "WizVideo",
+        wizpilot: "WizScript",
         tools: "Herramientas",
         pricing: "Precios",
         signIn: "Iniciar sesión",
@@ -199,18 +199,18 @@ const resources = {
         footer: "Listo en minutos.",
       },
       wizbeat: {
-        badge: "WizBeat",
+        badge: "WizVideo",
         title: "Tu música. Tu historia. Hecha realidad.",
-        subtitle: "WizBeat es el primer creador de videoclips IA del mundo que sincroniza imágenes con tus letras automáticamente.",
+        subtitle: "WizVideo convierte canciones e ideas en vídeos cinematográficos completos con IA.",
         feature1: "Las letras impulsan los visuales — cada línea se convierte en una escena",
         feature2: "Hasta 4 personajes con sincronización labial",
         feature3: "Artistas reales o personajes animados",
         cta: "Crear un videoclip",
       },
       wizpilot: {
-        badge: "WizPilot",
+        badge: "WizScript",
         title: "Crea cualquier vídeo desde un prompt",
-        subtitle: "WizPilot es tu director de vídeo IA — describe lo que quieres y míralo cobrar vida.",
+        subtitle: "WizScript convierte textos en escenas visuales y vídeos completos con IA.",
         feature1: "Entrada de texto, imagen o vídeo",
         feature2: "Generación de guión gráfico cinematográfico",
         feature3: "Montaje de vídeo multi-escena",
@@ -228,8 +228,8 @@ const resources = {
       pricing: {
         title: "Precios simples y transparentes",
         subtitle: "Empieza gratis. Actualiza cuando estés listo.",
-        starter: { name: "Starter", price: "£19", period: "/mes", desc: "Perfecto para empezar", feature1: "30 vídeos al mes", feature2: "Los 6 estilos de vídeo", feature3: "Acceso a WizBeat + WizPilot", feature4: "Marca de agua en exportaciones", cta: "Comenzar" },
-        pro: { name: "Pro", price: "£49", period: "/mes", badge: "Más popular", desc: "Para creadores serios", feature1: "Vídeos ilimitados", feature2: "Sin marca de agua", feature3: "Renderizado más rápido", feature4: "Soporte prioritario", feature5: "Exportación 4K", cta: "Ir a Pro" },
+        starter: { name: "Starter", price: "£19", period: "/mes", desc: "Perfecto para empezar", feature1: "30 vídeos al mes", feature2: "Los 6 estilos de vídeo", feature3: "Acceso a Full product suite", feature4: "Marca de agua en exportaciones", cta: "Comenzar" },
+        pro: { name: "Pro", price: "£49", period: "/mes", badge: "Más popular", desc: "Para creadores serios", feature1: "Vídeos ilimitados", feature2: "Sin marca de agua", feature3: "Creación de vídeo más rápida", feature4: "Soporte prioritario", feature5: "Exportación 4K", cta: "Ir a Pro" },
         creator: { name: "Creator+", price: "£99", period: "/mes", desc: "Para creadores avanzados y equipos", feature1: "Todo en Pro", feature2: "Procesamiento prioritario", feature3: "Estilos premium", feature4: "Acceso anticipado a nuevas funciones", feature5: "Acceso API", cta: "Obtener Creator+" },
       },
       cta: {
@@ -241,15 +241,15 @@ const resources = {
       footer: {
         tagline: "Generador de videoclips IA • Crea vídeos en minutos",
         copyright: "© 2025 WizVid. Todos los derechos reservados.",
-        links: { home: "Inicio", wizbeat: "WizBeat", wizpilot: "WizPilot", pricing: "Precios", privacy: "Política de privacidad", terms: "Términos de servicio" },
+        links: { home: "Inicio", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Precios", privacy: "Política de privacidad", terms: "Términos de servicio" },
       },
     },
   },
   "pt-BR": {
     translation: {
       nav: {
-        wizbeat: "WizBeat",
-        wizpilot: "WizPilot",
+        wizbeat: "WizVideo",
+        wizpilot: "WizScript",
         tools: "Ferramentas",
         pricing: "Preços",
         signIn: "Entrar",
@@ -300,18 +300,18 @@ const resources = {
         footer: "Pronto em minutos.",
       },
       wizbeat: {
-        badge: "WizBeat",
+        badge: "WizVideo",
         title: "Sua música. Sua história. Ganha vida.",
-        subtitle: "WizBeat é o primeiro criador de videoclipes IA do mundo que sincroniza visuais com suas letras automaticamente.",
+        subtitle: "WizVideo transforma músicas e ideias em vídeos cinematográficos completos com IA.",
         feature1: "As letras impulsionam os visuais — cada linha vira uma cena",
         feature2: "Até 4 personagens com sincronização labial",
         feature3: "Artistas reais ou personagens animados",
         cta: "Criar um videoclipe",
       },
       wizpilot: {
-        badge: "WizPilot",
+        badge: "WizScript",
         title: "Crie qualquer vídeo a partir de um prompt",
-        subtitle: "WizPilot é seu diretor de vídeo IA — descreva o que você quer e veja ganhar vida.",
+        subtitle: "WizScript transforma textos em cenas visuais e vídeos completos com IA.",
         feature1: "Entrada de texto, imagem ou vídeo",
         feature2: "Geração de storyboard cinematográfico",
         feature3: "Montagem de vídeo multi-cena",
@@ -329,8 +329,8 @@ const resources = {
       pricing: {
         title: "Preços simples e transparentes",
         subtitle: "Comece grátis. Faça upgrade quando estiver pronto.",
-        starter: { name: "Starter", price: "£19", period: "/mês", desc: "Perfeito para começar", feature1: "30 vídeos por mês", feature2: "Todos os 6 estilos de vídeo", feature3: "Acesso ao WizBeat + WizPilot", feature4: "Marca d'água nas exportações", cta: "Começar" },
-        pro: { name: "Pro", price: "£49", period: "/mês", badge: "Mais popular", desc: "Para criadores sérios", feature1: "Vídeos ilimitados", feature2: "Sem marca d'água", feature3: "Renderização mais rápida", feature4: "Suporte prioritário", feature5: "Exportação 4K", cta: "Ir para Pro" },
+        starter: { name: "Starter", price: "£19", period: "/mês", desc: "Perfeito para começar", feature1: "30 vídeos por mês", feature2: "Todos os 6 estilos de vídeo", feature3: "Acesso ao Full product suite", feature4: "Marca d'água nas exportações", cta: "Começar" },
+        pro: { name: "Pro", price: "£49", period: "/mês", badge: "Mais popular", desc: "Para criadores sérios", feature1: "Vídeos ilimitados", feature2: "Sem marca d'água", feature3: "Criação de vídeo mais rápida", feature4: "Suporte prioritário", feature5: "Exportação 4K", cta: "Ir para Pro" },
         creator: { name: "Creator+", price: "£99", period: "/mês", desc: "Para criadores avançados e equipes", feature1: "Tudo no Pro", feature2: "Processamento prioritário", feature3: "Estilos premium", feature4: "Acesso antecipado a novos recursos", feature5: "Acesso à API", cta: "Obter Creator+" },
       },
       cta: {
@@ -342,15 +342,15 @@ const resources = {
       footer: {
         tagline: "Gerador de videoclipes IA • Crie vídeos em minutos",
         copyright: "© 2025 WizVid. Todos os direitos reservados.",
-        links: { home: "Início", wizbeat: "WizBeat", wizpilot: "WizPilot", pricing: "Preços", privacy: "Política de privacidade", terms: "Termos de serviço" },
+        links: { home: "Início", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Preços", privacy: "Política de privacidade", terms: "Termos de serviço" },
       },
     },
   },
   fr: {
     translation: {
       nav: {
-        wizbeat: "WizBeat",
-        wizpilot: "WizPilot",
+        wizbeat: "WizVideo",
+        wizpilot: "WizScript",
         tools: "Outils",
         pricing: "Tarifs",
         signIn: "Se connecter",
@@ -401,18 +401,18 @@ const resources = {
         footer: "Terminé en minutes.",
       },
       wizbeat: {
-        badge: "WizBeat",
+        badge: "WizVideo",
         title: "Votre musique. Votre histoire. Prend vie.",
-        subtitle: "WizBeat est le premier créateur de clips musicaux IA au monde qui synchronise les visuels avec vos paroles automatiquement.",
+        subtitle: "WizVideo transforme chansons et idées en vidéos cinématiques complètes avec IA.",
         feature1: "Les paroles guident les visuels — chaque ligne devient une scène",
         feature2: "Jusqu'à 4 personnages avec synchronisation labiale",
         feature3: "Vrais artistes ou personnages animés",
         cta: "Créer un clip musical",
       },
       wizpilot: {
-        badge: "WizPilot",
+        badge: "WizScript",
         title: "Créez n'importe quelle vidéo à partir d'un prompt",
-        subtitle: "WizPilot est votre réalisateur vidéo IA — décrivez ce que vous voulez et regardez-le prendre vie.",
+        subtitle: "WizScript transforme vos textes en scènes visuelles et vidéos complètes avec IA.",
         feature1: "Entrée texte, image ou vidéo",
         feature2: "Génération de storyboard cinématographique",
         feature3: "Montage vidéo multi-scènes",
@@ -430,8 +430,8 @@ const resources = {
       pricing: {
         title: "Tarifs simples et transparents",
         subtitle: "Commencez gratuitement. Passez à la version supérieure quand vous êtes prêt.",
-        starter: { name: "Starter", price: "£19", period: "/mois", desc: "Parfait pour commencer", feature1: "30 vidéos par mois", feature2: "Les 6 styles vidéo", feature3: "Accès WizBeat + WizPilot", feature4: "Filigrane sur les exports", cta: "Commencer" },
-        pro: { name: "Pro", price: "£49", period: "/mois", badge: "Le plus populaire", desc: "Pour les créateurs sérieux", feature1: "Vidéos illimitées", feature2: "Sans filigrane", feature3: "Rendu plus rapide", feature4: "Support prioritaire", feature5: "Export 4K", cta: "Passer à Pro" },
+        starter: { name: "Starter", price: "£19", period: "/mois", desc: "Parfait pour commencer", feature1: "30 vidéos par mois", feature2: "Les 6 styles vidéo", feature3: "Accès Full product suite", feature4: "Filigrane sur les exports", cta: "Commencer" },
+        pro: { name: "Pro", price: "£49", period: "/mois", badge: "Le plus populaire", desc: "Pour les créateurs sérieux", feature1: "Vidéos illimitées", feature2: "Sans filigrane", feature3: "Création vidéo plus rapide", feature4: "Support prioritaire", feature5: "Export 4K", cta: "Passer à Pro" },
         creator: { name: "Creator+", price: "£99", period: "/mois", desc: "Pour les créateurs avancés et les équipes", feature1: "Tout dans Pro", feature2: "Traitement prioritaire", feature3: "Styles premium", feature4: "Accès anticipé aux nouvelles fonctionnalités", feature5: "Accès API", cta: "Obtenir Creator+" },
       },
       cta: {
@@ -443,7 +443,7 @@ const resources = {
       footer: {
         tagline: "Générateur de clips musicaux IA • Créez des vidéos en minutes",
         copyright: "© 2025 WizVid. Tous droits réservés.",
-        links: { home: "Accueil", wizbeat: "WizBeat", wizpilot: "WizPilot", pricing: "Tarifs", privacy: "Politique de confidentialité", terms: "Conditions d'utilisation" },
+        links: { home: "Accueil", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Tarifs", privacy: "Politique de confidentialité", terms: "Conditions d'utilisation" },
       },
     },
   },

@@ -16,35 +16,35 @@ const FAQS = [
     category: "Getting Started",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "How do I create my first video?", a: "Choose WizBeat for music videos or WizPilot for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
+      { q: "How do I create my first video?", a: "Choose WizVideo for music videos or WizScript for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
       { q: "Do I need any editing skills?", a: "No — WizVid is fully automated. The AI handles everything from storyboard creation to final rendering. You just provide the input and choose a style." },
       { q: "How long does it take to generate a video?", a: "Most videos are created within 2–5 minutes depending on length and complexity. You'll see a live progress bar while your video is being generated." },
       { q: "Is there a free option?", a: "Yes! WizVid is completely free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video." },
     ],
   },
   {
-    category: "WizBeat — Music Videos",
+    category: "WizVideo — Music Videos",
     icon: <Music className="w-4 h-4" />,
     questions: [
-      { q: "What audio formats does WizBeat support?", a: "WizBeat supports MP3, WAV, M4A, and OGG audio files up to 50MB. For best results, use a high-quality stereo audio file." },
-      { q: "How does lyrics-driven video generation work?", a: "WizBeat automatically transcribes your song lyrics using AI. Each lyric line is mapped to a visual scene, creating a video that perfectly syncs with your music. You can also paste lyrics manually." },
-      { q: "Can I add characters to my music video?", a: "Yes! WizBeat supports up to 4 characters per video. Each character can have multiple reference images for visual consistency, and singing characters get AI lip-sync applied automatically." },
-      { q: "What video styles are available?", a: "WizBeat offers 6 styles: Cinematic, Anime, Pixar 3D, Documentary, Abstract, and Vintage." },
+      { q: "What audio formats does WizVideo support?", a: "WizVideo supports MP3, WAV, M4A, and OGG audio files up to 50MB. For best results, use a high-quality stereo audio file." },
+      { q: "How does lyrics-driven video generation work?", a: "WizVideo automatically transcribes your song lyrics using AI. Each lyric line is mapped to a visual scene, creating a video that perfectly syncs with your music. You can also paste lyrics manually." },
+      { q: "Can I add characters to my music video?", a: "Yes! WizVideo supports up to 4 characters per video. Each character can have multiple reference images for visual consistency, and singing characters get AI lip-sync applied automatically." },
+      { q: "What video styles are available?", a: "WizVideo offers 6 styles: Cinematic, Anime, Pixar 3D, Documentary, Abstract, and Vintage." },
     ],
   },
   {
-    category: "WizPilot — AI Video Creator",
+    category: "WizScript — AI Video Creator",
     icon: <Video className="w-4 h-4" />,
     questions: [
-      { q: "What is WizPilot?", a: "WizPilot is your general-purpose AI video director. Describe any video concept in text, upload reference images, or use an existing video as a starting point. WizPilot generates a cinematic storyboard and renders your complete video." },
-      { q: "What types of videos can I create with WizPilot?", a: "Anything — YouTube content, social media videos, ads, explainer videos, short films, product showcases, and more." },
+      { q: "What is WizScript?", a: "WizScript is your general-purpose AI video director. Describe any video concept in text, upload reference images, or use an existing video as a starting point. WizScript generates a cinematic storyboard and renders your complete video." },
+      { q: "What types of videos can I create with WizScript?", a: "Anything — YouTube content, social media videos, ads, explainer videos, short films, product showcases, and more." },
     ],
   },
   {
     category: "Kids Content",
     icon: <Baby className="w-4 h-4" />,
     questions: [
-      { q: "Can I create kids videos and animations?", a: "Absolutely! WizVid is perfect for kids content creators. Use the Pixar 3D or Anime style for animated characters, or create nursery rhyme videos with WizBeat." },
+      { q: "Can I create kids videos and animations?", a: "Absolutely! WizVid is perfect for kids content creators. Use the Pixar 3D or Anime style for animated characters, or create nursery rhyme videos with WizVideo." },
       { q: "Is the content safe for children?", a: "Yes. WizVid's AI is configured to generate family-friendly content. All outputs are reviewed for appropriateness." },
     ],
   },
@@ -127,8 +127,8 @@ export default function Help() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Home", href: "/" },
-              { label: "Music Video", href: "/music-video" },
-              { label: "WizPilot", href: "/wizpilot" },
+              { label: "WizVideo", href: "/music-video/create" },
+              { label: "WizScript", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
@@ -176,8 +176,8 @@ export default function Help() {
         {/* Quick links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
           {[
-            { icon: <Music className="w-4 h-4" />, label: "Music Video", href: "/music-video" },
-            { icon: <Video className="w-4 h-4" />, label: "WizPilot", href: "/wizpilot" },
+            { icon: <Music className="w-4 h-4" />, label: "WizVideo", href: "/music-video/create" },
+            { icon: <Video className="w-4 h-4" />, label: "WizScript", href: "/wizpilot" },
             { icon: <Baby className="w-4 h-4" />, label: "Kids Animation", href: "/kids-video" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>

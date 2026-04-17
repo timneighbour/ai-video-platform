@@ -439,7 +439,7 @@ export const billingRouter = router({
 
   /**
    * Generate an AI preview image for a single storyboard scene.
-   * Free — no credits deducted. Used in WizPilot storyboard step.
+   * Free — no credits deducted. Used in WizScript storyboard step.
    */
   generateScenePreview: protectedProcedure
     .input(

@@ -38,7 +38,7 @@ function StatusBadge({ status }: { status: JobStatus }) {
   const config: Record<JobStatus, { label: string; className: string; icon: React.ReactNode }> = {
     draft:            { label: "Draft",            className: "bg-zinc-800 text-zinc-400 border-zinc-700",          icon: <Edit3 className="w-3 h-3" /> },
     storyboard_ready: { label: "Storyboard Ready", className: "bg-violet-500/15 text-violet-300 border-violet-500/30", icon: <BookmarkCheck className="w-3 h-3" /> },
-    rendering:        { label: "Rendering",        className: "bg-blue-500/15 text-blue-300 border-blue-500/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
+    rendering:        { label: "Building Your Video",        className: "bg-blue-500/15 text-blue-300 border-blue-500/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     assembling:       { label: "Assembling",       className: "bg-blue-500/15 text-blue-300 border-blue-500/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     completed:        { label: "Complete",         className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", icon: <CheckCircle2 className="w-3 h-3" /> },
     failed:           { label: "Failed",           className: "bg-red-500/15 text-red-300 border-red-500/30",       icon: <AlertCircle className="w-3 h-3" /> },
@@ -298,7 +298,7 @@ export default function MyProjects() {
             {/* Rendering */}
             {rendering.length > 0 && (
               <section>
-                <SectionHeader title="Rendering" count={rendering.length} color="text-blue-400" />
+                <SectionHeader title="Building Your Video" count={rendering.length} color="text-blue-400" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {rendering.map(job => (
                     <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />

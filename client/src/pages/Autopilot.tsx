@@ -197,7 +197,7 @@ export default function Autopilot() {
           const is429 = String(err?.message).includes("429") || String(err?.message).toLowerCase().includes("rate limit");
           if (is429) {
             pollBackoffMs = Math.min(pollBackoffMs * 2, MAX_POLL_BACKOFF_MS);
-            console.warn(`[WizPilot] Rate limited. Backing off to ${pollBackoffMs}ms`);
+            console.warn(`[WizScript] Rate limited. Backing off to ${pollBackoffMs}ms`);
           }
           // network hiccup or rate limit — keep polling with backoff
           schedulePoll();
@@ -402,10 +402,10 @@ export default function Autopilot() {
             </span>
           </Button>
 
-          {/* WizPilot + YouTube branding */}
+          {/* WizScript + YouTube branding */}
           <div className="flex items-center gap-2.5">
             <Wand2 className="h-5 w-5 text-purple-400" />
-            <span className="font-bold text-white">WizPilot</span>
+            <span className="font-bold text-white">WizScript</span>
             <span className="text-muted-foreground/40 text-sm">·</span>
             <div className="flex items-center gap-1.5">
               <YouTubeLogo size={18} />

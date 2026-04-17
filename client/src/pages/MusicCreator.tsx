@@ -402,7 +402,7 @@ export default function MusicCreator() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            AI Music Generation
+            WizAudio
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
             Generate full songs{" "}
@@ -996,7 +996,7 @@ export default function MusicCreator() {
                     asChild
                   >
                     <a href={`/music-video/create?audioUrl=${encodeURIComponent(uploadedAudioUrl)}`}>
-                      <ChevronRight className="w-3.5 h-3.5 mr-1" />Make a Music Video
+                      <ChevronRight className="w-3.5 h-3.5 mr-1" />Start with WizVideo
                     </a>
                   </Button>
                 </div>
@@ -1073,7 +1073,7 @@ export default function MusicCreator() {
                     asChild
                   >
                     <Link href="/music-video">
-                      <ChevronRight className="w-4 h-4 mr-1.5" />Create Music Video
+                      <ChevronRight className="w-4 h-4 mr-1.5" />Start with WizVideo
                     </Link>
                   </Button>
                 </div>

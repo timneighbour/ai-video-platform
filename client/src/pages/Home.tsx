@@ -41,12 +41,12 @@ const HERO_VIDEOS = [
   `${CDN}/hero-abstract-web_ed099aea.mp4`,
   `${CDN}/hero-concert-web_2f9db1a6.mp4`,
 ];
-const WIZBEAT_IMAGES = [
-  { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Music Video" },
-  { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Kids Animation" },
-  { src: `${CDN}/wizbeat-animated-cat_81ffcf80.jpg`, label: "Animated Story" },
-  { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "Social Clip" },
-  { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "Cinematic" },
+const SHOWCASE_IMAGES = [
+  { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "WizVideo" },
+  { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "WizAnimate" },
+  { src: `${CDN}/wizbeat-animated-cat_81ffcf80.jpg`, label: "WizAnimate" },
+  { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "WizShorts" },
+  { src: `${CDN}/wizbeat-hip-hop_247e7ea6.jpg`, label: "WizVideo" },
 ];
 // ── How It Works step images ────────────────────────────────────────────────
 const STEP_IMAGES = {
@@ -86,20 +86,17 @@ function useReveal() {
 // ── Nav ─────────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/music-video/create", label: "Music Video" },
-  { href: "/wizpilot", label: "WizPilot" },
   { href: "/pricing", label: "Pricing" },
   { href: "/help", label: "Help" },
 ];
 
 const PRODUCT_LINKS = [
-  { href: "/products/wizcreate", label: "WizCreate™", desc: "AI storyboard engine", colour: "text-violet-400" },
-  { href: "/products/wizanimate", label: "WizAnimate™", desc: "Character animation engine", colour: "text-cyan-400" },
-  { href: "/wizsync", label: "WizSync™", desc: "Voice-to-character lip sync", colour: "text-purple-400" },
-  { href: "/products/wizsound", label: "WizSound™", desc: "Cinematic audio engine", colour: "text-emerald-400" },
-  { href: "/products/wizlumina", label: "WizLumina™", desc: "Visual enhancement engine", colour: "text-amber-400" },
-  { href: "/products/wizgenesis", label: "WizGenesis™", desc: "Final render engine", colour: "text-rose-400" },
-  { href: "/products/wizboost", label: "WizBoost™", desc: "Creator distribution engine", colour: "text-orange-400" },
+  { href: "/music-creator", label: "WizAudio", desc: "Create songs, vocals and full audio tracks", colour: "text-emerald-400" },
+  { href: "/wiz-image", label: "WizImage", desc: "AI images, characters, artwork and visuals", colour: "text-amber-400" },
+  { href: "/music-video/create", label: "WizVideo", desc: "Full cinematic AI videos from any idea", colour: "text-violet-400" },
+  { href: "/wiz-shorts", label: "WizShorts", desc: "Short-form content for Shorts, Reels and TikTok", colour: "text-cyan-400" },
+  { href: "/kids-video", label: "WizAnimate", desc: "Animated stories, kids content and stylised motion", colour: "text-rose-400" },
+  { href: "/text-to-video", label: "WizScript", desc: "Turn text prompts into full AI videos", colour: "text-orange-400" },
 ];
 
 function Nav() {
@@ -701,6 +698,129 @@ function Hero() {
   );
 }
 
+// ── WIZ AI Product Suite ─────────────────────────────────────────────────────
+const PRODUCT_CARDS = [
+  {
+    name: "WizAudio",
+    label: "Create Audio",
+    desc: "Create songs, vocals and full audio tracks in minutes.",
+    usps: ["Fast AI music creation", "No production skills required", "Built to feed directly into video workflows"],
+    cta: "Start with WizAudio",
+    href: "/music-creator",
+    colour: "from-emerald-500/20 to-emerald-900/10",
+    border: "border-emerald-500/20 hover:border-emerald-400/40",
+    accent: "text-emerald-400",
+    icon: <Music2 className="w-6 h-6" />,
+  },
+  {
+    name: "WizImage",
+    label: "Create Images",
+    desc: "Generate characters, artwork, thumbnails, visuals and branded images with AI.",
+    usps: ["Great for thumbnails, concept art and characters", "Fast image generation", "Ideal for creators and brand visuals"],
+    cta: "Start with WizImage",
+    href: "/wiz-image",
+    colour: "from-amber-500/20 to-amber-900/10",
+    border: "border-amber-500/20 hover:border-amber-400/40",
+    accent: "text-amber-400",
+    icon: <Sparkles className="w-6 h-6" />,
+  },
+  {
+    name: "WizVideo",
+    label: "Create Videos",
+    desc: "Turn songs and ideas into cinematic full-length AI videos.",
+    usps: ["Full videos, not just clips", "Storyboard and scenes generated automatically", "Preview before render"],
+    cta: "Start with WizVideo",
+    href: "/music-video/create",
+    colour: "from-violet-500/20 to-violet-900/10",
+    border: "border-violet-500/20 hover:border-violet-400/40",
+    accent: "text-violet-400",
+    icon: <Film className="w-6 h-6" />,
+  },
+  {
+    name: "WizShorts",
+    label: "Create Shorts",
+    desc: "Turn text and images into scroll-stopping short-form videos for Shorts, Reels and TikTok.",
+    usps: ["Built for short-form growth", "Fast social-ready output", "Great for hooks, promos and creator content"],
+    cta: "Start with WizShorts",
+    href: "/wiz-shorts",
+    colour: "from-cyan-500/20 to-cyan-900/10",
+    border: "border-cyan-500/20 hover:border-cyan-400/40",
+    accent: "text-cyan-400",
+    icon: <Instagram className="w-6 h-6" />,
+  },
+  {
+    name: "WizAnimate",
+    label: "Create Animation",
+    desc: "Create animated stories, stylised videos and kids content with AI.",
+    usps: ["Ideal for storytelling and family content", "Strong stylised output", "Great for YouTube and branded animation"],
+    cta: "Start with WizAnimate",
+    href: "/kids-video",
+    colour: "from-rose-500/20 to-rose-900/10",
+    border: "border-rose-500/20 hover:border-rose-400/40",
+    accent: "text-rose-400",
+    icon: <Wand2 className="w-6 h-6" />,
+  },
+  {
+    name: "WizScript",
+    label: "Create from Text",
+    desc: "Turn written prompts into visual scenes and full AI videos.",
+    usps: ["Direct text-to-video workflow", "Great for prototyping and ideation", "Fast from concept to output"],
+    cta: "Start with WizScript",
+    href: "/text-to-video",
+    colour: "from-orange-500/20 to-orange-900/10",
+    border: "border-orange-500/20 hover:border-orange-400/40",
+    accent: "text-orange-400",
+    icon: <Bot className="w-6 h-6" />,
+  },
+];
+
+function ProductSuite() {
+  return (
+    <section className="bg-[#0a0a0a] border-t border-white/6 py-20 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-violet-400 mb-3">WIZ AI Product Suite</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">Choose what you want to create</h2>
+          <p className="text-white/50 mt-3 max-w-xl mx-auto text-base">Six premium creative tools — one unified platform. No editing experience required.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {PRODUCT_CARDS.map((p) => (
+            <a
+              key={p.name}
+              href={p.href}
+              className={`group relative rounded-2xl border ${p.border} bg-gradient-to-br ${p.colour} backdrop-blur-sm p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl reveal`}
+            >
+              {/* Icon + name */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`${p.accent} p-2.5 rounded-xl bg-white/[0.05] border border-white/[0.06]`}>{p.icon}</div>
+                <div>
+                  <h3 className={`text-lg font-bold ${p.accent}`}>{p.name}</h3>
+                  <p className="text-[11px] text-white/40 font-medium uppercase tracking-wider">{p.label}</p>
+                </div>
+              </div>
+              {/* Description */}
+              <p className="text-sm text-white/60 leading-relaxed mb-5">{p.desc}</p>
+              {/* USPs */}
+              <ul className="space-y-2 mb-6">
+                {p.usps.map((u) => (
+                  <li key={u} className="flex items-start gap-2 text-xs text-white/50">
+                    <Check className="w-3.5 h-3.5 mt-0.5 text-white/30 flex-shrink-0" />
+                    {u}
+                  </li>
+                ))}
+              </ul>
+              {/* CTA */}
+              <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${p.accent} group-hover:gap-2.5 transition-all duration-200`}>
+                {p.cta} <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Try an Example ─────────────────────────────────────────────────────────
 const EXAMPLE_PROMPTS = [
   { label: "Hip-Hop", prompt: "A cinematic hip-hop music video — artist performing on a rooftop at golden hour, city skyline, slow-motion crowd shots, neon lights", genre: "Hip-Hop" },
@@ -930,7 +1050,7 @@ function SeeWhatYouCanCreate() {
       gradient: "from-emerald-900/40 to-teal-900/30",
     },
     {
-      label: "Music Video",
+      label: "WizVideo",
       src: `${CDN_BASE}/intro-new-singer_fdadff1e.mp4`,
       gradient: "from-fuchsia-900/40 to-pink-900/30",
     },
@@ -1436,7 +1556,7 @@ function WhoItsFor() {
       cta: "Make a music video",
       href: "/music-video",
       accent: "from-violet-500/20 to-purple-500/5",
-      badge: "Music Video",
+      badge: "WizVideo",
     },
     {
       img: WHO_IMAGES.youtubers,
@@ -1545,7 +1665,7 @@ function ContentEngine() {
     },
     {
       icon: <Film className="w-6 h-6" />,
-      label: "WizBeat",
+      label: "WizVideo",
       sub: "Scenes & characters",
       color: "purple",
       glow: "from-purple-500/30 to-purple-500/5",
@@ -1572,34 +1692,34 @@ function ContentEngine() {
       badgeColor: "bg-blue-500/15 text-blue-300 border-blue-500/20",
       iconColor: "text-blue-400",
       iconBg: "bg-blue-500/10 border-blue-500/20",
-      title: "AI Music Generation",
+      title: "WizAudio",
       desc: "Type what your song should sound like and get a complete track back in seconds — vocals, instruments, and full production included. No music knowledge needed.",
       bullets: ["Full songs from a single prompt", "Any style, genre, or mood", "Vocals & instrumentals included"],
-      cta: "Generate a Song",
+      cta: "Start with WizAudio",
       href: "/music-creator",
     },
     {
       icon: <Film className="w-7 h-7" />,
-      badge: "WizBeat",
+      badge: "WizVideo",
       badgeColor: "bg-violet-500/15 text-violet-300 border-violet-500/20",
       iconColor: "text-violet-400",
       iconBg: "bg-violet-500/10 border-violet-500/20",
-      title: "Music Video Creation",
+      title: "WizVideo",
       desc: "Upload your song and WizVid builds a complete music video for you — every scene synced to your lyrics, with animated characters and cinematic visuals.",
       bullets: ["Every scene synced to lyrics", "Animated characters & styles", "YouTube & socials ready"],
-      cta: "Create Music Video",
+      cta: "Start with WizVideo",
       href: "/music-video",
     },
     {
       icon: <Bot className="w-7 h-7" />,
-      badge: "WizPilot",
+      badge: "WizScript",
       badgeColor: "bg-green-500/15 text-green-300 border-green-500/20",
       iconColor: "text-green-400",
       iconBg: "bg-green-500/10 border-green-500/20",
-      title: "WizPilot Automation",
-      desc: "Describe any idea and WizPilot handles everything — storyboard, scenes, and final video. Perfect for YouTube, social content, and faceless channels.",
+      title: "WizScript",
+      desc: "Describe any idea and WizScript handles everything — storyboard, scenes, and final video. Perfect for YouTube, social content, and faceless channels.",
       bullets: ["Any idea to full video", "Auto-generated storyboard", "No editing, ever"],
-      cta: "Start WizPilot",
+      cta: "Start with WizScript",
       href: "/wizpilot",
     },
   ];
@@ -1831,7 +1951,7 @@ function ContentEngine() {
               className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-base px-8 py-3 rounded-xl font-semibold h-auto shadow-lg hover:shadow-xl transition-all"
               asChild
             >
-              <NavLink href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Generate Your First Song</NavLink>
+              <NavLink href="/music-creator"><Music2 className="w-4 h-4 mr-2" />Start with WizAudio</NavLink>
             </Button>
           </div>
         </div>
@@ -1854,12 +1974,12 @@ function HowItWorksModalButton() {
 
 
 
-// ── WizBeat showcase ──────────────────────────────────────────────────────────
-function WizBeatSection() {
+/// ── WizVideo showcase ────────────────────────────────────────────────────────
+function WizVideoSection() {
   const [activeImg, setActiveImg] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => setActiveImg((prev) => (prev + 1) % WIZBEAT_IMAGES.length), 3500);
+    const timer = setInterval(() => setActiveImg((prev) => (prev + 1) % SHOWCASE_IMAGES.length), 3500);
     return () => clearInterval(timer);
   }, []);
 
@@ -1870,7 +1990,7 @@ function WizBeatSection() {
           {/* Image carousel */}
           <div className="relative reveal">
             <div className="relative rounded-2xl overflow-hidden aspect-video shadow-2xl border border-white/8">
-              {WIZBEAT_IMAGES.map((img, i) => (
+              {SHOWCASE_IMAGES.map((img, i) => (
                 <img
                   key={img.src}
                   src={img.src}
@@ -1882,7 +2002,7 @@ function WizBeatSection() {
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-                {WIZBEAT_IMAGES.map((img, i) => (
+                {SHOWCASE_IMAGES.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveImg(i)}
@@ -1894,19 +2014,19 @@ function WizBeatSection() {
               </div>
             </div>
             <div className="absolute -top-3 -right-3 bg-[#171717] border border-white/10 rounded-xl px-3 py-1.5 shadow-lg">
-              <span className="text-white text-xs font-semibold">WizBeat</span>
+              <span className="text-white text-xs font-semibold">WizVideo</span>
             </div>
           </div>
 
           {/* Text */}
           <div className="reveal">
-            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WizBeat</p>
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WizVideo</p>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5 leading-tight">
               Your music.<br />Your story.<br />
               <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Brought to life.</span>
             </h2>
             <p className="text-[#a1a1aa] text-base leading-relaxed mb-3">
-              WizBeat is the world's first AI music video maker that syncs visuals to your lyrics automatically. Every line becomes a cinematic scene.
+              WizVideo turns songs and ideas into full cinematic AI videos. Describe your vision, and every scene is generated automatically.
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-6">
               <Volume2 className="w-3.5 h-3.5" />
@@ -1929,7 +2049,7 @@ function WizBeatSection() {
               className="bg-white text-black hover:bg-white/90 text-sm px-6 py-2.5 rounded-xl font-semibold h-auto shadow-md hover:shadow-lg transition-all"
               asChild
             >
-              <NavLink href="/music-video"><Music className="w-4 h-4 mr-2" />Make a music video</NavLink>
+              <NavLink href="/music-video/create"><Film className="w-4 h-4 mr-2" />Start with WizVideo</NavLink>
             </Button>
           </div>
         </div>
@@ -1941,7 +2061,7 @@ function WizBeatSection() {
 // ── Social proof ──────────────────────────────────────────────────────────────
 function SocialProof() {
   const testimonials = [
-    { text: "I described the vibe, uploaded my track, and WizBeat had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers", highlight: "Storyboard in 90 seconds" },
+    { text: "I described the vibe, uploaded my track, and WizVideo had a full storyboard ready in 90 seconds. The cinematic style was exactly what I had in my head. Posted it the same day — no edits needed.", author: "Sarah M.", role: "Indie Artist · 12K YouTube subscribers", highlight: "Storyboard in 90 seconds" },
     { text: "I was spending £280/month on a freelance animator for my kids channel. WizVid replaced that entirely. I now create 3 videos a week, my upload consistency went from twice a month to daily, and my CTR is up 40%.", author: "James K.", role: "Kids Content Creator · 28K subscribers", highlight: "Saved £280/month" },
     { text: "Other AI tools give you a 10-second clip. WizVid gave me a complete 3-minute animated music video for my kids channel — scenes, characters, the lot — in under 4 minutes. My kids watch it on repeat.", author: "Priya R.", role: "Kids YouTube Creator · Posts daily using AI", highlight: "Full 3-min video in 4 minutes" },
     { text: "I started a faceless YouTube channel from scratch. WizVid handled every video — storyboard, scenes, everything. 30 days later I had 4,800 subscribers and my first video hit 11K views. I haven't edited a single frame.", author: "Tom B.", role: "Faceless YouTube Creator · 0 to 4.8K subscribers in 30 days", highlight: "0 → 4.8K subs in 30 days" },
@@ -2002,8 +2122,7 @@ const CATEGORY_COLOURS: Record<string, { badge: string; glow: string; dot: strin
   "Animation":          { badge: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30", glow: "group-hover:shadow-cyan-500/20",  dot: "bg-cyan-400" },
   "Anime":              { badge: "bg-rose-500/20 text-rose-300 border border-rose-500/30", glow: "group-hover:shadow-rose-500/20",  dot: "bg-rose-400" },
   "Faceless Content":   { badge: "bg-slate-500/20 text-slate-300 border border-slate-500/30", glow: "group-hover:shadow-slate-500/20",  dot: "bg-slate-400" },
-  "Music Video":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
-  "WizBeat":            { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
+  "WizVideo":        { badge: "bg-violet-500/20 text-violet-300 border border-violet-500/30", glow: "group-hover:shadow-violet-500/20",  dot: "bg-violet-400" },
   "Story Animation":    { badge: "bg-pink-500/20 text-pink-300 border border-pink-500/30",       glow: "group-hover:shadow-pink-500/20",    dot: "bg-pink-400" },
   "Social Short":       { badge: "bg-green-500/20 text-green-300 border border-green-500/30",    glow: "group-hover:shadow-green-500/20",   dot: "bg-green-400" },
   "Cinematic":          { badge: "bg-orange-500/20 text-orange-300 border border-orange-500/30", glow: "group-hover:shadow-orange-500/20",  dot: "bg-orange-400" },
@@ -2014,7 +2133,7 @@ const CATEGORY_COLOURS: Record<string, { badge: string; glow: string; dot: strin
 const STATIC_SHOWCASE_ITEMS = [
   {
     id: -1,
-    category: "Music Video",
+    category: "WizVideo",
     title: "Neon Stage",
     description: "A cinematic concert performance with AI-generated crowd, volumetric lighting, and WizSound™ audio enhancement.",
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp",
@@ -2024,7 +2143,7 @@ const STATIC_SHOWCASE_ITEMS = [
   },
   {
     id: -2,
-    category: "Music Video",
+    category: "WizVideo",
     title: "Desert Horizon",
     description: "Silhouette guitarist at golden hour — epic desert landscape, cinematic lens flares, and an original WizSound™ soundtrack.",
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp",
@@ -2034,7 +2153,7 @@ const STATIC_SHOWCASE_ITEMS = [
   },
   {
     id: -3,
-    category: "Music Video",
+    category: "WizVideo",
     title: "Cyberpunk Alley",
     description: "Rain-soaked neon Tokyo street performance — holographic displays, purple and cyan lighting, full cinematic grade.",
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp",
@@ -2080,7 +2199,7 @@ const STATIC_SHOWCASE_ITEMS = [
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic-city-7Gb7h9K3CbiAuwh6HKv9bc.webp",
     videoUrl: null,
     duration: "2:45",
-    tool: "WizPilot",
+    tool: "WizScript",
   },
   {
     id: -8,
@@ -2090,7 +2209,7 @@ const STATIC_SHOWCASE_ITEMS = [
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic-warrior-KwKZH22SRsKfJSGoJaL3Nu.webp",
     videoUrl: null,
     duration: "3:18",
-    tool: "WizPilot",
+    tool: "WizScript",
   },
   {
     id: -9,
@@ -2104,7 +2223,7 @@ const STATIC_SHOWCASE_ITEMS = [
   },
 ];
 
-const SHOWCASE_FILTER_TABS = ["All", "Music Video", "Animation", "Cinematic", "Story Animation"] as const;
+const SHOWCASE_FILTER_TABS = ["All", "WizVideo", "Animation", "Cinematic", "Story Animation"] as const;
 
 // ── Individual showcase card ───────────────────────────────────────────────────────
 type ShowcaseItem = { id: number; category: string; title: string; description: string; posterUrl: string; videoUrl: string | null; duration?: string; tool?: string };
@@ -2115,9 +2234,9 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
 
   // Route CTA to the correct tool based on category or tool label
   const ctaHref = (() => {
-    if (item.category === "Music Video" || item.tool === "Music Video Creator" || item.tool === "WizBeat") return "/music-video/create";
+    if (item.category === "Music Video" || item.tool === "WizVideo" || item.tool === "WizVideo") return "/music-video/create";
     if (item.category === "Animation" || item.category === "Story Animation" || item.tool === "WizAnimate™") return "/products/wizanimate";
-    if (item.category === "Anime" || item.category === "Cinematic" || item.tool === "WizPilot") return "/wizpilot";
+    if (item.category === "Anime" || item.category === "Cinematic" || item.tool === "WizScript") return "/wizpilot";
     return "/onboarding";
   })();
 
@@ -2496,7 +2615,7 @@ function UseCaseCards() {
       color: "from-violet-600 to-purple-700",
       border: "border-violet-500/25",
       glow: "hover:shadow-violet-500/15",
-      cta: "Create Music Video",
+      cta: "Start with WizVideo",
       href: "/music-video/create",
     },
     {
@@ -2506,7 +2625,7 @@ function UseCaseCards() {
       color: "from-blue-600 to-indigo-700",
       border: "border-blue-500/25",
       glow: "hover:shadow-blue-500/15",
-      cta: "Start with WizPilot",
+      cta: "Start with WizScript",
       href: "/wizpilot",
     },
     {
@@ -2933,7 +3052,7 @@ function EcosystemSection() {
               <h3 className="text-xl font-bold text-white">WizVid</h3>
               <span className="text-xs px-2 py-0.5 rounded-full border border-white/20 text-white/50 font-mono">Platform</span>
             </div>
-            <p className="text-white/60 text-sm">All-in-one cinematic video creation platform — the unified experience that brings WizCreate™, WizSound™, WizLumina™, WizGenesis™, and WizPilot™ together.</p>
+            <p className="text-white/60 text-sm">All-in-one cinematic video creation platform — the unified experience that brings WizCreate™, WizSound™, WizLumina™, WizGenesis™, and WizScript together.</p>
           </div>
         </div>
 
@@ -3005,8 +3124,8 @@ function Footer() {
     {
       title: "Product",
       links: [
-        { label: "Music Video", href: "/music-video" },
-        { label: "WizPilot", href: "/wizpilot" },
+        { label: "WizVideo", href: "/music-video" },
+        { label: "WizScript", href: "/wizpilot" },
         { label: "Pricing", href: "/pricing" },
         { label: "How It Works", href: "/how-it-works" },
         { label: "Help", href: "/help" },
@@ -3017,7 +3136,7 @@ function Footer() {
       links: [
         { label: "WizVid — Video Creation", href: "/" },
         { label: "WizSound — Spatial Audio", href: "/products/wizsound" },
-        { label: "WizPilot — AI Workflow", href: "/wizpilot" },
+        { label: "WizScript — AI Workflow", href: "/wizpilot" },
         { label: "WizGenesis — Intelligence", href: "/products/wizgenesis" },
         { label: "WizLumina — Visual Enhancement", href: "/products/wizlumina" },
         { label: "Wiz AI \u2014 Platform", href: "https://www.wiz-ai.io" },
@@ -3110,7 +3229,7 @@ function Footer() {
               {" · "}
               <span className="text-indigo-400/70">WizSound™</span>
               {" · "}
-              <span className="text-fuchsia-400/70">WizPilot™</span>
+              <span className="text-fuchsia-400/70">WizScript</span>
               {" · "}
               <span className="text-amber-400/70">WizGenesis™</span>
               {" · "}
@@ -3145,6 +3264,8 @@ export default function Home() {
       <main id="main-content">
         {/* 1. Hero */}
         <Hero />
+        {/* 1b. Product Suite */}
+        <ProductSuite />
         {/* 2. 20-second demo */}
         <BrandDemoVideo />
         {/* 3. Value proposition + storyboard preview */}
