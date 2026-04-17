@@ -58,7 +58,7 @@ export default function MusicVideosLanding() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Home", href: "/" },
-              { label: "WIZ AIeo", href: "/music-video/create" },
+              { label: "WizVideo", href: "/music-video/create" },
               { label: "WizScript", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
@@ -78,7 +78,7 @@ export default function MusicVideosLanding() {
                 href="/music-video/create"
                 className="inline-flex items-center bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 transition-colors"
               >
-                <Sparkles className="w-3.5 h-3.5 mr-1.5" />Start with WIZ AIeo
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />Start with WizVideo
               </a>
             ) : (
               <>
@@ -114,7 +114,7 @@ export default function MusicVideosLanding() {
                 </span>
               </h1>
               <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-                Upload your track. Describe your vision. WIZ AIeo writes the storyboard, generates every scene, and delivers a complete music video — synced to your lyrics.
+                Upload your track. Describe your vision. WizVideo writes the storyboard, generates every scene, and delivers a complete music video — synced to your lyrics.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 {isAuthenticated ? (
@@ -170,7 +170,7 @@ export default function MusicVideosLanding() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { step: "01", icon: "🎵", title: "Upload your song", desc: "Drop in your audio file or paste your lyrics. WIZ AIeo reads every line." },
+              { step: "01", icon: "🎵", title: "Upload your song", desc: "Drop in your audio file or paste your lyrics. WizVideo reads every line." },
               { step: "02", icon: "🎨", title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
               { step: "03", icon: "🚀", title: "Get your full video", desc: "AI builds your storyboard, renders every scene synced to your music, and delivers a complete video." },
             ].map((s) => (
@@ -190,7 +190,7 @@ export default function MusicVideosLanding() {
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WIZ AIeo features</p>
+              <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WizVideo features</p>
               <h2 className="text-4xl font-extrabold tracking-tight text-white mb-8 leading-tight">
                 Your music.<br />Your story.<br />
                 <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Brought to life.</span>
@@ -200,7 +200,7 @@ export default function MusicVideosLanding() {
                   { icon: <Music className="w-5 h-5" />, title: "Lyrics-driven visuals", desc: "Every line of your song becomes a cinematic scene — automatically synced." },
                   { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
                   { icon: <Wand2 className="w-5 h-5" />, title: "AI lip-sync characters", desc: "Up to 4 characters with realistic AI lip-sync — real artists or animated." },
-                  { icon: <Zap className="w-5 h-5" />, title: "Full video, not clips", desc: "WIZ AIeo delivers a complete, ready-to-publish music video — not a 10-second clip." },
+                  { icon: <Zap className="w-5 h-5" />, title: "Full video, not clips", desc: "WizVideo delivers a complete, ready-to-publish music video — not a 10-second clip." },
                   { icon: <Sparkles className="w-5 h-5" />, title: "Powered by WizSound™", desc: "Proprietary audio enhancement. Choose WizSound Enhance or WizSound Cinematic for richer, more immersive sound." },
                 ].map((f) => (
                   <div key={f.title} className="flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all">

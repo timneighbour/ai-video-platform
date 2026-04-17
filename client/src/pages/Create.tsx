@@ -42,7 +42,7 @@ interface Tool {
 const TOOLS: Tool[] = [
   {
     id: "music-video",
-    name: "WIZ AIeo",
+    name: "WizVideo",
     tagline: "WizVideo™ — Upload a song, get a full music video",
     subheading: "Turn any track into a full-length, AI-directed music video — scenes, cuts, and all.",
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",

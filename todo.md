@@ -4568,11 +4568,11 @@
 - [x] Global: WizVid master brand → WIZ AI everywhere (header, footer, hero, meta, OG, Twitter, legal, billing, copyright, support, notifications)
 - [x] Header logo/brand → WIZ AI (new wizai-logo-v3.png across all pages)
 - [x] Browser title / VITE_APP_TITLE → WIZ AI (built-in secret, user can update in Settings)
-- [ ] Hero rewrite: "Create anything. Instantly." + new subheadline, CTAs, microcopy
-- [ ] Homepage restructure: Hero → Products → Demo Video → How It Works → Why WIZ AI → Showcase → CTA (remove duplicates)
-- [ ] Product cards: update descriptions/benefits to match spec exactly
-- [ ] Mini-brand system: premium icon, label, descriptor, card styling per product
-- [ ] Brand/Demo video section: "Welcome to WIZ AI" heading
+- [x] Hero rewrite: "Create anything. Instantly." + new subheadline, CTAs, microcopy
+- [x] Homepage restructure: Hero → Products → Demo Video → How It Works → Why WIZ AI → Showcase → CTA (removed ProductDemo duplicate)
+- [x] Product cards: fixed broken WIZ AIeo → WizVideo across all files, descriptions updated
+- [x] Mini-brand system: each product card has unique colour, icon, accent, label, and USPs
+- [x] Brand/Demo video section: "Welcome to WIZ AI" heading
 - [x] Nav: Home | Products | Pricing | Help (clean, no old links)
 - [x] Footer: WIZ AI company name, copyright, tagline
 - [x] SEO/metadata: all page titles, meta descriptions, OG, Twitter → WIZ AI
@@ -4583,7 +4583,7 @@
 - [x] Billing/checkout/Stripe: labels → WIZ AI
 - [x] Legal/privacy/terms: WIZ AI naming
 - [x] Intro shell: replaced with MP4 video intro (WizAIIntroVid1.mp4) — all old canvas/overlay layers removed
-- [ ] Projects page: CTAs (Continue Editing, Build Video, View Progress, Watch/Download)
+- [x] Projects page: CTAs already implemented in previous iterations
 - [x] "Why WizVid" → "Why WIZ AI" section
 - [x] All "Created with WizVid" → "Created with WIZ AI"
-- [ ] Final QA: verify all 15 checklist items from spec
+- [x] Final QA: all 15 checklist items verified — 0 TypeScript errors, all WizVid→WIZ AI, WIZ AIeo→WizVideo fixed

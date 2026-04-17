@@ -6,7 +6,7 @@ const resources = {
   en: {
     translation: {
       nav: {
-        wizbeat: "WIZ AIeo",
+        wizbeat: "WizVideo",
         wizpilot: "WizScript",
         tools: "Tools",
         pricing: "Pricing",
@@ -58,13 +58,13 @@ const resources = {
         footer: "Done in minutes.",
       },
       wizbeat: {
-        badge: "WIZ AIeo",
+        badge: "WizVideo",
         title: "Your Music. Your Story. Brought to Life.",
-        subtitle: "WIZ AIeo turns songs and ideas into full cinematic AI videos. Every scene is generated automatically.",
+        subtitle: "WizVideo turns songs and ideas into full cinematic AI videos. Every scene is generated automatically.",
         feature1: "Lyrics drive the visuals — every line becomes a scene",
         feature2: "Up to 4 characters with lip-sync",
         feature3: "Real artists or animated characters",
-        cta: "Start with WIZ AIeo",
+        cta: "Start with WizVideo",
       },
       wizpilot: {
         badge: "WizScript",
@@ -135,7 +135,7 @@ const resources = {
         copyright: "© 2025 WIZ AI. All rights reserved.",
         links: {
           home: "Home",
-          wizbeat: "WIZ AIeo",
+          wizbeat: "WizVideo",
           wizpilot: "WizScript",
           pricing: "Pricing",
           privacy: "Privacy Policy",
@@ -147,7 +147,7 @@ const resources = {
   es: {
     translation: {
       nav: {
-        wizbeat: "WIZ AIeo",
+        wizbeat: "WizVideo",
         wizpilot: "WizScript",
         tools: "Herramientas",
         pricing: "Precios",
@@ -199,9 +199,9 @@ const resources = {
         footer: "Listo en minutos.",
       },
       wizbeat: {
-        badge: "WIZ AIeo",
+        badge: "WizVideo",
         title: "Tu música. Tu historia. Hecha realidad.",
-        subtitle: "WIZ AIeo convierte canciones e ideas en vídeos cinematográficos completos con IA.",
+        subtitle: "WizVideo convierte canciones e ideas en vídeos cinematográficos completos con IA.",
         feature1: "Las letras impulsan los visuales — cada línea se convierte en una escena",
         feature2: "Hasta 4 personajes con sincronización labial",
         feature3: "Artistas reales o personajes animados",
@@ -241,14 +241,14 @@ const resources = {
       footer: {
         tagline: "Generador de videoclips IA • Crea vídeos en minutos",
         copyright: "© 2025 WIZ AI. Todos los derechos reservados.",
-        links: { home: "Inicio", wizbeat: "WIZ AIeo", wizpilot: "WizScript", pricing: "Precios", privacy: "Política de privacidad", terms: "Términos de servicio" },
+        links: { home: "Inicio", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Precios", privacy: "Política de privacidad", terms: "Términos de servicio" },
       },
     },
   },
   "pt-BR": {
     translation: {
       nav: {
-        wizbeat: "WIZ AIeo",
+        wizbeat: "WizVideo",
         wizpilot: "WizScript",
         tools: "Ferramentas",
         pricing: "Preços",
@@ -300,9 +300,9 @@ const resources = {
         footer: "Pronto em minutos.",
       },
       wizbeat: {
-        badge: "WIZ AIeo",
+        badge: "WizVideo",
         title: "Sua música. Sua história. Ganha vida.",
-        subtitle: "WIZ AIeo transforma músicas e ideias em vídeos cinematográficos completos com IA.",
+        subtitle: "WizVideo transforma músicas e ideias em vídeos cinematográficos completos com IA.",
         feature1: "As letras impulsionam os visuais — cada linha vira uma cena",
         feature2: "Até 4 personagens com sincronização labial",
         feature3: "Artistas reais ou personagens animados",
@@ -342,14 +342,14 @@ const resources = {
       footer: {
         tagline: "Gerador de videoclipes IA • Crie vídeos em minutos",
         copyright: "© 2025 WIZ AI. Todos os direitos reservados.",
-        links: { home: "Início", wizbeat: "WIZ AIeo", wizpilot: "WizScript", pricing: "Preços", privacy: "Política de privacidade", terms: "Termos de serviço" },
+        links: { home: "Início", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Preços", privacy: "Política de privacidade", terms: "Termos de serviço" },
       },
     },
   },
   fr: {
     translation: {
       nav: {
-        wizbeat: "WIZ AIeo",
+        wizbeat: "WizVideo",
         wizpilot: "WizScript",
         tools: "Outils",
         pricing: "Tarifs",
@@ -401,9 +401,9 @@ const resources = {
         footer: "Terminé en minutes.",
       },
       wizbeat: {
-        badge: "WIZ AIeo",
+        badge: "WizVideo",
         title: "Votre musique. Votre histoire. Prend vie.",
-        subtitle: "WIZ AIeo transforme chansons et idées en vidéos cinématiques complètes avec IA.",
+        subtitle: "WizVideo transforme chansons et idées en vidéos cinématiques complètes avec IA.",
         feature1: "Les paroles guident les visuels — chaque ligne devient une scène",
         feature2: "Jusqu'à 4 personnages avec synchronisation labiale",
         feature3: "Vrais artistes ou personnages animés",
@@ -443,7 +443,7 @@ const resources = {
       footer: {
         tagline: "Générateur de clips musicaux IA • Créez des vidéos en minutes",
         copyright: "© 2025 WIZ AI. Tous droits réservés.",
-        links: { home: "Accueil", wizbeat: "WIZ AIeo", wizpilot: "WizScript", pricing: "Tarifs", privacy: "Politique de confidentialité", terms: "Conditions d'utilisation" },
+        links: { home: "Accueil", wizbeat: "WizVideo", wizpilot: "WizScript", pricing: "Tarifs", privacy: "Politique de confidentialité", terms: "Conditions d'utilisation" },
       },
     },
   },

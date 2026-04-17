@@ -25,7 +25,7 @@ const TEMPLATES: Template[] = [
   {
     id: "music-video",
     icon: <Music className="w-4 h-4" />,
-    title: "WIZ AIeo",
+    title: "WizVideo",
     description: "Turn any track into a cinematic visual story",
     href: "/music-video/create",
     gradient: "from-violet-500/20 to-purple-600/10",

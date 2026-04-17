@@ -996,7 +996,7 @@ export default function MusicCreator() {
                     asChild
                   >
                     <a href={`/music-video/create?audioUrl=${encodeURIComponent(uploadedAudioUrl)}`}>
-                      <ChevronRight className="w-3.5 h-3.5 mr-1" />Start with WIZ AIeo
+                      <ChevronRight className="w-3.5 h-3.5 mr-1" />Start with WizVideo
                     </a>
                   </Button>
                 </div>
@@ -1073,7 +1073,7 @@ export default function MusicCreator() {
                     asChild
                   >
                     <Link href="/music-video">
-                      <ChevronRight className="w-4 h-4 mr-1.5" />Start with WIZ AIeo
+                      <ChevronRight className="w-4 h-4 mr-1.5" />Start with WizVideo
                     </Link>
                   </Button>
                 </div>

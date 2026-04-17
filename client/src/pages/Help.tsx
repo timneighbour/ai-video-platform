@@ -16,20 +16,20 @@ const FAQS = [
     category: "Getting Started",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "How do I create my first video?", a: "Choose WIZ AIeo for music videos or WizScript for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
+      { q: "How do I create my first video?", a: "Choose WizVideo for music videos or WizScript for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
       { q: "Do I need any editing skills?", a: "No — WIZ AI is fully automated. The AI handles everything from storyboard creation to final rendering. You just provide the input and choose a style." },
       { q: "How long does it take to generate a video?", a: "Most videos are created within 2–5 minutes depending on length and complexity. You'll see a live progress bar while your video is being generated." },
       { q: "Is there a free option?", a: "Yes! WIZ AI is completely free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video." },
     ],
   },
   {
-    category: "WIZ AIeo — Music Videos",
+    category: "WizVideo — Music Videos",
     icon: <Music className="w-4 h-4" />,
     questions: [
-      { q: "What audio formats does WIZ AIeo support?", a: "WIZ AIeo supports MP3, WAV, M4A, and OGG audio files up to 50MB. For best results, use a high-quality stereo audio file." },
-      { q: "How does lyrics-driven video generation work?", a: "WIZ AIeo automatically transcribes your song lyrics using AI. Each lyric line is mapped to a visual scene, creating a video that perfectly syncs with your music. You can also paste lyrics manually." },
-      { q: "Can I add characters to my music video?", a: "Yes! WIZ AIeo supports up to 4 characters per video. Each character can have multiple reference images for visual consistency, and singing characters get AI lip-sync applied automatically." },
-      { q: "What video styles are available?", a: "WIZ AIeo offers 6 styles: Cinematic, Anime, Pixar 3D, Documentary, Abstract, and Vintage." },
+      { q: "What audio formats does WizVideo support?", a: "WizVideo supports MP3, WAV, M4A, and OGG audio files up to 50MB. For best results, use a high-quality stereo audio file." },
+      { q: "How does lyrics-driven video generation work?", a: "WizVideo automatically transcribes your song lyrics using AI. Each lyric line is mapped to a visual scene, creating a video that perfectly syncs with your music. You can also paste lyrics manually." },
+      { q: "Can I add characters to my music video?", a: "Yes! WizVideo supports up to 4 characters per video. Each character can have multiple reference images for visual consistency, and singing characters get AI lip-sync applied automatically." },
+      { q: "What video styles are available?", a: "WizVideo offers 6 styles: Cinematic, Anime, Pixar 3D, Documentary, Abstract, and Vintage." },
     ],
   },
   {
@@ -44,7 +44,7 @@ const FAQS = [
     category: "Kids Content",
     icon: <Baby className="w-4 h-4" />,
     questions: [
-      { q: "Can I create kids videos and animations?", a: "Absolutely! WIZ AI is perfect for kids content creators. Use the Pixar 3D or Anime style for animated characters, or create nursery rhyme videos with WIZ AIeo." },
+      { q: "Can I create kids videos and animations?", a: "Absolutely! WIZ AI is perfect for kids content creators. Use the Pixar 3D or Anime style for animated characters, or create nursery rhyme videos with WizVideo." },
       { q: "Is the content safe for children?", a: "Yes. WIZ AI's AI is configured to generate family-friendly content. All outputs are reviewed for appropriateness." },
     ],
   },
@@ -127,7 +127,7 @@ export default function Help() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Home", href: "/" },
-              { label: "WIZ AIeo", href: "/music-video/create" },
+              { label: "WizVideo", href: "/music-video/create" },
               { label: "WizScript", href: "/wizpilot" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
@@ -176,7 +176,7 @@ export default function Help() {
         {/* Quick links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
           {[
-            { icon: <Music className="w-4 h-4" />, label: "WIZ AIeo", href: "/music-video/create" },
+            { icon: <Music className="w-4 h-4" />, label: "WizVideo", href: "/music-video/create" },
             { icon: <Video className="w-4 h-4" />, label: "WizScript", href: "/wizpilot" },
             { icon: <Baby className="w-4 h-4" />, label: "Kids Animation", href: "/kids-video" },
           ].map((item) => (

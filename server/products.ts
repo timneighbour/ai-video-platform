@@ -110,7 +110,7 @@ export const SUBSCRIPTION_PLANS = {
       "2 free videos (watermarked)",
       "All AI tools",
       "Standard quality",
-      "WIZ AIeo music video maker",
+      "WizVideo music video maker",
       "WizScript AI video creator",
     ],
     stripePriceId: null,
