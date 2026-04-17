@@ -318,8 +318,10 @@ export default function WizAudioPlayer({
         </a>
       </div>
 
-      {/* Hidden audio element */}
-      <audio ref={audioRef} src={resolveAudioUrl(audioUrl)} preload="metadata" />
+      {/* Hidden audio element — crossOrigin="anonymous" is REQUIRED for Web Audio API
+          createMediaElementSource() to work with cross-origin URLs (S3/CloudFront).
+          Without it the browser taints the audio stream and blocks the analyser. */}
+      <audio ref={audioRef} src={resolveAudioUrl(audioUrl)} preload="metadata" crossOrigin="anonymous" />
     </div>
   );
 }
