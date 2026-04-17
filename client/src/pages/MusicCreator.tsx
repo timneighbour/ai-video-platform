@@ -884,20 +884,47 @@ export default function MusicCreator() {
                 </Button>
               )}
 
-              {/* Status indicator */}
+              {/* ── Premium Multi-Phase Loading Animation ── */}
               {isGenerating && (
-                <div className="mt-4 rounded-2xl overflow-hidden border border-white/8 bg-[#0f0f14]">
-                  {/* Animated waveform bars */}
-                  <div className="relative flex items-end justify-center gap-[3px] h-16 px-4 pt-4 pb-2">
-                    {Array.from({ length: 28 }).map((_, i) => {
+                <div className="mt-5 rounded-2xl overflow-hidden border border-white/8 bg-gradient-to-b from-[#0f0f18] to-[#0a0a10]">
+                  {/* Phase indicator pills */}
+                  <div className="flex items-center justify-center gap-3 pt-5 pb-2">
+                    {(["pending", "processing", "trimming"] as const).map((phase, idx) => {
+                      const labels = ["Queued", "Generating", "Trimming"];
+                      const icons = ["\u23F3", "\u266B", "\u2702\uFE0F"];
+                      const isActive = status === phase;
+                      const phaseOrder = ["pending", "processing", "trimming"] as const;
+                      const currentIdx = phaseOrder.indexOf(status as typeof phaseOrder[number]);
+                      const isDone = currentIdx > idx;
+                      return (
+                        <div key={phase} className="flex items-center gap-1.5">
+                          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide transition-all duration-500 ${
+                            isActive ? "bg-violet-500/20 text-violet-300 border border-violet-500/30 shadow-lg shadow-violet-500/10"
+                            : isDone ? "bg-emerald-500/15 text-emerald-400/80 border border-emerald-500/20"
+                            : "bg-white/[0.03] text-white/25 border border-white/[0.06]"
+                          }`}>
+                            <span>{isDone ? "\u2713" : icons[idx]}</span>
+                            <span>{labels[idx]}</span>
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />}
+                          </div>
+                          {idx < 2 && <div className={`w-6 h-px ${isDone ? "bg-emerald-500/40" : "bg-white/10"}`} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Large waveform visualiser */}
+                  <div className="relative flex items-end justify-center gap-[3px] h-24 px-6 pt-4 pb-3">
+                    {Array.from({ length: 40 }).map((_, i) => {
                       const isTrimming = status === "trimming";
                       const isPending = status === "pending";
-                      // Each bar has a different animation delay for a natural wave
-                      const delay = `${(i * 0.06).toFixed(2)}s`;
-                      const baseH = isPending ? 4 : isTrimming ? 8 : 6;
+                      const delay = `${(i * 0.05).toFixed(2)}s`;
+                      const baseH = isPending ? 3 : isTrimming ? 10 : 7;
                       const color = isTrimming
-                        ? `rgba(34,197,94,${0.5 + (i % 3) * 0.15})`  // green for trimming
-                        : `rgba(139,92,246,${0.5 + (i % 4) * 0.12})`; // violet for generating
+                        ? `rgba(34,197,94,${0.4 + (i % 3) * 0.2})`
+                        : isPending
+                        ? `rgba(139,92,246,${0.2 + (i % 4) * 0.08})`
+                        : `rgba(139,92,246,${0.45 + (i % 4) * 0.15})`;
                       return (
                         <div
                           key={i}
@@ -907,7 +934,7 @@ export default function MusicCreator() {
                             minHeight: baseH,
                             background: color,
                             animationName: "wizWave",
-                            animationDuration: isTrimming ? "0.6s" : "1.1s",
+                            animationDuration: isPending ? "2s" : isTrimming ? "0.5s" : "1s",
                             animationDelay: delay,
                             animationTimingFunction: "ease-in-out",
                             animationIterationCount: "infinite",
@@ -916,37 +943,39 @@ export default function MusicCreator() {
                         />
                       );
                     })}
-                    {/* Glow overlay */}
+                    {/* Glow */}
                     <div className="absolute inset-0 pointer-events-none" style={{
                       background: status === "trimming"
-                        ? "radial-gradient(ellipse at 50% 100%, rgba(34,197,94,0.08) 0%, transparent 70%)"
-                        : "radial-gradient(ellipse at 50% 100%, rgba(139,92,246,0.1) 0%, transparent 70%)"
+                        ? "radial-gradient(ellipse at 50% 100%, rgba(34,197,94,0.12) 0%, transparent 70%)"
+                        : "radial-gradient(ellipse at 50% 100%, rgba(139,92,246,0.15) 0%, transparent 70%)"
                     }} />
                   </div>
 
-                  {/* Status text */}
-                  <div className="px-4 pb-3 text-center">
-                    <p className="text-xs font-medium tracking-wide" style={{
-                      color: status === "trimming" ? "rgb(134,239,172)" : "rgb(196,181,253)"
+                  {/* Status text + elapsed timer */}
+                  <div className="px-5 pb-4 text-center space-y-1">
+                    <p className="text-sm font-semibold tracking-wide" style={{
+                      color: status === "trimming" ? "rgb(134,239,172)" : status === "pending" ? "rgb(196,181,253)" : "rgb(216,200,255)"
                     }}>
-                      {status === "pending" ? "Waiting in queue…"
-                        : status === "trimming" ? "✂ Trimming to exact duration…"
-                        : "Composing your track with WizAudio…"}
+                      {status === "pending" ? "Waiting in queue\u2026"
+                        : status === "trimming" ? "\u2702\uFE0F Trimming to exact duration\u2026"
+                        : "\u266B Composing your track with WizAudio\u2026"}
                     </p>
-                    {status !== "trimming" && (
-                      <p className="text-[10px] text-white/30 mt-0.5">This usually takes 1–3 minutes</p>
-                    )}
+                    <p className="text-[11px] text-white/30">
+                      {status === "trimming" ? "Almost done \u2014 finalising your audio"
+                        : status === "pending" ? "Your request is queued and will start shortly"
+                        : "This usually takes 1\u20133 minutes depending on the engine"}
+                    </p>
                   </div>
 
-                  {/* Progress track */}
-                  <div className="h-[2px] bg-white/5">
+                  {/* Progress bar */}
+                  <div className="h-[3px] bg-white/5">
                     <div
-                      className="h-full rounded-full transition-all duration-1000"
+                      className="h-full rounded-full transition-all duration-[2000ms] ease-out"
                       style={{
-                        width: status === "pending" ? "15%" : status === "trimming" ? "92%" : "60%",
+                        width: status === "pending" ? "12%" : status === "trimming" ? "90%" : "55%",
                         background: status === "trimming"
-                          ? "linear-gradient(90deg, #16a34a, #22c55e)"
-                          : "linear-gradient(90deg, #7c3aed, #6366f1, #3b82f6)",
+                          ? "linear-gradient(90deg, #16a34a, #22c55e, #4ade80)"
+                          : "linear-gradient(90deg, #7c3aed, #6366f1, #818cf8, #3b82f6)",
                       }}
                     />
                   </div>

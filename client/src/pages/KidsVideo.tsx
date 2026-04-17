@@ -1596,7 +1596,7 @@ export default function KidsVideo() {
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
                   {renderStatus === "completed" ? "🎉 Your Animation is Ready!" :
                    renderStatus === "failed" ? "❌ Render Failed" :
-                   "🎬 Rendering Your Animation…"}
+                   "🎬 Building Your Animation…"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {renderStatus === "completed" ? "Your animated kids video has been created. Watch it below!" :
@@ -1612,7 +1612,7 @@ export default function KidsVideo() {
                   <div className="space-y-3 max-w-sm mx-auto">
                     <Progress value={renderStatus === "processing" ? 65 : 20} className="h-3 rounded-full" />
                     <p className="text-sm text-pink-300 font-medium">
-                      {renderStatus === "processing" ? "Rendering your scenes…" : "Queued — starting soon…"}
+                      {renderStatus === "processing" ? "Building your scenes…" : "Queued — starting soon…"}
                     </p>
                   </div>
                   <div className="space-y-2 text-left max-w-xs mx-auto">

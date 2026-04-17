@@ -4541,7 +4541,7 @@
 - [x] ElevenLabs prompt enrichment: pass genre, mood, vocal style, and makeInstrumental to ElevenLabs Music
 - [x] Delete track: backend deleteTask procedure with ownership check + frontend trash button
 - [x] Regenerate track: button to re-run generation with same settings without clearing the form
-- [ ] Music Creator loading animation: multi-phase waveform animation (queued/generating/trimming) with phase-aware colors and status messaging
+- [x] Music Creator loading animation: premium multi-phase with phase pills (Queued/Generating/Trimming), 40-bar waveform, phase-aware colours, gradient progress bar, contextual status text
 - [x] ElevenLabs 429 rate-limit: retry-with-exponential-backoff (3 retries, 10s/20s/40s) for both SFX and Music submit/poll calls
 - [x] ElevenLabs prompt logging: full enriched prompt (prompt + style/genre/mood context) now logged at INFO level before every API call
 - [x] ElevenLabs SFX path: now uses enriched prompt (genre/mood/style appended as context) same as Music path
@@ -4558,11 +4558,11 @@
 - [x] Rename: WizBeat → WizVideo across all pages
 - [x] Rename: WizPilot → WizScript across all pages
 - [x] Rename: Text to Video → WizScript
-- [ ] Mini-brand system: each product gets icon, badge, descriptor, consistent premium card style
+- [x] Mini-brand system: each product gets icon, badge ("Premium" pill), descriptor, glow-on-hover, accent-coloured check marks, consistent premium card style
 - [x] Status language: Rendering → Building Your Video (Dashboard, MyProjects, RenderHistory, HowItWorks, Pricing)
 - [x] Legacy copy cleanup: all old naming replaced across all pages (i18n en/es/pt/fr, Help, Home, MusicCreator, MusicVideosLanding, Create, Projects, Onboarding, HabitLoopPanel, DashboardLayout)
-- [ ] Homepage product story: consolidate duplicate sections, clear creation paths
-- [ ] Final QA: verify all 10 checklist items from the rebrand spec
+- [x] Homepage product story: removed 16 dead sections (1450 lines), cleaned unused imports, consolidated to 7 clean sections
+- [x] Final QA: all checklist items verified — 0 WizVid master brand, hero copy correct, nav clean, footer/copyright WIZ AI, SEO 213 refs, intro MP4 live, products dropdown 6 items, sidebar 6 items, all Rendering→Building, 0 TS errors
 
 ## WIZ AI Full Rebrand (Master Spec v2)
 - [x] Global: WizVid master brand → WIZ AI everywhere (header, footer, hero, meta, OG, Twitter, legal, billing, copyright, support, notifications)

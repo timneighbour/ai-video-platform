@@ -953,7 +953,7 @@ export default function Autopilot() {
               <div className="flex justify-center mb-3">
                 <WizBrandBadge layer="render" size="md" animated />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Rendering with WizRender™</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Building with WizRender™</h2>
               <p className="text-muted-foreground text-sm sm:text-base">
                 WizRender™ is building your video. Sit tight — this usually takes 1–5 minutes.
               </p>

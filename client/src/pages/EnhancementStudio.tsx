@@ -25,7 +25,7 @@ const STATUS_MESSAGES: Record<string, string> = {
   analyzing: "🔍 Analysing video...",
   generating: "🎵 Generating music...",
   editing: "✂️ Editing video...",
-  rendering: "🎬 Rendering...",
+  rendering: "🎬 Building Your Video...",
   completed: "✅ Complete!",
   failed: "❌ Failed",
 };

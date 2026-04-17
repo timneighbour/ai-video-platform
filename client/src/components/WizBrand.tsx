@@ -9,7 +9,7 @@
  *   <WizBrandBadge layer="render" size="lg" /> // larger variant
  *   <WizBrandBadge layer="sound" />
  *   <WizBrandBanner layer="create" />          // full-width subtle banner
- *   <WizBrandProcessing layer="render" label="Rendering with WizRender™…" />
+ *   <WizBrandProcessing layer="render" label="Building with WizRender™…" />
  *   <WizBrandPostBadge layer="sound" />        // post-render "Enhanced with" badge
  */
 
@@ -43,9 +43,9 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
   },
   render: {
     name: "WizRender™",
-    verb: "Rendering with",
+    verb: "Building with",
     pastVerb: "Rendered with",
-    processingLabel: "Rendering with WizRender™…",
+    processingLabel: "Building with WizRender™…",
     tagline: "Cinematic video rendering",
     colour: "purple",
     glow: "0 0 12px rgba(168,85,247,0.45)",

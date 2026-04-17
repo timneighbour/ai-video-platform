@@ -1139,7 +1139,7 @@ export default function MusicVideoAutopilot() {
             if (is429) {
               pollBackoffMs = Math.min(pollBackoffMs * 2, MAX_POLL_BACKOFF_MS);
               console.warn(`[MusicVideo] ${new Date().toISOString()} Rate limited during polling. Backing off to ${pollBackoffMs}ms`);
-              toast.warning("Rendering is busy right now.", {
+              toast.warning("Building is busy right now.", {
                 description: "Please wait — we'll check again shortly.",
                 id: "render-rate-limit", // deduplicate toasts
               });
@@ -1161,7 +1161,7 @@ export default function MusicVideoAutopilot() {
         String(err?.message).toLowerCase().includes("rate limit");
 
       if (is429) {
-        toast.error("Rendering is busy right now.", {
+        toast.error("Building is busy right now.", {
           description: "The AI rendering service is at capacity. Please wait a moment and try again.",
         });
       } else {

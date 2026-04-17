@@ -274,7 +274,7 @@ function ProgressAnim({ active }: { active: boolean }) {
           className="text-xs text-emerald-300/80 font-medium"
           style={{ opacity: active ? 1 : 0.3, transition: "opacity 0.5s" }}
         >
-          {active ? "Rendering scene 4 of 7…" : "Waiting to render"}
+          {active ? "Building scene 4 of 7…" : "Waiting to build"}
         </span>
       </div>
       {/* Quality badges */}
