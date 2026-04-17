@@ -85,9 +85,10 @@ function useReveal() {
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
-  { href: "/create", label: "Create" },
+  { href: "/", label: "Home" },
+  { href: "/music-video/create", label: "Music Video" },
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/creators", label: "Examples" },
+  { href: "/wizpilot", label: "WizPilot\u2122" },
   { href: "/pricing", label: "Pricing" },
   { href: "/help", label: "Help" },
 ];
@@ -128,10 +129,10 @@ function Nav() {
               className="h-[6.5rem] w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.55)]"
             />
           </NavLink>
-          {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-0.5">
+          {/* Desktop nav links — hardened native anchors */}
+          <div className="hidden md:flex items-center gap-0.5" style={{ pointerEvents: "auto", position: "relative", zIndex: 51 }}>
             {NAV_LINKS.map(({ href, label }) => (
-              <NavLink key={href} href={href} className="text-[13px] text-white/60 hover:text-white/95 transition-colors duration-150 font-medium px-3.5 py-2 rounded-lg hover:bg-white/[0.05]">{label}</NavLink>
+              <a key={href} href={href} className="text-[13px] text-white/60 hover:text-white/95 transition-colors duration-150 font-medium px-3.5 py-2 rounded-lg hover:bg-white/[0.05]" style={{ pointerEvents: "auto" }}>{label}</a>
             ))}
             {/* Products dropdown */}
             <div
@@ -559,12 +560,12 @@ function Hero() {
               className="relative z-10 font-extrabold leading-[1.05] tracking-tight text-white mb-5 drop-shadow-[0_2px_40px_rgba(0,0,0,0.95)]"
               style={{ fontSize: "clamp(2.4rem, 5.5vw, 5rem)" }}
             >
-              Create a full AI video{" "}
+              Turn your idea into a{" "}
               <span
                 className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
                 style={{ textShadow: "none" }}
               >
-                in minutes.
+                cinematic AI video.
               </span>
             </h1>
 
@@ -573,16 +574,15 @@ function Hero() {
               className="text-white/70 max-w-xl mb-6 leading-relaxed font-medium drop-shadow-[0_1px_12px_rgba(0,0,0,0.9)]"
               style={{ fontSize: "clamp(0.95rem, 2vw, 1.15rem)" }}
             >
-              No editing. No experience. Just your idea → a finished video.
+              Create music videos, animations and visual stories with AI. No editing experience needed.
             </p>
 
             {/* Value bullets */}
             <div className="relative z-10 mb-7 flex flex-col gap-2.5">
               {[
-                { icon: "▸", text: "Full videos — not clips" },
-                { icon: "▸", text: "Preview every scene before you render" },
-                { icon: "▸", text: "Cinematic audio with WizSound™" },
-                { icon: "▸", text: "Only pay when you're ready" },
+                { icon: "\u25b8", text: "Preview before you pay" },
+                { icon: "\u25b8", text: "No editing skills required" },
+                { icon: "\u25b8", text: "Built for creators, musicians and storytellers" },
               ].map((b) => (
                 <div key={b.text} className="inline-flex items-center gap-2.5 text-sm text-white/80 font-medium">
                   <span className="text-base leading-none">{b.icon}</span>
@@ -593,16 +593,16 @@ function Hero() {
 
             {/* CTA row */}
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-              <NavLink
+              <a
                 id="hero-cta"
-                href={isAuthenticated ? "/create" : "/onboarding"}
+                href={isAuthenticated ? "/music-video/create" : "/onboarding"}
                 className="inline-flex items-center gap-3 btn-primary px-9 py-4 rounded-2xl font-bold transition-all duration-300"
-                style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)" }}
+                style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)", cursor: "pointer", pointerEvents: "auto", position: "relative", zIndex: 10 }}
                 onClick={() => mp.heroCTAClicked()}
               >
                 <Sparkles className="w-5 h-5 flex-shrink-0" />
-                {isAuthenticated ? "Start Creating" : "Create Your First Video Free"}
-              </NavLink>
+                {isAuthenticated ? "Start Creating Free" : "Start Creating Free"}
+              </a>
               <button
                 onClick={() => setDemoOpen(true)}
                 className="group inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300"
@@ -628,7 +628,7 @@ function Hero() {
             {/* Trust line */}
             <p className="relative z-10 flex items-center gap-1.5 text-sm text-white/40 font-medium mb-6">
               <Zap className="w-3 h-3 text-green-400/70 flex-shrink-0" />
-              No credit card required
+              2 free videos included. No credit card required.
             </p>
 
             {/* Trust strip — avatars + stats */}
@@ -846,22 +846,71 @@ function ContinueProjectBanner() {
   );
 }
 
-// ── Trust Signals (Production Audit Item 5) ──────────────────────────────────
+// ── Trust Signals — large gleaming animated benefit lines ────────────────────
+const BENEFIT_LINES = [
+  { text: "No editing experience needed", delay: 0 },
+  { text: "Preview every scene first", delay: 120 },
+  { text: "Full video render in minutes", delay: 240 },
+];
+
 function TrustSignals() {
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.2 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <section className="bg-[#080808] border-t border-white/6 py-5 px-6">
-      <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-14">
-        {[
-          { icon: "—", text: "No editing experience needed" },
-          { icon: "—", text: "Preview every scene first" },
-          { icon: "—", text: "Full video render in minutes" },
-        ].map((item) => (
-          <div key={item.text} className="flex items-center gap-2.5">
-            <span className="text-violet-400 text-sm font-bold">{item.icon}</span>
-            <span className="text-white/60 text-sm font-medium tracking-wide">{item.text}</span>
+    <section
+      ref={ref}
+      className="bg-[#080808] border-t border-white/6 py-12 px-6 overflow-hidden"
+    >
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-0 md:divide-x md:divide-white/8">
+        {BENEFIT_LINES.map(({ text, delay }) => (
+          <div
+            key={text}
+            className="flex-1 flex flex-col items-center text-center px-8 py-2"
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0)" : "translateY(20px)",
+              transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+            }}
+          >
+            {/* Gleaming text */}
+            <span
+              className="font-extrabold tracking-tight leading-tight"
+              style={{
+                fontSize: "clamp(1.15rem, 2.2vw, 1.55rem)",
+                background: "linear-gradient(135deg, #ffffff 0%, #c4b5fd 40%, #ffffff 60%, #a78bfa 100%)",
+                backgroundSize: "200% 200%",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: visible ? `shimmer 3s ease-in-out ${delay}ms infinite alternate` : "none",
+                textShadow: "none",
+              }}
+            >
+              {text}
+            </span>
+            {/* Sparkle dot */}
+            <span
+              className="mt-2 w-1.5 h-1.5 rounded-full bg-violet-400"
+              style={{
+                boxShadow: "0 0 8px 2px rgba(167,139,250,0.7)",
+                animation: visible ? `pulse 2s ease-in-out ${delay}ms infinite` : "none",
+              }}
+            />
           </div>
         ))}
       </div>
+      <style>{`
+        @keyframes shimmer {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 100% 50%; }
+        }
+      `}</style>
     </section>
   );
 }
@@ -923,31 +972,28 @@ function SeeWhatYouCanCreate() {
 // ── How It Works Strip (4-step, directly under hero) ───────────────────────
 function HowItWorksStrip() {
   const steps = [
-    { num: "01", icon: <Sparkles className="w-5 h-5" />, title: "Prompt", desc: "Describe your video idea or upload your audio" },
-    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "Storyboard", desc: "AI builds your full storyboard in seconds" },
-    { num: "03", icon: <Film className="w-5 h-5" />, title: "Preview", desc: "Review every scene before spending a credit" },
-    { num: "04", icon: <Download className="w-5 h-5" />, title: "Full Render", desc: "Render in HD or 4K when you love it" },
-    { num: "05", icon: <Users className="w-5 h-5" />, title: "Share", desc: "Download, share, and grow with WizBoost" },
+    { num: "01", icon: <Sparkles className="w-5 h-5" />, title: "Describe your idea", desc: "Tell WizVid what you want to create — a music video, animation, cinematic short, or anything else." },
+    { num: "02", icon: <Wand2 className="w-5 h-5" />, title: "AI builds your storyboard", desc: "WizCreate\u2122 generates a full visual storyboard with scenes, characters, and direction." },
+    { num: "03", icon: <Film className="w-5 h-5" />, title: "Render your video", desc: "Preview every scene, then render in HD or 4K with WizSound\u2122 and WizLumina\u2122 baked in." },
   ];
   return (
-    <section className="bg-[#0a0a0a] border-t border-white/6 py-10 px-6">
-      <div className="max-w-5xl mx-auto">
-        <p className="text-center text-xs font-semibold text-violet-400/70 uppercase tracking-widest mb-6">Your creation journey</p>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-3">
+    <section className="bg-[#0a0a0a] border-t border-white/6 py-14 px-6">
+      <div className="max-w-4xl mx-auto">
+        <p className="text-center text-xs font-semibold text-violet-400/70 uppercase tracking-widest mb-8">How it works</p>
+        <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, i) => (
-            <div key={i} className="flex flex-col items-center text-center gap-3">
-              {/* Step number + connector line */}
-              <div className="flex items-center w-full">
-                {i > 0 && <div className="hidden md:block flex-1 h-px bg-white/8" />}
-                <div className="flex-shrink-0 w-10 h-10 rounded-full border border-violet-500/40 bg-violet-500/10 flex items-center justify-center text-violet-300">
+            <div key={i} className="flex flex-col items-center text-center gap-4">
+              <div className="flex items-center gap-3">
+                {i > 0 && <div className="hidden md:block w-12 h-px bg-gradient-to-r from-transparent to-violet-500/30" />}
+                <div className="flex-shrink-0 w-12 h-12 rounded-full border border-violet-500/40 bg-violet-500/10 flex items-center justify-center text-violet-300">
                   {step.icon}
                 </div>
-                {i < steps.length - 1 && <div className="hidden md:block flex-1 h-px bg-white/8" />}
+                {i < steps.length - 1 && <div className="hidden md:block w-12 h-px bg-gradient-to-r from-violet-500/30 to-transparent" />}
               </div>
               <div>
-                <p className="text-[10px] font-mono text-violet-400/60 tracking-widest uppercase mb-1">Step {step.num}</p>
-                <p className="text-sm font-semibold text-white leading-snug">{step.title}</p>
-                <p className="text-xs text-white/40 mt-1 leading-relaxed">{step.desc}</p>
+                <p className="text-[10px] font-mono text-violet-400/60 tracking-widest uppercase mb-1.5">Step {step.num}</p>
+                <p className="text-base font-bold text-white leading-snug mb-1">{step.title}</p>
+                <p className="text-sm text-white/45 leading-relaxed">{step.desc}</p>
               </div>
             </div>
           ))}

@@ -4073,11 +4073,12 @@
 - [x] Register /wizscore route in App.tsx
 - [x] Add WizScore™ to DashboardLayout sidebar
 
-## WizVid AI Tornado Intro Video (Apr 16 2026)
-- [ ] Generate 5 keyframe scene images for tornado intro (AI streams → tornado → colour explosion → cinematic scenes → logo reveal)
-- [ ] Generate video clips for each of the 5 scenes
-- [ ] Assemble 25-second intro with ffmpeg — text overlays ("If ever there was a Wiz…" / "There is." / WizVid AI / "Welcome to the wonderful world of WizVid AI"), logo reveal, music sync
-- [ ] Upload to CDN and update WizVidIntro component on homepage
+## WizVid AI Intro v8 — FIXES NEEDED (Apr 17 2026)
+- [x] Generate 4 video clips: B&W creator, violent tornado, technicolour world, logo explosion
+- [x] Assemble 26s video-only (no audio)
+- [ ] FIX: Colour world segment — too saturated/high contrast, tone down to refined premium feel
+- [ ] FIX: Logo reveal — remove square background box, show clean Wiz AI logo on particle explosion only
+- [ ] Rebuild v8.1 with fixes and reupload
 
 ## Cinematic Intro Video Rebuild v4 (Apr 16 2026)
 - [ ] Compose deep-bass cinematic trailer score (60-70s, slow build, spatial/immersive)
@@ -4099,3 +4100,126 @@
 - [x] Text lines: "Every idea begins as nothing" / "Then it becomes something powerful" / "Create without limits" / "Welcome to WizVid" / "Powered by WizGenesis™"
 - [x] CDN uploaded: wizvid-intro-v5_db18e7fb.mp4
 - [x] WizVidIntro.tsx updated: v5 URL, INTRO_SEEN_KEY = wizvid_intro_v5_seen, CTA_SHOW_AT_MS = 6500
+
+## MASTER BUILD — Full Production Overhaul (Apr 17 2026)
+
+### Section 1 — Brand Architecture
+- [ ] Set Wiz AI as parent brand, WizVid as product brand throughout
+- [ ] Use "Create anything. Instantly." for Wiz AI and "Turn ideas into cinematic AI video." for WizVid
+- [ ] Clear brand hierarchy in homepage, footer, product sections, metadata
+
+### Section 2 — Wiz AI Homepage (www.wiz-ai.io)
+- [ ] Build/refine Wiz AI parent brand homepage (separate from WizVid)
+- [ ] Hero: "Create anything. Instantly." with Explore Products + Start Creating CTAs
+- [ ] Product ecosystem cards: WizVid, WizSound, WizPilot, WizGenesis
+- [ ] How it works section (3 steps)
+- [ ] Why Wiz AI section
+- [ ] Final CTA: "The future of creation is already here."
+- [ ] Footer with product links
+
+### Section 3 — WizVid Homepage (Conversion Focus)
+- [ ] Headline: "Turn your idea into a cinematic AI video in minutes"
+- [ ] Subheadline: "Create music videos, animations and visual stories with AI. No editing experience needed."
+- [ ] Primary CTA: "Start Creating Free" + Secondary: "Watch Demo"
+- [ ] Microcopy: "2 free videos included. No credit card required."
+- [ ] 3-step strip below hero
+- [ ] Trust microcopy: preview before pay, no editing required, built for creators
+- [ ] Consolidate overlapping/duplicated sections
+
+### Section 4 — Intro Experience
+- [ ] Keep intro as short emotional hook, NOT full explainer
+- [ ] Smooth playback, no overlapping logos, no duplicate branding
+- [ ] B&W to colour transition synced with audio moment
+- [ ] Premium text: sentence case, modern sans-serif, no clutter
+- [ ] "If ever there was a Wiz… There is." with dramatic pause
+
+### Section 5 — Long-form Brand/Demo Video
+- [ ] Position longer video as homepage brand/demo section (not intro)
+- [ ] Headline: "Welcome to Wiz AI" / Sub: "Introducing WizVid"
+- [ ] Click-to-play, not forced autoplay with sound
+- [ ] Premium play button overlay, clean controls
+- [ ] "Start Creating" CTA below video
+
+### Section 6 — WizSound Comparison Fix
+- [ ] Fix WizSound comparison to sound genuinely better (richer, fuller, clearer)
+- [ ] Use ONE video source with TWO audio treatments (Standard vs WizSound Enhanced)
+- [ ] No phasing artefacts, no wavey/underwater sound, no gimmicky spatial tricks
+- [ ] Toggle label: "Standard" / "WizSound Active"
+- [ ] Supporting text: "Toggle to hear the difference"
+
+### Section 7 — Navigation Hardening
+- [ ] Restore full top nav: Home, Music Video, WizPilot, Pricing, Help
+- [ ] Nav always visible, fixed positioning, proper z-index
+- [ ] Logo click always goes home
+- [ ] No nav disappearing behind overlays or intro logic
+
+### Section 8 — CTA Hardening
+- [ ] All primary CTAs use native anchors where appropriate
+- [ ] Start Creating, Pricing, product nav always work
+- [ ] No dead clicks, no blocked clicks
+- [ ] No nested invalid button/link structures
+
+### Section 9 — WizGenesis Positioning
+- [ ] Position WizGenesis as intelligence layer (character consistency, scene accuracy, prompt enhancement)
+- [ ] Add as product ecosystem card on Wiz AI
+- [ ] Add as feature positioning in WizVid
+
+### Section 10 — Character Lock/Consistency
+- [ ] Implement character lock/continuity system
+- [ ] Preserve identity, appearance, outfit across scenes
+- [ ] Confirmed storyboard characters must be respected
+
+### Section 11 — Prompt Enhancement
+- [ ] Add "Enhance Prompt" feature
+- [ ] Translate rough user language into structured AI-friendly instructions
+- [ ] Preserve intent, reduce randomness
+
+### Section 12 — Save System
+- [ ] Fix save/continue functionality
+- [ ] Preserve storyboard progress, scene edits, styles, assets
+- [ ] "Continue your last project" behaviour
+
+### Section 13 — Projects Page Cleanup
+- [ ] Rebuild with proper hierarchy
+- [ ] Status cards: Draft, Ready to render, Rendering, Completed, Failed
+- [ ] Context CTAs: Continue Editing, Render Video, View Progress, Watch/Download
+- [ ] Thumbnails/preview imagery
+- [ ] Sort active work to top
+
+### Section 14 — Render Flow/Notifications
+- [ ] Show render state clearly with progress/processing status
+- [ ] Surface completion in-app
+- [ ] Define notification method (email or in-app)
+- [ ] User must never wonder "Is my render actually happening?"
+
+### Section 15 — Pricing Refinement
+- [ ] Plans: £9/£19/£29/£59/£99
+- [ ] Highlight best plan, show value progression
+- [ ] Mention annual savings
+- [ ] Clean, premium presentation
+- [ ] Upsell WizSound + WizGenesis where appropriate
+
+### Section 16 — Homepage Conversion Optimisation
+- [ ] Add: What you can create, How it works, Why different, Watch demo, Start creating
+- [ ] Social proof: built for creators, preview before pay, no editing required
+- [ ] Track conversion events: CTA click, onboarding start, demo play, render initiated
+
+### Section 17 — Visual/Layer/Overlay Safety
+- [ ] No blocked clicks globally
+- [ ] No overlapping logos
+- [ ] No duplicate UI layers
+- [ ] No nav disappearing unexpectedly
+- [ ] Non-interactive backgrounds don't intercept pointer events
+
+### Section 18 — Final Quality Bar
+- [ ] Everything feels premium, controlled, cinematic, intentional
+- [ ] Easy to understand, trustworthy
+- [ ] Feels like a real, investable, premium AI creative platform
+
+## WizAI Intro v9 — Ultra-Premium 10s Cinematic (Apr 17 2026)
+- [x] Compose 10s cinematic score: bass build 0-6s, particle whooshes, heavy impact at 6.5s, metallic shimmer, settle
+- [x] Generate video clips: pure black anticipation, gold particle swirl, formation, logo impact reveal
+- [x] Assemble EXACTLY 10.0s video with baked text: "Welcome to the world of..." + "Press to continue"
+- [x] STRICT: No humans, no background boxes, no "powered by", no duplicate text, no clutter
+- [x] Video stops at 10s (no loop), final frame holds, "Press to continue" to enter site
+- [x] Upload to CDN and update WizVidIntro.tsx
