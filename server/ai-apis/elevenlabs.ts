@@ -1,10 +1,14 @@
 /**
  * ElevenLabs API wrapper
- * - Sound Effects: exact duration generation (up to 30s)
- * - Music: full composition generation (3s–5min), prompt-guided duration
+ * - Sound Effects: exact duration generation (up to 30s) via POST /v1/sound-generation
+ * - Music: full composition via POST /v1/music (synchronous streaming response)
  *
  * Both functions include automatic retry with exponential back-off for 429
  * rate-limit responses (up to 3 retries, starting at 10s, doubling each time).
+ *
+ * NOTE: The Music API (/v1/music) is SYNCHRONOUS — it streams audio bytes directly
+ * in the response body. There is NO async job ID / polling step.
+ * Duration is passed as `music_length_ms` (milliseconds, range 3000–600000).
  */
 import axios, { AxiosError } from "axios";
 import { storagePut } from "../storage";
@@ -60,22 +64,20 @@ async function withRateLimitRetry<T>(
           await sleep(waitMs);
           continue;
         }
-        // Exhausted retries
         throw new Error(
           `ElevenLabs rate-limited after ${maxRetries} retries. Please wait a moment and try again.`
         );
       }
 
-      // Non-429 error — surface the actual message
+      // Non-429 error — surface the actual message from the response body
       if (axiosErr?.response?.data) {
         let detail: string;
         try {
-          // response.data may be a Buffer (arraybuffer) or object
           const raw = axiosErr.response.data;
           if (Buffer.isBuffer(raw)) {
-            detail = raw.toString("utf8").substring(0, 300);
+            detail = raw.toString("utf8").substring(0, 400);
           } else {
-            detail = JSON.stringify(raw).substring(0, 300);
+            detail = JSON.stringify(raw).substring(0, 400);
           }
         } catch {
           detail = String(axiosErr.message);
@@ -108,7 +110,7 @@ export interface ElevenLabsMusicResult {
 /**
  * Generate a sound effect / short cinematic audio at an exact duration.
  * Duration range: 0.5s – 30s (ElevenLabs hard limit).
- * Returns a permanent S3/CloudFront URL.
+ * Returns a permanent S3 URL.
  */
 export async function generateSoundEffect(params: {
   prompt: string;
@@ -121,7 +123,7 @@ export async function generateSoundEffect(params: {
 
   console.log(
     `[ElevenLabs SFX] Generating ${clampedDuration}s sound effect\n` +
-    `  prompt: "${params.prompt.substring(0, 200)}"`
+    `  prompt (${params.prompt.length} chars): "${params.prompt.substring(0, 200)}"`
   );
 
   const response = await withRateLimitRetry("SFX generate", () =>
@@ -156,123 +158,86 @@ export async function generateSoundEffect(params: {
   };
 }
 
-// ─── Music (full composition, 3s–5min) ───────────────────────────────────────
+// ─── Music (full composition, 3s–10min) ──────────────────────────────────────
 
 /**
- * Generate a full music composition via ElevenLabs Music API.
- * Duration is prompt-guided (not exact) — pass duration in the prompt text.
- * Returns a permanent S3/CloudFront URL.
+ * Generate a full music composition via ElevenLabs Music API (POST /v1/music).
  *
- * The Music API is async: POST to submit, GET to poll for completion.
+ * The API is SYNCHRONOUS — it streams audio bytes directly in the response body.
+ * There is no async job ID or polling step.
+ *
+ * Duration is passed as `music_length_ms` (milliseconds, 3000–600000).
+ * Returns a permanent S3 URL.
  */
 export async function generateMusic(params: {
   prompt: string;
-  durationSeconds?: number; // Prepended as natural-language guidance in the prompt
-  makeInstrumental?: boolean; // Passed as make_instrumental to the API
+  durationSeconds?: number;
+  makeInstrumental?: boolean;
   userId: number;
 }): Promise<ElevenLabsMusicResult> {
   const key = getApiKey();
 
-  // Build duration-enriched prompt
-  let finalPrompt = params.prompt;
-  if (params.durationSeconds) {
-    const mins = Math.floor(params.durationSeconds / 60);
-    const secs = params.durationSeconds % 60;
-    let durationLabel: string;
-    if (mins > 0 && secs > 0) {
-      durationLabel = `${mins} minute ${secs} second`;
-    } else if (mins > 0) {
-      durationLabel = `${mins} minute`;
-    } else {
-      durationLabel = `${secs} second`;
-    }
-    // Prepend duration guidance — ElevenLabs Music understands natural language duration
-    finalPrompt = `${durationLabel} track. ${params.prompt}`;
-  }
+  // Clamp duration to ElevenLabs Music limits: 3s – 600s (10 min)
+  const durationMs = params.durationSeconds
+    ? Math.min(600_000, Math.max(3_000, Math.round(params.durationSeconds * 1000)))
+    : undefined;
 
   console.log(
     `[ElevenLabs Music] Submitting generation request\n` +
-    `  make_instrumental: ${params.makeInstrumental ?? false}\n` +
-    `  full prompt (${finalPrompt.length} chars): "${finalPrompt.substring(0, 300)}"`
+    `  music_length_ms: ${durationMs ?? "not set (model chooses)"}\n` +
+    `  force_instrumental: ${params.makeInstrumental ?? false}\n` +
+    `  prompt (${params.prompt.length} chars): "${params.prompt.substring(0, 300)}"`
   );
 
-  // Step 1: Submit generation request (with 429 retry)
-  const submitResponse = await withRateLimitRetry("Music submit", () =>
-    axios.post(
-      `${BASE_URL}/text-to-music`,
-      {
-        text: finalPrompt,
-        make_instrumental: params.makeInstrumental ?? false,
-      },
-      {
-        headers: {
-          "xi-api-key": key,
-          "Content-Type": "application/json",
+  // POST /v1/music — returns audio bytes directly (arraybuffer)
+  const response = await withRateLimitRetry(
+    "Music generate",
+    () =>
+      axios.post(
+        `${BASE_URL}/music`,
+        {
+          prompt: params.prompt,
+          ...(durationMs !== undefined ? { music_length_ms: durationMs } : {}),
+          force_instrumental: params.makeInstrumental ?? false,
         },
-        timeout: 30_000,
-      }
-    )
+        {
+          headers: {
+            "xi-api-key": key,
+            "Content-Type": "application/json",
+            Accept: "audio/mpeg",
+          },
+          responseType: "arraybuffer",
+          // Music generation can take several minutes — generous timeout
+          timeout: 600_000,
+        }
+      ),
+    3,
+    15_000 // start at 15s for music (heavier endpoint)
   );
 
-  const generationId: string = submitResponse.data.id || submitResponse.data.generation_id;
-  if (!generationId) {
-    throw new Error(
-      `ElevenLabs Music: no generation ID in response: ${JSON.stringify(submitResponse.data).substring(0, 200)}`
-    );
+  const audioBuffer = Buffer.from(response.data);
+  if (audioBuffer.length < 1000) {
+    // Suspiciously small — likely an error JSON encoded as bytes
+    const text = audioBuffer.toString("utf8");
+    throw new Error(`ElevenLabs Music: unexpected small response (${audioBuffer.length} bytes): ${text.substring(0, 300)}`);
   }
 
-  console.log(`[ElevenLabs Music] Generation ID: ${generationId} — polling...`);
+  // Derive actual duration from the song-id header if available, else estimate from bytes
+  const songId = response.headers?.["song-id"] as string | undefined;
+  // ~128kbps MP3: bytes / (128000/8) = seconds
+  const estimatedDuration = params.durationSeconds ?? Math.round(audioBuffer.length / 16_000);
 
-  // Step 2: Poll until complete (max 5 minutes, with 429 retry on each poll)
-  const maxAttempts = 60;
-  const pollInterval = 5_000;
-  let audioUrl: string | null = null;
-  let actualDuration = 0;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    await sleep(pollInterval);
-
-    const statusResponse = await withRateLimitRetry(`Music poll ${attempt + 1}`, () =>
-      axios.get(`${BASE_URL}/text-to-music/${generationId}`, {
-        headers: { "xi-api-key": key },
-        timeout: 15_000,
-      })
-    );
-
-    const status = statusResponse.data.status;
-    console.log(`[ElevenLabs Music] Poll ${attempt + 1}/${maxAttempts}: status=${status}`);
-
-    if (status === "complete" || status === "completed") {
-      audioUrl = statusResponse.data.audio_url || statusResponse.data.url;
-      actualDuration = statusResponse.data.duration_seconds || statusResponse.data.duration || 0;
-      break;
-    } else if (status === "failed" || status === "error") {
-      throw new Error(
-        `ElevenLabs Music generation failed: ${statusResponse.data.error || "unknown error"}`
-      );
-    }
-    // status === "pending" | "processing" — keep polling
-  }
-
-  if (!audioUrl) {
-    throw new Error("ElevenLabs Music: timed out waiting for generation to complete");
-  }
-
-  // Step 3: Download and re-upload to our S3 (ElevenLabs URLs may expire)
-  console.log(`[ElevenLabs Music] Downloading audio from ${audioUrl.substring(0, 80)}...`);
-  const downloadResponse = await axios.get(audioUrl, {
-    responseType: "arraybuffer",
-    timeout: 120_000,
-  });
-
-  const audioBuffer = Buffer.from(downloadResponse.data);
   const fileKey = `elevenlabs-music/${params.userId}/${randomSuffix()}.mp3`;
   const { url: s3Url } = await storagePut(fileKey, audioBuffer, "audio/mpeg");
 
-  console.log(`[ElevenLabs Music] Done — ${actualDuration}s, ${audioBuffer.length} bytes → ${s3Url}`);
+  console.log(
+    `[ElevenLabs Music] Done — song-id: ${songId ?? "n/a"}, ` +
+    `~${estimatedDuration}s, ${audioBuffer.length} bytes → ${s3Url}`
+  );
+
   return {
     audioUrl: s3Url,
-    durationSeconds: actualDuration,
+    durationSeconds: estimatedDuration,
     provider: "elevenlabs_music",
   };
 }

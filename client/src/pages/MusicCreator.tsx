@@ -491,24 +491,49 @@ export default function MusicCreator() {
                         : `0:${String(targetDuration).padStart(2, "0")}`}
                     </span>
                   </div>
-                  {/* Quick-select shortcuts */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {[5, 10, 15, 30, 60, 120, 180, 300, 420, 600].map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setTargetDuration(s)}
-                        className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
-                          targetDuration === s
-                            ? "bg-violet-500/20 border-violet-500/50 text-violet-200"
-                            : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
-                        }`}
-                      >
-                        {s >= 60 ? `${Math.floor(s / 60)}m${s % 60 ? ` ${s % 60}s` : ""}` : `${s}s`}
-                      </button>
-                    ))}
+                  {/* Quick-select shortcuts — two rows */}
+                  <div className="mb-3 space-y-2.5">
+                    {/* Short: 5–30s (ElevenLabs SFX exact duration) */}
+                    <div>
+                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Short ⚡ exact (Score / BG)</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[5, 10, 15, 20, 25, 30].map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setTargetDuration(s)}
+                            className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                              targetDuration === s
+                                ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                                : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
+                            }`}
+                          >
+                            {s}s
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Long: 1m–10m */}
+                    <div>
+                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Long 🎼 composition</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[60, 90, 120, 180, 240, 300, 420, 600].map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setTargetDuration(s)}
+                            className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                              targetDuration === s
+                                ? "bg-violet-500/20 border-violet-500/50 text-violet-200"
+                                : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
+                            }`}
+                          >
+                            {`${Math.floor(s / 60)}m${s % 60 ? ` ${s % 60}s` : ""}`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   <p className="text-xs text-[#a1a1aa]">
-                    Enter any exact duration (e.g. 2:41 for a 2m 41s video). Min 5s, max 10 min. The generated track will be trimmed and faded to exactly this length.
+                    Enter any exact duration (e.g. 2:41 for a 2m 41s video). Min 5s, max 10 min. Short options (≤30s) use ElevenLabs Sound Effects for exact-length output.
                   </p>
                 </>
               )}

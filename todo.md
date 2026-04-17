@@ -4545,3 +4545,5 @@
 - [x] ElevenLabs 429 rate-limit: retry-with-exponential-backoff (3 retries, 10s/20s/40s) for both SFX and Music submit/poll calls
 - [x] ElevenLabs prompt logging: full enriched prompt (prompt + style/genre/mood context) now logged at INFO level before every API call
 - [x] ElevenLabs SFX path: now uses enriched prompt (genre/mood/style appended as context) same as Music path
+- [x] ElevenLabs Music API 404: fixed — correct endpoint is POST /v1/music (not /v1/text-to-music), synchronous arraybuffer response, music_length_ms field, force_instrumental flag
+- [x] Music Creator duration picker: add 10s, 15s, 20s, 25s, 30s quick-select options (grouped into Short ≤30s and Long 1m–10m rows)
