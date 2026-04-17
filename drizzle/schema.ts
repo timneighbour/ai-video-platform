@@ -385,6 +385,10 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   status: mysqlEnum("status", ["pending", "processing", "complete", "failed"]).default("pending"),
   /** Target duration in seconds requested by user (null = no limit) */
   targetDuration: int("targetDuration"),
+  /** Generation provider: suno (default), elevenlabs_sfx (≤30s exact), elevenlabs_music (30s–5min) */
+  provider: mysqlEnum("provider", ["suno", "elevenlabs_sfx", "elevenlabs_music"]).default("suno"),
+  /** Generation mode chosen by user */
+  generationMode: mysqlEnum("generationMode", ["score", "song", "suno"]).default("suno"),
   /** Two tracks are returned per task - stored as JSON array */
   tracks: longtext("tracks"), // JSON: Array<{ audioUrl, imageUrl, title, tags, duration }>
   errorMessage: text("errorMessage"),

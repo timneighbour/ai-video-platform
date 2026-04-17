@@ -179,6 +179,7 @@ export default function MusicCreator() {
   const [title, setTitle] = useState("");
   const [instrumental, setInstrumental] = useState(false);
   const [model, setModel] = useState<"V3_5" | "V4">("V4");
+  const [generationMode, setGenerationMode] = useState<"score" | "song" | "suno">("suno");
   const [targetDuration, setTargetDuration] = useState<number | null>(null); // null = no limit
 
   // Lyrics state
@@ -325,6 +326,7 @@ export default function MusicCreator() {
       model,
       origin: window.location.origin,
       targetDuration: targetDuration ?? undefined,
+      generationMode,
     });
   };
 
@@ -724,9 +726,42 @@ export default function MusicCreator() {
             {/* Generate card */}
             <div className="p-6 rounded-2xl bg-gradient-to-br from-violet-900/20 to-blue-900/20 border border-violet-500/20 sticky top-24">
               <h2 className="text-lg font-bold text-white mb-1">Ready to generate</h2>
-              <p className="text-[#a1a1aa] text-sm mb-5">
-                Suno will create 2 unique tracks from your prompt. Generation takes 1–3 minutes.
-              </p>
+
+              {/* Generation Engine Selector */}
+              <div className="mb-5">
+                <label className="block text-xs text-[#a1a1aa] mb-2 font-medium uppercase tracking-widest">Generation Engine</label>
+                <div className="grid grid-cols-3 gap-1.5 mb-2">
+                  {([
+                    { value: "score" as const, label: "Score / BG", icon: "🎼" },
+                    { value: "song" as const, label: "Full Song", icon: "🎤" },
+                    { value: "suno" as const, label: "Suno Creative", icon: "🎵" },
+                  ]).map(({ value, label, icon }) => (
+                    <button
+                      key={value}
+                      onClick={() => setGenerationMode(value)}
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                        generationMode === value
+                          ? value === "score"
+                            ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                            : value === "song"
+                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-200"
+                            : "bg-violet-500/20 border-violet-500/50 text-violet-200"
+                          : "bg-white/3 border-white/8 text-[#a1a1aa] hover:border-white/20 hover:text-white"
+                      }`}
+                    >
+                      <div className="text-base mb-0.5">{icon}</div>
+                      <div className="text-[11px] font-semibold leading-tight">{label}</div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-[#666] leading-relaxed">
+                  {generationMode === "score" && (targetDuration && targetDuration <= 30
+                    ? "⚡ ElevenLabs Sound Effects — exact duration, cinematic sound design, no fade."
+                    : "🎼 ElevenLabs Music — complete composition, near-exact duration, no fade. Best for background scores, cinematic tracks, brand music.")}
+                  {generationMode === "song" && "🎤 ElevenLabs Music — full composition with vocals, up to 5 minutes. Near-exact duration, no fade."}
+                  {generationMode === "suno" && "🎵 Suno AI — 2 creative tracks. If a duration is set, the track will be trimmed to fit."}
+                </p>
+              </div>
 
               {/* Summary */}
               <div className="space-y-2 mb-5">

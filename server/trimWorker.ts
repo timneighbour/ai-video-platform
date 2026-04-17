@@ -13,7 +13,7 @@
 
 import { getDb } from "./db";
 import { sunoMusicTasks } from "../drizzle/schema";
-import { eq, and, isNotNull, desc } from "drizzle-orm";
+import { eq, and, isNotNull, desc, ne } from "drizzle-orm";
 import { trimAudioToLength } from "./audioTrim";
 import type { SunoTrack } from "./ai-apis/suno";
 
@@ -31,13 +31,15 @@ async function processTrimQueue() {
     const db = await getDb();
     if (!db) return;
 
-    // Find tasks that are complete, have a targetDuration, and have tracks stored
+    // Find Suno tasks that are complete, have a targetDuration, and have tracks stored
+    // ElevenLabs tasks don't need trimming — they generate at the correct duration natively
     const tasks = await db
       .select()
       .from(sunoMusicTasks)
       .where(
         and(
           eq(sunoMusicTasks.status, "complete"),
+          eq(sunoMusicTasks.provider, "suno"),
           isNotNull(sunoMusicTasks.targetDuration),
           isNotNull(sunoMusicTasks.tracks)
         )

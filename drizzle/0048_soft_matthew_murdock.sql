@@ -1,0 +1,2 @@
+ALTER TABLE `suno_music_tasks` ADD `provider` enum('suno','elevenlabs_sfx','elevenlabs_music') DEFAULT 'suno';--> statement-breakpoint
+ALTER TABLE `suno_music_tasks` ADD `generationMode` enum('score','song','suno') DEFAULT 'suno';

@@ -1,6 +1,9 @@
 /**
- * Suno Music Router
- * Handles AI music generation via sunoapi.org.
+ * Music Generation Router (WizSound)
+ * Smart provider routing:
+ *   - ElevenLabs Sound Effects: ≤30s, exact duration, cinematic/ambient
+ *   - ElevenLabs Music: 30s–5min, prompt-guided duration, full composition
+ *   - Suno: full creative songs with vocals, any length (trimmed to target)
  */
 
 import { z } from "zod";
@@ -12,41 +15,186 @@ import { eq, and, desc } from "drizzle-orm";
 import { initSuno, SunoTrack } from "../ai-apis/suno";
 import { invokeLLM } from "../_core/llm";
 import { enqueueTrim } from "../trimWorker";
+import {
+  generateSoundEffect,
+  generateMusic,
+  chooseElevenLabsProvider,
+} from "../ai-apis/elevenlabs";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type GenerationMode = "score" | "song" | "suno";
+type Provider = "suno" | "elevenlabs_sfx" | "elevenlabs_music";
+
+/**
+ * Determine which provider to use based on mode and duration.
+ * - score: ElevenLabs (SFX for ≤30s, Music for >30s)
+ * - song: ElevenLabs Music (full composition with vocals)
+ * - suno: Always Suno
+ */
+function resolveProvider(mode: GenerationMode, durationSeconds?: number): Provider {
+  if (mode === "suno") return "suno";
+  if (mode === "song") return "elevenlabs_music";
+  // mode === "score"
+  if (durationSeconds && durationSeconds <= 30) return "elevenlabs_sfx";
+  return "elevenlabs_music";
+}
+
 export const sunoRouter = router({
   /**
    * Submit a music generation task.
-   * Returns the DB task ID for polling.
+   * Routes to ElevenLabs or Suno based on generationMode and targetDuration.
    */
   generate: protectedProcedure
     .input(
       z.object({
         prompt: z.string().min(1).max(400),
-        /**
-         * Actual song lyrics for custom mode (style + title must also be set).
-         * In custom mode Suno uses this as the lyric body — must be at least 20 chars.
-         */
         lyrics: z.string().max(3000).optional(),
         style: z.string().max(200).optional(),
         title: z.string().max(80).optional(),
         instrumental: z.boolean().default(false),
         model: z.enum(["V3_5", "V4"]).default("V4"),
-        /** Frontend must pass window.location.origin so we can build the callback URL */
         origin: z.string().url().optional(),
-        /** Target duration in seconds (5–600). Track will be trimmed/faded to this length after generation. */
+        /** Target duration in seconds (5–600). */
         targetDuration: z.number().int().min(5).max(600).optional(),
+        /**
+         * Generation mode:
+         *   score  = ElevenLabs (best for background/cinematic, near-exact duration)
+         *   song   = ElevenLabs Music (full composition with vocals)
+         *   suno   = Suno (creative songs with lyrics, trimmed to target)
+         */
+        generationMode: z.enum(["score", "song", "suno"]).default("suno"),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Validate: custom mode requires lyrics to be non-empty
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const provider = resolveProvider(input.generationMode, input.targetDuration);
+
+      // ── ElevenLabs Sound Effects (≤30s, exact duration) ─────────────────────
+      if (provider === "elevenlabs_sfx") {
+        const durationSec = input.targetDuration ?? 10;
+        console.log(`[WizSound] ElevenLabs SFX — ${durationSec}s: "${input.prompt.substring(0, 80)}"`);
+
+        let result;
+        try {
+          result = await generateSoundEffect({
+            prompt: input.prompt,
+            durationSeconds: durationSec,
+            promptInfluence: 0.3,
+            userId: ctx.user.id,
+          });
+        } catch (err: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `ElevenLabs Sound Effects failed: ${err.message}`,
+          });
+        }
+
+        const track = {
+          audioUrl: result.audioUrl,
+          imageUrl: "",
+          title: input.title ?? input.prompt.substring(0, 60),
+          tags: input.style ?? "",
+          duration: result.durationSeconds,
+          trimmedDuration: result.durationSeconds, // exact — no trim needed
+          provider: "elevenlabs_sfx",
+        };
+
+        const [inserted] = await db.insert(sunoMusicTasks).values({
+          userId: ctx.user.id,
+          taskId: `elevenlabs-sfx-${Date.now()}`,
+          title: input.title ?? null,
+          prompt: input.prompt,
+          style: input.style ?? null,
+          instrumental: true,
+          targetDuration: durationSec,
+          provider: "elevenlabs_sfx",
+          generationMode: "score",
+          status: "complete",
+          tracks: JSON.stringify([track]),
+          updatedAt: new Date(),
+        });
+
+        return { id: (inserted as any).insertId as number, taskId: `elevenlabs-sfx-${Date.now()}` };
+      }
+
+      // ── ElevenLabs Music (30s–5min, full composition) ────────────────────────
+      if (provider === "elevenlabs_music") {
+        console.log(`[WizSound] ElevenLabs Music — ${input.targetDuration ?? "?"}s: "${input.prompt.substring(0, 80)}"`);
+
+        // Insert as "pending" immediately so frontend can start polling
+        const [inserted] = await db.insert(sunoMusicTasks).values({
+          userId: ctx.user.id,
+          taskId: `elevenlabs-music-${Date.now()}`,
+          title: input.title ?? null,
+          prompt: input.prompt,
+          style: input.style ?? null,
+          instrumental: input.instrumental,
+          targetDuration: input.targetDuration ?? null,
+          provider: "elevenlabs_music",
+          generationMode: input.generationMode,
+          status: "processing",
+          updatedAt: new Date(),
+        });
+        const taskDbId = (inserted as any).insertId as number;
+
+        // Run generation in background (non-blocking)
+        generateMusic({
+          prompt: input.prompt,
+          durationSeconds: input.targetDuration,
+          userId: ctx.user.id,
+        })
+          .then(async (result) => {
+            const track = {
+              audioUrl: result.audioUrl,
+              imageUrl: "",
+              title: input.title ?? input.prompt.substring(0, 60),
+              tags: input.style ?? "",
+              duration: result.durationSeconds,
+              trimmedDuration: result.durationSeconds,
+              provider: "elevenlabs_music",
+            };
+            const dbConn = await getDb();
+            if (dbConn) {
+              await dbConn
+                .update(sunoMusicTasks)
+                .set({
+                  status: "complete",
+                  tracks: JSON.stringify([track]),
+                  updatedAt: new Date(),
+                })
+                .where(eq(sunoMusicTasks.id, taskDbId));
+              console.log(`[WizSound] ElevenLabs Music task ${taskDbId} complete — ${result.durationSeconds}s`);
+            }
+          })
+          .catch(async (err) => {
+            console.error(`[WizSound] ElevenLabs Music task ${taskDbId} failed:`, err.message);
+            const dbConn = await getDb();
+            if (dbConn) {
+              await dbConn
+                .update(sunoMusicTasks)
+                .set({
+                  status: "failed",
+                  errorMessage: err.message,
+                  updatedAt: new Date(),
+                })
+                .where(eq(sunoMusicTasks.id, taskDbId));
+            }
+          });
+
+        return { id: taskDbId, taskId: `elevenlabs-music-${taskDbId}` };
+      }
+
+      // ── Suno (full creative songs, trimmed to target) ─────────────────────────
       const isCustomMode = !!(input.style && input.title);
       if (isCustomMode && !input.instrumental && (!input.lyrics || input.lyrics.trim().length < 20)) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Please enter at least a few lines of lyrics before generating in custom mode. You can use the \"Generate Lyrics\" button to create a draft.",
+          message: "Please enter at least a few lines of lyrics before generating in custom mode.",
         });
       }
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       let suno: ReturnType<typeof initSuno>;
       try {
@@ -58,21 +206,18 @@ export const sunoRouter = router({
         });
       }
 
-      // Build callback URL from origin (required by Suno API)
       const callBackUrl = input.origin
         ? `${input.origin}/api/suno/callback`
         : `${process.env.VITE_FRONTEND_FORGE_API_URL ?? "https://api.manus.im"}/api/suno/callback`;
 
-      // Inject duration hint into the prompt so Suno generates a track of the right length.
-      // Suno has no native duration parameter — the only way to influence length is via the prompt.
+      // Inject duration hint into the prompt
       let enrichedPrompt = input.prompt;
       if (input.targetDuration) {
         const mins = Math.floor(input.targetDuration / 60);
         const secs = input.targetDuration % 60;
         const durationLabel = mins > 0
-          ? `${mins} minute${mins > 1 ? 's' : ''}${secs > 0 ? ` ${secs} second` : ''}`
+          ? `${mins} minute${mins > 1 ? "s" : ""}${secs > 0 ? ` ${secs} second` : ""}`
           : `${secs} second`;
-        // For very short clips (≤15s) use "sting" / "stinger" language which Suno understands
         if (input.targetDuration <= 15) {
           enrichedPrompt = `[${durationLabel} stinger/sting, very short, no verse structure] ${input.prompt}`;
         } else if (input.targetDuration <= 60) {
@@ -80,10 +225,8 @@ export const sunoRouter = router({
         } else {
           enrichedPrompt = `[${durationLabel} track] ${input.prompt}`;
         }
-        console.log(`[WizSound] Enriched prompt with duration hint: "${enrichedPrompt.substring(0, 120)}..."`);
       }
 
-      // Submit to Suno API
       const externalTaskId = await suno.generate({
         prompt: enrichedPrompt,
         lyrics: input.lyrics,
@@ -94,7 +237,6 @@ export const sunoRouter = router({
         callBackUrl,
       });
 
-      // Save to DB
       const [inserted] = await db.insert(sunoMusicTasks).values({
         userId: ctx.user.id,
         taskId: externalTaskId,
@@ -103,6 +245,8 @@ export const sunoRouter = router({
         style: input.style ?? null,
         instrumental: input.instrumental,
         targetDuration: input.targetDuration ?? null,
+        provider: "suno",
+        generationMode: "suno",
         status: "pending",
         updatedAt: new Date(),
       });
@@ -112,7 +256,8 @@ export const sunoRouter = router({
 
   /**
    * Poll the status of a music generation task.
-   * Updates DB and returns current status + tracks.
+   * For ElevenLabs tasks: reads from DB (generation runs in background).
+   * For Suno tasks: polls external API and updates DB.
    */
   getStatus: protectedProcedure
     .input(z.object({ id: z.number().int() }))
@@ -127,21 +272,27 @@ export const sunoRouter = router({
 
       if (!task) throw new TRPCError({ code: "NOT_FOUND" });
 
-      // If already complete/failed, return cached result
+      // ── ElevenLabs tasks: read from DB (background worker updates it) ────────
+      if (task.provider === "elevenlabs_sfx" || task.provider === "elevenlabs_music") {
+        const cachedTracks = task.tracks ? JSON.parse(task.tracks) : [];
+        return {
+          id: task.id,
+          status: task.status,
+          tracks: cachedTracks,
+          errorMessage: task.errorMessage,
+          targetDuration: task.targetDuration,
+          provider: task.provider,
+        };
+      }
+
+      // ── Suno tasks: check DB cache first, then poll external API ─────────────
       if (task.status === "complete" || task.status === "failed") {
         const cachedTracks: SunoTrack[] = task.tracks ? JSON.parse(task.tracks) : [];
-
-        // Check if tracks are still being trimmed by the background worker
-        // A task is fully trimmed when ALL tracks with valid audio have trimmedDuration set
-        // (tracks with empty audioUrl from Suno are excluded from the check)
         const tracksWithAudio = cachedTracks.filter((t: any) => t.audioUrl && t.audioUrl.length > 0);
         const allTrimmed = tracksWithAudio.length > 0 && tracksWithAudio.every((t: any) => t.trimmedDuration != null);
         const isCurrentlyTrimming = cachedTracks.some((t: any) => t.trimming === true);
-        // Only consider a track truly failed if it has a valid audioUrl but trim failed
         const anyRetryableFailed = cachedTracks.some((t: any) => t.trimFailed === true && t.audioUrl && t.audioUrl.length > 0);
 
-        // Check if trim is needed but hasn't been enqueued yet
-        // (some tracks have no trimmedDuration and no trimFailed flag)
         const needsEnqueue =
           task.status === "complete" &&
           task.targetDuration &&
@@ -151,11 +302,8 @@ export const sunoRouter = router({
           !isCurrentlyTrimming;
 
         if (needsEnqueue) {
-          // Mark tracks as trimming and enqueue with the worker
-          console.log(`[WizSound] Task ${task.id} needs trim — marking and enqueuing...`);
           const trimmingTracks = cachedTracks.map((t: SunoTrack) => ({
             ...t,
-            // Only mark tracks that haven't been trimmed yet
             trimming: !(t as any).trimmedDuration,
             originalUrl: (t as any).originalUrl ?? t.audioUrl,
           }));
@@ -170,22 +318,21 @@ export const sunoRouter = router({
             tracks: trimmingTracks,
             errorMessage: task.errorMessage,
             targetDuration: task.targetDuration,
+            provider: task.provider,
           };
         }
 
         if (isCurrentlyTrimming) {
-          // Worker is still processing — return trimming status so frontend keeps polling
-          // NOTE: Do NOT call enqueueTrim here — it causes infinite re-enqueue loops
           return {
             id: task.id,
             status: "trimming" as any,
             tracks: cachedTracks,
             errorMessage: task.errorMessage,
             targetDuration: task.targetDuration,
+            provider: task.provider,
           };
         }
 
-        // Only return tracks that have a valid audio URL (filter out Suno API failures)
         const playableTracks = cachedTracks.filter((t: any) => t.audioUrl && t.audioUrl.length > 0);
         return {
           id: task.id,
@@ -193,10 +340,11 @@ export const sunoRouter = router({
           tracks: playableTracks,
           errorMessage: task.errorMessage,
           targetDuration: task.targetDuration,
+          provider: task.provider,
         };
       }
 
-      // Poll external API
+      // Poll Suno external API
       let suno: ReturnType<typeof initSuno>;
       try {
         suno = initSuno();
@@ -206,19 +354,15 @@ export const sunoRouter = router({
 
       const result = await suno.getTaskStatus(task.taskId);
 
-      // If complete and targetDuration is set, mark tracks for background trimming
       let finalTracks = result.tracks ?? [];
       if (result.status === "complete" && task.targetDuration && finalTracks.length > 0) {
-        // Mark tracks as needing trim — the background worker will handle the actual trim
         finalTracks = finalTracks.map((t: SunoTrack) => ({
           ...t,
           trimming: true,
           originalUrl: t.audioUrl,
         }));
-        console.log(`[WizSound] Task ${task.id} complete — marking ${finalTracks.length} tracks for background trim to ${task.targetDuration}s`);
       }
 
-      // Update DB
       const hasTrimming = finalTracks.some((t: any) => t.trimming === true);
       await db
         .update(sunoMusicTasks)
@@ -229,10 +373,7 @@ export const sunoRouter = router({
         })
         .where(eq(sunoMusicTasks.id, task.id));
 
-      // Enqueue background trim if needed
-      if (hasTrimming) {
-        enqueueTrim(task.id);
-      }
+      if (hasTrimming) enqueueTrim(task.id);
 
       return {
         id: task.id,
@@ -240,6 +381,7 @@ export const sunoRouter = router({
         tracks: finalTracks,
         errorMessage: result.errorMessage,
         targetDuration: task.targetDuration,
+        provider: task.provider,
       };
     }),
 
@@ -265,6 +407,8 @@ export const sunoRouter = router({
       instrumental: t.instrumental,
       status: t.status,
       targetDuration: t.targetDuration,
+      provider: t.provider,
+      generationMode: t.generationMode,
       tracks: t.tracks ? JSON.parse(t.tracks) : [],
       createdAt: t.createdAt,
     }));
@@ -272,7 +416,6 @@ export const sunoRouter = router({
 
   /**
    * Generate draft lyrics using the LLM.
-   * Returns a draft that the user can edit before generating the song.
    */
   generateLyrics: protectedProcedure
     .input(
@@ -323,7 +466,6 @@ Rules:
 
   /**
    * Public endpoint: get featured/demo tracks for the landing page.
-   * Returns completed tasks from the owner account (userId = 1).
    */
   featuredTracks: publicProcedure.query(async () => {
     const db = await getDb();
