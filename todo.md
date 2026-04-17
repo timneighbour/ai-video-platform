@@ -4628,3 +4628,11 @@
 - [x] Footer: already fixed in code (support@wiz-ai.io), was old published version
 - [x] Footer: Wiz AI → WIZ AI casing fixed in Home.tsx and WizAI.tsx
 - [x] Browser mockup: already shows wiz-ai.io/create in code
+
+## Ella's Final 6 Fixes
+- [ ] Fix #1: Change browser/tab title to "WIZ AI | Create anything. Instantly." (REQUIRES MANUAL: Settings → General)
+- [x] Fix #2: Tighten CTA consistency — Primary="Start Creating", Secondary="Explore Products/View Pricing/Watch Demo", remove "Get started/Get Started Free/Start for free" variants
+- [x] Fix #3: Refine showcase "Neon City" copy — less violet/neon/cyberpunk, more premium
+- [x] Fix #4: Clean up footer Platform column — no duplicate destinations, no awkward naming
+- [x] Fix #5: Replace "Pixar-style" wording with "cinematic 3D animation" or "stylised 3D animation"
+- [ ] Fix #6: Verify live public site after publishing (pending publish)

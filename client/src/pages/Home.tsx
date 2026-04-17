@@ -431,7 +431,7 @@ function ProductGrid() {
               </div>
               {/* CTA arrow */}
               <div className={`flex items-center gap-1.5 text-xs font-semibold ${p.accentClass} opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0`}>
-                Get started <ArrowRight className="w-3 h-3" />
+                Start Creating <ArrowRight className="w-3 h-3" />
               </div>
               {/* Corner accent */}
               <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ background: `radial-gradient(circle at top right, ${p.accent}15, transparent 70%)` }} />
@@ -646,7 +646,7 @@ function Showcase() {
   const items = dbItems && dbItems.length > 0 ? dbItems : [
     { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${CDN}/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp`, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
     { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: `${CDN}/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp`, description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`, description: "Vibrant Pixar-style 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
   ];
 
   return (
@@ -717,7 +717,7 @@ function BuiltFor() {
     },
     {
       title: "Animators & Storytellers",
-      desc: "Create Pixar-style animations, anime, and visual stories from a single prompt.",
+      desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.",
       cta: "Create Animation",
       href: "/kids-video",
       icon: <Wand2 className="w-6 h-6" />,
@@ -769,13 +769,13 @@ function FinalCTA() {
       <div className="max-w-3xl mx-auto text-center reveal">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 mb-8">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-amber-400">Start for free</span>
+          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-amber-400">No credit card required</span>
         </div>
         <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">
           Ready to start creating?
         </h2>
         <p className="text-white/40 text-lg mb-10 leading-relaxed">
-          Create audio, images, video, shorts, animation, and more — all from one platform. Start free. Pay only when you render.
+          Create audio, images, video, shorts, animation, and more — all from one platform. Pay only when you render.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
@@ -825,9 +825,9 @@ function Footer() {
             <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Platform</h4>
             <div className="flex flex-col gap-3">
               {[
-                { label: "Overview", href: "/" },
-                { label: "WizSound™", href: "/music-creator" },
-                { label: "WizLumina™", href: "/dashboard" },
+                { label: "How It Works", href: "/#how-it-works" },
+                { label: "Showcase", href: "/#showcase" },
+                { label: "For Creators", href: "/#built-for" },
               ].map((l) => (
                 <a key={l.label} href={l.href} className="text-white/30 text-sm hover:text-white/60 transition-colors">{l.label}</a>
               ))}
