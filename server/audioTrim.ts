@@ -142,6 +142,7 @@ export async function trimAudioToLength(
       "-af", `"afade=t=out:st=${fadeStart.toFixed(3)}:d=${fadeDuration}"`,
       "-acodec", "libmp3lame",
       "-q:a", "2",
+      "-write_xing", "0",
       "-map_metadata", "-1",
       `"${outputPath}"`
     ].join(" ");
