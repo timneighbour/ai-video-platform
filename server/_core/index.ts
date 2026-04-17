@@ -213,7 +213,7 @@ async function startServer() {
     let audioUrl: string;
     try { audioUrl = decodeURIComponent(rawUrl); } catch { res.status(400).json({ error: "Invalid url" }); return; }
     // Only allow proxying known audio CDN domains
-    const allowed = ["cdn1.suno.ai", "cdn2.suno.ai", "audiopipe.suno.ai", "d2xsxph8kpxj0f.cloudfront.net", "s3.amazonaws.com"];
+    const allowed = ["cdn1.suno.ai", "cdn2.suno.ai", "audiopipe.suno.ai", "tempfile.aiquickdraw.com", "aiquickdraw.com", "d2xsxph8kpxj0f.cloudfront.net", "s3.amazonaws.com"];
     const urlHost = (() => { try { return new URL(audioUrl).hostname; } catch { return ""; } })();
     if (!allowed.some((h) => urlHost === h || urlHost.endsWith("." + h))) {
       res.status(403).json({ error: "Domain not allowed" }); return;

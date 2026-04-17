@@ -80,9 +80,10 @@ export async function trimAudioToLength(
       return url;
     }
 
-    // 3. Trim with 1-second fade-out
-    const fadeStart = Math.max(0, targetSeconds - 1);
-    const ffmpegCmd = `${FFMPEG} -y -i "${inputPath}" -t ${targetSeconds} -af "afade=t=out:st=${fadeStart}:d=1" -acodec libmp3lame -q:a 2 "${outputPath}"`;
+    // 3. Trim with fade-out (0.5s for short clips, 1s for longer)
+    const fadeDuration = targetSeconds < 10 ? 0.5 : 1;
+    const fadeStart = Math.max(0, targetSeconds - fadeDuration);
+    const ffmpegCmd = `${FFMPEG} -y -i "${inputPath}" -t ${targetSeconds} -af "afade=t=out:st=${fadeStart}:d=${fadeDuration}" -acodec libmp3lame -q:a 2 "${outputPath}"`;
     console.log(`[audioTrim] Running ffmpeg: ${ffmpegCmd}`);
 
     try {

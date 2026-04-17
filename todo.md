@@ -4484,3 +4484,12 @@
 - [x] BUG: Generated audio not playable in browser
   - Root cause: Suno CDN URLs blocked by browser CORS policy
   - Fix: added /api/audio/proxy endpoint; WizAudioPlayer now routes Suno URLs through proxy
+
+## Music Creator Duration Rebuild (Apr 17 2026)
+- [x] Replace preset duration buttons with custom mm:ss input field
+- [x] Add quick-select shortcuts (5s, 10s, 15s, 30s, 1m, 2m, 3m, 5m, 7m, 10m)
+- [x] Set minimum 5 seconds, maximum 10 minutes (600s)
+- [x] Use 0.5s fade for clips under 10s, 1s fade for longer
+- [x] Fix trim pipeline: trimmed audio saved to S3 and returned as S3 URL
+- [x] Fix audio playback: aiquickdraw.com added to proxy allowlist + resolveAudioUrl
+- [x] Ensure custom duration (e.g. 2:41) is passed correctly through generate → getStatus → trim

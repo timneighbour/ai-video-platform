@@ -32,8 +32,8 @@ export const sunoRouter = router({
         model: z.enum(["V3_5", "V4"]).default("V4"),
         /** Frontend must pass window.location.origin so we can build the callback URL */
         origin: z.string().url().optional(),
-        /** Target duration in seconds (10–300). Track will be trimmed/faded to this length after generation. */
-        targetDuration: z.number().int().min(10).max(300).optional(),
+        /** Target duration in seconds (5–600). Track will be trimmed/faded to this length after generation. */
+        targetDuration: z.number().int().min(5).max(600).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -112,24 +112,27 @@ export const sunoRouter = router({
         const cachedTracks: SunoTrack[] = task.tracks ? JSON.parse(task.tracks) : [];
 
         // Re-apply trim if targetDuration is set but tracks haven't been trimmed yet
-        // (detectable by absence of trimmedDuration field on the first track)
         const needsTrim =
           task.status === "complete" &&
           task.targetDuration &&
           cachedTracks.length > 0 &&
-          !(cachedTracks[0] as any).trimmedDuration;
+          !(cachedTracks[0] as any).trimmedDuration &&
+          !(cachedTracks[0] as any).trimFailed;
 
         if (needsTrim) {
+          console.log(`[WizSound] Cached task ${task.id} needs trim to ${task.targetDuration}s — running now...`);
           try {
             const trimmedTracks = await Promise.all(
               cachedTracks.map(async (track: SunoTrack) => {
                 if (!track.audioUrl) return track;
+                console.log(`[WizSound] Trimming track "${track.title}" from ${track.audioUrl.substring(0, 60)}...`);
                 const trimmedUrl = await trimAudioToLength(
                   track.audioUrl,
                   task.targetDuration!,
                   ctx.user.id
                 );
-                return { ...track, audioUrl: trimmedUrl, trimmedDuration: task.targetDuration };
+                console.log(`[WizSound] Trim complete → ${trimmedUrl.substring(0, 60)}...`);
+                return { ...track, audioUrl: trimmedUrl, originalUrl: track.audioUrl, trimmedDuration: task.targetDuration };
               })
             );
             // Save trimmed tracks back to DB
@@ -137,6 +140,7 @@ export const sunoRouter = router({
               .update(sunoMusicTasks)
               .set({ tracks: JSON.stringify(trimmedTracks), updatedAt: new Date() })
               .where(eq(sunoMusicTasks.id, task.id));
+            console.log(`[WizSound] Saved trimmed tracks for task ${task.id}`);
             return {
               id: task.id,
               status: task.status,
@@ -146,6 +150,12 @@ export const sunoRouter = router({
             };
           } catch (trimErr) {
             console.error("[WizSound] Cached trim failed:", trimErr);
+            // Mark as trimFailed so we don't retry endlessly
+            const failedTracks = cachedTracks.map((t: SunoTrack) => ({ ...t, trimFailed: true }));
+            await db
+              .update(sunoMusicTasks)
+              .set({ tracks: JSON.stringify(failedTracks), updatedAt: new Date() })
+              .where(eq(sunoMusicTasks.id, task.id));
           }
         }
 

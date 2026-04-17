@@ -26,8 +26,8 @@ function resolveAudioUrl(url: string): string {
   if (!url) return url;
   // Already proxied or hosted on our CDN — serve directly
   if (url.includes("d2xsxph8kpxj0f.cloudfront.net") || url.startsWith("/")) return url;
-  // Suno CDN URLs need proxying for browser playback
-  if (url.includes("suno.ai") || url.includes("audiopipe")) {
+  // Suno CDN URLs (including aiquickdraw.com proxy) need proxying for browser playback
+  if (url.includes("suno.ai") || url.includes("audiopipe") || url.includes("aiquickdraw.com")) {
     return `/api/audio/proxy?url=${encodeURIComponent(url)}`;
   }
   return url;

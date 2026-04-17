@@ -400,63 +400,82 @@ export default function MusicCreator() {
         <div className="grid lg:grid-cols-[1fr_380px] gap-8">
           {/* Left: Form */}
           <div className="space-y-6">
-            {/* Duration Slider — first control, duration-first approach */}
+            {/* Duration Picker — custom mm:ss input with quick-select shortcuts */}
             <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
               <div className="flex items-center justify-between mb-4">
                 <label className="text-sm font-semibold text-white flex items-center gap-2">
                   <Clock className="w-4 h-4 text-violet-400" />
                   Track Duration
                 </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setTargetDuration(null)}
-                    className={`text-xs px-3 py-1 rounded-full border transition-all ${
-                      targetDuration === null
-                        ? "bg-violet-500/20 border-violet-500/50 text-violet-200"
-                        : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
-                    }`}
-                  >
-                    No limit
-                  </button>
-                  {targetDuration !== null && (
-                    <span className="text-sm font-bold text-violet-300">
-                      {targetDuration >= 60
-                        ? `${Math.floor(targetDuration / 60)}:${String(targetDuration % 60).padStart(2, "0")}`
-                        : `0:${String(targetDuration).padStart(2, "0")}`}
-                    </span>
-                  )}
-                </div>
+                <button
+                  onClick={() => setTargetDuration(targetDuration === null ? 60 : null)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-all ${
+                    targetDuration === null
+                      ? "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
+                      : "bg-violet-500/20 border-violet-500/50 text-violet-200"
+                  }`}
+                >
+                  {targetDuration === null ? "Set duration" : "Clear"}
+                </button>
               </div>
               {targetDuration === null ? (
                 <div className="text-center py-3">
-                  <p className="text-xs text-[#a1a1aa] mb-3">Set a specific duration for your video or content</p>
+                  <p className="text-xs text-[#a1a1aa] mb-3">No duration set — Suno will generate a full-length track</p>
                   <button
                     onClick={() => setTargetDuration(60)}
                     className="text-xs text-violet-400 hover:text-violet-300 transition-colors underline-offset-2 hover:underline"
                   >
-                    + Set target duration
+                    + Set target duration for your video
                   </button>
                 </div>
               ) : (
                 <>
-                  <input
-                    type="range"
-                    min={10}
-                    max={300}
-                    step={5}
-                    value={targetDuration}
-                    onChange={(e) => setTargetDuration(Number(e.target.value))}
-                    className="w-full accent-violet-500 cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs text-[#a1a1aa] mt-1">
-                    <span>0:10</span>
-                    <span>1:00</span>
-                    <span>2:00</span>
-                    <span>3:00</span>
-                    <span>5:00</span>
+                  {/* Custom mm:ss input */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-1.5 bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-2.5">
+                      <input
+                        type="number"
+                        min={0}
+                        max={10}
+                        value={Math.floor(targetDuration / 60)}
+                        onChange={(e) => {
+                          const mins = Math.max(0, Math.min(10, parseInt(e.target.value) || 0));
+                          const secs = targetDuration % 60;
+                          const total = mins * 60 + secs;
+                          setTargetDuration(Math.max(5, Math.min(600, total)));
+                        }}
+                        className="w-10 bg-transparent text-white text-center text-lg font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        aria-label="Minutes"
+                      />
+                      <span className="text-white/40 text-xs font-medium">min</span>
+                    </div>
+                    <span className="text-white/30 text-xl font-light">:</span>
+                    <div className="flex items-center gap-1.5 bg-[#0f0f0f] border border-white/10 rounded-xl px-4 py-2.5">
+                      <input
+                        type="number"
+                        min={0}
+                        max={59}
+                        value={targetDuration % 60}
+                        onChange={(e) => {
+                          const mins = Math.floor(targetDuration / 60);
+                          const secs = Math.max(0, Math.min(59, parseInt(e.target.value) || 0));
+                          const total = mins * 60 + secs;
+                          setTargetDuration(Math.max(5, Math.min(600, total)));
+                        }}
+                        className="w-10 bg-transparent text-white text-center text-lg font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        aria-label="Seconds"
+                      />
+                      <span className="text-white/40 text-xs font-medium">sec</span>
+                    </div>
+                    <span className="text-sm font-bold text-violet-300 ml-2">
+                      {targetDuration >= 60
+                        ? `${Math.floor(targetDuration / 60)}:${String(targetDuration % 60).padStart(2, "0")}`
+                        : `0:${String(targetDuration).padStart(2, "0")}`}
+                    </span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {[15, 30, 45, 60, 90, 120, 180].map((s) => (
+                  {/* Quick-select shortcuts */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {[5, 10, 15, 30, 60, 120, 180, 300, 420, 600].map((s) => (
                       <button
                         key={s}
                         onClick={() => setTargetDuration(s)}
@@ -470,8 +489,8 @@ export default function MusicCreator() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-[#a1a1aa] mt-3">
-                    The generated track will be trimmed and faded to exactly this length — perfect for videos, intros, and ads.
+                  <p className="text-xs text-[#a1a1aa]">
+                    Enter any exact duration (e.g. 2:41 for a 2m 41s video). Min 5s, max 10 min. The generated track will be trimmed and faded to exactly this length.
                   </p>
                 </>
               )}
