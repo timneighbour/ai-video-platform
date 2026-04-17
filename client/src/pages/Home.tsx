@@ -2938,7 +2938,7 @@ function Footer() {
         { label: "WizPilot — AI Workflow", href: "/wizpilot" },
         { label: "WizGenesis — Intelligence", href: "/products/wizgenesis" },
         { label: "WizLumina — Visual Enhancement", href: "/products/wizlumina" },
-        { label: "Wiz AI — Platform", href: "/wiz-ai" },
+        { label: "Wiz AI \u2014 Platform", href: "https://www.wiz-ai.io" },
       ],
     },
     {
@@ -2976,10 +2976,12 @@ function Footer() {
               <h4 className="font-semibold text-white text-sm mb-4">{section.title}</h4>
               <div className="space-y-3">
                 {section.links.map((link) => (
-                  link.href.startsWith('mailto:') ? (
+                  link.href.startsWith('mailto:') || link.href.startsWith('http') ? (
                     <a
                       key={link.label}
                       href={link.href}
+                      target={link.href.startsWith('http') ? '_blank' : undefined}
+                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                       className="block text-[#a1a1aa] hover:text-white text-sm transition-colors"
                     >
                       {link.label}
@@ -3036,7 +3038,7 @@ function Footer() {
             </p>
             <p className="text-[10px] text-[#a1a1aa]/30">
               A product by{" "}
-              <NavLink href="/wiz-ai" className="text-violet-400/50 hover:text-violet-400/80 transition-colors">Wiz AI</NavLink>
+              <a href="https://www.wiz-ai.io" target="_blank" rel="noopener noreferrer" className="text-violet-400/50 hover:text-violet-400/80 transition-colors">Wiz AI</a>
               {" "}— Creative Intelligence Platform
             </p>
           </div>

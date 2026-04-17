@@ -4310,3 +4310,10 @@
 - [x] FIX: Hero mock-up "PIXAR ANIMATION" → "AI ANIMATION" in category labels
 - [x] FIX: Nav "Examples" → "Showcase" (now links to /discover)
 - [x] FIX: Benefit bullets already large gleaming animated lines (gold-violet shimmer, clamp 2.2-3rem)
+
+## URL Replacement — Wiz AI
+- [x] Replace all Wiz AI website references with www.wiz-ai.io
+- [x] Footer "Wiz AI — Platform" link → https://www.wiz-ai.io (opens in new tab)
+- [x] Footer "A product by Wiz AI" link → https://www.wiz-ai.io (opens in new tab)
+- [x] WizAI.tsx nav logo → https://www.wiz-ai.io
+- [x] External links open with target=_blank and rel=noopener noreferrer
