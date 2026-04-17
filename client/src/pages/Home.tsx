@@ -431,7 +431,7 @@ function ProductGrid() {
               </div>
               {/* CTA arrow */}
               <div className={`flex items-center gap-1.5 text-xs font-semibold ${p.accentClass} opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0`}>
-                Start Creating <ArrowRight className="w-3 h-3" />
+                Start with {p.name} <ArrowRight className="w-3 h-3" />
               </div>
               {/* Corner accent */}
               <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ background: `radial-gradient(circle at top right, ${p.accent}15, transparent 70%)` }} />

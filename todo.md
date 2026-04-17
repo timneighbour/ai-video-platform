@@ -4636,3 +4636,11 @@
 - [x] Fix #4: Clean up footer Platform column — no duplicate destinations, no awkward naming
 - [x] Fix #5: Replace "Pixar-style" wording with "cinematic 3D animation" or "stylised 3D animation"
 - [ ] Fix #6: Verify live public site after publishing (pending publish)
+
+## Final Micro-Polish
+- [ ] MP #1: Browser tab title → "WIZ AI | Create anything. Instantly." (built-in secret, manual)
+- [x] MP #2: Audit CTA consistency — confirm no "Get started/Get Started Free/Start for free" remain
+- [x] MP #3: Audit showcase copy — no "violet neon lights" or palette-clashing wording
+- [x] MP #4: Audit "Pixar-style" — confirm all replaced with "cinematic 3D animation"
+- [x] MP #5: Audit footer Platform column — intentional labels, correct links, no duplicates
+- [x] MP #6: Product card CTAs → "Start with WizAudio", "Start with WizImage", etc.
