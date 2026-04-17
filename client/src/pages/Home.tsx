@@ -1671,14 +1671,14 @@ function Footer() {
       ],
     },
     {
-      title: "Wiz AI Ecosystem",
+      title: "WIZ AI Ecosystem",
       links: [
         { label: "WIZ AI — Video Creation", href: "/" },
         { label: "WizSound — Spatial Audio", href: "/products/wizsound" },
         { label: "WizScript — AI Workflow", href: "/wizpilot" },
         { label: "WizGenesis — Intelligence", href: "/products/wizgenesis" },
         { label: "WizLumina — Visual Enhancement", href: "/products/wizlumina" },
-        { label: "Wiz AI \u2014 Platform", href: "https://www.wiz-ai.io" },
+        { label: "WIZ AI \u2014 Platform", href: "https://www.wiz-ai.io" },
       ],
     },
     {
@@ -1778,7 +1778,7 @@ function Footer() {
             </p>
             <p className="text-[10px] text-[#a1a1aa]/30">
               A product by{" "}
-              <a href="https://www.wiz-ai.io" target="_blank" rel="noopener noreferrer" className="text-violet-400/50 hover:text-violet-400/80 transition-colors">Wiz AI</a>
+              <a href="https://www.wiz-ai.io" target="_blank" rel="noopener noreferrer" className="text-violet-400/50 hover:text-violet-400/80 transition-colors">WIZ AI</a>
               {" "}— Creative Intelligence Platform
             </p>
           </div>

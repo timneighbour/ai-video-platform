@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useEffect, useRef } from "react";
 
-/* ── Wiz AI — Parent Brand Homepage ─────────────────────────────────────────
+/* ── WIZ AI — Parent Brand Homepage ─────────────────────────────────────────
    Premium, minimal, cinematic. Apple / OpenAI / Netflix feel.
    Deep black / charcoal background, subtle violet / blue accents.
    ────────────────────────────────────────────────────────────────────────── */
@@ -148,7 +148,7 @@ export default function WizAI() {
             </span>
           </h1>
           <p className="mt-8 text-lg sm:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed">
-            Wiz AI is the creative intelligence platform behind next-generation video, audio and automated creation.
+            WIZ AI is the creative intelligence platform behind next-generation video, audio and automated creation.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="#products" className="px-8 py-3.5 rounded-full bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors">
@@ -225,11 +225,11 @@ export default function WizAI() {
         </div>
       </section>
 
-      {/* ── Why Wiz AI ──────────────────────────────────────────────────── */}
+      {/* ── Why WIZ AI ──────────────────────────────────────────────────── */}
       <section className="py-24 px-6 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <FadeSection>
-            <p className="text-xs tracking-[0.3em] uppercase text-white/30 text-center mb-4">Why Wiz AI</p>
+            <p className="text-xs tracking-[0.3em] uppercase text-white/30 text-center mb-4">Why WIZ AI</p>
             <h2 className="text-3xl sm:text-4xl font-bold text-center mb-16">
               Built for the next generation of creators.
             </h2>
@@ -276,7 +276,7 @@ export default function WizAI() {
             <Link href="/wizpilot" className="hover:text-white transition-colors">WizScript</Link>
             <Link href="/products/wizgenesis" className="hover:text-white transition-colors">WizGenesis</Link>
           </div>
-          <p className="text-xs text-white/20">© 2026 Wiz AI. All rights reserved.</p>
+          <p className="text-xs text-white/20">© 2026 WIZ AI. All rights reserved.</p>
         </div>
       </footer>
     </div>

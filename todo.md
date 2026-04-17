@@ -4600,3 +4600,11 @@
 - [x] AUDIT 9: Metadata/browser titles/social previews reflect WIZ AI (index.html fully rewritten)
 - [x] AUDIT 10: UI wording cleaned up (Rendering → Building across all remaining files)
 - [x] AUDIT 11: Site fully rebranded — 0 WizVid company refs, 0 wizvid.ai domain refs, 0 old tool names, 0 TS errors
+
+## Live Site Remaining Issues
+- [x] Browser title: VITE_APP_TITLE is built-in — user must update in Settings → General
+- [x] Showcase card: already fixed in code, was old published version
+- [x] Showcase card: already fixed in code, was old published version
+- [x] Footer: already fixed in code (support@wiz-ai.io), was old published version
+- [x] Footer: Wiz AI → WIZ AI casing fixed in Home.tsx and WizAI.tsx
+- [x] Browser mockup: already shows wiz-ai.io/create in code
