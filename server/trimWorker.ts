@@ -3,11 +3,17 @@
  * Persistent background worker for audio trimming.
  * Runs independently of tRPC requests — polls the DB for tasks needing trim
  * and processes them one at a time.
+ *
+ * KEY DESIGN DECISIONS:
+ * - Tracks are trimmed SEQUENTIALLY (not in parallel) to avoid race conditions
+ *   where concurrent DB writes overwrite each other's results.
+ * - A task is considered "done" when ALL tracks have trimmedDuration set.
+ * - The worker skips tasks where all tracks are already trimmed.
  */
 
 import { getDb } from "./db";
 import { sunoMusicTasks } from "../drizzle/schema";
-import { eq, and, isNotNull, desc, sql } from "drizzle-orm";
+import { eq, and, isNotNull, desc } from "drizzle-orm";
 import { trimAudioToLength } from "./audioTrim";
 import type { SunoTrack } from "./ai-apis/suno";
 
@@ -25,8 +31,7 @@ async function processTrimQueue() {
     const db = await getDb();
     if (!db) return;
 
-    // Find tasks that are complete, have a targetDuration, and haven't been trimmed yet
-    // Use a raw SQL condition to find tasks where tracks JSON contains trimming:true
+    // Find tasks that are complete, have a targetDuration, and have tracks stored
     const tasks = await db
       .select()
       .from(sunoMusicTasks)
@@ -50,34 +55,55 @@ async function processTrimQueue() {
         continue;
       }
 
-      // Check if any track needs trimming (has trimming:true flag)
-      const needsTrim = tracks.some((t: any) => t.trimming === true);
+      // Skip if ALL tracks are already trimmed (have trimmedDuration set)
+      const allTrimmed = tracks.every((t: any) => t.trimmedDuration != null);
+      if (allTrimmed) continue;
+
+      // Skip if no tracks need trimming (no trimming:true flag and no missing trimmedDuration)
+      const needsTrim = tracks.some(
+        (t: any) => t.trimming === true || (t.audioUrl && !t.trimmedDuration && !t.trimFailed)
+      );
       if (!needsTrim) continue;
 
       console.log(`[TrimWorker] Processing task ${task.id} — trimming ${tracks.length} tracks to ${task.targetDuration}s`);
 
       try {
-        const trimmedTracks = await Promise.all(
-          tracks.map(async (track: any) => {
-            if (!track.trimming || !track.audioUrl) return track;
+        // Process tracks SEQUENTIALLY to avoid concurrent DB write race conditions
+        const trimmedTracks: any[] = [];
+        for (const track of tracks as any[]) {
+          // Skip tracks that are already trimmed
+          if (track.trimmedDuration != null) {
+            trimmedTracks.push(track);
+            continue;
+          }
 
-            // Use originalUrl if available (in case we're retrying)
-            const sourceUrl = track.originalUrl ?? track.audioUrl;
+          // Skip tracks with no audio URL
+          if (!track.audioUrl && !track.originalUrl) {
+            console.warn(`[TrimWorker] Track "${track.title}" has no audioUrl — skipping`);
+            trimmedTracks.push({ ...track, trimming: false, trimFailed: true });
+            continue;
+          }
 
-            console.log(`[TrimWorker] Trimming "${track.title}" from ${sourceUrl.substring(0, 60)}...`);
+          // Use originalUrl if available (in case we're retrying after a failed trim)
+          const sourceUrl = track.originalUrl ?? track.audioUrl;
+
+          console.log(`[TrimWorker] Trimming "${track.title}" from ${sourceUrl.substring(0, 60)}...`);
+          try {
             const trimmedUrl = await trimAudioToLength(sourceUrl, task.targetDuration!, task.userId);
             console.log(`[TrimWorker] Done: ${trimmedUrl.substring(0, 60)}...`);
-
-            return {
+            trimmedTracks.push({
               ...track,
               audioUrl: trimmedUrl,
               originalUrl: sourceUrl,
               trimmedDuration: task.targetDuration,
               trimming: false,
               trimFailed: false,
-            };
-          })
-        );
+            });
+          } catch (trackErr: any) {
+            console.error(`[TrimWorker] Failed to trim track "${track.title}":`, trackErr?.message ?? trackErr);
+            trimmedTracks.push({ ...track, trimming: false, trimFailed: true });
+          }
+        }
 
         await db
           .update(sunoMusicTasks)
@@ -87,7 +113,7 @@ async function processTrimQueue() {
         console.log(`[TrimWorker] Task ${task.id} trimmed and saved ✅`);
       } catch (err: any) {
         console.error(`[TrimWorker] Failed to trim task ${task.id}:`, err?.message ?? err);
-        // Mark as failed so we don't retry endlessly
+        // Mark all as failed so we don't retry endlessly
         const failedTracks = tracks.map((t: any) => ({ ...t, trimming: false, trimFailed: true }));
         await db
           .update(sunoMusicTasks)
@@ -122,7 +148,6 @@ export function startTrimWorker() {
  */
 export function enqueueTrim(taskId: number) {
   console.log(`[TrimWorker] Enqueued trim for task ${taskId}`);
-  // The worker will pick it up on its next cycle (within 10s)
-  // Also trigger immediately
+  // Trigger immediately
   setImmediate(() => processTrimQueue().catch(console.error));
 }

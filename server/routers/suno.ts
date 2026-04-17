@@ -112,15 +112,22 @@ export const sunoRouter = router({
         const cachedTracks: SunoTrack[] = task.tracks ? JSON.parse(task.tracks) : [];
 
         // Check if tracks are still being trimmed by the background worker
+        // A task is fully trimmed when ALL tracks with valid audio have trimmedDuration set
+        // (tracks with empty audioUrl from Suno are excluded from the check)
+        const tracksWithAudio = cachedTracks.filter((t: any) => t.audioUrl && t.audioUrl.length > 0);
+        const allTrimmed = tracksWithAudio.length > 0 && tracksWithAudio.every((t: any) => t.trimmedDuration != null);
         const isCurrentlyTrimming = cachedTracks.some((t: any) => t.trimming === true);
+        // Only consider a track truly failed if it has a valid audioUrl but trim failed
+        const anyRetryableFailed = cachedTracks.some((t: any) => t.trimFailed === true && t.audioUrl && t.audioUrl.length > 0);
 
         // Check if trim is needed but hasn't been enqueued yet
+        // (some tracks have no trimmedDuration and no trimFailed flag)
         const needsEnqueue =
           task.status === "complete" &&
           task.targetDuration &&
-          cachedTracks.length > 0 &&
-          !(cachedTracks[0] as any).trimmedDuration &&
-          !(cachedTracks[0] as any).trimFailed &&
+          tracksWithAudio.length > 0 &&
+          !allTrimmed &&
+          !anyRetryableFailed &&
           !isCurrentlyTrimming;
 
         if (needsEnqueue) {
@@ -128,7 +135,8 @@ export const sunoRouter = router({
           console.log(`[WizSound] Task ${task.id} needs trim — marking and enqueuing...`);
           const trimmingTracks = cachedTracks.map((t: SunoTrack) => ({
             ...t,
-            trimming: true,
+            // Only mark tracks that haven't been trimmed yet
+            trimming: !(t as any).trimmedDuration,
             originalUrl: (t as any).originalUrl ?? t.audioUrl,
           }));
           await db
@@ -147,7 +155,7 @@ export const sunoRouter = router({
 
         if (isCurrentlyTrimming) {
           // Worker is still processing — return trimming status so frontend keeps polling
-          enqueueTrim(task.id); // nudge the worker
+          // NOTE: Do NOT call enqueueTrim here — it causes infinite re-enqueue loops
           return {
             id: task.id,
             status: "trimming" as any,
@@ -157,10 +165,12 @@ export const sunoRouter = router({
           };
         }
 
+        // Only return tracks that have a valid audio URL (filter out Suno API failures)
+        const playableTracks = cachedTracks.filter((t: any) => t.audioUrl && t.audioUrl.length > 0);
         return {
           id: task.id,
           status: task.status,
-          tracks: cachedTracks,
+          tracks: playableTracks,
           errorMessage: task.errorMessage,
           targetDuration: task.targetDuration,
         };
