@@ -50,7 +50,7 @@ const PRODUCTS = [
   {
     name: "WizAudio",
     label: "Create Audio",
-    desc: "Create songs, vocals and full audio tracks with AI.",
+    desc: "Create full songs, vocals and soundtracks in minutes.",
     icon: <Music2 className="w-5 h-5" />,
     href: "/music-creator",
     accent: "#10b981",
@@ -62,7 +62,7 @@ const PRODUCTS = [
   {
     name: "WizImage",
     label: "Create Images",
-    desc: "Generate characters, thumbnails, artwork and visual concepts with AI.",
+    desc: "Generate thumbnails, characters and visuals instantly.",
     icon: <Image className="w-5 h-5" />,
     href: "/wiz-image",
     accent: "#f59e0b",
@@ -74,7 +74,7 @@ const PRODUCTS = [
   {
     name: "WizVideo",
     label: "Create Videos",
-    desc: "Turn songs and ideas into full cinematic AI videos.",
+    desc: "Turn songs into full cinematic videos, not just clips.",
     icon: <Film className="w-5 h-5" />,
     href: "/music-video/create",
     accent: "#8b5cf6",
@@ -86,7 +86,7 @@ const PRODUCTS = [
   {
     name: "WizShorts",
     label: "Create Shorts",
-    desc: "Create short-form videos for Shorts, Reels and TikTok.",
+    desc: "Produce scroll-stopping Shorts, Reels and TikToks in seconds.",
     icon: <Zap className="w-5 h-5" />,
     href: "/wiz-shorts",
     accent: "#06b6d4",
@@ -98,7 +98,7 @@ const PRODUCTS = [
   {
     name: "WizAnimate",
     label: "Create Animation",
-    desc: "Create animated stories, stylised visuals and kids content.",
+    desc: "Create Pixar-style animations and stylised stories from a single prompt.",
     icon: <Wand2 className="w-5 h-5" />,
     href: "/kids-video",
     accent: "#f43f5e",
@@ -110,7 +110,7 @@ const PRODUCTS = [
   {
     name: "WizScript",
     label: "Create from Text",
-    desc: "Turn written prompts into scenes and full AI videos.",
+    desc: "Turn any written idea into scenes and a full AI video.",
     icon: <FileText className="w-5 h-5" />,
     href: "/text-to-video",
     accent: "#f97316",
@@ -197,7 +197,7 @@ function Nav() {
                   Sign in
                 </a>
                 <a href="/onboarding" className="btn-primary-sm">
-                  Start Free
+                  Start Creating
                 </a>
               </>
             )}
@@ -250,7 +250,7 @@ function Nav() {
                 ) : (
                   <>
                     <a href={getLoginUrl()} className="text-center text-sm text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileOpen(false)}>Sign in</a>
-                    <a href="/onboarding" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>Start Free</a>
+                    <a href="/onboarding" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>Start Creating</a>
                   </>
                 )}
               </div>
@@ -281,7 +281,7 @@ function Hero() {
       {/* Background video */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover opacity-40"
+        className="absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px]"
         src={HERO_BG_VIDEO}
         poster={HERO_BG_POSTER}
         autoPlay
@@ -292,8 +292,8 @@ function Hero() {
         aria-hidden="true"
       />
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/40 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
@@ -600,8 +600,8 @@ function WhyWizAI() {
     },
     {
       icon: <TrendingUp className="w-5 h-5" />,
-      title: "Built for scale",
-      desc: "From a single creator to a full content team — WIZ AI scales with your output and ambition.",
+      title: "Create more, publish faster",
+      desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.",
       accent: "text-rose-400",
       border: "border-rose-500/15",
       bg: "bg-rose-500/5",
@@ -772,7 +772,7 @@ function FinalCTA() {
           <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-amber-400">Start for free</span>
         </div>
         <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">
-          Ready to create your video?
+          Ready to start creating?
         </h2>
         <p className="text-white/40 text-lg mb-10 leading-relaxed">
           Start for free. Pay only when you render. No subscriptions, no hidden fees.
@@ -783,7 +783,7 @@ function FinalCTA() {
             className="inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-base transition-all duration-200 shadow-[0_0_40px_rgba(251,191,36,0.25)] hover:shadow-[0_0_60px_rgba(251,191,36,0.4)] hover:scale-[1.02]"
           >
             <Sparkles className="w-5 h-5" />
-            Create Your First Video Free
+            Start Creating
           </a>
           <a href="/pricing" className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/70 transition-colors font-medium">
             View pricing <ArrowRight className="w-4 h-4" />
@@ -825,12 +825,10 @@ function Footer() {
             <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Platform</h4>
             <div className="flex flex-col gap-3">
               {[
-                { label: "WIZ AI — Video Creation", href: "/music-video/create" },
-                { label: "WizSound — Spatial Audio", href: "/music-creator" },
-                { label: "WizScript — AI Workflow", href: "/text-to-video" },
-                { label: "WizGenesis — Intelligence", href: "/dashboard" },
-                { label: "WizLumina — Visual Enhancement", href: "/dashboard" },
-                { label: "WIZ AI — Platform", href: "/" },
+                { label: "WIZ AI Platform", href: "/" },
+                { label: "WizSound", href: "/music-creator" },
+                { label: "WizGenesis", href: "/dashboard" },
+                { label: "WizLumina", href: "/dashboard" },
               ].map((l) => (
                 <a key={l.label} href={l.href} className="text-white/30 text-sm hover:text-white/60 transition-colors">{l.label}</a>
               ))}

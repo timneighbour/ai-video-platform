@@ -774,7 +774,15 @@
 ## Bug: Suno API callBackUrl Error
 - [ ] Add callBackUrl parameter to all Suno API generation calls
 - [ ] Implement /api/suno/callback endpoint to receive Suno webhook results
-- [ ] Update suno router to poll for results OR handle webhook callback
+- [ ] Update ...
+
+## Ella's Homepage Feedback (8.7/10 → 10/10)
+- [x] Ella #1: Darken/blur hero background more so headline dominates
+- [x] Ella #2: Unify CTA wording — use "Start Creating" as primary everywhere
+- [x] Ella #3: Broaden final CTA from "video" to "create" (e.g. "Ready to start creating?")
+- [x] Ella #4: Simplify footer platform column (remove verbose labels)
+- [x] Ella #5: Sharpen product card copy with stronger benefit language
+- [x] Ella #6: Replace "Built for scale" card with more concrete wordingo router to poll for results OR handle webhook callback
 - [ ] Test Suno music generation end-to-end after fix
 
 ## Bug Fix: HTTP 429 Rate Limit on Video Rendering (Priority)
