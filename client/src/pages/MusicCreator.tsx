@@ -227,7 +227,7 @@ export default function MusicCreator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedTracks, setGeneratedTracks] = useState<Array<{ audioUrl: string; title: string; imageUrl?: string; tags?: string; duration?: number }>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "pending" | "processing" | "complete" | "failed">("idle");
+  const [status, setStatus] = useState<"idle" | "pending" | "processing" | "trimming" | "complete" | "failed">("idle");
 
   // Derived: is custom mode active (requires style + title → lyrics needed)
   const isCustomMode = !!(selectedGenres.length > 0 || selectedMood) && !!title.trim() && !instrumental && selectedVocal !== "Instrumental only";
@@ -261,8 +261,8 @@ export default function MusicCreator() {
   const statusQuery = trpc.suno.getStatus.useQuery(
     { id: taskId! },
     {
-      enabled: taskId !== null && (status === "pending" || status === "processing"),
-      refetchInterval: 8000,
+      enabled: taskId !== null && (status === "pending" || status === "processing" || status === "trimming"),
+      refetchInterval: status === "trimming" ? 5000 : 8000,
       refetchIntervalInBackground: false,
     }
   );
@@ -270,11 +270,15 @@ export default function MusicCreator() {
   useEffect(() => {
     if (!statusQuery.data) return;
     const d = statusQuery.data;
-    setStatus(d.status as typeof status);
-    if (d.status === "complete" && d.tracks && d.tracks.length > 0) {
+    const newStatus = d.status as typeof status;
+    setStatus(newStatus);
+    if (newStatus === "complete" && d.tracks && d.tracks.length > 0) {
       setGeneratedTracks(d.tracks as typeof generatedTracks);
       setIsGenerating(false);
-    } else if (d.status === "failed") {
+    } else if (newStatus === "trimming") {
+      // Background trim in progress — keep polling, show progress
+      setIsGenerating(true);
+    } else if (newStatus === "failed") {
       setError(d.errorMessage ?? "Generation failed. Please try again.");
       setIsGenerating(false);
     }
@@ -782,7 +786,7 @@ export default function MusicCreator() {
                   {isGenerating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {status === "pending" ? "Queued…" : "Generating…"}
+                      {status === "pending" ? "Queued…" : status === "trimming" ? "Trimming to exact duration…" : "Generating…"}
                     </>
                   ) : (
                     <>
@@ -815,10 +819,14 @@ export default function MusicCreator() {
                 <div className="mt-4 p-3 rounded-xl bg-blue-500/8 border border-blue-500/20">
                   <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
                     <Clock className="w-4 h-4 animate-pulse" />
-                    <span>{status === "pending" ? "Waiting in queue…" : "Composing your track…"}</span>
+                    <span>
+                      {status === "pending" ? "Waiting in queue…" 
+                        : status === "trimming" ? "Trimming audio to your exact duration…" 
+                        : "Composing your track…"}
+                    </span>
                   </div>
                   <div className="h-1 bg-white/8 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-violet-500 to-blue-500 rounded-full animate-pulse" style={{ width: status === "pending" ? "25%" : "65%" }} />
+                    <div className="h-full bg-gradient-to-r from-violet-500 to-blue-500 rounded-full animate-pulse" style={{ width: status === "pending" ? "25%" : status === "trimming" ? "90%" : "65%" }} />
                   </div>
                 </div>
               )}
