@@ -1,262 +1,432 @@
 /*
- * WizVidIntro — Ultra-Premium v9 (Apr 2026)
+ * WizStudioIntro — Blockbuster Studio Style (Apr 2026)
  *
- * 10.0s cinematic intro: gold particles → formation → Wiz AI logo reveal
- * Text: "Welcome to the world of..." → 3s PAUSE → logo reveals "Wiz AI"
- * Video stops at end (no loop). Final frame holds. "Press to continue" baked in.
- * User clicks anywhere or taps "Enter Site" to proceed.
+ * Fully programmatic — no AI video clips.
+ * Pure canvas particle system + cinematic typography + real logo reveal.
+ * Inspired by Universal / Warner Bros / Marvel studio intros.
+ *
+ * Timeline (15s total):
+ *   0.0s  — Pure black, particles begin spawning (subtle, slow)
+ *   2.0s  — "Welcome to the world of..." fades in (Inter SemiBold, letter-spacing)
+ *   5.0s  — Text fades out. Silence. Particles intensify.
+ *   8.0s  — Particles converge to centre. Tension.
+ *   9.5s  — IMPACT: logo fades in with gold shimmer sweep
+ *   9.5s  — "Wiz AI" text appears below logo
+ *  11.0s  — "Enter Site" button fades in
+ *  15.0s  — Auto-dismiss if user hasn't clicked
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, X, ChevronRight, Play } from "lucide-react";
-import { useLocation } from "wouter";
+import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const TRAILER_URL = `${CDN}/wiz-intro-v9_e0245df6.mp4`;
+const SCORE_URL =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-dolby-score_7da7dcfe.mp3";
+const LOGO_URL =
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3-transparent_2e20782a.png";
 
-export const INTRO_SEEN_KEY = "wizvid_v9_ultra_seen";
+export const INTRO_SEEN_KEY = "wizvid_studio_intro_v2_dolby";
 
 interface WizVidIntroProps {
   onClose: () => void;
 }
 
+// ─── Particle system ────────────────────────────────────────────────────────
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  color: string;
+  life: number;
+  maxLife: number;
+  converging: boolean;
+}
+
+const GOLD_COLORS = [
+  "255,215,0",
+  "255,200,50",
+  "255,180,30",
+  "220,160,20",
+  "255,240,150",
+  "200,150,10",
+];
+
+function createParticle(
+  w: number,
+  h: number,
+  converging: boolean,
+  t: number
+): Particle {
+  const life = 120 + Math.random() * 180;
+  if (converging) {
+    // Spawn from edges, move toward centre
+    const edge = Math.floor(Math.random() * 4);
+    let x = 0,
+      y = 0;
+    if (edge === 0) { x = Math.random() * w; y = 0; }
+    else if (edge === 1) { x = w; y = Math.random() * h; }
+    else if (edge === 2) { x = Math.random() * w; y = h; }
+    else { x = 0; y = Math.random() * h; }
+    const cx = w / 2, cy = h / 2;
+    const dist = Math.hypot(cx - x, cy - y);
+    const speed = 0.8 + Math.random() * 1.2;
+    return {
+      x, y,
+      vx: ((cx - x) / dist) * speed,
+      vy: ((cy - y) / dist) * speed,
+      size: 1 + Math.random() * 2.5,
+      alpha: 0.6 + Math.random() * 0.4,
+      color: GOLD_COLORS[Math.floor(Math.random() * GOLD_COLORS.length)],
+      life, maxLife: life, converging: true,
+    };
+  } else {
+    // Ambient floating particles
+    return {
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -0.2 - Math.random() * 0.5,
+      size: 0.5 + Math.random() * 1.5,
+      alpha: 0.3 + Math.random() * 0.5,
+      color: GOLD_COLORS[Math.floor(Math.random() * GOLD_COLORS.length)],
+      life, maxLife: life, converging: false,
+    };
+  }
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export default function WizVidIntro({ onClose }: WizVidIntroProps) {
-  const [, navigate] = useLocation();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const animRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+  const particlesRef = useRef<Particle[]>([]);
+  const logoImgRef = useRef<HTMLImageElement | null>(null);
+  const isExitingRef = useRef(false);
 
   const [muted, setMuted] = useState(true);
-  const [showCTA, setShowCTA] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
+  const [phase, setPhase] = useState<"black" | "text1" | "pause" | "impact" | "cta">("black");
+  const [text1Alpha, setText1Alpha] = useState(0);
+  const [logoAlpha, setLogoAlpha] = useState(0);
+  const [logoTextAlpha, setLogoTextAlpha] = useState(0);
+  const [ctaAlpha, setCtaAlpha] = useState(0);
+  const [shimmerX, setShimmerX] = useState(-1);
   const [isExiting, setIsExiting] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const isExitingRef = useRef(false);
-  const hasStartedRef = useRef(false);
-
-  const handleVideoEnd = useCallback(() => {
-    if (!isExitingRef.current) setShowCTA(true);
-  }, []);
-
-  // Attempt to play — handles iOS autoplay policy
-  const attemptPlay = useCallback(async (v: HTMLVideoElement) => {
-    if (hasStartedRef.current) return;
-    try {
-      v.muted = true;
-      await v.play();
-      hasStartedRef.current = true;
-      setAutoplayBlocked(false);
-    } catch {
-      setAutoplayBlocked(true);
-    }
-  }, []);
-
+  // Preload logo
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = LOGO_URL;
+    img.onload = () => { logoImgRef.current = img; };
+  }, []);
 
-    v.muted = true;
-    v.playsInline = true;
-    v.loop = false;
-    v.preload = "metadata";
+  // Canvas particle animation
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    const onCanPlay = () => {
-      setVideoReady(true);
-      attemptPlay(v);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    startTimeRef.current = performance.now();
+    let lastSpawn = 0;
+
+    const tick = (now: number) => {
+      const elapsed = (now - startTimeRef.current) / 1000; // seconds
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Clear
+      ctx.fillStyle = "rgba(0,0,0,0.18)";
+      ctx.fillRect(0, 0, w, h);
+
+      // Spawn new particles
+      const converging = elapsed > 7.5;
+      const spawnRate = converging ? 8 : elapsed > 1 ? 3 : 1;
+      if (now - lastSpawn > 1000 / (spawnRate * 30)) {
+        for (let i = 0; i < spawnRate; i++) {
+          particlesRef.current.push(createParticle(w, h, converging, elapsed));
+        }
+        lastSpawn = now;
+      }
+
+      // Update + draw particles
+      particlesRef.current = particlesRef.current.filter(p => p.life > 0);
+      for (const p of particlesRef.current) {
+        p.life--;
+        const lifeRatio = p.life / p.maxLife;
+        const alpha = p.alpha * Math.min(lifeRatio * 3, 1) * Math.min((1 - lifeRatio) * 3, 1);
+
+        if (converging) {
+          // Accelerate toward centre
+          const cx = w / 2, cy = h / 2;
+          const dx = cx - p.x, dy = cy - p.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 5) {
+            p.vx += (dx / dist) * 0.05;
+            p.vy += (dy / dist) * 0.05;
+          }
+        }
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.color},${alpha.toFixed(3)})`;
+        ctx.fill();
+
+        // Glow for larger particles
+        if (p.size > 1.5) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${p.color},${(alpha * 0.15).toFixed(3)})`;
+          ctx.fill();
+        }
+      }
+
+      // Phase transitions
+      if (elapsed >= 2.0 && elapsed < 5.5) {
+        const a = Math.min((elapsed - 2.0) / 0.8, 1) * Math.min((5.5 - elapsed) / 0.8, 1);
+        setText1Alpha(a);
+        if (phase !== "text1") setPhase("text1");
+      } else if (elapsed >= 5.5 && elapsed < 9.5) {
+        setText1Alpha(0);
+        if (phase !== "pause") setPhase("pause");
+      } else if (elapsed >= 9.5) {
+        const logoA = Math.min((elapsed - 9.5) / 1.2, 1);
+        const logoTextA = Math.min((elapsed - 10.2) / 0.8, 1);
+        const ctaA = Math.min((elapsed - 11.5) / 1.0, 1);
+        setLogoAlpha(logoA);
+        setLogoTextAlpha(Math.max(logoTextA, 0));
+        setCtaAlpha(Math.max(ctaA, 0));
+        // Shimmer sweep: starts at 10.0s, sweeps across logo over 0.8s
+        if (elapsed >= 10.0 && elapsed < 10.8) {
+          setShimmerX((elapsed - 10.0) / 0.8);
+        }
+        if (phase !== "impact" && phase !== "cta") setPhase("impact");
+      }
+
+      // Auto-dismiss at 18s
+      if (elapsed >= 18 && !isExitingRef.current) {
+        dismiss();
+        return;
+      }
+
+      animRef.current = requestAnimationFrame(tick);
     };
 
-    const onLoadedMetadata = () => {
-      setTimeout(() => attemptPlay(v), 100);
-    };
-
-    const onPlay = () => {
-      hasStartedRef.current = true;
-      setAutoplayBlocked(false);
-    };
-
-    v.addEventListener("canplay", onCanPlay, { once: true });
-    v.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
-    v.addEventListener("play", onPlay);
-    v.addEventListener("ended", handleVideoEnd);
-
-    v.load();
+    animRef.current = requestAnimationFrame(tick);
 
     return () => {
-      v.removeEventListener("canplay", onCanPlay);
-      v.removeEventListener("loadedmetadata", onLoadedMetadata);
-      v.removeEventListener("play", onPlay);
-      v.removeEventListener("ended", handleVideoEnd);
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
     };
-  }, [attemptPlay, handleVideoEnd]);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = muted;
-  }, [muted]);
-
-  const handleManualPlay = useCallback(async () => {
-    const v = videoRef.current;
-    if (!v) return;
-    try {
-      v.muted = true;
-      await v.play();
-      hasStartedRef.current = true;
-      setAutoplayBlocked(false);
-    } catch {
-      setShowCTA(true);
-    }
   }, []);
 
-  const dismiss = useCallback((destination?: string) => {
+  const dismiss = useCallback(() => {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
-    const v = videoRef.current;
-    if (v) {
-      v.pause();
-      v.muted = true;
-      setTimeout(() => { v.src = ""; v.load(); }, 50);
+    cancelAnimationFrame(animRef.current);
+    setTimeout(() => onClose(), 700);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = muted;
     }
-    setTimeout(() => {
-      onClose();
-      if (destination) navigate(destination);
-    }, 600);
-  }, [onClose, navigate]);
+  }, [muted]);
 
   return (
     <div
       className="fixed inset-0 z-[9999] overflow-hidden bg-black select-none"
       style={{
         opacity: isExiting ? 0 : 1,
-        transition: isExiting ? "opacity 600ms ease" : "opacity 800ms ease",
+        transition: isExiting ? "opacity 700ms ease" : "opacity 400ms ease",
         pointerEvents: isExiting ? "none" : "auto",
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Wiz AI cinematic intro"
+      aria-label="Wiz AI studio intro"
     >
-      {/* ── Trailer video ── */}
-      <video
-        ref={videoRef}
-        src={TRAILER_URL}
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{
-          opacity: videoReady ? 1 : 0,
-          transition: "opacity 800ms ease",
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-        muted
-        playsInline
-        preload="metadata"
+      {/* Dolby Cinema score */}
+      <audio
+        ref={audioRef}
+        src={SCORE_URL}
+        preload="auto"
+        muted={muted}
+        style={{ display: "none" }}
+      />
+      {/* Canvas particle field */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 0 }}
       />
 
-      {/* ── Loading spinner ── */}
-      {!videoReady && !autoplayBlocked && (
-        <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 2 }}>
-          <div className="w-10 h-10 rounded-full border-2 border-violet-500/30 border-t-violet-400 animate-spin" />
-        </div>
-      )}
-
-      {/* ── Autoplay blocked fallback ── */}
-      {autoplayBlocked && (
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center gap-6"
-          style={{ zIndex: 15 }}
-        >
-          <p className="text-white/70 text-lg font-medium tracking-wide">Welcome to the world of...</p>
-          <button
-            onClick={handleManualPlay}
-            className="flex items-center gap-3 px-10 py-4 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-lg font-bold transition-all duration-200 hover:scale-105"
-            style={{
-              boxShadow: "0 0 40px rgba(139,92,246,0.6)",
-              textShadow: "0px 2px 8px rgba(0,0,0,0.8)",
-            }}
-          >
-            <Play className="w-6 h-6 fill-white" />
-            Watch Intro
-          </button>
-          <button
-            onClick={() => dismiss("/")}
-            className="text-white/50 text-sm font-medium hover:text-white/80 transition-colors"
-          >
-            Skip intro
-          </button>
-        </div>
-      )}
-
-      {/* ── Skip (top-left) ── */}
-      <button
-        onClick={() => dismiss()}
-        className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
-        style={{
-          zIndex: 20,
-          cursor: "pointer",
-          textShadow: "0px 2px 8px rgba(0,0,0,0.9)",
-        }}
-        aria-label="Skip intro"
+      {/* "Welcome to the world of..." */}
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ zIndex: 5, pointerEvents: "none" }}
       >
-        <X className="w-3.5 h-3.5" />
-        Skip
-      </button>
-
-      {/* ── Sound toggle (top-right) ── */}
-      <div className="absolute top-5 right-5 flex items-center gap-2" style={{ zIndex: 20 }}>
-        <button
-          onClick={() => setMuted(m => !m)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/25 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+        <p
           style={{
-            cursor: "pointer",
-            textShadow: "0px 2px 8px rgba(0,0,0,0.9)",
+            opacity: text1Alpha,
+            transition: "opacity 100ms linear",
+            fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+            fontWeight: 300,
+            fontSize: "clamp(1.4rem, 3.5vw, 2.4rem)",
+            letterSpacing: "0.18em",
+            color: "rgba(255,255,255,0.88)",
+            textShadow: "0 0 40px rgba(255,215,0,0.25), 0 2px 12px rgba(0,0,0,0.9)",
+            textTransform: "uppercase",
           }}
-          aria-label={muted ? "Enable sound" : "Mute audio"}
         >
-          {muted ? (
-            <><VolumeX className="w-4 h-4" /><span className="hidden sm:inline">Enable Sound</span></>
-          ) : (
-            <><Volume2 className="w-4 h-4" /><span className="hidden sm:inline">Mute</span></>
+          Welcome to the world of…
+        </p>
+      </div>
+
+      {/* Logo + "Wiz AI" text reveal */}
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-center gap-6"
+        style={{ zIndex: 6, pointerEvents: "none" }}
+      >
+        {/* Logo image with shimmer overlay */}
+        <div
+          style={{
+            position: "relative",
+            width: "clamp(180px, 22vw, 320px)",
+            height: "clamp(180px, 22vw, 320px)",
+            opacity: logoAlpha,
+            transition: "opacity 100ms linear",
+            filter: `drop-shadow(0 0 40px rgba(255,215,0,${(logoAlpha * 0.6).toFixed(2)})) drop-shadow(0 0 80px rgba(255,180,0,${(logoAlpha * 0.3).toFixed(2)}))`,
+          }}
+        >
+          <img
+            src={LOGO_URL}
+            alt="Wiz AI"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+          {/* Shimmer sweep */}
+          {shimmerX >= 0 && shimmerX <= 1 && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: `linear-gradient(105deg, transparent ${shimmerX * 100 - 20}%, rgba(255,255,255,0.35) ${shimmerX * 100}%, rgba(255,255,255,0.55) ${shimmerX * 100 + 5}%, rgba(255,255,255,0.35) ${shimmerX * 100 + 10}%, transparent ${shimmerX * 100 + 30}%)`,
+                borderRadius: "50%",
+                pointerEvents: "none",
+              }}
+            />
           )}
+        </div>
+
+        {/* "Wiz AI" wordmark */}
+        <p
+          style={{
+            opacity: logoTextAlpha,
+            transition: "opacity 100ms linear",
+            fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+            fontWeight: 700,
+            fontSize: "clamp(2rem, 5vw, 3.5rem)",
+            letterSpacing: "0.22em",
+            background: "linear-gradient(135deg, #FFD700 0%, #FFF8DC 40%, #FFD700 60%, #B8860B 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            textShadow: "none",
+            filter: `drop-shadow(0 0 20px rgba(255,215,0,${(logoTextAlpha * 0.8).toFixed(2)}))`,
+          }}
+        >
+          WIZ AI
+        </p>
+      </div>
+
+      {/* Enter Site CTA */}
+      <div
+        className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6"
+        style={{ zIndex: 10 }}
+      >
+        <button
+          onClick={dismiss}
+          style={{
+            opacity: ctaAlpha,
+            transform: ctaAlpha > 0 ? "translateY(0) scale(1)" : "translateY(16px) scale(0.96)",
+            transition: "opacity 100ms linear, transform 100ms linear",
+            pointerEvents: ctaAlpha > 0.1 ? "auto" : "none",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            padding: "1rem 3.5rem",
+            borderRadius: "9999px",
+            background: "linear-gradient(135deg, rgba(139,92,246,0.98) 0%, rgba(109,40,217,1) 100%)",
+            boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
+            color: "#FFFFFF",
+            fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+            fontWeight: 700,
+            fontSize: "1rem",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            border: "none",
+            animation: ctaAlpha >= 1 ? "ctaPulse 2.8s ease-in-out infinite" : "none",
+          }}
+          aria-label="Enter site"
+        >
+          Enter Site
+          <ChevronRight style={{ width: "1.25rem", height: "1.25rem" }} />
         </button>
       </div>
 
-      {/* ── Enter Site CTA — appears when video ends ── */}
-      <div
-        className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-16 sm:pb-20 px-6 text-center"
-        style={{ zIndex: 10 }}
+      {/* Skip (top-left) */}
+      <button
+        onClick={dismiss}
+        className="absolute top-5 left-5 flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20, cursor: "pointer" }}
+        aria-label="Skip intro"
       >
-        <div
-          style={{
-            opacity: showCTA ? 1 : 0,
-            transform: showCTA ? "translateY(0) scale(1)" : "translateY(20px) scale(0.95)",
-            transition: "opacity 900ms cubic-bezier(0.16,1,0.3,1), transform 900ms cubic-bezier(0.16,1,0.3,1)",
-            pointerEvents: showCTA ? "auto" : "none",
-          }}
-        >
-          <button
-            onClick={() => dismiss("/")}
-            className="group relative inline-flex items-center gap-3 px-14 py-4 rounded-full text-base font-bold text-white transition-all duration-300 hover:scale-105"
-            style={{
-              cursor: "pointer",
-              background: "linear-gradient(135deg, rgba(139,92,246,0.98) 0%, rgba(109,40,217,1) 100%)",
-              boxShadow: "0 0 50px rgba(139,92,246,0.6), 0 0 100px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-              animation: "ctaPulse 2.8s ease-in-out infinite",
-              letterSpacing: "0.06em",
-              textShadow: "0px 2px 12px rgba(0,0,0,0.8)",
-              color: "#FFFFFF",
-            }}
-          >
-            Enter Site
-            <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
-          </button>
-        </div>
-      </div>
+        <X style={{ width: "0.875rem", height: "0.875rem" }} />
+        Skip
+      </button>
 
-      {/* ── Click anywhere to enter after video ends ── */}
-      {showCTA && (
+      {/* Sound toggle (top-right) */}
+      <button
+        onClick={() => {
+          setMuted(m => !m);
+          if (!audioStarted && audioRef.current) {
+            audioRef.current.play().then(() => setAudioStarted(true)).catch(() => {});
+          }
+        }}
+        className="absolute top-5 right-5 flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 border border-white/20 text-white text-sm font-semibold transition-all duration-200 backdrop-blur-sm"
+        style={{ zIndex: 20, cursor: "pointer" }}
+        aria-label={muted ? "Enable sound" : "Mute"}
+      >
+        {muted ? (
+          <><VolumeX style={{ width: "1rem", height: "1rem" }} /><span className="hidden sm:inline">Enable Sound</span></>
+        ) : (
+          <><Volume2 style={{ width: "1rem", height: "1rem" }} /><span className="hidden sm:inline">Mute</span></>
+        )}
+      </button>
+
+      {/* Click anywhere to enter once CTA is visible */}
+      {ctaAlpha >= 0.5 && (
         <div
           className="absolute inset-0"
-          style={{ zIndex: 5, cursor: "pointer" }}
-          onClick={() => dismiss("/")}
+          style={{ zIndex: 4, cursor: "pointer" }}
+          onClick={dismiss}
         />
       )}
 

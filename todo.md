@@ -4223,3 +4223,18 @@
 - [x] STRICT: No humans, no background boxes, no "powered by", no duplicate text, no clutter
 - [x] Video stops at 10s (no loop), final frame holds, "Press to continue" to enter site
 - [x] Upload to CDN and update WizVidIntro.tsx
+
+## Homepage Bug Fixes (Apr 17 2026)
+- [ ] FIX: Intro not showing — reset INTRO_SEEN_KEY to v9 key so all users see it fresh
+- [ ] FIX: Hero headline still shows old copy "Create a full AI video in minutes"
+- [ ] FIX: Background text bleeding through hero (z-index/layer issue)
+- [ ] FIX: Hero mock-up shows "PIXAR ANIMATION" placeholder label — remove it
+- [ ] FIX: Nav shows "Examples" — change to "Showcase"
+- [ ] FIX: Benefit bullets are small/plain — upgrade to large gleaming animated lines
+- [ ] FIX: "Watch Demo" and "View Examples" CTAs need to be functional native anchors
+
+## Intro v9 Logo Fix (Apr 17 2026)
+- [ ] FIX: Logo has black square background box — remove black bg from logo PNG, composite cleanly
+- [ ] FIX: AI-generated logo clip shows giant W/AI letters bleeding out sides — hide or replace
+- [ ] FIX: "Press to continue" text showing below "Enter Site" button — remove duplicate
+- [ ] FIX: Sound button shows "Mute" when video is muted — should show "Enable Sound"
