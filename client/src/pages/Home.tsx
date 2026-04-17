@@ -50,7 +50,7 @@ const PRODUCTS = [
   {
     name: "WizAudio",
     label: "Create Audio",
-    desc: "Create full songs, vocals and soundtracks in minutes.",
+    desc: "Full songs, vocals and soundtracks — produced by AI in minutes.",
     icon: <Music2 className="w-5 h-5" />,
     href: "/music-creator",
     accent: "#10b981",
@@ -62,7 +62,7 @@ const PRODUCTS = [
   {
     name: "WizImage",
     label: "Create Images",
-    desc: "Generate thumbnails, characters and visuals instantly.",
+    desc: "Thumbnails, characters and brand visuals — generated instantly.",
     icon: <Image className="w-5 h-5" />,
     href: "/wiz-image",
     accent: "#f59e0b",
@@ -74,7 +74,7 @@ const PRODUCTS = [
   {
     name: "WizVideo",
     label: "Create Videos",
-    desc: "Turn songs into full cinematic videos, not just clips.",
+    desc: "Full cinematic music videos from any track — not just clips.",
     icon: <Film className="w-5 h-5" />,
     href: "/music-video/create",
     accent: "#8b5cf6",
@@ -86,7 +86,7 @@ const PRODUCTS = [
   {
     name: "WizShorts",
     label: "Create Shorts",
-    desc: "Produce scroll-stopping Shorts, Reels and TikToks in seconds.",
+    desc: "Scroll-stopping Shorts, Reels and TikToks — created in seconds.",
     icon: <Zap className="w-5 h-5" />,
     href: "/wiz-shorts",
     accent: "#06b6d4",
@@ -98,7 +98,7 @@ const PRODUCTS = [
   {
     name: "WizAnimate",
     label: "Create Animation",
-    desc: "Create Pixar-style animations and stylised stories from a single prompt.",
+    desc: "Animated stories and stylised visuals — from a single prompt.",
     icon: <Wand2 className="w-5 h-5" />,
     href: "/kids-video",
     accent: "#f43f5e",
@@ -110,7 +110,7 @@ const PRODUCTS = [
   {
     name: "WizScript",
     label: "Create from Text",
-    desc: "Turn any written idea into scenes and a full AI video.",
+    desc: "Any written idea becomes scenes and a full AI video.",
     icon: <FileText className="w-5 h-5" />,
     href: "/text-to-video",
     accent: "#f97316",
@@ -281,7 +281,7 @@ function Hero() {
       {/* Background video */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover opacity-20 blur-[2px]"
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.12] blur-[3px] saturate-[0.6]"
         src={HERO_BG_VIDEO}
         poster={HERO_BG_POSTER}
         autoPlay
@@ -292,8 +292,8 @@ function Hero() {
         aria-hidden="true"
       />
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/95 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-black/50 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
@@ -644,9 +644,9 @@ function WhyWizAI() {
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const items = dbItems && dbItems.length > 0 ? dbItems : [
-    { id: 1, title: "Neon City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${CDN}/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp`, description: "A lone figure walks rain-soaked streets under violet neon lights. Generated from a single text prompt." },
-    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: `${CDN}/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp`, description: "A full music video with synced visuals, concert lighting, and smoke effects. Created with WizVideo." },
-    { id: 3, title: "Cherry Blossom — Anime Style", category: "Animation", posterUrl: `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`, description: "A magical anime scene with flowing hair and glowing particles. Generated using WizAnimate." },
+    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${CDN}/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp`, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
+    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: `${CDN}/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp`, description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`, description: "Vibrant Pixar-style 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
   ];
 
   return (
@@ -727,7 +727,7 @@ function BuiltFor() {
     {
       title: "YouTubers & Brands",
       desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.",
-      cta: "Get Started Free",
+      cta: "Start Creating",
       href: "/onboarding",
       icon: <TrendingUp className="w-6 h-6" />,
       accent: "text-amber-400",
@@ -775,7 +775,7 @@ function FinalCTA() {
           Ready to start creating?
         </h2>
         <p className="text-white/40 text-lg mb-10 leading-relaxed">
-          Start for free. Pay only when you render. No subscriptions, no hidden fees.
+          Create audio, images, video, shorts, animation, and more — all from one platform. Start free. Pay only when you render.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
@@ -805,7 +805,7 @@ function Footer() {
           <div className="md:col-span-2">
             <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain mb-5" />
             <p className="text-white/35 text-sm leading-relaxed mb-5 max-w-xs">
-              WIZ AI — the premium creative intelligence platform. Create audio, images, video, shorts, animation, and text-to-video content instantly.
+              The premium creative intelligence platform. Create audio, images, video, shorts, animation, and text-to-video — instantly.
             </p>
             <a href="mailto:support@wiz-ai.io" className="text-white/30 text-xs hover:text-white/60 transition-colors">
               support@wiz-ai.io
@@ -825,10 +825,9 @@ function Footer() {
             <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Platform</h4>
             <div className="flex flex-col gap-3">
               {[
-                { label: "WIZ AI Platform", href: "/" },
-                { label: "WizSound", href: "/music-creator" },
-                { label: "WizGenesis", href: "/dashboard" },
-                { label: "WizLumina", href: "/dashboard" },
+                { label: "Overview", href: "/" },
+                { label: "WizSound™", href: "/music-creator" },
+                { label: "WizLumina™", href: "/dashboard" },
               ].map((l) => (
                 <a key={l.label} href={l.href} className="text-white/30 text-sm hover:text-white/60 transition-colors">{l.label}</a>
               ))}

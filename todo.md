@@ -782,7 +782,19 @@
 - [x] Ella #3: Broaden final CTA from "video" to "create" (e.g. "Ready to start creating?")
 - [x] Ella #4: Simplify footer platform column (remove verbose labels)
 - [x] Ella #5: Sharpen product card copy with stronger benefit language
-- [x] Ella #6: Replace "Built for scale" card with more concrete wordingo router to poll for results OR handle webhook callback
+- [x] Ella #6: Replace "Built for scale" card with more concrete wording
+
+## Ella's Final Polish Pass (Strong → 10/10)
+- [x] Polish #1: Update browser/tab title + metadata to "WIZ AI | Create anything. Instantly."
+- [x] Polish #2: Further darken/refine hero background — more premium, less noisy
+- [x] Polish #3: Tighten CTA hierarchy — remove "Get Started Free" variations, unify
+- [x] Polish #4: Sharpen product card copy to be more commercially powerful
+- [x] Polish #5: Keep final CTA broad and platform-led (already done, verify)
+- [x] Polish #6: Refine showcase example copy to align with premium brand palette
+- [x] Polish #7: Clean up footer Platform column — labels, links, no duplicates
+- [x] Polish #8: Full microcopy consistency pass — casing, punctuation, tone
+- [x] Polish #9: Preserve all working sections (do not break)
+- [x] Polish #10: Final quality bar — premium, luxurious, launch-ready
 - [ ] Test Suno music generation end-to-end after fix
 
 ## Bug Fix: HTTP 429 Rate Limit on Video Rendering (Priority)
