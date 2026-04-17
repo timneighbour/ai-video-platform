@@ -11,7 +11,7 @@ import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZVID_LOGO = `${CDN}/wizvid-logo-transparent_fcdb69d6.png`;
+const WIZVID_LOGO = "https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J";
 const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";

@@ -4464,3 +4464,23 @@
 
 ## Remove Intro Video (Apr 17 2026)
 - [x] Disable WizVidIntro overlay so visitors go straight to hero section
+
+## Premium Logo Redesign (Apr 17 2026)
+- [x] Generate new WizVid logo with brushed gold/silver and subtle embossed effect
+- [x] Upload and deploy new logo across site (header, favicon, footer, intro)
+
+## BUG: Music Creator Audio Issues (Apr 17 2026)
+- [ ] BUG 1: Duration not respected — Suno generates full-length track, trim+fade to selected duration not applied
+- [ ] BUG 2: Generated audio is silent/unplayable in the UI after generation completes
+- [ ] Fix: server-side trim+fade using ffmpeg after Suno returns audio URL
+- [ ] Fix: audio player in MusicCreator.tsx must use correct audio URL and autoplay/load correctly
+- [ ] Test: 15s, 30s, 1m selections produce correct output lengths
+- [ ] Test: audio plays back correctly in browser after generation
+
+## BUG FIXES: Music Creator Audio (Apr 17 2026)
+- [x] BUG: Duration not respected — generated audio plays at full Suno length instead of selected duration
+  - Root cause: trim silently failed on CORS-restricted CDN URLs; cached complete tasks skipped re-trim
+  - Fix: rewrote audioTrim.ts with proper fetch headers + error logging; added re-trim logic for cached tasks
+- [x] BUG: Generated audio not playable in browser
+  - Root cause: Suno CDN URLs blocked by browser CORS policy
+  - Fix: added /api/audio/proxy endpoint; WizAudioPlayer now routes Suno URLs through proxy

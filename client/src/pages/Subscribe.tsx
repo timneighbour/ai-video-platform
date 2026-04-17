@@ -202,7 +202,7 @@ export default function Subscribe() {
           <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4" />Back to Home
           </a>
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-transparent_fcdb69d6.png" alt="WizVid" className="h-[6.5rem] w-auto object-contain" />
+          <img src="https://d36hbw14aib5lz.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-logo-premium-full-nGiuGHm5sM2ezHuiEPwbBH.webp?Expires=1807958295&Signature=whXeTXrC1shrRo4ZMLYcCAUjJ-Vncb~p~XRN6Te4p6RnHV4L3qTIx2hveGomMm~-X7GlmXB3CWB~cpuZByLZAJe12Ukx0ZnasyFUpBaZvTXFjf1MvJh91dhZf2QMUa2FcHbdgZz6ksbuIER4Jhk3PKpBSJnXHM3an66avdYAuyx0of61klduCgC0upAd0nmM-af4p48dN-E5ItjJbwGxLnLphscuGzMvmiXJXNKgHZzadSG7~~qX9vm1jLb88ExhLLM4I0dc1mIQkZmr-e8zXUTc9aXm0-5RFbkGsO-U4~WEA0-MjrlAdeAkEdTdR68CeoOPjSjsZcUfCE2csZXLnA__&Key-Pair-Id=K1MP89RTKNH4J" alt="WizVid" className="h-[6.5rem] w-auto object-contain" />
           <div className="w-24" />
         </div>
       </div>

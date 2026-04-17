@@ -109,11 +109,52 @@ export const sunoRouter = router({
 
       // If already complete/failed, return cached result
       if (task.status === "complete" || task.status === "failed") {
+        const cachedTracks: SunoTrack[] = task.tracks ? JSON.parse(task.tracks) : [];
+
+        // Re-apply trim if targetDuration is set but tracks haven't been trimmed yet
+        // (detectable by absence of trimmedDuration field on the first track)
+        const needsTrim =
+          task.status === "complete" &&
+          task.targetDuration &&
+          cachedTracks.length > 0 &&
+          !(cachedTracks[0] as any).trimmedDuration;
+
+        if (needsTrim) {
+          try {
+            const trimmedTracks = await Promise.all(
+              cachedTracks.map(async (track: SunoTrack) => {
+                if (!track.audioUrl) return track;
+                const trimmedUrl = await trimAudioToLength(
+                  track.audioUrl,
+                  task.targetDuration!,
+                  ctx.user.id
+                );
+                return { ...track, audioUrl: trimmedUrl, trimmedDuration: task.targetDuration };
+              })
+            );
+            // Save trimmed tracks back to DB
+            await db
+              .update(sunoMusicTasks)
+              .set({ tracks: JSON.stringify(trimmedTracks), updatedAt: new Date() })
+              .where(eq(sunoMusicTasks.id, task.id));
+            return {
+              id: task.id,
+              status: task.status,
+              tracks: trimmedTracks,
+              errorMessage: task.errorMessage,
+              targetDuration: task.targetDuration,
+            };
+          } catch (trimErr) {
+            console.error("[WizSound] Cached trim failed:", trimErr);
+          }
+        }
+
         return {
           id: task.id,
           status: task.status,
-          tracks: task.tracks ? JSON.parse(task.tracks) : [],
+          tracks: cachedTracks,
           errorMessage: task.errorMessage,
+          targetDuration: task.targetDuration,
         };
       }
 
@@ -143,8 +184,10 @@ export const sunoRouter = router({
             })
           );
         } catch (trimErr) {
-          // Trimming failed — return original tracks rather than failing the whole request
-          console.error("[WizSound] Audio trim failed, returning original:", trimErr);
+          // Trimming failed — log full error and return original tracks
+          console.error("[WizSound] Audio trim failed, returning original tracks. Error:", trimErr);
+          // Mark tracks with a flag so we don't retry endlessly on cached path
+          finalTracks = finalTracks.map((t: SunoTrack) => ({ ...t, trimFailed: true }));
         }
       }
 

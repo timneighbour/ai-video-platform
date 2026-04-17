@@ -18,6 +18,21 @@ import GraphicEqualiser from "@/components/GraphicEqualiser";
 
 const WIZSOUND_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/wizsound-logo-v5_76ab5163.png";
 
+/**
+ * Proxy Suno CDN audio URLs through our server to avoid CORS issues.
+ * S3-hosted trimmed audio (cloudfront.net) is served directly.
+ */
+function resolveAudioUrl(url: string): string {
+  if (!url) return url;
+  // Already proxied or hosted on our CDN — serve directly
+  if (url.includes("d2xsxph8kpxj0f.cloudfront.net") || url.startsWith("/")) return url;
+  // Suno CDN URLs need proxying for browser playback
+  if (url.includes("suno.ai") || url.includes("audiopipe")) {
+    return `/api/audio/proxy?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
 interface WizAudioPlayerProps {
   /** URL of the audio file to play */
   audioUrl: string;
@@ -294,8 +309,8 @@ export default function WizAudioPlayer({
 
         {/* Download */}
         <a
-          href={audioUrl}
-          download
+      href={resolveAudioUrl(audioUrl)}
+      download
           className="w-7 h-7 rounded-full bg-white/6 hover:bg-white/12 flex items-center justify-center transition-colors"
           aria-label="Download audio"
         >
@@ -304,7 +319,7 @@ export default function WizAudioPlayer({
       </div>
 
       {/* Hidden audio element */}
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+      <audio ref={audioRef} src={resolveAudioUrl(audioUrl)} preload="metadata" />
     </div>
   );
 }
