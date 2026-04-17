@@ -25,23 +25,23 @@ const MODE_CONFIG: Record<AudioMode, {
   normal: {
     label: "Standard",
     sublabel: "Standard",
-    description: "Flat mix · No EQ · Narrow stereo · Unprocessed",
+    description: "Standard audio · No enhancement · Toggle to hear the difference",
     gradient: "",
     glow: "",
     borderColor: "rgba(255,255,255,0.1)",
   },
   enhanced: {
-    label: "Enhanced",
+    label: "WizSound Active",
     sublabel: "WizSound™",
-    description: "Bass boost · Clearer highs · Wider stereo · Studio mastering",
+    description: "Richer · Fuller · Clearer · Studio-mastered audio enhancement",
     gradient: "linear-gradient(135deg, rgba(139,92,246,0.85), rgba(99,102,241,0.75))",
     glow: "0 0 16px rgba(139,92,246,0.35)",
     borderColor: "rgba(139,92,246,0.45)",
   },
   cinematic: {
-    label: "Cinematic",
+    label: "WizSound Spatial",
     sublabel: "WizSound™ Spatial",
-    description: "Spatial depth · Concert-hall reverb · Deep bass · Cinema-grade immersive audio",
+    description: "Spatial depth · Immersive reverb · Deep bass · Cinema-grade audio",
     gradient: "linear-gradient(135deg, rgba(217,70,239,0.9), rgba(139,92,246,0.8))",
     glow: "0 0 24px rgba(217,70,239,0.45), 0 0 48px rgba(139,92,246,0.2)",
     borderColor: "rgba(217,70,239,0.5)",
@@ -473,7 +473,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         </p>
         {!playing && (
           <p className="text-fuchsia-400/55 text-[10px] text-center mt-1.5 animate-pulse">
-            ▶ Press play, then switch modes to hear the spatial difference
+            ▶ Toggle to hear the difference
           </p>
         )}
       </div>
@@ -584,13 +584,13 @@ export default function WizSoundSection() {
             />
             <FeatureCard
               icon={Music2}
-              title="WizSound Enhanced"
+              title="WizSound Active"
               description="Studio-grade EQ, bass boost, stereo widening, and light compression. Immediate, clean improvement for any content."
               gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,102,241,0.8))"
             />
             <FeatureCard
               icon={Radio}
-              title="WizSound Cinematic"
+              title="WizSound Spatial"
               description="Full spatial audio mastering — concert-hall reverb, deep immersive bass, stereo widening, and cinema-grade dynamic range. Your video sounds like it belongs in a Dolby Cinema."
               gradient="linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))"
               badge="SPATIAL"

@@ -86,9 +86,8 @@ function useReveal() {
 // ── Nav ─────────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/create", label: "Create" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/discover", label: "Showcase" },
+  { href: "/music-video/create", label: "Music Video" },
+  { href: "/wizpilot", label: "WizPilot" },
   { href: "/pricing", label: "Pricing" },
   { href: "/help", label: "Help" },
 ];
@@ -3063,29 +3062,22 @@ export default function Home() {
       <main id="main-content">
         {/* 1. Hero — fullscreen cinematic with eyebrow + headline */}
         <Hero />
-        {/* 2. Trust Strip — 3 key value props */}
-        <TrustSignals />
-        {/* 2b. Brand/Demo Video — click-to-play intro film */}
+        {/* 2. Brand/Demo Video — click-to-play explainer film */}
         <BrandDemoVideo />
-        {/* 3. How It Works — clear 5-step pipeline */}
+        {/* 3. Storyboard/Value — trust signals + how it works */}
+        <TrustSignals />
         <HowItWorksStrip />
-        {/* 4. WizVid Engine — animated module pipeline */}
-        <WizVidEngine />
-        {/* 5. Audio Demo — WizSound spatial toggle (Dolby Cinema vibes) */}
-        <WizSoundSection />
-        {/* 6. Visual Demo — WizLumina comparison */}
-        <WizLuminaSection />
-        {/* 7. Showcase — examples grid with hover preview */}
-        <MadeWithWizVid />
-        {/* 8. Product Ecosystem — all engines */}
+        {/* 4. Ecosystem — tools + audio + visual */}
         <EcosystemSection />
-        {/* 9. Social Proof — testimonials + stats */}
-        <SocialProof />
-        {/* 10. Try an Example — instant first win conversion */}
+        <WizSoundSection />
+        <WizLuminaSection />
+        {/* 5. Use-cases — try an example */}
         <TryAnExample />
-        {/* 11. Pricing */}
+        {/* 6. Examples — created with WizVid */}
+        <MadeWithWizVid />
+        {/* 7. Pricing */}
         <HomePricing />
-        {/* 12. Final CTA */}
+        {/* 8. Final CTA */}
         <CTAPush />
         {/* Continue project banner (contextual) */}
         <ContinueProjectBanner />

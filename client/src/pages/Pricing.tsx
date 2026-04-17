@@ -438,7 +438,7 @@ export default function Pricing() {
                   borderClass: "border-white/8 bg-white/2",
                 },
                 {
-                  label: "WizSound Enhance",
+                  label: "WizSound Active",
                   sublabel: "+£1",
                   price: 1,
                   desc: "Polished, fuller sound with spatial widening",
@@ -448,7 +448,7 @@ export default function Pricing() {
                   borderClass: "border-violet-500/20 bg-violet-500/5",
                 },
                 {
-                  label: "WizSound Cinematic",
+                  label: "WizSound Spatial",
                   sublabel: "+£3",
                   price: 3,
                   desc: "Full spatial mastering — Dolby Cinema-grade immersive audio",

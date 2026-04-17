@@ -363,8 +363,8 @@ export default function Subscribe() {
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               { tier: "Standard",           desc: "Original audio, no processing",                                                   price: "Free",      highlight: false, badge: null },
-              { tier: "WizSound Enhanced",  desc: "Stereo widening + EQ boost",                                                      price: "£1/render", highlight: false, badge: null },
-              { tier: "WizSound Cinematic", desc: "Full cinematic mix — spatial depth, dynamic range, immersive stereo",             price: "£3/render", highlight: true,  badge: "Recommended" },
+              { tier: "WizSound Active",    desc: "Stereo widening + EQ boost",                                                      price: "£1/render", highlight: false, badge: null },
+              { tier: "WizSound Spatial",   desc: "Full spatial mix — immersive depth, dynamic range, cinema-grade stereo",        price: "£3/render", highlight: true,  badge: "Recommended" },
             ].map((item) => (
               <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-purple-500/50 bg-gradient-to-b from-purple-950/50 to-background shadow-[0_0_30px_-8px_rgba(168,85,247,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
                 {item.badge && <div className="inline-block rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold px-3 py-0.5 mb-3 border border-purple-500/30">{item.badge}</div>}

@@ -39,7 +39,7 @@ const TIERS: {
   },
   {
     id: "enhanced",
-    label: "WizSound Enhance",
+    label: "WizSound Active",
     price: "+£1",
     tagline: "Polished, fuller sound",
     colour: "from-violet-600 to-purple-500",
@@ -56,7 +56,7 @@ const TIERS: {
   },
   {
     id: "cinematic",
-    label: "WizSound Cinematic",
+    label: "WizSound Spatial",
     price: "+£3",
     tagline: "Spatial audio mastering — cinema-grade immersive sound",
     colour: "from-fuchsia-600 to-pink-500",
@@ -410,7 +410,7 @@ export default function WizSoundShowcase() {
                       activeTier === t.id ? "text-white" : "text-white/40"
                     }`}
                   >
-                    {t.id === "standard" ? "Standard" : t.id === "enhanced" ? "Enhance" : "Cinematic"}
+                    {t.id === "standard" ? "Standard" : t.id === "enhanced" ? "Active" : "Spatial"}
                   </th>
                 ))}
               </tr>
