@@ -59,6 +59,7 @@ const WizSoundPage = lazy(() => import("@/pages/products").then(m => ({ default:
 const WizLuminaPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizLuminaPage })));
 const WizGenesisPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizGenesisPage })));
 const WizBoostPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizBoostPage })));
+const WizAI = lazy(() => import("@/pages/WizAI"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -96,6 +97,7 @@ function Router() {
       <Suspense fallback={<PageFallback />}>
         <Switch>
         <Route path={"/"} component={Home} />
+        <Route path={"/wiz-ai"} component={WizAI} />
         <Route path={"/create"} component={Create} />
         <Route path={"/wizsync"} component={WizSync} />
         <Route path={"/wizscore"} component={WizScore} />

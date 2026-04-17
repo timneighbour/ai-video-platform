@@ -86,9 +86,9 @@ function useReveal() {
 // ── Nav ─────────────────────────────────────────────────────────────────────
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/music-video/create", label: "Music Video" },
+  { href: "/create", label: "Create" },
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/wizpilot", label: "WizPilot\u2122" },
+  { href: "/discover", label: "Showcase" },
   { href: "/pricing", label: "Pricing" },
   { href: "/help", label: "Help" },
 ];
@@ -283,7 +283,7 @@ const HERO_PREVIEW_PHASES = [
   },
 ];
 
-const CATEGORY_LABELS = ["MUSIC VIDEOS", "CINEMATIC FILMS", "PIXAR ANIMATION"];
+const CATEGORY_LABELS = ["MUSIC VIDEOS", "CINEMATIC FILMS", "AI ANIMATION"];
 
 function HeroProductPreview() {
   const [phase, setPhase] = useState(0);
@@ -552,7 +552,7 @@ function Hero() {
             {/* Eyebrow badge */}
             <div className="relative z-10 mb-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-mono tracking-[0.18em] uppercase font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              AI Video Creator
+              WizVid by Wiz AI
             </div>
 
             {/* Headline */}
@@ -565,8 +565,9 @@ function Hero() {
                 className="bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent"
                 style={{ textShadow: "none" }}
               >
-                cinematic AI video.
-              </span>
+                cinematic AI video
+              </span>{" "}
+              in minutes.
             </h1>
 
             {/* Subheadline */}
@@ -1069,19 +1070,19 @@ function ImmediateValue() {
   );
 }
 
-// ── Demo Section ───────────────────────────────────────────────────────────
-function DemoSection() {
+// ── Brand / Demo Video Section ─────────────────────────────────────────────
+function BrandDemoVideo() {
   const [demoOpen, setDemoOpen] = useState(false);
   return (
-    <section className="py-20 px-6 bg-[#0f0f0f] border-t border-white/6">
+    <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/5">
       <div className="max-w-4xl mx-auto text-center">
-        <div className="reveal mb-8">
-          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Demo</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            See exactly what you’ll get before you pay
+        <div className="reveal mb-10">
+          <p className="text-xs tracking-[0.3em] uppercase text-violet-400/80 mb-4">Welcome to Wiz AI</p>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
+            Introducing WizVid
           </h2>
-          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Watch WizVid turn a simple idea into a complete cinematic video — live.
+          <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
+            See how Wiz AI turns ideas into full videos in minutes. No editing. No experience. Just describe your idea.
           </p>
         </div>
         {/* Large central play button */}
@@ -1115,7 +1116,15 @@ function DemoSection() {
             </div>
           </button>
         </div>
-        <p className="text-[#a1a1aa] text-base reveal">No editing. No tools. Just results.</p>
+        <div className="reveal mt-8">
+          <a
+            href="/create"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors"
+          >
+            Start Creating
+            <ChevronRight className="w-4 h-4" />
+          </a>
+        </div>
       </div>
       <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
@@ -2917,16 +2926,19 @@ function Footer() {
         { label: "Music Video", href: "/music-video" },
         { label: "WizPilot", href: "/wizpilot" },
         { label: "Pricing", href: "/pricing" },
+        { label: "How It Works", href: "/how-it-works" },
         { label: "Help", href: "/help" },
       ],
     },
     {
-      title: "Use cases",
+      title: "Wiz AI Ecosystem",
       links: [
-        { label: "AI Music Video Generator", href: "/seo/ai-music-video-generator" },
-        { label: "AI Video for YouTube", href: "/seo/ai-video-generator-for-youtube" },
-        { label: "AI Kids Video Generator", href: "/seo/ai-kids-video-generator" },
-        { label: "AI Animation Maker", href: "/seo/ai-animation-video-maker" },
+        { label: "WizVid — Video Creation", href: "/" },
+        { label: "WizSound — Spatial Audio", href: "/products/wizsound" },
+        { label: "WizPilot — AI Workflow", href: "/wizpilot" },
+        { label: "WizGenesis — Intelligence", href: "/products/wizgenesis" },
+        { label: "WizLumina — Visual Enhancement", href: "/products/wizlumina" },
+        { label: "Wiz AI — Platform", href: "/wiz-ai" },
       ],
     },
     {
@@ -3000,14 +3012,14 @@ function Footer() {
             ))}
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-            <p>© 2026 WizVid. All rights reserved.</p>
+            <p>© 2026 WizVid by Wiz AI. All rights reserved.</p>
             <div className="flex gap-6">
               <NavLink href="/privacy" className="hover:text-white transition-colors">Privacy Policy</NavLink>
               <NavLink href="/terms" className="hover:text-white transition-colors">Terms of Service</NavLink>
               <NavLink href="/refunds" className="hover:text-white transition-colors">Refund Policy</NavLink>
             </div>
           </div>
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-1">
             <p className="text-xs text-[#a1a1aa]/50 tracking-widest uppercase">
               WizVid ecosystem:{" "}
               <span className="text-violet-400/70">WizCreate™</span>
@@ -3015,6 +3027,17 @@ function Footer() {
               <span className="text-indigo-400/70">WizSound™</span>
               {" · "}
               <span className="text-fuchsia-400/70">WizPilot™</span>
+              {" · "}
+              <span className="text-amber-400/70">WizGenesis™</span>
+              {" · "}
+              <span className="text-emerald-400/70">WizLumina™</span>
+              {" · "}
+              <span className="text-rose-400/70">WizBoost™</span>
+            </p>
+            <p className="text-[10px] text-[#a1a1aa]/30">
+              A product by{" "}
+              <NavLink href="/wiz-ai" className="text-violet-400/50 hover:text-violet-400/80 transition-colors">Wiz AI</NavLink>
+              {" "}— Creative Intelligence Platform
             </p>
           </div>
         </div>
@@ -3036,35 +3059,31 @@ export default function Home() {
       </a>
       <Nav />
       <main id="main-content">
-        {/* 1. Hero — fullscreen cinematic */}
+        {/* 1. Hero — fullscreen cinematic with eyebrow + headline */}
         <Hero />
         {/* 2. Trust Strip — 3 key value props */}
         <TrustSignals />
-        {/* 2b. Visual Platform Flow — cinematic 7-step journey */}
-        <PlatformFlow />
-        {/* 3. How It Works — 5-step pipeline */}
+        {/* 2b. Brand/Demo Video — click-to-play intro film */}
+        <BrandDemoVideo />
+        {/* 3. How It Works — clear 5-step pipeline */}
         <HowItWorksStrip />
-        {/* 4. WizVid Engine — animated 7-module pipeline */}
+        {/* 4. WizVid Engine — animated module pipeline */}
         <WizVidEngine />
-        {/* 5. Examples — grid with hover preview */}
-        <MadeWithWizVid />
-        {/* 6. Product Ecosystem \u2014 7 modules */}
-        <EcosystemSection />
-        {/* 7. Audio Demo \u2014 WizSound spatial toggle */}
+        {/* 5. Audio Demo — WizSound spatial toggle (Dolby Cinema vibes) */}
         <WizSoundSection />
-        {/* 8. Visual Demo \u2014 WizLumina comparison */}
+        {/* 6. Visual Demo — WizLumina comparison */}
         <WizLuminaSection />
-        {/* 9. Social Proof \u2014 testimonials + stats */}
+        {/* 7. Showcase — examples grid with hover preview */}
+        <MadeWithWizVid />
+        {/* 8. Product Ecosystem — all engines */}
+        <EcosystemSection />
+        {/* 9. Social Proof — testimonials + stats */}
         <SocialProof />
-        {/* 10. Try an Example \u2014 instant first win */}
+        {/* 10. Try an Example — instant first win conversion */}
         <TryAnExample />
         {/* 11. Pricing */}
         <HomePricing />
-        {/* 12. Post-Render explanation */}
-        <ImmediateValue />
-        {/* 13. WizBoost */}
-        <WizBoostSection />
-        {/* 14. Final CTA */}
+        {/* 12. Final CTA */}
         <CTAPush />
         {/* Continue project banner (contextual) */}
         <ContinueProjectBanner />

@@ -4246,3 +4246,67 @@
 - [ ] FIX: AI-generated logo clip shows giant W/AI letters bleeding out sides — hide or replace
 - [ ] FIX: "Press to continue" text showing below "Enter Site" button — remove duplicate
 - [ ] FIX: Sound button shows "Mute" when video is muted — should show "Enable Sound"
+
+## FINAL 10/10 MASTER REFINEMENT (Apr 17 2026)
+
+### MR-Section 1 — Brand Architecture
+- [x] Set Wiz AI as parent brand, WizVid as product brand throughout
+- [x] Footer: Wiz AI parent brand with product links ("Wiz AI Ecosystem" section, all 6 products)
+- [x] Metadata: "© 2026 WizVid by Wiz AI" + "A product by Wiz AI" in footer
+- [x] "by Wiz AI" subtle references where useful
+
+### MR-Section 2 — Wiz AI Parent Homepage
+- [x] Build /wiz-ai route as premium parent-brand homepage
+- [x] Hero: "Create anything. Instantly." + subheadline
+- [x] Product cards: WizVid, WizSound, WizPilot, WizGenesis
+- [x] How it works (3 steps)
+- [x] Why Wiz AI section
+- [x] Final CTA: "The future of creation is already here."
+- [x] Footer with product links
+- [x] Premium minimal cinematic design: deep black, violet/blue accents, fade-in animations
+
+### MR-Section 3 — WizVid Homepage Eyebrow + Hero Copy
+- [x] Eyebrow: "WizVid by Wiz AI"
+- [x] Headline: "Turn your idea into a cinematic AI video in minutes"
+- [x] Verify hero subheadline, CTAs, microcopy match spec
+
+### MR-Section 4 — Homepage Cleanup: Keep/Merge/Cut
+- [x] Cut PlatformFlow (duplicate of HowItWorksStrip)
+- [x] Cut ImmediateValue (post-render explanation — belongs in render flow)
+- [x] Cut WizBoostSection (covered in EcosystemSection)
+- [x] Merged into clean 12-section flow: Hero → Trust → How It Works → Engine → WizSound → WizLumina → Showcase → Ecosystem → Social Proof → Try Example → Pricing → Final CTA
+- [x] Nav updated: Create, How It Works, Showcase, Pricing, Help + Products dropdown
+
+### MR-Section 5 — Intro Experience Refinement
+- [x] Verified: intro is 15s programmatic canvas particle system (short emotional hook)
+- [x] No overlapping logos, no duplicate branding (single logo reveal at 9.5s)
+- [x] Gold particle convergence synced with audio impact
+- [x] Premium text: Inter SemiBold, letter-spacing, sentence case
+
+### MR-Section 6 — Long-form Brand/Demo Video
+- [x] Positioned as homepage brand/demo section after Trust Signals
+- [x] Headline: "Welcome to Wiz AI" / Sub: "Introducing WizVid"
+- [x] Click-to-play, not forced autoplay with sound
+- [x] Premium play button overlay with ping animation
+- [x] "Start Creating" CTA below video
+
+### MR-Section 11 — Character Lock/Consistency
+- [x] Character lock system implemented (character-lock.ts, 449 lines)
+- [x] Preserve identity, appearance, outfit across scenes (lockedDescription + characterRoster + PROP LOCK)
+- [x] Confirmed storyboard characters respected (CHARACTER LOCK MANDATORY + CONSISTENCY RULE in every prompt)
+- [x] Face validation via FacePlusPlus + Rekognition APIs
+- [x] Storyboard image passed as visual anchor reference
+
+### MR-Section 13 — Save System / Continue Where I Left Off
+- [x] Auto-save every 5s via useProjectAutoSave (title, theme, genre, mood, style, audio, jobId, step)
+- [x] Preserves storyboard progress via jobId resume link
+- [x] ContinueProjectBanner on homepage + Dashboard continue projects section
+- [x] Resume routes to /music-video/create?jobId=X or ?resume=X
+
+### MR — Homepage Bug Fixes
+- [x] FIX: Intro INTRO_SEEN_KEY is wizvid_studio_intro_v2_dolby (current version)
+- [x] FIX: Hero headline copy matches spec ("Turn your idea into a cinematic AI video in minutes")
+- [x] FIX: Background text not bleeding — hero has 82% dark scrim + radial backdrop behind text
+- [x] FIX: Hero mock-up "PIXAR ANIMATION" → "AI ANIMATION" in category labels
+- [x] FIX: Nav "Examples" → "Showcase" (now links to /discover)
+- [x] FIX: Benefit bullets already large gleaming animated lines (gold-violet shimmer, clamp 2.2-3rem)
