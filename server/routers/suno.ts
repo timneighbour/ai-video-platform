@@ -76,21 +76,31 @@ export const sunoRouter = router({
       if (provider === "elevenlabs_sfx") {
         const durationSec = input.targetDuration ?? 10;
 
-        // Build enriched prompt: genre, mood, vocal style appended as context
-        const sfxContextParts: string[] = [];
-        if (input.style) sfxContextParts.push(input.style);
-        const sfxEnrichedPrompt = sfxContextParts.length > 0
-          ? `${input.prompt} [${sfxContextParts.join(", ")}]`
-          : input.prompt;
+        // Build enriched prompt: combine the user's description with genre/mood/style context
+        // so ElevenLabs SFX has the full picture of what to generate.
+        // We build a natural-language sentence rather than just appending tags,
+        // which the SFX model responds to much better.
+        const sfxParts: string[] = [input.prompt.trim()];
+        if (input.style) {
+          // e.g. "Classical, Epic, Instrumental only" → append as descriptive context
+          sfxParts.push(`Style: ${input.style}.`);
+        }
+        // Explicitly reinforce instrumental when no vocals are wanted
+        if (input.instrumental || (input.style?.toLowerCase().includes("instrumental") ?? false)) {
+          sfxParts.push("No vocals. Instrumental only.");
+        }
+        const sfxEnrichedPrompt = sfxParts.join(" ");
 
-        console.log(`[WizSound] ElevenLabs SFX — ${durationSec}s\n  prompt: "${sfxEnrichedPrompt.substring(0, 200)}"`);
+        console.log(`[WizSound] ElevenLabs SFX — ${durationSec}s\n  prompt (${sfxEnrichedPrompt.length} chars): "${sfxEnrichedPrompt.substring(0, 300)}"`);
 
         let result;
         try {
           result = await generateSoundEffect({
             prompt: sfxEnrichedPrompt,
             durationSeconds: durationSec,
-            promptInfluence: 0.3,
+            // 0.85 = high prompt adherence — model follows the description closely
+            // rather than taking creative liberties (0.3 was too loose)
+            promptInfluence: 0.85,
             userId: ctx.user.id,
           });
         } catch (err: any) {

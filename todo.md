@@ -4547,3 +4547,4 @@
 - [x] ElevenLabs SFX path: now uses enriched prompt (genre/mood/style appended as context) same as Music path
 - [x] ElevenLabs Music API 404: fixed — correct endpoint is POST /v1/music (not /v1/text-to-music), synchronous arraybuffer response, music_length_ms field, force_instrumental flag
 - [x] Music Creator duration picker: add 10s, 15s, 20s, 25s, 30s quick-select options (grouped into Short ≤30s and Long 1m–10m rows)
+- [x] ElevenLabs SFX promptInfluence: raised from 0.3 to 0.85; prompt now built as natural-language sentence (description + Style: ... + No vocals. Instrumental only.) for maximum adherence
