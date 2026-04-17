@@ -4426,3 +4426,13 @@
 - [x] 15. Repetition reduced (cut PlatformFlow, ImmediateValue, WizBoost, SocialProof)
 - [x] 16. Page feels tighter, cleaner, more premium (8 sections instead of 14)
 - [x] 17. Site feels launch-ready
+
+## Brand Hierarchy Fix — WizVid as dominant product brand
+- [x] Audit all pages: WizVid is the dominant front-facing product name
+- [x] Wiz AI only appears as subtle parent-brand: "WizVid by Wiz AI" / "Powered by Wiz AI"
+- [x] WizVid branding NOT replaced with Wiz AI on the product site
+- [x] WizVid site remains product-led and conversion-focused
+- [x] Fixed intro: "WIZ AI" wordmark → "WIZVID" + subtle "by Wiz AI" subtitle
+- [x] Fixed demo video: "Welcome to Wiz AI" → "Powered by Wiz AI" eyebrow
+- [x] Fixed demo video: "See how Wiz AI" → "See how WizVid"
+- [x] Verified: no other files have incorrect Wiz AI dominance

@@ -11,7 +11,7 @@
  *   5.0s  — Text fades out. Silence. Particles intensify.
  *   8.0s  — Particles converge to centre. Tension.
  *   9.5s  — IMPACT: logo fades in with gold shimmer sweep
- *   9.5s  — "Wiz AI" text appears below logo
+ *   9.5s  — "WizVid" text appears below logo, "by Wiz AI" subtle subtitle
  *  11.0s  — "Enter Site" button fades in
  *  15.0s  — Auto-dismiss if user hasn't clicked
  */
@@ -299,7 +299,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         </p>
       </div>
 
-      {/* Logo + "Wiz AI" text reveal */}
+      {/* Logo + "WizVid" text reveal */}
       <div
         className="absolute inset-0 flex flex-col items-center justify-center gap-6"
         style={{ zIndex: 6, pointerEvents: "none" }}
@@ -317,7 +317,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
         >
           <img
             src={LOGO_URL}
-            alt="Wiz AI"
+            alt="WizVid"
             style={{ width: "100%", height: "100%", objectFit: "contain" }}
           />
           {/* Shimmer sweep */}
@@ -334,7 +334,7 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
           )}
         </div>
 
-        {/* "Wiz AI" wordmark */}
+        {/* "WizVid" wordmark */}
         <p
           style={{
             opacity: logoTextAlpha,
@@ -351,7 +351,23 @@ export default function WizVidIntro({ onClose }: WizVidIntroProps) {
             filter: `drop-shadow(0 0 20px rgba(255,215,0,${(logoTextAlpha * 0.8).toFixed(2)}))`,
           }}
         >
-          WIZ AI
+          WIZVID
+        </p>
+        {/* Subtle parent brand */}
+        <p
+          style={{
+            opacity: logoTextAlpha * 0.6,
+            transition: "opacity 100ms linear",
+            fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+            fontWeight: 400,
+            fontSize: "clamp(0.65rem, 1.2vw, 0.85rem)",
+            letterSpacing: "0.25em",
+            color: "rgba(255,255,255,0.45)",
+            textTransform: "uppercase",
+            marginTop: "-0.25rem",
+          }}
+        >
+          by Wiz AI
         </p>
       </div>
 

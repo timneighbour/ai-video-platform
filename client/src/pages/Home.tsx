@@ -1076,12 +1076,12 @@ function BrandDemoVideo() {
     <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/5">
       <div className="max-w-4xl mx-auto text-center">
         <div className="reveal mb-10">
-          <p className="text-xs tracking-[0.3em] uppercase text-violet-400/80 mb-4">Welcome to Wiz AI</p>
+          <p className="text-xs tracking-[0.3em] uppercase text-violet-400/80 mb-4">Powered by Wiz AI</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
             Introducing WizVid
           </h2>
           <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-            See how Wiz AI turns ideas into full videos in minutes. No editing. No experience. Just describe your idea.
+            See how WizVid turns ideas into full videos in minutes. No editing. No experience. Just describe your idea.
           </p>
         </div>
         {/* Large central play button */}
