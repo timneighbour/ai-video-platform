@@ -4436,3 +4436,28 @@
 - [x] Fixed demo video: "Welcome to Wiz AI" → "Powered by Wiz AI" eyebrow
 - [x] Fixed demo video: "See how Wiz AI" → "See how WizVid"
 - [x] Verified: no other files have incorrect Wiz AI dominance
+
+## Brand Hierarchy — Final Rule Enforcement (Apr 17 2026)
+- [x] Audit ALL .tsx/.ts files for "Wiz AI" references — ensure none are dominant over WizVid
+- [x] Verify intro shows WIZVID as dominant wordmark (not Wiz AI)
+- [x] Verify hero eyebrow says "WizVid by Wiz AI" (subtle parent)
+- [x] Verify footer uses subtle parent treatment only
+- [x] Verify demo video section uses "Powered by Wiz AI" (not "Welcome to Wiz AI")
+- [x] Verify WizAI.tsx parent brand page is correctly Wiz AI-dominant (it's the parent brand page)
+- [x] Verify nav does NOT say "Wiz AI" anywhere — product nav should say WizVid
+- [x] Visual browser check of homepage, intro, footer, and nav
+
+## FINAL WIZVID HOMEPAGE REFINEMENT (Apr 17 2026)
+- [x] Map all current sections in Home.tsx
+- [x] MERGE: "Why WizVid is different" + "What WizVid does" into one value proposition section
+- [x] MERGE: "From idea to full video" + "How it works" into one clean how-it-works section
+- [x] MERGE: "Three tools. One platform." into one shorter tools/ecosystem section
+- [x] CUT: repeated "full video, not clips" lines where overused
+- [x] CUT: duplicate process sections
+- [x] CUT: overlapping explanation blocks repeating the same promise
+- [x] CUT: unnecessary clutter below the fold
+- [x] HERO: eyebrow "WizVid by Wiz AI", headline "Turn your idea into a cinematic AI video in minutes", subheadline correct
+- [x] FINAL FLOW: Hero → 20s demo → Storyboard/value prop → How it works → Tools/ecosystem → Use-case cards → Created with WizVid → Final CTA
+- [x] Keep premium spacing and hierarchy
+- [x] Keep page product-led and conversion-focused
+- [x] Visual browser verification of final flow

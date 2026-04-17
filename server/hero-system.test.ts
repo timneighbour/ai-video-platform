@@ -96,7 +96,7 @@ describe("Hero System — WizVidIntro", () => {
   });
 
   it("has WizVid logo", () => {
-    expect(source).toContain("wizvid-logo-transparent");
+    expect(source).toContain("wizai-logo-v3-transparent");
   });
 
   it("has CTA button to enter site", () => {
@@ -108,9 +108,9 @@ describe("Hero System — WizVidIntro", () => {
     expect(source).toContain("INTRO_SEEN_KEY");
   });
 
-  it("has cinematic trailer video", () => {
-    expect(source).toContain("TRAILER_URL");
-    expect(source).toContain(".mp4");
+  it("has cinematic canvas particle system", () => {
+    expect(source).toContain("canvas");
+    expect(source).toContain("requestAnimationFrame");
   });
 
   it("has exiting phase transition", () => {
@@ -123,9 +123,8 @@ describe("Hero System — WizVidIntro", () => {
     expect(source).toContain("pointerEvents");
   });
 
-  it("has CTA show timer for end-of-trailer reveal", () => {
-    expect(source).toContain("showCTA");
-    expect(source).toContain("CTA_SHOW_AT_MS");
+  it("has Enter Site CTA", () => {
+    expect(source).toContain("Enter Site");
   });
 });
 

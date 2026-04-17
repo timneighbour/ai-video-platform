@@ -1213,12 +1213,12 @@ function ProductDemo() {
     <section className="py-24 px-6 bg-[#0f0f0f] border-t border-white/6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14 reveal">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">See it in action</p>
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Storyboard preview</p>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            From idea to full video — in under 5 minutes
+            From lyrics to storyboard to final video
           </h2>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Describe your idea or upload your song. WizVid writes the storyboard, renders every scene, and delivers a complete video.
+            Describe your idea or upload your song. WizVid writes the storyboard, generates every scene, and delivers a complete video.
           </p>
         </div>
 
@@ -2486,6 +2486,89 @@ function WizBoostSection() {
   );
 }
 
+// ── Use-Case Cards ─────────────────────────────────────────────────────────
+function UseCaseCards() {
+  const cases = [
+    {
+      icon: <Music className="w-6 h-6" />,
+      title: "Musicians",
+      desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.",
+      color: "from-violet-600 to-purple-700",
+      border: "border-violet-500/25",
+      glow: "hover:shadow-violet-500/15",
+      cta: "Create Music Video",
+      href: "/music-video/create",
+    },
+    {
+      icon: <Video className="w-6 h-6" />,
+      title: "Content Creators",
+      desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.",
+      color: "from-blue-600 to-indigo-700",
+      border: "border-blue-500/25",
+      glow: "hover:shadow-blue-500/15",
+      cta: "Start with WizPilot",
+      href: "/wizpilot",
+    },
+    {
+      icon: <Film className="w-6 h-6" />,
+      title: "Animators & Storytellers",
+      desc: "Create Pixar-style animations, anime, and visual stories from a single prompt — characters stay consistent across every scene.",
+      color: "from-emerald-600 to-teal-700",
+      border: "border-emerald-500/25",
+      glow: "hover:shadow-emerald-500/15",
+      cta: "Create Animation",
+      href: "/products/wizanimate",
+    },
+    {
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: "YouTubers & Brands",
+      desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.",
+      color: "from-red-600 to-orange-700",
+      border: "border-red-500/25",
+      glow: "hover:shadow-red-500/15",
+      cta: "Get Started Free",
+      href: "/onboarding",
+    },
+  ];
+
+  return (
+    <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Who it's for</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+            Built for creators who want{" "}
+            <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">results, not tools</span>
+          </h2>
+          <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            Whether you're a musician, YouTuber, animator, or brand — WizVid handles the entire video creation process.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
+          {cases.map((c) => (
+            <div
+              key={c.title}
+              className={`group relative rounded-2xl bg-[#141414] border ${c.border} p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${c.glow}`}
+            >
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${c.color} flex items-center justify-center text-white shadow-lg`}>
+                {c.icon}
+              </div>
+              <h3 className="text-lg font-bold text-white">{c.title}</h3>
+              <p className="text-[#a1a1aa] text-sm leading-relaxed flex-1">{c.desc}</p>
+              <NavLink
+                href={c.href}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-400 hover:text-violet-300 transition-colors mt-auto"
+              >
+                {c.cta} <ArrowRight className="w-3.5 h-3.5" />
+              </NavLink>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Value Clarity Pricing Block ─────────────────────────────────────────────
 function HomePricing() {
   const plans = [
@@ -3060,23 +3143,21 @@ export default function Home() {
       </a>
       <Nav />
       <main id="main-content">
-        {/* 1. Hero — fullscreen cinematic with eyebrow + headline */}
+        {/* 1. Hero */}
         <Hero />
-        {/* 2. Brand/Demo Video — click-to-play explainer film */}
+        {/* 2. 20-second demo */}
         <BrandDemoVideo />
-        {/* 3. Storyboard/Value — trust signals + how it works */}
+        {/* 3. Value proposition + storyboard preview */}
         <TrustSignals />
+        <ProductDemo />
+        {/* 4. How it works */}
         <HowItWorksStrip />
-        {/* 4. Ecosystem — tools + audio + visual */}
+        {/* 5. Tools / ecosystem */}
         <EcosystemSection />
-        <WizSoundSection />
-        <WizLuminaSection />
-        {/* 5. Use-cases — try an example */}
-        <TryAnExample />
-        {/* 6. Examples — created with WizVid */}
+        {/* 6. Use-case cards */}
+        <UseCaseCards />
+        {/* 7. Created with WizVid examples */}
         <MadeWithWizVid />
-        {/* 7. Pricing */}
-        <HomePricing />
         {/* 8. Final CTA */}
         <CTAPush />
         {/* Continue project banner (contextual) */}
