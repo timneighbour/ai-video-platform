@@ -4461,3 +4461,6 @@
 - [x] Keep premium spacing and hierarchy
 - [x] Keep page product-led and conversion-focused
 - [x] Visual browser verification of final flow
+
+## Remove Intro Video (Apr 17 2026)
+- [x] Disable WizVidIntro overlay so visitors go straight to hero section

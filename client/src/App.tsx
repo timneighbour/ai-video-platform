@@ -177,16 +177,17 @@ function App() {
   // This ensures the intro NEVER mounts on refresh if already seen.
   const [showIntro, setShowIntro] = useState<boolean>(false);
 
-  useEffect(() => {
-    try {
-      const seen = sessionStorage.getItem(INTRO_SEEN_KEY);
-      if (!seen) {
-        setShowIntro(true);
-      }
-    } catch {
-      // sessionStorage unavailable (private browsing edge case) — skip intro
-    }
-  }, []);
+  // Intro disabled — go straight to hero
+  // useEffect(() => {
+  //   try {
+  //     const seen = sessionStorage.getItem(INTRO_SEEN_KEY);
+  //     if (!seen) {
+  //       setShowIntro(true);
+  //     }
+  //   } catch {
+  //     // sessionStorage unavailable (private browsing edge case) — skip intro
+  //   }
+  // }, []);
 
   const handleIntroClose = () => {
     try { sessionStorage.setItem(INTRO_SEEN_KEY, "true"); } catch {}
