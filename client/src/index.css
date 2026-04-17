@@ -454,3 +454,13 @@ select {
 select {
   cursor: pointer;
 }
+
+/* ─── Music Creator: Waveform loading animation ─────────────────────────── */
+@keyframes wizWave {
+  from {
+    height: 4px;
+  }
+  to {
+    height: 36px;
+  }
+}

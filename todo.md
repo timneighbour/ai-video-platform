@@ -4501,3 +4501,8 @@
 - [ ] Fix WizAudioPlayer: add crossOrigin="anonymous" and preload="metadata"
 - [ ] Retroactively fix all existing untrimmed DB tasks
 - [ ] Verify trimmed audio plays and shows correct duration in browser
+
+## Music Creator Loading Animation (Apr 17 2026)
+- [ ] Add animated waveform/pulse loading state during Suno generation (1-3 min)
+- [ ] Add "Trimming to exact duration..." state with progress indicator
+- [ ] Add smooth transition from loading to results display

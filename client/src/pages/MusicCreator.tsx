@@ -816,17 +816,69 @@ export default function MusicCreator() {
 
               {/* Status indicator */}
               {isGenerating && (
-                <div className="mt-4 p-3 rounded-xl bg-blue-500/8 border border-blue-500/20">
-                  <div className="flex items-center gap-2 text-sm text-blue-300 mb-2">
-                    <Clock className="w-4 h-4 animate-pulse" />
-                    <span>
-                      {status === "pending" ? "Waiting in queue…" 
-                        : status === "trimming" ? "Trimming audio to your exact duration…" 
-                        : "Composing your track…"}
-                    </span>
+                <div className="mt-4 rounded-2xl overflow-hidden border border-white/8 bg-[#0f0f14]">
+                  {/* Animated waveform bars */}
+                  <div className="relative flex items-end justify-center gap-[3px] h-16 px-4 pt-4 pb-2">
+                    {Array.from({ length: 28 }).map((_, i) => {
+                      const isTrimming = status === "trimming";
+                      const isPending = status === "pending";
+                      // Each bar has a different animation delay for a natural wave
+                      const delay = `${(i * 0.06).toFixed(2)}s`;
+                      const baseH = isPending ? 4 : isTrimming ? 8 : 6;
+                      const color = isTrimming
+                        ? `rgba(34,197,94,${0.5 + (i % 3) * 0.15})`  // green for trimming
+                        : `rgba(139,92,246,${0.5 + (i % 4) * 0.12})`; // violet for generating
+                      return (
+                        <div
+                          key={i}
+                          className="rounded-full flex-shrink-0"
+                          style={{
+                            width: 3,
+                            minHeight: baseH,
+                            background: color,
+                            animationName: "wizWave",
+                            animationDuration: isTrimming ? "0.6s" : "1.1s",
+                            animationDelay: delay,
+                            animationTimingFunction: "ease-in-out",
+                            animationIterationCount: "infinite",
+                            animationDirection: "alternate",
+                          }}
+                        />
+                      );
+                    })}
+                    {/* Glow overlay */}
+                    <div className="absolute inset-0 pointer-events-none" style={{
+                      background: status === "trimming"
+                        ? "radial-gradient(ellipse at 50% 100%, rgba(34,197,94,0.08) 0%, transparent 70%)"
+                        : "radial-gradient(ellipse at 50% 100%, rgba(139,92,246,0.1) 0%, transparent 70%)"
+                    }} />
                   </div>
-                  <div className="h-1 bg-white/8 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-violet-500 to-blue-500 rounded-full animate-pulse" style={{ width: status === "pending" ? "25%" : status === "trimming" ? "90%" : "65%" }} />
+
+                  {/* Status text */}
+                  <div className="px-4 pb-3 text-center">
+                    <p className="text-xs font-medium tracking-wide" style={{
+                      color: status === "trimming" ? "rgb(134,239,172)" : "rgb(196,181,253)"
+                    }}>
+                      {status === "pending" ? "Waiting in queue…"
+                        : status === "trimming" ? "✂ Trimming to exact duration…"
+                        : "Composing your track with Suno AI…"}
+                    </p>
+                    {status !== "trimming" && (
+                      <p className="text-[10px] text-white/30 mt-0.5">This usually takes 1–3 minutes</p>
+                    )}
+                  </div>
+
+                  {/* Progress track */}
+                  <div className="h-[2px] bg-white/5">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: status === "pending" ? "15%" : status === "trimming" ? "92%" : "60%",
+                        background: status === "trimming"
+                          ? "linear-gradient(90deg, #16a34a, #22c55e)"
+                          : "linear-gradient(90deg, #7c3aed, #6366f1, #3b82f6)",
+                      }}
+                    />
                   </div>
                 </div>
               )}
