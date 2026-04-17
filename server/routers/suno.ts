@@ -141,9 +141,19 @@ export const sunoRouter = router({
         const taskDbId = (inserted as any).insertId as number;
 
         // Run generation in background (non-blocking)
+        // Build enriched prompt with genre, mood, vocal style context
+        const contextParts: string[] = [];
+        if (input.style) contextParts.push(input.style);
+        const enrichedPromptForEleven = contextParts.length > 0
+          ? `${input.prompt} [${contextParts.join(", ")}]`
+          : input.prompt;
+        const isInstrumentalForEleven = input.instrumental ||
+          input.generationMode === "score" ||
+          (input.style?.toLowerCase().includes("instrumental") ?? false);
         generateMusic({
-          prompt: input.prompt,
+          prompt: enrichedPromptForEleven,
           durationSeconds: input.targetDuration,
+          makeInstrumental: isInstrumentalForEleven,
           userId: ctx.user.id,
         })
           .then(async (result) => {
@@ -462,6 +472,31 @@ Rules:
       }
 
       return { lyrics: lyrics.trim() };
+    }),
+
+  /**
+   * Delete a music generation task (and its tracks) owned by the current user.
+   */
+  deleteTask: protectedProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Verify ownership before deleting
+      const [task] = await db
+        .select({ id: sunoMusicTasks.id })
+        .from(sunoMusicTasks)
+        .where(and(eq(sunoMusicTasks.id, input.id), eq(sunoMusicTasks.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!task) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+
+      await db
+        .delete(sunoMusicTasks)
+        .where(and(eq(sunoMusicTasks.id, input.id), eq(sunoMusicTasks.userId, ctx.user.id)));
+
+      return { success: true };
     }),
 
   /**

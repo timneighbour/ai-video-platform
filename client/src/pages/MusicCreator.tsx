@@ -15,7 +15,7 @@ import { trpc } from "@/lib/trpc";
 import {
   Music2, Sparkles, Play, Pause, Download, Loader2,
   ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
-  FileText, RefreshCw, PenLine, ChevronDown, ChevronUp, X,
+  FileText, RefreshCw, PenLine, ChevronDown, ChevronUp, X, Trash2,
 } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -242,6 +242,18 @@ export default function MusicCreator() {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to generate lyrics. Please try again.");
+    },
+  });
+
+  const deleteTaskMutation = trpc.suno.deleteTask.useMutation({
+    onSuccess: () => {
+      setGeneratedTracks([]);
+      setTaskId(null);
+      setStatus("idle");
+      toast.success("Track deleted.");
+    },
+    onError: (err) => {
+      toast.error("Delete failed", { description: err.message });
     },
   });
 
@@ -991,6 +1003,37 @@ export default function MusicCreator() {
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-400" />
               <h3 className="text-sm font-semibold text-white">Your tracks are ready</h3>
+            </div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-[#a1a1aa]">Generated tracks</span>
+              <div className="flex items-center gap-3">
+                {/* Regenerate — re-run with the same settings */}
+                <button
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !canGenerate}
+                  className="flex items-center gap-1.5 text-xs text-violet-400/70 hover:text-violet-300 transition-colors disabled:opacity-40"
+                  title="Generate new tracks with the same settings"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Regenerate
+                </button>
+                {/* Delete */}
+                {taskId && (
+                  <button
+                    onClick={() => deleteTaskMutation.mutate({ id: taskId })}
+                    disabled={deleteTaskMutation.isPending}
+                    className="flex items-center gap-1.5 text-xs text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-40"
+                    title="Delete these tracks"
+                  >
+                    {deleteTaskMutation.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5" />
+                    )}
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
             {generatedTracks.map((track, i) => (
               <WizAudioPlayer

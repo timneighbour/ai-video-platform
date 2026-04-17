@@ -4536,3 +4536,8 @@
 - [ ] Add WizShorts to App.tsx routes (/wiz-shorts)
 - [ ] Add WizShorts to DashboardLayout sidebar and navigation
 - [ ] Wire credit costs (5 credits per scene)
+
+## Music Creator — Recent Additions
+- [x] ElevenLabs prompt enrichment: pass genre, mood, vocal style, and makeInstrumental to ElevenLabs Music
+- [x] Delete track: backend deleteTask procedure with ownership check + frontend trash button
+- [x] Regenerate track: button to re-run generation with same settings without clearing the form

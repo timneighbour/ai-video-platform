@@ -93,6 +93,7 @@ export async function generateSoundEffect(params: {
 export async function generateMusic(params: {
   prompt: string;
   durationSeconds?: number; // Used to enrich the prompt with duration guidance
+  makeInstrumental?: boolean; // If true, passes make_instrumental=true to the API
   userId: number;
 }): Promise<ElevenLabsMusicResult> {
   const key = getApiKey();
@@ -122,7 +123,7 @@ export async function generateMusic(params: {
     `${BASE_URL}/text-to-music`,
     {
       text: enrichedPrompt,
-      make_instrumental: false, // Let the prompt control this
+      make_instrumental: params.makeInstrumental ?? false,
     },
     {
       headers: {
