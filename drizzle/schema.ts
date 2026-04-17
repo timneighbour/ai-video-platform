@@ -697,3 +697,79 @@ export const wizScoreJobs = mysqlTable("wizScoreJobs", {
 });
 export type WizScoreJob = typeof wizScoreJobs.$inferSelect;
 export type InsertWizScoreJob = typeof wizScoreJobs.$inferInsert;
+
+// --- WizImage — AI Image Creator (Grok Imagine) --------------------------------
+export const wizImages = mysqlTable("wizImages", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** User's original prompt */
+  prompt: text("prompt").notNull(),
+  /** Style applied (e.g. "photorealistic", "cinematic", "anime", "oil-painting") */
+  style: varchar("style", { length: 64 }),
+  /** Aspect ratio used (e.g. "1:1", "16:9", "9:16") */
+  aspectRatio: varchar("aspectRatio", { length: 16 }),
+  /** S3/CDN URL of the generated image */
+  imageUrl: varchar("imageUrl", { length: 1024 }).notNull(),
+  /** S3 key for the image */
+  imageKey: varchar("imageKey", { length: 512 }),
+  /** Grok-revised prompt (if returned) */
+  revisedPrompt: text("revisedPrompt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type WizImage = typeof wizImages.$inferSelect;
+export type InsertWizImage = typeof wizImages.$inferInsert;
+
+// --- WizShorts — Short-Form Video Creator (Grok Imagine Video) -----------------
+export const wizShortsJobs = mysqlTable("wizShortsJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** User's topic, script, or description */
+  topic: text("topic").notNull(),
+  /** Platform target: youtube_shorts | tiktok | reels */
+  platform: mysqlEnum("platform", ["youtube_shorts", "tiktok", "reels"]).default("youtube_shorts").notNull(),
+  /** Total target duration in seconds (15-60) */
+  targetDuration: int("targetDuration").default(30).notNull(),
+  /** Visual style: cinematic | anime | realistic | cartoon */
+  visualStyle: varchar("visualStyle", { length: 64 }),
+  /** Optional music track URL (user-uploaded or from WizSound) */
+  musicUrl: varchar("musicUrl", { length: 1024 }),
+  /** Number of scenes (auto-calculated from targetDuration) */
+  sceneCount: int("sceneCount"),
+  /** Credit cost for this job */
+  creditCost: int("creditCost").default(0).notNull(),
+  /** Final assembled video URL */
+  videoUrl: varchar("videoUrl", { length: 1024 }),
+  /** S3 key for the final video */
+  videoKey: varchar("videoKey", { length: 512 }),
+  status: mysqlEnum("wizShortsStatus", ["pending", "generating_scenes", "rendering", "assembling", "complete", "failed"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type WizShortsJob = typeof wizShortsJobs.$inferSelect;
+export type InsertWizShortsJob = typeof wizShortsJobs.$inferInsert;
+
+export const wizShortsScenes = mysqlTable("wizShortsScenes", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  /** Scene order index (0-based) */
+  sceneIndex: int("sceneIndex").notNull(),
+  /** AI-generated scene description / video prompt */
+  prompt: text("prompt").notNull(),
+  /** Duration of this scene in seconds */
+  duration: int("duration").default(5).notNull(),
+  /** Optional caption text to overlay on this scene */
+  caption: text("caption"),
+  /** Grok Imagine request_id (prefixed with "grok:") */
+  taskId: varchar("taskId", { length: 255 }),
+  /** S3/CDN URL of the generated scene video */
+  videoUrl: varchar("videoUrl", { length: 1024 }),
+  /** S3 key for the scene video */
+  videoKey: varchar("videoKey", { length: 512 }),
+  status: mysqlEnum("wizShortSceneStatus", ["pending", "generating", "completed", "failed"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type WizShortsScene = typeof wizShortsScenes.$inferSelect;
+export type InsertWizShortsScene = typeof wizShortsScenes.$inferInsert;

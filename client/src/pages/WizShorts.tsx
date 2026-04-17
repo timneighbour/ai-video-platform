@@ -1,0 +1,571 @@
+import { useState, useEffect, useRef } from "react";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import {
+  Sparkles, Play, Download, ChevronRight, ChevronLeft,
+  Loader2, Film, Zap, Clock, CheckCircle2, AlertCircle,
+  Youtube, Music2, Smartphone
+} from "lucide-react";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type Platform = "youtube_shorts" | "tiktok" | "reels";
+type VisualStyle = "cinematic" | "anime" | "realistic" | "cartoon" | "neon-noir" | "minimalist";
+type WizStep = "setup" | "scenes" | "render";
+
+interface Scene {
+  index: number;
+  prompt: string;
+  caption: string | null;
+}
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const PLATFORMS: { id: Platform; label: string; icon: React.ReactNode; color: string }[] = [
+  { id: "youtube_shorts", label: "YouTube Shorts", icon: <Youtube className="w-4 h-4" />, color: "from-red-600 to-red-500" },
+  { id: "tiktok", label: "TikTok", icon: <Music2 className="w-4 h-4" />, color: "from-pink-600 to-pink-500" },
+  { id: "reels", label: "Instagram Reels", icon: <Smartphone className="w-4 h-4" />, color: "from-purple-600 to-orange-500" },
+];
+
+const DURATIONS = [15, 30, 45, 60];
+
+const VISUAL_STYLES: { id: VisualStyle; label: string; emoji: string; desc: string }[] = [
+  { id: "cinematic", label: "Cinematic", emoji: "🎬", desc: "Film-quality, dramatic lighting" },
+  { id: "anime", label: "Anime", emoji: "✨", desc: "Vibrant, Studio Ghibli-inspired" },
+  { id: "realistic", label: "Realistic", emoji: "📷", desc: "Natural, documentary-style" },
+  { id: "cartoon", label: "Cartoon", emoji: "🎨", desc: "Bold, animated, fun" },
+  { id: "neon-noir", label: "Neon Noir", emoji: "🌆", desc: "Cyberpunk, rain-slicked streets" },
+  { id: "minimalist", label: "Minimalist", emoji: "◻", desc: "Clean, elegant, modern" },
+];
+
+const EXAMPLE_TOPICS = [
+  "A day in the life of a street food chef in Tokyo",
+  "5 mind-blowing facts about the deep ocean",
+  "How to make the perfect espresso at home",
+  "The rise and fall of the Roman Empire in 30 seconds",
+  "A motivational message about chasing your dreams",
+];
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function WizShorts() {
+  const { user } = useAuth();
+  const [step, setStep] = useState<WizStep>("setup");
+  const [jobId, setJobId] = useState<number | null>(null);
+  const [scenes, setScenes] = useState<Scene[]>([]);
+
+  // Setup form state
+  const [topic, setTopic] = useState("");
+  const [platform, setPlatform] = useState<Platform>("youtube_shorts");
+  const [duration, setDuration] = useState(30);
+  const [visualStyle, setVisualStyle] = useState<VisualStyle>("cinematic");
+
+  // Render state
+  const [renderStatus, setRenderStatus] = useState<"idle" | "rendering" | "assembling" | "complete" | "failed">("idle");
+  const [completedScenes, setCompletedScenes] = useState(0);
+  const [totalScenes, setTotalScenes] = useState(0);
+  const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const createJobMutation = trpc.wizShorts.createJob.useMutation();
+  const generateScenesMutation = trpc.wizShorts.generateScenes.useMutation();
+  const startRenderMutation = trpc.wizShorts.startRender.useMutation();
+  const pollProgressMutation = trpc.wizShorts.pollProgress.useMutation();
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, []);
+
+  // ── Step 1: Setup → Scenes ────────────────────────────────────────────────
+
+  const handleCreateJob = async () => {
+    if (!user) { window.location.href = getLoginUrl(); return; }
+    if (!topic.trim()) { toast.error("Please describe your video topic"); return; }
+
+    try {
+      const job = await createJobMutation.mutateAsync({
+        topic: topic.trim(),
+        platform,
+        targetDuration: duration,
+        visualStyle,
+      });
+
+      setJobId(job.jobId);
+      setTotalScenes(job.sceneCount);
+      toast.info(`Generating ${job.sceneCount} scenes...`);
+
+      const scenesResult = await generateScenesMutation.mutateAsync({ jobId: job.jobId });
+      setScenes(scenesResult.scenes);
+      setStep("scenes");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create job");
+    }
+  };
+
+  // ── Step 2: Scene Review → Render ─────────────────────────────────────────
+
+  const handleStartRender = async () => {
+    if (!jobId) return;
+    try {
+      await startRenderMutation.mutateAsync({ jobId });
+      setStep("render");
+      setRenderStatus("rendering");
+      startPolling(jobId);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to start render");
+    }
+  };
+
+  const startPolling = (jid: number) => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const result = await pollProgressMutation.mutateAsync({ jobId: jid });
+        if (result.status === "rendering") {
+          setCompletedScenes((result as any).completedScenes ?? 0);
+          setTotalScenes((result as any).totalScenes ?? totalScenes);
+        } else if (result.status === "complete") {
+          clearInterval(pollIntervalRef.current!);
+          setRenderStatus("complete");
+          setFinalVideoUrl(result.videoUrl ?? null);
+          toast.success("Your WizShort is ready!");
+        } else if (result.status === "failed") {
+          clearInterval(pollIntervalRef.current!);
+          setRenderStatus("failed");
+          toast.error("Render failed. Please try again.");
+        }
+      } catch (err) {
+        // Polling errors are transient — keep trying
+      }
+    }, 8000);
+  };
+
+  const handleDownload = () => {
+    if (!finalVideoUrl) return;
+    const a = document.createElement("a");
+    a.href = finalVideoUrl;
+    a.download = "wizshort.mp4";
+    a.target = "_blank";
+    a.click();
+  };
+
+  const handleReset = () => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    setStep("setup");
+    setJobId(null);
+    setScenes([]);
+    setRenderStatus("idle");
+    setCompletedScenes(0);
+    setFinalVideoUrl(null);
+    setTopic("");
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-[#0d0d14]">
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-600 to-orange-500 flex items-center justify-center">
+              <Film className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">WizShorts</h1>
+              <p className="text-xs text-white/50">AI Short-Form Video Creator · Powered by Grok Imagine</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="border-pink-500/50 text-pink-300 text-xs hidden sm:flex">
+              YouTube Shorts · TikTok · Reels
+            </Badge>
+          </div>
+        </div>
+
+        {/* Step indicator */}
+        <div className="max-w-5xl mx-auto px-6 pb-4">
+          <div className="flex items-center gap-2 text-sm">
+            {(["setup", "scenes", "render"] as WizStep[]).map((s, i) => (
+              <div key={s} className="flex items-center gap-2">
+                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  step === s
+                    ? "bg-pink-500/20 text-pink-300 border border-pink-500/40"
+                    : i < ["setup", "scenes", "render"].indexOf(step)
+                    ? "text-white/50 bg-white/5"
+                    : "text-white/30"
+                }`}>
+                  <span>{i + 1}</span>
+                  <span className="capitalize">{s === "setup" ? "Topic & Style" : s === "scenes" ? "Review Scenes" : "Render"}</span>
+                </div>
+                {i < 2 && <ChevronRight className="w-3 h-3 text-white/20" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* ── STEP 1: Setup ──────────────────────────────────────────────────── */}
+        {step === "setup" && (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+            <div className="space-y-6">
+              {/* Topic */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/70">What's your video about?</label>
+                <Textarea
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="e.g. 5 mind-blowing facts about the deep ocean..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none h-28 focus:border-pink-500/50"
+                  maxLength={500}
+                />
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-white/30">{topic.length}/500</p>
+                  <button
+                    onClick={() => setTopic(EXAMPLE_TOPICS[Math.floor(Math.random() * EXAMPLE_TOPICS.length)])}
+                    className="text-xs text-pink-400 hover:text-pink-300 transition-colors"
+                  >
+                    Try example
+                  </button>
+                </div>
+              </div>
+
+              {/* Platform */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-white/70">Platform</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {PLATFORMS.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setPlatform(p.id)}
+                      className={`p-3 rounded-xl border text-center transition-all ${
+                        platform === p.id
+                          ? "border-pink-500 bg-pink-500/10 text-white"
+                          : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-1.5 mb-1">{p.icon}</div>
+                      <div className="text-xs font-medium">{p.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Duration */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-white/70">Duration</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {DURATIONS.map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setDuration(d)}
+                      className={`p-3 rounded-xl border text-center transition-all ${
+                        duration === d
+                          ? "border-pink-500 bg-pink-500/10 text-white"
+                          : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
+                      }`}
+                    >
+                      <Clock className="w-4 h-4 mx-auto mb-1 opacity-70" />
+                      <div className="text-sm font-semibold">{d}s</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Visual Style */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-white/70">Visual style</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {VISUAL_STYLES.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setVisualStyle(s.id)}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        visualStyle === s.id
+                          ? "border-pink-500 bg-pink-500/10 text-white"
+                          : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
+                      }`}
+                    >
+                      <div className="text-xl mb-1">{s.emoji}</div>
+                      <div className="text-xs font-semibold">{s.label}</div>
+                      <div className="text-[10px] text-white/40 mt-0.5">{s.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleCreateJob}
+                disabled={createJobMutation.isPending || generateScenesMutation.isPending || !topic.trim()}
+                className="w-full h-12 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white font-semibold text-base rounded-xl border-0"
+              >
+                {createJobMutation.isPending || generateScenesMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {generateScenesMutation.isPending ? "Generating scenes with AI..." : "Creating job..."}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Generate Scene Plan
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Right — Info card */}
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-white/80">How WizShorts works</h3>
+                {[
+                  { icon: <Sparkles className="w-4 h-4 text-pink-400" />, title: "AI Scene Planning", desc: "GPT breaks your topic into perfectly timed scenes" },
+                  { icon: <Film className="w-4 h-4 text-orange-400" />, title: "Grok Video Generation", desc: "Each scene rendered by the #1 ranked AI video model" },
+                  { icon: <Zap className="w-4 h-4 text-yellow-400" />, title: "Auto Assembly", desc: "Scenes stitched together with optional music track" },
+                  { icon: <Download className="w-4 h-4 text-green-400" />, title: "Ready to Upload", desc: "9:16 vertical format, ready for Shorts/TikTok/Reels" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="mt-0.5">{item.icon}</div>
+                    <div>
+                      <div className="text-xs font-semibold text-white/80">{item.title}</div>
+                      <div className="text-xs text-white/40">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-2xl border border-pink-500/20 bg-pink-500/5 p-4">
+                <div className="text-xs font-semibold text-pink-300 mb-2">Credit estimate</div>
+                <div className="text-2xl font-bold text-white">
+                  {Math.ceil(duration / 5) * 5}
+                  <span className="text-sm font-normal text-white/50 ml-1">credits</span>
+                </div>
+                <div className="text-xs text-white/40 mt-1">
+                  {Math.ceil(duration / 5)} scenes × 5 credits each
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 2: Scene Review ───────────────────────────────────────────── */}
+        {step === "scenes" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Review your scenes</h2>
+                <p className="text-sm text-white/50 mt-0.5">
+                  {scenes.length} scenes planned for your {duration}s {platform.replace("_", " ")} video
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setStep("setup")}
+                className="border-white/20 text-white/70 hover:text-white bg-transparent"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Back
+              </Button>
+            </div>
+
+            {/* Scene grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {scenes.map((scene) => (
+                <div
+                  key={scene.index}
+                  className="rounded-xl border border-white/10 bg-white/5 overflow-hidden"
+                >
+                  {/* Scene number header */}
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-white/5">
+                    <span className="text-xs font-semibold text-white/60">Scene {scene.index + 1}</span>
+                    <span className="text-xs text-white/30">5s</span>
+                  </div>
+
+                  {/* Preview placeholder — 9:16 aspect */}
+                  <div className="relative bg-gradient-to-br from-pink-900/20 to-orange-900/20 aspect-[9/16] max-h-48 flex items-center justify-center">
+                    <Film className="w-8 h-8 text-white/20" />
+                    {scene.caption && (
+                      <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1">
+                        <p className="text-[10px] text-white text-center font-medium">{scene.caption}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Prompt */}
+                  <div className="p-3">
+                    <p className="text-xs text-white/60 line-clamp-3 leading-relaxed">{scene.prompt}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                onClick={handleStartRender}
+                disabled={startRenderMutation.isPending}
+                className="h-12 px-8 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white font-semibold rounded-xl border-0"
+              >
+                {startRenderMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Starting render...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5 mr-2" />
+                    Render All Scenes
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── STEP 3: Render ─────────────────────────────────────────────────── */}
+        {step === "render" && (
+          <div className="max-w-2xl mx-auto space-y-8">
+            {renderStatus === "rendering" || renderStatus === "assembling" ? (
+              <div className="text-center space-y-6">
+                {/* Animated render indicator */}
+                <div className="relative w-32 h-32 mx-auto">
+                  <div className="absolute inset-0 rounded-full border-2 border-pink-500/20 border-t-pink-500 animate-spin" />
+                  <div className="absolute inset-3 rounded-full border-2 border-orange-500/20 border-b-orange-500 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Film className="w-10 h-10 text-pink-400" />
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">
+                    {renderStatus === "assembling" ? "Assembling your video..." : "Rendering scenes..."}
+                  </h2>
+                  <p className="text-white/50 text-sm">
+                    {renderStatus === "assembling"
+                      ? "Stitching scenes together with ffmpeg"
+                      : `${completedScenes} of ${totalScenes} scenes complete`}
+                  </p>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div
+                    className="h-2 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 transition-all duration-500"
+                    style={{ width: `${totalScenes > 0 ? (completedScenes / totalScenes) * 100 : 5}%` }}
+                  />
+                </div>
+
+                {/* Scene status grid */}
+                <div className="grid grid-cols-6 gap-2">
+                  {Array.from({ length: totalScenes }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${
+                        i < completedScenes
+                          ? "border-green-500/50 bg-green-500/10"
+                          : i === completedScenes
+                          ? "border-pink-500/50 bg-pink-500/10 animate-pulse"
+                          : "border-white/10 bg-white/5"
+                      }`}
+                    >
+                      {i < completedScenes ? (
+                        <CheckCircle2 className="w-3 h-3 text-green-400" />
+                      ) : i === completedScenes ? (
+                        <Loader2 className="w-3 h-3 text-pink-400 animate-spin" />
+                      ) : (
+                        <span className="text-[10px] text-white/30">{i + 1}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-xs text-white/30">
+                  Grok Imagine renders each scene in 30–90 seconds. Please keep this tab open.
+                </p>
+              </div>
+            ) : renderStatus === "complete" && finalVideoUrl ? (
+              <div className="text-center space-y-6">
+                <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Your WizShort is ready!</h2>
+                  <p className="text-white/50 text-sm">9:16 vertical video · Ready to upload</p>
+                </div>
+
+                {/* Video preview */}
+                <div className="mx-auto max-w-xs">
+                  <div className="rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] bg-black">
+                    <video
+                      src={finalVideoUrl}
+                      controls
+                      autoPlay
+                      loop
+                      muted
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    onClick={handleDownload}
+                    className="h-11 px-6 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white font-semibold rounded-xl border-0"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download MP4
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleReset}
+                    className="h-11 px-6 border-white/20 text-white/70 hover:text-white bg-transparent rounded-xl"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Create Another
+                  </Button>
+                </div>
+              </div>
+            ) : renderStatus === "failed" ? (
+              <div className="text-center space-y-6">
+                <div className="w-16 h-16 mx-auto rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-red-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Render failed</h2>
+                  <p className="text-white/50 text-sm">Something went wrong during video generation.</p>
+                </div>
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    onClick={() => { setRenderStatus("rendering"); startPolling(jobId!); }}
+                    className="h-11 px-6 bg-gradient-to-r from-pink-600 to-orange-500 text-white font-semibold rounded-xl border-0"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Retry
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleReset}
+                    className="h-11 px-6 border-white/20 text-white/70 hover:text-white bg-transparent rounded-xl"
+                  >
+                    Start Over
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

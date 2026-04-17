@@ -4506,3 +4506,33 @@
 - [ ] Add animated waveform/pulse loading state during Suno generation (1-3 min)
 - [ ] Add "Trimming to exact duration..." state with progress indicator
 - [ ] Add smooth transition from loading to results display
+
+## Grok Imagine Integration (Apr 17 2026)
+- [ ] Build server/ai-apis/grok-imagine.ts — image generation (grok-imagine-image-pro) + video generation (grok-imagine-video) with polling
+- [ ] Add grok_imagine renderer to RENDERER_COSTS in products.ts
+- [ ] Add startSceneRenderGrokImagine to music-video-service.ts with image-to-video support (storyboard lock)
+- [ ] Wire Grok Imagine into startSceneRender as premium renderer option
+- [ ] Add generateImageGrok helper for storyboard preview generation
+- [ ] Expose grok_imagine as a model option in WizAnimate render settings UI
+- [ ] Add Grok Imagine vitest tests
+
+## WizImage — AI Image Creator (Apr 17 2026)
+- [ ] Build server/ai-apis/grok-imagine.ts wrapper (image + video generation with polling)
+- [ ] Add generateImageGrok() helper using grok-imagine-image-pro, saves to S3
+- [ ] Build server/routers/wizImage.ts tRPC router (generate, getHistory, deleteImage)
+- [ ] Add wizImage to drizzle/schema.ts (wiz_images table: id, userId, prompt, style, imageUrl, createdAt)
+- [ ] Build client/src/pages/WizImage.tsx — prompt input, style selector, aspect ratio, results gallery
+- [ ] Add WizImage to App.tsx routes (/wiz-image)
+- [ ] Add WizImage to DashboardLayout sidebar and navigation
+
+## WizShorts — Short-Form Video Creator (Apr 17 2026)
+- [ ] Add wiz_shorts_jobs and wiz_shorts_scenes tables to drizzle/schema.ts
+- [ ] Apply DB migration for WizShorts tables
+- [ ] Build server/routers/wizShorts.ts (createJob, generateScenes, startRender, pollProgress, getJob, listJobs)
+- [ ] Grok Imagine video generation: text-to-video and image-to-video (9:16 vertical, 5-10s per scene)
+- [ ] LLM scene generation from topic/script (3-6 scenes, each with prompt + duration)
+- [ ] ffmpeg assembly: stitch clips + optional music track, output 9:16 MP4
+- [ ] Build client/src/pages/WizShorts.tsx — 3-step wizard (Topic/Script → Scene Review → Render)
+- [ ] Add WizShorts to App.tsx routes (/wiz-shorts)
+- [ ] Add WizShorts to DashboardLayout sidebar and navigation
+- [ ] Wire credit costs (5 credits per scene)

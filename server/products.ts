@@ -80,6 +80,8 @@ export const RENDERER_COSTS = {
   kling_pro: 0.71,
   /** Runway ML gen4_turbo — alternative premium renderer (~$0.40/scene) */
   runway: 0.31,
+  /** Grok Imagine video (720p, 5s) — premium renderer ($0.07/s × 5s = $0.35/scene) */
+  grok_imagine: 0.35,
 } as const;
 
 export type RendererType = keyof typeof RENDERER_COSTS;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Music, Film, Baby, Wand2, Mic, Layers, Zap, Sparkles,
-  ArrowRight, ChevronRight, Lock, Mic2,
+  ArrowRight, ChevronRight, Lock, Mic2, ImageIcon, Smartphone,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
@@ -182,6 +182,40 @@ const TOOLS: Tool[] = [
     accentFrom: "from-sky-600/20",
     accentTo: "to-blue-600/5",
     borderColor: "border-sky-500/20 hover:border-sky-400/45",
+    authRequired: true,
+  },
+  {
+    id: "wiz-image",
+    name: "WizImage™",
+    tagline: "AI image creator powered by Grok Aurora",
+    subheading: "Generate stunning images with the world's #1 ranked AI image model.",
+    description: "Describe any image and Grok Aurora renders it in seconds. Choose from 8 art styles, 4 aspect ratios, and build a personal gallery. Photorealistic, cinematic, anime, oil painting, and more.",
+    href: "/wiz-image",
+    icon: <ImageIcon className="w-6 h-6" />,
+    iconBg: "bg-fuchsia-500/20",
+    iconColor: "text-fuchsia-400",
+    badge: "New · Grok",
+    badgeColor: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
+    accentFrom: "from-fuchsia-600/20",
+    accentTo: "to-violet-600/5",
+    borderColor: "border-fuchsia-500/20 hover:border-fuchsia-400/45",
+    authRequired: true,
+  },
+  {
+    id: "wiz-shorts",
+    name: "WizShorts™",
+    tagline: "AI short-form video creator for Shorts, TikTok & Reels",
+    subheading: "Turn any topic into a viral short-form video in minutes.",
+    description: "Describe your topic, pick a platform and style, and WizShorts generates a complete 15–60s vertical video using Grok Imagine — the #1 ranked AI video model. Ready to upload to YouTube Shorts, TikTok, or Instagram Reels.",
+    href: "/wiz-shorts",
+    icon: <Smartphone className="w-6 h-6" />,
+    iconBg: "bg-pink-500/20",
+    iconColor: "text-pink-400",
+    badge: "New · Grok",
+    badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+    accentFrom: "from-pink-600/20",
+    accentTo: "to-orange-600/5",
+    borderColor: "border-pink-500/20 hover:border-pink-400/45",
     authRequired: true,
   },
   {

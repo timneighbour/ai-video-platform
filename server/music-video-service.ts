@@ -20,6 +20,7 @@ import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seed
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
 import { submitAtlasVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
 import { submitWaveSpeedVideo, pollWaveSpeedVideo, type WaveSpeedModel } from "./ai-apis/wavespeed";
+import { submitGrokVideo, pollGrokVideo } from "./ai-apis/grok-imagine";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 import { applyWizSound, type AudioTier } from "./wizsound";
@@ -35,6 +36,8 @@ const ATLAS_JOB_ID_PREFIX = "atlas:";
 const WAVESPEED_JOB_ID_PREFIX = "wavespeed:";
 const WAVESPEED_SEEDANCE_PREFIX = "wavespeed:seedance:";
 const WAVESPEED_HAILUO_PREFIX = "wavespeed:hailuo:";
+const GROK_IMAGINE_PREFIX = "grok:";
+
 
 const execAsync = promisify(exec);
 
@@ -594,6 +597,16 @@ export async function startSceneRender(
     }
   }
 
+  // Grok Imagine — premium renderer with image-to-video support (storyboard lock)
+  if (renderer === "grok_imagine") {
+    try {
+      return await startSceneRenderGrokImagine(sceneId, finalPrompt, duration, storyboardImageUrl ?? undefined);
+    } catch (grokErr) {
+      console.warn(`[MusicVideo] Scene ${sceneId} Grok Imagine failed, falling back to WaveSpeed:`, grokErr);
+      return startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined);
+    }
+  }
+
   // Premium renderers (kling_standard, kling_pro, runway) — with single retry + Hypereal fallback
   try {
     const taskId = await startSceneRenderKling(finalPrompt, duration);
@@ -690,6 +703,95 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
   console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance requestId=${requestId}`);
   // Prefix the ID so pollSceneStatus knows which API to poll
   return `${FAL_REQUEST_ID_PREFIX}${requestId}`;
+}
+
+async function startSceneRenderGrokImagine(
+  sceneId: number,
+  prompt: string,
+  duration: number,
+  storyboardImageUrl?: string
+): Promise<string> {
+  // Grok Imagine supports up to 10s clips; clamp to valid range
+  const clampedDuration = Math.max(1, Math.min(10, Math.round(duration)));
+
+  const requestId = await submitGrokVideo({
+    prompt,
+    image_url: storyboardImageUrl ?? undefined, // image-to-video if storyboard available
+    duration: clampedDuration,
+    aspect_ratio: "16:9",
+    resolution: "720p",
+  });
+
+  console.log(`[MusicVideo] Scene ${sceneId} → Grok Imagine requestId=${requestId} (${storyboardImageUrl ? "image-to-video" : "text-to-video"})`);
+  return `${GROK_IMAGINE_PREFIX}${requestId}`;
+}
+
+async function pollSceneStatusGrokImagine(
+  sceneId: number,
+  requestId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const result = await pollGrokVideo(requestId);
+
+    if (result.status === "done" && result.videoUrl) {
+      // Download and re-upload to S3 for permanent storage
+      let buffer: Buffer | null = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const response = await fetch(result.videoUrl);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          buffer = Buffer.from(await response.arrayBuffer());
+          break;
+        } catch (fetchErr) {
+          console.warn(`[GrokImagine] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+        }
+      }
+
+      if (!buffer) {
+        const db2 = await getDb();
+        if (db2) {
+          await db2.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Failed to download Grok Imagine video after 3 attempts", updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+        }
+        return { status: "failed" };
+      }
+
+      const key = `music-video-scenes/${sceneId}-${Date.now()}.mp4`;
+      const { url } = await storagePut(key, buffer, "video/mp4");
+
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+
+      console.log(`[GrokImagine] Scene ${sceneId} completed → S3: ${url.slice(0, 80)}...`);
+      return { status: "completed", videoUrl: url };
+    }
+
+    if (result.status === "failed" || result.status === "expired") {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: `Grok Imagine generation ${result.status}`, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+
+    return { status: "processing" };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
+  }
 }
 
 async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, duration: number): Promise<string> {
@@ -943,6 +1045,10 @@ export async function pollSceneStatus(
 
   if (taskId.startsWith(FAL_REQUEST_ID_PREFIX)) {
     return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_REQUEST_ID_PREFIX.length));
+  }
+
+  if (taskId.startsWith(GROK_IMAGINE_PREFIX)) {
+    return pollSceneStatusGrokImagine(sceneId, taskId.slice(GROK_IMAGINE_PREFIX.length));
   }
 
   // Legacy: Volcengine Seedance task IDs are handled by klingClient (wrong but kept for backward compat)
