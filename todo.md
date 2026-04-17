@@ -4644,3 +4644,15 @@
 - [x] MP #4: Audit "Pixar-style" — confirm all replaced with "cinematic 3D animation"
 - [x] MP #5: Audit footer Platform column — intentional labels, correct links, no duplicates
 - [x] MP #6: Product card CTAs → "Start with WizAudio", "Start with WizImage", etc.
+
+## Ella's Luxury Visual Styling Pass
+- [x] LUX #1: Global brand look — upgrade to Harrods-level luxury cinematic feel
+- [x] LUX #2: Colour system — brushed metallic gold, polished silver, deep black; no flat yellow
+- [x] LUX #3: Buttons/CTA styling — polished metallic base with gold detail, premium depth/shadow
+- [x] LUX #4: Logo/header treatment — brushed gold, polished silver, premium glow, darker header
+- [x] LUX #5: Hero art direction — powerful, luxurious, cinematic, metallic detailing
+- [x] LUX #6: Product cards — luxury tiles with darker base, metallic accents, better depth
+- [x] LUX #7: Showcase section — cinematic luxury, no violet neon, aligned with gold-silver-black
+- [x] LUX #8: Typography feel — elegant, expensive, cinematic, luxury-tech
+- [x] LUX #9: Footer — premium as the hero, intentional, luxurious, complete
+- [x] LUX #10: Final quality bar — Harrods of AI, luxury flagship, visuals match ambition

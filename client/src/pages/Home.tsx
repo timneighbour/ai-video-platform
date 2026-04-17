@@ -26,12 +26,6 @@ const WHO_IMAGES = [
   `${CDN}/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp`,
 ];
 
-const SHOWCASE_POSTERS = [
-  { src: `${CDN}/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp`, label: "WizVideo" },
-  { src: `${CDN}/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp`, label: "WizAnimate" },
-  { src: `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`, label: "WizShorts" },
-];
-
 // ── Scroll reveal ─────────────────────────────────────────────────────────────
 function useReveal() {
   useEffect(() => {
@@ -53,11 +47,6 @@ const PRODUCTS = [
     desc: "Full songs, vocals and soundtracks — produced by AI in minutes.",
     icon: <Music2 className="w-5 h-5" />,
     href: "/music-creator",
-    accent: "#10b981",
-    accentClass: "text-emerald-400",
-    borderClass: "border-emerald-500/20 hover:border-emerald-400/50",
-    bgClass: "bg-emerald-500/5",
-    glowClass: "hover:shadow-emerald-500/10",
   },
   {
     name: "WizImage",
@@ -65,11 +54,6 @@ const PRODUCTS = [
     desc: "Thumbnails, characters and brand visuals — generated instantly.",
     icon: <Image className="w-5 h-5" />,
     href: "/wiz-image",
-    accent: "#f59e0b",
-    accentClass: "text-amber-400",
-    borderClass: "border-amber-500/20 hover:border-amber-400/50",
-    bgClass: "bg-amber-500/5",
-    glowClass: "hover:shadow-amber-500/10",
   },
   {
     name: "WizVideo",
@@ -77,11 +61,6 @@ const PRODUCTS = [
     desc: "Full cinematic music videos from any track — not just clips.",
     icon: <Film className="w-5 h-5" />,
     href: "/music-video/create",
-    accent: "#8b5cf6",
-    accentClass: "text-violet-400",
-    borderClass: "border-violet-500/20 hover:border-violet-400/50",
-    bgClass: "bg-violet-500/5",
-    glowClass: "hover:shadow-violet-500/10",
   },
   {
     name: "WizShorts",
@@ -89,11 +68,6 @@ const PRODUCTS = [
     desc: "Scroll-stopping Shorts, Reels and TikToks — created in seconds.",
     icon: <Zap className="w-5 h-5" />,
     href: "/wiz-shorts",
-    accent: "#06b6d4",
-    accentClass: "text-cyan-400",
-    borderClass: "border-cyan-500/20 hover:border-cyan-400/50",
-    bgClass: "bg-cyan-500/5",
-    glowClass: "hover:shadow-cyan-500/10",
   },
   {
     name: "WizAnimate",
@@ -101,11 +75,6 @@ const PRODUCTS = [
     desc: "Animated stories and stylised visuals — from a single prompt.",
     icon: <Wand2 className="w-5 h-5" />,
     href: "/kids-video",
-    accent: "#f43f5e",
-    accentClass: "text-rose-400",
-    borderClass: "border-rose-500/20 hover:border-rose-400/50",
-    bgClass: "bg-rose-500/5",
-    glowClass: "hover:shadow-rose-500/10",
   },
   {
     name: "WizScript",
@@ -113,11 +82,6 @@ const PRODUCTS = [
     desc: "Any written idea becomes scenes and a full AI video.",
     icon: <FileText className="w-5 h-5" />,
     href: "/text-to-video",
-    accent: "#f97316",
-    accentClass: "text-orange-400",
-    borderClass: "border-orange-500/20 hover:border-orange-400/50",
-    bgClass: "bg-orange-500/5",
-    glowClass: "hover:shadow-orange-500/10",
   },
 ];
 
@@ -139,14 +103,14 @@ function Nav() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-black/90 backdrop-blur-2xl border-b border-white/[0.05] shadow-[0_1px_30px_rgba(0,0,0,0.5)]"
+            ? "bg-[#060606]/95 backdrop-blur-2xl border-b border-[--color-gold]/[0.06] shadow-[0_1px_40px_rgba(0,0,0,0.6)]"
             : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
           {/* Logo */}
           <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.8rem] w-auto object-contain" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.8rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
           </a>
 
           {/* Desktop nav */}
@@ -163,17 +127,17 @@ function Nav() {
                 Products <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
               </button>
               {productsOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-[#0c0c0c]/98 backdrop-blur-2xl border border-white/[0.07] rounded-2xl shadow-2xl p-2 z-50">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-[#0a0a0a]/98 backdrop-blur-2xl border border-[--color-gold]/[0.08] rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.7)] p-2 z-50">
                   {PRODUCTS.map((p) => (
                     <a
                       key={p.name}
                       href={p.href}
-                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors group"
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors group"
                     >
-                      <span className={`${p.accentClass} opacity-80 group-hover:opacity-100 transition-opacity`}>{p.icon}</span>
+                      <span className="text-[--color-silver] opacity-60 group-hover:text-[--color-gold] group-hover:opacity-100 transition-all">{p.icon}</span>
                       <div>
-                        <p className={`text-[13px] font-semibold ${p.accentClass}`}>{p.name}</p>
-                        <p className="text-[11px] text-white/35 mt-0.5 leading-tight">{p.label}</p>
+                        <p className="text-[13px] font-semibold text-[--color-gold-light] group-hover:text-[--color-gold]">{p.name}</p>
+                        <p className="text-[11px] text-[--color-silver-dark]/50 mt-0.5 leading-tight">{p.label}</p>
                       </div>
                     </a>
                   ))}
@@ -193,7 +157,7 @@ function Nav() {
               </a>
             ) : (
               <>
-                <a href={getLoginUrl()} className="text-[13px] text-white/50 hover:text-white/90 transition-colors font-medium px-3 py-2">
+                <a href={getLoginUrl()} className="text-[13px] text-[--color-silver-dark] hover:text-[--color-silver-light] transition-colors font-medium px-3 py-2">
                   Sign in
                 </a>
                 <a href="/onboarding" className="btn-primary-sm">
@@ -205,11 +169,11 @@ function Nav() {
 
           {/* Mobile toggle */}
           <button
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/[0.06] transition-colors"
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="w-5 h-5 text-white/80" /> : <Menu className="w-5 h-5 text-white/80" />}
+            {mobileOpen ? <X className="w-5 h-5 text-[--color-silver]" /> : <Menu className="w-5 h-5 text-[--color-silver]" />}
           </button>
         </div>
       </nav>
@@ -217,39 +181,39 @@ function Nav() {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
           <div
-            className="absolute top-[72px] left-0 right-0 bg-[#0c0c0c]/98 backdrop-blur-2xl border-b border-white/[0.06] shadow-2xl"
+            className="absolute top-[72px] left-0 right-0 bg-[#0a0a0a]/98 backdrop-blur-2xl border-b border-[--color-gold]/[0.06] shadow-[0_16px_60px_rgba(0,0,0,0.7)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-5 py-5 flex flex-col gap-1">
               <a href="/" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Home</a>
-              <div className="mt-2 pt-2 border-t border-white/[0.05]">
-                <p className="text-[10px] text-white/25 font-bold uppercase tracking-[0.2em] px-4 py-2">Products</p>
+              <div className="mt-2 pt-2 border-t border-[--color-gold]/[0.06]">
+                <p className="text-[10px] text-[--color-gold-dark]/40 font-bold uppercase tracking-[0.2em] px-4 py-2">Products</p>
                 {PRODUCTS.map((p) => (
                   <a
                     key={p.name}
                     href={p.href}
-                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors"
                     onClick={() => setMobileOpen(false)}
                   >
-                    <span className={p.accentClass}>{p.icon}</span>
-                    <span className={`text-[14px] font-semibold ${p.accentClass}`}>{p.name}</span>
+                    <span className="text-[--color-silver-dark]">{p.icon}</span>
+                    <span className="text-[14px] font-semibold text-[--color-gold-light]">{p.name}</span>
                   </a>
                 ))}
               </div>
-              <div className="mt-2 pt-2 border-t border-white/[0.05]">
+              <div className="mt-2 pt-2 border-t border-[--color-gold]/[0.06]">
                 <a href="/pricing" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Pricing</a>
                 <a href="/help" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Help</a>
               </div>
-              <div className="mt-3 pt-3 border-t border-white/[0.07] flex flex-col gap-2">
+              <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.08] flex flex-col gap-2">
                 {isAuthenticated ? (
                   <a href="/dashboard" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>
                     <Sparkles className="w-4 h-4" /> Dashboard
                   </a>
                 ) : (
                   <>
-                    <a href={getLoginUrl()} className="text-center text-sm text-white/50 hover:text-white py-2.5 transition-colors" onClick={() => setMobileOpen(false)}>Sign in</a>
+                    <a href={getLoginUrl()} className="text-center text-sm text-[--color-silver-dark] hover:text-[--color-silver-light] py-2.5 transition-colors" onClick={() => setMobileOpen(false)}>Sign in</a>
                     <a href="/onboarding" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>Start Creating</a>
                   </>
                 )}
@@ -277,11 +241,11 @@ function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-black">
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]">
       {/* Background video */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.12] blur-[3px] saturate-[0.6]"
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.10] blur-[4px] saturate-[0.4] brightness-[0.7]"
         src={HERO_BG_VIDEO}
         poster={HERO_BG_POSTER}
         autoPlay
@@ -291,32 +255,34 @@ function Hero() {
         preload="metadata"
         aria-hidden="true"
       />
-      {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/95 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-black/50 pointer-events-none" />
+      {/* Gradient overlays — deep cinematic */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/95 via-[#030303]/75 to-[#030303] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#030303]/80 via-transparent to-[#030303]/60 pointer-events-none" />
+      {/* Subtle gold ambient glow */}
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75), transparent 70%)" }} />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
         <div className="max-w-3xl">
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-white/60">Premium Creative Intelligence</span>
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] backdrop-blur-sm mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[--color-gold-dark]">Premium Creative Intelligence</span>
           </div>
 
           {/* Headline */}
           <h1 className="text-[clamp(3rem,8vw,6rem)] font-black leading-[0.95] tracking-tight text-white mb-6">
             Create anything.<br />
-            <span className="text-amber-400">Instantly.</span>
+            <span className="metallic-gold">Instantly.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[clamp(1rem,2vw,1.25rem)] text-white/60 leading-relaxed max-w-2xl mb-10">
+          <p className="text-[clamp(1rem,2vw,1.25rem)] text-[--color-silver]/70 leading-relaxed max-w-2xl mb-10">
             WIZ AI is the premium creative intelligence platform for audio, images, video, shorts, animation, and text-to-video.
           </p>
 
           {/* Supporting copy */}
-          <p className="text-sm text-white/35 mb-10 font-medium tracking-wide">
+          <p className="text-sm text-[--color-silver-dark]/50 mb-10 font-medium tracking-wide">
             No editing experience needed. Build faster with AI.
           </p>
 
@@ -324,27 +290,27 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-4 mb-12">
             <a
               href="/onboarding"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-base transition-all duration-200 shadow-[0_0_40px_rgba(251,191,36,0.3)] hover:shadow-[0_0_60px_rgba(251,191,36,0.45)] hover:scale-[1.02]"
+              className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
               onClick={() => mp.heroCTAClicked?.()}
             >
               <Sparkles className="w-5 h-5" />
-              {isAuthenticated ? "Start Creating" : "Start Creating"}
+              Start Creating
             </a>
             <a
               href="#products"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-semibold text-base transition-all duration-200 backdrop-blur-sm"
+              className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
             >
               Explore Products
               <ArrowRight className="w-4 h-4" />
             </a>
             <button
               onClick={() => setDemoOpen(true)}
-              className="inline-flex items-center gap-2.5 text-white/50 hover:text-white/80 font-medium text-sm transition-colors"
+              className="inline-flex items-center gap-2.5 text-[--color-silver-dark] hover:text-[--color-silver-light] font-medium text-sm transition-colors"
             >
               <span className="relative w-8 h-8 flex-shrink-0">
-                <span className="absolute inset-0 rounded-full bg-white/10 animate-ping" style={{ animationDuration: "2.5s" }} />
-                <span className="absolute inset-0 rounded-full border border-white/30 bg-white/10 flex items-center justify-center">
-                  <Play className="w-3 h-3 text-white ml-0.5" fill="white" />
+                <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 animate-ping" style={{ animationDuration: "2.5s" }} />
+                <span className="absolute inset-0 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/5 flex items-center justify-center">
+                  <Play className="w-3 h-3 text-[--color-gold] ml-0.5" fill="currentColor" />
                 </span>
               </span>
               Watch Demo
@@ -355,16 +321,16 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-5">
             <div className="flex -space-x-2">
               {WHO_IMAGES.map((src, i) => (
-                <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-black object-cover" />
+                <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" />
               ))}
             </div>
-            <span className="text-white/35 text-xs font-medium">Trusted by creators, musicians, and YouTubers</span>
-            <div className="flex items-center gap-4 text-xs text-white/30">
-              <span className="flex items-center gap-1.5"><span className="text-white/60 font-semibold">5 min</span> avg. creation</span>
-              <span className="w-px h-3 bg-white/15" />
-              <span className="flex items-center gap-1.5"><span className="text-white/60 font-semibold">Full video</span> not just clips</span>
-              <span className="w-px h-3 bg-white/15" />
-              <span className="flex items-center gap-1.5"><span className="text-white/60 font-semibold">Free</span> to create</span>
+            <span className="text-[--color-silver-dark]/40 text-xs font-medium">Trusted by creators, musicians, and YouTubers</span>
+            <div className="flex items-center gap-4 text-xs text-[--color-silver-dark]/30">
+              <span className="flex items-center gap-1.5"><span className="text-[--color-silver]/60 font-semibold">5 min</span> avg. creation</span>
+              <span className="w-px h-3 bg-[--color-gold]/10" />
+              <span className="flex items-center gap-1.5"><span className="text-[--color-silver]/60 font-semibold">Full video</span> not just clips</span>
+              <span className="w-px h-3 bg-[--color-gold]/10" />
+              <span className="flex items-center gap-1.5"><span className="text-[--color-silver]/60 font-semibold">Free</span> to create</span>
             </div>
           </div>
         </div>
@@ -378,7 +344,7 @@ function Hero() {
             setMuted(!muted);
           }
         }}
-        className="absolute bottom-8 right-6 z-20 w-9 h-9 rounded-full border border-white/15 bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+        className="absolute bottom-8 right-6 z-20 w-9 h-9 rounded-full border border-[--color-gold]/[0.1] bg-black/50 backdrop-blur-sm flex items-center justify-center text-[--color-silver-dark]/40 hover:text-[--color-silver-light] transition-colors"
         aria-label={muted ? "Unmute" : "Mute"}
       >
         {muted ? (
@@ -396,45 +362,48 @@ function Hero() {
 // ── Choose What You Want to Create ────────────────────────────────────────────
 function ProductGrid() {
   return (
-    <section id="products" className="bg-[#050505] py-28 px-6 scroll-mt-20">
+    <section id="products" className="relative bg-[#040404] py-28 px-6 scroll-mt-20">
+      {/* Top gold divider */}
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-amber-400 mb-4">WIZ AI Platform</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI Platform</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-4">
             Choose what you want to create
           </h2>
-          <p className="text-white/40 text-lg max-w-xl leading-relaxed">
+          <p className="text-[--color-silver-dark]/60 text-lg max-w-xl leading-relaxed">
             Six premium AI tools — one unified platform. No editing experience required.
           </p>
         </div>
 
-        {/* 3-column grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04] rounded-2xl overflow-hidden border border-white/[0.04]">
+        {/* 3-column grid — luxury cards */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-[--color-gold]/[0.04] rounded-2xl overflow-hidden border border-[--color-gold]/[0.06]">
           {PRODUCTS.map((p) => (
             <a
               key={p.name}
               href={p.href}
-              className={`group relative flex flex-col gap-5 p-8 bg-[#050505] hover:bg-[#0d0d0d] transition-colors duration-300 reveal`}
+              className="group relative flex flex-col gap-5 p-8 bg-[#040404] hover:bg-[#0a0a0a] transition-all duration-500 reveal"
             >
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl border ${p.borderClass} ${p.bgClass} flex items-center justify-center ${p.accentClass} transition-all duration-300 group-hover:scale-110`}>
+              {/* Icon — metallic treatment */}
+              <div className="w-12 h-12 rounded-xl border border-[--color-gold]/[0.1] bg-[--color-gold]/[0.03] flex items-center justify-center text-[--color-gold] group-hover:border-[--color-gold]/[0.25] group-hover:bg-[--color-gold]/[0.06] group-hover:shadow-[0_0_20px_rgba(196,164,100,0.08)] transition-all duration-500 group-hover:scale-110">
                 {p.icon}
               </div>
               {/* Text */}
               <div>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <h3 className={`text-xl font-black tracking-tight ${p.accentClass}`}>{p.name}</h3>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">{p.label}</span>
+                  <h3 className="text-xl font-black tracking-tight text-[--color-gold]">{p.name}</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-silver-dark]/25">{p.label}</span>
                 </div>
-                <p className="text-white/45 text-sm leading-relaxed">{p.desc}</p>
+                <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed">{p.desc}</p>
               </div>
               {/* CTA arrow */}
-              <div className={`flex items-center gap-1.5 text-xs font-semibold ${p.accentClass} opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0`}>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
                 Start with {p.name} <ArrowRight className="w-3 h-3" />
               </div>
-              {/* Corner accent */}
-              <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300`} style={{ background: `radial-gradient(circle at top right, ${p.accent}15, transparent 70%)` }} />
+              {/* Corner ambient glow */}
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "radial-gradient(circle at top right, oklch(0.78 0.11 75 / 0.06), transparent 70%)" }} />
             </a>
           ))}
         </div>
@@ -447,55 +416,55 @@ function ProductGrid() {
 function WelcomeSection() {
   const [demoOpen, setDemoOpen] = useState(false);
   return (
-    <section className="bg-black py-28 px-6 border-t border-white/[0.04]">
+    <section className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-5xl mx-auto">
-        {/* Two-column: text left, video right */}
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="reveal">
-            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-amber-400 mb-5">Welcome to WIZ AI</p>
+            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">Welcome to WIZ AI</p>
             <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white leading-tight mb-6">
               A premium new world of AI-powered creation.
             </h2>
-            <p className="text-white/45 text-base leading-relaxed mb-8">
+            <p className="text-[--color-silver-dark]/55 text-base leading-relaxed mb-8">
               See how WIZ AI turns any idea into a full video in minutes. No editing. No experience. Just describe your idea and watch it come to life.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="/onboarding"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-black font-bold text-sm hover:bg-white/90 transition-colors"
+                className="btn-primary inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm"
               >
                 <Sparkles className="w-4 h-4" />
                 Start Creating
               </a>
-              <a href="/pricing" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-white/15 text-white/70 hover:text-white hover:border-white/30 font-semibold text-sm transition-colors">
-                View pricing
+              <a href="/pricing" className="btn-secondary inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+                View Pricing
               </a>
             </div>
           </div>
           <div className="reveal">
             <button
               onClick={() => setDemoOpen(true)}
-              className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-[#111] hover:border-amber-400/30 transition-all duration-300 shadow-2xl hover:shadow-amber-400/10 focus:outline-none"
+              className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none"
               aria-label="Watch WIZ AI demo"
             >
               <img
                 src={DEMO_POSTER}
                 alt="WIZ AI demo"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.85]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                 <div className="relative w-16 h-16">
-                  <span className="absolute inset-0 rounded-full bg-amber-400/20 animate-ping" style={{ animationDuration: "2.5s" }} />
-                  <span className="absolute inset-0 rounded-full bg-amber-400/15 border-2 border-amber-400/60 group-hover:bg-amber-400/25 group-hover:border-amber-400 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
-                    <Play className="w-6 h-6 text-amber-400 ml-0.5" fill="currentColor" />
+                  <span className="absolute inset-0 rounded-full bg-[--color-gold]/15 animate-ping" style={{ animationDuration: "2.5s" }} />
+                  <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 border-2 border-[--color-gold]/40 group-hover:bg-[--color-gold]/15 group-hover:border-[--color-gold]/60 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
+                    <Play className="w-6 h-6 text-[--color-gold] ml-0.5" fill="currentColor" />
                   </span>
                 </div>
                 <span className="text-white font-semibold text-sm drop-shadow-lg">Watch 20-sec Demo</span>
               </div>
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                <span className="text-xs text-white/50 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">Prompt → Storyboard → Final Video</span>
-                <span className="text-xs text-white/50 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">20 seconds</span>
+                <span className="text-xs text-[--color-silver-dark]/50 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-[--color-gold]/[0.06]">Prompt → Storyboard → Final Video</span>
+                <span className="text-xs text-[--color-silver-dark]/50 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-[--color-gold]/[0.06]">20 seconds</span>
               </div>
             </button>
           </div>
@@ -509,36 +478,17 @@ function WelcomeSection() {
 // ── How It Works ──────────────────────────────────────────────────────────────
 function HowItWorks() {
   const steps = [
-    {
-      num: "01",
-      title: "Describe your idea",
-      desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.",
-      accent: "text-amber-400",
-    },
-    {
-      num: "02",
-      title: "AI builds your storyboard",
-      desc: "WizCreate™ generates a full visual storyboard with scenes, characters, and direction — in seconds.",
-      accent: "text-violet-400",
-    },
-    {
-      num: "03",
-      title: "Preview every scene",
-      desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.",
-      accent: "text-cyan-400",
-    },
-    {
-      num: "04",
-      title: "Render your video",
-      desc: "Building Your Video in HD or 4K with WizSound™ and WizLumina™ baked in. Download and share.",
-      accent: "text-emerald-400",
-    },
+    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else." },
+    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™ generates a full visual storyboard with scenes, characters, and direction — in seconds." },
+    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want." },
+    { num: "04", title: "Render your video", desc: "Building Your Video in HD or 4K with WizSound™ and WizLumina™ baked in. Download and share." },
   ];
   return (
-    <section className="bg-[#050505] py-28 px-6 border-t border-white/[0.04]">
+    <section id="how-it-works" className="relative bg-[#040404] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-amber-400 mb-4">How it works</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">How it works</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
             From idea to finished video in minutes
           </h2>
@@ -546,14 +496,14 @@ function HowItWorks() {
         <div className="grid md:grid-cols-4 gap-8">
           {steps.map((s, i) => (
             <div key={s.num} className="reveal relative">
-              {/* Connector line */}
+              {/* Connector line — gold gradient */}
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-8 left-[calc(100%_-_1rem)] w-full h-px bg-gradient-to-r from-white/10 to-transparent z-0" />
+                <div className="hidden md:block absolute top-8 left-[calc(100%_-_1rem)] w-full h-px" style={{ background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.15), transparent)" }} />
               )}
               <div className="relative z-10">
-                <div className={`text-[3rem] font-black leading-none ${s.accent} opacity-20 mb-4`}>{s.num}</div>
+                <div className="text-[3rem] font-black leading-none metallic-gold opacity-30 mb-4">{s.num}</div>
                 <h3 className="text-lg font-bold text-white mb-3">{s.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{s.desc}</p>
+                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -566,72 +516,31 @@ function HowItWorks() {
 // ── Why WIZ AI ────────────────────────────────────────────────────────────────
 function WhyWizAI() {
   const reasons = [
-    {
-      icon: <Star className="w-5 h-5" />,
-      title: "Full video, not just clips",
-      desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render.",
-      accent: "text-amber-400",
-      border: "border-amber-500/15",
-      bg: "bg-amber-500/5",
-    },
-    {
-      icon: <Shield className="w-5 h-5" />,
-      title: "Preview before you pay",
-      desc: "See your entire video — every scene, every frame — before spending a single credit on rendering.",
-      accent: "text-violet-400",
-      border: "border-violet-500/15",
-      bg: "bg-violet-500/5",
-    },
-    {
-      icon: <Zap className="w-5 h-5" />,
-      title: "No editing experience needed",
-      desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically.",
-      accent: "text-cyan-400",
-      border: "border-cyan-500/15",
-      bg: "bg-cyan-500/5",
-    },
-    {
-      icon: <Globe className="w-5 h-5" />,
-      title: "Every creative format covered",
-      desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform.",
-      accent: "text-emerald-400",
-      border: "border-emerald-500/15",
-      bg: "bg-emerald-500/5",
-    },
-    {
-      icon: <TrendingUp className="w-5 h-5" />,
-      title: "Create more, publish faster",
-      desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.",
-      accent: "text-rose-400",
-      border: "border-rose-500/15",
-      bg: "bg-rose-500/5",
-    },
-    {
-      icon: <Users className="w-5 h-5" />,
-      title: "Trusted by real creators",
-      desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results.",
-      accent: "text-orange-400",
-      border: "border-orange-500/15",
-      bg: "bg-orange-500/5",
-    },
+    { icon: <Star className="w-5 h-5" />, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render." },
+    { icon: <Shield className="w-5 h-5" />, title: "Preview before you pay", desc: "See your entire video — every scene, every frame — before spending a single credit on rendering." },
+    { icon: <Zap className="w-5 h-5" />, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically." },
+    { icon: <Globe className="w-5 h-5" />, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform." },
+    { icon: <TrendingUp className="w-5 h-5" />, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition." },
+    { icon: <Users className="w-5 h-5" />, title: "Trusted by real creators", desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results." },
   ];
   return (
-    <section className="bg-black py-28 px-6 border-t border-white/[0.04]">
+    <section className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-amber-400 mb-4">Why WIZ AI is different</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Why WIZ AI is different</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight max-w-2xl">
             Not just another AI tool. A complete creative system.
           </h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {reasons.map((r) => (
-            <div key={r.title} className={`reveal rounded-2xl border ${r.border} ${r.bg} p-7 flex flex-col gap-4`}>
-              <div className={`w-10 h-10 rounded-xl ${r.bg} border ${r.border} flex items-center justify-center ${r.accent}`}>
+            <div key={r.title} className="reveal glass-card p-7 flex flex-col gap-4">
+              <div className="w-10 h-10 rounded-xl border border-[--color-gold]/[0.1] bg-[--color-gold]/[0.03] flex items-center justify-center text-[--color-gold]">
                 {r.icon}
               </div>
               <h3 className="text-base font-bold text-white">{r.title}</h3>
-              <p className="text-white/40 text-sm leading-relaxed">{r.desc}</p>
+              <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{r.desc}</p>
             </div>
           ))}
         </div>
@@ -650,39 +559,40 @@ function Showcase() {
   ];
 
   return (
-    <section className="bg-[#050505] py-28 px-6 border-t border-white/[0.04]">
+    <section id="showcase" className="relative bg-[#040404] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 reveal">
           <div>
-            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-amber-400 mb-4">Created with WIZ AI</p>
+            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Created with WIZ AI</p>
             <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
               See what's possible
             </h2>
           </div>
-          <a href="/showcase" className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/70 transition-colors font-medium flex-shrink-0">
+          <a href="/showcase" className="inline-flex items-center gap-2 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors">
             View all <ArrowRight className="w-4 h-4" />
           </a>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.slice(0, 3).map((item) => (
-            <div key={item.id} className="reveal group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-[#0a0a0a] hover:border-white/15 transition-all duration-300">
+            <div key={item.id} className="reveal group glass-card overflow-hidden">
               <div className="aspect-video overflow-hidden">
                 <img
                   src={item.posterUrl}
                   alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.9]"
                   loading="lazy"
                 />
               </div>
               <div className="p-5">
-                <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-amber-400/80 bg-amber-400/8 border border-amber-400/15 px-2.5 py-1 rounded-full mb-3">
+                <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[--color-gold-dark] bg-[--color-gold]/[0.05] border border-[--color-gold]/[0.1] px-2.5 py-1 rounded-full mb-3">
                   {item.category}
                 </span>
                 <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{item.description}</p>
+                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{item.description}</p>
               </div>
               <div className="px-5 pb-5">
-                <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/40 hover:text-white/70 transition-colors">
+                <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors">
                   Create something like this <ArrowRight className="w-3 h-3" />
                 </a>
               </div>
@@ -697,61 +607,30 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    {
-      title: "Musicians",
-      desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.",
-      cta: "Start with WizVideo",
-      href: "/music-video/create",
-      icon: <Music2 className="w-6 h-6" />,
-      accent: "text-violet-400",
-      border: "border-violet-500/20",
-    },
-    {
-      title: "Content Creators",
-      desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.",
-      cta: "Start with WizScript",
-      href: "/text-to-video",
-      icon: <FileText className="w-6 h-6" />,
-      accent: "text-cyan-400",
-      border: "border-cyan-500/20",
-    },
-    {
-      title: "Animators & Storytellers",
-      desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.",
-      cta: "Create Animation",
-      href: "/kids-video",
-      icon: <Wand2 className="w-6 h-6" />,
-      accent: "text-rose-400",
-      border: "border-rose-500/20",
-    },
-    {
-      title: "YouTubers & Brands",
-      desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.",
-      cta: "Start Creating",
-      href: "/onboarding",
-      icon: <TrendingUp className="w-6 h-6" />,
-      accent: "text-amber-400",
-      border: "border-amber-500/20",
-    },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", icon: <Music2 className="w-6 h-6" /> },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", icon: <FileText className="w-6 h-6" /> },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", icon: <Wand2 className="w-6 h-6" /> },
+    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", icon: <TrendingUp className="w-6 h-6" /> },
   ];
   return (
-    <section className="bg-black py-28 px-6 border-t border-white/[0.04]">
+    <section id="built-for" className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-amber-400 mb-4">Built for creators</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Built for creators</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
             WIZ AI helps you create
           </h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {audiences.map((a) => (
-            <div key={a.title} className={`reveal flex flex-col gap-5 p-7 rounded-2xl border ${a.border} bg-white/[0.02] hover:bg-white/[0.04] transition-colors duration-300`}>
-              <div className={`${a.accent}`}>{a.icon}</div>
+            <div key={a.title} className="reveal glass-card p-7 flex flex-col gap-5">
+              <div className="text-[--color-gold]">{a.icon}</div>
               <div>
                 <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{a.desc}</p>
+                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{a.desc}</p>
               </div>
-              <a href={a.href} className={`mt-auto inline-flex items-center gap-1.5 text-sm font-semibold ${a.accent} hover:opacity-80 transition-opacity`}>
+              <a href={a.href} className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors">
                 {a.cta} <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </div>
@@ -765,31 +644,34 @@ function BuiltFor() {
 // ── Final CTA ─────────────────────────────────────────────────────────────────
 function FinalCTA() {
   return (
-    <section className="bg-[#050505] py-32 px-6 border-t border-white/[0.04]">
-      <div className="max-w-3xl mx-auto text-center reveal">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 mb-8">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-amber-400">No credit card required</span>
+    <section className="relative bg-[#040404] py-32 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      {/* Ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75), transparent 70%)" }} />
+      <div className="relative z-10 max-w-3xl mx-auto text-center reveal">
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
+          <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
+          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">No credit card required</span>
         </div>
         <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">
           Ready to start creating?
         </h2>
-        <p className="text-white/40 text-lg mb-10 leading-relaxed">
+        <p className="text-[--color-silver-dark]/50 text-lg mb-10 leading-relaxed">
           Create audio, images, video, shorts, animation, and more — all from one platform. Pay only when you render.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/onboarding"
-            className="inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-base transition-all duration-200 shadow-[0_0_40px_rgba(251,191,36,0.25)] hover:shadow-[0_0_60px_rgba(251,191,36,0.4)] hover:scale-[1.02]"
+            className="btn-primary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base"
           >
             <Sparkles className="w-5 h-5" />
             Start Creating
           </a>
-          <a href="/pricing" className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/70 transition-colors font-medium">
-            View pricing <ArrowRight className="w-4 h-4" />
+          <a href="/pricing" className="inline-flex items-center gap-2 text-sm text-[--color-silver-dark]/40 hover:text-[--color-silver] transition-colors font-medium">
+            View Pricing <ArrowRight className="w-4 h-4" />
           </a>
         </div>
-        <p className="mt-6 text-xs text-white/20">No credit card required. 2 free videos included.</p>
+        <p className="mt-6 text-xs text-[--color-silver-dark]/25">No credit card required. 2 free videos included.</p>
       </div>
     </section>
   );
@@ -798,71 +680,72 @@ function FinalCTA() {
 // ── Footer ────────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="bg-black border-t border-white/[0.05] py-16 px-6">
+    <footer className="relative bg-[#030303] py-16 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-5 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain mb-5" />
-            <p className="text-white/35 text-sm leading-relaxed mb-5 max-w-xs">
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain mb-5 drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+            <p className="text-[--color-silver-dark]/40 text-sm leading-relaxed mb-5 max-w-xs">
               The premium creative intelligence platform. Create audio, images, video, shorts, animation, and text-to-video — instantly.
             </p>
-            <a href="mailto:support@wiz-ai.io" className="text-white/30 text-xs hover:text-white/60 transition-colors">
+            <a href="mailto:support@wiz-ai.io" className="text-[--color-silver-dark]/30 text-xs hover:text-[--color-gold-dark] transition-colors">
               support@wiz-ai.io
             </a>
           </div>
           {/* Products */}
           <div>
-            <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Products</h4>
+            <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Products</h4>
             <div className="flex flex-col gap-3">
               {PRODUCTS.map((p) => (
-                <a key={p.name} href={p.href} className={`text-sm ${p.accentClass} opacity-60 hover:opacity-100 transition-opacity font-medium`}>{p.name}</a>
+                <a key={p.name} href={p.href} className="text-sm text-[--color-silver-dark]/40 hover:text-[--color-gold] transition-colors font-medium">{p.name}</a>
               ))}
             </div>
           </div>
           {/* Platform */}
           <div>
-            <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Platform</h4>
+            <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Platform</h4>
             <div className="flex flex-col gap-3">
               {[
                 { label: "How It Works", href: "/#how-it-works" },
                 { label: "Showcase", href: "/#showcase" },
                 { label: "For Creators", href: "/#built-for" },
               ].map((l) => (
-                <a key={l.label} href={l.href} className="text-white/30 text-sm hover:text-white/60 transition-colors">{l.label}</a>
+                <a key={l.label} href={l.href} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">{l.label}</a>
               ))}
             </div>
           </div>
           {/* Support / Legal */}
           <div>
-            <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Support</h4>
+            <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Support</h4>
             <div className="flex flex-col gap-3 mb-8">
-              <a href="/help" className="text-white/30 text-sm hover:text-white/60 transition-colors">Help Centre</a>
-              <a href="mailto:support@wiz-ai.io" className="text-white/30 text-sm hover:text-white/60 transition-colors">Contact</a>
+              <a href="/help" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Help Centre</a>
+              <a href="mailto:support@wiz-ai.io" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Contact</a>
             </div>
-            <h4 className="text-white/60 text-xs font-bold uppercase tracking-widest mb-5">Legal</h4>
+            <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Legal</h4>
             <div className="flex flex-col gap-3">
-              <a href="/privacy" className="text-white/30 text-sm hover:text-white/60 transition-colors">Privacy Policy</a>
-              <a href="/terms" className="text-white/30 text-sm hover:text-white/60 transition-colors">Terms of Service</a>
-              <a href="/refunds" className="text-white/30 text-sm hover:text-white/60 transition-colors">Refund Policy</a>
+              <a href="/privacy" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Privacy Policy</a>
+              <a href="/terms" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Terms of Service</a>
+              <a href="/refunds" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Refund Policy</a>
             </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/[0.05] pt-8 flex flex-col gap-4">
+        <div className="border-t border-[--color-gold]/[0.05] pt-8 flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-white/20 mr-1">Secure payments via</span>
+            <span className="text-xs text-[--color-silver-dark]/25 mr-1">Secure payments via</span>
             {["Visa", "Mastercard", "Amex", "Apple Pay", "Google Pay"].map((m) => (
-              <span key={m} className="text-[11px] text-white/25 border border-white/[0.07] bg-white/[0.03] px-2.5 py-1 rounded-md font-medium">{m}</span>
+              <span key={m} className="text-[11px] text-[--color-silver-dark]/30 border border-[--color-gold]/[0.06] bg-[--color-gold]/[0.02] px-2.5 py-1 rounded-md font-medium">{m}</span>
             ))}
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/20">
-            <p>© 2026 WIZ AI. All rights reserved.</p>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-[--color-silver-dark]/25">
+            <p>&copy; 2026 WIZ AI. All rights reserved.</p>
             <div className="flex gap-5">
-              <a href="/privacy" className="hover:text-white/50 transition-colors">Privacy Policy</a>
-              <a href="/terms" className="hover:text-white/50 transition-colors">Terms of Service</a>
-              <a href="/refunds" className="hover:text-white/50 transition-colors">Refund Policy</a>
+              <a href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</a>
+              <a href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</a>
+              <a href="/refunds" className="hover:text-[--color-gold-dark] transition-colors">Refund Policy</a>
             </div>
           </div>
         </div>
@@ -877,12 +760,12 @@ function ContinueProjectBanner() {
   if (!showResume || !resumeData) return null;
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-sm w-full mx-4">
-      <div className="bg-[#0d0d0d] border border-white/10 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-xl flex items-center gap-4">
+      <div className="bg-[#0a0a0a] border border-[--color-gold]/[0.1] rounded-2xl px-5 py-4 shadow-[0_16px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl flex items-center gap-4">
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-white/40 mb-0.5">Continue where you left off</p>
+          <p className="text-xs text-[--color-silver-dark]/40 mb-0.5">Continue where you left off</p>
           <p className="text-sm font-semibold text-white truncate">{resumeData.title || "Untitled project"}</p>
         </div>
-        <a href={`/dashboard`} className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors">
+        <a href="/dashboard" className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
           Continue <ArrowRight className="w-3 h-3" />
         </a>
       </div>
@@ -894,7 +777,7 @@ function ContinueProjectBanner() {
 export default function Home() {
   useReveal();
   return (
-    <div className="bg-black text-white min-h-screen overflow-x-hidden">
+    <div className="bg-[#030303] text-white min-h-screen overflow-x-hidden">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg focus:font-semibold"
@@ -903,21 +786,13 @@ export default function Home() {
       </a>
       <Nav />
       <main id="main-content">
-        {/* 1. Hero */}
         <Hero />
-        {/* 2. Choose what you want to create */}
         <ProductGrid />
-        {/* 3. Welcome to WIZ AI — demo video */}
         <WelcomeSection />
-        {/* 4. How it works */}
         <HowItWorks />
-        {/* 5. Why WIZ AI */}
         <WhyWizAI />
-        {/* 6. Showcase */}
         <Showcase />
-        {/* 7. Built for creators */}
         <BuiltFor />
-        {/* 8. Final CTA */}
         <FinalCTA />
       </main>
       <Footer />
