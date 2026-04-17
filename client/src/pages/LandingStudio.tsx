@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, Volume2, Film, Layers, Cpu, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 
-const MAIN_APP = "https://wizvid.ai";
+const MAIN_APP = "https://wiz-ai.io";
 
 // Animated canvas particles
 function ParticleCanvas() {

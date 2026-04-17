@@ -5,13 +5,13 @@
  * Also accessible at /uk for testing.
  *
  * Strategy: UK-specific copy + trust signals, same design system,
- * primary CTA redirects to wizvid.ai/music-video/create.
+ * primary CTA redirects to wiz-ai.io/music-video/create.
  */
 
 import { useEffect, useState } from "react";
 import { Sparkles, Play, Zap, CheckCircle2, Star, Volume2, ArrowRight } from "lucide-react";
 
-const MAIN_APP = "https://wizvid.ai";
+const MAIN_APP = "https://wiz-ai.io";
 
 // Shared design tokens — must match main site
 const BRAND = {

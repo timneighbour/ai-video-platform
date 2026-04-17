@@ -180,7 +180,7 @@ export const SEO_PAGES: SeoPage[] = [
   {
     slug: "create-music-video-with-ai",
     keyword: "create music video with AI",
-    metaTitle: "Create Music Video with AI | WIZ AI",
+    metaTitle: "Create Videos with AI | WIZ AI",
     metaDescription: "Create a music video with AI in minutes. No editing needed. WIZ AI turns your audio into a full animated music video instantly.",
     h1: "Create a Music Video with AI (No Editing Needed)",
     intro: "Creating a music video used to take days, expensive software, and editing skills. Now, you can create a full music video in minutes using AI. Whether you're a musician, YouTuber, or content creator, WIZ AI lets you turn your audio into a fully animated video instantly. No timelines. No editing. No experience needed.",

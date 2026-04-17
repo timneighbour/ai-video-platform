@@ -31,7 +31,7 @@ export default function Blog() {
         <meta name="description" content="Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WIZ AI team." />
         <meta property="og:title" content="WIZ AI Blog — AI WizVideo" />
         <meta property="og:description" content="Tips, tutorials, and insights on AI video creation." />
-        <link rel="canonical" href="https://www.wizvid.ai/blog" />
+        <link rel="canonical" href="https://www.wiz-ai.io/blog" />
       </Helmet>
 
       {/* ── Header ── */}

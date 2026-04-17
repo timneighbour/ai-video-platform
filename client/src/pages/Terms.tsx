@@ -22,7 +22,7 @@ export default function Terms() {
         <div className="prose prose-invert max-w-none space-y-8 text-[#d4d4d8] leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-white mb-3">1. Acceptance of Terms</h2>
-            <p>By accessing or using WIZ AI ("the Service") at <strong>www.wizvid.ai</strong>, you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.</p>
+            <p>By accessing or using WIZ AI ("the Service") at <strong>www.wiz-ai.io</strong>, you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.</p>
           </section>
 
           <section>
@@ -32,7 +32,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">3. Your Account</h2>
-            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. Notify us immediately at <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a> if you suspect unauthorised access.</p>
+            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. Notify us immediately at <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a> if you suspect unauthorised access.</p>
           </section>
 
           <section>
@@ -90,7 +90,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">12. Contact</h2>
-            <p>For questions about these Terms, contact us at: <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a></p>
+            <p>For questions about these Terms, contact us at: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
           </section>
         </div>
       </main>
@@ -100,7 +100,7 @@ export default function Terms() {
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
           <Link href="/refunds" className="hover:text-white transition-colors">Refund Policy</Link>
-          <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
+          <a href="mailto:support@wiz-ai.io" className="hover:text-white transition-colors">support@wiz-ai.io</a>
         </div>
       </footer>
     </div>

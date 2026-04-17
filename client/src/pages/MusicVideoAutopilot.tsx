@@ -1346,7 +1346,7 @@ export default function MusicVideoAutopilot() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-                MUSIC VIDEO WIZPILOT
+                WIZSCRIPT AUTOPILOT
               </h1>
               <p className="text-zinc-400 text-sm">Upload your song. Describe your vision. We'll create the video.</p>
             </div>
@@ -2692,7 +2692,7 @@ export default function MusicVideoAutopilot() {
                         { key: "rendering",  label: "Animating Scenes",         icon: <Clapperboard className="w-4 h-4" /> },
                         { key: "assembling", label: "Syncing Performance",      icon: <Layers className="w-4 h-4" /> },
                         { key: "wizsound",   label: "Enhancing Audio",          icon: <Sparkles className="w-4 h-4" /> },
-                        { key: "completed",  label: "Rendering Final",          icon: <CheckCircle2 className="w-4 h-4" /> },
+                        { key: "completed",  label: "Building Final",          icon: <CheckCircle2 className="w-4 h-4" /> },
                       ];
                       const stageOrder = ["queued", "rendering", "assembling", "wizsound", "completed"];
                       // Map legacy "assembling" to cover wizsound too until server emits it

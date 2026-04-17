@@ -448,7 +448,7 @@ export default function WizShorts() {
 
                 <div>
                   <h2 className="text-xl font-semibold mb-2">
-                    {renderStatus === "assembling" ? "Assembling your video..." : "Rendering scenes..."}
+                    {renderStatus === "assembling" ? "Assembling your video..." : "Building scenes..."}
                   </h2>
                   <p className="text-white/50 text-sm">
                     {renderStatus === "assembling"

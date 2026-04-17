@@ -18,7 +18,7 @@ const STEPS = [
     pill: "bg-violet-500/15 text-violet-300 border-violet-500/25",
     dot: "bg-violet-500",
     animType: "waveform",
-    ctaLink: "https://www.wizvid.ai/music-creator",
+    ctaLink: "https://www.wiz-ai.io/music-creator",
     ctaLabel: "Start with Audio",
   },
   {

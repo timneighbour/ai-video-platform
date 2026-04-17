@@ -1,7 +1,7 @@
 /**
  * WIZ AI Email Notifications — Resend
  *
- * Sends transactional emails to the WIZ AI owner (timneighbour@wizvid.ai)
+ * Sends transactional emails to the WIZ AI owner (timneighbour@wiz-ai.io)
  * for key business events: new signups, subscriptions, credit purchases,
  * failed payments, and render completions.
  *
@@ -15,8 +15,8 @@
 import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const OWNER_EMAIL = "timneighbour@wizvid.ai";
-const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
+const OWNER_EMAIL = "timneighbour@wiz-ai.io";
+const FROM_EMAIL = "WIZ AI Notifications <notifications@wiz-ai.io>";
 
 let resend: Resend | null = null;
 
@@ -107,7 +107,7 @@ function template(title: string, rows: [string, string][], note?: string): strin
     </tr>
     <tr>
       <td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">
-        WIZ AI · wizvid.ai · Automated notification
+        WIZ AI · wiz-ai.io · Automated notification
       </td>
     </tr>
   </table>
@@ -225,7 +225,7 @@ export async function emailRenderComplete(data: {
 
   // 2. Notify the user directly with a "Your video is ready" email
   if (data.email) {
-    const videoLink = data.videoUrl ?? (data.origin ? `${data.origin}/render/history` : "https://www.wizvid.ai/render/history");
+    const videoLink = data.videoUrl ?? (data.origin ? `${data.origin}/render/history` : "https://www.wiz-ai.io/render/history");
     const client = getResend();
     if (!client) return;
     try {
@@ -267,7 +267,7 @@ export async function emailRenderComplete(data: {
         </table>
       </td>
     </tr>
-    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WIZ AI · wizvid.ai · Automated notification</td></tr>
+    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WIZ AI · wiz-ai.io · Automated notification</td></tr>
   </table>
 </body>
 </html>`,

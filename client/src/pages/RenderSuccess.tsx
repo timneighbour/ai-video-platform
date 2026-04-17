@@ -109,7 +109,7 @@ export default function RenderSuccess() {
             <p className="text-white/60 text-sm">{confirmError}</p>
             <p className="text-white/40 text-xs">
               If you were charged, please contact{" "}
-              <a href="mailto:support@wizvid.ai" className="text-violet-400 underline">support@wizvid.ai</a>{" "}
+              <a href="mailto:support@wiz-ai.io" className="text-violet-400 underline">support@wiz-ai.io</a>{" "}
               with your order reference: <span className="font-mono text-white/60">{sessionId}</span>
             </p>
             <Button asChild variant="outline" className="mt-4">

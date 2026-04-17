@@ -271,7 +271,7 @@ const HERO_PREVIEW_PHASES = [
   },
 ];
 
-const CATEGORY_LABELS = ["MUSIC VIDEOS", "CINEMATIC FILMS", "AI ANIMATION"];
+const CATEGORY_LABELS = ["CINEMATIC VIDEOS", "CINEMATIC FILMS", "AI ANIMATION"];
 
 function HeroProductPreview() {
   const [phase, setPhase] = useState(0);
@@ -359,7 +359,7 @@ function HeroProductPreview() {
             <div className="w-3 h-3 rounded-full bg-green-500/70" />
           </div>
           <div className="flex-1 mx-3 h-6 rounded-md flex items-center px-3" style={{ background: "rgba(255,255,255,0.05)" }}>
-            <span className="text-white/35 text-xs font-mono">wizvid.ai/create</span>
+            <span className="text-white/35 text-xs font-mono">wiz-ai.io/create</span>
           </div>
           {/* Live indicator */}
           <div className="flex items-center gap-1.5">
@@ -1053,7 +1053,7 @@ const STATIC_SHOWCASE_ITEMS = [
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp",
     videoUrl: null,
     duration: "3:24",
-    tool: "Music Video Creator",
+    tool: "WizVideo",
   },
   {
     id: -2,
@@ -1063,7 +1063,7 @@ const STATIC_SHOWCASE_ITEMS = [
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp",
     videoUrl: null,
     duration: "2:58",
-    tool: "Music Video Creator",
+    tool: "WizVideo",
   },
   {
     id: -3,
@@ -1073,7 +1073,7 @@ const STATIC_SHOWCASE_ITEMS = [
     posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp",
     videoUrl: null,
     duration: "4:12",
-    tool: "Music Video Creator",
+    tool: "WizVideo",
   },
   {
     id: -4,
@@ -1148,7 +1148,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
 
   // Route CTA to the correct tool based on category or tool label
   const ctaHref = (() => {
-    if (item.category === "Music Video" || item.tool === "WizVideo" || item.tool === "WizVideo") return "/music-video/create";
+    if (item.category === "WizVideo" || item.tool === "WizVideo" || item.tool === "WizVideo") return "/music-video/create";
     if (item.category === "Animation" || item.category === "Story Animation" || item.tool === "WizAnimate™") return "/products/wizanimate";
     if (item.category === "Anime" || item.category === "Cinematic" || item.tool === "WizScript") return "/wizpilot";
     return "/onboarding";
@@ -1685,7 +1685,7 @@ function Footer() {
       title: "Support",
       links: [
         { label: "Help Centre", href: "/help" },
-        { label: "Contact", href: "mailto:support@wizvid.ai" },
+        { label: "Contact", href: "mailto:support@wiz-ai.io" },
       ],
     },
     {
@@ -1707,9 +1707,9 @@ function Footer() {
               <img src={WIZAI_LOGO_FOOTER} alt="WIZ AI" width={165} height={94} loading="lazy" className="h-[6.5rem] w-auto object-contain" />
             </div>
             <p className="text-[#a1a1aa] text-sm leading-relaxed mb-4">
-              AI Music Video Generator — create full videos in minutes. No editing needed.
+              WIZ AI — premium creative intelligence platform. Create anything instantly.
             </p>
-            <a href="mailto:support@wizvid.ai" className="text-[#a1a1aa] text-xs hover:text-white transition-colors">support@wizvid.ai</a>
+            <a href="mailto:support@wiz-ai.io" className="text-[#a1a1aa] text-xs hover:text-white transition-colors">support@wiz-ai.io</a>
           </div>
           {footerLinks.map((section) => (
             <div key={section.title}>

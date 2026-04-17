@@ -279,7 +279,7 @@ export default function MusicVideosLanding() {
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
             <Link href="/refunds" className="hover:text-white transition-colors">Refunds</Link>
-            <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
+            <a href="mailto:support@wiz-ai.io" className="hover:text-white transition-colors">support@wiz-ai.io</a>
           </div>
         </div>
       </footer>

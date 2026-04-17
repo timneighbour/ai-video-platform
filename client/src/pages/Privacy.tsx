@@ -22,8 +22,8 @@ export default function Privacy() {
         <div className="prose prose-invert max-w-none space-y-8 text-[#d4d4d8] leading-relaxed">
           <section>
             <h2 className="text-xl font-bold text-white mb-3">1. Who We Are</h2>
-            <p>WIZ AI ("we", "us", "our") is an AI-powered video creation platform operated at <strong>www.wizvid.ai</strong>. We are committed to protecting your personal data and being transparent about how we use it.</p>
-            <p className="mt-2">For any privacy-related questions, contact us at: <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a></p>
+            <p>WIZ AI ("we", "us", "our") is an AI-powered video creation platform operated at <strong>www.wiz-ai.io</strong>. We are committed to protecting your personal data and being transparent about how we use it.</p>
+            <p className="mt-2">For any privacy-related questions, contact us at: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
           </section>
 
           <section>
@@ -52,7 +52,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-bold text-white mb-3">4. Data Storage and Retention</h2>
             <p>Your data is stored on secure cloud infrastructure (AWS). Uploaded audio and image files are retained for 90 days after your last activity, then automatically deleted unless you request earlier removal.</p>
-            <p className="mt-2">Account data is retained for as long as your account is active. You may request deletion at any time by emailing <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a>.</p>
+            <p className="mt-2">Account data is retained for as long as your account is active. You may request deletion at any time by emailing <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a>.</p>
           </section>
 
           <section>
@@ -73,7 +73,7 @@ export default function Privacy() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">7. Your Rights</h2>
-            <p>Depending on your location, you may have the right to access, correct, delete, or export your personal data. To exercise any of these rights, contact us at <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a>.</p>
+            <p>Depending on your location, you may have the right to access, correct, delete, or export your personal data. To exercise any of these rights, contact us at <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a>.</p>
           </section>
 
           <section>
@@ -83,7 +83,7 @@ export default function Privacy() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">9. Contact</h2>
-            <p>For any privacy concerns or data requests, please email: <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a></p>
+            <p>For any privacy concerns or data requests, please email: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
           </section>
         </div>
       </main>
@@ -93,7 +93,7 @@ export default function Privacy() {
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
           <Link href="/refunds" className="hover:text-white transition-colors">Refund Policy</Link>
-          <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
+          <a href="mailto:support@wiz-ai.io" className="hover:text-white transition-colors">support@wiz-ai.io</a>
         </div>
       </footer>
     </div>

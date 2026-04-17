@@ -48,7 +48,7 @@ export default function Refunds() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">5. How to Request a Refund</h2>
-            <p>To request a refund, email us at <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a> with:</p>
+            <p>To request a refund, email us at <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a> with:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li>Your account email address</li>
               <li>The date of the charge</li>
@@ -70,7 +70,7 @@ export default function Refunds() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">7. Contact</h2>
-            <p>For any billing or refund questions, contact us at: <a href="mailto:support@wizvid.ai" className="text-purple-400 hover:text-purple-300 underline">support@wizvid.ai</a></p>
+            <p>For any billing or refund questions, contact us at: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
           </section>
         </div>
       </main>
@@ -80,7 +80,7 @@ export default function Refunds() {
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
           <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
           <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-          <a href="mailto:support@wizvid.ai" className="hover:text-white transition-colors">support@wizvid.ai</a>
+          <a href="mailto:support@wiz-ai.io" className="hover:text-white transition-colors">support@wiz-ai.io</a>
         </div>
       </footer>
     </div>

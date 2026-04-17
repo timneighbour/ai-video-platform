@@ -145,7 +145,7 @@ const COMPARISON_ROWS: { feature: string; free: string | boolean; starter: strin
   { feature: "Max quality",       free: "720p",      starter: "720p", basic: "1080p",creator: "4K",  pro: "4K",  studio: "4K"  },
   { feature: "Free storyboard",   free: true,        starter: true,   basic: true,   creator: true,  pro: true,  studio: true  },
   { feature: "WizSound discount", free: false,       starter: false,  basic: false,  creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "Rendering speed",   free: "Standard",  starter: "Standard", basic: "Standard", creator: "Fast", pro: "Priority", studio: "Fastest" },
+  { feature: "Build speed",   free: "Standard",  starter: "Standard", basic: "Standard", creator: "Fast", pro: "Priority", studio: "Fastest" },
   { feature: "API access",        free: false,       starter: false,  basic: false,  creator: false, pro: false, studio: true  },
 ];
 

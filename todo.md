@@ -4587,3 +4587,16 @@
 - [x] "Why WizVid" → "Why WIZ AI" section
 - [x] All "Created with WizVid" → "Created with WIZ AI"
 - [x] Final QA: all 15 checklist items verified — 0 TypeScript errors, all WizVid→WIZ AI, WIZ AIeo→WizVideo fixed
+
+## Corrective Rebuild Audit (Spec v3 — 15-point checklist)
+- [x] AUDIT 1: WIZ AI is the clear primary public brand (no WizVid as company)
+- [x] AUDIT 2: Header/logo/nav reflect WIZ AI with correct Products dropdown
+- [x] AUDIT 3: Hero says "Create anything. Instantly." with correct subheadline/CTAs
+- [x] AUDIT 4: Homepage includes six-product family clearly
+- [x] AUDIT 5: Old WizVid-first company branding removed
+- [x] AUDIT 6: Old tool names removed
+- [x] AUDIT 7: New intro MP4 integrated properly, old labels removed
+- [x] AUDIT 8: Billing/legal/support/checkout reflect WIZ AI (support@wiz-ai.io, www.wiz-ai.io)
+- [x] AUDIT 9: Metadata/browser titles/social previews reflect WIZ AI (index.html fully rewritten)
+- [x] AUDIT 10: UI wording cleaned up (Rendering → Building across all remaining files)
+- [x] AUDIT 11: Site fully rebranded — 0 WizVid company refs, 0 wizvid.ai domain refs, 0 old tool names, 0 TS errors

@@ -63,10 +63,10 @@ const FAQS = [
     category: "Technical Issues",
     icon: <Bot className="w-4 h-4" />,
     questions: [
-      { q: "Why is my video not generating?", a: "Check that your audio file is in a supported format (MP3, WAV, M4A) and under 50MB. If the issue persists, try refreshing the page. Contact support@wizvid.ai if it continues." },
+      { q: "Why is my video not generating?", a: "Check that your audio file is in a supported format (MP3, WAV, M4A) and under 50MB. If the issue persists, try refreshing the page. Contact support@wiz-ai.io if it continues." },
       { q: "My video quality looks low — what can I do?", a: "Make sure you're on the Creator or Studio plan for 1080p/4K export. Also ensure your input audio is high quality." },
       { q: "How do I download my video?", a: "Once your video is generated, click the Download button on the result screen. Videos are also saved to your Projects page for 30 days." },
-      { q: "I'm getting an error message — what should I do?", a: "Try refreshing the page first. If the error persists, contact us at support@wizvid.ai with a screenshot." },
+      { q: "I'm getting an error message — what should I do?", a: "Try refreshing the page first. If the error persists, contact us at support@wiz-ai.io with a screenshot." },
     ],
   },
 ];
@@ -272,12 +272,12 @@ export default function Help() {
             <Mail className="w-8 h-8 text-[#a1a1aa] mx-auto mb-4" />
             <h3 className="text-base font-semibold text-white mb-2">Email Support</h3>
             <p className="text-[#a1a1aa] text-sm mb-5 leading-relaxed">Send us a message and we'll get back to you within 24 hours.</p>
-            <a href="mailto:support@wizvid.ai">
+            <a href="mailto:support@wiz-ai.io">
               <Button
                 variant="outline"
                 className="border-white/12 text-white hover:bg-white/5 bg-transparent w-full rounded-xl h-10 text-sm font-medium"
               >
-                support@wizvid.ai
+                support@wiz-ai.io
               </Button>
             </a>
           </div>

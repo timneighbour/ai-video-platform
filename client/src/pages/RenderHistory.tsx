@@ -534,7 +534,7 @@ export default function RenderHistory() {
                   const result = await retryAllMutation.mutateAsync({ jobId: id });
                   toast.success(
                     `${result.retriedCount} scene${result.retriedCount !== 1 ? "s" : ""} re-queued`,
-                    { description: "Rendering will resume shortly." }
+                    { description: "Building will resume shortly." }
                   );
                   utils.musicVideo.listJobs.invalidate();
                 } catch (err: any) {
