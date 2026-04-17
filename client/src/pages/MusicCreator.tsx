@@ -495,7 +495,7 @@ export default function MusicCreator() {
                   <div className="mb-3 space-y-2.5">
                     {/* Short: 5–30s (ElevenLabs SFX exact duration) */}
                     <div>
-                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Short ⚡ exact (Score / BG)</p>
+                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Short ⚡ exact (Sound FX)</p>
                       <div className="flex flex-wrap gap-1.5">
                         {[5, 10, 15, 20, 25, 30].map((s) => (
                           <button
@@ -533,7 +533,7 @@ export default function MusicCreator() {
                     </div>
                   </div>
                   <p className="text-xs text-[#a1a1aa]">
-                    Enter any exact duration (e.g. 2:41 for a 2m 41s video). Min 5s, max 10 min. Short options (≤30s) use ElevenLabs Sound Effects for exact-length output.
+                    Enter any exact duration (e.g. 2:41 for a 2m 41s video). Min 5s, max 10 min. Short options (≤30s) use Sound FX mode for exact-length output.
                   </p>
                 </>
               )}
@@ -769,9 +769,9 @@ export default function MusicCreator() {
                 <label className="block text-xs text-[#a1a1aa] mb-2 font-medium uppercase tracking-widest">Generation Engine</label>
                 <div className="grid grid-cols-3 gap-1.5 mb-2">
                   {([
-                    { value: "score" as const, label: "Score / BG", icon: "🎼" },
-                    { value: "song" as const, label: "Full Song", icon: "🎤" },
-                    { value: "suno" as const, label: "Suno Creative", icon: "🎵" },
+                    { value: "score" as const, label: "Sound FX", icon: "⚡" },
+                    { value: "song" as const, label: "Precision Audio", icon: "🎼" },
+                    { value: "suno" as const, label: "WizAudio", icon: "🎵" },
                   ]).map(({ value, label, icon }) => (
                     <button
                       key={value}
@@ -792,11 +792,9 @@ export default function MusicCreator() {
                   ))}
                 </div>
                 <p className="text-[10px] text-[#666] leading-relaxed">
-                  {generationMode === "score" && (targetDuration && targetDuration <= 30
-                    ? "⚡ ElevenLabs Sound Effects — exact duration, cinematic sound design, no fade."
-                    : "🎼 ElevenLabs Music — complete composition, near-exact duration, no fade. Best for background scores, cinematic tracks, brand music.")}
-                  {generationMode === "song" && "🎤 ElevenLabs Music — full composition with vocals, up to 5 minutes. Near-exact duration, no fade."}
-                  {generationMode === "suno" && "🎵 Suno AI — 2 creative tracks. If a duration is set, the track will be trimmed to fit."}
+                  {generationMode === "score" && "⚡ Sound FX — exact-duration sound design. Perfect for stingers, cinematic hits, ambient beds, and short audio clips up to 30s."}
+                  {generationMode === "song" && "🎼 Precision Audio — full production music at any length. Cinematic scores, background tracks, vocal songs — precise duration, no fade, no trim."}
+                  {generationMode === "suno" && "🎵 WizAudio — 2 creative track variations powered by Suno AI. Great for songs with lyrics. If a duration is set, the track is trimmed to fit."}
                 </p>
               </div>
 
@@ -933,7 +931,7 @@ export default function MusicCreator() {
                     }}>
                       {status === "pending" ? "Waiting in queue…"
                         : status === "trimming" ? "✂ Trimming to exact duration…"
-                        : "Composing your track with Suno AI…"}
+                        : "Composing your track with WizAudio…"}
                     </p>
                     {status !== "trimming" && (
                       <p className="text-[10px] text-white/30 mt-0.5">This usually takes 1–3 minutes</p>
