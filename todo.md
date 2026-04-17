@@ -4141,38 +4141,39 @@
 - [ ] "Start Creating" CTA below video
 
 ### Section 6 — WizSound Comparison Fix
-- [ ] Fix WizSound comparison to sound genuinely better (richer, fuller, clearer)
-- [ ] Use ONE video source with TWO audio treatments (Standard vs WizSound Enhanced)
-- [ ] No phasing artefacts, no wavey/underwater sound, no gimmicky spatial tricks
-- [ ] Toggle label: "Standard" / "WizSound Active"
-- [ ] Supporting text: "Toggle to hear the difference"
+- [x] Fix WizSound comparison to sound genuinely better (richer, fuller, clearer)
+- [x] Use ONE video source with TWO audio treatments (Standard vs WizSound Enhanced)
+- [x] No phasing artefacts, no wavey/underwater sound, no gimmicky spatial tricks
+- [x] Toggle label: "Standard" / "WizSound Active"
+- [x] Supporting text: "Toggle to hear the difference"
+- [x] Dolby Cinema spatial sound vibes — pulsing spatial rings, immersive depth indicators, cinema-grade visual treatment
 
 ### Section 7 — Navigation Hardening
-- [ ] Restore full top nav: Home, Music Video, WizPilot, Pricing, Help
-- [ ] Nav always visible, fixed positioning, proper z-index
-- [ ] Logo click always goes home
-- [ ] No nav disappearing behind overlays or intro logic
+- [x] Restore full top nav: Home, Music Video, WizPilot, Pricing, Help
+- [x] Nav always visible, fixed positioning, proper z-index
+- [x] Logo click always goes home
+- [x] No nav disappearing behind overlays or intro logic
 
 ### Section 8 — CTA Hardening
-- [ ] All primary CTAs use native anchors where appropriate
-- [ ] Start Creating, Pricing, product nav always work
-- [ ] No dead clicks, no blocked clicks
-- [ ] No nested invalid button/link structures
-
-### Section 9 — WizGenesis Positioning
-- [ ] Position WizGenesis as intelligence layer (character consistency, scene accuracy, prompt enhancement)
-- [ ] Add as product ecosystem card on Wiz AI
-- [ ] Add as feature positioning in WizVid
-
+- [x] All primary CTAs use native anchors where appropriate
+- [x] Start Creating, Pricing, product nav always work
+- [x] No dead clicks, no blocked clicks
+- [x] No nested invalid button/link structures
+### Section 9 \u2014 WizGenesis Positioning
+- [x] Position WizGenesis as intelligence layer (character consistency, scene accuracy, prompt enhancement)
+- [x] Add as product ecosystem card on Wiz AI
+- [x] Add as feature positioning in WizVid
 ### Section 10 — Character Lock/Consistency
 - [ ] Implement character lock/continuity system
 - [ ] Preserve identity, appearance, outfit across scenes
 - [ ] Confirmed storyboard characters must be respected
 
 ### Section 11 — Prompt Enhancement
-- [ ] Add "Enhance Prompt" feature
-- [ ] Translate rough user language into structured AI-friendly instructions
-- [ ] Preserve intent, reduce randomness
+- [x] Add "Enhance Prompt" feature
+- [x] Translate rough user language into structured AI-friendly instructions
+- [x] Preserve intent, reduce randomness
+- [x] WizGenesis-branded LLM system prompt with cinematic direction rules
+- [x] EnhancePromptButton component with loading state, tooltip, toast feedback
 
 ### Section 12 — Save System
 - [ ] Fix save/continue functionality
@@ -4180,41 +4181,48 @@
 - [ ] "Continue your last project" behaviour
 
 ### Section 13 — Projects Page Cleanup
-- [ ] Rebuild with proper hierarchy
-- [ ] Status cards: Draft, Ready to render, Rendering, Completed, Failed
-- [ ] Context CTAs: Continue Editing, Render Video, View Progress, Watch/Download
-- [ ] Thumbnails/preview imagery
-- [ ] Sort active work to top
+- [x] Rebuild with proper hierarchy
+- [x] Status cards: Draft, Ready to render, Rendering, Completed, Failed
+- [x] Context CTAs: Continue Editing, Render Video, View Progress, Watch/Download
+- [x] Thumbnails/preview imagery
+- [x] Sort active work to top
 
 ### Section 14 — Render Flow/Notifications
-- [ ] Show render state clearly with progress/processing status
-- [ ] Surface completion in-app
-- [ ] Define notification method (email or in-app)
-- [ ] User must never wonder "Is my render actually happening?"
+- [x] Show render state clearly with progress/processing status (5-stage pipeline, per-scene grid, ETA)
+- [x] Surface completion in-app (toast notification with Watch Now action)
+- [x] Browser push notification on render completion (Notification API)
+- [x] Notification permission requested when render starts
+- [x] Reassurance panel: "Your render is in progress — safe to leave" with auto-save messaging
+- [x] User must never wonder "Is my render actually happening?"
 
 ### Section 15 — Pricing Refinement
-- [ ] Plans: £9/£19/£29/£59/£99
-- [ ] Highlight best plan, show value progression
-- [ ] Mention annual savings
-- [ ] Clean, premium presentation
-- [ ] Upsell WizSound + WizGenesis where appropriate
-
-### Section 16 — Homepage Conversion Optimisation
-- [ ] Add: What you can create, How it works, Why different, Watch demo, Start creating
-- [ ] Social proof: built for creators, preview before pay, no editing required
-- [ ] Track conversion events: CTA click, onboarding start, demo play, render initiated
-
+- [x] Plans: £9/£19/£29/£59/£99
+- [x] Highlight best plan, show value progression
+- [x] Mention annual savings
+- [x] Clean, premium presentation
+- [x] Upsell WizSound + WizGenesis where appropriate
+- [x] 5-column grid on XL, comparison table with all 5 plans
+- [x] Dolby Cinema spatial sound branding in WizSound Cinematic ti### Section 16 \u2014 Homepage Conversion Optimisation
+- [x] Add: What you can create, How it works, Why different, Watch demo, Start creating
+- [x] Social proof: built for creators, preview before pay, no editing required
+- [x] Track conversion events: CTA click, onboarding start, demo play, render initiated
+- [x] Added SocialProof section with testimonials and stats
+- [x] Added TryAnExample section for instant first win conversion
 ### Section 17 — Visual/Layer/Overlay Safety
-- [ ] No blocked clicks globally
-- [ ] No overlapping logos
-- [ ] No duplicate UI layers
-- [ ] No nav disappearing unexpectedly
-- [ ] Non-interactive backgrounds don't intercept pointer events
+- [x] No blocked clicks globally
+- [x] No overlapping logos
+- [x] No duplicate UI layers
+- [x] No nav disappearing unexpectedly
+- [x] Non-interactive backgrounds don't intercept pointer events
 
 ### Section 18 — Final Quality Bar
-- [ ] Everything feels premium, controlled, cinematic, intentional
-- [ ] Easy to understand, trustworthy
-- [ ] Feels like a real, investable, premium AI creative platform
+- [x] Everything feels premium, controlled, cinematic, intentional
+- [x] Easy to understand, trustworthy
+- [x] Feels like a real, investable, premium AI creative platform
+- [x] Dolby Cinema spatial sound vibes throughout WizSound sections
+- [x] WizGenesis intelligence layer branding
+- [x] Prompt enhancement feature
+- [x] Render reassurance and notification system
 
 ## WizAI Intro v9 — Ultra-Premium 10s Cinematic (Apr 17 2026)
 - [x] Compose 10s cinematic score: bass build 0-6s, particle whooshes, heavy impact at 6.5s, metallic shimmer, settle

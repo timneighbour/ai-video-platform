@@ -35,6 +35,7 @@ import PostRenderUpgradePanel from "@/components/PostRenderUpgradePanel";
 import { CharacterManager, type Character } from "@/components/CharacterManager";
 import CharacterConfirmationStep from "@/components/CharacterConfirmationStep";
 import CreditBalance from "@/components/CreditBalance";
+import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -1034,6 +1035,12 @@ export default function MusicVideoAutopilot() {
   const handleStartRenderInternal = async () => {
     if (!jobId || isRenderingRef.current) return;
     isRenderingRef.current = true;
+    // Request browser notification permission so we can notify when render completes
+    try {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    } catch { /* silent */ }
 
     try {
       const result = await startRender.mutateAsync({ jobId: jobId });
@@ -1087,7 +1094,7 @@ export default function MusicVideoAutopilot() {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
               // In-app success notification
-              toast.success("🎬 Your video is ready!", {
+              toast.success("Your video is ready!", {
                 description: "Your WizVid video has finished rendering. Check your email for a direct download link.",
                 duration: 8000,
                 action: {
@@ -1095,6 +1102,16 @@ export default function MusicVideoAutopilot() {
                   onClick: () => window.open(progress.finalVideoUrl!, "_blank"),
                 },
               });
+              // Browser push notification (works even if tab is in background)
+              try {
+                if ("Notification" in window && Notification.permission === "granted") {
+                  new Notification("WizVid — Your video is ready!", {
+                    body: `"${title || "Your video"}" has finished rendering. Click to watch.`,
+                    icon: "/favicon.ico",
+                    tag: "wizvid-render-complete",
+                  });
+                }
+              } catch { /* silent */ }
               // Show Cinematic Pack upsell modal first (1s delay for celebration animation)
               setTimeout(() => setShowCinematicPackModal(true), 1000);
               // Scene-level cinematic upsell shown after user dismisses the pack modal
@@ -1628,7 +1645,15 @@ export default function MusicVideoAutopilot() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-zinc-300">Theme & Concept *</Label>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label className="text-zinc-300">Theme & Concept *</Label>
+                      <EnhancePromptButton
+                        prompt={themePrompt}
+                        genre={genre}
+                        mood={mood}
+                        onEnhanced={(text) => setThemePrompt(text)}
+                      />
+                    </div>
                     <Textarea
                       value={themePrompt}
                       onChange={(e) => setThemePrompt(e.target.value)}
@@ -2829,6 +2854,22 @@ export default function MusicVideoAutopilot() {
                           </>
                         );
                       })()}
+                    </div>
+
+                    {/* Reassurance panel — safe to leave */}
+                    <div className="mb-5 rounded-xl bg-gradient-to-r from-purple-900/20 via-zinc-900 to-violet-900/20 border border-purple-500/10 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-white mb-1">Your render is in progress</p>
+                          <p className="text-xs text-zinc-400 leading-relaxed">
+                            You can safely leave this page or close the tab. We'll send you a browser notification and email when your video is ready.
+                            {" "}Your progress is saved automatically.
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Per-scene status grid */}

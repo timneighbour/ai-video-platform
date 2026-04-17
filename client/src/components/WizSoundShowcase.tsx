@@ -58,7 +58,7 @@ const TIERS: {
     id: "cinematic",
     label: "WizSound Cinematic",
     price: "+£3",
-    tagline: "Full proprietary mastering pipeline",
+    tagline: "Spatial audio mastering — cinema-grade immersive sound",
     colour: "from-fuchsia-600 to-pink-500",
     glow: "rgba(217,70,239,0.45)",
     badge: "RECOMMENDED",
@@ -69,11 +69,11 @@ const TIERS: {
       { label: "Frequency Balance", value: "5-band EQ", bar: 92 },
     ],
     pipeline: [
-      "Stereo widening ×3.5",
-      "Haas stereo enhancer (2.05ms / 2.12ms)",
+      "Spatial stereo widening ×3.5",
+      "Haas spatial enhancer (2.05ms / 2.12ms)",
       "5-band EQ (sub-bass → shimmer)",
-      "Professional dynamic compression",
-      "Loudnorm −14 LUFS (Spotify/Apple Music)",
+      "Immersive dynamic compression",
+      "Cinema-grade loudnorm −14 LUFS",
     ],
     lufs: "−14 LUFS",
     bars: [14, 24, 36, 48, 44, 38, 30, 22, 32, 44, 50, 42, 32, 36, 46, 52, 44, 34, 24, 16],
@@ -192,7 +192,7 @@ export default function WizSoundShowcase() {
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M9 18V5l12-2v13M9 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm12-2c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/>
             </svg>
-            Technical Deep Dive
+            Spatial Audio Deep Dive
           </div>
           <h2
             id="wizsound-showcase-heading"
@@ -211,7 +211,7 @@ export default function WizSoundShowcase() {
             </span>
           </h2>
           <p className="text-white/50 text-base max-w-xl mx-auto">
-            Proprietary audio enhancement built into every render. Select a tier to explore the processing pipeline.
+            Proprietary spatial audio engine built into every render. Cinema-grade immersive sound — select a tier to explore the pipeline.
           </p>
         </div>
 
@@ -357,8 +357,8 @@ export default function WizSoundShowcase() {
               {tier.id === "cinematic" && (
                 <div className="mt-6 p-3 rounded-lg bg-fuchsia-500/8 border border-fuchsia-500/20">
                   <p className="text-xs text-fuchsia-300/80 leading-relaxed">
-                    <span className="font-semibold text-fuchsia-300">Streaming ready.</span>{" "}
-                    Normalised to −14 LUFS — the loudness standard used by Spotify, Apple Music, and YouTube.
+                    <span className="font-semibold text-fuchsia-300">Spatial + Streaming ready.</span>{" "}
+                    Cinema-grade spatial mastering normalised to −14 LUFS — the loudness standard used by Spotify, Apple Music, and YouTube. Dolby Cinema-inspired immersive depth.
                   </p>
                 </div>
               )}

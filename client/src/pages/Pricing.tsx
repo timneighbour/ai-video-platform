@@ -8,7 +8,10 @@
  *   3. Per-render pricing (Standard/HD/4K + audio add-ons)
  *   4. Subscription plans (included renders/month)
  *   5. Render bundles
- *   6. FAQ
+ *   6. Comparison table
+ *   7. WizSound showcase
+ *   8. FAQ
+ *   9. Post-render explanation
  */
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
@@ -21,7 +24,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
   Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Film, Package,
-  Clock, Bell, CheckCircle2, Wand2
+  Clock, Bell, CheckCircle2, Wand2, Volume2, Headphones
 } from "lucide-react";
 import WizSoundShowcase from "@/components/WizSoundShowcase";
 
@@ -82,9 +85,9 @@ const PLANS = [
     icon: <Star className="w-4 h-4" />,
     monthlyPrice: 29,
     label: "Most popular",
-    desc: "20 min/month, 1080p quality, no watermark, character consistency.",
+    desc: "15 renders/month, all qualities, character consistency, priority rendering.",
     popular: true,
-    badge: "⭐ Most Popular",
+    badge: "Most Popular",
     rendersPerMonth: 15,
     perRender: "£1.93",
     bestValue: true,
@@ -106,7 +109,7 @@ const PLANS = [
     icon: <Sparkles className="w-4 h-4" />,
     monthlyPrice: 59,
     label: "Power creators",
-    desc: "25 renders/month included. 4K quality, priority rendering, character consistency.",
+    desc: "25 renders/month. 4K quality, priority rendering, character consistency.",
     popular: false,
     badge: null as string | null,
     rendersPerMonth: 25,
@@ -129,7 +132,7 @@ const PLANS = [
     icon: <Crown className="w-4 h-4" />,
     monthlyPrice: 99,
     label: "Professional",
-    desc: "Create music videos, animations, and faceless content at scale. 40 renders included every month.",
+    desc: "40 renders/month. Full API access, priority everything, built for teams.",
     popular: false,
     badge: null as string | null,
     rendersPerMonth: 40,
@@ -152,7 +155,7 @@ const PLANS = [
 const BUNDLES = [
   { id: "6" as const, renders: 6, price: 10, perRender: "£1.67", label: "Starter Pack", popular: false, bestValue: false },
   { id: "15" as const, renders: 15, price: 20, perRender: "£1.33", label: "Creator Pack", popular: true, bestValue: false },
-  { id: "40" as const, renders: 40, price: 50, perRender: "£1.25", label: "Studio Pack — Best Value", popular: false, bestValue: true },
+  { id: "40" as const, renders: 40, price: 50, perRender: "£1.25", label: "Studio Pack", popular: false, bestValue: true },
 ];
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
@@ -178,8 +181,8 @@ const FAQS = [
     a: "Yes. Subscription renders are used first. Once they're exhausted, your bundle renders are used automatically. You can also pay per-render at any time.",
   },
   {
-    q: "What audio tiers are available?",
-    a: "Standard Audio is included free with every render. WizSound Enhance (+£1) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+£3) applies our full proprietary mastering pipeline with immersive depth and dynamic range — recommended for music videos.",
+    q: "What is WizSound Cinematic?",
+    a: "WizSound Cinematic is our premium audio mastering tier inspired by Dolby Cinema spatial sound. It applies a full proprietary pipeline — immersive depth, dynamic range optimisation, stereo widening, and streaming-ready loudness — to make your video sound like it belongs in a cinema.",
   },
   {
     q: "Is there a free trial?",
@@ -189,15 +192,16 @@ const FAQS = [
 
 // ── Comparison features ──────────────────────────────────────────────────────
 const COMPARISON_FEATURES = [
-  { label: "Renders included/month", free: "0", starter: "5", creator: "15", studio: "40" },
-  { label: "Video styles", free: "All", starter: "All", creator: "All", studio: "All" },
-  { label: "Music video maker", free: "✓", starter: "✓", creator: "✓", studio: "✓" },
-  { label: "WizPilot AI creator", free: "✓", starter: "✓", creator: "✓", studio: "✓" },
-  { label: "HD quality (1080p)", free: "Full Video Render", starter: "Included", creator: "Included", studio: "Included" },
-  { label: "4K quality (2160p)", free: "Full Video Render", starter: "Full Video Render", creator: "Included", studio: "Included" },
-  { label: "Character consistency", free: "✓", starter: "✓", creator: "✓", studio: "✓" },
-  { label: "Priority rendering", free: "—", starter: "—", creator: "✓", studio: "✓" },
-  { label: "API access", free: "—", starter: "—", creator: "—", studio: "✓" },
+  { label: "Renders included/month", starter: "2", basic: "5", creator: "15", pro: "25", studio: "40" },
+  { label: "Video styles", starter: "All", basic: "All", creator: "All", pro: "All", studio: "All" },
+  { label: "Music video maker", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "WizPilot AI creator", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "HD quality (1080p)", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "4K quality (2160p)", starter: "—", basic: "—", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "No watermark", starter: "—", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "Character consistency", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "Priority rendering", starter: "—", basic: "—", creator: "✓", pro: "✓", studio: "✓" },
+  { label: "API access", starter: "—", basic: "—", creator: "—", pro: "—", studio: "✓" },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -236,7 +240,6 @@ export default function Pricing() {
     const planParam = params.get("plan");
     if (planParam) {
       setHighlightedPlan(planParam);
-      // Scroll to plans section after a short delay for render
       setTimeout(() => {
         plansRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 400);
@@ -247,7 +250,7 @@ export default function Pricing() {
   const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
 
   async function handleSubscribe(planId: "starter" | "basic" | "creator" | "pro" | "studio") {
-    mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), "monthly");
+    mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), billingCycle);
     if (!isAuthenticated) {
       window.location.href = getLoginUrl();
       return;
@@ -405,57 +408,88 @@ export default function Pricing() {
             ))}
           </div>
 
-          {/* Audio add-ons */}
-          <div className="rounded-2xl border border-white/8 bg-white/2 p-5">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Music className="w-4 h-4 text-violet-400" />
+          {/* Audio add-ons — Dolby Cinema spatial sound vibes */}
+          <div className="rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.03] to-transparent p-6">
+            <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600/20 to-purple-600/20 border border-violet-500/20 flex items-center justify-center">
+                  <Headphones className="w-5 h-5 text-violet-400" />
+                </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white">Powered by WizSound™</h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-bold text-white">Powered by WizSound™</h3>
                     <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
                   </div>
-                  <p className="text-[10px] text-white/45 mt-0.5">Proprietary audio enhancement engine</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">Spatial audio mastering engine — Dolby Cinema vibes for your video</p>
                 </div>
               </div>
-              <span className="text-xs text-white/35">Optional — add to any render</span>
+              <span className="text-xs text-white/30">Optional — add to any render</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { label: "Standard Audio (included)", price: 0, desc: "Original audio, used as-is", features: ["Stereo output", "Original mix"] },
-                { label: "WizSound Enhance", price: 1, desc: "Polished, fuller sound", features: ["Stereo widening", "Frequency EQ", "Noise reduction"] },
-                { label: "WizSound Cinematic", price: 3, desc: "Full proprietary mastering pipeline", features: ["Full mastering", "Immersive depth", "Dynamic range", "Streaming loudness"], badge: "RECOMMENDED" },
+                {
+                  label: "Standard Audio",
+                  sublabel: "Included",
+                  price: 0,
+                  desc: "Original audio, used as-is",
+                  features: ["Stereo output", "Original mix"],
+                  badge: null,
+                  gradient: "",
+                  borderClass: "border-white/8 bg-white/2",
+                },
+                {
+                  label: "WizSound Enhance",
+                  sublabel: "+£1",
+                  price: 1,
+                  desc: "Polished, fuller sound with spatial widening",
+                  features: ["Stereo widening", "Frequency EQ", "Noise reduction", "Spatial depth"],
+                  badge: null,
+                  gradient: "",
+                  borderClass: "border-violet-500/20 bg-violet-500/5",
+                },
+                {
+                  label: "WizSound Cinematic",
+                  sublabel: "+£3",
+                  price: 3,
+                  desc: "Full spatial mastering — Dolby Cinema-grade immersive audio",
+                  features: ["Full mastering pipeline", "Immersive spatial depth", "Dynamic range optimisation", "Streaming-ready loudness", "Cinema-grade output"],
+                  badge: "RECOMMENDED",
+                  gradient: "bg-gradient-to-br from-amber-500/8 to-orange-500/5",
+                  borderClass: "border-amber-400/30",
+                },
               ].map((audio) => (
                 <div
                   key={audio.label}
-                  className={`p-4 rounded-xl border ${
-                    audio.badge
-                      ? "border-amber-400/30 bg-amber-500/5"
-                      : "border-white/8 bg-white/2"
-                  }`}
+                  className={`relative p-4 rounded-xl border ${audio.borderClass} ${audio.gradient}`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-semibold text-white">{audio.label}</span>
-                    <div className="flex items-center gap-2">
-                      {audio.badge && (
-                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold tracking-wider">
-                          {audio.badge}
-                        </span>
-                      )}
-                      <span className="text-sm font-bold text-violet-300">
-                        {audio.price === 0 ? "Free" : `+£${audio.price}`}
-                      </span>
+                  {audio.badge && (
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-bold tracking-wider whitespace-nowrap shadow-lg shadow-amber-900/30">
+                      {audio.badge}
                     </div>
+                  )}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-white">{audio.label}</span>
+                    <span className={`text-sm font-bold ${audio.price === 0 ? "text-white/50" : audio.price === 3 ? "text-amber-300" : "text-violet-300"}`}>
+                      {audio.price === 0 ? "Free" : `+£${audio.price}`}
+                    </span>
                   </div>
-                  <p className="text-xs text-white/40 mb-2">{audio.desc}</p>
-                  <div className="space-y-0.5">
+                  <p className="text-[11px] text-white/40 mb-2.5">{audio.desc}</p>
+                  <div className="space-y-1">
                     {audio.features.map((f) => (
-                      <div key={f} className="flex items-center gap-1.5 text-[10px] text-white/35">
+                      <div key={f} className="flex items-center gap-1.5 text-[10px] text-white/50">
                         <Check className="w-2.5 h-2.5 text-violet-400/60 flex-shrink-0" />
                         {f}
                       </div>
                     ))}
                   </div>
+                  {audio.price === 3 && (
+                    <div className="mt-3 pt-2.5 border-t border-amber-400/15">
+                      <div className="flex items-center gap-1.5 text-[10px] text-amber-300/80">
+                        <Volume2 className="w-3 h-3" />
+                        <span className="font-medium">Spatial sound — hear the difference in the demo below</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -463,7 +497,7 @@ export default function Pricing() {
         </div>
 
         {/* ── Subscription plans ── */}
-        <div className="max-w-5xl mx-auto px-6 mb-20">
+        <div className="max-w-6xl mx-auto px-6 mb-20">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Subscription plans</h2>
             <p className="text-sm text-white/45">Includes renders every month. Best value for regular creators.</p>
@@ -500,36 +534,36 @@ export default function Pricing() {
             )}
           </div>
 
-          <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+          {/* 5-column grid on XL, 3 on md, 2 on sm, 1 on mobile */}
+          <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {PLANS.map((plan) => (
               <div
                 key={plan.id}
                 id={`plan-${plan.id}`}
-                className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-500 ${
+                className={`relative flex flex-col rounded-2xl border p-5 transition-all duration-500 ${
                   highlightedPlan === plan.id
                     ? "border-violet-400/80 bg-gradient-to-b from-violet-500/15 to-violet-900/8 shadow-[0_0_60px_rgba(139,92,246,0.3)] ring-2 ring-violet-400/40"
                     : plan.popular
-                    ? "border-violet-500/60 bg-gradient-to-b from-violet-500/10 to-violet-900/5 shadow-[0_0_40px_rgba(139,92,246,0.15)]"
-                    : "border-white/10 bg-white/3"
+                    ? "border-violet-500/60 bg-gradient-to-b from-violet-500/10 to-violet-900/5 shadow-[0_0_40px_rgba(139,92,246,0.15)] ring-1 ring-violet-500/30"
+                    : "border-white/10 bg-white/3 hover:border-white/15"
                 }`}
               >
                 {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-violet-500 text-white text-[10px] font-bold tracking-wider whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-[10px] font-bold tracking-wider whitespace-nowrap shadow-lg shadow-violet-900/30">
                     {plan.badge}
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-3">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                     plan.popular ? "bg-violet-500/25 text-violet-300" : "bg-white/8 text-white/60"
                   }`}>
                     {plan.icon}
                   </div>
-                  <span className="font-semibold text-white">{plan.name}</span>
+                  <span className="font-semibold text-white text-sm">{plan.name}</span>
                 </div>
 
                 <div className="mb-4">
-                  {/* Price block — fades between billing modes */}
                   <div
                     key={billingCycle}
                     style={{ animation: "priceFadeIn 220ms ease-out" }}
@@ -537,49 +571,48 @@ export default function Pricing() {
                     {billingCycle === "monthly" ? (
                       <>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-extrabold text-white">£{plan.monthlyPrice}</span>
-                          <span className="text-sm text-white/40">/mo</span>
+                          <span className="text-2xl font-extrabold text-white">£{plan.monthlyPrice}</span>
+                          <span className="text-xs text-white/40">/mo</span>
                         </div>
-                        <p className="text-xs text-white/35 mt-0.5">billed monthly</p>
+                        <p className="text-[11px] text-white/30 mt-0.5">billed monthly</p>
                       </>
                     ) : (
                       <>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-extrabold text-white">£{(plan as any).annualPrice}</span>
-                          <span className="text-sm text-white/40">/year</span>
+                          <span className="text-2xl font-extrabold text-white">£{plan.annualPrice}</span>
+                          <span className="text-xs text-white/40">/year</span>
                         </div>
-                        <p className="text-xs text-emerald-400/80 mt-0.5 font-medium">Save 20% vs monthly</p>
+                        <p className="text-[11px] text-emerald-400/80 mt-0.5 font-medium">
+                          £{Math.round(plan.annualPrice / 12)}/mo · Save 20%
+                        </p>
                       </>
                     )}
                   </div>
-                  <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-400/20 text-emerald-300 text-xs font-semibold">
-                    <Zap className="w-3 h-3" />
-                    {plan.rendersPerMonth} renders/month included
+                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/12 border border-emerald-400/20 text-emerald-300 text-[11px] font-semibold">
+                    <Zap className="w-2.5 h-2.5" />
+                    {plan.rendersPerMonth} renders/mo
                   </div>
                   {(plan as any).bestValue && (
-                    <div className="mt-1.5 flex flex-col gap-0.5">
-                      <div className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
-                        {(plan as any).perRender} Full Video Render
+                    <div className="mt-1.5">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
+                        {plan.perRender}/render
                         <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>
-                      </div>
-                      {billingCycle === "annual" && (
-                        <div className="text-[10px] text-emerald-400 font-semibold">Save £78 per year vs monthly</div>
-                      )}
+                      </span>
                     </div>
                   )}
                 </div>
 
-                <p className="text-xs text-white/45 mb-5 leading-relaxed">{plan.desc}</p>
+                <p className="text-[11px] text-white/40 mb-4 leading-relaxed">{plan.desc}</p>
 
-                <ul className="space-y-2 mb-6 flex-1">
+                <ul className="space-y-1.5 mb-5 flex-1">
                   {plan.features.map((f) => (
-                    <li key={f.text} className="flex items-start gap-2 text-xs">
+                    <li key={f.text} className="flex items-start gap-1.5 text-[11px]">
                       {f.included ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <Check className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <X className="w-3.5 h-3.5 text-white/20 flex-shrink-0 mt-0.5" />
+                        <X className="w-3 h-3 text-white/15 flex-shrink-0 mt-0.5" />
                       )}
-                      <span className={f.included ? "text-white/75" : "text-white/30"}>{f.text}</span>
+                      <span className={f.included ? "text-white/70" : "text-white/25"}>{f.text}</span>
                     </li>
                   ))}
                 </ul>
@@ -587,7 +620,7 @@ export default function Pricing() {
                 <Button
                   onClick={() => handleSubscribe(plan.id)}
                   disabled={loadingPlan === plan.id}
-                  className={`w-full rounded-xl font-semibold text-xs h-10 px-3 ${
+                  className={`w-full rounded-xl font-semibold text-xs h-9 px-3 ${
                     plan.popular
                       ? "bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
                       : "bg-white/10 text-white hover:bg-white/15 border border-white/15"
@@ -601,14 +634,13 @@ export default function Pricing() {
                   ) : (
                     billingCycle === "monthly"
                       ? `Get ${plan.name} — £${plan.monthlyPrice}/mo`
-                      : `Get ${plan.name} — £${(plan as any).annualPrice}/yr`
+                      : `Get ${plan.name} — £${plan.annualPrice}/yr`
                   )}
                 </Button>
               </div>
             ))}
           </div>
-          {/* Trust messaging */}
-          <p className="text-center text-xs text-white/30 mt-6 tracking-wide">No hidden fees • Full control before checkout</p>
+          <p className="text-center text-xs text-white/25 mt-6 tracking-wide">No hidden fees · Cancel anytime · Full control before checkout</p>
         </div>
 
         {/* ── Render bundles ── */}
@@ -626,6 +658,8 @@ export default function Pricing() {
                 className={`relative flex flex-col p-5 rounded-2xl border ${
                   bundle.popular
                     ? "border-violet-500/50 bg-violet-500/8 shadow-[0_0_25px_rgba(139,92,246,0.12)]"
+                    : bundle.bestValue
+                    ? "border-amber-500/30 bg-amber-500/5"
                     : "border-white/10 bg-white/3"
                 }`}
               >
@@ -635,7 +669,7 @@ export default function Pricing() {
                   </div>
                 )}
                 {bundle.bestValue && (
-                  <div className="absolute -top-3 right-4 px-3 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold tracking-wider">
                     BEST VALUE
                   </div>
                 )}
@@ -674,31 +708,31 @@ export default function Pricing() {
         </div>
 
         {/* ── Comparison table ── */}
-        <div className="max-w-5xl mx-auto px-6 mb-20">
+        <div className="max-w-6xl mx-auto px-6 mb-20">
           <h2 className="text-center text-2xl font-bold text-white mb-8">Full comparison</h2>
           <div className="rounded-2xl border border-white/8 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/8 bg-white/3">
-                    <th className="text-left px-4 py-3 text-white/40 font-medium text-xs">Feature</th>
-                    {["Free", "Starter", "Creator", "Studio"].map((h) => (
-                      <th key={h} className={`text-center px-4 py-3 text-xs font-semibold ${
-                        h === "Creator" ? "text-violet-300" : "text-white/60"
+                    <th className="text-left px-4 py-3 text-white/40 font-medium text-xs min-w-[160px]">Feature</th>
+                    {["Starter", "Basic", "Creator", "Pro", "Studio"].map((h) => (
+                      <th key={h} className={`text-center px-3 py-3 text-xs font-semibold min-w-[90px] ${
+                        h === "Creator" ? "text-violet-300 bg-violet-500/5" : "text-white/60"
                       }`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {COMPARISON_FEATURES.map((row, i) => (
-                    <tr key={row.label} className={`border-b border-white/5 last:border-0 ${i % 2 === 0 ? "" : "bg-white/1"}`}>
-                      <td className="px-4 py-3 text-white/55 text-xs">{row.label}</td>
-                      {[row.free, row.starter, row.creator, row.studio].map((val, j) => (
-                        <td key={j} className={`text-center px-4 py-3 text-xs ${
+                    <tr key={row.label} className={`border-b border-white/5 last:border-0 ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
+                      <td className="px-4 py-3 text-white/50 text-xs">{row.label}</td>
+                      {[row.starter, row.basic, row.creator, row.pro, row.studio].map((val, j) => (
+                        <td key={j} className={`text-center px-3 py-3 text-xs ${
                           val === "✓" ? "text-emerald-400" :
-                          val === "—" ? "text-white/20" :
-                          j === 2 ? "text-violet-300 font-medium" :
-                          "text-white/55"
+                          val === "—" ? "text-white/15" :
+                          j === 2 ? "text-violet-300 font-medium bg-violet-500/5" :
+                          "text-white/50"
                         }`}>
                           {val}
                         </td>
@@ -745,6 +779,7 @@ export default function Pricing() {
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
+
       {/* ── Post-render explanation ── */}
       <section className="border-t border-white/8 bg-[#0d0d0d] py-16 px-6">
         <div className="max-w-3xl mx-auto">

@@ -865,7 +865,7 @@ function TrustSignals() {
   return (
     <section
       ref={ref}
-      className="bg-[#080808] border-t border-white/6 py-12 px-6 overflow-hidden"
+      className="bg-[#080808] border-t border-white/6 py-20 px-6 overflow-hidden"
     >
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-0 md:divide-x md:divide-white/8">
         {BENEFIT_LINES.map(({ text, delay }) => (
@@ -882,8 +882,8 @@ function TrustSignals() {
             <span
               className="font-extrabold tracking-tight leading-tight"
               style={{
-                fontSize: "clamp(1.15rem, 2.2vw, 1.55rem)",
-                background: "linear-gradient(135deg, #ffffff 0%, #c4b5fd 40%, #ffffff 60%, #a78bfa 100%)",
+                fontSize: "clamp(2.2rem, 4.2vw, 3rem)",
+                background: "linear-gradient(135deg, #FFD700 0%, #ffffff 25%, #c4b5fd 50%, #ffffff 75%, #FFD700 100%)",
                 backgroundSize: "200% 200%",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -896,9 +896,9 @@ function TrustSignals() {
             </span>
             {/* Sparkle dot */}
             <span
-              className="mt-2 w-1.5 h-1.5 rounded-full bg-violet-400"
+              className="mt-3 w-2.5 h-2.5 rounded-full bg-violet-400"
               style={{
-                boxShadow: "0 0 8px 2px rgba(167,139,250,0.7)",
+                boxShadow: "0 0 16px 4px rgba(167,139,250,0.9), 0 0 32px 8px rgba(139,92,246,0.5)",
                 animation: visible ? `pulse 2s ease-in-out ${delay}ms infinite` : "none",
               }}
             />
@@ -2781,11 +2781,11 @@ function EcosystemSection() {
     },
     {
       logo: WIZGENESIS_LOGO,
-      name: "WizGenesis™",
-      role: "The Renderer",
-      tagline: "Final Render Engine",
-      desc: "The final stage of creation. Renders your video at studio quality — 720p, 1080p, or 4K — with WizSound™ and WizLumina™ baked in.",
-      caps: ["4K studio-quality render", "WizSound + WizLumina baked in", "Instant download & share"],
+      name: "WizGenesis\u2122",
+      role: "The Intelligence Layer",
+      tagline: "AI Render Intelligence Engine",
+      desc: "The brain behind every render. WizGenesis ensures character consistency across scenes, enhances prompts for accuracy, and orchestrates the final 4K output with WizSound\u2122 spatial audio and WizLumina\u2122 baked in.",
+      caps: ["Character consistency across scenes", "Prompt enhancement & scene accuracy", "4K render with spatial audio"],
       colour: "rose",
       border: "border-rose-500/30",
       glow: "hover:shadow-[0_0_30px_rgba(244,63,94,0.2)]",
@@ -3048,19 +3048,23 @@ export default function Home() {
         <WizVidEngine />
         {/* 5. Examples — grid with hover preview */}
         <MadeWithWizVid />
-        {/* 6. Product Ecosystem — 7 modules */}
+        {/* 6. Product Ecosystem \u2014 7 modules */}
         <EcosystemSection />
-        {/* 6. Audio Demo — WizSound toggle */}
+        {/* 7. Audio Demo \u2014 WizSound spatial toggle */}
         <WizSoundSection />
-        {/* 7. Visual Demo — WizLumina comparison */}
+        {/* 8. Visual Demo \u2014 WizLumina comparison */}
         <WizLuminaSection />
-        {/* 8. Pricing */}
+        {/* 9. Social Proof \u2014 testimonials + stats */}
+        <SocialProof />
+        {/* 10. Try an Example \u2014 instant first win */}
+        <TryAnExample />
+        {/* 11. Pricing */}
         <HomePricing />
-        {/* 9. Post-Render explanation */}
+        {/* 12. Post-Render explanation */}
         <ImmediateValue />
-        {/* 10. WizBoost */}
+        {/* 13. WizBoost */}
         <WizBoostSection />
-        {/* 11. Final CTA */}
+        {/* 14. Final CTA */}
         <CTAPush />
         {/* Continue project banner (contextual) */}
         <ContinueProjectBanner />

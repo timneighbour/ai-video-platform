@@ -36,9 +36,10 @@ import {
   Clock,
   Sparkles,
   ChevronRight,
-  Save,
   Globe,
   Link2,
+  Plus,
+  Eye,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -99,7 +100,9 @@ function timeAgo(date: Date): string {
   if (secs < 60) return "just now";
   if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
   if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
-  return `${Math.floor(secs / 86400)}d ago`;
+  const days = Math.floor(secs / 86400);
+  if (days < 7) return `${days}d ago`;
+  return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
 function formatDuration(seconds: number | null): string {
@@ -126,19 +129,19 @@ function sortPriority(status: string): number {
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "completed":
-      return <Badge className="bg-green-500/20 text-green-400 border-green-500/30 gap-1 text-xs"><CheckCircle className="h-3 w-3" /> Complete</Badge>;
+      return <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/25 gap-1 text-[11px] font-semibold"><CheckCircle className="h-3 w-3" /> Complete</Badge>;
     case "rendering": case "assembling": case "processing":
-      return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 gap-1 text-xs"><Loader2 className="h-3 w-3 animate-spin" /> Rendering</Badge>;
+      return <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/25 gap-1 text-[11px] font-semibold"><Loader2 className="h-3 w-3 animate-spin" /> Rendering</Badge>;
     case "storyboard_ready":
-      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 gap-1 text-xs"><Clapperboard className="h-3 w-3" /> Ready to Render</Badge>;
+      return <Badge className="bg-violet-500/15 text-violet-400 border-violet-500/25 gap-1 text-[11px] font-semibold"><Clapperboard className="h-3 w-3" /> Ready to Render</Badge>;
     case "pending": case "queued":
-      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 gap-1 text-xs"><Clock className="h-3 w-3" /> Queued</Badge>;
+      return <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/25 gap-1 text-[11px] font-semibold"><Clock className="h-3 w-3" /> Queued</Badge>;
     case "draft":
-      return <Badge className="bg-zinc-500/20 text-zinc-400 border-zinc-500/30 gap-1 text-xs"><Edit3 className="h-3 w-3" /> Draft</Badge>;
+      return <Badge className="bg-zinc-500/15 text-zinc-400 border-zinc-500/25 gap-1 text-[11px] font-semibold"><Edit3 className="h-3 w-3" /> Draft</Badge>;
     case "failed":
-      return <Badge className="bg-red-500/20 text-red-400 border-red-500/30 gap-1 text-xs"><AlertCircle className="h-3 w-3" /> Failed</Badge>;
+      return <Badge className="bg-red-500/15 text-red-400 border-red-500/25 gap-1 text-[11px] font-semibold"><AlertCircle className="h-3 w-3" /> Failed</Badge>;
     default:
-      return <Badge variant="outline" className="text-xs">{status}</Badge>;
+      return <Badge variant="outline" className="text-[11px]">{status}</Badge>;
   }
 }
 
@@ -155,41 +158,68 @@ function PrimaryCTA({
   large?: boolean;
 }) {
   const cls = large
-    ? "h-11 px-6 text-base font-bold rounded-xl shadow-lg"
-    : "h-9 px-4 text-sm font-semibold rounded-lg";
+    ? "h-11 px-6 text-sm font-bold rounded-xl shadow-lg"
+    : "h-9 px-4 text-xs font-semibold rounded-lg";
 
   switch (status) {
     case "completed":
       return (
-        <Button onClick={onWatch} className={`${cls} gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white border-0 shadow-green-900/30`}>
-          <Play className="h-4 w-4 fill-current" /> Watch Video
+        <Button onClick={onWatch} className={`${cls} gap-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white border-0 shadow-emerald-900/30`}>
+          <Play className="h-3.5 w-3.5 fill-current" /> Watch Video
         </Button>
       );
     case "rendering": case "assembling": case "processing":
       return (
-        <Button disabled className={`${cls} gap-2 bg-amber-600/20 text-amber-300 border border-amber-500/30 cursor-not-allowed`}>
-          <Loader2 className="h-4 w-4 animate-spin" /> Rendering…
+        <Button disabled className={`${cls} gap-2 bg-amber-600/15 text-amber-300 border border-amber-500/25 cursor-not-allowed`}>
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Rendering…
         </Button>
       );
     case "storyboard_ready":
       return (
-        <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 shadow-purple-900/30`}>
-          <Zap className="h-4 w-4" /> Render Now
+        <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white border-0 shadow-violet-900/30`}>
+          <Zap className="h-3.5 w-3.5" /> Render Now
         </Button>
       );
     case "failed":
       return (
-        <Button onClick={onContinue} className={`${cls} gap-2 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30`}>
-          <RefreshCw className="h-4 w-4" /> Retry
+        <Button onClick={onContinue} className={`${cls} gap-2 bg-red-600/15 hover:bg-red-600/25 text-red-300 border border-red-500/25`}>
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
         </Button>
       );
     default:
       return (
-        <Button onClick={onContinue} className={`${cls} gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 shadow-purple-900/30`}>
-          <Edit3 className="h-4 w-4" /> Continue Editing
+        <Button onClick={onContinue} className={`${cls} gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white border-0 shadow-violet-900/30`}>
+          <Edit3 className="h-3.5 w-3.5" /> Continue Editing
         </Button>
       );
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/*  Scene dots — visual progress for music video scenes                        */
+/* ─────────────────────────────────────────────────────────────────────────── */
+function SceneDots({ total, completed, failed }: { total: number; completed: number; failed: number }) {
+  if (total <= 0) return null;
+  const maxDots = Math.min(total, 20);
+  const ratio = total / maxDots;
+  return (
+    <div className="flex items-center gap-0.5 mt-2">
+      {Array.from({ length: maxDots }).map((_, i) => {
+        const sceneIdx = Math.floor(i * ratio);
+        const isCompleted = sceneIdx < completed;
+        const isFailed = sceneIdx >= completed && sceneIdx < completed + failed;
+        return (
+          <div
+            key={i}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              isCompleted ? "bg-emerald-400" : isFailed ? "bg-red-400" : "bg-white/10"
+            }`}
+            style={{ width: `${100 / maxDots}%` }}
+          />
+        );
+      })}
+    </div>
+  );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
@@ -333,98 +363,113 @@ export default function Projects() {
   const FilterPill = ({ value, label, count }: { value: FilterTab; label: string; count?: number }) => (
     <button
       onClick={() => setFilter(value)}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
         filter === value
-          ? "bg-purple-600 text-white shadow-lg shadow-purple-900/30"
-          : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-white/10"
+          ? "bg-violet-600 text-white shadow-lg shadow-violet-900/30"
+          : "bg-white/5 text-zinc-400 hover:bg-white/8 hover:text-white border border-white/8"
       }`}
     >
       {label}
       {count !== undefined && count > 0 && (
-        <span className={`text-xs rounded-full px-1.5 py-0.5 leading-none ${filter === value ? "bg-white/20" : "bg-white/10 text-zinc-300"}`}>
+        <span className={`text-[10px] rounded-full px-1.5 py-0.5 leading-none font-bold ${filter === value ? "bg-white/20" : "bg-white/10 text-zinc-300"}`}>
           {count}
         </span>
       )}
     </button>
   );
 
+  /* ── Music Video Card ─────────────────────────────────────────────────── */
   const MusicCard = ({ job, isPrimary = false }: { job: MusicVideoJob; isPrimary?: boolean }) => {
     const progress = job.totalScenes ? Math.round((job.completedScenes / job.totalScenes) * 100) : 0;
     const rendering = ["rendering","assembling"].includes(job.status);
     const completed = job.status === "completed";
 
     return (
-      <div className={`relative rounded-2xl border overflow-hidden transition-all group ${
+      <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
         isPrimary
-          ? "border-purple-500/50 bg-gradient-to-br from-purple-900/30 via-zinc-900 to-pink-900/20 shadow-xl shadow-purple-900/20"
+          ? "border-violet-500/40 bg-gradient-to-br from-violet-950/40 via-[#111118] to-purple-950/20 shadow-xl shadow-violet-900/15"
           : completed
-          ? "border-green-500/20 bg-zinc-900/80 hover:border-green-500/40 hover:shadow-lg hover:shadow-green-900/10"
+          ? "border-emerald-500/20 bg-[#111118] hover:border-emerald-500/35 hover:shadow-lg hover:shadow-emerald-900/10"
           : rendering
-          ? "border-amber-500/30 bg-zinc-900/80"
-          : "border-white/10 bg-zinc-900/80 hover:border-white/20"
+          ? "border-amber-500/25 bg-[#111118] shadow-md shadow-amber-900/10"
+          : "border-white/8 bg-[#111118] hover:border-white/15 hover:shadow-md"
       }`}>
-        {completed && <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent pointer-events-none" />}
-        {isPrimary && (
-          <div className="absolute top-3 right-3 z-10">
-            <span className="flex items-center gap-1 text-xs font-semibold text-purple-300 bg-purple-600/20 border border-purple-500/30 rounded-full px-2 py-0.5">
-              <Sparkles className="h-3 w-3" /> Last edited
-            </span>
-          </div>
-        )}
+        {/* Ambient glow for rendering */}
+        {rendering && <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />}
+        {completed && <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/4 to-transparent pointer-events-none" />}
+
         <div className="p-5">
+          {/* Top row: badge + time */}
+          <div className="flex items-center justify-between mb-3">
+            <StatusBadge status={job.status} />
+            <span className="text-[11px] text-zinc-600">{timeAgo(job.createdAt)}</span>
+          </div>
+
+          {/* Thumbnail + info */}
           <div className="flex gap-4">
-            {/* Thumbnail */}
-            <div className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border ${completed ? "border-green-500/30" : "border-white/10"} bg-zinc-800`}>
+            <div className={`relative flex-shrink-0 w-24 h-16 rounded-xl overflow-hidden border ${
+              completed ? "border-emerald-500/25" : rendering ? "border-amber-500/20" : "border-white/8"
+            } bg-zinc-900`}>
               {completed && job.finalVideoUrl ? (
                 <>
-                  <video src={job.finalVideoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
-                    <Play className="h-5 w-5 text-white fill-current drop-shadow" />
+                  {job.thumbnailUrl ? (
+                    <img src={job.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <video src={job.finalVideoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/15 transition-colors">
+                    <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Play className="h-3.5 w-3.5 text-white fill-current ml-0.5" />
+                    </div>
                   </div>
-                  <div className="absolute inset-0 rounded-xl ring-1 ring-green-400/40 group-hover:ring-green-400/60 transition-all" />
                 </>
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  {rendering ? <Loader2 className="h-6 w-6 text-amber-400 animate-spin" /> : <Film className="h-6 w-6 text-zinc-600" />}
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+                  {rendering ? (
+                    <div className="relative">
+                      <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+                    </div>
+                  ) : (
+                    <Music className="h-6 w-6 text-zinc-600" />
+                  )}
                 </div>
               )}
             </div>
-            {/* Info */}
+
             <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-2 mb-1 flex-wrap">
-                <h3 className="font-bold text-base truncate leading-tight text-zinc-100">{job.title}</h3>
-                <StatusBadge status={job.status} />
-              </div>
-              <div className="flex flex-wrap gap-x-2 text-xs text-zinc-500 mb-1.5">
+              <h3 className="font-bold text-[15px] truncate leading-tight text-white mb-1">{job.title}</h3>
+              <div className="flex flex-wrap gap-x-2 text-[11px] text-zinc-500">
                 {job.genre && <span className="text-zinc-400">{job.genre}</span>}
-                {job.mood && <><span>·</span><span>{job.mood}</span></>}
-                {job.audioDuration && <><span>·</span><span>{formatDuration(job.audioDuration)}</span></>}
-                <span>·</span><span>{job.completedScenes}/{job.totalScenes} scenes</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-zinc-600">
-                <Save className="h-3 w-3" />
-                <span>Saved automatically · {timeAgo(job.createdAt)}</span>
+                {job.mood && <><span className="text-zinc-600">·</span><span>{job.mood}</span></>}
+                {job.audioDuration ? <><span className="text-zinc-600">·</span><span>{formatDuration(job.audioDuration)}</span></> : null}
+                <span className="text-zinc-600">·</span><span>{job.completedScenes}/{job.totalScenes} scenes</span>
               </div>
             </div>
           </div>
 
-          {/* Render progress */}
+          {/* Scene progress dots */}
+          {job.totalScenes > 0 && (rendering || completed || job.failedScenes > 0) && (
+            <SceneDots total={job.totalScenes} completed={job.completedScenes} failed={job.failedScenes} />
+          )}
+
+          {/* Render progress bar */}
           {rendering && job.totalScenes > 0 && (
-            <div className="mt-4">
-              <div className="flex justify-between text-xs mb-1.5">
+            <div className="mt-3">
+              <div className="flex justify-between text-[11px] mb-1.5">
                 <span className="text-amber-400 font-medium flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" /> Rendering your video…
                 </span>
-                <span className="text-zinc-400">{progress}% · ~{Math.ceil((job.totalScenes - job.completedScenes) * 8)}s left</span>
+                <span className="text-zinc-500">{progress}%{job.totalScenes - job.completedScenes > 0 && ` · ~${Math.ceil((job.totalScenes - job.completedScenes) * 8)}s`}</span>
               </div>
-              <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-700" style={{ width: `${Math.max(progress, 3)}%` }} />
               </div>
             </div>
           )}
 
           {/* Actions */}
-          <div className="mt-4 flex items-center gap-2 flex-wrap">
+          <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 flex-wrap">
             <PrimaryCTA
               status={job.status}
               onContinue={() => handleContinueMusicJob(job)}
@@ -432,12 +477,12 @@ export default function Projects() {
               large={isPrimary}
             />
             {completed && job.finalVideoUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleMusicDownloadVideo(job)} className="gap-1.5 border-white/20 text-zinc-300 hover:bg-white/10 hover:text-white">
+              <Button size="sm" variant="outline" onClick={() => handleMusicDownloadVideo(job)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
                 <Download className="h-3.5 w-3.5" /> Download
               </Button>
             )}
             {job.audioUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleMusicDownloadAudio(job)} className="gap-1.5 border-white/20 text-zinc-300 hover:bg-white/10 hover:text-white">
+              <Button size="sm" variant="outline" onClick={() => handleMusicDownloadAudio(job)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
                 <Music className="h-3.5 w-3.5" /> Audio
               </Button>
             )}
@@ -447,19 +492,19 @@ export default function Projects() {
                 variant="outline"
                 onClick={() => togglePublicMutation.mutate({ jobId: job.id, isPublic: !job.isPublic })}
                 disabled={togglePublicMutation.isPending}
-                className={`gap-1.5 border-white/20 hover:bg-white/10 ${
+                className={`gap-1.5 border-white/12 hover:bg-white/8 h-9 text-xs rounded-lg ${
                   job.isPublic
-                    ? "text-green-400 border-green-500/30 hover:text-green-300"
-                    : "text-zinc-300 hover:text-white"
+                    ? "text-emerald-400 border-emerald-500/25 hover:text-emerald-300"
+                    : "text-zinc-400 hover:text-white"
                 }`}
-                title={job.isPublic ? `Public — click to make private` : "Make public for Google indexing"}
+                title={job.isPublic ? "Public — click to make private" : "Make public for Google indexing"}
               >
                 {job.isPublic ? <Link2 className="h-3.5 w-3.5" /> : <Globe className="h-3.5 w-3.5" />}
                 {job.isPublic ? "Public" : "Share"}
               </Button>
             )}
-            <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete">
-              <Trash2 className="h-4 w-4" />
+            <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-zinc-700 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
+              <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -467,76 +512,85 @@ export default function Projects() {
     );
   };
 
+  /* ── Generated Video Card ─────────────────────────────────────────────── */
   const GeneratedCard = ({ project, isPrimary = false }: { project: Project; isPrimary?: boolean }) => {
     const completed = project.status === "completed";
     const rendering = ["processing","pending"].includes(project.status);
 
     return (
-      <div className={`relative rounded-2xl border overflow-hidden transition-all group ${
+      <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
         isPrimary
-          ? "border-purple-500/50 bg-gradient-to-br from-purple-900/30 via-zinc-900 to-pink-900/20 shadow-xl shadow-purple-900/20"
+          ? "border-violet-500/40 bg-gradient-to-br from-violet-950/40 via-[#111118] to-purple-950/20 shadow-xl shadow-violet-900/15"
           : completed
-          ? "border-green-500/20 bg-zinc-900/80 hover:border-green-500/40 hover:shadow-lg hover:shadow-green-900/10"
+          ? "border-emerald-500/20 bg-[#111118] hover:border-emerald-500/35 hover:shadow-lg hover:shadow-emerald-900/10"
           : rendering
-          ? "border-amber-500/30 bg-zinc-900/80"
-          : "border-white/10 bg-zinc-900/80 hover:border-white/20"
+          ? "border-amber-500/25 bg-[#111118] shadow-md shadow-amber-900/10"
+          : "border-white/8 bg-[#111118] hover:border-white/15 hover:shadow-md"
       }`}>
-        {completed && <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent pointer-events-none" />}
-        {isPrimary && (
-          <div className="absolute top-3 right-3 z-10">
-            <span className="flex items-center gap-1 text-xs font-semibold text-purple-300 bg-purple-600/20 border border-purple-500/30 rounded-full px-2 py-0.5">
-              <Sparkles className="h-3 w-3" /> Last edited
-            </span>
-          </div>
-        )}
+        {rendering && <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />}
+        {completed && <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/4 to-transparent pointer-events-none" />}
+
         <div className="p-5">
+          {/* Top row */}
+          <div className="flex items-center justify-between mb-3">
+            <StatusBadge status={project.status} />
+            <span className="text-[11px] text-zinc-600">{timeAgo(project.createdAt)}</span>
+          </div>
+
+          {/* Thumbnail + info */}
           <div className="flex gap-4">
-            <div className={`relative flex-shrink-0 w-20 h-14 rounded-xl overflow-hidden border ${completed ? "border-green-500/30" : "border-white/10"} bg-zinc-800`}>
+            <div className={`relative flex-shrink-0 w-24 h-16 rounded-xl overflow-hidden border ${
+              completed ? "border-emerald-500/25" : rendering ? "border-amber-500/20" : "border-white/8"
+            } bg-zinc-900`}>
               {completed && project.outputUrl ? (
                 <>
                   <video src={project.outputUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
-                    <Play className="h-5 w-5 text-white fill-current drop-shadow" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/15 transition-colors">
+                    <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Play className="h-3.5 w-3.5 text-white fill-current ml-0.5" />
+                    </div>
                   </div>
-                  <div className="absolute inset-0 rounded-xl ring-1 ring-green-400/40 group-hover:ring-green-400/60 transition-all" />
                 </>
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  {rendering ? <Loader2 className="h-6 w-6 text-amber-400 animate-spin" /> : <Wand2 className="h-6 w-6 text-zinc-600" />}
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+                  {rendering ? (
+                    <div className="relative">
+                      <Loader2 className="h-6 w-6 text-amber-400 animate-spin" />
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+                    </div>
+                  ) : (
+                    <Wand2 className="h-6 w-6 text-zinc-600" />
+                  )}
                 </div>
               )}
             </div>
+
             <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-2 mb-1 flex-wrap">
-                <h3 className="font-bold text-base truncate leading-tight text-zinc-100">{project.title}</h3>
-                <StatusBadge status={project.status} />
-              </div>
-              <div className="flex flex-wrap gap-x-2 text-xs text-zinc-500 mb-1.5">
+              <h3 className="font-bold text-[15px] truncate leading-tight text-white mb-1">{project.title}</h3>
+              <div className="flex flex-wrap gap-x-2 text-[11px] text-zinc-500">
                 <span className="text-zinc-400">{TOOL_LABELS[project.toolType] ?? project.toolType}</span>
-                <span>·</span><span>{project.creditCost} credits</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-zinc-600">
-                <Save className="h-3 w-3" />
-                <span>Saved automatically · {timeAgo(project.createdAt)}</span>
+                <span className="text-zinc-600">·</span><span>{project.creditCost} credits</span>
               </div>
             </div>
           </div>
 
+          {/* Processing indicator */}
           {rendering && (
-            <div className="mt-4">
-              <div className="flex justify-between text-xs mb-1.5">
+            <div className="mt-3">
+              <div className="flex justify-between text-[11px] mb-1.5">
                 <span className="text-amber-400 font-medium flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" /> Processing your video…
                 </span>
-                <span className="text-zinc-400">In queue</span>
+                <span className="text-zinc-500">In queue</span>
               </div>
-              <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 animate-pulse" style={{ width: "55%" }} />
               </div>
             </div>
           )}
 
-          <div className="mt-4 flex items-center gap-2 flex-wrap">
+          {/* Actions */}
+          <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 flex-wrap">
             <PrimaryCTA
               status={project.status}
               onContinue={() => toast.info("Opening project…")}
@@ -544,12 +598,12 @@ export default function Projects() {
               large={isPrimary}
             />
             {completed && project.outputUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleDownload(project)} className="gap-1.5 border-white/20 text-zinc-300 hover:bg-white/10 hover:text-white">
+              <Button size="sm" variant="outline" onClick={() => handleDownload(project)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
                 <Download className="h-3.5 w-3.5" /> Download
               </Button>
             )}
-            <button onClick={() => setDeleteProjectId(project.id)} className="ml-auto p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete">
-              <Trash2 className="h-4 w-4" />
+            <button onClick={() => setDeleteProjectId(project.id)} className="ml-auto p-2 rounded-lg text-zinc-700 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
+              <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -557,20 +611,21 @@ export default function Projects() {
     );
   };
 
+  /* ── Empty state ─────────────────────────────────────────────────────── */
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center mb-4">
-        {activeTab === "music_videos" ? <Music className="h-8 w-8 text-purple-400" /> : <Wand2 className="h-8 w-8 text-purple-400" />}
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div className="w-20 h-20 rounded-2xl bg-violet-600/8 border border-violet-500/15 flex items-center justify-center mb-5">
+        {activeTab === "music_videos" ? <Music className="h-9 w-9 text-violet-400" /> : <Wand2 className="h-9 w-9 text-violet-400" />}
       </div>
       <h3 className="text-xl font-bold text-white mb-2">No projects yet</h3>
-      <p className="text-zinc-500 text-sm mb-6 max-w-xs">
+      <p className="text-zinc-500 text-sm mb-8 max-w-xs leading-relaxed">
         {activeTab === "music_videos"
-          ? "Create your first AI music video — upload a song and let WizVid do the rest."
+          ? "Create your first AI music video — upload a song and let WizVid handle the rest."
           : "Generate your first AI video from a text prompt in seconds."}
       </p>
       <a
-        href={activeTab === "music_videos" ? "/music-video/create" : "/text-to-video"}
-        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold px-6 py-3 transition-all shadow-lg shadow-purple-900/30"
+        href={activeTab === "music_videos" ? "/music-video/create" : "/wizpilot"}
+        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold px-7 py-3 transition-all shadow-lg shadow-violet-900/25 text-sm"
       >
         <Sparkles className="h-4 w-4" />
         Create your first video
@@ -587,20 +642,20 @@ export default function Projects() {
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="border-b border-white/8 sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur">
-        <div className="max-w-4xl mx-auto flex h-16 items-center justify-between px-4">
-          <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors px-2 py-2">
-            <ArrowLeft className="h-4 w-4" />
+      <div className="border-b border-white/6 sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto flex h-14 items-center justify-between px-4">
+          <a href="/dashboard" className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-white transition-colors px-2 py-2 rounded-lg hover:bg-white/5">
+            <ArrowLeft className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Dashboard</span>
           </a>
           <div className="flex items-center gap-2">
-            <Film className="h-5 w-5 text-purple-400" />
-            <h1 className="text-lg font-bold text-white">My Projects</h1>
+            <Film className="h-4.5 w-4.5 text-violet-400" />
+            <h1 className="text-base font-bold text-white tracking-tight">My Projects</h1>
           </div>
           <div className="flex items-center gap-2">
             {(activeTab === "generated" ? pendingCount : musicRenderingCount) > 0 && (
-              <button onClick={() => activeTab === "generated" ? refetchProjects() : refetchMusic()} className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-white/5">
-                <RefreshCw className="h-3.5 w-3.5" />
+              <button onClick={() => activeTab === "generated" ? refetchProjects() : refetchMusic()} className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-white/5">
+                <RefreshCw className="h-3 w-3" />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
             )}
@@ -608,21 +663,21 @@ export default function Projects() {
           </div>
         </div>
         {/* Tab bar */}
-        <div className="max-w-4xl mx-auto px-4 flex gap-1 pb-0">
+        <div className="max-w-4xl mx-auto px-4 flex gap-0 pb-0">
           {(["music_videos", "generated"] as const).map(tab => (
             <button
               key={tab}
               onClick={() => { setActiveTab(tab); setFilter("all"); }}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab ? "border-purple-500 text-white" : "border-transparent text-zinc-500 hover:text-white"
+              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
+                activeTab === tab ? "border-violet-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              {tab === "music_videos" ? <><Music className="h-4 w-4" /> Music Videos</> : <><Zap className="h-4 w-4" /> Generated Videos</>}
+              {tab === "music_videos" ? <><Music className="h-3.5 w-3.5" /> Music Videos</> : <><Zap className="h-3.5 w-3.5" /> Generated Videos</>}
               {tab === "music_videos" && (musicJobs?.length ?? 0) > 0 && (
-                <span className="ml-1 rounded-full bg-purple-600/30 text-purple-300 text-xs px-1.5 py-0.5 leading-none">{musicJobs!.length}</span>
+                <span className="rounded-full bg-violet-600/25 text-violet-300 text-[10px] px-1.5 py-0.5 leading-none font-bold">{musicJobs!.length}</span>
               )}
               {tab === "generated" && (projects?.length ?? 0) > 0 && (
-                <span className="ml-1 rounded-full bg-purple-600/30 text-purple-300 text-xs px-1.5 py-0.5 leading-none">{projects!.length}</span>
+                <span className="rounded-full bg-violet-600/25 text-violet-300 text-[10px] px-1.5 py-0.5 leading-none font-bold">{projects!.length}</span>
               )}
             </button>
           ))}
@@ -633,18 +688,20 @@ export default function Projects() {
       <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
         {/* Credit bar */}
         {creditData && (
-          <div className="flex items-center gap-2 mb-6 rounded-xl border border-white/8 bg-white/3 px-4 py-3">
-            <Zap className="h-4 w-4 text-yellow-400 flex-shrink-0" />
+          <div className="flex items-center gap-3 mb-6 rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3">
+            <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
+              <Zap className="h-4 w-4 text-yellow-400" />
+            </div>
             <span className="text-sm text-white">
-              <span className="font-bold text-yellow-300">{creditData.balance.toLocaleString()} credits</span> remaining
+              <span className="font-bold text-yellow-300">{creditData.balance.toLocaleString()}</span> <span className="text-zinc-400">credits remaining</span>
             </span>
-            <a href="/credits" className="ml-auto text-xs text-purple-400 hover:text-purple-300 transition-colors">Top up →</a>
+            <a href="/credits" className="ml-auto text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium">Top up</a>
           </div>
         )}
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <Loader2 className="h-8 w-8 text-violet-400 animate-spin" />
             <p className="text-zinc-500 text-sm">Loading your projects…</p>
           </div>
         ) : totalCount === 0 ? (
@@ -655,8 +712,8 @@ export default function Projects() {
             {((activeTab === "music_videos" && primaryMusicJob) || (activeTab === "generated" && primaryProject)) && (
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm font-semibold text-purple-300 uppercase tracking-wider">Continue your last project</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                  <span className="text-xs font-semibold text-violet-300 uppercase tracking-widest">Continue where you left off</span>
                 </div>
                 {activeTab === "music_videos" && primaryMusicJob && <MusicCard job={primaryMusicJob} isPrimary />}
                 {activeTab === "generated" && primaryProject && <GeneratedCard project={primaryProject} isPrimary />}
@@ -675,7 +732,7 @@ export default function Projects() {
 
             {/* ── Project list ─────────────────────────────────────────────── */}
             {(activeTab === "music_videos" ? filteredMusicJobs : filteredProjects).length === 0 ? (
-              <div className="text-center py-12 text-zinc-500 text-sm">No projects match this filter.</div>
+              <div className="text-center py-16 text-zinc-500 text-sm">No projects match this filter.</div>
             ) : (
               <div className="flex flex-col gap-3">
                 {activeTab === "music_videos"
@@ -686,12 +743,12 @@ export default function Projects() {
             )}
 
             {/* ── New project CTA ─────────────────────────────────────────── */}
-            <div className="mt-8 pt-6 border-t border-white/8 flex justify-center">
+            <div className="mt-10 pt-6 border-t border-white/5 flex justify-center">
               <a
-                href={activeTab === "music_videos" ? "/music-video/create" : "/text-to-video"}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 text-zinc-300 hover:text-white font-medium px-6 py-3 transition-all"
+                href={activeTab === "music_videos" ? "/music-video/create" : "/wizpilot"}
+                className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 hover:border-violet-500/30 text-zinc-400 hover:text-white font-medium px-6 py-3 transition-all text-sm"
               >
-                <Sparkles className="h-4 w-4 text-purple-400" />
+                <Plus className="h-4 w-4 text-violet-400" />
                 Start a new project
                 <ChevronRight className="h-4 w-4" />
               </a>
@@ -702,9 +759,9 @@ export default function Projects() {
 
       {/* ── Preview Modal ───────────────────────────────────────────────────── */}
       <Dialog open={!!previewProject} onOpenChange={(open) => !open && setPreviewProject(null)}>
-        <DialogContent className="max-w-3xl w-full bg-zinc-900 border-white/10 p-0 overflow-hidden">
-          <DialogHeader className="px-5 pt-5 pb-3">
-            <DialogTitle className="text-white text-lg">{previewProject?.title}</DialogTitle>
+        <DialogContent className="max-w-3xl w-full bg-[#111118] border-white/10 p-0 overflow-hidden rounded-2xl">
+          <DialogHeader className="px-6 pt-6 pb-3">
+            <DialogTitle className="text-white text-lg font-bold">{previewProject?.title}</DialogTitle>
             <DialogDescription className="text-zinc-500 text-sm">
               {TOOL_LABELS[previewProject?.toolType ?? ""] ?? previewProject?.toolType} · {previewProject?.creditCost} credits · {previewProject?.createdAt ? new Date(previewProject.createdAt).toLocaleDateString() : ""}
             </DialogDescription>
@@ -714,25 +771,25 @@ export default function Projects() {
               <video src={previewProject.outputUrl} controls autoPlay muted playsInline className="w-full h-full object-contain" />
             </div>
           )}
-          <div className="flex gap-3 px-5 py-4">
-            <Button onClick={() => previewProject && handleDownload(previewProject)} className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 flex-1">
+          <div className="flex gap-3 px-6 py-5">
+            <Button onClick={() => previewProject && handleDownload(previewProject)} className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white border-0 flex-1 h-11 rounded-xl font-semibold">
               <Download className="h-4 w-4" /> Download Video
             </Button>
-            <Button variant="outline" onClick={() => setPreviewProject(null)} className="border-white/20 text-white hover:bg-white/10">Close</Button>
+            <Button variant="outline" onClick={() => setPreviewProject(null)} className="border-white/15 text-white hover:bg-white/8 h-11 rounded-xl">Close</Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* ── Delete Generated ────────────────────────────────────────────────── */}
       <AlertDialog open={deleteProjectId !== null} onOpenChange={(open) => !open && setDeleteProjectId(null)}>
-        <AlertDialogContent className="bg-zinc-900 border-white/10">
+        <AlertDialogContent className="bg-[#111118] border-white/10 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete this project?</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-500">This will permanently delete the project and its video. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10 bg-transparent">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteProjectId !== null && deleteProjectMutation.mutate({ projectId: deleteProjectId })} disabled={deleteProjectMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white border-0">
+            <AlertDialogCancel className="border-white/15 text-white hover:bg-white/8 bg-transparent rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteProjectId !== null && deleteProjectMutation.mutate({ projectId: deleteProjectId })} disabled={deleteProjectMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white border-0 rounded-xl">
               {deleteProjectMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />} Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -741,14 +798,14 @@ export default function Projects() {
 
       {/* ── Delete Music Video ──────────────────────────────────────────────── */}
       <AlertDialog open={deleteMusicJobId !== null} onOpenChange={(open) => !open && setDeleteMusicJobId(null)}>
-        <AlertDialogContent className="bg-zinc-900 border-white/10">
+        <AlertDialogContent className="bg-[#111118] border-white/10 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete this music video?</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-500">This will permanently delete the project, all scenes, and any generated video.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/20 text-white hover:bg-white/10 bg-transparent">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteMusicJobId !== null && deleteMusicJobMutation.mutate({ jobId: deleteMusicJobId })} disabled={deleteMusicJobMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white border-0">
+            <AlertDialogCancel className="border-white/15 text-white hover:bg-white/8 bg-transparent rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteMusicJobId !== null && deleteMusicJobMutation.mutate({ jobId: deleteMusicJobId })} disabled={deleteMusicJobMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white border-0 rounded-xl">
               {deleteMusicJobMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />} Delete
             </AlertDialogAction>
           </AlertDialogFooter>

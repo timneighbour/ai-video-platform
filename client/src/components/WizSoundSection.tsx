@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, Headphones, Sparkles } from "lucide-react";
+import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, Headphones, Sparkles, Radio } from "lucide-react";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 
 /* ── CDN assets ── */
@@ -23,7 +23,7 @@ const MODE_CONFIG: Record<AudioMode, {
   borderColor: string;
 }> = {
   normal: {
-    label: "Normal",
+    label: "Standard",
     sublabel: "Standard",
     description: "Flat mix · No EQ · Narrow stereo · Unprocessed",
     gradient: "",
@@ -40,8 +40,8 @@ const MODE_CONFIG: Record<AudioMode, {
   },
   cinematic: {
     label: "Cinematic",
-    sublabel: "WizSound™ Ultra",
-    description: "Concert-hall reverb · Deep bass · Spatial audio · Cinema-grade",
+    sublabel: "WizSound™ Spatial",
+    description: "Spatial depth · Concert-hall reverb · Deep bass · Cinema-grade immersive audio",
     gradient: "linear-gradient(135deg, rgba(217,70,239,0.9), rgba(139,92,246,0.8))",
     glow: "0 0 24px rgba(217,70,239,0.45), 0 0 48px rgba(139,92,246,0.2)",
     borderColor: "rgba(217,70,239,0.5)",
@@ -128,6 +128,55 @@ function createCinematicChain(ctx: AudioContext, source: MediaElementAudioSource
   reverbGain.connect(ctx.destination);
 
   return { bass, presence, air, comp, splitter, merger, delayL, delayR, convolver, reverbGain, dryGain };
+}
+
+/* ── Spatial Rings — Dolby Cinema-inspired pulsing rings ─────────────────── */
+function SpatialRings({ active, playing }: { active: boolean; playing: boolean }) {
+  if (!active) return null;
+  return (
+    <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden rounded-2xl">
+      {/* Outer ring */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-500/15"
+        style={{
+          width: "140%",
+          height: "140%",
+          animation: playing ? "spatialPulse 3s ease-in-out infinite" : "none",
+          opacity: playing ? 1 : 0.3,
+        }}
+      />
+      {/* Middle ring */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-500/20"
+        style={{
+          width: "110%",
+          height: "110%",
+          animation: playing ? "spatialPulse 3s ease-in-out infinite 0.5s" : "none",
+          opacity: playing ? 1 : 0.3,
+        }}
+      />
+      {/* Inner ring */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-purple-400/25"
+        style={{
+          width: "85%",
+          height: "85%",
+          animation: playing ? "spatialPulse 3s ease-in-out infinite 1s" : "none",
+          opacity: playing ? 1 : 0.3,
+        }}
+      />
+      {/* Ambient glow */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: playing
+            ? "radial-gradient(ellipse at center, rgba(217,70,239,0.08) 0%, transparent 70%)"
+            : "none",
+          animation: playing ? "spatialGlow 4s ease-in-out infinite" : "none",
+        }}
+      />
+    </div>
+  );
 }
 
 /* ── Player component ────────────────────────────────────────────────────── */
@@ -267,6 +316,9 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         />
       )}
 
+      {/* Spatial rings for cinematic mode */}
+      <SpatialRings active={mode === "cinematic"} playing={playing} />
+
       {/* ── Video ── */}
       <div className="relative w-full aspect-video bg-black overflow-hidden rounded-t-xl">
         {!loaded && (
@@ -286,7 +338,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
           onSeeked={handleVideoLoop}
         />
         {/* Hidden audio elements */}
-        <audio ref={audioNormalRef} src={AUDIO_NORMAL} preload="auto" loop crossOrigin="anonymous" />
+        <audio ref={audioNormalRef} src={AUDIO_NORMAL} preload="auto" loop />
         <audio ref={audioEnhancedRef} src={AUDIO_ENHANCED} preload="auto" loop crossOrigin="anonymous" />
         {/* Cinematic uses same enhanced source — Web Audio API processes it */}
         <audio ref={audioCinematicRef} src={AUDIO_ENHANCED} preload="auto" loop crossOrigin="anonymous" />
@@ -305,7 +357,14 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         )}
 
         {/* Mode badge */}
-        {mode !== "normal" && (
+        {mode === "cinematic" && (
+          <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold text-white"
+            style={{ background: cfg.gradient, boxShadow: cfg.glow }}>
+            <Radio className="w-3 h-3" />
+            Spatial Audio Active
+          </div>
+        )}
+        {mode === "enhanced" && (
           <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold text-white"
             style={{ background: cfg.gradient, boxShadow: cfg.glow }}>
             <Sparkles className="w-3 h-3" />
@@ -315,6 +374,25 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         {mode === "normal" && (
           <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold text-white/60 bg-white/10 border border-white/15">
             Standard Audio
+          </div>
+        )}
+
+        {/* Cinematic spatial indicator — bottom right */}
+        {mode === "cinematic" && playing && (
+          <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-fuchsia-500/30">
+            <div className="flex items-center gap-1">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="w-0.5 rounded-full bg-fuchsia-400"
+                  style={{
+                    height: `${8 + Math.random() * 8}px`,
+                    animation: `spatialBar 0.8s ease-in-out infinite ${i * 0.1}s`,
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-[9px] font-bold text-fuchsia-300 tracking-wider uppercase">Spatial</span>
           </div>
         )}
       </div>
@@ -348,7 +426,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
             style={{
               width: `${progress}%`,
               background: mode === "cinematic"
-                ? "linear-gradient(90deg, #d946ef, #8b5cf6)"
+                ? "linear-gradient(90deg, #d946ef, #8b5cf6, #d946ef)"
                 : mode === "enhanced"
                 ? "linear-gradient(90deg, #8b5cf6, #6366f1)"
                 : "rgba(255,255,255,0.5)",
@@ -378,12 +456,13 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
               <button
                 key={m}
                 onClick={() => setMode(m)}
-                className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-250 ${
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-250 flex items-center justify-center gap-1.5 ${
                   active ? "text-white" : "text-white/35 hover:text-white/60"
                 }`}
                 style={active && m !== "normal" ? { background: c.gradient, boxShadow: c.glow } : active ? { background: "rgba(255,255,255,0.12)" } : {}}
                 aria-pressed={active}
               >
+                {m === "cinematic" && <Radio className="w-3 h-3" />}
                 {c.label}
               </button>
             );
@@ -394,7 +473,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         </p>
         {!playing && (
           <p className="text-fuchsia-400/55 text-[10px] text-center mt-1.5 animate-pulse">
-            ▶ Press play, then switch modes to hear the difference
+            ▶ Press play, then switch modes to hear the spatial difference
           </p>
         )}
       </div>
@@ -408,22 +487,34 @@ function FeatureCard({
   title,
   description,
   gradient,
+  badge,
 }: {
   icon: typeof Zap;
   title: string;
   description: string;
   gradient: string;
+  badge?: string;
 }) {
   return (
-    <div className="glass-card p-6 group">
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
-        style={{ background: gradient }}
-      >
-        <Icon className="w-5 h-5 text-white" />
+    <div className="glass-card p-5 group relative">
+      {badge && (
+        <div className="absolute -top-2 right-4 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider text-white"
+          style={{ background: gradient }}>
+          {badge}
+        </div>
+      )}
+      <div className="flex items-start gap-4">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+          style={{ background: gradient }}
+        >
+          <Icon className="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <h3 className="text-white font-semibold text-sm mb-1">{title}</h3>
+          <p className="text-white/45 text-xs leading-relaxed">{description}</p>
+        </div>
       </div>
-      <h3 className="text-white font-semibold text-base mb-2">{title}</h3>
-      <p className="text-white/50 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -447,23 +538,32 @@ export default function WizSoundSection() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 px-6 bg-gradient-to-b from-[#0d0d18] via-[#0f0f0f] to-[#0f0f0f]"
+      className="py-24 px-6 bg-gradient-to-b from-[#0d0d18] via-[#0f0f0f] to-[#0f0f0f] relative overflow-hidden"
     >
-      <div className="max-w-6xl mx-auto">
+      {/* Ambient background glow for spatial feel */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-fuchsia-500/[0.03] blur-[120px]" />
+        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-violet-500/[0.04] blur-[100px]" />
+      </div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14 reveal" style={{ transitionDelay: "0ms" }}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300 text-xs font-mono tracking-widest uppercase font-semibold mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
-            WizSound™ Audio Engine
+            WizSound™ Spatial Audio Engine
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
             Hear the{" "}
             <span className="bg-gradient-to-r from-fuchsia-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-              difference
+              spatial difference
             </span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
-            Toggle between Normal, Enhanced, and Cinematic modes to experience how WizSound transforms your audio.
+            Cinema-grade immersive audio. Toggle between Standard, Enhanced, and Cinematic spatial modes to experience how WizSound transforms your video's sound.
+          </p>
+          <p className="text-fuchsia-400/50 text-sm mt-2 font-medium">
+            Best experienced with headphones for full spatial depth
           </p>
         </div>
 
@@ -475,34 +575,83 @@ export default function WizSoundSection() {
           </div>
 
           {/* Feature cards */}
-          <div className="flex flex-col gap-4 reveal" style={{ transitionDelay: "200ms" }}>
+          <div className="flex flex-col gap-3 reveal" style={{ transitionDelay: "200ms" }}>
             <FeatureCard
-              icon={Zap}
-              title="Normal"
+              icon={Volume2}
+              title="Standard Audio"
               description="The raw, unprocessed audio — flat mix, no EQ, narrow stereo. The baseline before WizSound enhancement."
               gradient="linear-gradient(135deg, rgba(100,100,120,0.8), rgba(60,60,80,0.8))"
             />
             <FeatureCard
               icon={Music2}
-              title="Enhanced"
-              description="Studio-grade EQ, bass boost, stereo widening, and light compression. Immediate, clean improvement."
+              title="WizSound Enhanced"
+              description="Studio-grade EQ, bass boost, stereo widening, and light compression. Immediate, clean improvement for any content."
               gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,102,241,0.8))"
             />
             <FeatureCard
-              icon={Film}
-              title="Cinematic"
-              description="Concert-hall reverb, deep spatial bass, and cinema-grade mastering. Sounds like a Hollywood production."
+              icon={Radio}
+              title="WizSound Cinematic"
+              description="Full spatial audio mastering — concert-hall reverb, deep immersive bass, stereo widening, and cinema-grade dynamic range. Your video sounds like it belongs in a Dolby Cinema."
               gradient="linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))"
+              badge="SPATIAL"
             />
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-fuchsia-500/20 bg-fuchsia-500/5">
-              <Headphones className="w-5 h-5 text-fuchsia-400 flex-shrink-0" />
-              <p className="text-white/55 text-sm leading-relaxed">
-                Use headphones for the best spatial audio experience in Cinematic mode.
+
+            {/* Spatial depth indicator */}
+            <div className="p-4 rounded-xl border border-fuchsia-500/20 bg-gradient-to-br from-fuchsia-500/8 to-violet-500/5">
+              <div className="flex items-center gap-3 mb-3">
+                <Headphones className="w-5 h-5 text-fuchsia-400 flex-shrink-0" />
+                <div>
+                  <p className="text-white/80 text-sm font-semibold">Spatial Sound Experience</p>
+                  <p className="text-white/40 text-[11px]">Inspired by Dolby Cinema immersive audio</p>
+                </div>
+              </div>
+              {/* Spatial depth bars */}
+              <div className="grid grid-cols-5 gap-1.5 mt-2">
+                {["Bass depth", "Stereo width", "Reverb space", "Dynamic range", "Clarity"].map((label, i) => (
+                  <div key={label} className="text-center">
+                    <div className="h-12 bg-white/5 rounded-lg relative overflow-hidden mb-1">
+                      <div
+                        className="absolute bottom-0 left-0 right-0 rounded-lg"
+                        style={{
+                          height: `${[90, 85, 80, 88, 82][i]}%`,
+                          background: `linear-gradient(to top, rgba(217,70,239,${0.3 + i * 0.1}), rgba(139,92,246,${0.2 + i * 0.08}))`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-[8px] text-white/30 font-medium leading-tight block">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pricing callout */}
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/8 bg-white/[0.03]">
+              <Sparkles className="w-4 h-4 text-violet-400 flex-shrink-0" />
+              <p className="text-white/45 text-xs leading-relaxed">
+                <span className="text-white/70 font-medium">Standard Audio</span> is free with every render.{" "}
+                <span className="text-violet-300 font-medium">Enhanced</span> +£1 ·{" "}
+                <span className="text-fuchsia-300 font-medium">Cinematic Spatial</span> +£3
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Keyframes for spatial effects */}
+      <style>{`
+        @keyframes spatialPulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+          50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.6; }
+        }
+        @keyframes spatialGlow {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+        @keyframes spatialBar {
+          0%, 100% { transform: scaleY(0.4); }
+          50% { transform: scaleY(1); }
+        }
+      `}</style>
     </section>
   );
 }

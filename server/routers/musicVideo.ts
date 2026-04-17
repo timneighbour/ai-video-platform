@@ -3054,6 +3054,48 @@ Return a JSON array of objects matching the lyric lines provided.`;
       return { url, key };
     }),
 
+  // ── Enhance Prompt ─────────────────────────────────────────────────────────
+  enhancePrompt: protectedProcedure
+    .input(z.object({
+      prompt: z.string().min(3).max(2000),
+      genre: z.string().optional(),
+      mood: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are WizGenesis\u2122 \u2014 the intelligence layer of WizVid, a cinematic AI video creation platform.
+
+Your job is to take a rough, casual user prompt and transform it into a structured, detailed, AI-friendly video description that will produce a stunning cinematic music video.
+
+Rules:
+1. PRESERVE the user's core intent, characters, and setting \u2014 never change what they asked for
+2. ADD cinematic detail: camera angles, lighting, colour palette, mood, atmosphere, transitions
+3. ADD scene structure hints: opening shot, build-up, climax, resolution
+4. ADD character detail: clothing, expression, body language, positioning
+5. ADD environment detail: time of day, weather, textures, depth
+6. Keep it under 500 words \u2014 concise but rich
+7. Write in present tense, descriptive prose (not bullet points)
+8. Do NOT add music/audio instructions \u2014 WizSound handles that separately
+9. Do NOT mention AI, generation, or rendering \u2014 write as if directing a real shoot
+10. Match the genre and mood if provided
+
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes around it.`,
+          },
+          {
+            role: "user",
+            content: `Enhance this video concept:\n\n"${input.prompt}"${input.genre ? `\n\nGenre: ${input.genre}` : ""}${input.mood ? `\nMood: ${input.mood}` : ""}`,
+          },
+        ],
+      });
+      const rawContent = response.choices?.[0]?.message?.content;
+      const enhanced = (typeof rawContent === "string" ? rawContent.trim() : "") || input.prompt;
+      return { enhanced };
+    }),
+
   // List all public videos (for sitemap)
   listPublicVideos: publicProcedure.query(async () => {
     const db = await getDb();
