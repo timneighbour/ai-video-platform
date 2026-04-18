@@ -4766,3 +4766,30 @@
 - [x] SWC-QA5: CTA language consistent across all key pages
 - [x] SWC-QA6: WizCreate handled intentionally
 - [x] SWC-QA7: Site feels fully premium and consistent
+
+## TIM'S LIVE ISSUES (Round 2)
+
+### 1. Browser Title Still "WizVid AI"
+- [x] LIVE-1A: index.html title is correct; VITE_APP_TITLE is a built-in env that must be changed in Management UI → Settings → General
+- [x] LIVE-1B: No dynamic document.title sets WizVid AI (only SeoLandingPage and WatchPage set titles dynamically, both use correct naming)
+- [x] LIVE-1C: Title is correct in index.html; user must update VITE_APP_TITLE in Settings → General for production
+
+### 2. Pricing/Help Nav Mismatch
+- [x] LIVE-2A: Pricing page nav matches homepage (Home / Products dropdown / Pricing / Help)
+- [x] LIVE-2B: Help page nav matches homepage (Home / Products dropdown / Pricing / Help)
+- [x] LIVE-2C: No "Create" or "Get Started Free" nav items remain
+
+### 3. CTA Inconsistency
+- [x] LIVE-3A: Full CTA audit complete
+- [x] LIVE-3B: CTA hierarchy enforced: Primary="Start Creating", Secondary="View Pricing"/"Explore Products"
+- [x] LIVE-3C: All removed — zero instances of "Get Started Free", "Get Starter", "Create something like this", "Start Creating with Wiz*"
+
+### 4. WizBoost in WIZ Engines
+- [x] LIVE-4: WizBoost™ is present as 4th engine card with full description, benefit, and flow reference
+
+### 5. Cross-Page Final Pass
+- [x] LIVE-5A: Homepage verified — luxury gold/silver/charcoal, correct nav, correct CTAs
+- [x] LIVE-5B: Pricing verified — matching nav, luxury styling
+- [x] LIVE-5C: Help verified — matching nav, luxury styling
+- [x] LIVE-5D: Auth/onboarding verified — luxury styling applied
+- [x] LIVE-5E: Fixed unicode escape sequences rendering literally on Onboarding page (\u2014, \u00B7)

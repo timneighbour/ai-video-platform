@@ -5,8 +5,8 @@ const options = [
   {
     href: '/music-video/create',
     icon: Music,
-    title: 'WizVideo \u00B7 Music Video Creator',
-    description: 'Turn your lyrics and audio into a full cinematic music video \u2014 with AI storyboard, characters, and scenes.',
+    title: 'WizVideo · Music Video Creator',
+    description: 'Turn your lyrics and audio into a full cinematic music video — with AI storyboard, characters, and scenes.',
     isPopular: true,
   },
   {
@@ -20,7 +20,7 @@ const options = [
     href: '/products/wizanimate',
     icon: Sparkles,
     title: 'WizAnimate',
-    description: 'Bring your characters to life with fluid AI animation \u2014 beat-matched, emotion-driven, and cinematic.',
+    description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
     isPopular: false,
   },
   {
@@ -65,7 +65,7 @@ const Onboarding: React.FC = () => {
         {/* Header section */}
         <div className="text-center mb-20 max-w-3xl">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03]">
-            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Step 1 of 2 \u2014 Choose your creation type</span>
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Step 1 of 2 — Choose your creation type</span>
           </div>
 
           <h1 className="text-5xl sm:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight">
@@ -73,14 +73,14 @@ const Onboarding: React.FC = () => {
           </h1>
 
           <p className="text-xl text-[--color-silver-dark]/50 font-light mb-8">
-            No editing skills needed \u2014 just describe your video and WIZ AI does the rest.
+            No editing skills needed — just describe your video and WIZ AI does the rest.
           </p>
 
           <div className="flex items-center justify-center gap-4 text-xs text-[--color-silver-dark]/35">
             <span>No editing skills needed</span>
-            <span className="text-[--color-gold]/[0.15]">\u00B7</span>
+            <span className="text-[--color-gold]/[0.15]">·</span>
             <span>Ready in minutes</span>
-            <span className="text-[--color-gold]/[0.15]">\u00B7</span>
+            <span className="text-[--color-gold]/[0.15]">·</span>
             <span>Just describe your video</span>
           </div>
         </div>

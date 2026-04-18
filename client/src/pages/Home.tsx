@@ -781,7 +781,7 @@ function WizSoundDemo() {
           <div className="text-center mt-10">
             <a href="/onboarding" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
               <Sparkles className="w-4 h-4" />
-              Start Creating with WizSound
+              Start Creating
             </a>
           </div>
         </div>
@@ -899,7 +899,7 @@ function WizLuminaDemo() {
           <div className="text-center mt-10">
             <a href="/onboarding" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
               <Eye className="w-4 h-4" />
-              Start Creating with WizLumina
+              Start Creating
             </a>
           </div>
         </div>
@@ -952,7 +952,7 @@ function Showcase() {
               </div>
               <div className="px-5 pb-5">
                 <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors">
-                  Create something like this <ArrowRight className="w-3 h-3" />
+                  Start Creating <ArrowRight className="w-3 h-3" />
                 </a>
               </div>
             </div>
