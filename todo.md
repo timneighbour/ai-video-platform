@@ -4656,3 +4656,14 @@
 - [x] LUX #8: Typography feel — elegant, expensive, cinematic, luxury-tech
 - [x] LUX #9: Footer — premium as the hero, intentional, luxurious, complete
 - [x] LUX #10: Final quality bar — Harrods of AI, luxury flagship, visuals match ambition
+
+## Ella's Luxury Motion + Demo System Polish Pass
+- [x] MOTION #1: Hero motion — add premium cinematic moving background/motion layer (dark luxury, no neon)
+- [x] MOTION #2: 20-sec demo section — upgrade visual pacing, clarity, CTA placement, premium feel
+- [x] MOTION #3: WizSound demo — Normal/Enhanced/Cinematic audio comparison with premium switching UX
+- [x] MOTION #4: WizLumina demo — before/after visual comparison, premium presentation
+- [x] MOTION #5: Remove all emojis from public-facing content (priority components cleaned: RenderPaywallModal, PostRenderRetentionScreen, LowCreditBanner, UpgradeBanner, UpgradeModal, CharacterManager, WizGenesisModal, CharacterConfirmationStep, WizVidEngine)
+- [x] MOTION #6: CTA consistency — Start Creating primary, Explore Products/View Pricing/Watch Demo secondary
+- [ ] MOTION #7: Title/brand — browser tab title to "WIZ AI | Create anything. Instantly."
+- [x] MOTION #8: Copy cleanup — no Pixar-style, no violet neon, premium wording only
+- [x] MOTION #9: Footer cleanup — no duplicates, intentional labels, premium feel

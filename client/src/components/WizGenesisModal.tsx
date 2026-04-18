@@ -78,11 +78,11 @@ const ENHANCE_TIERS: Array<{
     visualLabel: "WizLumina™ Enhance",
     audioFeatures: ["Stereo widening", "Frequency EQ", "Noise reduction"],
     visualFeatures: ["Improved brightness & contrast", "Sharper image", "Vibrant colours"],
-    badge: "🔊 POPULAR",
+    badge: "POPULAR",
   },
   {
     id: "cinematic",
-    label: "Cinematic ✨",
+    label: "Cinematic",
     audioPrice: 5,
     visualPrice: 5,
     audioLabel: "WizSound™ Cinematic",
@@ -142,7 +142,7 @@ export function WizGenesisModal({
   const totalPrice = selectedQuality.price + enhanceAddOn;
 
   const isCinematicMode = enhanceTier === "cinematic";
-  const ctaLabel = isCinematicMode ? "Render My Cinematic Video 🎬" : "Render My Video";
+  const ctaLabel = isCinematicMode ? "Render My Cinematic Video" : "Render My Video";
 
   async function handleRender() {
     trackEvent("WizGenesis_RenderClicked", { jobId, jobType, quality, enhanceTier, totalPrice });
@@ -277,15 +277,15 @@ export function WizGenesisModal({
                             )}
                             {tier.id === "cinematic" && (
                               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                                🔥 BEST EXPERIENCE
+                                BEST EXPERIENCE
                               </span>
                             )}
                           </div>
 
                           {/* Audio + Visual sub-labels */}
                           <div className="flex gap-3 mt-1.5 flex-wrap">
-                            <span className="text-[11px] text-indigo-400">🎵 {tier.audioLabel}</span>
-                            <span className="text-[11px] text-fuchsia-400">✦ {tier.visualLabel}</span>
+                            <span className="text-[11px] text-indigo-400">♪ {tier.audioLabel}</span>
+                            <span className="text-[11px] text-fuchsia-400">◆ {tier.visualLabel}</span>
                           </div>
 
                           {/* Microcopy for cinematic */}

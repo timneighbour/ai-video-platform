@@ -1,7 +1,7 @@
 /**
  * RenderPaywallModal — Unified enhancement tier system.
  *
- * One master toggle: Standard → Enhance → Cinematic ✨
+ * One master toggle: Standard → Enhance → Cinematic
  * Selecting a tier auto-syncs BOTH WizSound™ and WizLumina™.
  * Cinematic Mode is the hero option — highlighted, recommended, bundled at £8 (save £2).
  *
@@ -81,11 +81,11 @@ const ENHANCE_TIERS: Array<{
     visualLabel: "WizLumina™ Enhance",
     audioFeatures: ["Stereo widening", "Frequency EQ", "Noise reduction"],
     visualFeatures: ["Improved brightness & contrast", "Sharper image", "Vibrant colours"],
-    badge: "🔊 POPULAR",
+    badge: "POPULAR",
   },
   {
     id: "cinematic",
-    label: "Cinematic ✨",
+    label: "Cinematic",
     audioPrice: 5,
     visualPrice: 5,
     bundlePrice: 8, // bundle: save £2 vs £10 individual
@@ -141,7 +141,7 @@ export function RenderPaywallModal({
   const totalPrice = selectedQuality.price + enhanceAddOn;
 
   const isCinematicMode = enhanceTier === "cinematic";
-  const ctaLabel = isCinematicMode ? "Render My Cinematic Video 🎬" : "Render My Video";
+  const ctaLabel = isCinematicMode ? "Render My Cinematic Video" : "Render My Video";
 
   // Map enhance tier to audioTier expected by backend
   const backendAudioTier = enhanceTier === "enhance" ? "enhanced" : enhanceTier;
@@ -278,7 +278,7 @@ export function RenderPaywallModal({
                             )}
                             {tier.id === "cinematic" && (
                               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                                🔥 BEST EXPERIENCE
+                                BEST EXPERIENCE
                               </span>
                             )}
                           </div>
@@ -286,11 +286,11 @@ export function RenderPaywallModal({
                           {/* Audio + Visual sub-labels — the key UI showing both are synced */}
                           <div className="flex gap-3 mt-1.5 flex-wrap">
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-zinc-600">🎵</span>
+                              <span className="text-[10px] text-zinc-600">♪</span>
                               <span className="text-[11px] text-indigo-400 font-medium">{tier.audioLabel}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-zinc-600">✦</span>
+                              <span className="text-[10px] text-zinc-600">◆</span>
                               <span className="text-[11px] text-fuchsia-400 font-medium">{tier.visualLabel}</span>
                             </div>
                           </div>

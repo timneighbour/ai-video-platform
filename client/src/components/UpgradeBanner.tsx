@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, X, ArrowRight } from "lucide-react";
+import { Sparkles, X, ArrowRight, Rocket, PartyPopper } from "lucide-react";
 
 interface UpgradeBannerProps {
   type?: "limit" | "milestone" | "watermark";
@@ -9,17 +9,17 @@ interface UpgradeBannerProps {
 
 const BANNER_CONTENT = {
   limit: {
-    emoji: "🚀",
+    icon: Rocket,
     text: "You've reached your video limit.",
     cta: "Unlock more renders with Creator",
   },
   milestone: {
-    emoji: "🎉",
+    icon: PartyPopper,
     text: "You're on a roll!",
     cta: "Upgrade to Creator — 15 renders/month",
   },
   watermark: {
-    emoji: "✨",
+    icon: Sparkles,
     text: "Your video has a watermark.",
     cta: "Remove it with Creator — from £29/month",
   },
@@ -31,6 +31,7 @@ export default function UpgradeBanner({ type = "milestone", className = "" }: Up
   if (dismissed) return null;
 
   const content = BANNER_CONTENT[type];
+  const Icon = content.icon;
 
   return (
     <div
@@ -38,7 +39,7 @@ export default function UpgradeBanner({ type = "milestone", className = "" }: Up
       role="alert"
     >
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-xl flex-shrink-0" aria-hidden="true">{content.emoji}</span>
+        <Icon className="w-5 h-5 text-purple-400 flex-shrink-0" aria-hidden="true" />
         <div className="min-w-0">
           <span className="text-white/80 text-sm font-medium">{content.text} </span>
           <a

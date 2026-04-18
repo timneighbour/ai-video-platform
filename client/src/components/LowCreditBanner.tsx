@@ -188,7 +188,7 @@ export function LowCreditBanner({
               {isInsufficient ? "Not enough credits for this video" : "You're running low on credits"}
             </p>
             <span className={cn("text-xs px-2 py-0.5 rounded-full border font-medium", colours.badge)}>
-              ⚡ {balance} Credits remaining
+              {balance} Credits remaining
             </span>
           </div>
 

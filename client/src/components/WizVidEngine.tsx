@@ -33,7 +33,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_20px_rgba(255,255,255,0.1)]",
     border: "border-white/20",
     bg: "bg-white/5",
-    icon: "🎵",
+    icon: "♪",
     href: "/music-video/create",
     isInput: true,
   },

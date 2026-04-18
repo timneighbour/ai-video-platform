@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sparkles, Zap, Infinity, X } from "lucide-react";
+import { Sparkles, Zap, Infinity, X, Rocket, Download, PartyPopper } from "lucide-react";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -10,25 +10,25 @@ interface UpgradeModalProps {
 
 const TRIGGER_CONTENT = {
   limit: {
-    emoji: "🚀",
+    icon: Rocket,
     headline: "You've hit your video limit",
     subline: "Unlock unlimited videos with Creator",
     body: "You're on a roll! Upgrade to Creator for 15 renders/month, no watermarks, and faster rendering.",
   },
   download: {
-    emoji: "⬇️",
+    icon: Download,
     headline: "Remove the watermark",
     subline: "Download clean, watermark-free videos",
     body: "Upgrade to Creator or above to download your videos without the WIZ AI watermark and in higher quality.",
   },
   milestone: {
-    emoji: "🎉",
+    icon: PartyPopper,
     headline: "You're on a roll!",
     subline: "Unlock more with Creator",
     body: "You've created multiple videos — you're clearly a creator! Upgrade to Creator for 15 renders/month and no watermark.",
   },
   watermark: {
-    emoji: "✨",
+    icon: Sparkles,
     headline: "Go watermark-free",
     subline: "Professional videos, no branding",
     body: "Upgrade to Creator or above to remove the WIZ AI watermark from all your videos and unlock 4K quality.",
@@ -44,6 +44,7 @@ const CREATOR_FEATURES = [
 
 export default function UpgradeModal({ open, onClose, trigger = "milestone" }: UpgradeModalProps) {
   const content = TRIGGER_CONTENT[trigger];
+  const Icon = content.icon;
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -57,7 +58,9 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="text-4xl mb-3" aria-hidden="true">{content.emoji}</div>
+          <div className="mb-3" aria-hidden="true">
+            <Icon className="w-9 h-9 text-purple-400" />
+          </div>
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-white leading-tight">
               {content.headline}

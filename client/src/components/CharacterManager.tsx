@@ -92,10 +92,10 @@ const SLOT_COLORS = [
 ];
 
 const AI_STYLES: { id: AnimationStyle; label: string; desc: string; emoji: string }[] = [
-  { id: "realistic",  label: "Realistic",  desc: "Photorealistic human",   emoji: "📸" },
-  { id: "pixar3d",    label: "Pixar 3D",   desc: "Disney-Pixar animation", emoji: "🎬" },
-  { id: "anime",      label: "Anime",      desc: "Japanese anime style",   emoji: "⛩️" },
-  { id: "cartoon",    label: "Cartoon",    desc: "Bold cartoon style",     emoji: "🎨" },
+  { id: "realistic",  label: "Realistic",  desc: "Photorealistic human",   emoji: "" },
+  { id: "pixar3d",    label: "Cinematic 3D", desc: "Cinematic 3D animation", emoji: "" },
+  { id: "anime",      label: "Anime",      desc: "Japanese anime style",   emoji: "" },
+  { id: "cartoon",    label: "Cartoon",    desc: "Bold cartoon style",     emoji: "" },
 ];
 
 const AI_DESCRIPTION_EXAMPLES = [
@@ -324,7 +324,7 @@ export function CharacterManager({
 
               {/* Mode badge */}
               <Badge className={`text-xs ${isLocked ? "bg-emerald-900/60 text-emerald-300 border-emerald-700" : colors.badge}`}>
-                {isLocked ? "🔒 Locked" : char.mode === "ai_generated" ? "✨ AI Generated" : "📷 Photo Upload"}
+                {isLocked ? "Locked" : char.mode === "ai_generated" ? "AI Generated" : "Photo Upload"}
               </Badge>
 
               {/* Preview thumbnail */}
@@ -394,7 +394,7 @@ export function CharacterManager({
                               : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-violet-500 hover:text-violet-300"
                           }`}
                         >
-                          {role === "Lead Vocalist" ? "🎤" : role === "Guitarist" ? "🎸" : role === "Bassist" ? "🎸" : role === "Drummer" ? "🥁" : "🎹"} {role}
+                          {role}
                         </button>
                       ))}
                     </div>
@@ -634,7 +634,7 @@ export function CharacterManager({
                   {char.lockedDescription && (
                     <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
                       <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
-                        {isLocked ? "🔒 Locked Visual Brief" : "Visual Brief (editable)"}
+                        {isLocked ? "Locked Visual Brief" : "Visual Brief (editable)"}
                       </Label>
                       <Textarea value={char.lockedDescription}
                         onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
@@ -731,7 +731,7 @@ export function CharacterManager({
                         />
                         <div className="absolute top-2 right-2">
                           <Badge className="bg-emerald-900/80 text-emerald-300 border-emerald-700 text-xs">
-                            ✨ AI Generated
+                            AI Generated
                           </Badge>
                         </div>
                       </div>
@@ -748,7 +748,7 @@ export function CharacterManager({
                   {char.aiGeneratedBrief && (
                     <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
                       <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
-                        {isLocked ? "🔒 Locked Visual Brief" : "Visual Brief (editable)"}
+                        {isLocked ? "Locked Visual Brief" : "Visual Brief (editable)"}
                       </Label>
                       <Textarea value={char.lockedDescription}
                         onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}

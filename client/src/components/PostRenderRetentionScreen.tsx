@@ -395,7 +395,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             <Rocket className="w-4 h-4 text-violet-400" />
           </div>
           <div className="text-left flex-1">
-            <p className="text-sm font-semibold text-white">🚀 Want to get featured on WIZ AI?</p>
+            <p className="text-sm font-semibold text-white">Want to get featured on WIZ AI?</p>
             <p className="text-xs text-zinc-400">Create videos. Get discovered. Grow your audience.</p>
           </div>
           <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-violet-400 transition-colors" />

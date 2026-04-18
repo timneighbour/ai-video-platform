@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { useProjectResume } from "@/hooks/useProjectResume";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
+import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -10,6 +11,7 @@ import {
   Sparkles, Play, ArrowRight, Menu, X, ChevronDown,
   Music2, Image, Film, Zap, Wand2, FileText,
   Check, Star, Users, TrendingUp, Globe, Shield,
+  Volume2, VolumeX, Eye, Layers,
 } from "lucide-react";
 
 // ── Assets ───────────────────────────────────────────────────────────────────
@@ -228,38 +230,21 @@ function Nav() {
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(true);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [demoOpen, setDemoOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.play().catch(() => {});
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
   }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]">
-      {/* Background video */}
-      <video
-        ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover opacity-[0.10] blur-[4px] saturate-[0.4] brightness-[0.7]"
-        src={HERO_BG_VIDEO}
-        poster={HERO_BG_POSTER}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-hidden="true"
-      />
-      {/* Gradient overlays — deep cinematic */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/95 via-[#030303]/75 to-[#030303] pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#030303]/80 via-transparent to-[#030303]/60 pointer-events-none" />
-      {/* Subtle gold ambient glow */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75), transparent 70%)" }} />
+    <section
+      className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Cinematic motion background — gold dust, waveform, bloom */}
+      <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
@@ -335,24 +320,6 @@ function Hero() {
           </div>
         </div>
       </div>
-
-      {/* Mute toggle */}
-      <button
-        onClick={() => {
-          if (videoRef.current) {
-            videoRef.current.muted = !muted;
-            setMuted(!muted);
-          }
-        }}
-        className="absolute bottom-8 right-6 z-20 w-9 h-9 rounded-full border border-[--color-gold]/[0.1] bg-black/50 backdrop-blur-sm flex items-center justify-center text-[--color-silver-dark]/40 hover:text-[--color-silver-light] transition-colors"
-        aria-label={muted ? "Unmute" : "Mute"}
-      >
-        {muted ? (
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-        ) : (
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        )}
-      </button>
 
       <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
     </section>
@@ -543,6 +510,236 @@ function WhyWizAI() {
               <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{r.desc}</p>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── WizSound Demo ────────────────────────────────────────────────────────────
+const AUDIO_TIERS = [
+  {
+    id: "normal",
+    label: "Normal",
+    desc: "Raw AI-generated audio. Functional, but unpolished.",
+    bars: [0.3, 0.5, 0.4, 0.6, 0.3, 0.5, 0.4, 0.3, 0.5, 0.4, 0.6, 0.3, 0.4, 0.5, 0.3, 0.4],
+    color: "rgba(120,120,130,0.6)",
+    colorActive: "rgba(160,160,170,0.8)",
+  },
+  {
+    id: "enhanced",
+    label: "Enhanced",
+    desc: "Noise-reduced, balanced, and broadcast-ready.",
+    bars: [0.4, 0.6, 0.7, 0.8, 0.5, 0.7, 0.6, 0.5, 0.7, 0.6, 0.8, 0.5, 0.6, 0.7, 0.5, 0.6],
+    color: "rgba(180,170,140,0.6)",
+    colorActive: "rgba(196,164,100,0.85)",
+  },
+  {
+    id: "cinematic",
+    label: "Cinematic",
+    desc: "Full spatial mix with depth, warmth, and presence. Studio-grade.",
+    bars: [0.5, 0.7, 0.85, 0.95, 0.7, 0.9, 0.8, 0.65, 0.85, 0.75, 0.95, 0.7, 0.8, 0.9, 0.65, 0.8],
+    color: "rgba(180,150,50,0.5)",
+    colorActive: "rgba(212,175,55,0.9)",
+  },
+];
+
+function WizSoundDemo() {
+  const [activeTier, setActiveTier] = useState(0);
+  const tier = AUDIO_TIERS[activeTier];
+
+  return (
+    <section className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-16 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizSound™</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
+            Hear the difference
+          </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
+            Three tiers of audio quality. Switch between them and hear the upgrade instantly.
+          </p>
+        </div>
+
+        <div className="reveal">
+          {/* Tier selector */}
+          <div className="flex items-center justify-center gap-2 mb-10">
+            {AUDIO_TIERS.map((t, i) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTier(i)}
+                className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 border ${
+                  activeTier === i
+                    ? i === 2
+                      ? "border-[--color-gold]/30 bg-[--color-gold]/[0.08] text-[--color-gold] shadow-[0_0_20px_rgba(212,175,55,0.1)]"
+                      : i === 1
+                        ? "border-[--color-gold]/20 bg-[--color-gold]/[0.04] text-[--color-gold-dark]"
+                        : "border-white/15 bg-white/[0.06] text-white/80"
+                    : "border-white/[0.06] bg-transparent text-white/30 hover:text-white/50 hover:border-white/10"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Visualiser card */}
+          <div className="glass-card p-8 max-w-2xl mx-auto">
+            {/* Waveform bars */}
+            <div className="flex items-end justify-center gap-1.5 h-24 mb-8">
+              {tier.bars.map((h, i) => (
+                <div
+                  key={i}
+                  className="w-3 rounded-full transition-all duration-500"
+                  style={{
+                    height: `${h * 100}%`,
+                    background: tier.colorActive,
+                    boxShadow: activeTier === 2 ? `0 0 8px ${tier.color}` : "none",
+                    opacity: 0.5 + h * 0.5,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Tier info */}
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <Volume2 className="w-5 h-5" style={{ color: tier.colorActive }} />
+                <h3 className="text-xl font-bold text-white">{tier.label}</h3>
+                {activeTier === 2 && (
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-[--color-gold]/20 bg-[--color-gold]/[0.06] text-[--color-gold-dark]">Recommended</span>
+                )}
+              </div>
+              <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed max-w-md mx-auto">{tier.desc}</p>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-10">
+            <a href="/onboarding" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+              <Sparkles className="w-4 h-4" />
+              Start Creating with WizSound
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── WizLumina Demo ───────────────────────────────────────────────────────────
+function WizLuminaDemo() {
+  const [sliderPos, setSliderPos] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const handleMove = useCallback((clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    setSliderPos((x / rect.width) * 100);
+  }, []);
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => { if (isDragging.current) handleMove(e.clientX); };
+    const onTouchMove = (e: TouchEvent) => { if (isDragging.current) handleMove(e.touches[0].clientX); };
+    const onUp = () => { isDragging.current = false; };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("touchmove", onTouchMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [handleMove]);
+
+  return (
+    <section className="relative bg-[#040404] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-16 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizLumina™</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
+            See the difference
+          </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
+            Cinematic colour grading, HDR enhancement, and visual polish — applied to every frame automatically.
+          </p>
+        </div>
+
+        <div className="reveal">
+          {/* Before / After slider */}
+          <div
+            ref={containerRef}
+            className="relative max-w-3xl mx-auto aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] cursor-ew-resize select-none"
+            onMouseDown={(e) => { isDragging.current = true; handleMove(e.clientX); }}
+            onTouchStart={(e) => { isDragging.current = true; handleMove(e.touches[0].clientX); }}
+          >
+            {/* "After" (full image, underneath) */}
+            <div className="absolute inset-0">
+              <img
+                src={DEMO_POSTER}
+                alt="After WizLumina enhancement"
+                className="w-full h-full object-cover"
+                style={{ filter: "contrast(1.15) saturate(1.2) brightness(1.05)" }}
+              />
+              {/* Warm cinematic overlay */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
+            </div>
+
+            {/* "Before" (clipped) */}
+            <div
+              className="absolute inset-0"
+              style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
+            >
+              <img
+                src={DEMO_POSTER}
+                alt="Before WizLumina"
+                className="w-full h-full object-cover"
+                style={{ filter: "saturate(0.5) brightness(0.75) contrast(0.9)" }}
+              />
+              {/* Desaturated overlay */}
+              <div className="absolute inset-0 bg-black/10" />
+            </div>
+
+            {/* Slider line */}
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-white/80 z-10 pointer-events-none"
+              style={{ left: `${sliderPos}%`, boxShadow: "0 0 12px rgba(255,255,255,0.3)" }}
+            >
+              {/* Handle */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border-2 border-white/40 flex items-center justify-center shadow-xl">
+                <Layers className="w-4 h-4 text-white/80" />
+              </div>
+            </div>
+
+            {/* Labels */}
+            <div className="absolute top-4 left-4 z-20">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/60 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10">Before</span>
+            </div>
+            <div className="absolute top-4 right-4 z-20">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-gold] bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[--color-gold]/20">After WizLumina</span>
+            </div>
+          </div>
+
+          {/* Feature pills */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+            {["Cinematic Grading", "HDR Enhancement", "Frame Sharpening", "Colour Correction"].map((f) => (
+              <span key={f} className="text-[11px] font-semibold tracking-wide text-[--color-silver-dark]/40 border border-[--color-gold]/[0.08] bg-[--color-gold]/[0.02] px-4 py-2 rounded-full">{f}</span>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-10">
+            <a href="/onboarding" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+              <Eye className="w-4 h-4" />
+              Start Creating with WizLumina
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -790,6 +987,8 @@ export default function Home() {
         <ProductGrid />
         <WelcomeSection />
         <HowItWorks />
+        <WizSoundDemo />
+        <WizLuminaDemo />
         <WhyWizAI />
         <Showcase />
         <BuiltFor />

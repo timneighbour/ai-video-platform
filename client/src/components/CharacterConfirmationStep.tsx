@@ -280,7 +280,7 @@ export default function CharacterConfirmationStep({
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {char.photoCount > 0 && (
-                    <Badge className={`text-xs ${colors.badge}`}>📷 {char.photoCount} photo{char.photoCount !== 1 ? "s" : ""}</Badge>
+                    <Badge className={`text-xs ${colors.badge}`}>{char.photoCount} photo{char.photoCount !== 1 ? "s" : ""}</Badge>
                   )}
                   {showMasterPortraitBadge && (
                     <Badge className="bg-violet-900/60 text-violet-300 border-violet-700 text-xs flex items-center gap-1">

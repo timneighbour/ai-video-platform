@@ -86,10 +86,10 @@ function EQBars({ analyser, wizsound, active }: EQBarsProps) {
 
         const grad = ctx.createLinearGradient(0, H, 0, H - h);
         if (wizsound) {
-          grad.addColorStop(0, "rgba(76,29,149,1)");
-          grad.addColorStop(0.45, "rgba(139,92,246,1)");
-          grad.addColorStop(0.78, "rgba(217,70,239,0.95)");
-          grad.addColorStop(1, "rgba(240,171,252,0.9)");
+          grad.addColorStop(0, "rgba(140,120,60,1)");
+          grad.addColorStop(0.45, "rgba(212,175,55,1)");
+          grad.addColorStop(0.78, "rgba(196,164,100,0.95)");
+          grad.addColorStop(1, "rgba(230,210,150,0.9)");
         } else {
           grad.addColorStop(0, "rgba(80,80,90,0.9)");
           grad.addColorStop(0.5, "rgba(140,140,155,0.85)");
@@ -103,7 +103,7 @@ function EQBars({ analyser, wizsound, active }: EQBarsProps) {
 
         // Glow on tall bars for WizSound
         if (wizsound && rawVal > 0.5) {
-          ctx.shadowColor = "rgba(167,139,250,0.5)";
+          ctx.shadowColor = "rgba(212,175,55,0.4)";
           ctx.shadowBlur = 6;
           ctx.fill();
           ctx.shadowBlur = 0;
@@ -402,13 +402,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
           {/* ── Header label ── */}
         <div className="flex items-center justify-center gap-2 pb-3">
-          <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+          <Sparkles className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.7)' }} />
           <p
             className="text-xs font-semibold tracking-wide transition-all duration-300"
             style={
               wizsoundMode
                 ? {
-                    background: "linear-gradient(90deg,#a78bfa,#e879f9,#f0abfc)",
+                    background: "linear-gradient(90deg,#d4af37,#c4a464,#d4af37)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
@@ -417,10 +417,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             }
           >
             {wizsoundMode
-              ? "✦ WizSound™ Cinematic — Hear the difference"
+              ? "WizSound™ Cinematic — Hear the difference"
               : "Standard Audio — Press play, then toggle WizSound™"}
           </p>
-          <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
+          <Sparkles className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.7)' }} />
         </div>
 
         {/* ── Modal container ── */}
@@ -430,7 +430,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           style={{
             aspectRatio: "16/9",
             boxShadow: wizsoundMode
-              ? "0 0 0 1px rgba(139,92,246,0.4), 0 32px 80px rgba(0,0,0,0.85), 0 0 80px rgba(109,40,217,0.3)"
+              ? "0 0 0 1px rgba(212,175,55,0.3), 0 32px 80px rgba(0,0,0,0.85), 0 0 40px rgba(212,175,55,0.1)"
               : "0 0 0 1px rgba(255,255,255,0.08), 0 32px 80px rgba(0,0,0,0.8)",
             transition: "box-shadow 0.4s ease",
           }}
@@ -456,8 +456,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               style={
                 wizsoundMode
                   ? {
-                      background: "linear-gradient(135deg,rgba(109,40,217,0.9),rgba(217,70,239,0.8))",
-                      boxShadow: "0 0 16px rgba(217,70,239,0.45), 0 0 4px rgba(139,92,246,0.6)",
+                      background: "linear-gradient(135deg,rgba(212,175,55,0.9),rgba(196,164,100,0.8))",
+                      boxShadow: "0 0 16px rgba(212,175,55,0.35), 0 0 4px rgba(196,164,100,0.5)",
                     }
                   : {}
               }
@@ -543,10 +543,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 style={{
                   width: `${progressPercent}%`,
                   background: wizsoundMode
-                    ? "linear-gradient(90deg,#6d28d9,#8b5cf6,#e879f9)"
+                    ? "linear-gradient(90deg,#8c7830,#d4af37,#c4a464)"
                     : "rgba(255,255,255,0.65)",
                   transition: "background 0.3s ease",
-                  boxShadow: wizsoundMode ? "0 0 8px rgba(139,92,246,0.5)" : "none",
+                  boxShadow: wizsoundMode ? "0 0 8px rgba(212,175,55,0.4)" : "none",
                 }}
               >
                 <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -579,9 +579,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 style={
                   wizsoundMode
                     ? {
-                        borderColor: "rgba(139,92,246,0.5)",
-                        background: "rgba(109,40,217,0.2)",
-                        boxShadow: "0 0 10px rgba(139,92,246,0.2)",
+                        borderColor: "rgba(212,175,55,0.4)",
+                        background: "rgba(212,175,55,0.12)",
+                        boxShadow: "0 0 10px rgba(212,175,55,0.15)",
                       }
                     : { borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }
                 }
@@ -590,13 +590,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                   <span
                     className="font-bold text-[0.65rem] tracking-wide"
                     style={{
-                      background: "linear-gradient(90deg,#a78bfa,#e879f9)",
+                     background: "linear-gradient(90deg,#d4af37,#c4a464)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text",
                     }}
                   >
-                    ✦ WizSound™ ON
+                    WizSound™ ON
                   </span>
                 ) : (
                   <span className="text-white/40 text-[0.65rem] tracking-wide font-medium">Standard Audio</span>
