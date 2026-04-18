@@ -103,7 +103,7 @@ const ACCENTS: Record<AccentKey, {
 function AudioCardBg() {
   const bars = [4, 8, 14, 20, 28, 36, 44, 38, 30, 22, 16, 10, 6, 4, 8, 14, 22, 30, 38, 44, 36, 26, 18, 12, 8];
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
       <defs>
         <linearGradient id="aud-bg" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#0d9488" stopOpacity="0.10" />
@@ -134,7 +134,7 @@ function AudioCardBg() {
 
 function ImageCardBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
       <defs>
         <linearGradient id="img-bg2" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#d97706" stopOpacity="0.10" />
@@ -160,7 +160,7 @@ function ImageCardBg() {
 
 function VideoCardBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
       <defs>
         <linearGradient id="vid-bg2" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.12" />
@@ -191,7 +191,7 @@ function VideoCardBg() {
 
 function ShortsCardBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
       <defs>
         <linearGradient id="sho-bg2" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#0891b2" stopOpacity="0.12" />
@@ -217,7 +217,7 @@ function ShortsCardBg() {
 
 function AnimateCardBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
       <defs>
         <linearGradient id="ani-bg2" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.12" />
@@ -240,7 +240,7 @@ function AnimateCardBg() {
 
 function ScriptCardBg() {
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 280 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" opacity="0.65">
       <defs>
         <linearGradient id="scr-bg2" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#d97706" stopOpacity="0.12" />
