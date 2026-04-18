@@ -747,8 +747,8 @@
 - [ ] Add characterLock fields to videoCharacters DB table: lockedDescription (full visual brief text), isLocked (bool), lockedAt
 - [ ] Add tRPC procedure: characters.lockCharacter — saves full visual brief and sets isLocked=true
 - [ ] Add tRPC procedure: characters.unlockCharacter — clears lock (requires explicit user action)
-- [ ] Inject locked character brief as system-level constraint in storyboard LLM prompt (every scene must reference the locked brief)
-- [ ] Enforce character brief as prefix to every scene image generation prompt
+- [x] Inject locked character brief as system-level constraint in storyboard LLM prompt — already implemented
+- [x] Enforce character brief as prefix to every scene image generation prompt — already implemented
 - [ ] Build Character Lock reference panel UI: locked character card showing name, photo, and all visual attributes (clothing, hair, colours, accessories)
 - [ ] Add lock/unlock toggle to CharacterManager with confirmation dialog on unlock
 - [ ] Add consistency warning banner when storyboard is generated without a locked character
@@ -1223,7 +1223,7 @@
 - [ ] Shared CreditsBanner component for reuse across all video creation pages
 
 ## Fix: Light/Dark Theme Toggle (Apr 2026)
-- [ ] Fix light/dark toggle — diagnose why theme switch doesn't apply visually
+- [ ] Fix light/dark toggle — DEFERRED: site uses 1136 hardcoded dark colors vs 74 CSS vars; full light mode requires major refactor
 - [ ] Ensure toggle works on mobile and desktop
 - [ ] Verify CSS variables update correctly when theme changes
 - [ ] Fix "Failed to start scene regeneration" error on /music-video/create page

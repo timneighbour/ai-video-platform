@@ -303,6 +303,9 @@ export default function MusicVideoAutopilot() {
   // Track whether storyboard generation is actively in progress
   // This is separate from mutation.isPending to avoid the overlay persisting after scenes arrive
   const [storyboardGenerating, setStoryboardGenerating] = useState(false);
+  // Animated step index for storyboard generation overlay (0-4)
+  const [storyboardStep, setStoryboardStep] = useState(0);
+  const storyboardStepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Export format
   const [exportFormat, setExportFormat] = useState<"16:9" | "9:16" | "1:1">("16:9");
@@ -944,11 +947,25 @@ export default function MusicVideoAutopilot() {
       } else {
         // No characters — go straight to storyboard generation
         setStoryboardGenerating(true);
+        setStoryboardStep(0);
+        // Advance steps on a timer: step 0→1 at 5s, 1→2 at 15s, 2→3 at 30s, 3→4 at 55s
+        const STEP_DELAYS = [5000, 15000, 30000, 55000];
+        let stepIdx = 0;
+        const advanceStep = () => {
+          stepIdx++;
+          setStoryboardStep(stepIdx);
+          if (stepIdx < STEP_DELAYS.length) {
+            storyboardStepTimerRef.current = setTimeout(advanceStep, STEP_DELAYS[stepIdx]);
+          }
+        };
+        storyboardStepTimerRef.current = setTimeout(advanceStep, STEP_DELAYS[0]);
         const STORYBOARD_TOAST_ID = "storyboard-generating";
         toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
         const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
         setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
         toast.dismiss(STORYBOARD_TOAST_ID);
+        if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
+        setStoryboardStep(5); // all steps done
         setStoryboardGenerating(false);
         setStep("storyboard");
         mp.storyboardGenerated(storyboard.scenes.length);
@@ -1086,10 +1103,23 @@ export default function MusicVideoAutopilot() {
     const REGEN_TOAST_ID = "storyboard-regenerating";
     try {
       setStoryboardGenerating(true);
+      setStoryboardStep(0);
+      const STEP_DELAYS_REGEN = [5000, 15000, 30000, 55000];
+      let stepIdxRegen = 0;
+      const advanceStepRegen = () => {
+        stepIdxRegen++;
+        setStoryboardStep(stepIdxRegen);
+        if (stepIdxRegen < STEP_DELAYS_REGEN.length) {
+          storyboardStepTimerRef.current = setTimeout(advanceStepRegen, STEP_DELAYS_REGEN[stepIdxRegen]);
+        }
+      };
+      storyboardStepTimerRef.current = setTimeout(advanceStepRegen, STEP_DELAYS_REGEN[0]);
       toast.loading("Regenerating storyboard...", { id: REGEN_TOAST_ID, description: "Our AI director is crafting your scenes." });
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId });
       setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
       toast.dismiss(REGEN_TOAST_ID);
+      if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
+      setStoryboardStep(5);
       setStoryboardGenerating(false);
       mp.storyboardRegenerated(storyboard.scenes.length);
       toast.success("Storyboard regenerated!", { description: `${storyboard.scenes.length} scenes ready.` });
@@ -1281,35 +1311,39 @@ export default function MusicVideoAutopilot() {
             <p className="text-zinc-400 text-sm mb-8">WizCreate™ is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
             <div className="w-full bg-zinc-800 rounded-full h-2 mb-8 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] rounded-full transition-all duration-[5000ms] ease-out"
-                style={{ width: createJob.isPending ? "15%" : "75%" }}
+                className="h-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] rounded-full transition-all duration-[3000ms] ease-out"
+                style={{ width: `${Math.min(95, 10 + storyboardStep * 18)}%` }}
               />
             </div>
             <div className="space-y-2.5 text-left">
               {[
-                { label: "Uploading your song", done: !createJob.isPending, active: createJob.isPending },
-                { label: "Transcribing lyrics", done: false, active: !createJob.isPending },
-                { label: "Casting characters & defining appearances", done: false, active: !createJob.isPending },
-                { label: "Crafting scene descriptions", done: false, active: !createJob.isPending },
-                { label: "Building your storyboard", done: false, active: !createJob.isPending },
-              ].map((s, i) => (
-                <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${
-                  s.done ? "bg-[--color-silver]/5 border-[--color-silver]/20" :
-                  s.active ? "bg-[--color-gold]/15 border-[--color-gold]/30" :
-                  "bg-zinc-900/50 border-zinc-800/50"
-                }`}>
-                  {s.done ? (
-                    <CheckCircle2 className="w-4 h-4 text-[--color-silver] shrink-0" />
-                  ) : s.active ? (
-                    <Loader2 className="w-4 h-4 text-[--color-gold] animate-spin shrink-0" />
-                  ) : (
-                    <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
-                  )}
-                  <span className={`text-sm font-medium ${
-                    s.done ? "text-[--color-silver]" : s.active ? "text-[--color-gold]" : "text-zinc-500"
-                  }`}>{s.label}</span>
-                </div>
-              ))}
+                { label: "Uploading your song" },
+                { label: "Transcribing lyrics" },
+                { label: "Casting characters & defining appearances" },
+                { label: "Crafting scene descriptions" },
+                { label: "Building your storyboard" },
+              ].map((s, i) => {
+                const isDone = storyboardStep > i;
+                const isActive = storyboardStep === i;
+                return (
+                  <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${
+                    isDone ? "bg-[--color-silver]/5 border-[--color-silver]/20" :
+                    isActive ? "bg-[--color-gold]/15 border-[--color-gold]/30" :
+                    "bg-zinc-900/50 border-zinc-800/50"
+                  }`}>
+                    {isDone ? (
+                      <CheckCircle2 className="w-4 h-4 text-[--color-silver] shrink-0" />
+                    ) : isActive ? (
+                      <Loader2 className="w-4 h-4 text-[--color-gold] animate-spin shrink-0" />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
+                    )}
+                    <span className={`text-sm font-medium ${
+                      isDone ? "text-[--color-silver]" : isActive ? "text-[--color-gold]" : "text-zinc-500"
+                    }`}>{s.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
