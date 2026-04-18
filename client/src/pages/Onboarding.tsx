@@ -1,158 +1,394 @@
-import React, { useEffect } from 'react';
-import { Music, Play, Sparkles, Wand2, Waves, ArrowRight, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, ArrowLeft, Sparkles, Play, Film, Music, Wand2, Zap } from 'lucide-react';
 import { mp } from '@/lib/mixpanel';
+
+const CDN = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx';
 
 const options = [
   {
     href: '/music-video/create',
-    icon: Music,
-    title: 'WizVideo · Music Video Creator',
+    title: 'WizVideo',
+    subtitle: 'Music Video Creator',
     description: 'Turn your lyrics and audio into a full cinematic music video — with AI storyboard, characters, and scenes.',
     isPopular: true,
+    icon: Film,
+    // Use cinematic style images as card backgrounds
+    bg: `${CDN}/style-cinematic-8EttbpJCG8aAwirxMzv25p.webp`,
+    bgAlt: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp`,
+    accentColor: '#b8892a',
+    glowColor: 'rgba(184,137,42,0.35)',
+    tag: 'Most Popular',
+    tagColor: 'from-[#b8892a] to-[#e8c878]',
+    stats: ['Full music video', 'AI storyboard', 'Character sync'],
   },
   {
     href: '/wizpilot',
-    icon: Play,
-    title: 'YouTube Video Creator',
+    title: 'YouTube',
+    subtitle: 'Video Creator',
     description: 'Auto-enhance your YouTube videos with AI editing, music, and professional polish.',
     isPopular: false,
+    icon: Play,
+    bg: `${CDN}/style-documentary-GUdvUoXuDBve4gBc7mKpgx.webp`,
+    bgAlt: `${CDN}/style-realistic-2wim9Wp8GGSWcE5kbukVwX.webp`,
+    accentColor: '#ff4444',
+    glowColor: 'rgba(255,68,68,0.25)',
+    tag: 'For Creators',
+    tagColor: 'from-[#ff4444] to-[#ff8888]',
+    stats: ['Auto-edit', 'AI music sync', 'Pro polish'],
   },
   {
     href: '/products/wizanimate',
-    icon: Sparkles,
     title: 'WizAnimate',
+    subtitle: 'Character Animation',
     description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
     isPopular: false,
+    icon: Sparkles,
+    bg: `${CDN}/style-anime-76BJuATsMcjhGJHYLXERiU.webp`,
+    bgAlt: `${CDN}/style-pixar-GUBPsNDXp3m9kijU7REvzt.webp`,
+    accentColor: '#a855f7',
+    glowColor: 'rgba(168,85,247,0.3)',
+    tag: 'Animation',
+    tagColor: 'from-[#a855f7] to-[#c084fc]',
+    stats: ['Beat-matched', 'Character AI', 'Cinematic'],
   },
   {
     href: '/text-to-video',
-    icon: Wand2,
     title: 'Text to Video',
+    subtitle: 'Cinematic Storytelling',
     description: 'Turn your ideas into cinematic videos with AI-powered visual storytelling.',
     isPopular: false,
+    icon: Wand2,
+    bg: `${CDN}/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp`,
+    bgAlt: `${CDN}/style-neon-noir-5FS7RgdStYibD2k7cDsLtT.webp`,
+    accentColor: '#06b6d4',
+    glowColor: 'rgba(6,182,212,0.25)',
+    tag: 'Text → Video',
+    tagColor: 'from-[#06b6d4] to-[#67e8f9]',
+    stats: ['Any idea', 'Full scenes', 'Instant'],
   },
   {
     href: '/music-creator',
-    icon: Waves,
-    title: 'AI Music Generator',
+    title: 'WizAudio',
+    subtitle: 'AI Music Generator',
     description: 'Generate original, royalty-free music in any style — powered by WizAudio.',
     isPopular: false,
+    icon: Music,
+    bg: `${CDN}/style-abstract-E9NdxWuFeAHfGRiGpsbW9Y.webp`,
+    bgAlt: `${CDN}/style-vintage-iCZFjq9buUWkDWVxu3J7Qy.webp`,
+    accentColor: '#22c55e',
+    glowColor: 'rgba(34,197,94,0.25)',
+    tag: 'Audio AI',
+    tagColor: 'from-[#22c55e] to-[#86efac]',
+    stats: ['Any genre', 'Royalty-free', 'Studio quality'],
   },
 ];
 
+const WIZAI_LOGO = `${CDN}/wizai-logo-v3_bd51f720.png`;
+
 const Onboarding: React.FC = () => {
   useEffect(() => { mp.onboardingStarted(); }, []);
+  const [hovered, setHovered] = useState<number | null>(null);
+
   return (
-    <div className="min-h-screen bg-[#040404] overflow-hidden">
-      {/* Back button */}
+    <div className="min-h-screen bg-[#030303] overflow-hidden relative">
+
+      {/* ── Cinematic background layer ─────────────────────────────────────── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Deep space gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#030303] to-[#020202]" />
+        {/* Ambient gold orb top-right */}
+        <div
+          className="absolute -top-60 right-0 w-[700px] h-[700px] rounded-full opacity-[0.06]"
+          style={{ background: 'radial-gradient(circle, #c4a464 0%, transparent 70%)' }}
+        />
+        {/* Ambient purple orb bottom-left */}
+        <div
+          className="absolute -bottom-80 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.05]"
+          style={{ background: 'radial-gradient(circle, #a855f7 0%, transparent 70%)' }}
+        />
+        {/* Subtle grid lines */}
+        <div
+          className="absolute inset-0 opacity-[0.018]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px',
+          }}
+        />
+        {/* Horizontal scan line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#b8892a]/20 to-transparent" />
+      </div>
+
+      {/* ── Back button ────────────────────────────────────────────────────── */}
       <div className="fixed top-6 left-6 z-50">
         <a
           href="/"
-          className="flex items-center gap-2 px-4 py-2 text-[--color-silver-dark]/50 hover:text-[--color-silver] transition-colors duration-300 group"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white/40 hover:text-white/80 hover:bg-white/[0.07] hover:border-white/[0.12] transition-all duration-300 group backdrop-blur-sm"
           aria-label="Go back to homepage"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-          <span className="text-sm font-medium">Back</span>
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" />
+          <span className="text-xs font-medium tracking-wide">Back</span>
         </a>
       </div>
 
-      {/* Ambient background glow */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[--color-gold]/[0.04] rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[--color-gold]/[0.03] rounded-full blur-3xl" />
+      {/* ── WIZ AI logo top-center ─────────────────────────────────────────── */}
+      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50">
+        <img src={WIZAI_LOGO} alt="WIZ AI" className="h-10 w-auto opacity-70" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
-        {/* Header section */}
-        <div className="text-center mb-20 max-w-3xl">
-          <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03]">
-            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Step 1 of 2 — Choose your creation type</span>
+      {/* ── Main content ───────────────────────────────────────────────────── */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-start px-4 pt-28 pb-16 sm:px-6 lg:px-8">
+
+        {/* ── Step indicator ─────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-1.5">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#b8892a] to-[#e8c878] flex items-center justify-center text-[10px] font-bold text-black">1</div>
+            <div className="w-16 h-px bg-gradient-to-r from-[#b8892a]/60 to-white/10" />
+            <div className="w-6 h-6 rounded-full border border-white/15 flex items-center justify-center text-[10px] font-medium text-white/30">2</div>
           </div>
-
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-            What would you like to <span className="metallic-gold">create?</span>
-          </h1>
-
-          <p className="text-xl text-[--color-silver-dark]/50 font-light mb-8">
-            No editing skills needed — just describe your video and WIZ AI does the rest.
-          </p>
-
-          <div className="flex items-center justify-center gap-4 text-xs text-[--color-silver-dark]/35">
-            <span>No editing skills needed</span>
-            <span className="text-[--color-gold]/[0.15]">·</span>
-            <span>Ready in minutes</span>
-            <span className="text-[--color-gold]/[0.15]">·</span>
-            <span>Just describe your video</span>
-          </div>
+          <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#b8892a]/70 ml-2">Choose your creation type</span>
         </div>
 
-        {/* Options Grid */}
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {options.map((option, index) => {
-            const Icon = option.icon;
-            return (
-              <a
-                key={index}
-                href={option.href}
-                onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); }}
-                className="group relative h-full transition-all duration-500 hover:-translate-y-1 outline-none block"
-              >
-                {/* Main card container */}
-                <div className={`relative h-full bg-[#0a0a0a] border border-[--color-gold]/[0.06] hover:border-[--color-gold]/[0.15] rounded-2xl p-8 transition-all duration-500 overflow-hidden ${
-                  option.isPopular ? 'ring-1 ring-[--color-gold]/[0.2]' : ''
-                }`}>
-                  {/* Subtle glow on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style={{ background: "radial-gradient(ellipse 80% 80% at 50% 0%, rgba(196,164,100,0.04) 0%, transparent 60%)" }}
-                  />
+        {/* ── Hero headline ──────────────────────────────────────────────── */}
+        <div className="text-center mb-4 max-w-3xl">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.05] mb-5">
+            What would you like to{' '}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{ backgroundImage: 'linear-gradient(135deg, #e8c878 0%, #b8892a 40%, #f2dfa0 70%, #c4a464 100%)' }}
+            >
+              create?
+            </span>
+          </h1>
+          <p className="text-lg text-white/40 font-light max-w-xl mx-auto leading-relaxed">
+            No editing skills needed — just describe your idea and WIZ AI does the rest.
+          </p>
+        </div>
 
-                  {/* Popular badge */}
-                  {option.isPopular && (
-                    <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] rounded-full text-[10px] font-bold text-[#0a0a0a] tracking-wide uppercase pointer-events-none">
-                      Most popular
-                    </div>
-                  )}
+        {/* ── Trust badges ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-5 mb-14 text-[11px] text-white/25 font-medium tracking-wide">
+          {['No editing skills needed', 'Ready in minutes', 'Free to start'].map((item, i) => (
+            <React.Fragment key={item}>
+              {i > 0 && <span className="w-1 h-1 rounded-full bg-[#b8892a]/30" />}
+              <span>{item}</span>
+            </React.Fragment>
+          ))}
+        </div>
 
-                  {/* Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-[--color-gold]/[0.06] border border-[--color-gold]/[0.1] p-3 mb-6 group-hover:scale-105 transition-transform duration-500 pointer-events-none">
-                    <Icon className="w-full h-full text-[--color-gold]" strokeWidth={1.5} />
+        {/* ── Cards grid ─────────────────────────────────────────────────── */}
+        <div className="w-full max-w-7xl">
+
+          {/* Top row: WizVideo (large featured) + 2 cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+
+            {/* ── Featured card: WizVideo ─────────────────────────────── */}
+            <a
+              href={options[0].href}
+              onClick={() => { mp.onboardingCompleted(options[0].title); mp.productCardClicked(options[0].title); }}
+              onMouseEnter={() => setHovered(0)}
+              onMouseLeave={() => setHovered(null)}
+              className="lg:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer block"
+              style={{ minHeight: '340px' }}
+            >
+              {/* Background image */}
+              <div className="absolute inset-0">
+                <img
+                  src={hovered === 0 ? options[0].bgAlt : options[0].bg}
+                  alt=""
+                  className="w-full h-full object-cover transition-all duration-700 scale-100 group-hover:scale-105"
+                />
+                {/* Dark overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+              </div>
+
+              {/* Gold border glow on hover */}
+              <div
+                className="absolute inset-0 rounded-3xl transition-opacity duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"
+                style={{ boxShadow: `inset 0 0 0 1.5px rgba(184,137,42,0.5), 0 0 60px rgba(184,137,42,0.15)` }}
+              />
+
+              {/* Content */}
+              <div className="relative z-10 h-full flex flex-col justify-between p-8 sm:p-10" style={{ minHeight: '340px' }}>
+                <div className="flex items-start justify-between">
+                  {/* Tag */}
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${options[0].tagColor} text-[10px] font-bold text-black tracking-wide uppercase`}>
+                    <Zap className="w-2.5 h-2.5" />
+                    {options[0].tag}
                   </div>
+                  {/* Icon circle */}
+                  <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Film className="w-5 h-5 text-white" strokeWidth={1.5} />
+                  </div>
+                </div>
 
-                  {/* Title */}
-                  <h3 className="text-xl font-bold text-white mb-3 pointer-events-none">
-                    {option.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed mb-8 pointer-events-none">
-                    {option.description}
+                <div>
+                  {/* Product name */}
+                  <div className="mb-1">
+                    <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">{options[0].title}</span>
+                    <span className="ml-3 text-lg font-light text-white/50">{options[0].subtitle}</span>
+                  </div>
+                  <p className="text-white/60 text-sm leading-relaxed mb-6 max-w-md">
+                    {options[0].description}
                   </p>
 
+                  {/* Stats row */}
+                  <div className="flex items-center gap-3 mb-6">
+                    {options[0].stats.map((stat) => (
+                      <span key={stat} className="px-3 py-1 rounded-full bg-white/8 border border-white/10 text-white/50 text-[11px] font-medium">
+                        {stat}
+                      </span>
+                    ))}
+                  </div>
+
                   {/* CTA */}
-                  <div className="flex items-center justify-between pointer-events-none">
-                    <span className="text-sm font-semibold text-[--color-silver-dark]/50 group-hover:text-[--color-gold] transition-colors duration-300">
-                      Start Creating
-                    </span>
-                    <div className="w-8 h-8 rounded-full bg-[--color-gold]/[0.06] group-hover:bg-[--color-gold]/[0.12] flex items-center justify-center transition-all duration-300 group-hover:translate-x-1">
-                      <ArrowRight className="w-4 h-4 text-[--color-gold-dark]" />
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-black text-sm font-bold group-hover:shadow-[0_0_30px_rgba(184,137,42,0.5)] transition-all duration-300">
+                      <span>Start Creating</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 </div>
-              </a>
-            );
-          })}
+              </div>
+            </a>
+
+            {/* ── Right column: YouTube + WizAnimate ─────────────────── */}
+            <div className="flex flex-col gap-5">
+              {[options[1], options[2]].map((option, idx) => {
+                const realIdx = idx + 1;
+                const Icon = option.icon;
+                return (
+                  <a
+                    key={option.href}
+                    href={option.href}
+                    onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); }}
+                    onMouseEnter={() => setHovered(realIdx)}
+                    onMouseLeave={() => setHovered(null)}
+                    className="group relative rounded-2xl overflow-hidden cursor-pointer block flex-1"
+                    style={{ minHeight: '155px' }}
+                  >
+                    {/* Background */}
+                    <div className="absolute inset-0">
+                      <img
+                        src={hovered === realIdx ? option.bgAlt : option.bg}
+                        alt=""
+                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/55 to-black/25" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+                    </div>
+
+                    {/* Accent border on hover */}
+                    <div
+                      className="absolute inset-0 rounded-2xl transition-opacity duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"
+                      style={{ boxShadow: `inset 0 0 0 1.5px ${option.accentColor}66` }}
+                    />
+
+                    {/* Content */}
+                    <div className="relative z-10 h-full flex flex-col justify-between p-5" style={{ minHeight: '155px' }}>
+                      <div className="flex items-center justify-between">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full bg-gradient-to-r ${option.tagColor} text-[9px] font-bold text-black tracking-wide uppercase`}>
+                          {option.tag}
+                        </span>
+                        <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                          <Icon className="w-4 h-4 text-white" strokeWidth={1.5} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-black text-white mb-0.5">{option.title}</div>
+                        <div className="text-xs text-white/45 mb-3">{option.subtitle}</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-semibold text-white/50 group-hover:text-white/80 transition-colors">Start Creating</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300" />
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom row: Text to Video + WizAudio */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[options[3], options[4]].map((option, idx) => {
+              const realIdx = idx + 3;
+              const Icon = option.icon;
+              return (
+                <a
+                  key={option.href}
+                  href={option.href}
+                  onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); }}
+                  onMouseEnter={() => setHovered(realIdx)}
+                  onMouseLeave={() => setHovered(null)}
+                  className="group relative rounded-2xl overflow-hidden cursor-pointer block"
+                  style={{ minHeight: '200px' }}
+                >
+                  {/* Background */}
+                  <div className="absolute inset-0">
+                    <img
+                      src={hovered === realIdx ? option.bgAlt : option.bg}
+                      alt=""
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/55 to-black/20" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/55 to-transparent" />
+                  </div>
+
+                  {/* Accent border on hover */}
+                  <div
+                    className="absolute inset-0 rounded-2xl transition-opacity duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"
+                    style={{ boxShadow: `inset 0 0 0 1.5px ${option.accentColor}55, 0 0 40px ${option.glowColor}` }}
+                  />
+
+                  {/* Content */}
+                  <div className="relative z-10 h-full flex flex-col justify-between p-7" style={{ minHeight: '200px' }}>
+                    <div className="flex items-start justify-between">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r ${option.tagColor} text-[10px] font-bold text-black tracking-wide uppercase`}>
+                        {option.tag}
+                      </span>
+                      <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Icon className="w-4.5 h-4.5 text-white" strokeWidth={1.5} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-2xl font-black text-white mb-0.5">{option.title}</div>
+                      <div className="text-sm text-white/45 mb-3">{option.subtitle}</div>
+                      <p className="text-white/45 text-xs leading-relaxed mb-4 max-w-sm">{option.description}</p>
+
+                      {/* Stats */}
+                      <div className="flex items-center gap-2 mb-4">
+                        {option.stats.map((stat) => (
+                          <span key={stat} className="px-2.5 py-0.5 rounded-full bg-white/6 border border-white/8 text-white/40 text-[10px] font-medium">
+                            {stat}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-white/50 group-hover:text-white/80 transition-colors">Start Creating</span>
+                        <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300" />
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center text-[--color-silver-dark]/25 text-xs">
-          <p>
+        {/* ── Footer ─────────────────────────────────────────────────────── */}
+        <div className="mt-12 text-center">
+          <p className="text-white/20 text-xs">
             By continuing, you agree to WIZ AI's{' '}
-            <a href="/terms" className="text-[--color-silver-dark]/35 hover:text-[--color-gold-dark] transition-colors font-medium">
+            <a href="/terms" className="text-white/30 hover:text-[#b8892a]/70 transition-colors font-medium underline underline-offset-2">
               Terms of Service
             </a>
             {' '}and{' '}
-            <a href="/privacy" className="text-[--color-silver-dark]/35 hover:text-[--color-gold-dark] transition-colors font-medium">
+            <a href="/privacy" className="text-white/30 hover:text-[#b8892a]/70 transition-colors font-medium underline underline-offset-2">
               Privacy Policy
             </a>
           </p>
