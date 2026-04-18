@@ -432,7 +432,7 @@ export default function Autopilot() {
                     stepIndex === i
                       ? "bg-[--color-gold] text-white"
                       : stepIndex > i
-                      ? "bg-green-600/30 text-green-400"
+                      ? "bg-[--color-silver]/15 text-[--color-silver]"
                       : "bg-white/10 text-muted-foreground"
                   }`}
                 >
@@ -453,7 +453,7 @@ export default function Autopilot() {
         {step === "input" && (
           <div className="space-y-6 sm:space-y-8">
             <div className="text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1.5 text-xs sm:text-sm text-green-300 mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-1.5 text-xs sm:text-sm text-[--color-gold] mb-4">
                 <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
                 Storyboard generation is always free — pay only when you render
               </div>
@@ -479,7 +479,7 @@ export default function Autopilot() {
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-muted-foreground">{prompt.length} / 1000</span>
                 {prompt.length >= 10 && (
-                  <span className="text-xs text-green-400 flex items-center gap-1">
+                  <span className="text-xs text-[--color-silver] flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" /> Ready
                   </span>
                 )}
@@ -538,15 +538,15 @@ export default function Autopilot() {
 
               <div className="border-t border-white/10 pt-4">
                 <h3 className="text-sm font-medium text-white mb-1 flex items-center gap-2">
-                  <Video className="h-4 w-4 text-blue-400" />
+                  <Video className="h-4 w-4 text-[--color-gold]" />
                   Reference Video <span className="text-muted-foreground font-normal">(optional)</span>
                 </h3>
                 <p className="text-xs text-muted-foreground mb-3">
                   Upload a video clip to show the AI the pacing, style, or content you're going for.
                 </p>
                 {contextVideoFile ? (
-                  <div className="flex items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3">
-                    <Video className="h-8 w-8 text-blue-400 flex-shrink-0" />
+                  <div className="flex items-center gap-3 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-3">
+                    <Video className="h-8 w-8 text-[--color-gold] flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-white font-medium truncate">{contextVideoFile.name}</p>
                       <p className="text-xs text-muted-foreground">{(contextVideoFile.size / 1024 / 1024).toFixed(1)} MB</p>
@@ -561,10 +561,10 @@ export default function Autopilot() {
                 ) : (
                   <label
                     htmlFor="context-video-upload"
-                    className="flex flex-col items-center justify-center w-full h-20 rounded-xl border-2 border-dashed border-blue-500/30 bg-blue-500/5 cursor-pointer hover:border-blue-500/60 hover:bg-blue-500/10 transition-all"
+                    className="flex flex-col items-center justify-center w-full h-20 rounded-xl border-2 border-dashed border-[--color-gold]/30 bg-[--color-gold]/5 cursor-pointer hover:border-[--color-gold]/60 hover:bg-[--color-gold]/10 transition-all"
                   >
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Video className="h-5 w-5 text-blue-400" />
+                      <Video className="h-5 w-5 text-[--color-gold]" />
                       <span className="text-sm">Tap to upload MP4, MOV, or WEBM</span>
                     </div>
                     <span className="text-xs text-muted-foreground/60 mt-1">Max 100 MB</span>
@@ -695,7 +695,7 @@ export default function Autopilot() {
                   >
                     {audioFile ? (
                       <div className="flex items-center gap-2 text-[--color-gold]/80 px-4 text-center">
-                        <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
+                        <CheckCircle2 className="h-5 w-5 text-[--color-silver] flex-shrink-0" />
                         <span className="text-sm font-medium truncate">{audioFile.name}</span>
                         <span className="text-xs text-muted-foreground flex-shrink-0">({(audioFile.size / 1024 / 1024).toFixed(1)} MB)</span>
                       </div>
@@ -756,7 +756,7 @@ export default function Autopilot() {
         {step === "storyboard" && (
           <div className="space-y-6 sm:space-y-8">
             <div className="text-center">
-              <Badge className="mb-4 bg-green-500/20 text-green-300 border-green-500/30">
+              <Badge className="mb-4 bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20">
                 ✓ Storyboard Generated — Free
               </Badge>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Storyboard</h1>
@@ -934,7 +934,7 @@ export default function Autopilot() {
               </div>
             </div>
 
-            <div className="flex items-start gap-2 rounded-xl border border-green-500/20 bg-green-500/5 p-4 text-sm text-green-300">
+            <div className="flex items-start gap-2 rounded-xl border border-[--color-silver]/20 bg-[--color-silver]/5 p-4 text-sm text-[--color-silver]">
               <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>
                 <strong>WIZ AI advantage:</strong> Unlike other platforms that charge credits every time you regenerate, WIZ AI lets you refine your vision completely free. You only pay when you're ready to render.
@@ -973,12 +973,12 @@ export default function Autopilot() {
                 <div
                   key={i}
                   className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-all ${
-                    i < progressStage ? "bg-green-500/10 text-green-400"
+                    i < progressStage ? "bg-[--color-silver]/10 text-[--color-silver]"
                     : i === progressStage ? "bg-[--color-gold]/15 text-white"
                     : "bg-white/5 text-muted-foreground/50"
                   }`}
                 >
-                  {i < progressStage ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-400" />
+                  {i < progressStage ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-[--color-silver]" />
                   : i === progressStage ? <Loader2 className="h-4 w-4 flex-shrink-0 text-[--color-gold] animate-spin" />
                   : <div className="h-4 w-4 flex-shrink-0 rounded-full border border-white/20" />}
                   {stage.label}
@@ -1004,8 +1004,8 @@ export default function Autopilot() {
         {step === "done" && (
           <div className="py-12 sm:py-20 space-y-8 max-w-lg mx-auto text-center">
             <div>
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-600/20 border border-green-500/40 mb-6">
-                <CheckCircle2 className="h-10 w-10 text-green-400" />
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[--color-silver]/10 border border-[--color-silver]/30 mb-6">
+                <CheckCircle2 className="h-10 w-10 text-[--color-silver]" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Video is Ready! </h2>
               <p className="text-muted-foreground text-sm sm:text-base">

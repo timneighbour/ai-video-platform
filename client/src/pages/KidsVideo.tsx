@@ -45,10 +45,10 @@ const KIDS_STYLES = [
     desc: "Vibrant 3D animation",
     emoji: "",
     gradient: "from-blue-600 via-cyan-500 to-blue-400",
-    glow: "shadow-blue-500/40",
-    border: "border-blue-500/60",
-    bg: "bg-blue-950/40",
-    selectedBg: "bg-blue-600/20",
+    glow: "shadow-[--color-gold]/40",
+    border: "border-[--color-gold]/60",
+    bg: "bg-[--color-gold]/10",
+    selectedBg: "bg-[--color-gold]/15",
     example: "Toy Story · Finding Nemo · Up",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-pixar3d_e61a549d.jpg",
   },
@@ -57,8 +57,8 @@ const KIDS_STYLES = [
     label: "Disney",
     desc: "Magical cinematic animation",
     emoji: "",
-    gradient: "from-[#b8892a] via-violet-500 to-[#2e2e36]",
-    glow: "shadow-purple-500/40",
+    gradient: "from-[#b8892a] via-[#e8c878] to-[#2e2e36]",
+    glow: "shadow-[#b8892a]/40",
     border: "border-[--color-gold]/30",
     bg: "bg-[--color-gold]/15",
     selectedBg: "bg-[--color-gold]/15",
@@ -71,8 +71,8 @@ const KIDS_STYLES = [
     desc: "Japanese animation style",
     emoji: "🌸",
     gradient: "from-[#9090a0] via-rose-500 to-red-400",
-    glow: "shadow-pink-500/40",
-    border: "border-pink-500/60",
+    glow: "shadow-[--color-gold]/40",
+    border: "border-[--color-gold]/60",
     bg: "bg-[--color-silver]/10",
     selectedBg: "bg-[--color-silver]/10",
     example: "My Neighbor Totoro · Spirited Away",
@@ -97,10 +97,10 @@ const KIDS_STYLES = [
     desc: "Illustrated fairy-tale style",
     emoji: "📖",
     gradient: "from-green-600 via-emerald-500 to-teal-400",
-    glow: "shadow-green-500/40",
-    border: "border-green-500/60",
-    bg: "bg-green-950/40",
-    selectedBg: "bg-green-600/20",
+    glow: "shadow-[--color-silver]/40",
+    border: "border-[--color-silver]/60",
+    bg: "bg-[--color-silver]/10",
+    selectedBg: "bg-[--color-silver]/15",
     example: "Winnie the Pooh · Peter Rabbit",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook_4bc666a9.jpg",
   },
@@ -670,9 +670,9 @@ export default function KidsVideo() {
                     <div
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                         currentStepIndex === i
-                          ? "bg-pink-600 text-white shadow-lg shadow-pink-500/30"
+                          ? "bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30"
                           : currentStepIndex > i
-                          ? "bg-green-600/30 text-green-400"
+                          ? "bg-[--color-silver]/15 text-[--color-silver]"
                           : "bg-white/10 text-muted-foreground"
                       }`}
                     >
@@ -707,7 +707,7 @@ export default function KidsVideo() {
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
                 WizAnimate™
-                <span className="block bg-gradient-to-r from-[#9090a0] via-blue-400 to-[#4a3010] bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-[#e8c878] via-[#f2dfa0] to-[#b8892a] bg-clip-text text-transparent">
                   Character Animation
                 </span>
               </h1>
@@ -731,7 +731,7 @@ export default function KidsVideo() {
                 <Button
                   size="lg"
                   onClick={() => setStep("story_input")}
-                  className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
+                  className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-[#b8892a]/25"
                 >
                   <Wand2 className="h-5 w-5" />
                   Create Free Storyboard 🌈
@@ -839,7 +839,7 @@ export default function KidsVideo() {
               <Button
                 size="lg"
                 onClick={() => setStep("story_input")}
-                className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
+                className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-[#b8892a]/25"
               >
                 <Sparkles className="h-5 w-5" />
                 Start with a Free Storyboard 🌈
@@ -1038,7 +1038,7 @@ export default function KidsVideo() {
                   <div
                     className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all ${
                       isDraggingAudio
-                        ? "border-pink-500/60 bg-[--color-silver]/10"
+                        ? "border-[--color-gold]/60 bg-[--color-silver]/10"
                         : "border-white/10 hover:border-[--color-silver]/30 hover:bg-[--color-silver]/10"
                     }`}
                     onClick={() => audioInputRef.current?.click()}

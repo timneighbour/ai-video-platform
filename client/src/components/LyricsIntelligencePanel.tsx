@@ -55,9 +55,9 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
 
 const EMOTION_COLORS: Record<string, string> = {
   intense: "bg-red-500/20 text-red-300 border-red-500/30",
-  passionate: "bg-[--color-silver]/10 text-[--color-silver] border-pink-500/30",
+  passionate: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
   energetic: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
-  melancholic: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  melancholic: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   dreamy: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   powerful: "bg-orange-500/20 text-orange-300 border-orange-500/30",
   tender: "bg-[--color-silver]/10 text-[--color-silver] border-rose-500/30",
@@ -81,7 +81,7 @@ function getIntensityBar(intensity: number): string {
   if (clamped >= 8) return "bg-red-500";
   if (clamped >= 6) return "bg-[--color-gold]";
   if (clamped >= 4) return "bg-[--color-gold]";
-  return "bg-blue-500";
+  return "bg-[--color-gold]";
 }
 
 export default function LyricsIntelligencePanel({
@@ -226,7 +226,7 @@ export default function LyricsIntelligencePanel({
               <Card
                 key={index}
                 className={`bg-zinc-900/80 border-zinc-800 transition-all duration-200 hover:border-zinc-700 cursor-pointer ${
-                  expandedBlock === index ? "ring-1 ring-purple-500/30" : ""
+                  expandedBlock === index ? "ring-1 ring-[--color-gold]/30" : ""
                 }`}
                 onClick={() => setExpandedBlock(expandedBlock === index ? null : index)}
               >

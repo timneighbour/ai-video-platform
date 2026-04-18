@@ -204,16 +204,16 @@ export default function CharacterConfirmationStep({
 
       {/* Character Lock Mode toggle */}
       <div className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-all ${characterLockMode ? "border-violet-700/60 bg-violet-950/30" : "border-zinc-700 bg-zinc-900/40"}`}>
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${characterLockMode ? "bg-violet-700/40" : "bg-zinc-800"}`}>
-          {characterLockMode ? <Lock className="w-5 h-5 text-violet-300" /> : <Unlock className="w-5 h-5 text-zinc-400" />}
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]/20" : "bg-zinc-800"}`}>
+          {characterLockMode ? <Lock className="w-5 h-5 text-[--color-gold]" /> : <Unlock className="w-5 h-5 text-zinc-400" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className={`font-semibold text-sm ${characterLockMode ? "text-violet-200" : "text-zinc-300"}`}>
+            <p className={`font-semibold text-sm ${characterLockMode ? "text-[--color-gold]" : "text-zinc-300"}`}>
               Character Lock Mode
             </p>
             {characterLockMode && (
-              <Badge className="bg-violet-900/60 text-violet-300 border-violet-700 text-xs">Recommended</Badge>
+              <Badge className="bg-violet-900/60 text-[--color-gold] border-violet-700 text-xs">Recommended</Badge>
             )}
           </div>
           <p className="text-zinc-500 text-xs mt-0.5">
@@ -225,7 +225,7 @@ export default function CharacterConfirmationStep({
         <button
           type="button"
           onClick={() => setCharacterLockMode(v => !v)}
-          className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${characterLockMode ? "bg-violet-600" : "bg-zinc-700"}`}
+          className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]" : "bg-zinc-700"}`}
           aria-label="Toggle Character Lock Mode"
         >
           <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${characterLockMode ? "translate-x-6" : "translate-x-0"}`} />
@@ -283,7 +283,7 @@ export default function CharacterConfirmationStep({
                     <Badge className={`text-xs ${colors.badge}`}>{char.photoCount} photo{char.photoCount !== 1 ? "s" : ""}</Badge>
                   )}
                   {showMasterPortraitBadge && (
-                    <Badge className="bg-violet-900/60 text-violet-300 border-violet-700 text-xs flex items-center gap-1">
+                    <Badge className="bg-violet-900/60 text-[--color-gold] border-violet-700 text-xs flex items-center gap-1">
                       <Anchor className="w-3 h-3" /> Anchored
                     </Badge>
                   )}
@@ -298,13 +298,13 @@ export default function CharacterConfirmationStep({
                 {isGenerating ? (
                   <div className="flex flex-col items-center gap-3 py-10">
                     <div className="relative">
-                      <div className="w-16 h-16 rounded-full bg-violet-900/30 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-[--color-gold]/10 flex items-center justify-center">
                         {isGeneratingMaster
-                          ? <Anchor className="w-8 h-8 text-violet-400 animate-pulse" />
-                          : <Sparkles className="w-8 h-8 text-violet-400 animate-pulse" />
+                          ? <Anchor className="w-8 h-8 text-[--color-gold] animate-pulse" />
+                          : <Sparkles className="w-8 h-8 text-[--color-gold] animate-pulse" />
                         }
                       </div>
-                      <div className="absolute inset-0 rounded-full border-2 border-violet-500/50 animate-spin border-t-transparent pointer-events-none" />
+                      <div className="absolute inset-0 rounded-full border-2 border-[--color-gold]/50 animate-spin border-t-transparent pointer-events-none" />
                     </div>
                     <p className="text-zinc-400 text-sm">
                       {isGeneratingMaster ? "Creating identity anchor..." : "Generating AI preview..."}
@@ -322,9 +322,9 @@ export default function CharacterConfirmationStep({
                     />
                     {/* Master portrait indicator overlay */}
                     {showMasterPortraitBadge && !char.previewApproved && (
-                      <div className="absolute bottom-2 left-2 bg-violet-900/80 rounded-lg px-2 py-1 flex items-center gap-1.5">
-                        <Anchor className="w-3 h-3 text-violet-300" />
-                        <span className="text-violet-200 text-xs font-medium">Identity Anchor</span>
+                      <div className="absolute bottom-2 left-2 bg-[#1a1a1a]/90 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                        <Anchor className="w-3 h-3 text-[--color-gold]" />
+                        <span className="text-[--color-gold] text-xs font-medium">Identity Anchor</span>
                       </div>
                     )}
                     {char.previewApproved && (
@@ -381,7 +381,7 @@ export default function CharacterConfirmationStep({
                     onClick={() => handleGenerateMasterPortrait(char)}
                     disabled={isGenerating || isApproving}
                     className={`flex-1 gap-1.5 ${hasMasterPortrait
-                      ? "border-violet-700/60 bg-violet-900/20 text-violet-300 hover:bg-violet-900/40"
+                      ? "border-violet-700/60 bg-violet-900/20 text-[--color-gold] hover:bg-violet-900/40"
                       : "border-amber-700/60 bg-amber-900/20 text-amber-300 hover:bg-amber-900/40"
                     }`}
                   >
@@ -449,11 +449,11 @@ export default function CharacterConfirmationStep({
 
       {/* Info banner */}
       {!allApproved && characters.length > 0 && (
-        <div className="flex items-start gap-3 rounded-xl border border-blue-800/50 bg-blue-950/30 px-4 py-3">
-          <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-3">
+          <AlertCircle className="w-5 h-5 text-[--color-gold] mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-blue-300 font-medium text-sm">Approve all characters to continue</p>
-            <p className="text-blue-200/60 text-xs mt-0.5">
+            <p className="text-[--color-gold] font-medium text-sm">Approve all characters to continue</p>
+            <p className="text-[--color-gold]/60 text-xs mt-0.5">
               {characterLockMode
                 ? "For photo characters: create an identity anchor first, then approve. The anchor portrait will be used as the face reference in every scene."
                 : "Generate a preview for each character and click \"Approve Look\" to confirm their appearance."}
@@ -495,7 +495,7 @@ export default function CharacterConfirmationStep({
           type="button"
           onClick={onApproveAll}
           disabled={!allApproved || isGeneratingStoryboard}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 gap-2 disabled:opacity-50"
+          className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white font-semibold px-6 gap-2 disabled:opacity-50"
         >
           {isGeneratingStoryboard ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Generating Storyboard...</>

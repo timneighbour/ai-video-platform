@@ -5066,3 +5066,33 @@
 - [x] PRICE-8: CTAs show exact price and plan name — Get Creator — £29/mo
 - [x] PRICE-9: Responsive grid (1 col mobile, 2 col tablet, 5 col XL), comparison table scrollable
 - [x] PRICE-10: All contradictions removed — single source of truth in Pricing.tsx, Subscribe.tsx synced
+
+## BRAND COLOUR AUDIT — GOLD/SILVER METALLIC SYSTEM
+- [x] COLOUR-1: Fix off-brand blue/green/violet/purple in MusicCreator.tsx (WizAudio page)
+- [x] COLOUR-2: Fix off-brand green in Subscribe.tsx (pricing page)
+- [x] COLOUR-3: Fix off-brand green/blue in RenderHistory.tsx
+- [x] COLOUR-4: Fix off-brand green/blue/purple in Autopilot.tsx
+- [x] COLOUR-5: Fix off-brand green/blue/purple/pink in MusicVideoAutopilot.tsx
+- [x] COLOUR-6: Fix off-brand violet/blue in CharacterConfirmationStep.tsx
+- [x] COLOUR-7: Fix off-brand purple/blue/pink in CharacterManager.tsx
+- [x] COLOUR-8: Fix off-brand green in CreditBalance.tsx
+- [x] COLOUR-9: Fix off-brand blue/violet/pink in PostRenderRetentionScreen.tsx
+- [x] COLOUR-10: Fix off-brand violet in RenderPaywallModal.tsx
+- [x] COLOUR-11: Fix off-brand blue/green/violet in TextToVideoCreator.tsx
+- [x] COLOUR-12: Fix off-brand colours in WizBrand.tsx, Projects.tsx, WizShorts.tsx, KidsVideo.tsx
+- [x] COLOUR-13: Fix off-brand colours in WizAI.tsx, HowItWorks.tsx, WizGenesisModal.tsx, MyProjects.tsx, MusicVideosLanding.tsx, Discover.tsx, VideoCarousel.tsx, AllInOnePlatform.tsx, SeoLandingPage.tsx, WizImage.tsx, BatchRegeneration.tsx, UpgradeModal.tsx, WizSync.tsx
+
+## BRAND COLOUR AUDIT — GOLD/SILVER METALLIC SYSTEM
+- [x] COLOUR-1: Fix off-brand blue/green/violet/purple in MusicCreator.tsx
+- [x] COLOUR-2: Fix off-brand green in Subscribe.tsx
+- [x] COLOUR-3: Fix off-brand green/blue in RenderHistory.tsx
+- [x] COLOUR-4: Fix off-brand green/blue/purple in Autopilot.tsx
+- [x] COLOUR-5: Fix off-brand green/blue/purple/pink in MusicVideoAutopilot.tsx
+- [x] COLOUR-6: Fix off-brand violet/blue in CharacterConfirmationStep.tsx
+- [x] COLOUR-7: Fix off-brand purple/blue/pink in CharacterManager.tsx
+- [x] COLOUR-8: Fix off-brand green in CreditBalance.tsx
+- [x] COLOUR-9: Fix off-brand blue/violet/pink in PostRenderRetentionScreen.tsx
+- [x] COLOUR-10: Fix off-brand violet in RenderPaywallModal.tsx
+- [x] COLOUR-11: Fix off-brand blue/green/violet in TextToVideoCreator.tsx
+- [x] COLOUR-12: Fix off-brand colours in WizBrand.tsx, Projects.tsx, WizShorts.tsx, KidsVideo.tsx
+- [x] COLOUR-13: Fix off-brand colours in WizAI.tsx, HowItWorks.tsx, WizGenesisModal.tsx, MyProjects.tsx, MusicVideosLanding.tsx, Discover.tsx, VideoCarousel.tsx, AllInOnePlatform.tsx, SeoLandingPage.tsx, WizImage.tsx, BatchRegeneration.tsx, UpgradeModal.tsx, WizSync.tsx

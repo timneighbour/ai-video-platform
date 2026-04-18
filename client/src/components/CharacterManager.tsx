@@ -85,9 +85,9 @@ interface CharacterManagerProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SLOT_COLORS = [
-  { ring: "ring-purple-500", bg: "bg-purple-900/30", badge: "bg-purple-900/50 text-purple-300 border-purple-800", icon: "bg-purple-600", dot: "bg-purple-400", tab: "bg-purple-700 hover:bg-purple-600" },
-  { ring: "ring-blue-500",   bg: "bg-blue-900/30",   badge: "bg-blue-900/50 text-blue-300 border-blue-800",     icon: "bg-blue-600",   dot: "bg-blue-400",   tab: "bg-blue-700 hover:bg-blue-600" },
-  { ring: "ring-pink-500",   bg: "bg-pink-900/30",   badge: "bg-pink-900/50 text-pink-300 border-pink-800",     icon: "bg-pink-600",   dot: "bg-pink-400",   tab: "bg-pink-700 hover:bg-pink-600" },
+  { ring: "ring-[--color-gold] }, bg: "bg-[--color-gold]/10", badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: "bg-[--color-gold]", dot: "bg-[--color-gold]", tab: "bg-[--color-gold]/80 hover:bg-[--color-gold]" },
+  { ring: "ring-[--color-silver]", bg: "bg-[--color-silver]/10", badge: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20", icon: "bg-[--color-silver]", dot: "bg-[--color-silver]", tab: "bg-[--color-silver]/60 hover:bg-[--color-silver]/40" },
+  { ring: "ring-zinc-500", bg: "bg-zinc-800/50", badge: "bg-zinc-700/50 text-zinc-300 border-zinc-600", icon: "bg-zinc-600", dot: "bg-zinc-400", tab: "bg-zinc-700 hover:bg-zinc-600" },
   { ring: "ring-amber-500",  bg: "bg-amber-900/30",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  icon: "bg-amber-600",  dot: "bg-amber-400",  tab: "bg-amber-700 hover:bg-amber-600" },
 ];
 
@@ -390,8 +390,8 @@ export function CharacterManager({
                           onClick={() => updateCharacter(char.slotIndex, { role })}
                           className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
                             char.role === role
-                              ? "bg-violet-600 border-violet-500 text-white"
-                              : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-violet-500 hover:text-violet-300"
+                              ? "bg-[--color-gold] border-[--color-gold]/80 text-white"
+                              : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-[--color-gold] hover:text-[--color-gold]"
                           }`}
                         >
                           {role}
@@ -532,11 +532,11 @@ export function CharacterManager({
                       onClick={() => updateCharacter(char.slotIndex, { mode: "ai_generated" })}
                       className={`flex flex-col items-center gap-2 py-3 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
                         char.mode === "ai_generated"
-                          ? "border-violet-500 bg-violet-900/40 text-violet-200"
-                          : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-violet-600/60 hover:text-zinc-200"
+                          ? "border-[--color-gold] bg-[--color-gold]/15 text-[--color-gold]"
+                          : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-[--color-gold]/60 hover:text-zinc-200"
                       }`}
                     >
-                      <Sparkles className="w-5 h-5 text-violet-400" />
+                      <Sparkles className="w-5 h-5 text-[--color-gold]" />
                       <span>AI Character Builder</span>
                       <span className="text-xs font-normal text-zinc-500 leading-tight text-center">Describe & generate any character</span>
                     </button>
@@ -555,7 +555,7 @@ export function CharacterManager({
                       disabled={isReanalysing || !hasSavedId}
                       className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
                         hasSavedId
-                          ? "border-blue-600/60 bg-blue-900/20 text-blue-300 hover:bg-blue-900/40"
+                          ? "border-[--color-silver]/40 bg-[--color-silver]/10 text-[--color-silver] hover:bg-[--color-silver]/20"
                           : "border-zinc-700 bg-zinc-800/30 text-zinc-600 cursor-not-allowed"
                       }`}
                       title={!hasSavedId ? "Submit the form once to enable re-analysis" : "Re-run AI photo analysis to update the visual brief"}
@@ -649,14 +649,14 @@ export function CharacterManager({
               {char.mode === "ai_generated" && (
                 <div className="space-y-4">
                   {/* Intro banner */}
-                  <div className="rounded-xl bg-gradient-to-br from-violet-900/40 to-indigo-900/30 border border-violet-700/50 p-4">
+                  <div className="rounded-xl bg-gradient-to-br from-[--color-gold]/10 to-[#1a1a1a] border border-[--color-gold]/30 p-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-violet-700 flex items-center justify-center flex-shrink-0">
+                      <div className="w-9 h-9 rounded-lg bg-[--color-gold] flex items-center justify-center flex-shrink-0">
                         <Wand2 className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-violet-200 font-semibold text-sm">AI Character Builder</p>
-                        <p className="text-violet-300/70 text-xs mt-0.5 leading-relaxed">
+                        <p className="text-[--color-gold] font-semibold text-sm">AI Character Builder</p>
+                        <p className="text-[--color-gold]/70 text-xs mt-0.5 leading-relaxed">
                           Describe any character — real, animated, or fantastical — and the AI will generate a full visual brief and a preview image. Works for Pixar 3D, anime, cartoon, and photorealistic styles.
                         </p>
                       </div>
@@ -675,7 +675,7 @@ export function CharacterManager({
                           disabled={disabled}
                           className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border-2 text-xs font-medium transition-all ${
                             char.aiStyle === style.id
-                              ? "border-violet-500 bg-violet-900/40 text-violet-200"
+                              ? "border-[--color-gold] bg-[--color-gold]/15 text-[--color-gold]"
                               : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
                           }`}
                         >
@@ -708,7 +708,7 @@ export function CharacterManager({
                       type="button"
                       onClick={() => handleGenerateCharacter(char.slotIndex)}
                       disabled={isGenerating || !char.aiDescription.trim()}
-                      className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 hover:from-violet-600 hover:to-indigo-600 text-white gap-2 py-5 text-base font-semibold shadow-lg shadow-violet-900/30"
+                      className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white gap-2 py-5 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
                     >
                       {isGenerating ? (
                         <><RefreshCw className="w-5 h-5 animate-spin" /> Generating Character...</>
@@ -760,10 +760,10 @@ export function CharacterManager({
               )}
 
               {/* ── Lip Sync ── */}
-              <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-pink-700/60 bg-pink-900/20" : "border-zinc-700 bg-zinc-800/30"}`}>
+              <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-[--color-gold]/40 bg-[--color-gold]/10" : "border-zinc-700 bg-zinc-800/30"}`}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-pink-400" : "text-zinc-500"}`} />
+                    <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-[--color-gold]" : "text-zinc-500"}`} />
                     <div>
                       <p className="text-white text-sm font-medium">Lip Sync</p>
                       <p className="text-zinc-400 text-xs">

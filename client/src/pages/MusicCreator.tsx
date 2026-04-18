@@ -112,7 +112,7 @@ function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: s
   return (
     <div className="flex gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-white/8 hover:border-white/14 transition-all">
       {/* Album art */}
-      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#b8892a]/60 to-blue-900/60 border border-white/8 flex items-center justify-center">
+      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#b8892a]/60 to-[#2e2e36] border border-white/8 flex items-center justify-center">
         {imageUrl ? (
           <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
         ) : (
@@ -134,7 +134,7 @@ function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: s
           onClick={seek}
         >
           <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#b8892a] to-blue-500 rounded-full transition-all"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#b8892a] to-[#e8c878] rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -389,7 +389,7 @@ export default function MusicCreator() {
             onClick={() => setMode("upload")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all ${
               mode === "upload"
-                ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                ? "bg-[--color-gold]/15 border-[--color-gold]/40 text-[--color-gold]"
                 : "bg-white/4 border-white/10 text-white/50 hover:border-white/20 hover:text-white/80"
             }`}
           >
@@ -406,7 +406,7 @@ export default function MusicCreator() {
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
             Generate full songs{" "}
-            <span className="bg-gradient-to-r from-[#b8892a] via-blue-400 to-[#2e2e36] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#e8c878] via-[#f2dfa0] to-[#b8892a] bg-clip-text text-transparent">
               from any idea
             </span>
           </h1>
@@ -502,8 +502,8 @@ export default function MusicCreator() {
                             key={s}
                             onClick={() => setTargetDuration(s)}
                             className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
-                              targetDuration === s
-                                ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                      targetDuration === s
+                        ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]"
                                 : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
                             }`}
                           >
@@ -601,7 +601,7 @@ export default function MusicCreator() {
                     onClick={() => setSelectedMood(selectedMood === m.label ? "" : m.label)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
                       selectedMood === m.label
-                        ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                        ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]"
                         : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
                     }`}
                   >
@@ -614,7 +614,7 @@ export default function MusicCreator() {
             {/* Vocal style */}
             <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
               <label className="block text-sm font-semibold text-white mb-3">
-                <Volume2 className="w-4 h-4 inline mr-2 text-blue-400" />
+                <Volume2 className="w-4 h-4 inline mr-2 text-[--color-gold]" />
                 Vocal style
               </label>
               <div className="flex flex-wrap gap-2">
@@ -624,7 +624,7 @@ export default function MusicCreator() {
                     onClick={() => setSelectedVocal(selectedVocal === v ? "" : v)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
                       selectedVocal === v
-                        ? "bg-green-500/20 border-green-500/50 text-green-200"
+                        ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]"
                         : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
                     }`}
                   >
@@ -715,7 +715,7 @@ export default function MusicCreator() {
               )}
 
               {!showLyrics && lyrics.trim() && (
-                <div className="flex items-center gap-2 text-xs text-green-400">
+                <div className="flex items-center gap-2 text-xs text-[--color-silver]">
                   <Check className="w-3.5 h-3.5" />
                   {lyrics.split("\n").filter(Boolean).length} lines of lyrics ready
                   <button
@@ -761,7 +761,7 @@ export default function MusicCreator() {
           {/* Right: Generate + Results */}
           <div className="space-y-6">
             {/* Generate card */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#b8892a]/20 to-blue-900/20 border border-[--color-gold]/30 sticky top-24">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#b8892a]/20 to-[#1a1a1a] border border-[--color-gold]/30 sticky top-24">
               <h2 className="text-lg font-bold text-white mb-1">Ready to generate</h2>
 
               {/* Generation Engine Selector */}
@@ -779,7 +779,7 @@ export default function MusicCreator() {
                       className={`p-2.5 rounded-xl border text-left transition-all ${
                         generationMode === value
                           ? value === "score"
-                            ? "bg-blue-500/20 border-blue-500/50 text-blue-200"
+                            ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]"
                             : value === "song"
                             ? "bg-[--color-silver]/10 border-[--color-silver]/50 text-[--color-silver]"
                             : "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]"
@@ -821,7 +821,7 @@ export default function MusicCreator() {
                 {lyrics.trim() && (
                   <div className="flex gap-2 text-sm">
                     <span className="text-[#a1a1aa] flex-shrink-0">Lyrics:</span>
-                    <span className="text-green-400 flex items-center gap-1">
+                    <span className="text-[--color-silver] flex items-center gap-1">
                       <Check className="w-3 h-3" />{lyrics.split("\n").filter(Boolean).length} lines
                     </span>
                   </div>
@@ -851,7 +851,7 @@ export default function MusicCreator() {
                 <Button
                   onClick={handleGenerate}
                   disabled={!canGenerate || (isCustomMode && !lyrics.trim())}
-                  className="w-full bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl h-auto py-3 transition-all shadow-lg hover:shadow-violet-500/20"
+                  className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl h-auto py-3 transition-all shadow-lg hover:shadow-[#b8892a]/20"
                 >
                   {isGenerating ? (
                     <>
@@ -899,7 +899,7 @@ export default function MusicCreator() {
                       return (
                         <div key={phase} className="flex items-center gap-1.5">
                           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide transition-all duration-500 ${
-                            isActive ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 shadow-lg shadow-violet-500/10"
+                            isActive ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 shadow-lg shadow-[#b8892a]/10"
                             : isDone ? "bg-[--color-silver]/10 text-[--color-silver]/80 border border-[--color-silver]/20"
                             : "bg-white/[0.03] text-white/25 border border-white/[0.06]"
                           }`}>
@@ -993,7 +993,7 @@ export default function MusicCreator() {
         {mode === "upload" && (
           <div className="p-6 rounded-2xl bg-[#171717] border border-white/6 space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <UploadCloud className="w-5 h-5 text-blue-400" />
+              <UploadCloud className="w-5 h-5 text-[--color-gold]" />
               <h3 className="text-sm font-semibold text-white">Upload Your Track</h3>
             </div>
             <input
@@ -1021,7 +1021,7 @@ export default function MusicCreator() {
                   </Button>
                   <Button
                     size="sm"
-                    className="flex-1 bg-gradient-to-r from-[#b8892a] to-blue-600 text-white text-xs h-9 rounded-xl"
+                    className="flex-1 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-xs h-9 rounded-xl"
                     asChild
                   >
                     <a href={`/music-video/create?audioUrl=${encodeURIComponent(uploadedAudioUrl)}`}>
@@ -1035,12 +1035,12 @@ export default function MusicCreator() {
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFileUpload(f); }}
-                className="border-2 border-dashed border-white/12 hover:border-blue-500/40 rounded-2xl p-10 text-center cursor-pointer transition-all group"
+                className="border-2 border-dashed border-white/12 hover:border-[--color-gold]/40 rounded-2xl p-10 text-center cursor-pointer transition-all group"
               >
                 {isUploadingFile ? (
-                  <><Loader2 className="w-10 h-10 text-blue-400 mx-auto mb-2 animate-spin" /><p className="text-blue-300 font-medium">Uploading…</p></>
+                  <><Loader2 className="w-10 h-10 text-[--color-gold] mx-auto mb-2 animate-spin" /><p className="text-[--color-gold] font-medium">Uploading…</p></>
                 ) : (
-                  <><UploadCloud className="w-10 h-10 text-white/20 group-hover:text-blue-400 mx-auto mb-3 transition-colors" />
+                  <><UploadCloud className="w-10 h-10 text-white/20 group-hover:text-[--color-gold] mx-auto mb-3 transition-colors" />
                   <p className="text-white/60 font-medium group-hover:text-white transition-colors">Drop your audio file here</p>
                   <p className="text-white/30 text-sm mt-1">MP3, WAV, M4A, OGG · Max 50MB</p></>
                 )}
@@ -1053,7 +1053,7 @@ export default function MusicCreator() {
         {mode === "generate" && generatedTracks.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-green-400" />
+              <Check className="w-4 h-4 text-[--color-silver]" />
               <h3 className="text-sm font-semibold text-white">Your tracks are ready</h3>
             </div>
             <div className="flex items-center justify-between mb-1">
@@ -1098,7 +1098,7 @@ export default function MusicCreator() {
                 <div className="p-4 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 text-center">
                   <p className="text-sm text-[--color-gold] mb-3">Love your track? Turn it into a full music video.</p>
                   <Button
-                    className="bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white text-sm font-semibold rounded-xl h-auto py-2.5 px-5"
+                    className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-sm font-semibold rounded-xl h-auto py-2.5 px-5"
                     asChild
                   >
                     <Link href="/music-video">

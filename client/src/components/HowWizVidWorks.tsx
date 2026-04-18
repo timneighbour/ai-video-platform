@@ -25,7 +25,7 @@ const STEPS = [
     title: "Preview Your Scenes",
     description: "Review each scene, tweak prompts, and reorder clips until the storyboard matches your creative vision — before spending a single credit.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step3-56PvLkzpwjnZhXAa8BwgP8.webp",
-    accent: "from-blue-500 to-[#4a3010]",
+    accent: "from-[--color-gold] to-[#4a3010]",
     glow: "rgba(59,130,246,0.3)",
   },
   {

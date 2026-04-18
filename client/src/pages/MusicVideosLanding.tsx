@@ -229,8 +229,8 @@ export default function MusicVideosLanding() {
                 </div>
                 <div className="p-4 border-t border-white/8 flex items-center justify-between">
                   <div className="flex gap-2">
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-green-300">✓ Lyrics synced</span>
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-300">✓ No watermark</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-[--color-silver]">✓ Lyrics synced</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-[--color-gold]">✓ No watermark</span>
                   </div>
                   <span className="text-xs text-[#a1a1aa]">Ready in ~4 min</span>
                 </div>

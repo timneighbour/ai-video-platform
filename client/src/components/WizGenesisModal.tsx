@@ -249,7 +249,7 @@ export function WizGenesisModal({
                     className={`w-full text-left rounded-xl border p-4 transition-all ${
                       isSelected
                         ? tier.highlight
-                          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/20 ring-1 ring-violet-500/30 shadow-lg shadow-violet-900/20"
+                          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/20 ring-1 ring-[--color-gold]/30 shadow-lg shadow-[#b8892a]/20"
                           : "border-[--color-gold]/30 bg-[--color-gold]/15"
                         : "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
                     }`}
@@ -284,7 +284,7 @@ export function WizGenesisModal({
 
                           {/* Audio + Visual sub-labels */}
                           <div className="flex gap-3 mt-1.5 flex-wrap">
-                            <span className="text-[11px] text-indigo-400">♪ {tier.audioLabel}</span>
+                            <span className="text-[11px] text-[--color-silver]">♪ {tier.audioLabel}</span>
                             <span className="text-[11px] text-[--color-gold]">◆ {tier.visualLabel}</span>
                           </div>
 

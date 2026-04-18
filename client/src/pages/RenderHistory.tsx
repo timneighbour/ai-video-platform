@@ -69,10 +69,10 @@ type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "co
 function StatusBadge({ status }: { status: JobStatus | string }) {
   const map: Record<string, { label: string; className: string }> = {
     draft: { label: "Draft", className: "bg-zinc-700 text-zinc-300 border-zinc-600" },
-    storyboard_ready: { label: "Ready", className: "bg-blue-500/20 text-blue-300 border-blue-500/40" },
+    storyboard_ready: { label: "Ready", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     rendering: { label: "Building Your Video", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     assembling: { label: "Assembling", className: "bg-yellow-500/20 text-yellow-300 border-yellow-500/40" },
-    completed: { label: "Completed", className: "bg-green-500/20 text-green-300 border-green-500/40" },
+    completed: { label: "Completed", className: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20" },
     failed: { label: "Failed", className: "bg-red-500/20 text-red-300 border-red-500/40" },
   };
   const cfg = map[status] ?? { label: status, className: "bg-zinc-700 text-zinc-300 border-zinc-600" };
@@ -84,7 +84,7 @@ function StatusBadge({ status }: { status: JobStatus | string }) {
 }
 
 function SceneStatusIcon({ status }: { status: string }) {
-  if (status === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />;
+  if (status === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-[--color-silver] shrink-0" />;
   if (status === "failed") return <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />;
   if (status === "generating") return <Loader2 className="w-3.5 h-3.5 text-[--color-gold] animate-spin shrink-0" />;
   return <Clock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />;
@@ -304,7 +304,7 @@ export default function RenderHistory() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-7 px-2 text-xs border-green-500/40 text-green-400 bg-transparent hover:bg-green-500/10"
+                            className="h-7 px-2 text-xs border-[--color-gold]/40 text-[--color-gold] bg-transparent hover:bg-[--color-gold]/10"
                             onClick={() => setCinematicPackJob({ id: job.id, videoUrl: job.finalVideoUrl! })}
                           >
                             <Download className="w-3.5 h-3.5 mr-1" />Download
@@ -391,7 +391,7 @@ export default function RenderHistory() {
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: "Total Scenes", value: detailsQuery.data.totalScenes, color: "text-foreground" },
-                  { label: "Completed", value: detailsQuery.data.completedScenes, color: "text-green-400" },
+                  { label: "Completed", value: detailsQuery.data.completedScenes, color: "text-[--color-silver]" },
                   { label: "Failed", value: detailsQuery.data.failedScenes, color: detailsQuery.data.failedScenes > 0 ? "text-red-400" : "text-muted-foreground" },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-zinc-800/60 rounded-lg p-3 text-center">
@@ -421,7 +421,7 @@ export default function RenderHistory() {
                       download
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1 text-green-400 hover:text-green-300"
+                      className="flex items-center gap-1 text-[--color-gold] hover:text-[--color-gold]/80"
                     >
                       <Download className="w-3 h-3" />Download
                     </a>
@@ -448,7 +448,7 @@ export default function RenderHistory() {
                           scene.status === "failed"
                             ? "bg-red-500/5 border border-red-500/20"
                             : scene.status === "completed"
-                            ? "bg-green-500/5 border border-green-500/10"
+                            ? "bg-[--color-silver]/5 border border-[--color-silver]/10"
                             : "bg-zinc-800/40 border border-border"
                         }`}
                       >

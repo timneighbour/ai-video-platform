@@ -24,9 +24,9 @@ const CREATOR_TYPE_LABELS: Record<string, string> = {
 const CREATOR_TYPE_COLORS: Record<string, string> = {
   music_artist: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   youtuber: "bg-red-500/20 text-red-300 border-red-500/30",
-  animator: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  animator: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   kids_creator: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
-  content_creator: "bg-green-500/20 text-green-300 border-green-500/30",
+  content_creator: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20",
 };
 
 type CreatorType = "music_artist" | "youtuber" | "animator" | "kids_creator" | "content_creator";
@@ -159,7 +159,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
               href={creator.websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[--color-gold]/10 hover:bg-[--color-gold]/15 text-[--color-gold] text-xs font-medium transition-colors"
               onClick={e => e.stopPropagation()}
             >
               <Globe className="w-3.5 h-3.5" /> Website
@@ -308,7 +308,7 @@ export default function Discover() {
         {newCreators.length > 0 && (
           <section>
             <div className="flex items-center gap-3 mb-6">
-              <Sparkles className="w-5 h-5 text-blue-400" />
+              <Sparkles className="w-5 h-5 text-[--color-gold]" />
               <h2 className="text-2xl font-bold text-white">New Creators</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

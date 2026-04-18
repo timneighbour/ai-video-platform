@@ -40,7 +40,7 @@ const PIPELINE_STEPS = [
       "Edit any scene prompt or swap the visual style",
     ],
     badge: "Completely free",
-    badgeColor: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+    badgeColor: "bg-blue-500/15 text-[--color-gold] border-blue-500/25",
   },
   {
     num: "03",
@@ -91,7 +91,7 @@ const PIPELINE_STEPS = [
 
 const COLOR_MAP: Record<string, { ring: string; bg: string; text: string; line: string }> = {
   violet: { ring: "border-[--color-gold]/30", bg: "bg-[--color-gold]/15", text: "text-[--color-gold]", line: "bg-[--color-gold]/15" },
-  blue:   { ring: "border-blue-500/40",   bg: "bg-blue-500/10",   text: "text-blue-300",   line: "bg-blue-500/20" },
+  blue:   { ring: "border-blue-500/40",   bg: "bg-[--color-gold]/10",   text: "text-[--color-gold]",   line: "bg-[--color-gold]/15" },
   emerald:{ ring: "border-[--color-silver]/40",bg: "bg-[--color-silver]/10",text: "text-[--color-silver]",line: "bg-[--color-silver]/10" },
   amber:  { ring: "border-[--color-gold]/30",  bg: "bg-[--color-gold]/15",  text: "text-[--color-gold]",  line: "bg-[--color-gold]/15" },
   fuchsia:{ ring: "border-fuchsia-500/40",bg: "bg-[--color-gold]/15",text: "text-[--color-gold]",line: "bg-[--color-gold]/15" },
@@ -207,7 +207,7 @@ export default function HowItWorks() {
             {[
               { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Position is based on your plan tier.", color: "text-white/50" },
               { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images.", color: "text-[--color-gold]" },
-              { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina are applied.", color: "text-blue-300" },
+              { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina are applied.", color: "text-[--color-gold]" },
               { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WIZ AI.", color: "text-[--color-silver]" },
             ].map((item) => (
               <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-white/4 border border-white/8">

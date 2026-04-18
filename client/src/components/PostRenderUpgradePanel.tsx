@@ -118,7 +118,7 @@ export default function PostRenderUpgradePanel({
                 isCurrent
                   ? "border-white/8 bg-white/3 cursor-default opacity-60"
                   : isSelected
-                  ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-violet-500/30"
+                  ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/30"
                   : "border-white/10 bg-white/3 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15"
               }`}
             >

@@ -189,7 +189,7 @@ export function RenderPaywallModal({
       <DialogContent className="max-w-xl bg-[#080808] border border-white/10 text-white p-0 overflow-hidden rounded-2xl max-h-[90vh] overflow-y-auto">
 
         {/* ── Header ────────────────────────────────────────────────────── */}
-        <div className="relative bg-gradient-to-br from-[#b8892a]/60 via-purple-950/30 to-black px-6 pt-6 pb-5 border-b border-white/8">
+        <div className="relative bg-gradient-to-br from-[#b8892a]/60 via-[#1a1a1a] to-black px-6 pt-6 pb-5 border-b border-white/8">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />
@@ -247,7 +247,7 @@ export function RenderPaywallModal({
                     className={`w-full text-left rounded-xl border p-4 transition-all ${
                       isSelected
                         ? tier.highlight
-                          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/20 ring-1 ring-violet-500/30 shadow-lg shadow-violet-900/20"
+                          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/20 ring-1 ring-[--color-gold]/30 shadow-lg shadow-[#b8892a]/20"
                           : "border-[--color-gold]/30 bg-[--color-gold]/15"
                         : "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
                     }`}
@@ -256,7 +256,7 @@ export function RenderPaywallModal({
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         {/* Radio dot */}
                         <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          isSelected ? "border-violet-400 bg-[--color-gold]" : "border-white/25"
+                          isSelected ? "border-[--color-gold] bg-[--color-gold]" : "border-white/25"
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                         </div>
@@ -287,7 +287,7 @@ export function RenderPaywallModal({
                           <div className="flex gap-3 mt-1.5 flex-wrap">
                             <div className="flex items-center gap-1">
                               <span className="text-[10px] text-zinc-600">♪</span>
-                              <span className="text-[11px] text-indigo-400 font-medium">{tier.audioLabel}</span>
+                              <span className="text-[11px] text-[--color-silver] font-medium">{tier.audioLabel}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <span className="text-[10px] text-zinc-600">◆</span>
@@ -346,7 +346,7 @@ export function RenderPaywallModal({
                     onClick={() => setQuality(opt.id)}
                     className={`relative rounded-xl border p-3 text-left transition-all ${
                       isSelected
-                        ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-violet-500/25"
+                        ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/25"
                         : "border-white/8 bg-white/[0.02] hover:border-white/15"
                     }`}
                   >
@@ -412,8 +412,8 @@ export function RenderPaywallModal({
             disabled={isLoading}
             className={`w-full h-12 text-base font-bold shadow-lg transition-all ${
               isCinematicMode
-                ? "bg-gradient-to-r from-[#b8892a] via-purple-600 to-[#4a3010] hover:from-[#b8892a] hover:via-purple-700 hover:to-[#4a3010] shadow-violet-900/50 text-white"
-                : "bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] shadow-violet-900/40 text-white"
+                ? "bg-gradient-to-r from-[#b8892a] via-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:via-[#e8c878] hover:to-[#4a3010] shadow-[#b8892a]/50 text-white"
+                : "bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] shadow-[#b8892a]/40 text-white"
             }`}
           >
             {isLoading ? (

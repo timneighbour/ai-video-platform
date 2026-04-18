@@ -38,7 +38,7 @@ const CREATE_ACTIONS = [
     icon: Film,
     href: "/music-video/create",
     gradient: "from-[#b8892a] to-[#4a3010]",
-    glow: "shadow-violet-500/25",
+    glow: "shadow-[#b8892a]/25",
     badge: "Most Popular",
   },
   {
@@ -47,8 +47,8 @@ const CREATE_ACTIONS = [
     subtitle: "AI-generated original songs",
     icon: Music,
     href: "/music-video/create",
-    gradient: "from-indigo-600 to-blue-700",
-    glow: "shadow-indigo-500/25",
+    gradient: "from-[#4a4a5a] to-[#2e2e36]",
+    glow: "shadow-[#9090a0]/25",
     badge: null,
   },
   {
@@ -58,7 +58,7 @@ const CREATE_ACTIONS = [
     icon: Baby,
     href: "/kids-video",
     gradient: "from-[#9090a0] to-[#2e2e36]",
-    glow: "shadow-pink-500/25",
+    glow: "shadow-[#9090a0]/20",
     badge: null,
   },
   {
@@ -67,8 +67,8 @@ const CREATE_ACTIONS = [
     subtitle: "Cinematic content for your channel",
     icon: Youtube,
     href: "/music-video/create",
-    gradient: "from-red-600 to-orange-700",
-    glow: "shadow-red-500/25",
+    gradient: "from-[#3a2a10] to-[#1a1a1a]",
+    glow: "shadow-[#b8892a]/20",
     badge: null,
   },
 ];
@@ -88,7 +88,7 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     completed: { label: "Complete", cls: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20" },
     rendering: { label: "Building Your Video", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
-    assembling: { label: "Assembling", cls: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
+    assembling: { label: "Assembling", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     storyboard_ready: { label: "Ready", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     failed: { label: "Failed", cls: "bg-red-500/15 text-red-400 border-red-500/20" },
     draft: { label: "Draft", cls: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20" },
@@ -210,7 +210,7 @@ export default function Dashboard() {
         {/* ── Welcome ──────────────────────────────────────────────────── */}
         <div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-            <span className="bg-gradient-to-r from-[#b8892a] via-purple-300 to-[#4a3010] bg-clip-text text-transparent">Welcome to your Studio</span>
+            <span className="bg-gradient-to-r from-[#e8c878] via-[#f2dfa0] to-[#b8892a] bg-clip-text text-transparent">Welcome to your Studio</span>
           </h1>
           <p className="text-zinc-400 mt-2 text-base">
             What do you want to create today{user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Your creative workspace — everything in one place.
@@ -259,7 +259,7 @@ export default function Dashboard() {
             { label: "Total Videos", value: totalProjects, icon: Film, color: "text-[--color-gold]" },
             { label: "Renders Done", value: completedProjects, icon: CheckCircle2, color: "text-[--color-silver]" },
             { label: "Renders Left", value: renderBalance, icon: Zap, color: "text-[--color-gold]" },
-            { label: "Credits", value: creditBalance.toLocaleString(), icon: Star, color: "text-blue-400" },
+            { label: "Credits", value: creditBalance.toLocaleString(), icon: Star, color: "text-[--color-gold]" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
@@ -412,7 +412,7 @@ export default function Dashboard() {
           <section className="text-center py-16">
             <div className="relative w-20 h-20 mx-auto mb-6">
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#b8892a]/30 to-[#4a3010]/30 animate-pulse" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-violet-500/30">
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/30">
                 <Sparkles className="w-9 h-9 text-white" />
               </div>
             </div>
@@ -421,7 +421,7 @@ export default function Dashboard() {
               Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
             </p>
             <a href="/music-video/create">
-              <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-violet-900/40">
+              <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
                 <Sparkles className="w-5 h-5 mr-2" />
                 Start Creating
               </Button>
@@ -493,7 +493,7 @@ export default function Dashboard() {
         })()}
 
         {/* ── Go Cinematic Upgrade Block ───────────────────────────────── */}
-        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/60 via-purple-950/40 to-black p-6 sm:p-8">
+        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 via-[#1a1a1a] to-black p-6 sm:p-8">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />
@@ -510,7 +510,7 @@ export default function Dashboard() {
               </p>
               <div className="flex flex-wrap gap-3 mt-4">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                  <span className="text-indigo-400 text-sm font-semibold">WizSound™</span>
+                  <span className="text-[--color-silver] text-sm font-semibold">WizSound™</span>
                   <span className="text-zinc-500 text-xs">Cinematic audio mastering</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
@@ -521,7 +521,7 @@ export default function Dashboard() {
             </div>
             <div className="flex-shrink-0">
               <a href="/music-video/create">
-                <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-11 font-semibold shadow-lg shadow-violet-900/40 whitespace-nowrap">
+                <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-6 h-11 font-semibold shadow-lg shadow-[#b8892a]/30 whitespace-nowrap">
                   <Wand2 className="w-4 h-4 mr-2" />
                   Upgrade your next video
                 </Button>

@@ -59,7 +59,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
 
   return (
     <div
-      className={`relative flex items-start gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-[#4a3010]/40 px-4 py-3 shadow-lg shadow-violet-900/20 backdrop-blur-sm ${className}`}
+      className={`relative flex items-start gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-[#4a3010]/40 px-4 py-3 shadow-lg shadow-[#b8892a]/20 backdrop-blur-sm ${className}`}
       role="status"
       aria-live="polite"
     >

@@ -44,7 +44,7 @@ const TEMPLATES: Template[] = [
     title: "Faceless Content",
     description: "AI visuals for YouTube & social — no camera needed",
     href: "/wizpilot",
-    gradient: "from-indigo-500/20 to-blue-600/10",
+    gradient: "from-[--color-gold]/10 to-[#1a1a1a]",
   },
   {
     id: "kids-story",

@@ -353,7 +353,7 @@ export default function TextToVideoCreator() {
                     stepIndex === i
                       ? "bg-[--color-gold] text-white"
                       : stepIndex > i
-                      ? "bg-green-600/30 text-green-400"
+                      ? "bg-[--color-silver]/15 text-[--color-silver]"
                       : "bg-white/10 text-muted-foreground"
                   }`}
                 >
@@ -394,12 +394,12 @@ export default function TextToVideoCreator() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="A lone astronaut walking across a red Martian landscape at sunset, cinematic slow motion…"
-                className="w-full h-28 sm:h-36 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50 text-sm"
+                className="w-full h-28 sm:h-36 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-[--color-gold]/50 text-sm"
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-muted-foreground">{prompt.length} / 2000</span>
                 {prompt.length >= 10 && (
-                  <span className="text-xs text-green-400 flex items-center gap-1">
+                  <span className="text-xs text-[--color-silver] flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" /> Ready
                   </span>
                 )}
@@ -431,7 +431,7 @@ export default function TextToVideoCreator() {
                     onClick={() => setStyle(s.id)}
                     className={`rounded-xl border p-3 text-left transition-all ${
                       style === s.id
-                        ? "border-violet-500 bg-[--color-gold]/15 text-white"
+                        ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
                         : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                     }`}
                   >
@@ -454,7 +454,7 @@ export default function TextToVideoCreator() {
                       onClick={() => setDuration(d.id)}
                       className={`rounded-xl border p-2.5 text-center transition-all ${
                         duration === d.id
-                          ? "border-violet-500 bg-[--color-gold]/15 text-white"
+                          ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
                           : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -473,7 +473,7 @@ export default function TextToVideoCreator() {
                       onClick={() => setAspectRatio(r.id)}
                       className={`flex-1 rounded-xl border p-3 text-center transition-all ${
                         aspectRatio === r.id
-                          ? "border-violet-500 bg-[--color-gold]/15 text-white"
+                          ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
                           : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -490,7 +490,7 @@ export default function TextToVideoCreator() {
                 size="lg"
                 onClick={handleGenerateStoryboard}
                 disabled={prompt.length < 10}
-                className="gap-2 bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate Free Storyboard
@@ -530,7 +530,7 @@ export default function TextToVideoCreator() {
                       <input
                         value={scene.title}
                         onChange={(e) => updateScene(scene.id, "title", e.target.value)}
-                        className="bg-transparent text-sm font-semibold text-white border-none outline-none focus:ring-1 focus:ring-violet-500/50 rounded px-1"
+                        className="bg-transparent text-sm font-semibold text-white border-none outline-none focus:ring-1 focus:ring-[--color-gold]/50 rounded px-1"
                       />
                     </div>
                     <div className="flex items-center gap-1">
@@ -590,7 +590,7 @@ export default function TextToVideoCreator() {
                     <Textarea
                       value={scene.description}
                       onChange={(e) => updateScene(scene.id, "description", e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-violet-500/50 min-h-[60px]"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 min-h-[60px]"
                       placeholder="Describe what happens in this scene…"
                     />
                   </div>
@@ -599,7 +599,7 @@ export default function TextToVideoCreator() {
                     <Textarea
                       value={scene.visualNotes}
                       onChange={(e) => updateScene(scene.id, "visualNotes", e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-violet-500/50 min-h-[48px]"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 min-h-[48px]"
                       placeholder="Camera angle, lighting, mood, colours…"
                     />
                   </div>
@@ -647,7 +647,7 @@ export default function TextToVideoCreator() {
                 </Button>
                 <Button
                   onClick={handleRenderVideo}
-                  className="gap-2 bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white border-0 flex-1"
+                  className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 flex-1"
                 >
                   <Play className="h-4 w-4" />
                   Render Video — {creditCost} Credits
@@ -683,7 +683,7 @@ export default function TextToVideoCreator() {
               {PROGRESS_STAGES.map((stage, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm">
                   {i < progressStage ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 text-[--color-silver] flex-shrink-0" />
                   ) : i === progressStage ? (
                     <Loader2 className="h-4 w-4 text-[--color-gold] animate-spin flex-shrink-0" />
                   ) : (
@@ -704,8 +704,8 @@ export default function TextToVideoCreator() {
         {/* ── STEP 4: DONE ── */}
         {step === "done" && (
           <div className="flex flex-col items-center justify-center py-10 sm:py-16 space-y-8 text-center">
-            <div className="h-16 w-16 rounded-full bg-green-600/20 border border-green-500/30 flex items-center justify-center">
-              <CheckCircle2 className="h-8 w-8 text-green-400" />
+            <div className="h-16 w-16 rounded-full bg-[--color-silver]/10 border border-[--color-silver]/20 flex items-center justify-center">
+              <CheckCircle2 className="h-8 w-8 text-[--color-silver]" />
             </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Video is Ready!</h2>
@@ -760,7 +760,7 @@ export default function TextToVideoCreator() {
               )}
               <a
                 href="/projects"
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
               >
                 View All Projects
               </a>

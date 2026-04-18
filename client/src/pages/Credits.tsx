@@ -177,7 +177,7 @@ export default function Credits() {
                 key={pack.id}
                 className={`relative rounded-2xl border p-6 flex flex-col gap-5 transition-all ${
                   pack.popular
-                    ? "border-[--color-gold]/30 bg-gradient-to-b from-[#b8892a]/40 to-zinc-900/60 shadow-lg shadow-violet-900/20"
+                    ? "border-[--color-gold]/30 bg-gradient-to-b from-[#b8892a]/40 to-zinc-900/60 shadow-lg shadow-[#b8892a]/20"
                     : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
                 }`}
               >
@@ -312,7 +312,7 @@ export default function Credits() {
               desc: "Buy now, use whenever. No monthly reset, no pressure.",
             },
             {
-              icon: <CheckCircle2 className="w-5 h-5 text-green-400" />,
+              icon: <CheckCircle2 className="w-5 h-5 text-[--color-silver]" />,
               title: "Instant delivery",
               desc: "Credits are added to your account immediately after payment.",
             },

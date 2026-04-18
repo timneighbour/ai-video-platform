@@ -79,25 +79,25 @@ const colourMap: Record<WizLayer, { text: string; bg: string; border: string; ri
     text: "text-[--color-gold]",
     bg: "bg-[--color-gold]/15",
     border: "border-[--color-gold]/30",
-    ring: "ring-violet-500/30",
+    ring: "ring-[--color-gold]/30",
   },
   render: {
     text: "text-[--color-gold]",
     bg: "bg-[--color-gold]/15",
     border: "border-[--color-gold]/30",
-    ring: "ring-purple-500/30",
+    ring: "ring-[--color-gold]/30",
   },
   sound: {
-    text: "text-indigo-300",
-    bg: "bg-indigo-500/10",
-    border: "border-indigo-500/25",
-    ring: "ring-indigo-500/30",
+    text: "text-[--color-silver]",
+    bg: "bg-[--color-silver]/10",
+    border: "border-[--color-silver]/25",
+    ring: "ring-[--color-silver]/30",
   },
   pilot: {
     text: "text-[--color-gold]",
     bg: "bg-[--color-gold]/15",
-    border: "border-fuchsia-500/25",
-    ring: "ring-fuchsia-500/30",
+    border: "border-[--color-gold]/25",
+    ring: "ring-[--color-gold]/30",
   },
 };
 
@@ -299,14 +299,14 @@ export function WizBrandProcessingOverlay({
               key={i}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all ${
                 s.done
-                  ? "bg-green-900/20 border-green-700/25"
+                  ? "bg-[--color-silver]/5 border-[--color-silver]/20"
                   : s.active
                   ? `${c.bg} ${c.border}`
                   : "bg-zinc-900/50 border-zinc-800/50"
               }`}
             >
               {s.done ? (
-                <svg className="w-4 h-4 text-green-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-[--color-silver] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               ) : s.active ? (
@@ -318,7 +318,7 @@ export function WizBrandProcessingOverlay({
                 <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
               )}
               <span className={`text-sm font-medium ${
-                s.done ? "text-green-400" : s.active ? "text-white" : "text-zinc-500"
+                s.done ? "text-[--color-silver]" : s.active ? "text-white" : "text-zinc-500"
               }`}>{s.label}</span>
             </div>
           ))}

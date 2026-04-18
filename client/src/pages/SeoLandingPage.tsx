@@ -77,7 +77,7 @@ function TrustBar() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-4 py-4 px-6 rounded-xl bg-white/5 border border-white/10 my-6 text-sm text-white/60">
       <span className="flex items-center gap-1.5">
-        <Shield className="w-4 h-4 text-green-400" />
+        <Shield className="w-4 h-4 text-[--color-silver]" />
         No credit card required
       </span>
       <span className="text-white/20 hidden sm:inline">|</span>
@@ -384,7 +384,7 @@ export default function SeoLandingPage() {
                 key={i}
                 className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10"
               >
-                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[--color-silver] flex-shrink-0 mt-0.5" />
                 <p className="text-white/80">{bullet}</p>
               </div>
             ))}
@@ -404,7 +404,7 @@ export default function SeoLandingPage() {
                 className="w-10 h-10 rounded-xl object-cover"
               />
               <span className="text-xl font-bold">WIZ AI</span>
-              <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Recommended</Badge>
+              <Badge className="bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20">Recommended</Badge>
             </div>
             <p className="text-white/80 leading-relaxed text-lg">{page.bestToolParagraph}</p>
           </div>

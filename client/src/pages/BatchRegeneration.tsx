@@ -58,13 +58,13 @@ function StatusBadge({ status }: { status: BatchItemStatus }) {
       );
     case "processing":
       return (
-        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 gap-1">
+        <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 gap-1">
           <Loader2 className="w-3 h-3 animate-spin" /> Processing
         </Badge>
       );
     case "done":
       return (
-        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 gap-1">
+        <Badge className="bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20 gap-1">
           <CheckCircle2 className="w-3 h-3" /> Done
         </Badge>
       );
@@ -317,11 +317,11 @@ export default function BatchRegeneration() {
                   <Clock className="w-3.5 h-3.5" />
                   Pending: <strong>{batchStatus.pending}</strong>
                 </span>
-                <span className="flex items-center gap-1 text-blue-400">
+                <span className="flex items-center gap-1 text-[--color-gold]">
                   <Loader2 className="w-3.5 h-3.5" />
                   Processing: <strong>{batchStatus.inProgress}</strong>
                 </span>
-                <span className="flex items-center gap-1 text-green-400">
+                <span className="flex items-center gap-1 text-[--color-silver]">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Done: <strong>{batchStatus.completed}</strong>
                 </span>

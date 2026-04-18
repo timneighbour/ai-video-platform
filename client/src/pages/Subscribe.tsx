@@ -191,7 +191,7 @@ export default function Subscribe() {
   };
 
   const renderCell = (val: string | boolean) => {
-    if (val === true)  return <Check className="h-4 w-4 text-green-400 mx-auto" />;
+    if (val === true)  return <Check className="h-4 w-4 text-[--color-silver] mx-auto" />;
     if (val === false) return <Minus className="h-3.5 w-3.5 text-white/20 mx-auto" />;
     return <span className="text-xs text-white/70">{val}</span>;
   };
@@ -241,7 +241,7 @@ export default function Subscribe() {
         </button>
         <button onClick={() => setBilling("annual")} className={`text-sm font-semibold transition-colors flex items-center gap-2 ${billing === "annual" ? "text-white" : "text-muted-foreground hover:text-white"}`}>
           Annual
-          <span className="rounded-full bg-green-500/20 text-green-400 text-xs px-2 py-0.5 font-semibold border border-green-500/30">
+          <span className="rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs px-2 py-0.5 font-semibold border border-[--color-gold]/30">
             Save 2 months
           </span>
         </button>
@@ -284,10 +284,10 @@ export default function Subscribe() {
                     {displayPrice > 0 && <span className="text-muted-foreground text-sm mb-1">/mo</span>}
                   </div>
                   {billing === "annual" && plan.annualSaving > 0 && (
-                    <p className="text-xs text-[#a1a1aa] mb-1">£{plan.annualTotal}/year <span className="text-green-400 font-semibold">save £{plan.annualSaving}</span></p>
+                    <p className="text-xs text-[#a1a1aa] mb-1">£{plan.annualTotal}/year <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
                   )}
                   {billing === "monthly" && plan.annualSaving > 0 && (
-                    <p className="text-xs text-[#a1a1aa] mb-1">or £{plan.annualTotal}/yr <span className="text-green-400 font-semibold">save £{plan.annualSaving}</span></p>
+                    <p className="text-xs text-[#a1a1aa] mb-1">or £{plan.annualTotal}/yr <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
                   )}
                   <Button
                     className={`w-full mt-3 mb-4 font-semibold text-sm ${
@@ -307,7 +307,7 @@ export default function Subscribe() {
                   <ul className="space-y-1.5 flex-1">
                     {plan.outcomes.map((outcome) => (
                       <li key={outcome} className="flex items-start gap-2">
-                        <Check className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-[--color-gold]" : "text-green-400"}`} />
+                        <Check className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-[--color-gold]" : "text-[--color-silver]"}`} />
                         <span className="text-xs text-foreground/75 leading-snug">{outcome}</span>
                       </li>
                     ))}
@@ -400,13 +400,13 @@ export default function Subscribe() {
               { label: "Creator Bundle",  renders: 15, price: "£20", perRender: "£1.33", saving: "Save 33%", highlight: true,  badge: "Best Value" },
               { label: "Studio Bundle",   renders: 40, price: "£50", perRender: "£1.25", saving: "Save 38%", highlight: false, badge: null },
             ].map((item) => (
-              <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-green-500/40 bg-green-500/5 shadow-[0_0_24px_-6px_rgba(34,197,94,0.25)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
-                {item.badge && <div className="inline-block rounded-full bg-green-500/20 text-green-400 text-xs font-bold px-3 py-0.5 mb-3 border border-green-500/30">{item.badge}</div>}
+              <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-[--color-gold]/40 bg-[--color-gold]/5 shadow-[0_0_24px_-6px_rgba(184,137,42,0.25)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
+                {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
                 <h3 className="font-bold text-white text-sm mb-1">{item.label}</h3>
                 <p className="text-xs text-muted-foreground mb-3">{item.renders} renders</p>
                 <p className="text-2xl font-extrabold text-white mb-1">{item.price}</p>
                 <p className="text-xs text-muted-foreground">{item.perRender}/render</p>
-                {item.saving && <p className="text-xs text-green-400 font-semibold mt-1">{item.saving}</p>}
+                {item.saving && <p className="text-xs text-[--color-gold] font-semibold mt-1">{item.saving}</p>}
               </div>
             ))}
           </div>
@@ -467,7 +467,7 @@ export default function Subscribe() {
       {/* ── 9. Bottom CTA ── */}
       <section className="py-20 border-t border-white/10 px-4 text-center">
         <div className="container max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1.5 text-xs text-green-300 font-medium mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-1.5 text-xs text-[--color-gold] font-medium mb-6">
             <Sparkles className="h-3.5 w-3.5" />Free storyboard on every video
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">Start building your video for free</h2>

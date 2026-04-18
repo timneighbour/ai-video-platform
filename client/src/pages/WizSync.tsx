@@ -100,7 +100,7 @@ const STEM_LABELS: Record<string, string> = {
 };
 
 const GENDER_COLORS: Record<string, string> = {
-  male: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  male: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   female: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
   unknown: "bg-zinc-700/40 text-zinc-400 border-zinc-600/30",
 };

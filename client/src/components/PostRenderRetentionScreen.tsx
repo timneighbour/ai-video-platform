@@ -40,7 +40,7 @@ const NEXT_ACTIONS = [
     subtitle: "AI-composed original music",
     icon: Music,
     href: "/music-video/create",
-    gradient: "from-indigo-600 to-blue-700",
+    gradient: "from-[#4a4a5a] to-[#2e2e36]",
   },
   {
     id: "kids-animation",
@@ -61,7 +61,7 @@ const NEXT_ACTIONS = [
 ];
 
 function ConfettiParticle({ delay }: { delay: number }) {
-  const colors = ["bg-[--color-gold]", "bg-fuchsia-400", "bg-[--color-gold]", "bg-[--color-silver]", "bg-blue-400"];
+  const colors = ["bg-[--color-gold]", "bg-[--color-gold]", "bg-[--color-gold]", "bg-[--color-silver]", "bg-[--color-silver]"];
   const color = colors[Math.floor(Math.random() * colors.length)];
   const left = Math.random() * 100;
   const size = Math.random() * 6 + 4;
@@ -162,7 +162,7 @@ export function PostRenderRetentionScreen({
       <div className="text-center mb-6">
         <div className="relative w-16 h-16 mx-auto mb-4">
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#b8892a]/30 to-[#2e2e36]/30 animate-ping" style={{ animationDuration: "2s" }} />
-          <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-violet-500/40">
+          <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/40">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
         </div>
@@ -173,7 +173,7 @@ export function PostRenderRetentionScreen({
       </div>
 
       {/* ── Video Player ────────────────────────────────────────────── */}
-      <div className="relative rounded-xl overflow-hidden mb-5 ring-1 ring-violet-500/20 bg-black group">
+      <div className="relative rounded-xl overflow-hidden mb-5 ring-1 ring-[--color-gold]/20 bg-black group">
         <video
           ref={videoRef}
           src={finalVideoUrl}
@@ -186,14 +186,14 @@ export function PostRenderRetentionScreen({
           onPause={() => setIsPlaying(false)}
         />
         {/* Glow effect */}
-        <div className="absolute inset-0 pointer-events-none rounded-xl ring-1 ring-violet-500/10 shadow-[0_0_40px_rgba(139,92,246,0.15)]" />
+        <div className="absolute inset-0 pointer-events-none rounded-xl ring-1 ring-[--color-gold]/10 shadow-[0_0_40px_rgba(184,137,42,0.15)]" />
       </div>
 
       {/* ── Primary CTAs ────────────────────────────────────────────── */}
       <div className="flex gap-3 mb-6">
         <Button
           onClick={handleDownload}
-          className="flex-1 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white h-11 font-semibold shadow-lg shadow-violet-900/40"
+          className="flex-1 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white h-11 font-semibold shadow-lg shadow-[#b8892a]/40"
         >
           <Download className="w-4 h-4 mr-2" />
           Download Video
@@ -209,7 +209,7 @@ export function PostRenderRetentionScreen({
 
       {/* ── Upgrade Prompt (free/starter users only) ──────────────────── */}
       {showUpgradePrompt && (
-        <div className="mb-5 px-4 py-3.5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-indigo-950/40 flex items-center justify-between gap-3">
+        <div className="mb-5 px-4 py-3.5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-[#1a1a1a] flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center shrink-0">
               <Crown className="w-4 h-4 text-[--color-gold]" />

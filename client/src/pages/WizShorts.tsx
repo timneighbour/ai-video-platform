@@ -331,7 +331,7 @@ export default function WizShorts() {
                   { icon: <Sparkles className="w-4 h-4 text-[--color-silver]" />, title: "AI Scene Planning", desc: "GPT breaks your topic into perfectly timed scenes" },
                   { icon: <Film className="w-4 h-4 text-orange-400" />, title: "Grok Video Generation", desc: "Each scene rendered by the #1 ranked AI video model" },
                   { icon: <Zap className="w-4 h-4 text-yellow-400" />, title: "Auto Assembly", desc: "Scenes stitched together with optional music track" },
-                  { icon: <Download className="w-4 h-4 text-green-400" />, title: "Ready to Upload", desc: "9:16 vertical format, ready for Shorts/TikTok/Reels" },
+                  { icon: <Download className="w-4 h-4 text-[--color-silver]" />, title: "Ready to Upload", desc: "9:16 vertical format, ready for Shorts/TikTok/Reels" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="mt-0.5">{item.icon}</div>
@@ -479,7 +479,7 @@ export default function WizShorts() {
                       }`}
                     >
                       {i < completedScenes ? (
-                        <CheckCircle2 className="w-3 h-3 text-green-400" />
+                        <CheckCircle2 className="w-3 h-3 text-[--color-silver]" />
                       ) : i === completedScenes ? (
                         <Loader2 className="w-3 h-3 text-[--color-silver] animate-spin" />
                       ) : (
@@ -495,8 +495,8 @@ export default function WizShorts() {
               </div>
             ) : renderStatus === "complete" && finalVideoUrl ? (
               <div className="text-center space-y-6">
-                <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
-                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <div className="w-16 h-16 mx-auto rounded-full bg-[--color-silver]/10 border border-green-500/40 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-[--color-silver]" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold mb-2">Your WizShort is ready!</h2>

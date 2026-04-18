@@ -135,7 +135,7 @@ function StatusBadge({ status }: { status: string }) {
     case "storyboard_ready":
       return <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 gap-1 text-[11px] font-semibold"><Clapperboard className="h-3 w-3" /> Ready to Render</Badge>;
     case "pending": case "queued":
-      return <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/25 gap-1 text-[11px] font-semibold"><Clock className="h-3 w-3" /> Queued</Badge>;
+      return <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/25 gap-1 text-[11px] font-semibold"><Clock className="h-3 w-3" /> Queued</Badge>;
     case "draft":
       return <Badge className="bg-zinc-500/15 text-zinc-400 border-zinc-500/25 gap-1 text-[11px] font-semibold"><Edit3 className="h-3 w-3" /> Draft</Badge>;
     case "failed":
@@ -164,7 +164,7 @@ function PrimaryCTA({
   switch (status) {
     case "completed":
       return (
-        <Button onClick={onWatch} className={`${cls} gap-2 bg-gradient-to-r from-[#9090a0] to-green-600 hover:from-[#9090a0] hover:to-green-500 text-white border-0 shadow-emerald-900/30`}>
+        <Button onClick={onWatch} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 shadow-[#b8892a]/30`}>
           <Play className="h-3.5 w-3.5 fill-current" /> Watch Video
         </Button>
       );
@@ -176,7 +176,7 @@ function PrimaryCTA({
       );
     case "storyboard_ready":
       return (
-        <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-violet-900/30`}>
+        <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-[#b8892a]/30`}>
           <Zap className="h-3.5 w-3.5" /> Render Now
         </Button>
       );
@@ -188,7 +188,7 @@ function PrimaryCTA({
       );
     default:
       return (
-        <Button onClick={onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-violet-900/30`}>
+        <Button onClick={onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-[#b8892a]/30`}>
           <Edit3 className="h-3.5 w-3.5" /> Continue Editing
         </Button>
       );
@@ -365,7 +365,7 @@ export default function Projects() {
       onClick={() => setFilter(value)}
       className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
         filter === value
-          ? "bg-[--color-gold] text-white shadow-lg shadow-violet-900/30"
+          ? "bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30"
           : "bg-white/5 text-zinc-400 hover:bg-white/8 hover:text-white border border-white/8"
       }`}
     >
@@ -387,7 +387,7 @@ export default function Projects() {
     return (
       <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
         isPrimary
-          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 via-[#111118] to-[#4a3010]/20 shadow-xl shadow-violet-900/15"
+          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 via-[#111118] to-[#4a3010]/20 shadow-xl shadow-[#b8892a]/15"
           : completed
           ? "border-[--color-silver]/20 bg-[#111118] hover:border-[--color-silver]/40/35 hover:shadow-lg hover:shadow-emerald-900/10"
           : rendering
@@ -520,7 +520,7 @@ export default function Projects() {
     return (
       <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
         isPrimary
-          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 via-[#111118] to-[#4a3010]/20 shadow-xl shadow-violet-900/15"
+          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 via-[#111118] to-[#4a3010]/20 shadow-xl shadow-[#b8892a]/15"
           : completed
           ? "border-[--color-silver]/20 bg-[#111118] hover:border-[--color-silver]/40/35 hover:shadow-lg hover:shadow-emerald-900/10"
           : rendering
@@ -625,7 +625,7 @@ export default function Projects() {
       </p>
       <a
         href={activeTab === "music_videos" ? "/music-video/create" : "/wizpilot"}
-        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold px-7 py-3 transition-all shadow-lg shadow-violet-900/25 text-sm"
+        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold px-7 py-3 transition-all shadow-lg shadow-[#b8892a]/25 text-sm"
       >
         <Sparkles className="h-4 w-4" />
         Create your first video
@@ -669,7 +669,7 @@ export default function Projects() {
               key={tab}
               onClick={() => { setActiveTab(tab); setFilter("all"); }}
               className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
-                activeTab === tab ? "border-violet-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"
+                activeTab === tab ? "border-[--color-gold] text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"
               }`}
             >
               {tab === "music_videos" ? <><Music className="h-3.5 w-3.5" /> Music Videos</> : <><Zap className="h-3.5 w-3.5" /> Generated Videos</>}

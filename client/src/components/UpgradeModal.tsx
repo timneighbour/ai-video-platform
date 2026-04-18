@@ -89,7 +89,7 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
             <span className="text-white/50 text-sm">Creator plan from </span>
             <span className="text-white font-black text-xl">£29</span>
             <span className="text-white/50 text-sm">/month</span>
-            <div className="text-green-400 text-xs mt-1 font-medium">Save 20% with annual billing</div>
+            <div className="text-[--color-silver] text-xs mt-1 font-medium">Save 20% with annual billing</div>
           </div>
 
           {/* CTAs */}

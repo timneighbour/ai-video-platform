@@ -180,7 +180,7 @@ export default function CreditBalance({
           </span>
         </div>
         <Link href="/credits">
-          <span className="text-xs text-violet-400 hover:text-[--color-gold] transition-colors font-medium flex items-center gap-1 cursor-pointer">
+          <span className="text-xs text-[--color-gold]/70 hover:text-[--color-gold] transition-colors font-medium flex items-center gap-1 cursor-pointer">
             <Plus className="w-3 h-3" />
             Buy Credits
           </span>
@@ -211,13 +211,13 @@ export default function CreditBalance({
           className={cn(
             "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
             canAfford
-              ? "bg-green-950/40 border border-green-800/30 text-green-300"
+              ? "bg-[--color-silver]/10 border border-[--color-silver]/20 text-[--color-silver]"
               : "bg-red-950/40 border border-red-800/30 text-red-300"
           )}
         >
           {canAfford ? (
             <>
-              <Zap className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-green-400" />
+              <Zap className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-[--color-silver]" />
               <span>
                 This video uses <strong>{cost.toLocaleString()} Credits</strong>.
                 You&apos;ll have{" "}
