@@ -5054,3 +5054,15 @@
 - [x] COPY-1: Fix HowItWorks step 4 typo "Building Your Video" → "Export in HD or 4K"
 - [x] COPY-2: Sharpen FinalCTA headline — "Your next creation starts here." with metallic gold accent
 - [x] COPY-3: Update FinalCTA subtext — "Join thousands of creators" social proof language
+
+## PRICING PAGE REBUILD — PREMIUM CLARITY
+- [x] PRICE-1: Audit all plan data — renders, quality, watermark, priority, character consistency, API access
+- [x] PRICE-2: Defined canonical plan table with zero contradictions
+- [x] PRICE-3: Rebuilt plan cards — clear per-plan features, who-it-is-for label, best-value highlight
+- [x] PRICE-4: Rebuilt comparison table — grouped (Output, Features, Access), scannable, mobile-friendly
+- [x] PRICE-5: Upgraded section headings, spacing, and visual hierarchy
+- [x] PRICE-6: Improved FAQ — 9 questions, render overage, bundle expiry, character consistency, priority rendering
+- [x] PRICE-7: Added trust strip (Stripe, no card, cancel anytime, 40+ countries)
+- [x] PRICE-8: CTAs show exact price and plan name — Get Creator — £29/mo
+- [x] PRICE-9: Responsive grid (1 col mobile, 2 col tablet, 5 col XL), comparison table scrollable
+- [x] PRICE-10: All contradictions removed — single source of truth in Pricing.tsx, Subscribe.tsx synced
