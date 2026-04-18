@@ -1292,54 +1292,56 @@ Rules:
       const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
         tim: {
           positive: [
-            "black leather jacket (MANDATORY — most important outfit element)",
-            "dark jeans with a key chain hanging from belt loop",
-            "dark t-shirt or shirt underneath the leather jacket",
+            "BLACK LEATHER JACKET — this is MANDATORY and the single most important outfit element",
+            "dark t-shirt or shirt UNDERNEATH the leather jacket (jacket is ALWAYS on top)",
+            "dark jeans or dark trousers with a key chain hanging from belt loop",
             "black boots or dark shoes",
           ],
           negative: [
-            "NOT wearing only a t-shirt without a jacket",
-            "NOT sleeveless",
-            "NOT a hoodie",
-            "NOT a vest",
-            "NOT a blazer",
-            "NOT a suit jacket",
-            "NOT a coat",
+            "ABSOLUTELY NO t-shirt without a jacket over it",
+            "ABSOLUTELY NO hoodie",
+            "ABSOLUTELY NO vest",
+            "ABSOLUTELY NO blazer",
+            "ABSOLUTELY NO suit jacket",
+            "ABSOLUTELY NO coat",
+            "ABSOLUTELY NO sleeveless top",
+            "ABSOLUTELY NO open shirt without leather jacket",
           ],
         },
         greg: {
           positive: [
-            "black short-sleeve torn t-shirt with VISIBLE SHORT SLEEVES",
+            "black short-sleeve torn t-shirt — SHORT SLEEVES MUST BE VISIBLE",
             "dark jeans or dark trousers",
             "trainers or boots",
           ],
           negative: [
-            "NOT a leather jacket",
-            "NOT any jacket of any kind",
-            "NOT sleeveless",
-            "NOT a tank top",
-            "NOT a vest",
-            "NOT a long-sleeve shirt",
-            "NOT a blazer",
-            "NOT a coat",
+            "ABSOLUTELY NO leather jacket",
+            "ABSOLUTELY NO jacket of any kind",
+            "ABSOLUTELY NO sleeveless top",
+            "ABSOLUTELY NO tank top",
+            "ABSOLUTELY NO vest",
+            "ABSOLUTELY NO long-sleeve shirt",
+            "ABSOLUTELY NO blazer",
+            "ABSOLUTELY NO coat",
           ],
         },
         monica: {
           positive: [
-            "form-fitting black leather trousers",
+            "form-fitting black leather trousers — MUST be visible from waist to ankle",
             "distressed charcoal grey V-neck t-shirt cut low",
-            "black stiletto-heeled ankle boots",
-            "long silver chain necklace with prominent ornate silver cross pendant (VISIBLE)",
-            "full sleeve tattoos on both forearms (VISIBLE)",
+            "black stiletto-heeled ankle boots — MUST be visible",
+            "long silver chain necklace with prominent ornate silver cross pendant — MUST be visible",
+            "full sleeve tattoos on both forearms — MUST be visible",
           ],
           negative: [
-            "NOT a leather jacket",
-            "NOT any jacket of any kind",
-            "NOT generic plain clothing",
-            "NOT hiding the tattoos",
-            "NOT hiding the cross necklace",
-            "NOT jeans",
-            "NOT shorts",
+            "ABSOLUTELY NO leather jacket",
+            "ABSOLUTELY NO jacket of any kind",
+            "ABSOLUTELY NO generic plain clothing",
+            "ABSOLUTELY NO hidden tattoos",
+            "ABSOLUTELY NO hidden necklace",
+            "ABSOLUTELY NO jeans",
+            "ABSOLUTELY NO shorts",
+            "ABSOLUTELY NO skirt",
           ],
         },
       };
@@ -1349,15 +1351,17 @@ Rules:
         const key = charName.toLowerCase();
         const constraints = OUTFIT_CONSTRAINTS[key];
         if (!constraints) {
-          return storedOutfit ? `${charName} is wearing: ${storedOutfit}.` : "";
+          return storedOutfit ? `${charName} is wearing: ${storedOutfit}. MUST wear this exact outfit. DO NOT change any garment.` : "";
         }
         const positiveList = constraints.positive.map(p => `  + ${p}`).join("\n");
         const negativeList = constraints.negative.map(n => `  ${n}`).join("\n");
-        // First statement
+        // First statement — detailed list
         const block1 = `${charName} is wearing:\n${positiveList}\n${charName} is ABSOLUTELY NOT wearing:\n${negativeList}`;
-        // Second statement (reinforcement repetition)
+        // Second statement — reinforcement repetition
         const block2 = `CONFIRM: ${charName}'s outfit is EXACTLY: ${constraints.positive.join(", ")}. ${charName} is NEVER wearing: ${constraints.negative.join(", ")}.`;
-        return `${block1}\n\n${block2}`;
+        // Third statement — single-sentence override
+        const block3 = `FINAL RULE: ${charName}'s outfit MUST match the above description in EVERY SINGLE SCENE. DO NOT deviate. DO NOT substitute any garment. The AI MUST comply with these outfit rules or the image is WRONG.`;
+        return `${block1}\n\n${block2}\n\n${block3}`;
       };
 
       const visualLines = resolvedSceneChars
@@ -1376,11 +1380,27 @@ Rules:
           const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit);
           if (outfitConstraintBlock) parts.push(outfitConstraintBlock);
 
-          // ── HAIR LOCK ──────────────────────────────────────────────────────────────
+          // ── HAIR LOCK ───────────────────────────────────────────────────────────────────────────────────────
           // Photo-driven (from structured extraction) or defaults — NEVER changes between scenes
-          const hairColour = (details as any).hairColour || charDefaults?.characterVisualDetails?.hairColour;
-          const hairLength = (details as any).hairLength || charDefaults?.characterVisualDetails?.hairLength;
-          const hairStyle = (details as any).hairStyle || charDefaults?.characterVisualDetails?.hairStyle;
+          // For AI-generated characters: extract hair info from lockedDescription if not in structured details
+          let hairColour = (details as any).hairColour || charDefaults?.characterVisualDetails?.hairColour;
+          let hairLength = (details as any).hairLength || charDefaults?.characterVisualDetails?.hairLength;
+          let hairStyle = (details as any).hairStyle || charDefaults?.characterVisualDetails?.hairStyle;
+
+          // Fallback: parse hair from lockedDescription for AI-generated characters
+          if (!hairColour && !hairLength && !hairStyle && c.lockedDescription) {
+            const desc = c.lockedDescription.toLowerCase();
+            // Extract hair colour from description
+            const colourMatch = desc.match(/\b(black|dark brown|brown|auburn|red|blonde|blond|silver|grey|gray|white|platinum|copper|chestnut)\s+hair\b/);
+            if (colourMatch) hairColour = colourMatch[1] + " hair";
+            // Extract hair length from description
+            const lengthMatch = desc.match(/\b(short|medium|long|shoulder.length|waist.length|close.cropped|buzz.cut|shaved)\s+hair\b/);
+            if (lengthMatch) hairLength = lengthMatch[1] + " length";
+            // Extract hair style from description
+            const styleMatch = desc.match(/\b(straight|wavy|curly|messy|textured|slicked.back|tied.back|ponytail|bun|braided|dreadlocks)\s+hair\b/);
+            if (styleMatch) hairStyle = styleMatch[1];
+          }
+
           if (hairColour || hairLength || hairStyle) {
             const hairDesc = [hairColour, hairLength, hairStyle].filter(Boolean).join(", ");
             parts.push(
@@ -1390,7 +1410,7 @@ Rules:
             );
           }
 
-          // ── INSTRUMENT LOCK ───────────────────────────────────────────────────────
+          // ── INSTRUMENT LOCK ───────────────────────────────────────────────────────────────────────────────────────
           // Photo-driven (from structured extraction) or defaults — exact model + colour locked
           const instrumentModel = (details as any).instrumentModel || charDefaults?.characterVisualDetails?.instrumentModel;
           const instrumentColour = (details as any).instrumentColour || charDefaults?.characterVisualDetails?.instrumentColour;

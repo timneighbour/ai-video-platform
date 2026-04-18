@@ -107,6 +107,28 @@ export default function CharacterConfirmationStep({
   const previewCharacterMutation = trpc.musicVideo.previewCharacter.useMutation();
   const approveCharacterPreviewMutation = trpc.musicVideo.approveCharacterPreview.useMutation();
   const generateMasterPortraitMutation = trpc.musicVideo.generateMasterPortrait.useMutation();
+  const normaliseCharacterMutation = trpc.characters.normaliseCharacter.useMutation();
+  const [normalisedIds, setNormalisedIds] = useState<Set<number>>(new Set());
+
+  // Auto-trigger normaliseCharacter for all characters that have a lockedDescription
+  // but haven't been normalised yet (normalisedAt is null) — runs once per character
+  useEffect(() => {
+    if (!getCharactersQuery.data?.characters) return;
+    const toNormalise = getCharactersQuery.data.characters.filter(
+      (c: any) => c.lockedDescription && !normalisedIds.has(c.id)
+    );
+    for (const c of toNormalise) {
+      setNormalisedIds(prev => new Set(prev).add(c.id));
+      normaliseCharacterMutation.mutate(
+        { characterId: c.id },
+        {
+          onSuccess: () => console.log(`[normalise] ${c.name} normalised`),
+          onError: (err) => console.warn(`[normalise] ${c.name} failed:`, err.message),
+        }
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getCharactersQuery.data]);
 
   // Sync characters from query
   useEffect(() => {

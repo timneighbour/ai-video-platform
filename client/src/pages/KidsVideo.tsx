@@ -965,7 +965,7 @@ export default function KidsVideo() {
                 </div>
               </div>
 
-              {/* Animation Style — Premium Cards */}
+              {/* Animation Style — Premium Cards with Thumbnails */}
               <div>
                 <label className="block text-sm font-medium text-white mb-3">Animation Style</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -973,23 +973,40 @@ export default function KidsVideo() {
                     <button
                       key={s.id}
                       onClick={() => setStyle(s.id)}
-                      className={`group relative rounded-xl border p-4 text-left transition-all duration-200 ${
+                      className={`group relative rounded-xl border overflow-hidden text-left transition-all duration-200 ${
                         style === s.id
-                          ? `${s.selectedBg} ${s.border} shadow-lg ${s.glow}`
-                          : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08]"
+                          ? `${s.border} shadow-lg ${s.glow} ring-2 ring-white/20`
+                          : "border-white/10 hover:border-white/20"
                       }`}
                     >
-                      <div className={`text-2xl mb-2 transition-transform duration-200 ${style === s.id ? "scale-110" : "group-hover:scale-105"}`}>
-                        {s.emoji}
+                      {/* Thumbnail image */}
+                      <div className="relative h-24 overflow-hidden">
+                        <img
+                          src={s.image}
+                          alt={s.label}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        {/* Emoji badge */}
+                        {s.emoji && (
+                          <div className="absolute top-1.5 left-2 text-xl">{s.emoji}</div>
+                        )}
+                        {/* Selected tick */}
+                        {style === s.id && (
+                          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                          </div>
+                        )}
                       </div>
-                      <div className={`font-semibold text-sm mb-0.5 ${style === s.id ? "text-white" : "text-muted-foreground group-hover:text-white"}`}>
-                        {s.label}
+                      {/* Text content */}
+                      <div className={`p-2.5 ${style === s.id ? s.selectedBg : "bg-white/5"}`}>
+                        <div className={`font-semibold text-sm mb-0.5 ${style === s.id ? "text-white" : "text-muted-foreground group-hover:text-white"}`}>
+                          {s.label}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground/70 leading-tight">{s.desc}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground/70">{s.desc}</div>
-                      {style === s.id && (
-                        <div className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br ${s.gradient}`} />
-                      )}
-                      <div className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-b-xl bg-gradient-to-r ${s.gradient} transition-opacity duration-200 ${style === s.id ? "opacity-100" : "opacity-0 group-hover:opacity-50"}`} />
+                      <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${s.gradient} transition-opacity duration-200 ${style === s.id ? "opacity-100" : "opacity-0 group-hover:opacity-50"}`} />
                     </button>
                   ))}
                 </div>

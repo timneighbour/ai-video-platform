@@ -5175,3 +5175,14 @@
 - [x] Inject bodyBuild into generateCharacterFromDescription prompt in musicVideo.ts
 - [x] Inject bodyBuild into scene generation prompt (visualLines builder in musicVideo.ts)
 - [x] Add bodyBuild to createEmptyCharacter() default (default: "average")
+
+## OUTFIT / HAIR LOCK STRENGTHENING (Apr 2026)
+- [x] Strengthen outfit constraint language for Tim, Greg, Monica — triple-block repetition (detailed list + confirm statement + FINAL RULE)
+- [x] Fallback outfit message for non-named characters: "MUST wear this exact outfit. DO NOT change any garment."
+- [x] Hair lock extended to AI-generated characters: parse hairColour/hairLength/hairStyle from lockedDescription using regex if not in structured visual details
+- [x] normaliseCharacter auto-triggered in CharacterConfirmationStep for all characters with a lockedDescription (runs once per character on load)
+
+## KIDS VIDEO STYLE THUMBNAILS (Apr 2026)
+- [x] Style selector in step-flow now shows thumbnail images (h-24 with object-cover) for all 6 animation styles
+- [x] Selected state shows white tick overlay; emoji badge shown top-left of thumbnail
+- [x] Gradient accent bar at bottom of each card on hover/selected
