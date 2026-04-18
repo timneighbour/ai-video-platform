@@ -36,6 +36,12 @@ export interface ProductBenefit {
   desc: string;
 }
 
+export interface ProductFeature {
+  title: string;
+  desc: string;
+  icon: string; // Lucide icon key
+}
+
 export interface RelatedProduct {
   name: string;
   href: string;
@@ -61,6 +67,7 @@ export interface ProductPageProps {
   capabilities: string[]; // 3-6 bullet capabilities
   howItWorks: ProductStep[];
   benefits: ProductBenefit[];
+  keyFeatures?: ProductFeature[];
   exampleOutput?: ReactNode;
   heroImage?: string;
   related: RelatedProduct[];
@@ -72,7 +79,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
   const {
     name, role, tagline, headline, subheadline, logo,
     ctaHref, ctaLabel, whatItDoes, capabilities, howItWorks, benefits,
-    exampleOutput, heroImage, related,
+    keyFeatures, exampleOutput, heroImage, related,
   } = props;
 
   return (
@@ -259,6 +266,43 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           </div>
         </div>
       </section>
+
+      {/* ── Key Features ── */}
+      {keyFeatures && keyFeatures.length > 0 && (
+        <section className="py-20 px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-4">
+                Key Features
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white">
+                What makes {name} different
+              </h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {keyFeatures.map((feat) => {
+                const Icon = ICON_MAP[feat.icon];
+                return (
+                  <div
+                    key={feat.title}
+                    className="group p-6 rounded-2xl border border-[--color-gold]/[0.06] bg-[#0a0a0a] hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.03] transition-all duration-300"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.12] flex items-center justify-center mb-4 group-hover:bg-[--color-gold]/[0.14] transition-colors">
+                      {Icon ? (
+                        <Icon className="w-5 h-5 text-[--color-gold]" />
+                      ) : (
+                        <Sparkles className="w-5 h-5 text-[--color-gold]" />
+                      )}
+                    </div>
+                    <h3 className="text-sm font-bold text-white mb-2 group-hover:text-[--color-gold-light] transition-colors">{feat.title}</h3>
+                    <p className="text-xs text-[--color-silver-dark]/50 leading-relaxed">{feat.desc}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Example Output (optional) ── */}
       {exampleOutput && (

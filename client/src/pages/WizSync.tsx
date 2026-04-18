@@ -819,6 +819,34 @@ export default function WizSyncPage() {
           </div>
         </div>
 
+        {/* ── Key Features ── */}
+        <div className="rounded-2xl border border-white/8 bg-white/2 p-8">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-4">
+              Key Features
+            </div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white">What makes WizSync™ different</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: <Mic2 className="w-5 h-5 text-[--color-gold]" />, title: "AI Speaker Diarisation", desc: "AssemblyAI Universal-2 identifies every unique voice in your track with precise timestamps — even in complex multi-speaker recordings." },
+              { icon: <Layers className="w-5 h-5 text-[--color-gold]" />, title: "6-Stem Audio Separation", desc: "fal.ai Demucs splits your track into 6 independent stems — vocals, drums, bass, guitar, piano, and other — for granular creative control." },
+              { icon: <Users className="w-5 h-5 text-[--color-gold]" />, title: "Character-to-Voice Mapping", desc: "Assign any detected voice to any character automatically or manually — with full override control for every segment." },
+              { icon: <Zap className="w-5 h-5 text-[--color-gold]" />, title: "AI Lip Sync Generation", desc: "Generates frame-accurate lip sync animation per character segment using AI — no manual keyframing or rotoscoping required." },
+              { icon: <RefreshCw className="w-5 h-5 text-[--color-gold]" />, title: "Segment-Level Regeneration", desc: "Unhappy with a specific character's sync? Regenerate individual segments without affecting the rest of the timeline." },
+              { icon: <ArrowRight className="w-5 h-5 text-[--color-gold]" />, title: "Full Pipeline Integration", desc: "WizSync output flows directly into WizGenesis for final assembly — voice assignments, stem data, and lip sync are all passed automatically." },
+            ].map((feat) => (
+              <div key={feat.title} className="group p-5 rounded-2xl border border-[--color-gold]/[0.06] bg-[#0a0a0a] hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.03] transition-all duration-300">
+                <div className="w-10 h-10 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.12] flex items-center justify-center mb-4 group-hover:bg-[--color-gold]/[0.14] transition-colors">
+                  {feat.icon}
+                </div>
+                <h3 className="text-sm font-bold text-white mb-2 group-hover:text-[--color-gold-light] transition-colors">{feat.title}</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">{feat.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
