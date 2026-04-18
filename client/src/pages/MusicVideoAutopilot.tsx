@@ -1772,7 +1772,7 @@ export default function MusicVideoAutopilot() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* ── Generate with Suno ── */}
+                  {/* ── Generate with WizSound™ ── */}
                   {audioSourceTab === "generate" && (
                     <div className="space-y-4">
                       <div className="space-y-2">

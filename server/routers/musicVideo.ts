@@ -1514,7 +1514,9 @@ Rules:
         `RULE: Faces of all characters MUST be clearly visible regardless of shot type`;
 
       // ── Identity Anchor ───────────────────────────────────────────────────────
-      const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? null;
+      // For AI-generated characters without uploaded photos, use previewImageUrl as masterPortraitUrl fallback
+      // This ensures AI characters also get face-anchored generation (not just photo-mode characters)
+      const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? primaryCharForScene?.previewImageUrl ?? null;
       const masterSeed = primaryCharForScene?.masterSeed ?? null;
       const lockedCharacterPrompt = primaryCharForScene?.characterPrompt ?? null;
       console.log(`[generateScenePreview] Scene ${input.sceneId}: PRIMARY CHARACTER = ${primaryCharForScene?.name ?? "none"} (id=${primaryCharForScene?.id ?? "none"}), masterPortrait=${!!masterPortraitUrl}, masterPortraitUrl=${masterPortraitUrl ?? "null"}, seed=${masterSeed ?? "null"}`);
@@ -1702,13 +1704,15 @@ Rules:
             // Prefer masterPortraitUrl (clean AI portrait), fall back to primary reference photo
             const charPrimaryPhoto = allPhotos.find(p => p.characterId === char.id && p.isPrimary) ??
                                      allPhotos.find(p => p.characterId === char.id);
-            const charRefUrl = char.masterPortraitUrl ?? charPrimaryPhoto?.photoUrl ?? null;
+            // For AI-generated characters: fall back to previewImageUrl if no masterPortraitUrl or photo
+            const charRefUrl = char.masterPortraitUrl ?? charPrimaryPhoto?.photoUrl ?? char.previewImageUrl ?? null;
             if (charRefUrl && !seenRefUrls.has(charRefUrl)) {
               seenRefUrls.add(charRefUrl);
               const mime = charRefUrl.match(/\.png(\?|$)/i) ? "image/png" :
                            charRefUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
               forgeRefs.push({ url: charRefUrl, mimeType: mime });
-              console.log(`[generateScenePreview] Face ref for ${char.name}: ${char.masterPortraitUrl ? 'masterPortrait' : 'primaryPhoto'}`);
+              const refSource = char.masterPortraitUrl ? 'masterPortrait' : charPrimaryPhoto?.photoUrl ? 'primaryPhoto' : 'previewImageUrl';
+              console.log(`[generateScenePreview] Face ref for ${char.name}: ${refSource}`);
             } else if (!charRefUrl) {
               console.warn(`[generateScenePreview] No face reference for ${char.name} — face will not be anchored`);
             } else {

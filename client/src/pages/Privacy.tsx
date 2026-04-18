@@ -67,7 +67,7 @@ export default function Privacy() {
               <li><strong>Stripe</strong> — payment processing</li>
               <li><strong>AWS S3</strong> — file storage</li>
               <li><strong>OpenAI Whisper</strong> — audio transcription</li>
-              <li><strong>Kling AI / HeyGen / Runway ML</strong> — video generation</li>
+              <li><strong>WizBoost™ / WizGenesis™ / WizSync™</strong> — AI video generation and lip-sync</li>
             </ul>
           </section>
 

@@ -3,7 +3,7 @@
  *
  * Flow:
  *  1. Upload audio track (or link from existing music video job)
- *  2. Click "Analyse" → AssemblyAI speaker diarisation + fal.ai Demucs stem separation
+ *  2. Click "Analyse" → AssemblyAI speaker diarisation + WizGenesis™ stem separation
  *  3. Review detected voices and instrument stems
  *  4. Assign characters to speakers (auto-assigned, manual override available)
  *  5. Generate lip-sync video per character segment (Hedra — coming soon)
@@ -632,7 +632,7 @@ export default function WizSyncPage() {
                 </div>
                 <h3 className="text-lg font-semibold text-white">Analysing your audio…</h3>
                 <p className="text-zinc-400 text-sm max-w-sm">
-                  Running speaker diarisation with AssemblyAI Universal-2 and separating 6 instrument stems with fal.ai Demucs. This typically takes 30–120 seconds.
+                  Running speaker diarisation with AssemblyAI Universal-2 and separating 6 instrument stems with WizGenesis™. This typically takes 30–120 seconds.
                 </p>
                 <div className="flex gap-4 text-xs text-zinc-500">
                   <span className="flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin text-[--color-gold]" />Speaker detection</span>
@@ -796,7 +796,7 @@ export default function WizSyncPage() {
                 step: "03",
                 icon: <Layers className="w-6 h-6 text-[--color-silver]" />,
                 title: "Separate Stems",
-                desc: "fal.ai Demucs splits the track into 6 stems: vocals, drums, bass, guitar, piano, other.",
+                desc: "WizGenesis™ splits the track into 6 stems: vocals, drums, bass, guitar, piano, other.",
               },
               {
                 step: "04",
@@ -830,7 +830,7 @@ export default function WizSyncPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: <Mic2 className="w-5 h-5 text-[--color-gold]" />, title: "AI Speaker Diarisation", desc: "AssemblyAI Universal-2 identifies every unique voice in your track with precise timestamps — even in complex multi-speaker recordings." },
-              { icon: <Layers className="w-5 h-5 text-[--color-gold]" />, title: "6-Stem Audio Separation", desc: "fal.ai Demucs splits your track into 6 independent stems — vocals, drums, bass, guitar, piano, and other — for granular creative control." },
+              { icon: <Layers className="w-5 h-5 text-[--color-gold]" />, title: "6-Stem Audio Separation", desc: "WizGenesis™ splits your track into 6 independent stems — vocals, drums, bass, guitar, piano, and other — for granular creative control." },
               { icon: <Users className="w-5 h-5 text-[--color-gold]" />, title: "Character-to-Voice Mapping", desc: "Assign any detected voice to any character automatically or manually — with full override control for every segment." },
               { icon: <Zap className="w-5 h-5 text-[--color-gold]" />, title: "AI Lip Sync Generation", desc: "Generates frame-accurate lip sync animation per character segment using AI — no manual keyframing or rotoscoping required." },
               { icon: <RefreshCw className="w-5 h-5 text-[--color-gold]" />, title: "Segment-Level Regeneration", desc: "Unhappy with a specific character's sync? Regenerate individual segments without affecting the rest of the timeline." },

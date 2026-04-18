@@ -13,18 +13,18 @@ type Engine = "musetalk" | "heygen";
 
 const ENGINE_INFO: Record<Engine, { label: string; badge: string; description: string; inputLabel: string; inputHint: string; accepts: string; creditCost: number }> = {
   musetalk: {
-    label: "MuseTalk (fal.ai)",
+    label: "WizSync™ Lip-Sync",
     badge: "Recommended",
-    description: "Audio-driven lip-sync using MuseTalk. Upload a video with a visible face and any audio track — the face is animated to match the audio in real time.",
+    description: "Audio-driven lip-sync powered by WizSync™. Upload a video with a visible face and any audio track — the face is animated to match the audio in real time.",
     inputLabel: "Source Video",
     inputHint: "MP4, MOV, WebM with a clear face visible — up to 100MB",
     accepts: "video/*",
     creditCost: 75,
   },
   heygen: {
-    label: "HeyGen Avatar",
+    label: "WizSync™ Avatar",
     badge: "Avatar-based",
-    description: "Generate a talking avatar video using HeyGen. Provide a script and HeyGen will render a photorealistic avatar speaking your text.",
+    description: "Generate a talking avatar video powered by WizSync™. Provide a script and WizSync™ will render a photorealistic avatar speaking your text.",
     inputLabel: "Avatar Image",
     inputHint: "PNG, JPG portrait — up to 10MB",
     accepts: "image/*",

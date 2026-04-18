@@ -2,7 +2,7 @@
  * CinematicUpsellModal
  *
  * Appears after a video finishes rendering. Lets the user select individual
- * scenes to re-render with premium (Kling) quality.
+ * scenes to re-render with premium (WizBoost) quality.
  *
  * Cost: 20 Credits per scene (VIDEO_CREDIT_COSTS.perCinematicScene)
  *
@@ -59,7 +59,7 @@ interface CinematicUpsellModalProps {
 const COST_PER_SCENE = VIDEO_CREDIT_COSTS.perCinematicScene; // 20
 
 const QUALITY_BULLETS = [
-  "Rendered with Kling AI (premium model)",
+  "Rendered with WizBoost™ (premium model)",
   "Cinematic motion & depth",
   "Higher detail & sharpness",
   "Smoother scene transitions",

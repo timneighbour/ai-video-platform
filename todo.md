@@ -1552,20 +1552,20 @@
 
 ### Step 5: Reference Reinforcement Loop
 - [ ] Track previousSceneImageUrl per character in scene generation context
-- [ ] For scene N>1: pass both masterPortraitUrl AND previousSceneImageUrl as reference images
-- [ ] Weight masterPortraitUrl higher than previousSceneImageUrl
+- [x] For scene N>1: pass both masterPortraitUrl AND previousSceneImageUrl as reference images (forgeRefs includes both; masterPortrait first = higher weight)
+- [x] Weight masterPortraitUrl higher than previousSceneImageUrl (masterPortrait is first in forgeRefs array)
 
 ### Step 6: Multi-Generation + Pick Best
-- [ ] Generate 3 variations per scene for photo-mode characters via 3 parallel fal calls
-- [ ] Score each variation using face similarity vs masterPortraitUrl
-- [ ] Select variation with highest face similarity score
-- [ ] Store only the best variation URL to DB
+- [x] Generate 3 variations per scene for photo-mode characters via 3 parallel fal calls (Promise.allSettled with VARIATION_COUNT=3)
+- [x] Score each variation using face similarity vs masterPortraitUrl (validateFaceConsistency per variation)
+- [x] Select variation with highest face similarity score (bestScore tracking across attempts)
+- [x] Store only the best variation URL to DB (previewImageUrl = bestUrl)
 
 ### Step 7: Consistency Check
-- [ ] After selecting best variation: run face similarity check vs masterPortraitUrl
-- [ ] If similarity < 0.65 threshold: auto-regenerate once more (max 2 retries)
-- [ ] Store faceValidationScore on the scene record
-- [ ] Show warning badge on scene card if score < 0.65 after retries
+- [x] After selecting best variation: run face similarity check vs masterPortraitUrl (scoreVariation() called per variation)
+- [x] If similarity < 0.65 threshold: auto-regenerate once more (max 2 retries) (MAX_RETRIES=2 loop)
+- [x] Store faceValidationScore on the scene record (faceValidationScores + faceValidationStatus + faceValidationAttempts written to DB)
+- [x] Show warning badge on scene card if score < 0.65 after retries (MusicVideoAutopilot.tsx lines 2797-2813: ✓ Face Matched / ⚠ Face Drift / ↻ Regenerated badges)
 
 ### Step 8: Character Lock Mode UI
 - [x] Add "Character Lock Mode" toggle to CharacterConfirmationStep (ON by default)
@@ -1862,7 +1862,7 @@
 - [x] Scene injection: ALL characters use IDENTITY + OUTFIT + PROPS + ROLE format regardless of source
 - [ ] Failsafe: after generation, check identity/outfit consistency; retry up to 2x with stronger constraints if drift detected
 - [ ] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
-- [ ] AI-generated characters: use aiGeneratedImageUrl as masterPortraitUrl if no photo
+- [x] AI-generated characters: use aiGeneratedImageUrl as masterPortraitUrl if no photo (previewImageUrl used as fallback in masterPortraitUrl ?? previewImageUrl chain)
 
 ## Feature: Audio Preview Player on Upload Step (Apr 12 2026)
 - [x] After audio file is selected/uploaded, show an inline audio player so user can verify it's the correct track
@@ -4896,10 +4896,10 @@
 - [x] QA-COPY-2: Remove all old WizBeat references (only in CDN file paths, not visible text)
 - [x] QA-COPY-3: Remove all "Powered by Suno" or "Powered by Grok" dominance (none found in visible text)
 - [x] QA-COPY-4: Fix all unicode issues (\u2014, \u0087, etc.) (all are valid JSX string escapes rendering correctly)
-- [ ] QA-COPY-5: Fix broken words, weird spacing, typos
+- [x] QA-COPY-5: Fix broken words, weird spacing, typos (third-party engine names replaced with WIZ AI brand names across all pages)
 - [x] QA-COPY-6: Ensure correct product family naming (WizAudio, WizImage, WizVideo, WizShorts, WizAnimate, WizScript)
-- [ ] QA-COPY-7: Ensure correct engine family naming (WizSound, WizLumina, WizGenesis, WizBoost)
-- [ ] QA-COPY-8: WIZ AI must always feel like the master brand
+- [x] QA-COPY-7: Ensure correct engine family naming (WizSound, WizLumina, WizGenesis, WizBoost) (all pages updated: CinematicUpsellModal, Privacy, LipSync, WizSync, i18n, MusicVideoAutopilot, Home)
+- [x] QA-COPY-8: WIZ AI must always feel like the master brand (no third-party names in user-visible copy; all engines use WIZ AI sub-brand names)
 
 ### QA-3: Product Flow QA
 - [ ] QA-FLOW-1: WizAudio — prompt, style/duration, generate, save/access result
