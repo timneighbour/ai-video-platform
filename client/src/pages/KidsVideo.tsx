@@ -11,6 +11,7 @@
  *  - WizBrand premium UI elements
  *  - Full render flow with Stripe checkout
  */
+import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -571,6 +572,7 @@ export default function KidsVideo() {
   const handleRenderVideo = useCallback(async () => {
     if (!isAuthenticated) { setShowAuthGate(true); return; }
     if (!jobId) { toast.error("Please generate a storyboard first."); return; }
+    analytics.renderVideoClicked("kids_video");
     setIsCheckingOut(true);
     try {
       const result = await createRenderCheckoutMutation.mutateAsync({

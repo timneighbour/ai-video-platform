@@ -167,37 +167,58 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id) {
           // Vendor: React core
-          "vendor-react": ["react", "react-dom"],
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
+            return "vendor-react";
+          }
           // Vendor: tRPC + query
-          "vendor-trpc": ["@trpc/client", "@trpc/react-query", "@tanstack/react-query"],
-          // Vendor: UI components
-          "vendor-ui": ["lucide-react", "sonner", "class-variance-authority", "clsx", "tailwind-merge"],
+          if (id.includes("node_modules/@trpc/") || id.includes("node_modules/@tanstack/react-query")) {
+            return "vendor-trpc";
+          }
           // Vendor: Radix UI primitives
-          "vendor-radix": [
-            "@radix-ui/react-accordion", "@radix-ui/react-alert-dialog", "@radix-ui/react-aspect-ratio",
-            "@radix-ui/react-avatar", "@radix-ui/react-checkbox", "@radix-ui/react-collapsible",
-            "@radix-ui/react-context-menu", "@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-hover-card", "@radix-ui/react-label", "@radix-ui/react-menubar",
-            "@radix-ui/react-navigation-menu", "@radix-ui/react-popover", "@radix-ui/react-progress",
-            "@radix-ui/react-radio-group", "@radix-ui/react-scroll-area", "@radix-ui/react-select",
-            "@radix-ui/react-separator", "@radix-ui/react-slider", "@radix-ui/react-slot",
-            "@radix-ui/react-switch", "@radix-ui/react-tabs", "@radix-ui/react-toggle",
-            "@radix-ui/react-toggle-group", "@radix-ui/react-tooltip",
-          ],
-          // Vendor: Animation
-          "vendor-motion": ["framer-motion"],
-          // Vendor: Charts
-          "vendor-charts": ["recharts"],
-          // Vendor: Forms & dates
-          "vendor-forms": ["react-hook-form", "@hookform/resolvers", "zod", "date-fns"],
+          if (id.includes("node_modules/@radix-ui/")) {
+            return "vendor-radix";
+          }
+          // Vendor: Animation (framer-motion is large)
+          if (id.includes("node_modules/framer-motion/")) {
+            return "vendor-motion";
+          }
+          // Vendor: Charts (recharts is large)
+          if (id.includes("node_modules/recharts/") || id.includes("node_modules/d3")) {
+            return "vendor-charts";
+          }
           // Vendor: i18n
-          "vendor-i18n": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
+          if (id.includes("node_modules/i18next") || id.includes("node_modules/react-i18next")) {
+            return "vendor-i18n";
+          }
+          // Vendor: UI utilities
+          if (id.includes("node_modules/lucide-react/") || id.includes("node_modules/sonner/") ||
+              id.includes("node_modules/class-variance-authority/") || id.includes("node_modules/clsx/") ||
+              id.includes("node_modules/tailwind-merge/")) {
+            return "vendor-ui";
+          }
+          // Vendor: Forms & validation
+          if (id.includes("node_modules/react-hook-form/") || id.includes("node_modules/@hookform/") ||
+              id.includes("node_modules/zod/") || id.includes("node_modules/date-fns/")) {
+            return "vendor-forms";
+          }
           // Vendor: routing
-          "vendor-router": ["wouter"],
+          if (id.includes("node_modules/wouter/")) {
+            return "vendor-router";
+          }
+          // Vendor: superjson + other utils
+          if (id.includes("node_modules/superjson/") || id.includes("node_modules/react-helmet-async/") ||
+              id.includes("node_modules/@tanstack/")) {
+            return "vendor-utils";
+          }
+          // All other node_modules go into a shared vendor chunk
+          if (id.includes("node_modules/")) {
+            return "vendor-misc";
+          }
         },
       },
     },

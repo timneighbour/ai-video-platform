@@ -5,6 +5,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { analytics } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -111,6 +112,7 @@ export default function EnhancementStudio() {
   const handleGenerate = async () => {
     if (!videoFile || !user) return;
 
+    analytics.generateVideoClicked("enhancement_studio");
     setStep("processing");
     setError("");
 

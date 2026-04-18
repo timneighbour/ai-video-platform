@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -291,6 +292,7 @@ export default function TextToVideoCreator() {
       setShowAuthGate(true);
       return;
     }
+    analytics.renderVideoClicked("text_to_video_creator");
     setGenerationError(null);
     setGeneratedVideoUrl(null);
     setProjectId(null);

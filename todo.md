@@ -1143,17 +1143,17 @@
 - [x] P6: BreadcrumbList JSON-LD schema injected (Home > keyword)
 
 ## Fix: Deployment OOM Build Failure (Apr 2026)
-- [ ] Diagnose largest Vite chunks causing OOM kill (exit code 137)
+- [x] Diagnose largest Vite chunks causing OOM kill (exit code 137)
 - [x] Add lazy loading / code-splitting for heavy page components (28 lazy imports in App.tsx)
-- [ ] Add Vite chunk size warnings and manual chunk splitting config
-- [ ] Verify local build succeeds before re-deploying
+- [x] Add Vite chunk size warnings and manual chunk splitting config
+- [x] Verify local build succeeds before re-deploying
 
 ## Feature: Google Analytics 4 (Apr 2026)
 - [x] Add GA4 gtag.js snippet (G-YJD1MG144E) to index.html head
 
 ## Feature: GA4 Generate Video Event Tracking (Apr 2026)
 - [x] Create shared analytics helper (client/src/lib/analytics.ts) with trackEvent() wrapper
-- [ ] Fire generate_video_click event on every Generate Video button across all pages
+- [x] Fire generate_video_click event on every Generate Video button across all pages
 
 ## Feature: New Video Styles (Apr 2026)
 - [x] Add Neon Noir, Disney, Epic Fantasy styles to video creation flow (MusicVideoAutopilot + Autopilot, with AI-generated thumbnails)
@@ -1186,10 +1186,10 @@
 - [x] Scene preview images: generate AI image per scene after storyboard is created — already implemented
 - [x] Scene preview images: show loading skeleton while image generates — already implemented with Loader2 spinner
 - [x] Scene preview images: add tRPC procedure to generate a preview image for a single scene — already implemented
-- [ ] Editable frames: allow user to edit scene prompt/description text inline
-- [ ] Editable frames: add "Add Scene" button to insert a new blank scene
-- [ ] Editable frames: add "Remove Scene" button (X) on each scene card
-- [ ] Editable frames: support copy-paste of scene text (standard browser behaviour + clipboard button)
+- [x] Editable frames: allow user to edit scene prompt/description text inline
+- [x] Editable frames: add "Add Scene" button to insert a new blank scene
+- [x] Editable frames: add "Remove Scene" button (X) on each scene card
+- [x] Editable frames: support copy-paste of scene text (standard browser behaviour + clipboard button)
 - [ ] Photo upload: add image upload input in WizPilot prompt step for AI context
 - [ ] Video upload: add video upload input in WizPilot prompt step for AI context
 - [ ] Photo/video upload: pass uploaded asset URLs to storyboard generation as context

@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ export default function TextToVideo() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
+    analytics.generateVideoClicked("text_to_video_tool");
     setGenerating(true);
     // TODO: Implement actual generation
     setTimeout(() => setGenerating(false), 2000);

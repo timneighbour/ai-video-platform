@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -338,6 +339,7 @@ export default function Autopilot() {
       window.location.href = getLoginUrl();
       return;
     }
+    analytics.renderVideoClicked("wizpilot");
     setGenerationError(null);
     setGeneratedVideoUrl(null);
     setProjectId(null);

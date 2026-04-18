@@ -3138,6 +3138,65 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       return { enhanced };
     }),
 
+  // Add a new blank scene to a job's storyboard
+  addScene: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      afterSceneIndex: z.number().int().optional(), // insert after this index; defaults to end
+      prompt: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.status === "rendering" || job.status === "assembling") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot add scenes while rendering" });
+      }
+
+      // Get existing scenes ordered by index
+      const existing = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex);
+
+      const insertAt = input.afterSceneIndex !== undefined
+        ? Math.min(input.afterSceneIndex + 1, existing.length)
+        : existing.length;
+
+      // Shift all scenes at or after insertAt up by 1
+      for (let i = existing.length - 1; i >= insertAt; i--) {
+        await db.update(musicVideoScenes)
+          .set({ sceneIndex: i + 1 })
+          .where(eq(musicVideoScenes.id, existing[i].id));
+      }
+
+      // Insert the new blank scene
+      const newPrompt = input.prompt || "A new scene — describe what happens here";
+      const [inserted] = await db.insert(musicVideoScenes).values({
+        jobId: input.jobId,
+        sceneIndex: insertAt,
+        prompt: newPrompt,
+        lyrics: null,
+        visualStyle: "cinematic",
+        startTime: 0,
+        duration: 5,
+        lipSync: false,
+        lipSyncStyle: "natural",
+        status: "pending",
+      }).$returningId();
+
+      // Update totalScenes on the job
+      await db.update(musicVideoJobs)
+        .set({ totalScenes: existing.length + 1 })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Scene added at index ${insertAt} in job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true, sceneId: inserted.id, sceneIndex: insertAt, totalScenes: existing.length + 1 };
+    }),
+
   // List all public videos (for sitemap)
   listPublicVideos: publicProcedure.query(async () => {
     const db = await getDb();

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, ArrowLeft, Sparkles, Play, Film, Music, Wand2, Zap } from 'lucide-react';
 import { mp } from '@/lib/mixpanel';
+import { analytics } from '@/lib/analytics';
 
 const CDN = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx';
 
@@ -186,7 +187,7 @@ const Onboarding: React.FC = () => {
             {/* ── Featured card: WizVideo ─────────────────────────────── */}
             <a
               href={options[0].href}
-              onClick={() => { mp.onboardingCompleted(options[0].title); mp.productCardClicked(options[0].title); }}
+              onClick={() => { mp.onboardingCompleted(options[0].title); mp.productCardClicked(options[0].title); analytics.generateVideoClicked("onboarding", { tool: options[0].title }); }}
               onMouseEnter={() => setHovered(0)}
               onMouseLeave={() => setHovered(null)}
               className="lg:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer block"
@@ -263,7 +264,7 @@ const Onboarding: React.FC = () => {
                   <a
                     key={option.href}
                     href={option.href}
-                    onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); }}
+                    onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); analytics.generateVideoClicked("onboarding", { tool: option.title }); }}
                     onMouseEnter={() => setHovered(realIdx)}
                     onMouseLeave={() => setHovered(null)}
                     className="group relative rounded-2xl overflow-hidden cursor-pointer block flex-1"
@@ -320,7 +321,7 @@ const Onboarding: React.FC = () => {
                 <a
                   key={option.href}
                   href={option.href}
-                  onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); }}
+                  onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); analytics.generateVideoClicked("onboarding", { tool: option.title }); }}
                   onMouseEnter={() => setHovered(realIdx)}
                   onMouseLeave={() => setHovered(null)}
                   className="group relative rounded-2xl overflow-hidden cursor-pointer block"

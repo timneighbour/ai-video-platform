@@ -1,5 +1,6 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { mp } from "@/lib/mixpanel";
+import { analytics } from "@/lib/analytics";
 import { useLocalStorage, useFormPersistence } from "@/hooks/useLocalStorage";
 import { useProjectAutoSave } from "@/hooks/useProjectResume";
 import { trpc } from "@/lib/trpc";
@@ -81,6 +82,7 @@ import {
   Drum,
   Piano,
   Mic2,
+  Plus,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -394,6 +396,7 @@ export default function MusicVideoAutopilot() {
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
+  const addSceneMutation = trpc.musicVideo.addScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
   const sunoGenerateMutation = trpc.suno.generate.useMutation();
   const sunoStatusQuery = trpc.suno.getStatus.useQuery(
@@ -605,6 +608,42 @@ export default function MusicVideoAutopilot() {
       toast.success("Scene deleted");
     } catch (err: any) {
       toast.error("Could not delete scene", { description: err?.message });
+    }
+  };
+
+  // Add a new blank scene after a given index
+  const handleAddScene = async (afterSceneIndex: number) => {
+    if (!jobId) return;
+    try {
+      const result = await addSceneMutation.mutateAsync({ jobId, afterSceneIndex });
+      // Insert a blank scene into local state at the correct position
+      setScenes(prev => {
+        const sorted = [...prev].sort((a, b) => a.sceneIndex - b.sceneIndex);
+        const newScene: SceneCard = {
+          id: result.sceneId,
+          sceneIndex: result.sceneIndex,
+          startTime: 0,
+          duration: 5,
+          prompt: "A new scene — describe what happens here",
+          lyrics: null,
+          visualStyle: "cinematic",
+          status: "pending",
+          videoUrl: null,
+          previewImageUrl: null,
+          previewImageLoading: false,
+          lipSync: false,
+          lipSyncStyle: "natural",
+          characterAssignments: null,
+        };
+        // Shift all scenes after insertAt
+        const shifted = sorted.map(s =>
+          s.sceneIndex >= result.sceneIndex ? { ...s, sceneIndex: s.sceneIndex + 1 } : s
+        );
+        return [...shifted, newScene].sort((a, b) => a.sceneIndex - b.sceneIndex);
+      });
+      toast.success("Scene added", { description: "Edit the prompt and regenerate to customise it." });
+    } catch (err: any) {
+      toast.error("Could not add scene", { description: err?.message });
     }
   };
 
@@ -1180,6 +1219,7 @@ export default function MusicVideoAutopilot() {
   const handleStartRenderInternal = async () => {
     if (!jobId || isRenderingRef.current) return;
     isRenderingRef.current = true;
+    analytics.renderVideoClicked("music_video_autopilot");
     // Request browser notification permission so we can notify when render completes
     try {
       if ("Notification" in window && Notification.permission === "default") {
@@ -2549,7 +2589,8 @@ export default function MusicVideoAutopilot() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scenes.map((scene) => (
-                <Card key={scene.id} className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors overflow-hidden">
+                <React.Fragment key={scene.id}>
+                  <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors overflow-hidden">
                   {/* Scene preview image */}
                   <div className="relative w-full aspect-video bg-zinc-800">
                     {scene.previewImageUrl ? (
@@ -2905,11 +2946,29 @@ export default function MusicVideoAutopilot() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* ── Add Scene button between cards ── */}
+                <div className="col-span-full flex items-center justify-center py-1">
+                  <button
+                    type="button"
+                    onClick={() => handleAddScene(scene.sceneIndex)}
+                    disabled={addSceneMutation.isPending}
+                    title="Insert a new scene after this one"
+                    className="group flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-zinc-600 hover:text-[--color-gold] hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition-all disabled:opacity-40"
+                  >
+                    {addSceneMutation.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Plus className="w-3 h-3" />
+                    )}
+                    Add scene here
+                  </button>
+                </div>
+                </React.Fragment>
               ))}
             </div>
           </div>
         )}
-
         {/* ===== STEP 3: RENDER ===== */}
         {step === "render" && (
           <div className="max-w-2xl mx-auto">

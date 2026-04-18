@@ -6,12 +6,13 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { identifyUser, resetIdentity, mp } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
-// Home is eagerly loaded — it's the LCP page
-import Home from "./pages/Home";
 import { trpc } from "./lib/trpc";
 import GlobalMuteButton from "./components/GlobalMuteButton";
 import IntroScreen from "./components/IntroScreen";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
+
+// Home is lazy-loaded to reduce the main index chunk size
+const Home = lazy(() => import("./pages/Home"));
 
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
