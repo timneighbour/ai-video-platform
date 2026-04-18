@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useEffect, useRef } from "react";
 
 /* ── WIZ AI — Parent Brand Homepage ─────────────────────────────────────────
-   Premium, minimal, cinematic. Apple / OpenAI / Netflix feel.
+   Premium, minimal, cinematic. Apple / Netflix feel.
    Deep black / charcoal background, subtle violet / blue accents.
    ────────────────────────────────────────────────────────────────────────── */
 

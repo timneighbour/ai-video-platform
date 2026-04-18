@@ -375,7 +375,7 @@ function Hero() {
 
           {/* Subheadline */}
           <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/65 leading-relaxed max-w-xl mb-8">
-            WIZ AI generates full music videos, AI shorts, animations, and audio tracks from a single idea — with studio-grade quality, character consistency, and no creative limits. Free storyboard on every project.
+            From idea to fully produced video — with studio-grade sound and film-level visuals. Free storyboard on every project.
           </p>
 
           {/* CTAs */}
@@ -409,6 +409,22 @@ function Hero() {
             </button>
           </div>
 
+          {/* 5-icon value strip */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-10">
+            {[
+              { icon: <Film className="w-4 h-4" />, label: "AI Video" },
+              { icon: <Volume2 className="w-4 h-4" />, label: "Studio Sound" },
+              { icon: <Eye className="w-4 h-4" />, label: "Cinematic Visuals" },
+              { icon: <Zap className="w-4 h-4" />, label: "Instant Rendering" },
+              { icon: <Wand2 className="w-4 h-4" />, label: "Multiple Styles" },
+            ].map((item) => (
+              <span key={item.label} className="flex items-center gap-1.5 text-[11px] font-semibold text-[--color-silver-dark]/50 tracking-wide">
+                <span className="text-[--color-gold]/60">{item.icon}</span>
+                {item.label}
+              </span>
+            ))}
+          </div>
+
           {/* Trust strip */}
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-3">
@@ -428,19 +444,19 @@ function Hero() {
             <div className="flex items-center gap-5 text-xs">
               <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
                 <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-[--color-silver]/55 font-semibold">Free storyboard</span> on every project
+                <span className="text-[--color-silver]/55 font-semibold">No credit card</span> to start
               </span>
               <span className="w-px h-3 bg-[--color-gold]/10" />
               <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
-                <span className="text-[--color-silver]/55 font-semibold">No card</span> required to start
+                <span className="text-[--color-silver]/55 font-semibold">Own your content</span>
               </span>
               <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
               <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
-                <span className="text-[--color-silver]/55 font-semibold">Full video</span> — not just clips
+                <span className="text-[--color-silver]/55 font-semibold">No watermark</span>
               </span>
               <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
               <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
-                <span className="text-[--color-silver]/55 font-semibold">7-day</span> money-back guarantee
+                <span className="text-[--color-silver]/55 font-semibold">Free storyboard</span> on every project
               </span>
             </div>
           </div>
@@ -775,7 +791,7 @@ function HowItWorks() {
         <div className="text-center mb-20 reveal">
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">How it works</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
-            From idea to finished video in minutes
+            From Idea to Cinematic Video in Minutes
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto mt-4">
             No editing experience needed. No crew. No timeline. Just describe what you want.
@@ -1035,7 +1051,7 @@ function WizSoundDemo() {
             Hear the difference
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
-            Three tiers of audio quality. Switch between them and hear the upgrade instantly.
+            Three tiers of audio quality — part of the unified WizSound™ + WizLumina™ Cinematic Engine. Switch between them and hear the upgrade instantly.
           </p>
         </div>
 
@@ -1186,7 +1202,7 @@ function WizLuminaDemo() {
             See the difference
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
-            Cinematic colour grading, HDR enhancement, and visual polish — applied to every frame automatically.
+            Cinematic colour grading, HDR enhancement, and visual polish — part of the unified WizSound™ + WizLumina™ Cinematic Engine. Applied to every frame automatically.
           </p>
         </div>
 
@@ -1494,7 +1510,7 @@ function BuiltFor() {
         <div className="text-center mb-16 reveal">
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Built for creators</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
-            WIZ AI helps you create
+            Built for Creators
           </h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1550,7 +1566,7 @@ function FeatureBlock() {
     {
       icon: <Rocket className="w-7 h-7" />,
       title: "WizPilot Automation",
-      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, MuseTalk™ lip-sync, audio, render, and delivery. The complete AI music video pipeline in one click.",
+      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, performance-sync, audio, render, and delivery. The complete AI music video pipeline in one click.",
       cta: "Try WizPilot",
       href: "/onboarding",
       badge: "WizPilot™",
@@ -1598,6 +1614,186 @@ function FeatureBlock() {
               </a>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── The WizVid Engine Ecosystem ──────────────────────────────────────────────
+function WizVidEngineSection() {
+  const engines = [
+    {
+      name: "WizCreate",
+      tm: "™",
+      tagline: "AI Storyboard & Scene Engine",
+      desc: "Builds your full storyboard, generates every scene, and assembles the complete video from a single idea.",
+      logoUrl: WIZCREATE_LOGO,
+      href: "/music-video/create",
+    },
+    {
+      name: "WizSound",
+      tm: "™",
+      tagline: "Studio-Grade Audio Engine",
+      desc: "Enhances every audio track with richer depth, spatial clarity, and cinematic presence — from stereo widening to full mastering.",
+      logoUrl: WIZSOUND_LOGO,
+      href: "/products/wizsound",
+    },
+    {
+      name: "WizLumina",
+      tm: "™",
+      tagline: "Film-Level Visual Engine",
+      desc: "Applies cinematic colour grading, HDR tone mapping, and film-level polish to every frame automatically.",
+      logoUrl: WIZLUMINA_LOGO,
+      href: "/products/wizlumina",
+    },
+    {
+      name: "WizPilot",
+      tm: "™",
+      tagline: "Full Automation Engine",
+      desc: "Describe your idea once. WizPilot handles everything — storyboard, scenes, lip-sync, audio, render, and delivery.",
+      logoUrl: WIZCREATE_LOGO,
+      href: "/onboarding",
+    },
+  ];
+  return (
+    <section className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">The WizVid Engine</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
+            Four engines. One platform.
+          </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto">
+            WizVid combines four proprietary AI engines into a single seamless workflow — from idea to finished, cinema-ready video.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {engines.map((eng) => (
+            <a
+              key={eng.name}
+              href={eng.href}
+              className="reveal group relative rounded-2xl border border-[--color-gold]/[0.10] bg-gradient-to-b from-[#0d0d0d] to-[#080808] p-7 flex flex-col items-center text-center gap-4 hover:border-[--color-gold]/25 hover:-translate-y-1 transition-all duration-400 cursor-pointer"
+            >
+              <div className="relative w-16 h-16 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-2xl blur-2xl opacity-20 group-hover:opacity-40 transition-opacity" style={{ background: 'oklch(0.78 0.11 75 / 0.5)' }} />
+                <img src={eng.logoUrl} alt={eng.name} className="relative w-14 h-14 object-contain" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-1">{eng.tagline}</p>
+                <h3 className="text-base font-bold text-white">{eng.name}{eng.tm}</h3>
+              </div>
+              <p className="text-[--color-silver-dark]/45 text-xs leading-relaxed flex-1">{eng.desc}</p>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[--color-gold-dark] group-hover:text-[--color-gold] transition-colors">
+                Learn more <ArrowRight className="w-3 h-3" />
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── See the Difference (Unified Comparison) ────────────────────────────────────
+function SeeTheDifference() {
+  const [activeTier, setActiveTier] = useState(1); // default: Cinematic
+  const tiers = [
+    { id: 0, label: "Standard", audioDesc: "Flat stereo mix, no mastering", visualDesc: "Raw AI output, no grading", audioClass: "saturate-50 brightness-75", visualClass: "saturate-50 brightness-75 contrast-90" },
+    { id: 1, label: "Enhanced", audioDesc: "Stereo widening + EQ mastering", visualDesc: "Colour correction + sharpening", audioClass: "", visualClass: "contrast-105 saturate-110" },
+    { id: 2, label: "Cinematic", audioDesc: "Full spatial mastering + sub-bass", visualDesc: "HDR grading + film-level polish", audioClass: "", visualClass: "contrast-115 saturate-120 brightness-105" },
+  ];
+  const tier = tiers[activeTier];
+  return (
+    <section className="relative bg-[#040404] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-14 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See the Difference</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
+            Standard. Enhanced. <span className="metallic-gold">Cinematic.</span>
+          </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
+            The unified WizSound™ + WizLumina™ Cinematic Engine — three tiers of audio and visual quality, working together.
+          </p>
+        </div>
+        <div className="reveal">
+          {/* Tier selector */}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            {tiers.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTier(t.id)}
+                className={`px-7 py-3 rounded-xl text-sm font-bold transition-all duration-300 border ${
+                  activeTier === t.id
+                    ? t.id === 2
+                      ? "border-[--color-gold]/30 bg-[--color-gold]/[0.08] text-[--color-gold] shadow-[0_0_20px_rgba(212,175,55,0.1)]"
+                      : t.id === 1
+                        ? "border-[--color-gold]/20 bg-[--color-gold]/[0.04] text-[--color-gold-dark]"
+                        : "border-white/15 bg-white/[0.06] text-white/80"
+                    : "border-white/[0.06] bg-transparent text-white/30 hover:text-white/50 hover:border-white/10"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {/* Comparison grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Audio */}
+            <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#080808] p-8 flex flex-col gap-4">
+              <div className="flex items-center gap-3 mb-2">
+                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto opacity-80" />
+                <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.label}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-12 rounded-xl bg-[--color-gold]/[0.04] border border-[--color-gold]/[0.08] flex items-center px-4 gap-2">
+                  <Volume2 className="w-4 h-4 text-[--color-gold]/50" />
+                  <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: activeTier === 0 ? "40%" : activeTier === 1 ? "70%" : "95%",
+                        background: activeTier === 2
+                          ? "linear-gradient(90deg, oklch(0.78 0.11 75), oklch(0.85 0.15 75))"
+                          : activeTier === 1
+                            ? "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.7), oklch(0.78 0.11 75 / 0.4))"
+                            : "oklch(0.78 0.11 75 / 0.2)",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <p className="text-[--color-silver-dark]/50 text-sm">{tier.audioDesc}</p>
+            </div>
+            {/* Visual */}
+            <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#080808] p-8 flex flex-col gap-4">
+              <div className="flex items-center gap-3 mb-2">
+                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain opacity-80" />
+                <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.label}</span>
+              </div>
+              <div className="relative aspect-video rounded-xl overflow-hidden border border-[--color-gold]/[0.06]">
+                <img
+                  src={DEMO_POSTER}
+                  alt="Visual comparison"
+                  className={`w-full h-full object-cover transition-all duration-700 ${tier.visualClass}`}
+                />
+                {activeTier === 2 && (
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
+                )}
+              </div>
+              <p className="text-[--color-silver-dark]/50 text-sm">{tier.visualDesc}</p>
+            </div>
+          </div>
+          {/* CTA */}
+          <div className="text-center">
+            <a href="/pricing" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm">
+              <Sparkles className="w-4 h-4" />
+              Upgrade to Cinematic Mode
+            </a>
+            <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every render upgrade</p>
+          </div>
         </div>
       </div>
     </section>
@@ -1679,7 +1875,7 @@ function DemoVideoGallery() {
       engine: "WizSync™",
       badge: "WizLumina™ Engine",
       badgeColor: "#0EA5E9",
-      description: "AI avatar lip-sync and video translation using MuseTalk™. Powers WizLumina™ character animation with frame-perfect lip sync.",
+      description: "AI avatar performance-sync and video translation. Powers WizLumina™ character animation with frame-perfect expression and lip sync.",
     },
   ];
 
@@ -1942,6 +2138,8 @@ export default function Home() {
         <Showcase />
         <BuiltFor />
         <FeatureBlock />
+        <WizVidEngineSection />
+        <SeeTheDifference />
         <DemoVideoGallery />
         <FinalCTA />
       </main>

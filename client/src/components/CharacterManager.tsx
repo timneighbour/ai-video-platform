@@ -12,6 +12,7 @@
  * AI Generate mode is prominently displayed with a gradient CTA.
  */
 import { useRef, useCallback, useState } from "react";
+import WizPerformerConsentModal, { hasGivenConsent, persistConsent } from "@/components/WizPerformerConsentModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,7 +52,7 @@ export interface Character {
   name: string;
   role: string;
   enableLipSync: boolean;
-  /** Optional face video URL for MuseTalk lip-sync (uploaded short video of the character's face) */
+  /** Optional face video URL for performance-sync (uploaded short video of the character's face) */
   faceVideoUrl?: string;
   /** Mode: real photo upload or AI-generated from description */
   mode: CharacterMode;
@@ -183,6 +184,9 @@ export function CharacterManager({
   const photoInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null, null, null]);
   const [reanalysingSlots, setReanalysingSlots] = useState<Set<number>>(new Set());
   const [generatingSlots, setGeneratingSlots] = useState<Set<number>>(new Set());
+  // Consent state — tracks whether the user has accepted the WizPerformer privacy notice
+  const [consentGiven, setConsentGiven] = useState(() => hasGivenConsent());
+  const [pendingUploadSlot, setPendingUploadSlot] = useState<number | null>(null);
 
   const reanalyseCharacterPhoto = trpc.musicVideo.reanalyseCharacterPhoto.useMutation();
   const generateCharacterFromDescription = trpc.musicVideo.generateCharacterFromDescription.useMutation();
@@ -267,6 +271,15 @@ export function CharacterManager({
     } finally {
       setGeneratingSlots(prev => { const n = new Set(prev); n.delete(slotIndex); return n; });
     }
+  };
+
+  // Called when user clicks the photo upload area — check consent first
+  const triggerPhotoUpload = (slotIndex: number) => {
+    if (!consentGiven) {
+      setPendingUploadSlot(slotIndex);
+      return;
+    }
+    photoInputRefs.current[slotIndex]?.click();
   };
 
   const handlePhotoFiles = useCallback(async (slotIndex: number, files: FileList | null) => {
@@ -632,7 +645,7 @@ export function CharacterManager({
                     {char.photos.length === 0 ? (
                       <button
                         type="button"
-                        onClick={() => photoInputRefs.current[char.slotIndex]?.click()}
+                        onClick={() => triggerPhotoUpload(char.slotIndex)}
                         disabled={disabled}
                         className="w-full rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-500 py-8 flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-zinc-200 transition-all group"
                       >
@@ -670,7 +683,7 @@ export function CharacterManager({
                             </div>
                           ))}
                           {char.photos.length < 10 && !disabled && (
-                            <button type="button" onClick={() => photoInputRefs.current[char.slotIndex]?.click()}
+                            <button type="button" onClick={() => triggerPhotoUpload(char.slotIndex)}
                               style={{aspectRatio:'3/4'}}
                               className="rounded-lg border-2 border-dashed border-zinc-700 hover:border-zinc-500 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-all">
                               <Plus className="w-5 h-5" />
@@ -838,10 +851,10 @@ export function CharacterManager({
                     disabled={disabled}
                   />
                 </div>
-                {/* MuseTalk face video upload — shown when lip sync is enabled */}
+                {/* Performance sync face video upload — shown when lip sync is enabled */}
                 {char.enableLipSync && (
                   <div className="mt-3 border-t border-[--color-gold]/20 pt-3">
-                    <p className="text-[11px] font-semibold text-[--color-gold]/70 uppercase tracking-widest mb-2">MuseTalk Face Video</p>
+                    <p className="text-[11px] font-semibold text-[--color-gold]/70 uppercase tracking-widest mb-2">Performance Sync Video</p>
                     <p className="text-[11px] text-zinc-400 mb-2">
                       Upload a short video (3–10s) of this character's face for realistic lip-sync. Leave empty to use AI-generated mouth animation.
                     </p>
@@ -850,7 +863,7 @@ export function CharacterManager({
                         <video src={char.faceVideoUrl} className="w-16 h-16 rounded-lg object-cover border border-[--color-gold]/30" muted playsInline />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-white font-medium truncate">Face video uploaded</p>
-                          <p className="text-[10px] text-zinc-400">MuseTalk will sync lips to audio</p>
+                          <p className="text-[10px] text-zinc-400">WizSync will sync lips to audio</p>
                         </div>
                         <button
                           type="button"
@@ -919,6 +932,22 @@ export function CharacterManager({
         <p className="text-zinc-500 text-xs text-center py-2">
           Characters are optional. Add them if you want specific people or characters to appear in your video.
         </p>
+      )}
+
+      {/* WizPerformer Privacy Consent Modal — shown before the first photo upload */}
+      {pendingUploadSlot !== null && !consentGiven && (
+        <WizPerformerConsentModal
+          characterName={characters.find(c => c.slotIndex === pendingUploadSlot)?.name || undefined}
+          onAccept={() => {
+            setConsentGiven(true);
+            setPendingUploadSlot(null);
+            // Trigger the upload now that consent is given
+            setTimeout(() => {
+              photoInputRefs.current[pendingUploadSlot!]?.click();
+            }, 50);
+          }}
+          onDecline={() => setPendingUploadSlot(null)}
+        />
       )}
     </div>
   );

@@ -55,9 +55,9 @@ const TOOL_LABELS: Record<string, string> = {
   lip_sync: "Lip Sync",
   video_to_video: "Video to Video",
   voiceover: "Voiceover",
-  musetalk_lip_sync: "Lip Sync (MuseTalk)",
-  seedance_t2v: "Text to Video (Seedance)",
-  seedance_i2v: "Image to Video (Seedance)",
+  musetalk_lip_sync: "Lip Sync",
+  seedance_t2v: "WizScript",
+  seedance_i2v: "WizImage to Video",
 };
 
 type Project = {

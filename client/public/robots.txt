@@ -9,5 +9,17 @@ Disallow: /tools/
 Disallow: /music-video/create
 Disallow: /wizpilot
 Disallow: /autopilot
+Disallow: /render-history
+Disallow: /batch-regeneration
+Disallow: /enhancement-studio
+Disallow: /wizscore
+Disallow: /wizsync
+Disallow: /music-creator
+Disallow: /wiz-image
+Disallow: /wiz-shorts
+Disallow: /text-to-video
+Disallow: /onboarding
+Disallow: /subscribe
+Disallow: /kids-video
 
 Sitemap: https://wiz-ai.io/sitemap.xml

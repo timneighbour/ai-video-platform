@@ -66,7 +66,7 @@ export default function Privacy() {
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li><strong>Stripe</strong> — payment processing</li>
               <li><strong>AWS S3</strong> — file storage</li>
-              <li><strong>OpenAI Whisper</strong> — audio transcription</li>
+              <li><strong>WizAudio™</strong> — audio transcription and enhancement</li>
               <li><strong>WizBoost™ / WizGenesis™ / WizSync™</strong> — AI video generation and lip-sync</li>
             </ul>
           </section>

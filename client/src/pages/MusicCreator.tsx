@@ -505,7 +505,7 @@ export default function MusicCreator() {
                   </div>
                   {/* Quick-select shortcuts — two rows */}
                   <div className="mb-3 space-y-2.5">
-                    {/* Short: 5–30s (ElevenLabs SFX exact duration) */}
+                    {/* Short: 5–30s (WizAudio SFX exact duration) */}
                     <div>
                       <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Short – exact (Sound FX)</p>
                       <div className="flex flex-wrap gap-1.5">

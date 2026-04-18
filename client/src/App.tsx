@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { lazy, Suspense, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { identifyUser, resetIdentity, mp } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -92,6 +93,27 @@ function PostLoginRedirect() {
 /**
  * Simple passthrough wrapper — the Switch/Route tree below handles all routing.
  */
+// Routes that should not be indexed by search engines
+const PRIVATE_ROUTE_PREFIXES = [
+  "/dashboard", "/projects", "/account", "/settings",
+  "/music-video/create", "/render-history", "/batch-regeneration",
+  "/enhancement-studio", "/tools/", "/wizscore", "/wizsync",
+  "/music-creator", "/wiz-image", "/wiz-shorts", "/kids-video",
+  "/text-to-video", "/onboarding", "/credits", "/subscribe",
+  "/wizpilot", "/autopilot",
+];
+
+function NoIndexGuard() {
+  const [path] = useLocation();
+  const isPrivate = PRIVATE_ROUTE_PREFIXES.some(prefix => path.startsWith(prefix));
+  if (!isPrivate) return null;
+  return (
+    <Helmet>
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
+  );
+}
+
 function SafeFallbackRouter({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
@@ -227,6 +249,7 @@ function App() {
             <CrispChat />
           </Suspense>
           <MixpanelIdentity />
+          <NoIndexGuard />
           <Router />
           <GlobalMuteButton />
           {/* Intro shows once per session — sessionStorage flag prevents repeat */}

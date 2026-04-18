@@ -5186,3 +5186,43 @@
 - [x] Style selector in step-flow now shows thumbnail images (h-24 with object-cover) for all 6 animation styles
 - [x] Selected state shows white tick overlay; emoji badge shown top-left of thumbnail
 - [x] Gradient accent bar at bottom of each card on hover/selected
+
+## WIZ AI SECRET SAUCE PROTECTION (Apr 19 2026)
+### 1. Remove Third-Party Provider Names from Public UI
+- [ ] Remove "Powered by Suno" / "Suno" from all public pages and components
+- [ ] Remove "Grok" / "xAI" / "Grok Imagine" from all public pages and components
+- [ ] Remove "WaveSpeed" from all public pages and components
+- [ ] Remove "Seedance" from all public pages and components
+- [ ] Remove "Kling AI" / "Kling" from all public pages and components
+- [ ] Remove "HeyGen" / "MuseTalk" from all public pages and components
+- [ ] Remove "Runway" / "RunwayML" from all public pages and components
+- [ ] Remove "FAL AI" / "fal.ai" from all public pages and components
+- [ ] Remove "ElevenLabs" from all public pages and components
+- [ ] Replace all provider names with WIZ AI product names
+
+### 2. Remove Internal Technical Details from Public Pages
+- [ ] Remove model routing details from public-facing copy
+- [ ] Remove prompt chain descriptions from public pages
+- [ ] Remove API endpoint names that reveal providers
+- [ ] Remove engine weighting/scoring details from public pages
+- [ ] Remove generation parameter details from public copy
+- [ ] Replace technical copy with benefit-focused language
+
+### 3. WizPerformer Privacy Consent
+- [ ] Add consent modal/screen before face capture begins
+- [ ] Explain what is captured (face photo/reference image)
+- [ ] Explain why it is captured (AI performer generation)
+- [ ] Explain how long it is stored (session / account lifetime)
+- [ ] Add delete option for stored face data
+- [ ] Update Privacy Policy page with WizPerformer section
+- [ ] Add consent checkbox before upload is allowed
+
+### 4. Server-Side Hardening
+- [ ] Ensure all error responses return generic messages (no provider names, no prompt details)
+- [ ] Remove stack traces from production error responses
+- [ ] Add noindex meta tag to all private/dashboard routes
+- [ ] Verify no API keys are in client bundle (VITE_ prefix only for public keys)
+- [ ] Verify no prompt templates are in client-side code
+- [ ] Verify no model routing logic is in client-side code
+- [ ] Add rate limiting to generation endpoints
+- [ ] Protect all generation/dashboard routes behind auth middleware

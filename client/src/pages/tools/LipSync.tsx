@@ -9,10 +9,10 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
-type Engine = "musetalk" | "heygen";
+type Engine = "wizsync" | "wizavatar";
 
 const ENGINE_INFO: Record<Engine, { label: string; badge: string; description: string; inputLabel: string; inputHint: string; accepts: string; creditCost: number }> = {
-  musetalk: {
+  wizsync: {
     label: "WizSync™ Lip-Sync",
     badge: "Recommended",
     description: "Audio-driven lip-sync powered by WizSync™. Upload a video with a visible face and any audio track — the face is animated to match the audio in real time.",
@@ -21,7 +21,7 @@ const ENGINE_INFO: Record<Engine, { label: string; badge: string; description: s
     accepts: "video/*",
     creditCost: 75,
   },
-  heygen: {
+  wizavatar: {
     label: "WizSync™ Avatar",
     badge: "Avatar-based",
     description: "Generate a talking avatar video powered by WizSync™. Provide a script and WizSync™ will render a photorealistic avatar speaking your text.",
@@ -36,7 +36,7 @@ export default function LipSync() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
-  const [engine, setEngine] = useState<Engine>("musetalk");
+  const [engine, setEngine] = useState<Engine>("wizsync");
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -141,7 +141,7 @@ export default function LipSync() {
       const resolvedAudioUrl = audioData.url || audioUpload.fileUrl;
 
       // Submit generation job
-      if (engine === "musetalk") {
+      if (engine === "wizsync") {
         await generateMutation.mutateAsync({
           toolType: "musetalk_lip_sync",
           prompt: "Lip-sync the face in the video to the provided audio",
@@ -207,7 +207,7 @@ export default function LipSync() {
                         <CheckCircle2 className="absolute top-3 right-3 h-4 w-4 text-accent" />
                       )}
                       <div className="flex items-center gap-2 mb-1">
-                        {key === "musetalk" ? <Video className="h-4 w-4 text-accent" /> : <Mic className="h-4 w-4 text-[--color-gold]" />}
+                        {key === "wizsync" ? <Video className="h-4 w-4 text-accent" /> : <Mic className="h-4 w-4 text-[--color-gold]" />}
                         <span className="font-semibold text-sm text-foreground">{eng.label}</span>
                       </div>
                       <Badge variant="secondary" className="text-xs mb-2">{eng.badge}</Badge>
@@ -338,7 +338,7 @@ export default function LipSync() {
                 <CardTitle className="text-sm">Requirements</CardTitle>
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground space-y-2">
-                {engine === "musetalk" ? (
+                {engine === "wizsync" ? (
                   <>
                     <p>✓ Clear face visible in video</p>
                     <p>✓ Face should be mostly front-facing</p>

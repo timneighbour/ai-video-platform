@@ -168,6 +168,8 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 600,
+    // Never expose source maps in production — protects internal logic
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
