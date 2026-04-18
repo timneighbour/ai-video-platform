@@ -1,5 +1,9 @@
 /*
- * WizAIIntro — Premium MP4 Video Intro (Apr 2026)
+ * WizAIIntro — DEPRECATED (Apr 2026)
+ * This component is no longer used. Use IntroScreen.tsx instead.
+ * Kept for reference only. Do not import or render this component.
+ *
+ * Original: WizAIIntro — Premium MP4 Video Intro (Apr 2026)
  *
  * Plays the provided WIZ AI intro video as a full-screen cinematic experience.
  * Clean implementation: no canvas overlays, no duplicate branding, no old layers.
@@ -17,8 +21,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
 
+// DEPRECATED — old video asset. Active intro uses IntroScreen.tsx with wizai-intro_0a722338.mp4
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/WizAIIntroVid1_8567671e.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro_0a722338.mp4";
 
 export const INTRO_SEEN_KEY = "wizai_intro_v3";
 
