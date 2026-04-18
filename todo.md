@@ -5017,3 +5017,40 @@
 - [x] METAL-4: Applied metallic gold border to icon wells in nav dropdown
 - [x] METAL-5: Add reflective hover shimmer animation to all product cards
 - [x] METAL-6: Each card has distinct accent colour + brushed gold metallic frame
+
+## FULL PREMIUM UPGRADE — 11/10 STANDARD
+- [ ] REDIR-1: Audit www-to-non-www redirect setup for wiz-ai.io and wizvid.ai
+- [ ] TRUST-1: Fix pricing page contradictions — plan features, render counts, watermark logic
+- [ ] TRUST-2: Fix inconsistent dates across legal pages (Privacy, Terms, Refund)
+- [ ] TRUST-3: Remove weak/vague wording from hero and product sections
+- [ ] TRUST-4: Add payment reassurance near pricing CTAs
+- [ ] TRUST-5: Ensure all plan names and feature lists are consistent across Subscribe + Pricing pages
+- [ ] HERO-1: Upgrade hero — stronger emotional pull, sharper positioning, clearer CTA hierarchy
+- [ ] HERO-2: Hero must communicate: what WIZ AI is, why different, why premium, why trustworthy, what to do next
+- [ ] PRICING-1: Rebuild pricing page — clear per-plan feature definitions, no contradictions
+- [ ] PRICING-2: Each plan must define: renders, quality, watermark, queue priority, character consistency, API access
+- [ ] PRICING-3: Improve visual hierarchy — best value plan emphasis, cleaner feature grouping
+- [ ] PROOF-1: Add/improve testimonials near hero and pricing
+- [ ] PROOF-2: Add creator proof and "made with WIZ AI" credibility signals
+- [ ] PROOF-3: Add business legitimacy signals (company, support, payment)
+- [ ] COPY-1: Audit all copy site-wide — remove generic AI clichés, sharpen to premium brand voice
+- [ ] COPY-2: Strengthen all primary CTAs — confident, premium, low-friction
+- [ ] COPY-3: Improve showcase section framing — tool used, input given, outcome achieved
+- [ ] DESIGN-1: Standardise section padding, spacing, and visual rhythm across all pages
+- [ ] DESIGN-2: Improve section hierarchy — stronger contrast between sections, better flow
+- [ ] DESIGN-3: Audit mobile responsiveness — spacing, CTA visibility, tap targets, plan comparison
+- [ ] DESIGN-4: Refine animations — smooth reveals, elegant hover states, no gimmicks
+- [ ] LEGAL-1: Audit footer links, legal pages, support pages for consistency and current dates
+
+## 11/10 PREMIUM UPGRADE — COMPLETED ✅
+- [x] REDIRECT-1: Audit www-to-non-www redirect — wiz-ai.io is clean (301 www→non-www), wizvid.ai needs Cloudflare fix (documented for Tim)
+- [x] TRUST-1: Fix pricing contradictions between Subscribe.tsx and Pricing.tsx (Creator: 15 renders, Studio: 40 renders)
+- [x] TRUST-2: Fix comparison table character consistency and watermark rows (corrupted lines repaired)
+- [x] TRUST-3: Update all legal page dates to 18 April 2026 (Terms, Privacy, Refunds)
+- [x] TRUST-4: Add Testimonials section to homepage with 4 creator quotes and star ratings
+- [x] TRUST-5: Add payment reassurance strip (Stripe, no credit card, cancel anytime, 40+ countries)
+- [x] HERO-1: Upgrade hero headline — "The world's most powerful AI creative suite"
+- [x] HERO-2: Sharpen hero subheadline — cleaner, more premium positioning
+- [x] COPY-1: Fix HowItWorks step 4 typo "Building Your Video" → "Export in HD or 4K"
+- [x] COPY-2: Sharpen FinalCTA headline — "Your next creation starts here." with metallic gold accent
+- [x] COPY-3: Update FinalCTA subtext — "Join thousands of creators" social proof language

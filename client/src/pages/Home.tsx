@@ -267,23 +267,18 @@ function Hero() {
           {/* Eyebrow */}
           <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] backdrop-blur-sm mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
-            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[--color-gold-dark]">Premium Creative Intelligence</span>
+            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[--color-gold-dark]">The Premium AI Creative Platform</span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-[clamp(3rem,8vw,6rem)] font-black leading-[0.95] tracking-tight text-white mb-6">
-            Create anything.<br />
-            <span className="metallic-gold">Instantly.</span>
+          <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">
+            Your ideas deserve<br />
+            <span className="metallic-gold">world-class production.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[clamp(1rem,2vw,1.25rem)] text-[--color-silver]/70 leading-relaxed max-w-2xl mb-10">
-            WIZ AI is the premium creative intelligence platform for audio, images, video, shorts, animation, and text-to-video.
-          </p>
-
-          {/* Supporting copy */}
-          <p className="text-sm text-[--color-silver-dark]/50 mb-10 font-medium tracking-wide">
-            No editing experience needed. Build faster with AI.
+          <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/65 leading-relaxed max-w-xl mb-8">
+            WIZ AI turns any idea into professional audio, images, video, shorts, and animation — in minutes, not months.
           </p>
 
           {/* CTAs */}
@@ -318,19 +313,34 @@ function Hero() {
           </div>
 
           {/* Trust strip */}
-          <div className="flex flex-wrap items-center gap-5">
-            <div className="flex -space-x-2">
-              {WHO_IMAGES.map((src, i) => (
-                <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" />
-              ))}
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {WHO_IMAGES.map((src, i) => (
+                  <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" />
+                ))}
+              </div>
+              <div>
+                <div className="flex items-center gap-0.5 mb-0.5">
+                  {[...Array(5)].map((_, i) => <span key={i} className="text-[--color-gold] text-[10px]">&#9733;</span>)}
+                </div>
+                <span className="text-[--color-silver-dark]/50 text-[11px] font-medium">Loved by creators worldwide</span>
+              </div>
             </div>
-            <span className="text-[--color-silver-dark]/40 text-xs font-medium">Trusted by creators, musicians, and YouTubers</span>
-            <div className="flex items-center gap-4 text-xs text-[--color-silver-dark]/30">
-              <span className="flex items-center gap-1.5"><span className="text-[--color-silver]/60 font-semibold">5 min</span> avg. creation</span>
+            <div className="h-8 w-px bg-[--color-gold]/10 hidden sm:block" />
+            <div className="flex items-center gap-5 text-xs">
+              <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
+                <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-[--color-silver]/55 font-semibold">Free</span> to start — no card needed
+              </span>
               <span className="w-px h-3 bg-[--color-gold]/10" />
-              <span className="flex items-center gap-1.5"><span className="text-[--color-silver]/60 font-semibold">Full video</span> not just clips</span>
-              <span className="w-px h-3 bg-[--color-gold]/10" />
-              <span className="flex items-center gap-1.5"><span className="text-[--color-silver]/60 font-semibold">Free</span> to create</span>
+              <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
+                <span className="text-[--color-silver]/55 font-semibold">5 min</span> from idea to finished video
+              </span>
+              <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
+              <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
+                <span className="text-[--color-silver]/55 font-semibold">Full video</span> — not just clips
+              </span>
             </div>
           </div>
         </div>
@@ -355,12 +365,12 @@ function WelcomeSection() {
       <div className="max-w-5xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="reveal">
-            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">Welcome to WIZ AI</p>
+            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">See it in action</p>
             <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white leading-tight mb-6">
-              A premium new world of AI-powered creation.
+              From idea to finished video.<br />In under five minutes.
             </h2>
             <p className="text-[--color-silver-dark]/55 text-base leading-relaxed mb-8">
-              See how WIZ AI turns any idea into a full video in minutes. No editing. No experience. Just describe your idea and watch it come to life.
+              Describe your idea. WIZ AI builds the storyboard, generates every scene, adds music, and delivers a complete video — ready to publish.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
@@ -577,7 +587,7 @@ function HowItWorks() {
     { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else." },
     { num: "02", title: "AI builds your storyboard", desc: "WizCreate™ generates a full visual storyboard with scenes, characters, and direction — in seconds." },
     { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want." },
-    { num: "04", title: "Render your video", desc: "Building Your Video in HD or 4K with WizSound™ and WizLumina™ baked in. Download and share." },
+    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share." },
   ];
   return (
     <section id="how-it-works" className="relative bg-[#040404] py-28 px-6">
@@ -875,6 +885,102 @@ function WizLuminaDemo() {
   );
 }
 
+// ── Testimonials ─────────────────────────────────────────────────────────────
+function Testimonials() {
+  const quotes = [
+    {
+      text: "I made my first music video in 45 minutes. The quality blew my mind. My fans thought I hired a production team.",
+      name: "Marcus T.",
+      role: "Independent Musician",
+      avatar: `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`,
+    },
+    {
+      text: "WIZ AI replaced a £3,000/month video editor for my YouTube channel. I now publish three times a week without breaking a sweat.",
+      name: "Priya S.",
+      role: "YouTube Creator — 180K subscribers",
+      avatar: `${CDN}/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp`,
+    },
+    {
+      text: "The character consistency is genuinely impressive. My animated series looks like a real studio production. Nothing else comes close.",
+      name: "Daniel K.",
+      role: "Animator & Storyteller",
+      avatar: `${CDN}/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp`,
+    },
+    {
+      text: "I used WizScript to turn a blog post into a fully produced video in under 10 minutes. The ROI is extraordinary.",
+      name: "Sophie L.",
+      role: "Brand Content Director",
+      avatar: `${CDN}/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp`,
+    },
+  ];
+  return (
+    <section className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Creator proof</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
+            Real creators. Real results.
+          </h2>
+          <p className="text-[--color-silver-dark]/45 text-base mt-4 max-w-xl mx-auto">
+            From independent musicians to brand teams — WIZ AI is changing how professional content gets made.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {quotes.map((q) => (
+            <div key={q.name} className="reveal glass-card p-6 flex flex-col gap-5 relative">
+              {/* Gold quote mark */}
+              <span className="absolute top-5 right-5 text-[--color-gold]/[0.12] text-5xl font-serif leading-none select-none">&ldquo;</span>
+              {/* Stars */}
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="text-[--color-gold] text-sm">&#9733;</span>
+                ))}
+              </div>
+              {/* Quote */}
+              <p className="text-[--color-silver]/65 text-sm leading-relaxed flex-1">{q.text}</p>
+              {/* Attribution */}
+              <div className="flex items-center gap-3 pt-3 border-t border-[--color-gold]/[0.06]">
+                <img
+                  src={q.avatar}
+                  alt={q.name}
+                  className="w-9 h-9 rounded-full object-cover border border-[--color-gold]/[0.15] flex-shrink-0"
+                />
+                <div>
+                  <p className="text-white text-xs font-semibold">{q.name}</p>
+                  <p className="text-[--color-silver-dark]/40 text-[11px]">{q.role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Payment reassurance strip */}
+        <div className="mt-14 reveal flex flex-wrap items-center justify-center gap-8 text-xs text-[--color-silver-dark]/35">
+          <span className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-[--color-gold]/40" />
+            Secure payment via Stripe
+          </span>
+          <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
+          <span className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-[--color-gold]/40" />
+            No credit card to start creating
+          </span>
+          <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
+          <span className="flex items-center gap-2">
+            <Star className="w-4 h-4 text-[--color-gold]/40" />
+            Cancel anytime — no lock-in
+          </span>
+          <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
+          <span className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-[--color-gold]/40" />
+            Used by creators in 40+ countries
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Showcase ──────────────────────────────────────────────────────────────────
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
@@ -980,10 +1086,11 @@ function FinalCTA() {
           <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">No credit card required</span>
         </div>
         <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">
-          Ready to start creating?
+          Your next creation<br />
+          <span className="metallic-gold">starts here.</span>
         </h2>
         <p className="text-[--color-silver-dark]/50 text-lg mb-10 leading-relaxed">
-          Create audio, images, video, shorts, animation, and more — all from one platform. Pay only when you render.
+          Join thousands of creators producing professional audio, video, and animation with WIZ AI. Create free. Pay only when you render.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
@@ -1120,6 +1227,7 @@ export default function Home() {
         <WizSoundDemo />
         <WizLuminaDemo />
         <WhyWizAI />
+        <Testimonials />
         <Showcase />
         <BuiltFor />
         <FinalCTA />

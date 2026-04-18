@@ -81,11 +81,12 @@ const PLANS = [
     monthlyPrice: 29,
     annualTotal: 290,
     annualSaving: 58,
-    tagline: "Create up to 10 videos/month",
+    tagline: "Create up to 15 videos/month",
     outcomes: [
-      "10 renders per month",
+      "15 renders per month",
       "HD + 4K access",
-      "Faster rendering priority",
+      "Character consistency",
+      "Priority rendering queue",
       "20% WizSound™ discount",
       "All 6 AI video styles",
       "Free storyboard generation",
@@ -123,11 +124,12 @@ const PLANS = [
     monthlyPrice: 99,
     annualTotal: 990,
     annualSaving: 198,
-    tagline: "Create up to 50 videos/month",
+    tagline: "Create up to 40 videos/month",
     outcomes: [
-      "50 renders per month",
+      "40 renders per month",
       "4K included as standard",
       "Fastest rendering — top priority",
+      "Character consistency",
       "60% WizSound™ discount",
       "API access for automation",
       "All 6 AI video styles",
@@ -141,11 +143,12 @@ const PLANS = [
 
 // ── Comparison table rows ────────────────────────────────────────────────────
 const COMPARISON_ROWS: { feature: string; free: string | boolean; starter: string | boolean; basic: string | boolean; creator: string | boolean; pro: string | boolean; studio: string | boolean }[] = [
-  { feature: "Renders/month",     free: "2 (trial)", starter: "2",    basic: "5",    creator: "10",  pro: "25",  studio: "50"  },
+  { feature: "Renders/month",     free: "2 (trial)", starter: "2",    basic: "5",    creator: "15",  pro: "25",  studio: "40"  },
   { feature: "Max quality",       free: "720p",      starter: "720p", basic: "1080p",creator: "4K",  pro: "4K",  studio: "4K"  },
   { feature: "Free storyboard",   free: true,        starter: true,   basic: true,   creator: true,  pro: true,  studio: true  },
   { feature: "WizSound discount", free: false,       starter: false,  basic: false,  creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "Build speed",   free: "Standard",  starter: "Standard", basic: "Standard", creator: "Fast", pro: "Priority", studio: "Fastest" },
+  { feature: "Character consistency", free: false, starter: false, basic: false, creator: true, pro: true, studio: true },
+  { feature: "Build speed",   free: "Standard",  starter: "Standard", basic: "Standard", creator: "Priority", pro: "Priority", studio: "Fastest" },
   { feature: "API access",        free: false,       starter: false,  basic: false,  creator: false, pro: false, studio: true  },
 ];
 

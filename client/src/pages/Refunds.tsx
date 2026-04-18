@@ -16,7 +16,7 @@ export default function Refunds() {
       <main className="max-w-4xl mx-auto px-6 py-16">
         <div className="mb-10">
           <h1 className="text-4xl font-extrabold tracking-tight mb-3">Refund Policy</h1>
-          <p className="text-[#a1a1aa] text-sm">Last updated: 9 April 2025</p>
+          <p className="text-[#a1a1aa] text-sm">Last updated: 18 April 2026</p>
         </div>
 
         <div className="prose prose-invert max-w-none space-y-8 text-[#d4d4d8] leading-relaxed">
