@@ -1549,7 +1549,7 @@ function FeatureBlock() {
     {
       icon: <Rocket className="w-7 h-7" />,
       title: "WizPilot Automation",
-      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, audio, render, and delivery. The complete AI video pipeline in one click.",
+      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, MuseTalk™ lip-sync, audio, render, and delivery. The complete AI music video pipeline in one click.",
       cta: "Try WizPilot",
       href: "/onboarding",
       badge: "WizPilot™",
@@ -1678,7 +1678,7 @@ function DemoVideoGallery() {
       engine: "HeyGen",
       badge: "WizLumina™ Engine",
       badgeColor: "#0EA5E9",
-      description: "AI avatar lip-sync and video translation. Powers WizLumina™ character animation.",
+      description: "AI avatar lip-sync and video translation using MuseTalk™. Powers WizLumina™ character animation with frame-perfect lip sync.",
     },
   ];
 

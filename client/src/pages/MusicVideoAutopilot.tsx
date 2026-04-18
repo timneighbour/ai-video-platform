@@ -77,6 +77,10 @@ import {
   Monitor,
   Captions,
   ShieldCheck,
+  Guitar,
+  Drum,
+  Piano,
+  Mic2,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -506,9 +510,16 @@ export default function MusicVideoAutopilot() {
     { enabled: !!jobId && (step === "storyboard" || step === "character_confirmation"), staleTime: 30000 }
   );
   const jobCharacters = jobCharactersQuery.data?.characters ?? [];
+  const updateCharacterInstrumentMutation = trpc.musicVideo.updateCharacterInstrument.useMutation({
+    onSuccess: () => { jobCharactersQuery.refetch(); },
+    onError: (err) => { toast.error("Failed to update role", { description: err.message }); },
+  });
 
   // Per-scene character selector dropdown state
   const [characterSelectorSceneId, setCharacterSelectorSceneId] = useState<number | null>(null);
+  // Instrument role inline editing state
+  const [editingRoleCharId, setEditingRoleCharId] = useState<number | null>(null);
+  const [editingRoleValue, setEditingRoleValue] = useState("");
 
   // Edit-before-retry state (separate from storyboard edit state above)
   const [editingFailedSceneId, setEditingFailedSceneId] = useState<number | null>(null);
@@ -2420,40 +2431,93 @@ export default function MusicVideoAutopilot() {
                   <span className="text-xs text-zinc-500 ml-1">Locked appearances enforced in every scene</span>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {jobCharacters.filter(c => c.isLocked).map((char) => (
-                    <div key={char.slotIndex} className="flex items-center gap-3 rounded-lg border border-emerald-800/40 bg-emerald-900/10 px-3 py-2 min-w-0">
+                  {jobCharacters.filter(c => c.isLocked).map((char) => {
+                    // Derive instrument icon from lockedRole string
+                    const roleStr = (char.lockedRole ?? char.role ?? "").toLowerCase();
+                    const InstrumentIcon = roleStr.includes("drum") ? Drum
+                      : roleStr.includes("guitar") || roleStr.includes("bass") ? Guitar
+                      : roleStr.includes("piano") || roleStr.includes("keyboard") ? Piano
+                      : roleStr.includes("sing") || roleStr.includes("vocal") || roleStr.includes("lead") ? Mic2
+                      : null;
+                    const isEditingThisChar = editingRoleCharId === char.id;
+                    return (
+                    <div key={char.slotIndex} className="flex items-start gap-3 rounded-lg border border-emerald-800/40 bg-emerald-900/10 px-3 py-2 min-w-0 max-w-[280px]">
                       {/* Avatar: use primaryPhotoUrl from DB or fallback icon */}
                       {char.primaryPhotoUrl ? (
                         <img
                           src={char.primaryPhotoUrl}
                           alt={char.name}
-                          className="w-10 h-10 rounded-full object-cover border border-emerald-700/50 flex-shrink-0"
+                          className="w-10 h-10 rounded-full object-cover border border-emerald-700/50 flex-shrink-0 mt-0.5"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-emerald-900/40 border border-emerald-700/50 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-emerald-900/40 border border-emerald-700/50 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <User className="w-5 h-5 text-emerald-400" />
                         </div>
                       )}
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 mb-0.5">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-1">
                           <Lock className="w-3 h-3 text-emerald-400 flex-shrink-0" />
                           <span className="text-sm font-semibold text-white truncate">{char.name}</span>
-                          {char.role && (
-                            <span className="text-[10px] text-zinc-500 truncate">{char.role}</span>
-                          )}
                         </div>
+                        {/* Instrument role badge — editable inline */}
+                        {isEditingThisChar ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <input
+                              autoFocus
+                              value={editingRoleValue}
+                              onChange={e => setEditingRoleValue(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === "Enter" && editingRoleValue.trim() && jobId) {
+                                  updateCharacterInstrumentMutation.mutate({ jobId, characterId: char.id, performanceRole: editingRoleValue.trim() });
+                                  setEditingRoleCharId(null);
+                                } else if (e.key === "Escape") {
+                                  setEditingRoleCharId(null);
+                                }
+                              }}
+                              className="text-[10px] bg-zinc-800 border border-zinc-600 rounded px-2 py-0.5 text-white w-28 focus:outline-none focus:border-emerald-500"
+                              placeholder="e.g. Lead Singer"
+                            />
+                            <button
+                              onClick={() => {
+                                if (editingRoleValue.trim() && jobId) {
+                                  updateCharacterInstrumentMutation.mutate({ jobId, characterId: char.id, performanceRole: editingRoleValue.trim() });
+                                }
+                                setEditingRoleCharId(null);
+                              }}
+                              className="text-emerald-400 hover:text-emerald-300 text-[10px] px-1"
+                            >
+                              <Check className="w-3 h-3" />
+                            </button>
+                            <button onClick={() => setEditingRoleCharId(null)} className="text-zinc-500 hover:text-zinc-300 text-[10px] px-1">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="flex items-center gap-1 mt-1 group/role"
+                            onClick={() => { setEditingRoleCharId(char.id); setEditingRoleValue(char.lockedRole ?? char.role ?? ""); }}
+                            title="Click to edit instrument role"
+                          >
+                            {InstrumentIcon && <InstrumentIcon className="w-3 h-3 text-[--color-gold]/70 flex-shrink-0" />}
+                            <span className="text-[10px] text-[--color-gold]/70 group-hover/role:text-[--color-gold] transition-colors">
+                              {char.lockedRole ?? char.role ?? "Performer"}
+                            </span>
+                            <Pencil className="w-2.5 h-2.5 text-zinc-600 group-hover/role:text-zinc-400 transition-colors ml-0.5" />
+                          </button>
+                        )}
                         {/* Show a truncated snippet of the locked description as a visual cue */}
                         {char.lockedDescription && (
                           <p
-                            className="text-[10px] text-zinc-500 truncate max-w-[200px]"
+                            className="text-[10px] text-zinc-500 truncate max-w-[200px] mt-1"
                             title={char.lockedDescription}
                           >
-                            {char.lockedDescription.slice(0, 80)}{char.lockedDescription.length > 80 ? "…" : ""}
+                            {char.lockedDescription.slice(0, 70)}{char.lockedDescription.length > 70 ? "…" : ""}
                           </p>
                         )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

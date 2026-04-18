@@ -310,7 +310,7 @@
 - [x] Update LipSync.tsx tool page to use MuseTalk via fal.ai (real generation, not mock)
 - [x] Add MuseTalk lip-sync option to Music Video creator (optional face video + audio sync)
 - [x] Add FAL_AI_API_KEY secret via webdev_request_secrets
-- [ ] Update landing page tool description to mention MuseTalk for lip-sync
+- [x] Update landing page tool description to mention MuseTalk for lip-sync
 - [x] Add MuseTalk to AI API tests
 
 ## Character-Driven Music Video Feature
@@ -353,7 +353,7 @@
 - [x] Two hero CTAs: "Ready to Create Video" and "See How It Works"
 - [x] Sticky frosted-glass navigation: Logo, WizBeat, Tools, Pricing, Sign In, mobile hamburger
 - [x] Lean below-fold: WizBeat teaser, Tools grid, Social proof, Pricing
-- [ ] Demo video section: YouTube embed thumbnails from Kling AI, Runway, HeyGen official channels
+- [x] Demo video section: YouTube embed thumbnails from Kling AI, Runway, HeyGen official channels
 - [x] Mobile-first responsive design for all new sections
 
 ## Homepage Cinematic Rebuild (duplicate — merged)
@@ -365,7 +365,7 @@
 - [x] Sticky frosted-glass navigation: Logo, WizBeat, WizPilot, Tools, Pricing, Sign In, mobile hamburger
 - [x] WizBeat section: cinematic artist/band showcase with animated characters
 - [x] WizPilot section: general video creation showcase (ContentEngine 3-column block)
-- [ ] Demo video section: YouTube embed thumbnails from Kling AI, Runway, HeyGen official channels
+- [x] Demo video section: YouTube embed thumbnails from Kling AI, Runway, HeyGen official channels
 - [x] Lean below-fold: Tools grid, Social proof, Pricing
 - [x] Mobile-first responsive design for all new sections
 
@@ -382,7 +382,7 @@
 - [x] USP statement: "Create full videos — not just clips" (WhyWizVid + Features sections)
 - [x] Single primary CTA everywhere: "Start Creating Free" / "Ready to Create Video"
 - [x] Autoplay cinematic hero reel (background video loop — 3 videos cycling)
-- [ ] Demo video gallery with YouTube embeds from Kling/Runway/HeyGen
+- [x] Demo video gallery with YouTube embeds from Kling/Runway/HeyGen
 - [x] Social proof section: testimonial cards with star ratings
 - [x] SEO meta tags: "AI music video generator", "AI animation video maker" (in index.html)
 - [x] Wizard/magic transformation branding: Idea → Video journey (ContentEngine flow)
@@ -764,7 +764,7 @@
 - [x] Add `updateAllScenesLipSync` tRPC procedure (global override for all scenes)
 - [x] Add `regenerateScene` tRPC procedure (re-render single scene with current settings)
 - [x] Build per-scene lip sync toggle UI (ON/OFF switch + badge, visible on each scene card)
-- [ ] Smart defaults: vocals detected → lip sync ON; instrumental → lip sync OFF
+- [x] Smart defaults: vocals detected → lip sync ON; instrumental → lip sync OFF
 - [x] Global lip sync override control ("On for all" / "Off for all" buttons in storyboard header)
 - [x] Per-scene loading indicator during independent regeneration (spinner on regenerate button)
 - [x] Preserve all other scenes when regenerating one scene
@@ -795,7 +795,7 @@
 - [x] Polish #8: Full microcopy consistency pass — casing, punctuation, tone
 - [x] Polish #9: Preserve all working sections (do not break)
 - [x] Polish #10: Final quality bar — premium, luxurious, launch-ready
-- [ ] Test Suno music generation end-to-end after fix
+- [x] Test Suno music generation end-to-end after fix
 
 ## Bug Fix: HTTP 429 Rate Limit on Video Rendering (Priority)
 - [x] Audit Kling AI client for missing/weak retry logic (already implemented)
@@ -3506,11 +3506,11 @@
 
 ## Realistic Music Performance System
 - [ ] Add instrumentAnalysis JSON column to musicVideoJobs table (stores detected instruments + time map)
-- [ ] Add instrumentRole field to videoCharacters table (e.g. "lead_vocalist", "guitarist", "drummer", "bassist", "pianist")
+- [x] Add instrumentRole field to videoCharacters table (e.g. "lead_vocalist", "guitarist", "drummer", "bassist", "pianist")
 - [ ] Build analyseAudioInstruments() service: LLM-based instrument detection from genre/mood/lyrics metadata
 - [ ] Build assignInstrumentsToCharacters() service: map detected instruments to characters by role priority
 - [ ] Inject per-instrument performance directives into scene prompts (hand positioning, sync cues, camera angles)
-- [ ] Expose instrument role badges in storyboard character panel (editable before render)
+- [x] Expose instrument role badges in storyboard character panel (editable before render)
 - [ ] Trigger audio analysis automatically after storyboard generation
 - [ ] Persist instrument assignments to DB and include in characterRoster JSON
 
@@ -3520,7 +3520,7 @@
 - [ ] Build multi-role performance directive: simultaneous guitar strumming + lip sync for same character
 - [ ] Inject full audio-driven performance block into every scene prompt (no cross-over between characters)
 - [ ] Add character-instrument assignment panel to storyboard UI with editable roles and lock-after-approval
-- [ ] Show instrument badges on character cards in storyboard (e.g. 🎸 Lead Guitar + 🎤 Vocals)
+- [x] Show instrument badges on character cards in storyboard (e.g. 🎸 Lead Guitar + 🎤 Vocals)
 - [ ] Add tRPC procedure: getInstrumentAssignments (returns analysis + assignments for a job)
 - [ ] Add tRPC procedure: updateCharacterInstrument (allows user to change assignment before render)
 - [ ] Lock assignments after storyboard approval — no changes allowed during render
@@ -3557,9 +3557,9 @@
 - [x] Character role assignment: singer, guitarist, bassist, drummer, keyboard player
 - [x] Performance realism directives injected into scene prompt (guitar strumming, drum hits, lip sync)
 - [x] No fake animation — all movement derived from audio waveform
-- [ ] Instrument assignment UI: show instrument badges on character cards in storyboard
-- [ ] tRPC: getInstrumentAssignments procedure
-- [ ] tRPC: updateCharacterInstrument procedure (editable before render, locked after)
+- [x] Instrument assignment UI: show instrument badges on character cards in storyboard
+- [x] tRPC: getInstrumentAssignments procedure
+- [x] tRPC: updateCharacterInstrument procedure (editable before render, locked after)
 
 ### Section 3 — Lip Sync (already implemented)
 - [x] Assign vocals to ONE character (primary vocalist detection)
