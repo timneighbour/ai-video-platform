@@ -143,7 +143,7 @@ export default function SeoLandingPage() {
   const slug = params?.slug;
   const page = SEO_PAGES.find((p) => p.slug === slug);
 
-  const canonicalUrl = `https://www.wiz-ai.io/seo/${slug}`;
+  const canonicalUrl = `https://wiz-ai.io/seo/${slug}`;
   const ogImage =
     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-og-image_placeholder.png";
 
@@ -155,7 +155,7 @@ export default function SeoLandingPage() {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.wiz-ai.io/" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://wiz-ai.io/" },
         { "@type": "ListItem", position: 2, name: page.keyword, item: canonicalUrl },
       ],
     });

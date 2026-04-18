@@ -10,4 +10,4 @@ Disallow: /music-video/create
 Disallow: /wizpilot
 Disallow: /autopilot
 
-Sitemap: https://www.wiz-ai.io/sitemap.xml
+Sitemap: https://wiz-ai.io/sitemap.xml

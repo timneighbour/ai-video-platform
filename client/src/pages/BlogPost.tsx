@@ -90,7 +90,7 @@ export default function BlogPost() {
     );
   }
 
-  const canonicalUrl = `https://www.wiz-ai.io/blog/${post.slug}`;
+  const canonicalUrl = `https://wiz-ai.io/blog/${post.slug}`;
   const metaTitle = post.metaTitle ?? `${post.title} — WIZ AI Blog`;
   const metaDesc = post.metaDescription ?? post.excerpt ?? "Read this article on the WIZ AI blog.";
 
@@ -114,7 +114,7 @@ export default function BlogPost() {
           "author": { "@type": "Person", "name": post.author },
           "datePublished": post.publishedAt,
           "image": post.coverImage,
-          "publisher": { "@type": "Organization", "name": "WIZ AI", "url": "https://www.wiz-ai.io" },
+          "publisher": { "@type": "Organization", "name": "WIZ AI", "url": "https://wiz-ai.io" },
         })}</script>
       </Helmet>
 
