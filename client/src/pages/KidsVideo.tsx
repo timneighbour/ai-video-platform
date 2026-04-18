@@ -25,7 +25,7 @@ import {
   Music, Lock, Eye, Pencil, RotateCcw, Camera,
   ChevronDown, ChevronUp,
 } from "lucide-react";
-import { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -369,6 +369,31 @@ export default function KidsVideo() {
   const uploadCharacterPhotoMutation = trpc.kidsVideo.uploadCharacterPhoto.useMutation();
   const regenerateSceneMutation = trpc.kidsVideo.regenerateScene.useMutation();
   const createRenderCheckoutMutation = trpc.kidsVideo.createRenderCheckout.useMutation();
+  const addSceneMutation = trpc.kidsVideo.addScene.useMutation();
+  const deleteSceneMutation = trpc.kidsVideo.deleteScene.useMutation();
+
+  // ── Scene add/remove handlers ──
+  const handleAddScene = useCallback(async (afterSceneIndex?: number) => {
+    if (!jobId) return;
+    try {
+      const result = await addSceneMutation.mutateAsync({ jobId, afterSceneIndex });
+      if (result.frames) setStoryboardFrames(result.frames as StoryboardFrame[]);
+      toast.success("Scene added");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message ?? "Failed to add scene");
+    }
+  }, [jobId, addSceneMutation]);
+
+  const handleDeleteScene = useCallback(async (sceneIndex: number) => {
+    if (!jobId) return;
+    try {
+      const result = await deleteSceneMutation.mutateAsync({ jobId, sceneIndex });
+      if (result.frames) setStoryboardFrames(result.frames as StoryboardFrame[]);
+      toast.success("Scene removed");
+    } catch (err: unknown) {
+      toast.error((err as Error)?.message ?? "Failed to remove scene");
+    }
+  }, [jobId, deleteSceneMutation]);
 
   // ── Audio handlers ──
   const handleAudioFile = useCallback((file: File) => {
@@ -1424,7 +1449,8 @@ export default function KidsVideo() {
               {!isGeneratingStoryboard && storyboardFrames.length > 0 && (
                 <div className="space-y-4">
                   {storyboardFrames.map((frame, i) => (
-                    <div key={frame.sceneIndex} className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+                    <React.Fragment key={frame.sceneIndex}>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-[--color-silver] bg-[--color-silver]/10 rounded-full px-2 py-0.5">
@@ -1458,6 +1484,14 @@ export default function KidsVideo() {
                             ) : (
                               <RotateCcw className="h-3.5 w-3.5" />
                             )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteScene(frame.sceneIndex)}
+                            disabled={storyboardFrames.length <= 1 || deleteSceneMutation.isPending}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition disabled:opacity-30"
+                            title="Remove this scene"
+                          >
+                            <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </div>
@@ -1520,6 +1554,16 @@ export default function KidsVideo() {
                         )}
                       </div>
                     </div>
+                    {/* Add Scene between cards */}
+                    <button
+                      onClick={() => handleAddScene(frame.sceneIndex)}
+                      disabled={addSceneMutation.isPending}
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl border border-dashed border-white/10 text-xs text-muted-foreground hover:text-white hover:border-white/30 hover:bg-white/5 transition disabled:opacity-30"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add scene here
+                    </button>
+                    </React.Fragment>
                   ))}
                 </div>
               )}

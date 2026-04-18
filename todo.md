@@ -1202,14 +1202,14 @@
 - [x] Add confirm-and-regenerate: user edits scene text, clicks regenerate to get new preview image
 - [x] Fix mobile layout: responsive scene cards, stacked buttons, full-width CTAs
 - [ ] Enhance Kids Video style thumbnail to be more obviously kids/animation-focused
-- [ ] Add "Add Scene" and "Remove Scene" controls to Kids Video storyboard
+- [x] Add "Add Scene" and "Remove Scene" controls to Kids Video storyboard
 
 ## Feature: Text to Video Page + Kids Video Page + Onboarding Rework (Apr 2026)
 - [ ] Create /kids-video page: kid-friendly branding, Pixar 3D pre-selected, full storyboard with AI previews
 - [ ] Create /text-to-video page: prompt + style selector, no audio upload, storyboard with AI previews, render
-- [ ] Update Onboarding: replace 'Something Else' with 'Text to Video' option routing to /text-to-video
-- [ ] Update Onboarding: route 'Kids Video' to /kids-video instead of /wizpilot
-- [ ] Add /kids-video and /text-to-video routes to App.tsx
+- [x] Update Onboarding: replace 'Something Else' with 'Text to Video' option routing to /text-to-video
+- [x] Update Onboarding: route 'Kids Video' to /kids-video instead of /wizpilot
+- [x] Add /kids-video and /text-to-video routes to App.tsx
 
 ## Feature: Music Video Flow Upgrade (Apr 2026)
 - [x] Step 1: Artist Type selection — Band, Solo Artist, Animated Characters, Solo Animated Character

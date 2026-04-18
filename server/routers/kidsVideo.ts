@@ -505,4 +505,70 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
 
       return { success: true };
     }),
+
+  // Add a new blank scene to a Kids Video storyboard
+  addScene: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      afterSceneIndex: z.number().int().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(kidsVideoJobs)
+        .where(and(eq(kidsVideoJobs.id, input.jobId), eq(kidsVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.renderStatus === "processing") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot add scenes while rendering" });
+      }
+      const frames: KidsStoryboardFrame[] = [];
+      if (job.storyboardFrames) {
+        try { frames.push(...JSON.parse(job.storyboardFrames)); } catch { /* ignore */ }
+      }
+      const insertAt = input.afterSceneIndex !== undefined
+        ? input.afterSceneIndex + 1
+        : frames.length;
+      const newFrame: KidsStoryboardFrame = {
+        sceneIndex: insertAt,
+        sceneLabel: `Scene ${insertAt + 1}`,
+        imageUrl: "",
+        description: "Describe this scene...",
+      };
+      frames.splice(insertAt, 0, newFrame);
+      frames.forEach((f, i) => { f.sceneIndex = i; f.sceneLabel = `Scene ${i + 1}`; });
+      await db.update(kidsVideoJobs)
+        .set({ storyboardFrames: JSON.stringify(frames) })
+        .where(eq(kidsVideoJobs.id, input.jobId));
+      return { success: true, frames, totalScenes: frames.length };
+    }),
+
+  // Delete a scene from a Kids Video storyboard
+  deleteScene: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      sceneIndex: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(kidsVideoJobs)
+        .where(and(eq(kidsVideoJobs.id, input.jobId), eq(kidsVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.renderStatus === "processing") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot delete scenes while rendering" });
+      }
+      const frames: KidsStoryboardFrame[] = [];
+      if (job.storyboardFrames) {
+        try { frames.push(...JSON.parse(job.storyboardFrames)); } catch { /* ignore */ }
+      }
+      if (frames.length <= 1) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot delete the only scene" });
+      }
+      const filtered = frames.filter(f => f.sceneIndex !== input.sceneIndex);
+      filtered.forEach((f, i) => { f.sceneIndex = i; f.sceneLabel = `Scene ${i + 1}`; });
+      await db.update(kidsVideoJobs)
+        .set({ storyboardFrames: JSON.stringify(filtered) })
+        .where(eq(kidsVideoJobs.id, input.jobId));
+      return { success: true, frames: filtered, totalScenes: filtered.length };
+    }),
 });
