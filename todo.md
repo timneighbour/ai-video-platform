@@ -4667,3 +4667,12 @@
 - [ ] MOTION #7: Title/brand — browser tab title to "WIZ AI | Create anything. Instantly."
 - [x] MOTION #8: Copy cleanup — no Pixar-style, no violet neon, premium wording only
 - [x] MOTION #9: Footer cleanup — no duplicates, intentional labels, premium feel
+
+## Ella's WIZ Engines / How It Works Section Request
+- [x] ENGINE #1: Add premium "Powered by the WIZ Engines" section to homepage
+- [x] ENGINE #2: Feature WizSound, WizLumina, WizGenesis engine cards with clear benefits
+- [x] ENGINE #3: Add "How it works together" flow (Choose → Generate → Enhance → Export)
+- [x] ENGINE #4: Luxury visual styling (black/charcoal base, metallic gold/silver accents, elegant cards)
+- [x] ENGINE #5: Position section high on homepage (after product grid or demo section)
+- [x] ENGINE #6: Make benefits obvious and non-technical for each engine
+- [x] ENGINE #7: Responsive design for mobile

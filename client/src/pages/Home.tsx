@@ -442,6 +442,157 @@ function WelcomeSection() {
   );
 }
 
+// ── WIZ Engines — Proprietary Intelligence Layer ────────────────────────────
+function WizEngines() {
+  const engines = [
+    {
+      name: "WizSound",
+      tm: "™",
+      tagline: "Premium Audio Engine",
+      desc: "Enhances every audio track with richer depth, spatial clarity, and cinematic presence. From stereo widening to full mastering — your sound becomes studio-grade.",
+      benefit: "Your audio sounds professionally mastered, not AI-generated.",
+      icon: <Volume2 className="w-6 h-6" />,
+      accentFrom: "oklch(0.78 0.11 75 / 0.15)",
+      accentBorder: "oklch(0.78 0.11 75 / 0.12)",
+      accentGlow: "oklch(0.78 0.11 75 / 0.06)",
+    },
+    {
+      name: "WizLumina",
+      tm: "™",
+      tagline: "Visual Enhancement Engine",
+      desc: "Applies cinematic colour grading, HDR tone mapping, and film-level polish to every frame. Your visuals go from raw AI output to cinema-ready.",
+      benefit: "Every frame looks colour-graded by a professional colourist.",
+      icon: <Eye className="w-6 h-6" />,
+      accentFrom: "oklch(0.82 0.01 260 / 0.15)",
+      accentBorder: "oklch(0.82 0.01 260 / 0.12)",
+      accentGlow: "oklch(0.82 0.01 260 / 0.06)",
+    },
+    {
+      name: "WizGenesis",
+      tm: "™",
+      tagline: "Core Intelligence Engine",
+      desc: "Orchestrates the entire creative workflow — from storyboard generation to scene composition to final render. The brain that makes everything work together.",
+      benefit: "Your ideas become better, faster, and more consistent automatically.",
+      icon: <Layers className="w-6 h-6" />,
+      accentFrom: "oklch(0.78 0.11 75 / 0.15)",
+      accentBorder: "oklch(0.78 0.11 75 / 0.08)",
+      accentGlow: "oklch(0.78 0.11 75 / 0.04)",
+    },
+  ];
+
+  const flow = [
+    { step: "01", label: "You choose what to create", detail: "Music video, animation, short, image, or audio." },
+    { step: "02", label: "WIZ AI generates the foundation", detail: "WizGenesis™ builds your storyboard, scenes, and structure." },
+    { step: "03", label: "The WIZ Engines enhance and refine", detail: "WizSound™ and WizLumina™ elevate audio and visuals automatically." },
+    { step: "04", label: "You preview, build, and export", detail: "Review every scene, then render in HD or 4K." },
+  ];
+
+  return (
+    <section id="wiz-engines" className="relative bg-[#040404] py-32 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+
+      {/* Ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75 / 0.03) 0%, transparent 70%)" }} />
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Section header */}
+        <div className="text-center mb-20 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Proprietary Intelligence</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-5">
+            Powered by the <span className="metallic-gold">WIZ Engines</span>
+          </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto leading-relaxed">
+            Every creation on WIZ AI is enhanced by a stack of proprietary engines that make your output smarter, more polished, and more cinematic than ordinary AI tools.
+          </p>
+        </div>
+
+        {/* Engine cards */}
+        <div className="grid md:grid-cols-3 gap-6 mb-24">
+          {engines.map((eng) => (
+            <div
+              key={eng.name}
+              className="reveal group relative rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1"
+              style={{
+                background: `linear-gradient(160deg, ${eng.accentGlow}, oklch(0.06 0.005 260) 40%)`,
+                border: `1px solid ${eng.accentBorder}`,
+              }}
+            >
+              {/* Corner glow on hover */}
+              <div
+                className="absolute top-0 right-0 w-32 h-32 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                style={{ background: `radial-gradient(circle at top right, ${eng.accentFrom}, transparent 70%)` }}
+              />
+
+              {/* Icon */}
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 relative z-10"
+                style={{
+                  background: eng.accentGlow,
+                  border: `1px solid ${eng.accentBorder}`,
+                }}
+              >
+                <span className="text-[--color-gold]">{eng.icon}</span>
+              </div>
+
+              {/* Name + tagline */}
+              <h3 className="text-xl font-bold text-white mb-1 relative z-10">
+                {eng.name}<span className="text-[--color-gold-dark] text-sm align-super">{eng.tm}</span>
+              </h3>
+              <p className="text-[--color-gold-dark]/60 text-xs font-semibold tracking-wider uppercase mb-4 relative z-10">{eng.tagline}</p>
+
+              {/* Description */}
+              <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed mb-5 relative z-10">{eng.desc}</p>
+
+              {/* Benefit callout */}
+              <div className="relative z-10 flex items-start gap-2 pt-4" style={{ borderTop: `1px solid ${eng.accentBorder}` }}>
+                <Check className="w-4 h-4 text-[--color-gold] mt-0.5 flex-shrink-0" />
+                <p className="text-[--color-silver-light]/70 text-sm font-medium">{eng.benefit}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* How it works together */}
+        <div className="reveal">
+          <div className="text-center mb-14">
+            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">How it all works together</p>
+            <h3 className="text-[clamp(1.5rem,3.5vw,2.5rem)] font-black tracking-tight text-white">
+              More than tools. An intelligent creative system.
+            </h3>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6">
+            {flow.map((f, i) => (
+              <div key={f.step} className="reveal relative">
+                {/* Connector */}
+                {i < flow.length - 1 && (
+                  <div className="hidden md:block absolute top-6 left-[calc(100%_-_0.5rem)] w-full h-px" style={{ background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.15), transparent)" }} />
+                )}
+                <div className="relative z-10">
+                  <div className="text-[2.5rem] font-black leading-none metallic-gold opacity-25 mb-3">{f.step}</div>
+                  <h4 className="text-base font-bold text-white mb-2">{f.label}</h4>
+                  <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{f.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-16 reveal">
+          <a
+            href="/onboarding"
+            className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            Start Creating
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── How It Works ──────────────────────────────────────────────────────────────
 function HowItWorks() {
   const steps = [
@@ -986,6 +1137,7 @@ export default function Home() {
         <Hero />
         <ProductGrid />
         <WelcomeSection />
+        <WizEngines />
         <HowItWorks />
         <WizSoundDemo />
         <WizLuminaDemo />
