@@ -359,6 +359,34 @@ const FAQS = [
     q: "Can I cancel my subscription at any time?",
     a: "Yes. Cancel anytime from your account settings. You keep access until the end of your current billing period. There are no cancellation fees.",
   },
+  {
+    q: "Does pricing cover WizAudio, WizImage, and WizShorts as well as video?",
+    a: "Yes. Your subscription renders and render bundles work across all WIZ AI products — WizVideo (music videos), WizScript (text-to-video), WizShorts (short-form content), WizAnimate (animation), WizAudio (AI music and audio generation), and WizImage (AI image and artwork creation). Each render or export consumes one credit regardless of the product used.",
+  },
+  {
+    q: "How does WizAudio pricing work?",
+    a: "WizAudio lets you generate AI music tracks, stems, and sound effects. Each audio generation consumes one render credit. WizSound audio mastering add-ons are available at checkout for an additional £1 (WizSound Active) or £3 (WizSound Spatial) per track.",
+  },
+  {
+    q: "How does WizImage pricing work?",
+    a: "WizImage lets you generate AI images, character artwork, and visual assets. Each image generation consumes one render credit. You can generate multiple variations and download your favourites.",
+  },
+  {
+    q: "How does WizShorts pricing work?",
+    a: "WizShorts creates short-form vertical videos optimised for YouTube Shorts, Instagram Reels, and TikTok. Each WizShorts render consumes one render credit, the same as a full-length video render.",
+  },
+  {
+    q: "How does WizAnimate pricing work?",
+    a: "WizAnimate generates stylised animation — 3D, anime, and motion graphics. Each animation render consumes one render credit. Character consistency is available on Creator, Pro, and Studio plans.",
+  },
+  {
+    q: "What is WizCreate™?",
+    a: "WizCreate™ is the AI storyboard and scene-building engine at the heart of WIZ AI. When you describe your idea, WizCreate™ generates a full visual storyboard — scenes, characters, and direction — in seconds. It powers every product on the platform, from WizVideo to WizScript to WizShorts.",
+  },
+  {
+    q: "What are the WIZ Engines?",
+    a: "The WIZ Engines are the proprietary AI layers that enhance every creation. WizGenesis™ orchestrates the creative workflow. WizSound™ masters your audio to studio grade. WizLumina™ applies cinematic colour grading and HDR tone mapping to every frame. WizBoost™ optimises your final export for maximum quality on every platform. All engines run automatically — you do not need to configure anything.",
+  },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -920,7 +948,7 @@ export default function Pricing() {
           <p className="text-sm text-[--color-silver-dark]/45 mb-6 max-w-sm mx-auto">Start building your video for free — no credit card required. Pay only when you render.</p>
           <a href={isAuthenticated ? "/music-video/create" : "/onboarding"} className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-sm">
             <Sparkles className="w-4 h-4" />
-            Start Creating Free
+            Start Creating
           </a>
           <p className="text-xs text-[--color-silver-dark]/25 mt-4">No credit card required · Cancel anytime</p>
         </div>

@@ -587,7 +587,7 @@ function WizEngines() {
 function HowItWorks() {
   const steps = [
     { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else." },
-    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™ generates a full visual storyboard with scenes, characters, and direction — in seconds." },
+    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds." },
     { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want." },
     { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share." },
   ];

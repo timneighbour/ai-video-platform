@@ -183,6 +183,44 @@ const FAQS = [
     ],
   },
   {
+    category: "WizAudio \u2014 AI Music & Audio",
+    icon: <Music className="w-4 h-4" />,
+    questions: [
+      { q: "What is WizAudio?", a: "WizAudio is WIZ AI\u2019s AI music and audio generation tool. Describe the style, mood, and genre you want, and WizAudio generates a full original track, stems, or sound effects in seconds." },
+      { q: "What genres and styles does WizAudio support?", a: "WizAudio supports a wide range of genres including pop, hip-hop, R&B, electronic, cinematic, lo-fi, jazz, classical, and more. You can describe any style in natural language." },
+      { q: "Can I use WizAudio tracks in my videos?", a: "Yes. WizAudio tracks are fully compatible with WizVideo and WizScript. Generate your track in WizAudio, then use it as the audio input for your video." },
+      { q: "Does WizAudio apply WizSound mastering?", a: "Yes. WizSound audio mastering is available as an optional add-on when you export your WizAudio track \u2014 WizSound Active (+\u00a31) or WizSound Spatial (+\u00a33) for cinema-grade immersive audio." },
+    ],
+  },
+  {
+    category: "WizImage \u2014 AI Image Creation",
+    icon: <Zap className="w-4 h-4" />,
+    questions: [
+      { q: "What is WizImage?", a: "WizImage is WIZ AI\u2019s AI image and artwork generator. Create photorealistic images, character artwork, concept art, product visuals, and more from a text description." },
+      { q: "What image styles are available?", a: "WizImage supports photorealistic, cinematic, anime, 3D render, oil painting, watercolour, concept art, and many more styles. You can also upload a reference image to guide the style." },
+      { q: "Can I use WizImage to create characters for my videos?", a: "Yes. WizImage is the recommended way to create character reference images for WizVideo. Generate your character in WizImage, then upload the image as a character reference in WizVideo for consistent appearance across scenes." },
+      { q: "How many images can I generate?", a: "Each image generation consumes one render credit. You can generate multiple variations and download your favourites." },
+    ],
+  },
+  {
+    category: "WizShorts \u2014 Short-Form Content",
+    icon: <Zap className="w-4 h-4" />,
+    questions: [
+      { q: "What is WizShorts?", a: "WizShorts creates short-form vertical videos optimised for YouTube Shorts, Instagram Reels, and TikTok. It automatically formats, captions, and paces your content for maximum engagement on short-form platforms." },
+      { q: "How long can WizShorts videos be?", a: "WizShorts generates videos up to 60 seconds in length, formatted in 9:16 vertical aspect ratio for mobile-first platforms." },
+      { q: "Can I add captions to WizShorts?", a: "Yes. WizShorts automatically generates and overlays captions synced to your audio. You can customise the caption style and font." },
+    ],
+  },
+  {
+    category: "WizAnimate \u2014 AI Animation",
+    icon: <Zap className="w-4 h-4" />,
+    questions: [
+      { q: "What is WizAnimate?", a: "WizAnimate generates stylised animation \u2014 3D animation, anime, and motion graphics \u2014 from your storyboard. It is ideal for animated music videos, explainer videos, kids content, and branded motion content." },
+      { q: "What animation styles does WizAnimate support?", a: "WizAnimate supports 3D Animation, Anime, Cartoon, Motion Graphics, and Claymation styles. You can mix styles across scenes for a unique look." },
+      { q: "Does WizAnimate support character consistency?", a: "Yes. Character consistency is available on Creator, Pro, and Studio plans, ensuring your animated characters look the same across all scenes." },
+    ],
+  },
+  {
     category: "Kids Content",
     icon: <Baby className="w-4 h-4" />,
     questions: [
@@ -209,6 +247,26 @@ const FAQS = [
       { q: "My video quality looks low \u2014 what can I do?", a: "Make sure you're on the Creator or Studio plan for 1080p/4K export. Also ensure your input audio is high quality." },
       { q: "How do I download my video?", a: "Once your video is generated, click the Download button on the result screen. Videos are also saved to your Projects page for 30 days." },
       { q: "I'm getting an error message \u2014 what should I do?", a: "Try refreshing the page first. If the error persists, contact us at support@wiz-ai.io with a screenshot." },
+    ],
+  },
+  {
+    category: "WIZ Engines",
+    icon: <Zap className="w-4 h-4" />,
+    questions: [
+      { q: "What are the WIZ Engines?", a: "The WIZ Engines are proprietary AI layers that automatically enhance every creation on the platform. They run in the background \u2014 you do not need to configure anything. Every export benefits from all four engines." },
+      { q: "What does WizGenesis\u2122 do?", a: "WizGenesis\u2122 is the core intelligence engine. It orchestrates the entire creative workflow \u2014 from storyboard generation to scene composition to final render. It is the brain that makes everything work together." },
+      { q: "What does WizSound\u2122 do?", a: "WizSound\u2122 is the premium audio engine. It enhances every audio track with richer depth, spatial clarity, and cinematic presence. WizSound Active adds stereo widening and EQ. WizSound Spatial applies the full mastering pipeline with immersive depth and dynamic range." },
+      { q: "What does WizLumina\u2122 do?", a: "WizLumina\u2122 is the visual enhancement engine. It applies cinematic colour grading, HDR tone mapping, and film-level polish to every frame. Your visuals go from raw AI output to cinema-ready quality automatically." },
+      { q: "What does WizBoost\u2122 do?", a: "WizBoost\u2122 is the output optimisation engine. It analyses your final render and applies intelligent upscaling, compression optimisation, and platform-specific formatting. Your content arrives publish-ready for YouTube, TikTok, Instagram, and beyond." },
+    ],
+  },
+  {
+    category: "WizCreate\u2122 & Storyboard",
+    icon: <Zap className="w-4 h-4" />,
+    questions: [
+      { q: "What is WizCreate\u2122?", a: "WizCreate\u2122 is the AI storyboard and scene-building engine at the heart of WIZ AI. When you describe your idea, WizCreate\u2122 generates a full visual storyboard \u2014 scenes, characters, and direction \u2014 in seconds. It powers every product on the platform." },
+      { q: "Can I edit my storyboard before rendering?", a: "Yes. After WizCreate\u2122 generates your storyboard, you can review every scene, swap images, edit text, change styles, and reorder scenes before committing to render. You are always in control." },
+      { q: "How many scenes can a storyboard have?", a: "Storyboards can have up to 30 scenes. For music videos, the number of scenes is determined by the number of lyric lines or sections in your audio." },
     ],
   },
 ];
