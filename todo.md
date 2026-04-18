@@ -737,7 +737,7 @@
 - [x] Beat-sync timestamp on each storyboard scene card — already showing formatTime(startTime) / duration
 - [x] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
 - [ ] Style preset selection: clean visual card grid (6 presets), no prompt-heavy UI
-- [ ] Optional lyric/caption sync toggle per scene
+- [x] Optional lyric/caption sync toggle per scene
 - [x] Export format selection: YouTube 16:9, TikTok 9:16, Instagram 1:1 with aspect ratio preview
 - [ ] Final video preview screen with format badge and download/share buttons
 - [ ] Ensure every storyboard scene shows AI-generated visual thumbnail before render

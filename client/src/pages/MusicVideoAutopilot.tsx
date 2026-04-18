@@ -75,6 +75,7 @@ import {
   Trash2,
   BookmarkCheck,
   Monitor,
+  Captions,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -309,6 +310,7 @@ export default function MusicVideoAutopilot() {
 
   // Export format
   const [exportFormat, setExportFormat] = useState<"16:9" | "9:16" | "1:1">("16:9");
+  const [includeCaptions, setIncludeCaptions] = useLocalStorage<boolean>("musicVideo_captions", false);
 
   // Step 3: Render state
   const [renderStatus, setRenderStatus] = useState<string>("rendering");
@@ -1157,7 +1159,7 @@ export default function MusicVideoAutopilot() {
     } catch { /* silent */ }
 
     try {
-      const result = await startRender.mutateAsync({ jobId: jobId, aspectRatio: exportFormat });
+      const result = await startRender.mutateAsync({ jobId: jobId, aspectRatio: exportFormat, includeCaptions });
       mp.buildStarted("WizVideo");
       setStep("render");
       setRenderStatus("rendering");
@@ -1277,7 +1279,13 @@ export default function MusicVideoAutopilot() {
         String(err?.message).includes("429") ||
         String(err?.message).toLowerCase().includes("rate limit");
 
-      if (is429) {
+      const isConcurrentRender = err?.data?.code === "TOO_MANY_REQUESTS" && String(err?.message).toLowerCase().includes("already have a video rendering");
+      if (isConcurrentRender) {
+        toast.error("Render already in progress", {
+          description: "You already have a video rendering. Please wait for it to complete before starting another.",
+          duration: 8000,
+        });
+      } else if (is429) {
         toast.error("Building is busy right now.", {
           description: "The AI rendering service is at capacity. Please wait a moment and try again.",
         });
@@ -2356,6 +2364,32 @@ export default function MusicVideoAutopilot() {
               </div>
             </div>
 
+            {/* Caption / Lyric Sync Toggle */}
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Captions className="w-4 h-4 text-[--color-silver]" />
+                <div>
+                  <p className="text-sm font-medium text-white">Lyric Captions</p>
+                  <p className="text-xs text-zinc-500">Burn synced lyrics onto the final video</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIncludeCaptions(!includeCaptions)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                  includeCaptions ? "bg-[--color-gold]" : "bg-zinc-700"
+                }`}
+                aria-checked={includeCaptions}
+                role="switch"
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                    includeCaptions ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
             {/* Style Lock Banner */}
             {lockedStyle?.isLocked && lockedStyle.style && (
               <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-silver]/30 bg-gradient-to-r from-[#9090a0]/40 to-[#2e2e36]/20 px-4 py-3">
@@ -2754,6 +2788,7 @@ export default function MusicVideoAutopilot() {
                     finalVideoUrl={finalVideoUrl}
                     videoTitle={title || undefined}
                     jobId={jobId || undefined}
+                    aspectRatio={exportFormat as "16:9" | "9:16" | "1:1"}
                     onCreateAnother={() => {
                       setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({});
                     }}

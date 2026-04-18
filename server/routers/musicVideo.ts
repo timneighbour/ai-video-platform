@@ -499,6 +499,7 @@ Rules:
     .input(z.object({
       jobId: z.number().int(),
       aspectRatio: z.enum(["16:9", "9:16", "1:1"]).optional().default("16:9"),
+      includeCaptions: z.boolean().optional().default(false),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -517,8 +518,27 @@ Rules:
         throw new TRPCError({ code: "BAD_REQUEST", message: "Job must have a storyboard before rendering" });
       }
 
-      // Check credits — admins bypass credit checks for testing
+      // ── Per-user concurrent render throttle ──────────────────────────────────
+      // Max 1 active render job per user to prevent API overload and ensure quality
       const isAdmin = ctx.user.role === "admin";
+      if (!isAdmin) {
+        const activeJobs = await db.select({ id: musicVideoJobs.id })
+          .from(musicVideoJobs)
+          .where(
+            and(
+              eq(musicVideoJobs.userId, ctx.user.id),
+              inArray(musicVideoJobs.status, ["rendering", "assembling"])
+            )
+          );
+        if (activeJobs.length > 0) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "You already have a video rendering. Please wait for it to complete before starting another.",
+          });
+        }
+      }
+
+      // Check credits — admins bypass credit checks for testing
       if (!isAdmin) {
         const creditBalance = await getUserCredits(ctx.user.id);
         if (creditBalance < job.creditCost) {
@@ -531,9 +551,9 @@ Rules:
       } else {
         console.log(`[MusicVideo] Admin ${ctx.user.id} bypassing credit check (cost: ${job.creditCost})`);
       }
-      // Update job status and persist the chosen aspect ratio
+      // Update job status, persist the chosen aspect ratio and caption preference
       await db.update(musicVideoJobs)
-        .set({ status: "rendering", completedScenes: 0, aspectRatio: input.aspectRatio, updatedAt: new Date() })
+        .set({ status: "rendering", completedScenes: 0, aspectRatio: input.aspectRatio, captionsEnabled: input.includeCaptions, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
       // Start rendering all scenes asynchronously

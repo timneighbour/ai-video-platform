@@ -22,8 +22,15 @@ interface PostRenderRetentionScreenProps {
   finalVideoUrl: string;
   videoTitle?: string;
   jobId?: number;
+  aspectRatio?: "16:9" | "9:16" | "1:1";
   onCreateAnother?: () => void;
 }
+
+const FORMAT_LABELS: Record<string, { label: string; platform: string; color: string }> = {
+  "16:9": { label: "16:9", platform: "YouTube", color: "text-red-400 bg-red-900/30 border-red-700/40" },
+  "9:16": { label: "9:16", platform: "TikTok", color: "text-pink-400 bg-pink-900/30 border-pink-700/40" },
+  "1:1": { label: "1:1", platform: "Instagram", color: "text-purple-400 bg-purple-900/30 border-purple-700/40" },
+};
 
 const NEXT_ACTIONS = [
   {
@@ -84,8 +91,10 @@ export function PostRenderRetentionScreen({
   finalVideoUrl,
   videoTitle,
   jobId,
+  aspectRatio = "16:9",
   onCreateAnother,
 }: PostRenderRetentionScreenProps) {
+  const formatInfo = FORMAT_LABELS[aspectRatio] ?? FORMAT_LABELS["16:9"];
   const [isPlaying, setIsPlaying] = useState(false);
   const [showConfetti, setShowConfetti] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -186,6 +195,12 @@ export function PostRenderRetentionScreen({
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
         />
+        {/* Format badge */}
+        <div className="absolute top-2 left-2 pointer-events-none">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${formatInfo.color}`}>
+            {formatInfo.platform} · {formatInfo.label}
+          </span>
+        </div>
         {/* Glow effect */}
         <div className="absolute inset-0 pointer-events-none rounded-xl ring-1 ring-[--color-gold]/10 shadow-[0_0_40px_rgba(184,137,42,0.15)]" />
       </div>
