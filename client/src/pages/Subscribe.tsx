@@ -28,7 +28,7 @@ const PLANS = [
       "Standard quality (720p)",
       "Community support",
     ],
-    cta: "Start Free",
+    cta: "Start Creating",
     highlight: false,
     badge: null as string | null,
   },

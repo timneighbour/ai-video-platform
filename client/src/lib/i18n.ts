@@ -12,7 +12,7 @@ const resources = {
         pricing: "Pricing",
         signIn: "Sign In",
         dashboard: "Dashboard",
-        startFree: "Start Free",
+        startFree: "Start Creating",
       },
       hero: {
         badge: "AI-Powered Video Creation",
@@ -53,7 +53,7 @@ const resources = {
       howItWorks: {
         title: "Create your video in 3 simple steps",
         step1: { title: "Upload your audio or idea", desc: "Drop in your song, describe your concept, or let AI generate the music with Suno." },
-        step2: { title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
+        step2: { title: "Choose your style", desc: "Pick from Cinematic, Anime, 3D Animation, Documentary, Abstract, or Vintage." },
         step3: { title: "Let WIZ AI generate your video", desc: "AI builds your storyboard, renders every scene, and delivers a complete video." },
         footer: "Done in minutes.",
       },
@@ -96,7 +96,7 @@ const resources = {
           feature2: "All 6 video styles",
           feature3: "Full product suite access",
           feature4: "Watermark on exports",
-          cta: "Get Started",
+          cta: "Start Creating",
         },
         pro: {
           name: "Pro",
@@ -194,7 +194,7 @@ const resources = {
       howItWorks: {
         title: "Crea tu vídeo en 3 pasos simples",
         step1: { title: "Sube tu audio o idea", desc: "Añade tu canción, describe tu concepto o deja que la IA genere la música con Suno." },
-        step2: { title: "Elige tu estilo", desc: "Elige entre Cinematográfico, Anime, Pixar 3D, Documental, Abstracto o Vintage." },
+        step2: { title: "Elige tu estilo", desc: "Elige entre Cinematográfico, Anime, 3D Animation, Documental, Abstracto o Vintage." },
         step3: { title: "Deja que WIZ AI genere tu vídeo", desc: "La IA construye tu guión gráfico, renderiza cada escena y entrega un vídeo completo." },
         footer: "Listo en minutos.",
       },
@@ -295,7 +295,7 @@ const resources = {
       howItWorks: {
         title: "Crie seu vídeo em 3 passos simples",
         step1: { title: "Envie seu áudio ou ideia", desc: "Adicione sua música, descreva seu conceito ou deixe a IA gerar a música com Suno." },
-        step2: { title: "Escolha seu estilo", desc: "Escolha entre Cinematográfico, Anime, Pixar 3D, Documentário, Abstrato ou Vintage." },
+        step2: { title: "Escolha seu estilo", desc: "Escolha entre Cinematográfico, Anime, 3D Animation, Documentário, Abstrato ou Vintage." },
         step3: { title: "Deixe o WIZ AI gerar seu vídeo", desc: "A IA constrói seu storyboard, renderiza cada cena e entrega um vídeo completo." },
         footer: "Pronto em minutos.",
       },
@@ -396,7 +396,7 @@ const resources = {
       howItWorks: {
         title: "Créez votre vidéo en 3 étapes simples",
         step1: { title: "Téléchargez votre audio ou idée", desc: "Ajoutez votre chanson, décrivez votre concept ou laissez l'IA générer la musique avec Suno." },
-        step2: { title: "Choisissez votre style", desc: "Choisissez parmi Cinématographique, Anime, Pixar 3D, Documentaire, Abstrait ou Vintage." },
+        step2: { title: "Choisissez votre style", desc: "Choisissez parmi Cinématographique, Anime, 3D Animation, Documentaire, Abstrait ou Vintage." },
         step3: { title: "Laissez WIZ AI générer votre vidéo", desc: "L'IA construit votre storyboard, rend chaque scène et livre une vidéo complète." },
         footer: "Terminé en minutes.",
       },

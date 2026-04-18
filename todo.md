@@ -4684,8 +4684,7 @@
 
 ## FINAL 11/10 FINISH PASS (Ella)
 
-### 1. Homepage Final Polish
-- [x] FP-1A: Set browser/page title to "WIZ AI | Create anything. Instantly." — no old WizVid naming
+### 1. Homepage Final Polish- [x] SWC-1A: Set browser/page title to "WIZ AI | Create anything. Instantly." — no old WizVid naming
 - [x] FP-1B: CTA consistency — Primary: "Start Creating", Secondary: "Explore Products / View Pricing / Watch Demo"
 - [x] FP-1C: Sharpen six product-card descriptions — more benefit-led, commercial, premium
 - [x] FP-1D: Showcase alignment — match WIZ AI brand palette, remove neon/cyberpunk/violet
@@ -4733,3 +4732,37 @@
 - [x] QA-11: No old/weak styling on other pages
 - [x] QA-12: Pricing/Help/Sign-in match homepage
 - [x] QA-13: Entire site feels luxury/cinematic/expensive/launch-ready
+
+## SITE-WIDE CONSISTENCY PASS (Ella)
+
+### 1. Browser Title / Metadata
+- [x] SWC-1A: Updated browser title to "WIZ AI | Create anything. Instantly."
+- [x] SWC-1B: Remove all old WizVid naming from metadata, OG title, page title logic
+
+### 2. WizBoost in WIZ Engines
+- [x] SWC-2: Verify WizBoost is present in WIZ Engines section (verified)
+
+### 3. Pricing Page Alignment
+- [x] SWC-3A: Pricing page nav now matches homepage (Products dropdown, same height/auth)
+- [x] SWC-3B: Pricing page styling aligned (done in previous pass)
+
+### 4. Help Page Alignment
+- [x] SWC-4A: Help page nav now matches homepage (Products dropdown, same height/auth)
+- [x] SWC-4B: Help page styling aligned (done in previous pass)
+
+### 5. CTA System Site-Wide
+- [x] SWC-5A: Primary CTA = "Start Creating" everywhere
+- [x] SWC-5B: Secondary CTAs = "Explore Products" / "View Pricing" / "Watch Demo"
+- [x] SWC-5C: Removed all "Get Started" / "Start Free" / "Start Creating Free" variants
+
+### 6. WizCreate Naming
+- [x] SWC-6: WizCreate is an internal workflow engine name, not public-facing product — kept in code but not in nav/CTAs
+
+### 7. Final QA
+- [x] SWC-QA1: Browser title reflects WIZ AI
+- [x] SWC-QA2: WizBoost in WIZ Engines
+- [x] SWC-QA3: Pricing page matches homepage styling and nav
+- [x] SWC-QA4: Help page matches homepage styling and nav
+- [x] SWC-QA5: CTA language consistent across all key pages
+- [x] SWC-QA6: WizCreate handled intentionally
+- [x] SWC-QA7: Site feels fully premium and consistent

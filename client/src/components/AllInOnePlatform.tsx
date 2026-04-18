@@ -264,7 +264,7 @@ export default function AllInOnePlatform() {
             href="/create"
             className="inline-flex items-center gap-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
           >
-            Start Creating Free
+            Start Creating
             <ArrowRight className="w-4 h-4" />
           </NavLink>
         </div>

@@ -89,7 +89,7 @@ export default function MusicVideosLanding() {
                   className="inline-flex items-center bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 transition-colors"
                   onMouseDown={handleCTAMouseDown} onClick={handleCTA}
                 >
-                  Start Creating Free
+                  Start Creating
                 </button>
               </>
             )}
@@ -122,14 +122,14 @@ export default function MusicVideosLanding() {
                     href="/music-video/create"
                     className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+                    <Sparkles className="w-4 h-4 mr-2" />Start Creating
                   </a>
                 ) : (
                   <button
                     className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
                     onMouseDown={handleCTAMouseDown} onClick={handleCTA}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+                    <Sparkles className="w-4 h-4 mr-2" />Start Creating
                   </button>
                 )}
                 <a
@@ -254,14 +254,14 @@ export default function MusicVideosLanding() {
               href="/music-video/create"
               className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
             >
-              <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+              <Sparkles className="w-4 h-4 mr-2" />Start Creating
             </a>
           ) : (
             <button
               className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
               onMouseDown={handleCTAMouseDown} onClick={handleCTA}
             >
-              <Sparkles className="w-4 h-4 mr-2" />Start Creating Free
+              <Sparkles className="w-4 h-4 mr-2" />Start Creating
             </button>
           )}
           <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to render</p>

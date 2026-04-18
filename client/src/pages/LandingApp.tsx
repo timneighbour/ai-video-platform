@@ -104,7 +104,7 @@ export default function LandingApp() {
           <span className="font-extrabold text-white text-lg tracking-tight">WIZ AI</span>
         </div>
         <a href={CREATE_URL} className="bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors">
-          Start Free →
+          Start Creating
         </a>
       </nav>
 

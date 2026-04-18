@@ -240,7 +240,7 @@ export default function Discover() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link href="/music-video/create">
               <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6">
-                Start Creating Free
+                Start Creating
               </Button>
             </Link>
             <a href="#featured">

@@ -115,7 +115,7 @@ export function HowWizVidWorks() {
             className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold text-base hover:from-violet-500 hover:to-fuchsia-500 transition-all duration-300 shadow-[0_0_40px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.5)]"
             onClick={(e) => { e.preventDefault(); window.location.href = "/music-video/create"; }}
           >
-            Start Creating Free
+            Start Creating
             <span className="text-white/70">→</span>
           </a>
           <p className="text-xs text-white/30 mt-3">No credit card required · 50 free credits on sign-up</p>

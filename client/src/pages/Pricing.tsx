@@ -23,12 +23,156 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
-  Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Film, Package,
-  Clock, Bell, CheckCircle2, Wand2, Volume2, Headphones, ArrowRight
+  Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Music2, Film, Package,
+  Clock, Bell, CheckCircle2, Wand2, Volume2, Headphones, ArrowRight, Image, FileText, Menu
 } from "lucide-react";
 import WizSoundShowcase from "@/components/WizSoundShowcase";
 
 const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+
+const NAV_PRODUCTS = [
+  { name: "WizAudio", label: "Create Audio", icon: <Music2 className="w-5 h-5" />, href: "/music-creator" },
+  { name: "WizImage", label: "Create Images", icon: <Image className="w-5 h-5" />, href: "/wiz-image" },
+  { name: "WizVideo", label: "Create Videos", icon: <Film className="w-5 h-5" />, href: "/music-video/create" },
+  { name: "WizShorts", label: "Create Shorts", icon: <Zap className="w-5 h-5" />, href: "/wiz-shorts" },
+  { name: "WizAnimate", label: "Create Animation", icon: <Wand2 className="w-5 h-5" />, href: "/kids-video" },
+  { name: "WizScript", label: "Create from Text", icon: <FileText className="w-5 h-5" />, href: "/text-to-video" },
+];
+
+function PricingNav({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? "bg-[#060606]/95 backdrop-blur-2xl border-b border-[--color-gold]/[0.06] shadow-[0_1px_40px_rgba(0,0,0,0.6)]"
+            : "bg-[#040404]/90 backdrop-blur-xl border-b border-[--color-gold]/[0.06]"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
+          <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.8rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
+          </a>
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-1">
+            <a href="/" className="nav-link">Home</a>
+            <div
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+            >
+              <button className="nav-link flex items-center gap-1">
+                Products <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
+              </button>
+              {productsOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-[#0a0a0a]/98 backdrop-blur-2xl border border-[--color-gold]/[0.08] rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.7)] p-2 z-50">
+                  {NAV_PRODUCTS.map((p) => (
+                    <a
+                      key={p.name}
+                      href={p.href}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors group"
+                    >
+                      <span className="text-[--color-silver] opacity-60 group-hover:text-[--color-gold] group-hover:opacity-100 transition-all">{p.icon}</span>
+                      <div>
+                        <p className="text-[13px] font-semibold text-[--color-gold-light] group-hover:text-[--color-gold]">{p.name}</p>
+                        <p className="text-[11px] text-[--color-silver-dark]/50 mt-0.5 leading-tight">{p.label}</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            <a href="/pricing" className="nav-link text-[--color-gold]">Pricing</a>
+            <a href="/help" className="nav-link">Help</a>
+          </div>
+
+          {/* Auth */}
+          <div className="hidden md:flex items-center gap-3">
+            {isAuthenticated ? (
+              <a href="/dashboard" className="btn-primary-sm flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> Dashboard
+              </a>
+            ) : (
+              <>
+                <a href={getLoginUrl()} className="text-[13px] text-[--color-silver-dark] hover:text-[--color-silver-light] transition-colors font-medium px-3 py-2">
+                  Sign in
+                </a>
+                <a href="/onboarding" className="btn-primary-sm">
+                  Start Creating
+                </a>
+              </>
+            )}
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5 text-[--color-silver]" /> : <Menu className="w-5 h-5 text-[--color-silver]" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <div
+            className="absolute top-[72px] left-0 right-0 bg-[#0a0a0a]/98 backdrop-blur-2xl border-b border-[--color-gold]/[0.06] shadow-[0_16px_60px_rgba(0,0,0,0.7)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-5 flex flex-col gap-1">
+              <a href="/" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Home</a>
+              <div className="mt-2 pt-2 border-t border-[--color-gold]/[0.06]">
+                <p className="text-[10px] text-[--color-gold-dark]/40 font-bold uppercase tracking-[0.2em] px-4 py-2">Products</p>
+                {NAV_PRODUCTS.map((p) => (
+                  <a
+                    key={p.name}
+                    href={p.href}
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <span className="text-[--color-silver-dark]">{p.icon}</span>
+                    <span className="text-[14px] font-semibold text-[--color-gold-light]">{p.name}</span>
+                  </a>
+                ))}
+              </div>
+              <div className="mt-2 pt-2 border-t border-[--color-gold]/[0.06]">
+                <a href="/pricing" className="mobile-nav-link text-[--color-gold]" onClick={() => setMobileOpen(false)}>Pricing</a>
+                <a href="/help" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Help</a>
+              </div>
+              <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.08] flex flex-col gap-2">
+                {isAuthenticated ? (
+                  <a href="/dashboard" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>
+                    <Sparkles className="w-4 h-4" /> Dashboard
+                  </a>
+                ) : (
+                  <>
+                    <a href={getLoginUrl()} className="text-center text-sm text-[--color-silver-dark] hover:text-[--color-silver-light] py-2.5 transition-colors" onClick={() => setMobileOpen(false)}>Sign in</a>
+                    <a href="/onboarding" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>Start Creating</a>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 // ── Subscription plans ───────────────────────────────────────────────────────
 const PLANS = [
@@ -294,27 +438,8 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-[#040404] text-white">
-      {/* ── Nav ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#040404]/90 backdrop-blur-xl border-b border-[--color-gold]/[0.06]">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <NavLink href="/">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
-          </NavLink>
-          <div className="flex items-center gap-4">
-            <NavLink href="/" className="nav-link">Home</NavLink>
-            <NavLink href="/create" className="nav-link">Create</NavLink>
-            {isAuthenticated ? (
-              <Link href="/dashboard" className="btn-primary-sm">
-                <Sparkles className="w-3.5 h-3.5" />Dashboard
-              </Link>
-            ) : (
-              <a href={getLoginUrl()} className="btn-primary-sm">
-                <Sparkles className="w-3.5 h-3.5" />Start Creating
-              </a>
-            )}
-          </div>
-        </div>
-      </nav>
+      {/* ── Nav (matches homepage) ── */}
+      <PricingNav isAuthenticated={isAuthenticated} />
 
       <div className="pt-28 pb-24">
         {/* ── Hero ── */}

@@ -655,7 +655,7 @@ export default function KidsVideo() {
               onClick={() => setStep("story_input")}
               className="bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 text-xs px-4"
             >
-              Start Free →
+              Start Creating
             </Button>
           )}
         </div>
