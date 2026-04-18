@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` ADD `aspectRatio` varchar(8) DEFAULT '16:9' NOT NULL;

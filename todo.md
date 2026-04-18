@@ -738,7 +738,7 @@
 - [x] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
 - [ ] Style preset selection: clean visual card grid (6 presets), no prompt-heavy UI
 - [ ] Optional lyric/caption sync toggle per scene
-- [ ] Export format selection: YouTube 16:9, TikTok 9:16, Instagram 1:1 with aspect ratio preview
+- [x] Export format selection: YouTube 16:9, TikTok 9:16, Instagram 1:1 with aspect ratio preview
 - [ ] Final video preview screen with format badge and download/share buttons
 - [ ] Ensure every storyboard scene shows AI-generated visual thumbnail before render
 - [x] Add scene-based generation labels: Intro, Verse, Chorus, Drop, Outro

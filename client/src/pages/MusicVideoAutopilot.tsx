@@ -74,6 +74,7 @@ import {
   Info,
   Trash2,
   BookmarkCheck,
+  Monitor,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -302,6 +303,9 @@ export default function MusicVideoAutopilot() {
   // Track whether storyboard generation is actively in progress
   // This is separate from mutation.isPending to avoid the overlay persisting after scenes arrive
   const [storyboardGenerating, setStoryboardGenerating] = useState(false);
+
+  // Export format
+  const [exportFormat, setExportFormat] = useState<"16:9" | "9:16" | "1:1">("16:9");
 
   // Step 3: Render state
   const [renderStatus, setRenderStatus] = useState<string>("rendering");
@@ -1123,7 +1127,7 @@ export default function MusicVideoAutopilot() {
     } catch { /* silent */ }
 
     try {
-      const result = await startRender.mutateAsync({ jobId: jobId });
+      const result = await startRender.mutateAsync({ jobId: jobId, aspectRatio: exportFormat });
       mp.buildStarted("WizVideo");
       setStep("render");
       setRenderStatus("rendering");
@@ -2219,6 +2223,53 @@ export default function MusicVideoAutopilot() {
                     <><Sparkles className="w-4 h-4 mr-2" /> Create your video</>
                   )}
                 </Button>
+              </div>
+            </div>
+
+            {/* Export Format Selection */}
+            <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Monitor className="w-4 h-4 text-[--color-silver]" />
+                <span className="text-sm font-semibold text-white">Export Format</span>
+                <span className="text-xs text-zinc-500 ml-1">Choose your target platform</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { value: "16:9" as const, label: "YouTube", sub: "16:9 Landscape", icon: "▬", color: "#FF0000" },
+                  { value: "9:16" as const, label: "TikTok", sub: "9:16 Portrait", icon: "▮", color: "#00F2EA" },
+                  { value: "1:1" as const, label: "Instagram", sub: "1:1 Square", icon: "■", color: "#E1306C" },
+                ] as const).map((fmt) => (
+                  <button
+                    key={fmt.value}
+                    onClick={() => setExportFormat(fmt.value)}
+                    className={`relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${
+                      exportFormat === fmt.value
+                        ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+                        : "border-zinc-700 bg-zinc-800/40 hover:border-zinc-600 hover:bg-zinc-800/70"
+                    }`}
+                  >
+                    {/* Aspect ratio visual */}
+                    <div className="flex items-center justify-center" style={{ width: 40, height: 28 }}>
+                      <div
+                        className="rounded-sm border-2 transition-colors"
+                        style={{
+                          borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
+                          background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
+                          ...(fmt.value === "16:9" ? { width: 38, height: 22 } : fmt.value === "9:16" ? { width: 16, height: 28 } : { width: 24, height: 24 }),
+                        }}
+                      />
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xs font-bold ${exportFormat === fmt.value ? "text-[--color-gold]" : "text-white"}`}>{fmt.label}</div>
+                      <div className="text-[10px] text-zinc-500 mt-0.5">{fmt.sub}</div>
+                    </div>
+                    {exportFormat === fmt.value && (
+                      <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center">
+                        <Check className="w-2 h-2 text-black" />
+                      </div>
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
 

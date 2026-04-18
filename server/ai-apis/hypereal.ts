@@ -32,6 +32,7 @@ export interface HyperealVideoRequest {
   image?: string;         // URL for image-to-video models
   duration?: number;      // seconds
   mode?: "auto" | "fast";
+  aspect_ratio?: "16:9" | "9:16" | "1:1"; // Export format
 }
 
 export interface HyperealJobResponse {
@@ -66,6 +67,7 @@ export async function submitHyperealVideo(request: HyperealVideoRequest): Promis
       prompt: request.prompt,
       ...(request.duration ? { duration: request.duration } : {}),
       ...(request.image ? { image: request.image } : {}),
+      ...(request.aspect_ratio ? { aspect_ratio: request.aspect_ratio } : {}),
     },
   };
 

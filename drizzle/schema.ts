@@ -153,6 +153,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   shareSlug: varchar("shareSlug", { length: 64 }), // Unique slug for public watch page e.g. "abc123xyz"
   thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }), // First scene image used as video thumbnail
   errorMessage: text("errorMessage"),
+  aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1"
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

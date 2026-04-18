@@ -552,7 +552,9 @@ export async function startSceneRender(
   renderer: RendererType | "wavespeed" = "fal_seedance",
   modelAssignment: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video",
   /** URL of the approved storyboard preview image — passed as reference_images to lock visual appearance */
-  storyboardImageUrl?: string | null
+  storyboardImageUrl?: string | null,
+  /** Export aspect ratio — defaults to 16:9 (YouTube) */
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
 ): Promise<string> {
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
@@ -562,18 +564,18 @@ export async function startSceneRender(
   // Route to WaveSpeed first (primary renderer) with fallback chain
   if (renderer === "wavespeed") {
     try {
-      return await startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined);
+      return await startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined, aspectRatio);
     } catch (waveSpeedErr) {
       console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed failed, falling back to Hypereal:`, waveSpeedErr);
       try {
-        return await startSceneRenderHypereal(sceneId, finalPrompt, duration);
+        return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio);
       } catch (hyperealErr) {
         console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying Atlas Cloud:`, hyperealErr);
         try {
           return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration);
         } catch (atlasErr) {
           console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, falling back to fal.ai Seedance:`, atlasErr);
-          return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+          return startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio);
         }
       }
     }
@@ -583,14 +585,14 @@ export async function startSceneRender(
   // fal_seedance and seedance both now try Hypereal first, then fall back to fal.ai
   if (renderer === "fal_seedance" || renderer === "seedance") {
     try {
-      return await startSceneRenderHypereal(sceneId, finalPrompt, duration);
+      return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio);
     } catch (hyperealErr) {
       console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying Atlas Cloud:`, hyperealErr);
       try {
         return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration);
       } catch (atlasErr) {
         console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, falling back to fal.ai Seedance:`, atlasErr);
-        return startSceneRenderFalSeedance(sceneId, finalPrompt, duration);
+        return startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio);
       }
     }
   }
@@ -598,36 +600,36 @@ export async function startSceneRender(
   // Grok Imagine — premium renderer with image-to-video support (storyboard lock)
   if (renderer === "grok_imagine") {
     try {
-      return await startSceneRenderGrokImagine(sceneId, finalPrompt, duration, storyboardImageUrl ?? undefined);
+      return await startSceneRenderGrokImagine(sceneId, finalPrompt, duration, storyboardImageUrl ?? undefined, aspectRatio);
     } catch (grokErr) {
       console.warn(`[MusicVideo] Scene ${sceneId} Grok Imagine failed, falling back to WaveSpeed:`, grokErr);
-      return startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined);
+      return startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined, aspectRatio);
     }
   }
 
   // Premium renderers (kling_standard, kling_pro, runway) — with single retry + Hypereal fallback
   try {
-    const taskId = await startSceneRenderKling(finalPrompt, duration);
+    const taskId = await startSceneRenderKling(finalPrompt, duration, aspectRatio);
     console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}`);
     return taskId;
   } catch (err) {
     console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to Hypereal Seedance:`, err);
-    return startSceneRenderHypereal(sceneId, finalPrompt, duration);
+    return startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio);
   }
 }
 
-async function startSceneRenderKling(prompt: string, duration: number): Promise<string> {
+async function startSceneRenderKling(prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"): Promise<string> {
   const taskId = await klingClient.createTextToVideo({
     prompt,
     duration: duration <= 5 ? "5" : "10",
-    aspect_ratio: "16:9",
+    aspect_ratio: aspectRatio,
     mode: "std",
   });
   if (!taskId) throw new Error("Kling: no task_id returned");
   return taskId;
 }
 
-async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number): Promise<string> {
+async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"): Promise<string> {
   // Hypereal Seedance 2.0 has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
@@ -640,6 +642,7 @@ async function startSceneRenderHypereal(sceneId: number, prompt: string, duratio
       prompt: p,
       duration: duration <= 5 ? 5 : 8,
       mode: "auto",
+      aspect_ratio: aspectRatio,
     });
     if (!jobId) throw new Error(`Hypereal: no jobId returned for scene ${sceneId}`);
     return jobId;
@@ -663,7 +666,7 @@ async function startSceneRenderHypereal(sceneId: number, prompt: string, duratio
   return `${HYPEREAL_JOB_ID_PREFIX}${jobId}`;
 }
 
-async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
+async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"): Promise<string> {
   // fal.ai Seedance has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
@@ -673,7 +676,7 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
   const trySubmit = async (p: string): Promise<string> => {
     const requestId = await submitFalSeedanceVideo({
       prompt: p,
-      aspect_ratio: "16:9",
+      aspect_ratio: aspectRatio,
       duration: duration <= 5 ? "5" : "8",
       resolution: "720p",
       generate_audio: false, // music video — audio comes from the track
@@ -707,7 +710,8 @@ async function startSceneRenderGrokImagine(
   sceneId: number,
   prompt: string,
   duration: number,
-  storyboardImageUrl?: string
+  storyboardImageUrl?: string,
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
 ): Promise<string> {
   // Grok Imagine supports up to 10s clips; clamp to valid range
   const clampedDuration = Math.max(1, Math.min(10, Math.round(duration)));
@@ -716,7 +720,7 @@ async function startSceneRenderGrokImagine(
     prompt,
     image_url: storyboardImageUrl ?? undefined, // image-to-video if storyboard available
     duration: clampedDuration,
-    aspect_ratio: "16:9",
+    aspect_ratio: aspectRatio,
     resolution: "720p",
   });
 
@@ -1319,7 +1323,9 @@ async function startSceneRenderWaveSpeed(
   duration: number,
   model: WaveSpeedModel = "bytedance/seedance-2.0/text-to-video",
   /** Storyboard preview image URL — used as reference_images to lock visual appearance */
-  storyboardImageUrl?: string
+  storyboardImageUrl?: string,
+  /** Export aspect ratio — defaults to 16:9 (YouTube) */
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
 ): Promise<string> {
   // WaveSpeed has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
@@ -1345,7 +1351,7 @@ async function startSceneRenderWaveSpeed(
       {
         prompt: p,
         duration: wsDuration,
-        aspect_ratio: "16:9",
+        aspect_ratio: aspectRatio,
         resolution: "720p",
         reference_images: referenceImages,
       },
@@ -1519,7 +1525,8 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
           (scene.lipSyncStyle as any) ?? "natural",
           rendererType,
           (scene.modelAssignment as any) ?? "bytedance/seedance-2.0/text-to-video",
-          scene.previewImageUrl ?? undefined
+          scene.previewImageUrl ?? undefined,
+          (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" // Use persisted export format
         );
         await db!.update(musicVideoScenes)
           .set({ taskId, status: "generating", updatedAt: new Date() })

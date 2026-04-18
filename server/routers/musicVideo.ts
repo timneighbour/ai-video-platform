@@ -496,7 +496,10 @@ Rules:
 
   // Start rendering all scenes (deducts credits)
   startRender: protectedProcedure
-    .input(z.object({ jobId: z.number().int() }))
+    .input(z.object({
+      jobId: z.number().int(),
+      aspectRatio: z.enum(["16:9", "9:16", "1:1"]).optional().default("16:9"),
+    }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
@@ -528,9 +531,9 @@ Rules:
       } else {
         console.log(`[MusicVideo] Admin ${ctx.user.id} bypassing credit check (cost: ${job.creditCost})`);
       }
-       // Update job statuss
+      // Update job status and persist the chosen aspect ratio
       await db.update(musicVideoJobs)
-        .set({ status: "rendering", completedScenes: 0, updatedAt: new Date() })
+        .set({ status: "rendering", completedScenes: 0, aspectRatio: input.aspectRatio, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
       // Start rendering all scenes asynchronously
@@ -882,7 +885,8 @@ Rules:
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
               "wavespeed" as any, // Route through WaveSpeed primary renderer
               rendererType as any,
-              storyboardImageUrl ?? undefined // STORYBOARD LOCK: pass approved frame as reference
+              storyboardImageUrl ?? undefined, // STORYBOARD LOCK: pass approved frame as reference
+              (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" // Export format
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })

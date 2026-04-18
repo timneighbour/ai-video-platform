@@ -351,6 +351,13 @@
       "when": 1776523115678,
       "tag": "0049_soft_silver_sable",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "5",
+      "when": 1776526277514,
+      "tag": "0050_ambitious_drax",
+      "breakpoints": true
     }
   ]
 }
