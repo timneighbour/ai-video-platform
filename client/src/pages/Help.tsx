@@ -326,6 +326,7 @@ export default function Help() {
         </div>
 
       <div className="max-w-3xl mx-auto px-6 pt-28 pb-20 relative z-10">
+        <BackButton className="mb-6" />
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-6">

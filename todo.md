@@ -686,24 +686,24 @@
 - [x] Insert showcase section into Home.tsx (replaced text-only MadeWithWizVid section)
 
 ## Bug: Videos Not Playing
-- [ ] Investigate and fix: hero background videos not autoplaying
-- [ ] Investigate and fix: hero logo video not playing
-- [ ] Investigate and fix: showcase card hover-to-play not working
+- [x] Investigate and fix: hero background videos not autoplaying
+- [x] Investigate and fix: hero logo video not playing
+- [x] Investigate and fix: showcase card hover-to-play not working
 
 ## Suno Music Creator Feature
 - [ ] Research Suno API availability and integration approach
-- [ ] Build /music-creator page with style/mood/genre selector and prompt input
+- [x] Build /music-creator page with style/mood/genre selector and prompt input
 - [ ] Integrate Suno API (or structure for plug-in) for music generation
-- [ ] Add playback UI with waveform/audio player on results
-- [ ] Add music creator to main navigation
-- [ ] Add music creator CTA on landing page
-- [ ] Add tRPC procedure for music generation job management
-- [ ] Write vitest tests for music creator backend
+- [x] Add playback UI with waveform/audio player on results
+- [x] Add music creator to main navigation
+- [x] Add music creator CTA on landing page
+- [x] Add tRPC procedure for music generation job management
+- [x] Write vitest tests for music creator backend
 
 ## Bug: Video Rendering Errors (All Pages)
-- [ ] Audit all video elements site-wide for broken URLs, missing poster images, codec errors
-- [ ] Fix all broken video CDN URLs
-- [ ] Fix autoplay on hero background videos and logo video
+- [x] Audit all video elements site-wide for broken URLs, missing poster images, codec errors
+- [x] Fix all broken video CDN URLs
+- [x] Fix autoplay on hero background videos and logo video
 - [ ] Fix video rendering on MusicVideoAutopilot page
 - [ ] Fix video rendering on Dashboard/project history video previews
 - [ ] Fix video rendering on tool output pages
@@ -722,15 +722,15 @@
 - [x] Animated 4-step idea-to-video flow component (sequential light-up, mobile vertical stack)
 - [x] USP sub-headline: "Create complete AI content — music, video, and storytelling in one platform"
 - [x] 3-column feature block: AI Music Generation / Music Video Creation / WizPilot Automation
-- [ ] Combined flow example section: "From idea to finished video in minutes"
-- [ ] Conversion hook copy: "Replace hours of production..."
+- [x] Combined flow example section: "From idea to finished video in minutes"
+- [x] Conversion hook copy: "Replace hours of production..."
 - [x] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
 - [ ] Update hero headline positioning copy site-wide
-- [ ] Wire Suno router into main routers.ts and build Suno music creator page
+- [x] Wire Suno router into main routers.ts and build Suno music creator page
 - [ ] Ensure all animations are smooth, lightweight, and mobile-responsive
 
 ## MVP Enhancement: Core Flow Polish (Apr 2026)
-- [ ] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
+- [x] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
 - [ ] Smooth animated transitions between steps
 - [ ] Loading/progress indicators during storyboard generation and video rendering with % complete
 - [x] Scene type labels on storyboard cards (Intro, Verse, Chorus, Drop, Outro)
