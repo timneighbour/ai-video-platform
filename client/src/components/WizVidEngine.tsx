@@ -43,8 +43,8 @@ const PIPELINE: PipelineStep[] = [
     role: "The Brain",
     colour: "violet",
     glow: "shadow-[0_0_24px_rgba(139,92,246,0.35)]",
-    border: "border-violet-500/40",
-    bg: "bg-violet-500/8",
+    border: "border-[--color-gold]/30",
+    bg: "bg-[--color-gold]/15",
     icon: `${CDN}/wizcreate-logo-final_9f61f0de.png`,
     href: "/products/wizcreate",
   },
@@ -56,7 +56,7 @@ const PIPELINE: PipelineStep[] = [
     colour: "cyan",
     glow: "shadow-[0_0_24px_rgba(6,182,212,0.35)]",
     border: "border-cyan-500/40",
-    bg: "bg-cyan-500/8",
+    bg: "bg-[--color-silver]/10",
     icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_b363ca67.png",
     href: "/products/wizanimate",
     isBranch: true,
@@ -68,8 +68,8 @@ const PIPELINE: PipelineStep[] = [
     role: "The Composer",
     colour: "emerald",
     glow: "shadow-[0_0_24px_rgba(16,185,129,0.35)]",
-    border: "border-emerald-500/40",
-    bg: "bg-emerald-500/8",
+    border: "border-[--color-silver]/40",
+    bg: "bg-[--color-silver]/10",
     icon: `${CDN}/wizsound-logo-v5_76ab5163.png`,
     href: "/products/wizsound",
   },
@@ -79,8 +79,8 @@ const PIPELINE: PipelineStep[] = [
     role: "The Cinematographer",
     colour: "amber",
     glow: "shadow-[0_0_24px_rgba(245,158,11,0.35)]",
-    border: "border-amber-500/40",
-    bg: "bg-amber-500/8",
+    border: "border-[--color-gold]/30",
+    bg: "bg-[--color-gold]/15",
     icon: `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`,
     href: "/products/wizlumina",
   },
@@ -91,7 +91,7 @@ const PIPELINE: PipelineStep[] = [
     colour: "rose",
     glow: "shadow-[0_0_24px_rgba(244,63,94,0.35)]",
     border: "border-rose-500/40",
-    bg: "bg-rose-500/8",
+    bg: "bg-[--color-silver]/10",
     icon: `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp`,
     href: "/products/wizgenesis",
   },
@@ -110,11 +110,11 @@ const PIPELINE: PipelineStep[] = [
 
 const COLOUR_MAP: Record<string, { text: string; badge: string; dot: string }> = {
   white: { text: "text-white", badge: "bg-white/10 text-white/70 border-white/20", dot: "bg-white" },
-  violet: { text: "text-violet-300", badge: "bg-violet-500/10 text-violet-300 border-violet-500/25", dot: "bg-violet-400" },
-  cyan: { text: "text-cyan-300", badge: "bg-cyan-500/10 text-cyan-300 border-cyan-500/25", dot: "bg-cyan-400" },
-  emerald: { text: "text-emerald-300", badge: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400" },
-  amber: { text: "text-amber-300", badge: "bg-amber-500/10 text-amber-300 border-amber-500/25", dot: "bg-amber-400" },
-  rose: { text: "text-rose-300", badge: "bg-rose-500/10 text-rose-300 border-rose-500/25", dot: "bg-rose-400" },
+  violet: { text: "text-[--color-gold]", badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", dot: "bg-[--color-gold]" },
+  cyan: { text: "text-[--color-silver]", badge: "bg-[--color-silver]/10 text-[--color-silver] border-cyan-500/25", dot: "bg-cyan-400" },
+  emerald: { text: "text-[--color-silver]", badge: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/25", dot: "bg-[--color-silver]" },
+  amber: { text: "text-[--color-gold]", badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", dot: "bg-[--color-gold]" },
+  rose: { text: "text-[--color-silver]", badge: "bg-[--color-silver]/10 text-[--color-silver] border-rose-500/25", dot: "bg-rose-400" },
   orange: { text: "text-orange-300", badge: "bg-orange-500/10 text-orange-300 border-orange-500/25", dot: "bg-orange-400" },
 };
 
@@ -155,13 +155,13 @@ export default function WizVidEngine() {
         <div
           className={`text-center mb-16 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/25 bg-violet-500/8 text-violet-300 text-xs font-mono tracking-widest uppercase font-semibold mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-xs font-mono tracking-widest uppercase font-semibold mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
             System Architecture
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
             The{" "}
-            <span className="bg-gradient-to-r from-violet-300 via-cyan-200 to-emerald-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#b8892a] via-cyan-200 to-[#2e2e36] bg-clip-text text-transparent">
               WIZ AI Engine
             </span>
           </h2>
@@ -285,7 +285,7 @@ export default function WizVidEngine() {
         >
           <NavLink
             href="/music-video/create"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-purple-500 transition-all duration-200 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] text-white font-semibold text-sm hover:from-[#b8892a] hover:to-[#4a3010] transition-all duration-200 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
           >
             Start the Engine <ArrowRight className="w-4 h-4" />
           </NavLink>

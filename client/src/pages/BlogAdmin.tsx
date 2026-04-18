@@ -82,7 +82,7 @@ export default function BlogAdmin() {
           </div>
           <Button
             onClick={() => setCreating(true)}
-            className="bg-violet-600 hover:bg-violet-500 text-white gap-2"
+            className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white gap-2"
           >
             <Plus className="w-4 h-4" />
             New Post
@@ -164,7 +164,7 @@ export default function BlogAdmin() {
                     })
                   }
                   disabled={!form.title || !form.content || createPost.isPending}
-                  className="bg-violet-600 hover:bg-violet-500 text-white"
+                  className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
                 >
                   {createPost.isPending ? "Saving…" : "Save Draft"}
                 </Button>
@@ -181,7 +181,7 @@ export default function BlogAdmin() {
                     })
                   }
                   disabled={!form.title || !form.content || createPost.isPending}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white"
+                  className="bg-[--color-silver] hover:bg-[--color-silver]/15 text-white"
                 >
                   Publish Now
                 </Button>
@@ -227,14 +227,14 @@ export default function BlogAdmin() {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isPublished ? "bg-emerald-400" : "bg-amber-400"}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isPublished ? "bg-[--color-silver]" : "bg-[--color-gold]"}`} />
                     <p className="text-white font-semibold text-sm truncate">{post.title}</p>
                   </div>
                   <p className="text-white/35 text-xs font-mono">/blog/{post.slug}</p>
                   {tags.length > 0 && (
                     <div className="flex gap-1 mt-1">
                       {tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-300 text-[10px]">{tag}</span>
+                        <span key={tag} className="px-1.5 py-0.5 rounded bg-[--color-gold]/15 text-[--color-gold] text-[10px]">{tag}</span>
                       ))}
                     </div>
                   )}
@@ -244,7 +244,7 @@ export default function BlogAdmin() {
                     onClick={() => updatePost.mutate({ id: post.id, status: isPublished ? "draft" : "published" })}
                     className={`p-2 rounded-lg transition-colors ${
                       isPublished
-                        ? "text-emerald-400 hover:bg-emerald-500/10"
+                        ? "text-[--color-silver] hover:bg-[--color-silver]/10"
                         : "text-white/30 hover:bg-white/8"
                     }`}
                     title={isPublished ? "Unpublish" : "Publish"}

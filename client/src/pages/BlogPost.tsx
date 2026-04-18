@@ -32,9 +32,9 @@ function renderMarkdown(md: string): string {
     .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em class="text-white/80 italic">$1</em>')
     // Inline code
-    .replace(/`(.+?)`/g, '<code class="bg-white/8 text-violet-300 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
+    .replace(/`(.+?)`/g, '<code class="bg-white/8 text-[--color-gold] px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
     // Blockquote
-    .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-violet-500 pl-4 my-4 text-white/60 italic">$1</blockquote>')
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-[--color-gold] pl-4 my-4 text-white/60 italic">$1</blockquote>')
     // Unordered list
     .replace(/^\* (.+)$/gm, '<li class="text-white/70 ml-4 mb-1 list-disc">$1</li>')
     .replace(/^- (.+)$/gm, '<li class="text-white/70 ml-4 mb-1 list-disc">$1</li>')
@@ -43,7 +43,7 @@ function renderMarkdown(md: string): string {
     // Horizontal rule
     .replace(/^---$/gm, '<hr class="border-white/10 my-8" />')
     // Links
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-violet-400 hover:text-violet-300 underline underline-offset-2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-[--color-gold] hover:text-[--color-gold] underline underline-offset-2" target="_blank" rel="noopener">$1</a>')
     // Paragraphs (double newline)
     .replace(/\n\n/g, '</p><p class="text-white/65 leading-relaxed mb-4">')
     // Wrap in paragraph
@@ -66,7 +66,7 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 rounded-full border-2 border-violet-500 border-t-transparent animate-spin mx-auto mb-4" />
+          <div className="w-8 h-8 rounded-full border-2 border-[--color-gold] border-t-transparent animate-spin mx-auto mb-4" />
           <p className="text-white/40 text-sm">Loading article…</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-center px-4">
         <div>
-          <Sparkles className="w-10 h-10 text-violet-400 mx-auto mb-4 opacity-40" />
+          <Sparkles className="w-10 h-10 text-[--color-gold] mx-auto mb-4 opacity-40" />
           <h1 className="text-2xl font-bold text-white mb-2">Article not found</h1>
           <p className="text-white/40 mb-6">This post may have been moved or deleted.</p>
           <Link href="/blog">
@@ -123,14 +123,14 @@ export default function BlogPost() {
         <nav className="sticky top-0 z-40 border-b border-white/5 bg-black/80 backdrop-blur-xl">
           <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity">
-              <span className="text-violet-400">Wiz</span><span>Vid</span>
+              <span className="text-[--color-gold]">Wiz</span><span>Vid</span>
             </Link>
             <div className="flex items-center gap-4">
               <Link href="/blog" className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1">
                 <ArrowLeft className="w-3.5 h-3.5" /> Blog
               </Link>
               <Link href="/music-video/create">
-                <Button size="sm" className="bg-violet-600 hover:bg-violet-500 text-white text-sm h-8">
+                <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm h-8">
                   Create Video
                 </Button>
               </Link>
@@ -153,7 +153,7 @@ export default function BlogPost() {
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-5">
               {tags.map(tag => (
-                <Badge key={tag} variant="secondary" className="text-xs bg-violet-500/10 text-violet-300 border-violet-500/20">
+                <Badge key={tag} variant="secondary" className="text-xs bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30">
                   {tag}
                 </Badge>
               ))}
@@ -195,11 +195,11 @@ export default function BlogPost() {
           />
 
           {/* Bottom CTA */}
-          <div className="mt-14 p-6 rounded-xl border border-violet-500/20 bg-violet-500/5 text-center">
+          <div className="mt-14 p-6 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 text-center">
             <h3 className="text-lg font-bold text-white mb-2">Ready to create your first AI video?</h3>
             <p className="text-white/50 text-sm mb-4">Free to create. Only pay when you render.</p>
             <Link href="/music-video/create">
-              <Button className="bg-violet-600 hover:bg-violet-500 text-white">
+              <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
@@ -213,8 +213,8 @@ export default function BlogPost() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {related.map(p => (
                 <Link key={p.id} href={`/blog/${p.slug}`}>
-                  <div className="group rounded-xl border border-white/8 bg-white/[0.03] overflow-hidden hover:border-violet-500/30 transition-all p-4 cursor-pointer">
-                    <h3 className="font-semibold text-white group-hover:text-violet-200 transition-colors text-sm mb-1 line-clamp-2">
+                  <div className="group rounded-xl border border-white/8 bg-white/[0.03] overflow-hidden hover:border-[--color-gold]/30 transition-all p-4 cursor-pointer">
+                    <h3 className="font-semibold text-white group-hover:text-[--color-gold] transition-colors text-sm mb-1 line-clamp-2">
                       {p.title}
                     </h3>
                     <p className="text-white/40 text-xs">{formatDate(p.publishedAt)}</p>

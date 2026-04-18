@@ -17,7 +17,7 @@ const CREATE_URL = `${MAIN_APP}/music-video/create`;
 
 // Shared design tokens
 const BRAND = {
-  headline: "bg-gradient-to-r from-violet-300 via-purple-200 to-fuchsia-300 bg-clip-text text-transparent",
+  headline: "bg-gradient-to-r from-[#b8892a] via-purple-200 to-[#4a3010] bg-clip-text text-transparent",
   ctaPrimary: "inline-flex items-center justify-center gap-3 bg-white text-black font-extrabold px-10 py-5 rounded-2xl shadow-[0_0_60px_rgba(255,255,255,0.35)] hover:shadow-[0_0_80px_rgba(255,255,255,0.5)] hover:bg-white/95 transition-all duration-300 text-lg w-full sm:w-auto",
 };
 
@@ -87,7 +87,7 @@ export default function LandingApp() {
     <div className="min-h-screen bg-[#08080e] text-white font-sans overflow-x-hidden">
 
       {/* ── Urgency banner ── */}
-      <div className="w-full bg-gradient-to-r from-violet-700 to-fuchsia-700 py-2.5 px-4 text-center text-sm font-semibold text-white">
+      <div className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] py-2.5 px-4 text-center text-sm font-semibold text-white">
         <span className="opacity-80">Limited offer — Create your first video free.</span>
         {" "}
         <span className="font-mono font-bold">{mins}:{secs}</span>
@@ -98,12 +98,12 @@ export default function LandingApp() {
       {/* ── Minimal nav (no distractions) ── */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="font-extrabold text-white text-lg tracking-tight">WIZ AI</span>
         </div>
-        <a href={CREATE_URL} className="bg-violet-600 hover:bg-violet-500 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors">
+        <a href={CREATE_URL} className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors">
           Start Creating
         </a>
       </nav>
@@ -118,9 +118,9 @@ export default function LandingApp() {
 
         <div className="relative z-10 max-w-3xl mx-auto">
           {/* Social proof badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 text-xs font-semibold mb-5">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-xs font-semibold mb-5">
             <div className="flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />)}
+              {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-3 h-3 fill-amber-400 text-[--color-gold]" />)}
             </div>
             Loved by musicians, YouTubers & creators
           </div>
@@ -191,7 +191,7 @@ export default function LandingApp() {
       <section className="py-20 px-6 border-t border-white/6 bg-gradient-to-b from-[#08080e] to-[#0f0f18]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-violet-400 text-sm font-semibold uppercase tracking-widest mb-3">How it works</p>
+            <p className="text-[--color-gold] text-sm font-semibold uppercase tracking-widest mb-3">How it works</p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">From idea to full video in 4 steps</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -199,10 +199,10 @@ export default function LandingApp() {
               <div key={s.n} className="relative rounded-2xl border border-white/8 bg-white/3 p-5">
                 {i < STEPS.length - 1 && (
                   <div className="hidden lg:block absolute top-8 -right-2.5 z-10">
-                    <ArrowRight className="w-5 h-5 text-violet-400/50" />
+                    <ArrowRight className="w-5 h-5 text-[--color-gold]/50" />
                   </div>
                 )}
-                <div className="text-violet-400 font-mono text-xs font-bold mb-3">{s.n}</div>
+                <div className="text-[--color-gold] font-mono text-xs font-bold mb-3">{s.n}</div>
                 <h3 className="font-bold text-white mb-2 text-sm">{s.title}</h3>
                 <p className="text-white/45 text-xs leading-relaxed">{s.desc}</p>
               </div>
@@ -212,9 +212,9 @@ export default function LandingApp() {
       </section>
 
       {/* ── WizSound callout ── */}
-      <section className="py-16 px-6 border-t border-white/6 bg-gradient-to-r from-violet-950/40 via-[#0f0f18] to-fuchsia-950/30">
+      <section className="py-16 px-6 border-t border-white/6 bg-gradient-to-r from-[#b8892a]/40 via-[#0f0f18] to-[#4a3010]/30">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300 text-sm font-bold mb-5">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-sm font-bold mb-5">
             <Volume2 className="w-4 h-4" />
             Powered by WizSound™
             <WaveformBars count={8} color="#e879f9" />
@@ -231,26 +231,26 @@ export default function LandingApp() {
       {/* ── Differentiator ── */}
       <section className="py-16 px-6 border-t border-white/6 bg-[#08080e]">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 to-fuchsia-950/30 p-8 text-center">
+          <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/30 p-8 text-center">
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">Not just clips. Full videos.</h2>
             <p className="text-white/55 text-lg max-w-xl mx-auto">
               Most AI tools generate fragments. WIZ AI creates complete, ready-to-publish videos — with storyboard, scenes, audio, and final render all in one place.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <CheckCircle2 className="w-4 h-4 text-violet-400" />
+                <CheckCircle2 className="w-4 h-4 text-[--color-gold]" />
                 AI builds full storyboard instantly
               </div>
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <CheckCircle2 className="w-4 h-4 text-violet-400" />
+                <CheckCircle2 className="w-4 h-4 text-[--color-gold]" />
                 Preview every scene before paying
               </div>
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <CheckCircle2 className="w-4 h-4 text-violet-400" />
+                <CheckCircle2 className="w-4 h-4 text-[--color-gold]" />
                 Full video, not clips
               </div>
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <CheckCircle2 className="w-4 h-4 text-violet-400" />
+                <CheckCircle2 className="w-4 h-4 text-[--color-gold]" />
                 No editing required
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function LandingApp() {
       {/* ── Final CTA ── */}
       <section className="py-24 px-6 text-center border-t border-white/6 bg-gradient-to-b from-[#08080e] to-[#0d0018]">
         <div className="max-w-xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-semibold mb-5">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-xs font-semibold mb-5">
             <Clock className="w-3.5 h-3.5" />
             Your first video is minutes away
           </div>
@@ -284,7 +284,7 @@ export default function LandingApp() {
       <footer className="py-8 px-6 border-t border-white/6 bg-black">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
             <span className="text-white/60 text-sm font-semibold">WIZ AI</span>

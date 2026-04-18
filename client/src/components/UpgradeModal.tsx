@@ -59,13 +59,13 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
             <X className="w-5 h-5" />
           </button>
           <div className="mb-3" aria-hidden="true">
-            <Icon className="w-9 h-9 text-purple-400" />
+            <Icon className="w-9 h-9 text-[--color-gold]" />
           </div>
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-white leading-tight">
               {content.headline}
             </DialogTitle>
-            <p className="text-purple-300 font-semibold text-sm mt-1">{content.subline}</p>
+            <p className="text-[--color-gold] font-semibold text-sm mt-1">{content.subline}</p>
           </DialogHeader>
         </div>
 
@@ -76,7 +76,7 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
           <div className="space-y-2.5 mb-6">
             {CREATOR_FEATURES.map((f) => (
               <div key={f.text} className="flex items-center gap-3 text-sm">
-                <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-[--color-gold]/15 text-[--color-gold] flex items-center justify-center flex-shrink-0">
                   {f.icon}
                 </div>
                 <span className="text-white/80">{f.text}</span>
@@ -85,7 +85,7 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
           </div>
 
           {/* Pricing callout */}
-          <div className="bg-gradient-to-r from-pink-500/10 to-purple-600/10 border border-purple-500/20 rounded-xl p-4 mb-5 text-center">
+          <div className="bg-gradient-to-r from-pink-500/10 to-purple-600/10 border border-[--color-gold]/30 rounded-xl p-4 mb-5 text-center">
             <span className="text-white/50 text-sm">Creator plan from </span>
             <span className="text-white font-black text-xl">£29</span>
             <span className="text-white/50 text-sm">/month</span>

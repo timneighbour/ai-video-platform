@@ -1108,7 +1108,7 @@ export default function MusicVideoAutopilot() {
                   new Notification("WIZ AI — Your video is ready!", {
                     body: `"${title || "Your video"}" has finished rendering. Click to watch.`,
                     icon: "/favicon.ico",
-                    tag: "wizvid-render-complete",
+                    tag: "wizai-render-complete",
                   });
                 }
               } catch { /* silent */ }
@@ -1184,8 +1184,8 @@ export default function MusicVideoAutopilot() {
       {isGeneratingStoryboard && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm">
           <div className="w-full max-w-md px-6 text-center">
-            <div className="w-20 h-20 rounded-full bg-violet-500/20 border-2 border-violet-500/40 flex items-center justify-center mx-auto mb-4" style={{boxShadow:"0 0 24px rgba(139,92,246,0.35)"}}>
-              <Sparkles className="w-9 h-9 text-violet-300 animate-pulse" />
+            <div className="w-20 h-20 rounded-full bg-[--color-gold]/15 border-2 border-[--color-gold]/30 flex items-center justify-center mx-auto mb-4" style={{boxShadow:"0 0 24px rgba(139,92,246,0.35)"}}>
+              <Sparkles className="w-9 h-9 text-[--color-gold] animate-pulse" />
             </div>
             <div className="flex justify-center mb-3">
               <WizBrandBadge layer="create" size="md" animated />
@@ -1194,7 +1194,7 @@ export default function MusicVideoAutopilot() {
             <p className="text-zinc-400 text-sm mb-8">WizCreate™ is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
             <div className="w-full bg-zinc-800 rounded-full h-2 mb-8 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-[5000ms] ease-out"
+                className="h-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] rounded-full transition-all duration-[5000ms] ease-out"
                 style={{ width: createJob.isPending ? "15%" : "75%" }}
               />
             </div>
@@ -1208,18 +1208,18 @@ export default function MusicVideoAutopilot() {
               ].map((s, i) => (
                 <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${
                   s.done ? "bg-green-900/30 border-green-700/30" :
-                  s.active ? "bg-purple-900/40 border-purple-600/40" :
+                  s.active ? "bg-[--color-gold]/15 border-[--color-gold]/30" :
                   "bg-zinc-900/50 border-zinc-800/50"
                 }`}>
                   {s.done ? (
                     <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
                   ) : s.active ? (
-                    <Loader2 className="w-4 h-4 text-purple-400 animate-spin shrink-0" />
+                    <Loader2 className="w-4 h-4 text-[--color-gold] animate-spin shrink-0" />
                   ) : (
                     <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
                   )}
                   <span className={`text-sm font-medium ${
-                    s.done ? "text-green-400" : s.active ? "text-purple-300" : "text-zinc-500"
+                    s.done ? "text-green-400" : s.active ? "text-[--color-gold]" : "text-zinc-500"
                   }`}>{s.label}</span>
                 </div>
               ))}
@@ -1341,7 +1341,7 @@ export default function MusicVideoAutopilot() {
             </NavLink>
           </div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#2e2e36] flex items-center justify-center">
               <Music className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -1386,7 +1386,7 @@ export default function MusicVideoAutopilot() {
                         title={!isAccessible ? "Complete previous steps first" : `Go to ${STEP_LABELS[s]}`}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                           isActive
-                            ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                            ? "bg-[--color-gold] text-white shadow-lg shadow-purple-600/30"
                             : isCompleted
                             ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white cursor-pointer"
                             : isAccessible
@@ -1421,14 +1421,14 @@ export default function MusicVideoAutopilot() {
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Upload className="w-5 h-5 text-purple-400" />
+                    <Upload className="w-5 h-5 text-[--color-gold]" />
                     Upload Your Song
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div
                     className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-                      isDragging ? "border-purple-500 bg-purple-500/10" :
+                      isDragging ? "border-purple-500 bg-[--color-gold]/15" :
                       audioFile ? "border-green-500 bg-green-500/10" :
                       "border-zinc-700 hover:border-zinc-500"
                     }`}
@@ -1448,8 +1448,8 @@ export default function MusicVideoAutopilot() {
                       <div>
                         {isUploading ? (
                           <div className="space-y-3">
-                            <Loader2 className="w-10 h-10 text-purple-400 mx-auto mb-2 animate-spin" />
-                            <p className="text-purple-400 font-medium">Uploading & Processing...</p>
+                            <Loader2 className="w-10 h-10 text-[--color-gold] mx-auto mb-2 animate-spin" />
+                            <p className="text-[--color-gold] font-medium">Uploading & Processing...</p>
                             <Progress value={uploadProgress} className="h-2" />
                             <p className="text-zinc-400 text-sm text-center">{uploadProgress}% complete</p>
                           </div>
@@ -1457,7 +1457,7 @@ export default function MusicVideoAutopilot() {
                           <div>
                             <Check className="w-10 h-10 text-green-400 mx-auto mb-2" />
                             <p className="text-green-400 font-medium">{audioFile.name}</p>
-                            <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-amber-400 font-medium" : "text-zinc-400"}`}>
+                            <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-[--color-gold] font-medium" : "text-zinc-400"}`}>
                               Duration: {formatDuration(audioDuration)}
                               {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
                             </p>
@@ -1485,20 +1485,20 @@ export default function MusicVideoAutopilot() {
 
                   {/* Audio length limit warning + upgrade prompt */}
                   {audioExceedsLimit && (
-                    <div className="rounded-xl border border-amber-800/60 bg-amber-950/30 px-4 py-3 flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
+                    <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 px-4 py-3 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-[--color-gold] mt-0.5 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-amber-300 font-medium text-sm">
+                        <p className="text-[--color-gold] font-medium text-sm">
                           Your song is {formatDuration(audioDuration)} — your plan allows up to {formatDuration(maxVideoSeconds)}
                         </p>
-                        <p className="text-amber-200/70 text-xs mt-1">
+                        <p className="text-[--color-gold]/70 text-xs mt-1">
                           WIZ AI will use the first {formatDuration(maxVideoSeconds)} of your track.
                           {planLimits?.plan === "starter" && " Upgrade to Basic for 2-minute videos, or Creator for 3-minute videos."}
                           {planLimits?.plan === "creator" && " Upgrade to Studio for 3-minute videos."}
                         </p>
                         <a
                           href="/pricing"
-                          className="inline-block mt-2 text-xs font-semibold text-amber-300 hover:text-amber-100 underline underline-offset-2 transition-colors"
+                          className="inline-block mt-2 text-xs font-semibold text-[--color-gold] hover:text-[--color-gold] underline underline-offset-2 transition-colors"
                         >
                           View upgrade options →
                         </a>
@@ -1525,7 +1525,7 @@ export default function MusicVideoAutopilot() {
                         onClick={() => setLyricsExpanded(!lyricsExpanded)}
                       >
                         <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-purple-400" />
+                          <FileText className="w-4 h-4 text-[--color-gold]" />
                           <span className="text-sm font-medium text-white">Detected Lyrics</span>
                           {transcriptionStatus === "transcribing" ? (
                             <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800 text-xs">
@@ -1573,7 +1573,7 @@ export default function MusicVideoAutopilot() {
                                     </Button>
                                     <Button
                                       size="sm"
-                                      className="flex-1 text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                                      className="flex-1 text-xs bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white"
                                       onClick={() => setShowLyricsIntelligence(true)}
                                     >
                                       <Sparkles className="w-3 h-3 mr-1" />
@@ -1592,7 +1592,7 @@ export default function MusicVideoAutopilot() {
                                     <Button
                                       size="sm"
                                       onClick={() => setIsEditingLyrics(false)}
-                                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                                      className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
                                     >
                                       <Check className="w-3 h-3 mr-1" />
                                       Save
@@ -1612,7 +1612,7 @@ export default function MusicVideoAutopilot() {
                             </div>
                           ) : transcriptionStatus === "transcribing" ? (
                             <div className="flex items-center gap-2 text-zinc-400 text-sm py-2">
-                              <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+                              <Loader2 className="w-4 h-4 animate-spin text-[--color-gold]" />
                               <span>AI is transcribing your song's lyrics... This takes 30–60 seconds.</span>
                             </div>
                           ) : transcriptionStatus === "quota" ? (
@@ -1639,7 +1639,7 @@ export default function MusicVideoAutopilot() {
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-pink-400" />
+                    <Sparkles className="w-5 h-5 text-[--color-silver]" />
                     Describe Your Vision
                   </CardTitle>
                 </CardHeader>
@@ -1707,22 +1707,22 @@ export default function MusicVideoAutopilot() {
                             {/* Dark overlay */}
                             <div className={`absolute inset-0 transition-opacity pointer-events-none ${
                               selectedStyle === style.id
-                                ? "bg-purple-900/40"
+                                ? "bg-[--color-gold]/15"
                                 : "bg-black/40 group-hover:bg-black/20"
                             }`} />
                             {/* Selected checkmark */}
                             {selectedStyle === style.id && (
-                              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
+                              <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[--color-gold] flex items-center justify-center">
                                 <Check className="w-3 h-3 text-white" />
                               </div>
                             )}
                           </div>
                           {/* Label */}
                           <div className={`px-3 py-2 ${
-                            selectedStyle === style.id ? "bg-purple-900/60" : "bg-zinc-800"
+                            selectedStyle === style.id ? "bg-[--color-gold]/15" : "bg-zinc-800"
                           }`}>
                             <p className={`text-sm font-semibold ${
-                              selectedStyle === style.id ? "text-purple-200" : "text-white"
+                              selectedStyle === style.id ? "text-[--color-gold]" : "text-white"
                             }`}>{style.label}</p>
                             <p className="text-xs text-zinc-400">{style.desc}</p>
                           </div>
@@ -1756,7 +1756,7 @@ export default function MusicVideoAutopilot() {
                   {/* Quick-pick location chips */}
                   <div className="flex flex-wrap gap-2">
                     {[
-                      "🎸 Concert Venue",
+                      "Concert Venue",
                       "🏜️ Desert",
                       "🌆 City Rooftop",
                       "🌲 Forest",
@@ -1784,7 +1784,7 @@ export default function MusicVideoAutopilot() {
                           }}
                           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                             isSelected
-                              ? "bg-violet-800/60 border-violet-500 text-violet-200"
+                              ? "bg-[--color-gold]/15 border-violet-500 text-[--color-gold]"
                               : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
                           }`}
                         >
@@ -1800,7 +1800,7 @@ export default function MusicVideoAutopilot() {
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <User className="w-5 h-5 text-purple-400" />
+                    <User className="w-5 h-5 text-[--color-gold]" />
                     Characters
                     <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional · Up to 4</Badge>
                   </CardTitle>
@@ -1847,12 +1847,12 @@ export default function MusicVideoAutopilot() {
                       {hasLipSync && (
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-zinc-400 flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> Lip sync</span>
-                          <span className="text-pink-400">+{creditBreakdown.lipSync} Credits</span>
+                          <span className="text-[--color-silver]">+{creditBreakdown.lipSync} Credits</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between text-sm border-t border-zinc-800 pt-2 mt-1">
                         <span className="text-zinc-200 font-semibold">Total</span>
-                        <span className="text-violet-300 font-bold">{creditBreakdown.total} Credits</span>
+                        <span className="text-[--color-gold] font-bold">{creditBreakdown.total} Credits</span>
                       </div>
                     </div>
                   )}
@@ -1869,20 +1869,20 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Render paywall info — replaces legacy credit balance card */}
-              <Card className="bg-gradient-to-br from-violet-900/20 to-purple-900/10 border-violet-800/30">
+              <Card className="bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/10 border-[--color-gold]/30">
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Download className="w-4 h-4 text-violet-400" />
-                    <p className="text-violet-300 text-sm font-medium">Create free, pay to render</p>
+                    <Download className="w-4 h-4 text-[--color-gold]" />
+                    <p className="text-[--color-gold] text-sm font-medium">Create free, pay to render</p>
                   </div>
                   <p className="text-zinc-400 text-xs leading-relaxed">
                     Building your storyboard is completely free. You only pay when you're ready to render and download your finished video.
                   </p>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-800/50">
+              <Card className="bg-gradient-to-br from-[#b8892a]/40 to-[#2e2e36]/40 border-[--color-gold]/30">
                 <CardContent className="pt-4 pb-4">
-                  <p className="text-purple-300 text-sm font-medium mb-1">How it works</p>
+                  <p className="text-[--color-gold] text-sm font-medium mb-1">How it works</p>
                   <ol className="text-zinc-400 text-xs space-y-1.5 list-decimal list-inside">
                     <li>Upload your song & describe your vision</li>
                     <li>AI transcribes lyrics & generates a free storyboard</li>
@@ -1910,7 +1910,7 @@ export default function MusicVideoAutopilot() {
                 </div>
               )}
               <Button
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3"
+                className="w-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold py-3"
                 onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
                 disabled={createJob.isPending || generateStoryboardMutation.isPending || !audioFile || !title || !themePrompt}
               >
@@ -1963,7 +1963,7 @@ export default function MusicVideoAutopilot() {
               </div>
               <div className="flex items-center gap-3">
                 {/* Render status badge */}
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-400/20 text-violet-300 text-xs font-medium">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-medium">
                   <Download className="w-3 h-3" /> Pay to render
                 </span>
                 {scenes.some(sc => sc.status === "pending") && (
@@ -2008,7 +2008,7 @@ export default function MusicVideoAutopilot() {
                   Regenerate
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold"
+                  className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold"
                   onClick={handleStartRender}
                   disabled={startRender.isPending || scenes.length === 0}
                 >
@@ -2022,9 +2022,9 @@ export default function MusicVideoAutopilot() {
             </div>
 
             {/* Pre-render cinematic upgrade nudge */}
-            <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-500/25 bg-gradient-to-r from-amber-950/30 to-orange-950/20 px-4 py-3">
-              <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-              <p className="text-sm text-amber-200 flex-1">
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/30 to-orange-950/20 px-4 py-3">
+              <Sparkles className="w-4 h-4 text-[--color-gold] flex-shrink-0" />
+              <p className="text-sm text-[--color-gold] flex-1">
                 <span className="font-semibold">These scenes will render in standard quality.</span>{" "}
                 After rendering, you can upgrade key scenes to cinematic quality for a professional finish.
               </p>
@@ -2033,7 +2033,7 @@ export default function MusicVideoAutopilot() {
             {/* Global Lip Sync Control */}
             <div className="mb-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
               <div className="flex items-center gap-3">
-                <Mic className="w-4 h-4 text-pink-400" />
+                <Mic className="w-4 h-4 text-[--color-silver]" />
                 <div>
                   <p className="text-sm font-medium text-white">Lip Sync — All Scenes</p>
                   <p className="text-xs text-zinc-500">Control when characters sing or stay cinematic</p>
@@ -2055,7 +2055,7 @@ export default function MusicVideoAutopilot() {
                   size="sm"
                   variant="outline"
                   className={`text-xs border-zinc-700 bg-transparent ${
-                    globalLipSync === true ? "border-pink-500 text-pink-300" : "text-zinc-500"
+                    globalLipSync === true ? "border-pink-500 text-[--color-silver]" : "text-zinc-500"
                   } hover:bg-zinc-800`}
                   onClick={() => handleGlobalLipSyncToggle(true)}
                   disabled={updateAllScenesLipSyncMutation.isPending}
@@ -2072,11 +2072,11 @@ export default function MusicVideoAutopilot() {
 
             {/* Style Lock Banner */}
             {lockedStyle?.isLocked && lockedStyle.style && (
-              <div className="mb-4 flex items-center gap-3 rounded-xl border border-pink-500/30 bg-gradient-to-r from-pink-950/40 to-rose-950/20 px-4 py-3">
-                <Heart className="w-4 h-4 text-pink-400 flex-shrink-0 fill-pink-400" />
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-silver]/30 bg-gradient-to-r from-[#9090a0]/40 to-[#2e2e36]/20 px-4 py-3">
+                <Heart className="w-4 h-4 text-[--color-silver] flex-shrink-0 fill-pink-400" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-pink-200">Style Locked</p>
-                  <p className="text-xs text-pink-300/80 truncate">{lockedStyle.style.descriptor}</p>
+                  <p className="text-sm font-semibold text-[--color-silver]">Style Locked</p>
+                  <p className="text-xs text-[--color-silver]/80 truncate">{lockedStyle.style.descriptor}</p>
                 </div>
                 <Button
                   size="sm"
@@ -2113,7 +2113,7 @@ export default function MusicVideoAutopilot() {
                         scene.faceValidationStatus === "matched"
                           ? "bg-green-500/80 text-white"
                           : scene.faceValidationStatus === "warning"
-                          ? "bg-amber-500/80 text-white"
+                          ? "bg-[--color-gold]/15 text-white"
                           : "bg-blue-500/80 text-white"
                       }`}>
                         {scene.faceValidationStatus === "matched" && <span>✓ Face Matched</span>}
@@ -2125,7 +2125,7 @@ export default function MusicVideoAutopilot() {
                       <div className="w-full h-full flex items-center justify-center">
                         {scene.previewImageLoading ? (
                           <div className="flex flex-col items-center gap-2 px-3 text-center">
-                            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+                            <Loader2 className="w-6 h-6 text-[--color-gold] animate-spin" />
                             <span className="text-zinc-400 text-xs font-medium">
                               {editingSceneId === scene.id ? "AI is regenerating your scene..." : "Generating preview..."}
                             </span>
@@ -2146,7 +2146,7 @@ export default function MusicVideoAutopilot() {
                     {/* AI regenerating overlay — shown when image exists but is being regenerated */}
                     {scene.previewImageUrl && scene.previewImageLoading && (
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 rounded-t-lg pointer-events-none">
-                        <Loader2 className="w-7 h-7 text-purple-400 animate-spin" />
+                        <Loader2 className="w-7 h-7 text-[--color-gold] animate-spin" />
                         <span className="text-white text-xs font-medium">AI regenerating scene...</span>
                         <span className="text-zinc-400 text-[10px]">Applying your description</span>
                       </div>
@@ -2157,7 +2157,7 @@ export default function MusicVideoAutopilot() {
                         Scene {scene.sceneIndex + 1}
                       </Badge>
                       {inferSceneType(scene.lyrics, scene.prompt) && (
-                        <Badge className="bg-purple-900/80 text-purple-200 border-0 text-xs backdrop-blur-sm">
+                        <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-0 text-xs backdrop-blur-sm">
                           {inferSceneType(scene.lyrics, scene.prompt)}
                         </Badge>
                       )}
@@ -2173,8 +2173,8 @@ export default function MusicVideoAutopilot() {
                       <button
                         className={`absolute bottom-2 left-2 flex items-center justify-center w-7 h-7 rounded-full backdrop-blur-sm transition-all ${
                           lockedStyle?.likedSceneId === scene.id
-                            ? "bg-pink-500/90 text-white"
-                            : "bg-black/60 text-white/70 hover:bg-pink-500/80 hover:text-white"
+                            ? "bg-[--color-silver]/10 text-white"
+                            : "bg-black/60 text-white/70 hover:bg-[--color-silver]/10 hover:text-white"
                         }`}
                         title={lockedStyle?.likedSceneId === scene.id ? "Style locked from this scene" : "Lock style from this scene"}
                         onClick={() => {
@@ -2232,7 +2232,7 @@ export default function MusicVideoAutopilot() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-zinc-500 hover:text-purple-300 hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          className="text-zinc-500 hover:text-[--color-gold] hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
                           onClick={() => handleRegenerateScene(scene.id)}
                           disabled={scene.regenerating || regenerateSceneMutation.isPending}
                           title="Regenerate this scene"
@@ -2279,14 +2279,14 @@ export default function MusicVideoAutopilot() {
                           }
                         }}
                         placeholder="Describe this scene — mood, lighting, setting, character actions..."
-                        className="bg-zinc-800/60 border-zinc-700 text-white text-xs min-h-[80px] placeholder:text-zinc-600 resize-none focus:border-purple-600 transition-colors"
+                        className="bg-zinc-800/60 border-zinc-700 text-white text-xs min-h-[80px] placeholder:text-zinc-600 resize-none focus:border-[--color-gold] transition-colors"
                         rows={3}
                       />
                       {editingSceneId === scene.id && editPrompt !== scene.prompt && (
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            className="bg-purple-600 hover:bg-purple-700 text-white text-xs h-7"
+                            className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs h-7"
                             onClick={() => handleSaveEdit(scene.id)}
                             disabled={updateScene.isPending || !editPrompt.trim()}
                           >
@@ -2316,7 +2316,7 @@ export default function MusicVideoAutopilot() {
                               key={name}
                               type="button"
                               onClick={() => handleToggleSceneCharacter(scene.id, name)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-violet-900/50 text-violet-300 border border-violet-700/60 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
                               title={`Remove ${name} from this scene`}
                             >
                               @{name}
@@ -2345,11 +2345,11 @@ export default function MusicVideoAutopilot() {
                                       onClick={() => { handleToggleSceneCharacter(scene.id, char.name); setCharacterSelectorSceneId(null); }}
                                       className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition-colors ${
                                         isAssigned
-                                          ? "text-violet-300 bg-violet-900/30 hover:bg-violet-900/50"
+                                          ? "text-[--color-gold] bg-[--color-gold]/15 hover:bg-[--color-gold]/15"
                                           : "text-zinc-300 hover:bg-zinc-800"
                                       }`}
                                     >
-                                      {isAssigned ? <CheckCircle2 className="w-3 h-3 text-violet-400" /> : <User className="w-3 h-3 text-zinc-500" />}
+                                      {isAssigned ? <CheckCircle2 className="w-3 h-3 text-[--color-gold]" /> : <User className="w-3 h-3 text-zinc-500" />}
                                       @{char.name}
                                       {char.role && <span className="text-zinc-600 ml-auto">{char.role}</span>}
                                     </button>
@@ -2374,14 +2374,14 @@ export default function MusicVideoAutopilot() {
                       {/* Toggle row */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-pink-400" : "text-zinc-600"}`} />
-                          <span className={`text-xs font-medium ${scene.lipSync ? "text-pink-300" : "text-zinc-500"}`}>
+                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-[--color-silver]" : "text-zinc-600"}`} />
+                          <span className={`text-xs font-medium ${scene.lipSync ? "text-[--color-silver]" : "text-zinc-500"}`}>
                             Lip Sync
                           </span>
                           <Badge
                             className={`text-xs px-1.5 py-0 ${
                               scene.lipSync
-                                ? "bg-pink-900/40 text-pink-300 border-pink-800/60"
+                                ? "bg-[--color-silver]/10 text-[--color-silver] border-pink-800/60"
                                 : "bg-zinc-800 text-zinc-500 border-zinc-700"
                             }`}
                           >
@@ -2421,7 +2421,7 @@ export default function MusicVideoAutopilot() {
                                       aria-label={label}
                                       className={`text-[10px] px-2 py-0.5 h-6 rounded-full border transition-all ${
                                         scene.lipSyncStyle === value
-                                          ? "bg-pink-900/50 border-pink-600 text-pink-200 font-semibold"
+                                          ? "bg-[--color-silver]/10 border-pink-600 text-[--color-silver] font-semibold"
                                           : "bg-zinc-800/60 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-300"
                                       }`}
                                     >
@@ -2463,9 +2463,9 @@ export default function MusicVideoAutopilot() {
                     {/* Celebration animation — fallback */}
                     <div className="relative mb-6">
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+                        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-[#b8892a]/20 to-[#2e2e36]/20 animate-ping" style={{ animationDuration: '2s' }} />
                       </div>
-                      <div className="relative w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30">
+                      <div className="relative w-20 h-20 rounded-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30">
                         <Clapperboard className="w-10 h-10 text-white" />
                       </div>
                     </div>
@@ -2492,7 +2492,7 @@ export default function MusicVideoAutopilot() {
                     {/* Primary CTAs */}
                     <div className="flex gap-3 justify-center mb-8">
                       <Button
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 h-12 text-base"
+                        className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-6 h-12 text-base"
                         onClick={() => {
                           const video = document.querySelector('video');
                           if (video) { video.currentTime = 0; video.play(); }
@@ -2502,7 +2502,7 @@ export default function MusicVideoAutopilot() {
                       </Button>
                       <Button
                         variant="outline"
-                        className="border-purple-500/30 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-6 h-12 text-base"
+                        className="border-[--color-gold]/30 text-[--color-gold] bg-[--color-gold]/15 hover:bg-[--color-gold]/15 px-6 h-12 text-base"
                         onClick={async () => {
                           if (!finalVideoUrl) return;
                           try {
@@ -2513,7 +2513,7 @@ export default function MusicVideoAutopilot() {
                             const blobUrl = URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.href = blobUrl;
-                            a.download = `${title || 'wizvid'}-${Date.now()}.mp4`;
+                            a.download = `${title || 'wizai'}-${Date.now()}.mp4`;
                             document.body.appendChild(a);
                             a.click();
                             document.body.removeChild(a);
@@ -2542,7 +2542,7 @@ export default function MusicVideoAutopilot() {
                         Copy Link
                       </Button>
                       <Button
-                        className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 h-12 text-base font-semibold shadow-lg shadow-violet-900/30"
+                        className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-12 text-base font-semibold shadow-lg shadow-violet-900/30"
                         onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
                       >
                         <Sparkles className="w-5 h-5 mr-2" /> Create Another Video
@@ -2550,76 +2550,76 @@ export default function MusicVideoAutopilot() {
                     </div>
 
                     {/* Upsell panel — multi-select with Stripe checkout */}
-                    <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-zinc-900 p-6">
-                      <h3 className="text-lg font-semibold text-amber-300 mb-1">Want to upgrade it?</h3>
+                    <div className="rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 to-zinc-900 p-6">
+                      <h3 className="text-lg font-semibold text-[--color-gold] mb-1">Want to upgrade it?</h3>
                       <p className="text-sm text-zinc-400 mb-4">Select add-ons and checkout — or download as-is</p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                         {/* Cinematic Scenes */}
                         <button
                           className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
                             upsellAddons.cinematicScenes
-                              ? "border-purple-500/60 bg-purple-500/15 ring-1 ring-purple-500/30"
-                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-purple-500/30"
+                              ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-purple-500/30"
+                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-[--color-gold]/30"
                           }`}
                           onClick={() => setUpsellAddons(prev => ({ ...prev, cinematicScenes: !prev.cinematicScenes }))}
                         >
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                            upsellAddons.cinematicScenes ? "bg-purple-500/30" : "bg-purple-500/20 group-hover:bg-purple-500/30"
+                            upsellAddons.cinematicScenes ? "bg-[--color-gold]/15" : "bg-[--color-gold]/15 group-hover:bg-[--color-gold]/15"
                           }`}>
-                            <Film className="w-5 h-5 text-purple-400" />
+                            <Film className="w-5 h-5 text-[--color-gold]" />
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-white">Cinematic Scenes</p>
                             <p className="text-xs text-zinc-500">+\u00a35</p>
                           </div>
-                          {upsellAddons.cinematicScenes && <Check className="w-4 h-4 text-purple-400" />}
+                          {upsellAddons.cinematicScenes && <Check className="w-4 h-4 text-[--color-gold]" />}
                         </button>
                         {/* 4K Upgrade */}
                         <button
                           className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
                             upsellAddons.upgrade4K
-                              ? "border-amber-500/60 bg-amber-500/15 ring-1 ring-amber-500/30"
-                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-amber-500/30"
+                              ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-amber-500/30"
+                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-[--color-gold]/30"
                           }`}
                           onClick={() => setUpsellAddons(prev => ({ ...prev, upgrade4K: !prev.upgrade4K }))}
                         >
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                            upsellAddons.upgrade4K ? "bg-amber-500/30" : "bg-amber-500/20 group-hover:bg-amber-500/30"
+                            upsellAddons.upgrade4K ? "bg-[--color-gold]/15" : "bg-[--color-gold]/15 group-hover:bg-[--color-gold]/15"
                           }`}>
-                            <Zap className="w-5 h-5 text-amber-400" />
+                            <Zap className="w-5 h-5 text-[--color-gold]" />
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-white">Upgrade to 4K</p>
                             <p className="text-xs text-zinc-500">+\u00a33</p>
                           </div>
-                          {upsellAddons.upgrade4K && <Check className="w-4 h-4 text-amber-400" />}
+                          {upsellAddons.upgrade4K && <Check className="w-4 h-4 text-[--color-gold]" />}
                         </button>
                         {/* Remove Watermark */}
                         <button
                           className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
                             upsellAddons.removeWatermark
-                              ? "border-emerald-500/60 bg-emerald-500/15 ring-1 ring-emerald-500/30"
-                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-emerald-500/30"
+                              ? "border-[--color-silver]/60 bg-[--color-silver]/10 ring-1 ring-emerald-500/30"
+                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-[--color-silver]/40/30"
                           }`}
                           onClick={() => setUpsellAddons(prev => ({ ...prev, removeWatermark: !prev.removeWatermark }))}
                         >
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                            upsellAddons.removeWatermark ? "bg-emerald-500/30" : "bg-emerald-500/20 group-hover:bg-emerald-500/30"
+                            upsellAddons.removeWatermark ? "bg-[--color-silver]/10" : "bg-[--color-silver]/10 group-hover:bg-[--color-silver]/10"
                           }`}>
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                            <CheckCircle2 className="w-5 h-5 text-[--color-silver]" />
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-white">Remove Watermark</p>
                             <p className="text-xs text-zinc-500">+\u00a32</p>
                           </div>
-                          {upsellAddons.removeWatermark && <Check className="w-4 h-4 text-emerald-400" />}
+                          {upsellAddons.removeWatermark && <Check className="w-4 h-4 text-[--color-silver]" />}
                         </button>
                       </div>
                       {/* Total + Checkout / Download as-is */}
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-zinc-400">
                           {upsellTotal > 0 ? (
-                            <span>Total: <span className="text-amber-300 font-semibold">\u00a3{upsellTotal}</span></span>
+                            <span>Total: <span className="text-[--color-gold] font-semibold">\u00a3{upsellTotal}</span></span>
                           ) : (
                             <span className="text-zinc-500">Select add-ons above</span>
                           )}
@@ -2638,7 +2638,7 @@ export default function MusicVideoAutopilot() {
                                 const blobUrl = URL.createObjectURL(blob);
                                 const a = document.createElement('a');
                                 a.href = blobUrl;
-                                a.download = `${title || 'wizvid'}-${Date.now()}.mp4`;
+                                a.download = `${title || 'wizai'}-${Date.now()}.mp4`;
                                 document.body.appendChild(a);
                                 a.click();
                                 document.body.removeChild(a);
@@ -2654,7 +2654,7 @@ export default function MusicVideoAutopilot() {
                           <Button
                             size="sm"
                             disabled={upsellTotal === 0 || isUpsellCheckingOut}
-                            className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white text-xs disabled:opacity-50"
+                            className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white text-xs disabled:opacity-50"
                             onClick={handleUpsellCheckout}
                           >
                             {isUpsellCheckingOut ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
@@ -2707,21 +2707,21 @@ export default function MusicVideoAutopilot() {
                               <div key={stage.key} className="flex items-center flex-1">
                                 <div className="flex flex-col items-center gap-1">
                                   <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
-                                    isDone    ? "bg-purple-600 text-white" :
-                                    isCurrent ? "bg-purple-500/30 text-purple-300 ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-900 animate-pulse" :
+                                    isDone    ? "bg-[--color-gold] text-white" :
+                                    isCurrent ? "bg-[--color-gold]/15 text-[--color-gold] ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-900 animate-pulse" :
                                                 "bg-zinc-800 text-zinc-600"
                                   }`}>
                                     {isDone ? <Check className="w-4 h-4" /> : stage.icon}
                                   </div>
                                   <span className={`text-xs font-medium whitespace-nowrap ${
-                                    isDone    ? "text-purple-400" :
+                                    isDone    ? "text-[--color-gold]" :
                                     isCurrent ? "text-white" :
                                                 "text-zinc-600"
                                   }`}>{stage.label}</span>
                                 </div>
                                 {i < stages.length - 1 && (
                                   <div className={`flex-1 h-0.5 mx-2 mb-5 transition-all duration-700 ${
-                                    i < currentIdx ? "bg-purple-600" : "bg-zinc-800"
+                                    i < currentIdx ? "bg-[--color-gold]" : "bg-zinc-800"
                                   }`} />
                                 )}
                               </div>
@@ -2733,12 +2733,12 @@ export default function MusicVideoAutopilot() {
 
                     {/* Main status header */}
                     <div className="text-center mb-6">
-                      <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
+                      <div className="w-14 h-14 rounded-full bg-[--color-gold]/15 flex items-center justify-center mx-auto mb-3">
                         {renderStatus === "wizsound"
-                          ? <Music2 className="w-7 h-7 text-violet-400 animate-pulse" />
+                          ? <Music2 className="w-7 h-7 text-[--color-gold] animate-pulse" />
                           : renderStatus === "assembling"
-                          ? <Wand2 className="w-7 h-7 text-purple-400 animate-pulse" />
-                          : <Film className="w-7 h-7 text-purple-400 animate-pulse" />}
+                          ? <Wand2 className="w-7 h-7 text-[--color-gold] animate-pulse" />
+                          : <Film className="w-7 h-7 text-[--color-gold] animate-pulse" />}
                       </div>
                       <div className="flex justify-center mb-2">
                         {renderStatus === "wizsound"
@@ -2760,11 +2760,11 @@ export default function MusicVideoAutopilot() {
                       {/* Quality & audio tier badges */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs">
-                          <Zap className="w-3 h-3 text-amber-400" />
+                          <Zap className="w-3 h-3 text-[--color-gold]" />
                           {totalScenes} scenes
                         </span>
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs">
-                          <Clock className="w-3 h-3 text-purple-400" />
+                          <Clock className="w-3 h-3 text-[--color-gold]" />
                           {liveElapsed < 60
                             ? `${liveElapsed}s elapsed`
                             : `${Math.floor(liveElapsed / 60)}m ${liveElapsed % 60}s elapsed`}
@@ -2774,7 +2774,7 @@ export default function MusicVideoAutopilot() {
                           const remaining = (totalScenes - completedScenes) * msPerScene;
                           const remMin = Math.ceil(remaining / 60000);
                           return (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-900/40 border border-purple-700/50 text-purple-300 text-xs">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs">
                               <Info className="w-3 h-3" />
                               {remMin <= 1 ? "< 1 min left" : `~${remMin} min left`}
                             </span>
@@ -2817,7 +2817,7 @@ export default function MusicVideoAutopilot() {
                                 )}
                               </span>
                               <div className="flex items-center gap-3 text-zinc-500 text-xs">
-                                {etaText && <span className="text-purple-400">{etaText}</span>}
+                                {etaText && <span className="text-[--color-gold]">{etaText}</span>}
                                 <span>{elapsedMin}:{String(elapsedSec).padStart(2, "0")} elapsed</span>
                                 <span className="text-zinc-300 font-semibold">{pct}%</span>
                               </div>
@@ -2857,10 +2857,10 @@ export default function MusicVideoAutopilot() {
                     </div>
 
                     {/* Reassurance panel — safe to leave */}
-                    <div className="mb-5 rounded-xl bg-gradient-to-r from-purple-900/20 via-zinc-900 to-violet-900/20 border border-purple-500/10 p-4">
+                    <div className="mb-5 rounded-xl bg-gradient-to-r from-[#b8892a]/20 via-zinc-900 to-[#4a3010]/20 border border-[--color-gold]/30 p-4">
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                        <div className="w-8 h-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center shrink-0 mt-0.5">
+                          <CheckCircle2 className="w-4 h-4 text-[--color-gold]" />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-white mb-1">Your render is in progress</p>
@@ -2910,8 +2910,8 @@ export default function MusicVideoAutopilot() {
                               key={scene.id}
                               title={scene.status === "failed" && scene.errorMessage ? scene.errorMessage : `Scene ${scene.index + 1}: ${scene.status}`}
                               className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-all duration-300 cursor-default ${
-                                scene.status === "completed"  ? "bg-purple-600 text-white" :
-                                scene.status === "generating" ? "bg-purple-500/30 text-purple-300 ring-1 ring-purple-500 animate-pulse" :
+                                scene.status === "completed"  ? "bg-[--color-gold] text-white" :
+                                scene.status === "generating" ? "bg-[--color-gold]/15 text-[--color-gold] ring-1 ring-purple-500 animate-pulse" :
                                 scene.status === "failed"     ? "bg-red-500/20 text-red-400 ring-1 ring-red-500" :
                                                                 "bg-zinc-800 text-zinc-600"
                               }`}
@@ -2927,8 +2927,8 @@ export default function MusicVideoAutopilot() {
                         {/* Legend */}
                         <div className="flex gap-4 text-xs text-zinc-600 mb-3">
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-zinc-800 inline-block" /> Queued</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-500/30 ring-1 ring-purple-500 inline-block" /> Generating</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-purple-600 inline-block" /> Done</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold]/15 ring-1 ring-purple-500 inline-block" /> Generating</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold] inline-block" /> Done</span>
                           {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/20 ring-1 ring-red-500 inline-block" /> Failed</span>}
                         </div>
 
@@ -3073,7 +3073,7 @@ export default function MusicVideoAutopilot() {
                                           </Button>
                                           <Button
                                             size="sm"
-                                            className="h-7 px-3 text-xs bg-purple-600 hover:bg-purple-500 text-white"
+                                            className="h-7 px-3 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
                                             disabled={!editFailedPrompt.trim() || updateScenePromptMutation.isPending || isRetrying}
                                             onClick={async () => {
                                               if (!jobId || !editFailedPrompt.trim()) return;

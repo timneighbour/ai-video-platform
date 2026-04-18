@@ -41,7 +41,7 @@ function GoToCredits({ isEmpty, label }: { isEmpty: boolean; label?: string }) {
         "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer",
         isEmpty
           ? "bg-red-600 border-red-500 text-white hover:bg-red-500"
-          : "bg-violet-600/20 border-violet-500/40 text-violet-300 hover:bg-violet-600/30 hover:border-violet-400"
+          : "bg-[--color-gold]/20 border-violet-500/40 text-violet-300 hover:bg-[--color-gold]/20/30 hover:border-[--color-gold]/40"
       )}
     >
       <Plus className="w-3 h-3" />
@@ -89,7 +89,7 @@ export default function CreditBalance({
             isEmpty
               ? "bg-red-950/60 border-red-800/50 text-red-300"
               : isLow
-              ? "bg-amber-950/60 border-amber-700/50 text-amber-300"
+              ? "bg-[--color-gold]/60 border-amber-700/50 text-amber-300"
               : "bg-zinc-900 border-zinc-700 text-zinc-200"
           )}
         >
@@ -113,7 +113,7 @@ export default function CreditBalance({
               "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors",
               isEmpty
                 ? "bg-red-600 border-red-500 text-white hover:bg-red-500"
-                : "bg-violet-600/20 border-violet-500/40 text-violet-300 hover:bg-violet-600/30 hover:border-violet-400"
+                : "bg-[--color-gold]/20 border-violet-500/40 text-violet-300 hover:bg-[--color-gold]/20/30 hover:border-[--color-gold]/40"
             )}
           >
             <Plus className="w-3 h-3" />
@@ -150,7 +150,7 @@ export default function CreditBalance({
         isEmpty
           ? "bg-red-950/30 border-red-800/40"
           : isLow
-          ? "bg-amber-950/30 border-amber-700/40"
+          ? "bg-[--color-gold]/30 border-amber-700/40"
           : "bg-zinc-900/80 border-zinc-700/60",
         className
       )}
@@ -164,8 +164,8 @@ export default function CreditBalance({
               isEmpty
                 ? "bg-red-900/50"
                 : isLow
-                ? "bg-amber-900/50"
-                : "bg-violet-900/50"
+                ? "bg-[--color-gold]/50"
+                : "bg-[--color-gold]/50"
             )}
           >
             <Zap
@@ -180,7 +180,7 @@ export default function CreditBalance({
           </span>
         </div>
         <Link href="/credits">
-          <span className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium flex items-center gap-1 cursor-pointer">
+          <span className="text-xs text-violet-400 hover:text-[--color-gold] transition-colors font-medium flex items-center gap-1 cursor-pointer">
             <Plus className="w-3 h-3" />
             Buy Credits
           </span>
@@ -243,14 +243,14 @@ export default function CreditBalance({
 
       {/* Low balance warning (no cost specified) */}
       {cost === undefined && (isEmpty || isLow) && (
-        <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs bg-amber-950/40 border border-amber-700/30 text-amber-300">
+        <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs bg-[--color-gold]/40 border border-amber-700/30 text-amber-300">
           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
           <span>
             {isEmpty
               ? "You're out of Credits."
               : "You're running low on Credits — top up to keep creating."}{" "}
             <Link href="/credits">
-              <span className="underline hover:text-amber-200 transition-colors cursor-pointer">
+              <span className="underline hover:text-[--color-gold] transition-colors cursor-pointer">
                 Buy Credits →
               </span>
             </Link>

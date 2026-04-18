@@ -89,11 +89,11 @@ export default function PostRenderUpgradePanel({
   );
 
   return (
-    <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-950/30 via-black to-black p-5 mt-6">
+    <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/30 via-black to-black p-5 mt-6">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-          <ArrowUp className="w-4 h-4 text-violet-400" />
+        <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
+          <ArrowUp className="w-4 h-4 text-[--color-gold]" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-white">Upgrade your video</h3>
@@ -118,22 +118,22 @@ export default function PostRenderUpgradePanel({
                 isCurrent
                   ? "border-white/8 bg-white/3 cursor-default opacity-60"
                   : isSelected
-                  ? "border-violet-500/60 bg-violet-500/15 ring-1 ring-violet-500/30"
-                  : "border-white/10 bg-white/3 hover:border-violet-500/30 hover:bg-violet-500/8"
+                  ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-violet-500/30"
+                  : "border-white/10 bg-white/3 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15"
               }`}
             >
               {meta.badge && !isCurrent && (
-                <span className="absolute -top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold bg-violet-600 text-white">
+                <span className="absolute -top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold bg-[--color-gold] text-white">
                   {meta.badge}
                 </span>
               )}
               <p className="text-xs font-semibold text-white">{meta.label}</p>
               <p className="text-[10px] text-white/40">{meta.resolution}</p>
-              <p className="text-[10px] font-semibold mt-1 text-violet-300">
+              <p className="text-[10px] font-semibold mt-1 text-[--color-gold]">
                 {isCurrent ? "Current" : diff === 0 ? "Included" : `+£${(diff / 100).toFixed(2)}`}
               </p>
               {isSelected && !isCurrent && (
-                <CheckCircle2 className="absolute top-2 right-2 w-3.5 h-3.5 text-violet-400" />
+                <CheckCircle2 className="absolute top-2 right-2 w-3.5 h-3.5 text-[--color-gold]" />
               )}
             </button>
           );
@@ -157,31 +157,31 @@ export default function PostRenderUpgradePanel({
                 isCurrent
                   ? "border-white/8 bg-white/3 cursor-default opacity-60"
                   : isSelected
-                  ? "border-fuchsia-500/60 bg-fuchsia-500/10 ring-1 ring-fuchsia-500/25"
-                  : "border-white/10 bg-white/3 hover:border-fuchsia-500/30 hover:bg-fuchsia-500/8"
+                  ? "border-fuchsia-500/60 bg-[--color-gold]/15 ring-1 ring-fuchsia-500/25"
+                  : "border-white/10 bg-white/3 hover:border-fuchsia-500/30 hover:bg-[--color-gold]/15"
               }`}
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                isSelected && !isCurrent ? "bg-fuchsia-500/25" : "bg-white/5"
+                isSelected && !isCurrent ? "bg-[--color-gold]/15" : "bg-white/5"
               }`}>
-                <Music2 className={`w-4 h-4 ${isSelected && !isCurrent ? "text-fuchsia-400" : "text-white/40"}`} />
+                <Music2 className={`w-4 h-4 ${isSelected && !isCurrent ? "text-[--color-gold]" : "text-white/40"}`} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-white">{meta.label}</span>
                   {meta.badge && (
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-[9px] font-bold">
                       {meta.badge}
                     </span>
                   )}
                 </div>
                 <p className="text-[10px] text-white/40 mt-0.5">{meta.description}</p>
               </div>
-              <span className="text-xs font-semibold text-fuchsia-300 flex-shrink-0">
+              <span className="text-xs font-semibold text-[--color-gold] flex-shrink-0">
                 {isCurrent ? "Current" : diff === 0 ? "Included" : `+£${(diff / 100).toFixed(2)}`}
               </span>
               {isSelected && !isCurrent && (
-                <CheckCircle2 className="w-3.5 h-3.5 text-fuchsia-400 flex-shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0" />
               )}
             </button>
           );
@@ -203,7 +203,7 @@ export default function PostRenderUpgradePanel({
         <Button
           onClick={handleUpgrade}
           disabled={!hasUpgrade || upgradeCheckout.isPending}
-          className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-40 flex items-center gap-2"
+          className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-40 flex items-center gap-2"
         >
           {upgradeCheckout.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

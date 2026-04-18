@@ -92,15 +92,15 @@ export default function WizImage() {
       <div className="border-b border-white/10 bg-[#0d0d14]">
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
               <ImageIcon className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight">WizImage</h1>
-              <p className="text-xs text-white/50">Powered by Grok Aurora · World-class AI imagery</p>
+              <p className="text-xs text-white/50">WIZ AI · World-class AI imagery</p>
             </div>
           </div>
-          <Badge variant="outline" className="border-violet-500/50 text-violet-300 text-xs">
+          <Badge variant="outline" className="border-[--color-gold]/30 text-[--color-gold] text-xs">
             #1 Ranked Image AI
           </Badge>
         </div>
@@ -116,14 +116,14 @@ export default function WizImage() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="A futuristic city at night with neon lights..."
-              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none h-28 focus:border-violet-500/50 focus:ring-violet-500/20"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none h-28 focus:border-[--color-gold]/30 focus:ring-violet-500/20"
               maxLength={1000}
             />
             <div className="flex items-center justify-between">
               <p className="text-xs text-white/30">{prompt.length}/1000</p>
               <button
                 onClick={() => setPrompt(EXAMPLE_PROMPTS[Math.floor(Math.random() * EXAMPLE_PROMPTS.length)])}
-                className="text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                className="text-xs text-[--color-gold] hover:text-[--color-gold] transition-colors"
               >
                 Try example
               </button>
@@ -140,7 +140,7 @@ export default function WizImage() {
                   onClick={() => setSelectedStyle(s.id)}
                   className={`p-2.5 rounded-lg border text-center transition-all ${
                     selectedStyle === s.id
-                      ? "border-violet-500 bg-violet-500/20 text-white"
+                      ? "border-violet-500 bg-[--color-gold]/15 text-white"
                       : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
                   }`}
                 >
@@ -161,7 +161,7 @@ export default function WizImage() {
                   onClick={() => setAspectRatio(r.id as typeof aspectRatio)}
                   className={`p-3 rounded-lg border text-center transition-all ${
                     aspectRatio === r.id
-                      ? "border-violet-500 bg-violet-500/20 text-white"
+                      ? "border-violet-500 bg-[--color-gold]/15 text-white"
                       : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
                   }`}
                 >
@@ -176,7 +176,7 @@ export default function WizImage() {
           <Button
             onClick={handleGenerate}
             disabled={generateMutation.isPending || !prompt.trim()}
-            className="w-full h-12 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-semibold text-base rounded-xl border-0 transition-all"
+            className="w-full h-12 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold text-base rounded-xl border-0 transition-all"
           >
             {generateMutation.isPending ? (
               <>
@@ -193,7 +193,7 @@ export default function WizImage() {
 
           {!user && (
             <p className="text-xs text-center text-white/40">
-              <button onClick={() => (window.location.href = getLoginUrl())} className="text-violet-400 hover:underline">
+              <button onClick={() => (window.location.href = getLoginUrl())} className="text-[--color-gold] hover:underline">
                 Sign in
               </button>{" "}
               to generate images
@@ -212,8 +212,8 @@ export default function WizImage() {
             {generateMutation.isPending ? (
               <div className="flex flex-col items-center gap-4 text-white/50">
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin" />
-                  <Sparkles className="w-6 h-6 text-violet-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                  <div className="w-16 h-16 rounded-full border-2 border-[--color-gold]/30 border-t-violet-500 animate-spin" />
+                  <Sparkles className="w-6 h-6 text-[--color-gold] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                 </div>
                 <p className="text-sm">Grok Aurora is creating your image...</p>
                 <p className="text-xs text-white/30">Usually takes 5–15 seconds</p>

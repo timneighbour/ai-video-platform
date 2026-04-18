@@ -163,7 +163,7 @@ export default function Account() {
                     </div>
                   </div>
                   {isCanceled && (
-                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-300">
+                    <div className="rounded-lg border border-[--color-gold]/30 bg-[--color-gold]/10 p-3 text-sm text-[--color-gold]">
                       Your subscription has been cancelled and will end on {periodEnd}. You'll keep full access until then.
                     </div>
                   )}

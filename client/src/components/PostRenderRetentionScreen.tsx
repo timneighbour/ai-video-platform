@@ -32,7 +32,7 @@ const NEXT_ACTIONS = [
     subtitle: "Start a new music video",
     icon: Film,
     href: "/music-video/create",
-    gradient: "from-violet-600 to-purple-700",
+    gradient: "from-[#b8892a] to-[#4a3010]",
   },
   {
     id: "new-song",
@@ -48,7 +48,7 @@ const NEXT_ACTIONS = [
     subtitle: "Fun animated story for children",
     icon: Baby,
     href: "/kids-video",
-    gradient: "from-pink-600 to-rose-700",
+    gradient: "from-[#9090a0] to-[#2e2e36]",
   },
   {
     id: "youtube-video",
@@ -61,7 +61,7 @@ const NEXT_ACTIONS = [
 ];
 
 function ConfettiParticle({ delay }: { delay: number }) {
-  const colors = ["bg-violet-400", "bg-fuchsia-400", "bg-amber-400", "bg-emerald-400", "bg-blue-400"];
+  const colors = ["bg-[--color-gold]", "bg-fuchsia-400", "bg-[--color-gold]", "bg-[--color-silver]", "bg-blue-400"];
   const color = colors[Math.floor(Math.random() * colors.length)];
   const left = Math.random() * 100;
   const size = Math.random() * 6 + 4;
@@ -161,8 +161,8 @@ export function PostRenderRetentionScreen({
       {/* ── Celebration Header ──────────────────────────────────────── */}
       <div className="text-center mb-6">
         <div className="relative w-16 h-16 mx-auto mb-4">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 animate-ping" style={{ animationDuration: "2s" }} />
-          <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/40">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#b8892a]/30 to-[#2e2e36]/30 animate-ping" style={{ animationDuration: "2s" }} />
+          <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-violet-500/40">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
         </div>
@@ -193,7 +193,7 @@ export function PostRenderRetentionScreen({
       <div className="flex gap-3 mb-6">
         <Button
           onClick={handleDownload}
-          className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white h-11 font-semibold shadow-lg shadow-violet-900/40"
+          className="flex-1 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white h-11 font-semibold shadow-lg shadow-violet-900/40"
         >
           <Download className="w-4 h-4 mr-2" />
           Download Video
@@ -209,10 +209,10 @@ export function PostRenderRetentionScreen({
 
       {/* ── Upgrade Prompt (free/starter users only) ──────────────────── */}
       {showUpgradePrompt && (
-        <div className="mb-5 px-4 py-3.5 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 to-indigo-950/40 flex items-center justify-between gap-3">
+        <div className="mb-5 px-4 py-3.5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-indigo-950/40 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
-              <Crown className="w-4 h-4 text-violet-400" />
+            <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center shrink-0">
+              <Crown className="w-4 h-4 text-[--color-gold]" />
             </div>
             <div>
               <p className="text-white text-sm font-semibold">Get more renders every month</p>
@@ -222,7 +222,7 @@ export function PostRenderRetentionScreen({
           <a
             href="/pricing"
             onClick={() => mp.track("PostRender_UpgradeClick", { jobId, currentPlan: subData?.plan ?? "free" })}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-colors"
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs font-semibold transition-colors"
           >
             Upgrade
             <ChevronRight className="w-3 h-3" />
@@ -271,7 +271,7 @@ export function PostRenderRetentionScreen({
               <a
                 key={job.id}
                 href={`/music-video/create?resume=${job.id}`}
-                className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.03] hover:border-violet-500/30 hover:bg-white/[0.06] p-3 transition-all group"
+                className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-white/[0.06] p-3 transition-all group"
               >
                 <div className="w-10 h-10 rounded-lg bg-zinc-800 overflow-hidden flex-shrink-0">
                   {job.thumbnailUrl ? (
@@ -283,12 +283,12 @@ export function PostRenderRetentionScreen({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate group-hover:text-violet-300 transition-colors">
+                  <p className="text-sm font-medium text-white truncate group-hover:text-[--color-gold] transition-colors">
                     {job.title || `Project #${job.id}`}
                   </p>
                   <p className="text-[11px] text-zinc-500">{new Date(job.createdAt).toLocaleDateString()}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-violet-400 transition-colors flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-[--color-gold] transition-colors flex-shrink-0" />
               </a>
             ))}
           </div>
@@ -301,7 +301,7 @@ export function PostRenderRetentionScreen({
       {/* ── Retention message ────────────────────────────────────────── */}
       <div className="text-center py-4 border-t border-white/8">
         <p className="text-zinc-500 text-xs">Create videos. Get discovered. Grow your audience.</p>
-        <a href="/music-video/create" className="inline-flex items-center gap-1.5 text-violet-400 text-xs font-medium mt-1.5 hover:text-violet-300 transition-colors">
+        <a href="/music-video/create" className="inline-flex items-center gap-1.5 text-[--color-gold] text-xs font-medium mt-1.5 hover:text-[--color-gold] transition-colors">
           <Sparkles className="w-3 h-3" />
           Start creating now
           <ArrowRight className="w-3 h-3" />
@@ -357,14 +357,14 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
 
   if (submitted) {
     return (
-      <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-center">
-        <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-2">
-          <Rocket className="w-5 h-5 text-emerald-400" />
+      <div className="mb-6 rounded-xl border border-[--color-silver]/30 bg-[--color-silver]/10 p-4 text-center">
+        <div className="w-10 h-10 rounded-full bg-[--color-silver]/10 flex items-center justify-center mx-auto mb-2">
+          <Rocket className="w-5 h-5 text-[--color-silver]" />
         </div>
-        <p className="text-sm font-semibold text-emerald-300 mb-1">You're in the queue!</p>
+        <p className="text-sm font-semibold text-[--color-silver] mb-1">You're in the queue!</p>
         <p className="text-xs text-zinc-400">We'll review your video and reach out if selected for the WIZ AI Creator Network.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
-          <a href="/discover" className="inline-flex items-center gap-1.5 text-violet-400 text-xs font-medium hover:text-violet-300 transition-colors">
+          <a href="/discover" className="inline-flex items-center gap-1.5 text-[--color-gold] text-xs font-medium hover:text-[--color-gold] transition-colors">
             <Users className="w-3 h-3" />
             View Creator Network
             <ArrowRight className="w-3 h-3" />
@@ -374,7 +374,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             download="featured-on-wizai-badge.png"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-amber-400 text-xs font-medium hover:text-amber-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-[--color-gold] text-xs font-medium hover:text-[--color-gold] transition-colors"
           >
             <Download className="w-3 h-3" />
             Download your badge
@@ -389,21 +389,21 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
       {!isOpen ? (
         <button
           onClick={() => { setIsOpen(true); mp.track("PostRender_FeatureClicked", { jobId }); }}
-          className="w-full flex items-center gap-3 rounded-xl border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 hover:border-violet-500/50 p-4 transition-all group"
+          className="w-full flex items-center gap-3 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 hover:bg-[--color-gold]/15 hover:border-[--color-gold]/30 p-4 transition-all group"
         >
-          <div className="w-9 h-9 rounded-lg bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-            <Rocket className="w-4 h-4 text-violet-400" />
+          <div className="w-9 h-9 rounded-lg bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
+            <Rocket className="w-4 h-4 text-[--color-gold]" />
           </div>
           <div className="text-left flex-1">
             <p className="text-sm font-semibold text-white">Want to get featured on WIZ AI?</p>
             <p className="text-xs text-zinc-400">Create videos. Get discovered. Grow your audience.</p>
           </div>
-          <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-violet-400 transition-colors" />
+          <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-[--color-gold] transition-colors" />
         </button>
       ) : (
-        <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4">
+        <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Rocket className="w-4 h-4 text-violet-400" />
+            <Rocket className="w-4 h-4 text-[--color-gold]" />
             <p className="text-sm font-semibold text-white">Feature my video on WIZ AI</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -480,7 +480,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
               <Button
                 type="submit"
                 disabled={submitFeature.isPending}
-                className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-500 text-white"
+                className="flex-1 h-8 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
               >
                 {submitFeature.isPending ? "Submitting..." : "Submit for review"}
               </Button>

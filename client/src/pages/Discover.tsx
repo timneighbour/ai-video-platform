@@ -22,7 +22,7 @@ const CREATOR_TYPE_LABELS: Record<string, string> = {
 };
 
 const CREATOR_TYPE_COLORS: Record<string, string> = {
-  music_artist: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+  music_artist: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   youtuber: "bg-red-500/20 text-red-300 border-red-500/30",
   animator: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   kids_creator: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
@@ -54,7 +54,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
 
   return (
     <div
-      className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10"
+      className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[--color-gold]/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -77,7 +77,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900/40 to-black">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#b8892a]/40 to-black">
             <Play className="w-12 h-12 text-white/20" />
           </div>
         )}
@@ -85,12 +85,12 @@ function CreatorCard({ creator }: { creator: Creator }) {
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
           {creator.isFeatured && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/90 text-black text-xs font-bold">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[--color-gold]/15 text-black text-xs font-bold">
               <Star className="w-3 h-3" /> Featured
             </span>
           )}
           {creator.isTrending && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-pink-500/90 text-white text-xs font-bold">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[--color-silver]/10 text-white text-xs font-bold">
               <TrendingUp className="w-3 h-3" /> Trending
             </span>
           )}
@@ -137,7 +137,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
               href={creator.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[--color-silver]/10 hover:bg-[--color-silver]/10 text-[--color-silver] text-xs font-medium transition-colors"
               onClick={e => e.stopPropagation()}
             >
               <Instagram className="w-3.5 h-3.5" /> Instagram
@@ -174,8 +174,8 @@ function CreatorCard({ creator }: { creator: Creator }) {
 function EmptyState({ category }: { category: string }) {
   return (
     <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4">
-        <Users className="w-8 h-8 text-purple-400" />
+      <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 flex items-center justify-center mb-4">
+        <Users className="w-8 h-8 text-[--color-gold]" />
       </div>
       <h3 className="text-lg font-semibold text-white mb-2">No creators yet</h3>
       <p className="text-white/50 text-sm max-w-xs">
@@ -184,7 +184,7 @@ function EmptyState({ category }: { category: string }) {
           : `No ${CREATOR_TYPE_LABELS[category] ?? category} creators featured yet.`}
       </p>
       <Link href="/music-video/create">
-        <Button className="mt-6 bg-purple-600 hover:bg-purple-700 text-white">
+        <Button className="mt-6 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
           Create a video &amp; get featured
         </Button>
       </Link>
@@ -222,13 +222,13 @@ export default function Discover() {
     <div className="min-h-screen bg-black text-white">
       {/* Hero */}
       <section className="relative pt-24 pb-16 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#b8892a]/20 via-transparent to-transparent pointer-events-none" />
         <div className="relative max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
             WIZ AI Creator Network
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-[#4a3010] bg-clip-text text-transparent">
             Discover Creators
           </h1>
           <p className="text-xl text-white/60 mb-4">
@@ -239,7 +239,7 @@ export default function Discover() {
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link href="/music-video/create">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white px-6">
+              <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-6">
                 Start Creating
               </Button>
             </Link>
@@ -254,10 +254,10 @@ export default function Discover() {
             <p className="text-white/30 text-xs uppercase tracking-widest">Get your creator badge</p>
             <a
               href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/featured-on-wizvid-badge-f57zSZBxBYSqSdFWbYUVHA.png"
-              download="featured-on-wizvid-badge.png"
+              download="featured-on-wizai-badge.png"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-3 px-4 py-2 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
+              className="group flex items-center gap-3 px-4 py-2 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 hover:bg-[--color-gold]/15 hover:border-[--color-gold]/30 transition-all"
             >
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/featured-on-wizvid-badge-WXFCgjGNQGdfmakysCuF7t.webp"
@@ -266,7 +266,7 @@ export default function Discover() {
               />
               <div className="text-left">
                 <p className="text-white text-sm font-semibold">Featured on WIZ AI</p>
-                <p className="text-amber-400/70 text-xs">Download your badge &rarr;</p>
+                <p className="text-[--color-gold]/70 text-xs">Download your badge &rarr;</p>
               </div>
             </a>
           </div>
@@ -278,7 +278,7 @@ export default function Discover() {
         {featuredCreators.length > 0 && (
           <section id="featured">
             <div className="flex items-center gap-3 mb-6">
-              <Star className="w-5 h-5 text-amber-400" />
+              <Star className="w-5 h-5 text-[--color-gold]" />
               <h2 className="text-2xl font-bold text-white">Featured Creators</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -293,7 +293,7 @@ export default function Discover() {
         {trendingCreators.length > 0 && (
           <section>
             <div className="flex items-center gap-3 mb-6">
-              <TrendingUp className="w-5 h-5 text-pink-400" />
+              <TrendingUp className="w-5 h-5 text-[--color-silver]" />
               <h2 className="text-2xl font-bold text-white">Trending Now</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -331,22 +331,22 @@ export default function Discover() {
           {/* Category filter tabs */}
           <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
             <TabsList className="bg-white/5 border border-white/10 flex-wrap h-auto gap-1 p-1">
-              <TabsTrigger value="all" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white/60">
+              <TabsTrigger value="all" className="data-[state=active]:bg-[--color-gold] data-[state=active]:text-white text-white/60">
                 All
               </TabsTrigger>
-              <TabsTrigger value="music_artist" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white/60">
+              <TabsTrigger value="music_artist" className="data-[state=active]:bg-[--color-gold] data-[state=active]:text-white text-white/60">
                 Music Artists
               </TabsTrigger>
-              <TabsTrigger value="youtuber" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white/60">
+              <TabsTrigger value="youtuber" className="data-[state=active]:bg-[--color-gold] data-[state=active]:text-white text-white/60">
                 YouTubers
               </TabsTrigger>
-              <TabsTrigger value="animator" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white/60">
+              <TabsTrigger value="animator" className="data-[state=active]:bg-[--color-gold] data-[state=active]:text-white text-white/60">
                 Animators
               </TabsTrigger>
-              <TabsTrigger value="kids_creator" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white/60">
+              <TabsTrigger value="kids_creator" className="data-[state=active]:bg-[--color-gold] data-[state=active]:text-white text-white/60">
                 Kids Creators
               </TabsTrigger>
-              <TabsTrigger value="content_creator" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white/60">
+              <TabsTrigger value="content_creator" className="data-[state=active]:bg-[--color-gold] data-[state=active]:text-white text-white/60">
                 Content Creators
               </TabsTrigger>
             </TabsList>
@@ -379,8 +379,8 @@ export default function Discover() {
         </section>
 
         {/* CTA Banner */}
-        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-purple-900/60 to-pink-900/40 border border-purple-500/20 p-10 text-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent pointer-events-none" />
+        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#b8892a]/60 to-[#2e2e36]/40 border border-[--color-gold]/30 p-10 text-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/10 to-transparent pointer-events-none" />
           <div className="relative">
             <h2 className="text-3xl font-bold text-white mb-3">Want to get featured?</h2>
             <p className="text-white/60 mb-6 max-w-lg mx-auto">
@@ -388,7 +388,7 @@ export default function Discover() {
             </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link href="/music-video/create">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-base">
+                <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-8 py-3 text-base">
                   Create Your Video
                 </Button>
               </Link>

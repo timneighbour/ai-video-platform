@@ -55,20 +55,20 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
 
 const EMOTION_COLORS: Record<string, string> = {
   intense: "bg-red-500/20 text-red-300 border-red-500/30",
-  passionate: "bg-pink-500/20 text-pink-300 border-pink-500/30",
-  energetic: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  passionate: "bg-[--color-silver]/10 text-[--color-silver] border-pink-500/30",
+  energetic: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   melancholic: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  dreamy: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+  dreamy: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   powerful: "bg-orange-500/20 text-orange-300 border-orange-500/30",
-  tender: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  tender: "bg-[--color-silver]/10 text-[--color-silver] border-rose-500/30",
   dark: "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
-  hopeful: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  hopeful: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
   triumphant: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
 };
 
 function getEmotionColor(emotion: string): string {
   const key = emotion.toLowerCase();
-  return EMOTION_COLORS[key] || "bg-purple-500/20 text-purple-300 border-purple-500/30";
+  return EMOTION_COLORS[key] || "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30";
 }
 
 function getEmotionIcon(emotion: string): React.ReactNode {
@@ -79,8 +79,8 @@ function getEmotionIcon(emotion: string): React.ReactNode {
 function getIntensityBar(intensity: number): string {
   const clamped = Math.max(1, Math.min(10, intensity));
   if (clamped >= 8) return "bg-red-500";
-  if (clamped >= 6) return "bg-amber-500";
-  if (clamped >= 4) return "bg-purple-500";
+  if (clamped >= 6) return "bg-[--color-gold]";
+  if (clamped >= 4) return "bg-[--color-gold]";
   return "bg-blue-500";
 }
 
@@ -153,7 +153,7 @@ export default function LyricsIntelligencePanel({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+            <Sparkles className="w-5 h-5 text-[--color-gold]" />
             Lyrics Intelligence
           </h2>
           <p className="text-zinc-400 text-sm mt-1">
@@ -171,17 +171,17 @@ export default function LyricsIntelligencePanel({
 
       {/* Analysis trigger */}
       {!hasAnalysed && (
-        <Card className="bg-gradient-to-br from-purple-950/40 to-zinc-900 border-purple-500/20">
+        <Card className="bg-gradient-to-br from-[#b8892a]/40 to-zinc-900 border-[--color-gold]/30">
           <CardContent className="pt-6 pb-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
-              <Music className="w-8 h-8 text-purple-400" />
+            <div className="w-16 h-16 rounded-full bg-[--color-gold]/15 flex items-center justify-center mx-auto mb-4">
+              <Music className="w-8 h-8 text-[--color-gold]" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">Ready to Analyse Your Lyrics</h3>
             <p className="text-zinc-400 text-sm mb-6 max-w-md mx-auto">
               Our AI will break down each line of your lyrics, tagging emotions, suggesting scene types, and identifying visual cues for your music video.
             </p>
             <Button
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8"
+              className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-8"
               onClick={handleAnalyse}
               disabled={isAnalysing}
             >
@@ -201,19 +201,19 @@ export default function LyricsIntelligencePanel({
           {/* Summary bar */}
           <div className="flex items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3">
             <div className="flex items-center gap-2">
-              <Film className="w-4 h-4 text-purple-400" />
+              <Film className="w-4 h-4 text-[--color-gold]" />
               <span className="text-sm text-zinc-300">{blocks.length} lyric blocks</span>
             </div>
             <div className="h-4 w-px bg-zinc-700" />
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              <Sparkles className="w-4 h-4 text-[--color-gold]" />
               <span className="text-sm text-zinc-300">
                 {new Set(blocks.map(b => b.emotion.toLowerCase())).size} unique emotions
               </span>
             </div>
             <div className="h-4 w-px bg-zinc-700" />
             <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-emerald-400" />
+              <Eye className="w-4 h-4 text-[--color-silver]" />
               <span className="text-sm text-zinc-300">
                 {blocks.reduce((sum, b) => sum + b.visualCues.length, 0)} visual cues
               </span>
@@ -295,7 +295,7 @@ export default function LyricsIntelligencePanel({
                                 />
                               </div>
                               <div className="flex gap-2">
-                                <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => handleSaveEdit(index)}>
+                                <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white" onClick={() => handleSaveEdit(index)}>
                                   <Check className="w-3 h-3 mr-1" /> Save
                                 </Button>
                                 <Button size="sm" variant="outline" className="border-zinc-700 text-zinc-300 bg-transparent" onClick={handleCancelEdit}>
@@ -355,7 +355,7 @@ export default function LyricsIntelligencePanel({
               Re-analyse
             </Button>
             <Button
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8"
+              className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-8"
               onClick={() => onConfirm(blocks)}
             >
               Looks Good <ArrowRight className="w-4 h-4 ml-2" />

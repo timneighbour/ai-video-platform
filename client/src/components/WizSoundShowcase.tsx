@@ -42,7 +42,7 @@ const TIERS: {
     label: "WizSound Active",
     price: "+£1",
     tagline: "Polished, fuller sound",
-    colour: "from-violet-600 to-purple-500",
+    colour: "from-[#b8892a] to-[#4a3010]",
     glow: "rgba(139,92,246,0.4)",
     specs: [
       { label: "Stereo Width", value: "×2.5", bar: 72 },
@@ -59,7 +59,7 @@ const TIERS: {
     label: "WizSound Spatial",
     price: "+£3",
     tagline: "Spatial audio mastering — cinema-grade immersive sound",
-    colour: "from-fuchsia-600 to-pink-500",
+    colour: "from-[#b8892a] to-[#2e2e36]",
     glow: "rgba(217,70,239,0.45)",
     badge: "RECOMMENDED",
     specs: [
@@ -188,7 +188,7 @@ export default function WizSoundShowcase() {
       <div className="max-w-5xl mx-auto relative">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs font-medium tracking-widest uppercase mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-xs font-medium tracking-widest uppercase mb-4">
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M9 18V5l12-2v13M9 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm12-2c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/>
             </svg>
@@ -250,7 +250,7 @@ export default function WizSoundShowcase() {
               <div>
                 <span className="text-white font-semibold text-lg">{tier.label}</span>
                 {tier.badge && (
-                  <span className="ml-2 text-[10px] font-bold bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 px-2 py-0.5 rounded-full">
+                  <span className="ml-2 text-[10px] font-bold bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 px-2 py-0.5 rounded-full">
                     {tier.badge}
                   </span>
                 )}
@@ -355,9 +355,9 @@ export default function WizSoundShowcase() {
 
               {/* Streaming compatibility note for Cinematic */}
               {tier.id === "cinematic" && (
-                <div className="mt-6 p-3 rounded-lg bg-fuchsia-500/8 border border-fuchsia-500/20">
-                  <p className="text-xs text-fuchsia-300/80 leading-relaxed">
-                    <span className="font-semibold text-fuchsia-300">Spatial + Streaming ready.</span>{" "}
+                <div className="mt-6 p-3 rounded-lg bg-[--color-gold]/15 border border-[--color-gold]/20">
+                  <p className="text-xs text-[--color-gold]/80 leading-relaxed">
+                    <span className="font-semibold text-[--color-gold]">Spatial + Streaming ready.</span>{" "}
                     Cinema-grade spatial mastering normalised to −14 LUFS — the loudness standard used by Spotify, Apple Music, and YouTube. Dolby Cinema-inspired immersive depth.
                   </p>
                 </div>
@@ -427,8 +427,8 @@ export default function WizSoundShowcase() {
                 <tr key={feature} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-3 text-white/60">{feature}</td>
                   <td className={`px-4 py-3 text-center ${activeTier === "standard" ? "text-white font-medium" : "text-white/40"}`}>{std}</td>
-                  <td className={`px-4 py-3 text-center ${activeTier === "enhanced" ? "text-violet-300 font-medium" : "text-white/40"}`}>{enh}</td>
-                  <td className={`px-4 py-3 text-center ${activeTier === "cinematic" ? "text-fuchsia-300 font-medium" : "text-white/40"}`}>{cin}</td>
+                  <td className={`px-4 py-3 text-center ${activeTier === "enhanced" ? "text-[--color-gold] font-medium" : "text-white/40"}`}>{enh}</td>
+                  <td className={`px-4 py-3 text-center ${activeTier === "cinematic" ? "text-[--color-gold] font-medium" : "text-white/40"}`}>{cin}</td>
                 </tr>
               ))}
             </tbody>

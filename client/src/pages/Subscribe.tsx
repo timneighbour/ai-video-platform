@@ -45,7 +45,7 @@ const PLANS = [
       "Standard quality (720p)",
       "All 6 AI video styles",
       "Free storyboard generation",
-      "WizVideo music video maker",
+      "WizVideo + WizAudio creation tools",
       "WizScript AI video creator",
       "Email support",
     ],
@@ -66,7 +66,7 @@ const PLANS = [
       "HD quality (1080p)",
       "All 6 AI video styles",
       "Free storyboard generation",
-      "WizVideo + WizScript included",
+      "WizVideo + WizScript + WizAudio included",
       "Standard rendering speed",
       "Email support",
     ],
@@ -209,13 +209,13 @@ export default function Subscribe() {
 
       {/* ── 1. Above the fold ── */}
       <section className="pt-16 pb-8 text-center px-4">
-        <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs text-purple-300 font-medium mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-1.5 text-xs text-[--color-gold] font-medium mb-6">
           <Sparkles className="h-3.5 w-3.5" />
           No credit card required · Storyboard preview always free
         </div>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4 max-w-2xl mx-auto leading-tight">
           Create for free.<br />
-          <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="metallic-gold">
             Only pay when you render.
           </span>
         </h1>
@@ -232,7 +232,7 @@ export default function Subscribe() {
         <button
           role="switch" aria-checked={billing === "annual"}
           onClick={() => setBilling(billing === "monthly" ? "annual" : "monthly")}
-          className={`relative w-14 h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${billing === "annual" ? "bg-purple-600" : "bg-white/15"}`}
+          className={`relative w-14 h-7 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[--color-gold]/50 ${billing === "annual" ? "bg-[--color-gold]/70" : "bg-white/15"}`}
         >
           <div className={`absolute top-1 w-5 h-5 rounded-full shadow-md transition-all duration-300 bg-white ${billing === "annual" ? "left-8" : "left-1"}`} />
         </button>
@@ -256,20 +256,20 @@ export default function Subscribe() {
                   key={plan.id}
                   className={`relative rounded-2xl border flex flex-col p-4 transition-all duration-300 ${
                     plan.highlight
-                      ? "border-purple-500/60 bg-gradient-to-b from-purple-950/60 to-background shadow-[0_0_40px_-8px_rgba(168,85,247,0.4)] scale-105 lg:scale-110 z-10"
+                      ? "border-[--color-gold]/60 bg-gradient-to-b from-[#2a1f00]/60 to-background shadow-[0_0_40px_-8px_rgba(184,137,42,0.4)] scale-105 lg:scale-110 z-10"
                       : "border-white/10 bg-white/[0.03] hover:border-white/20"
                   }`}
                 >
                   {plan.badge && (
                     <div className={`absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap ${
                       plan.highlight
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                        : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                        ? "metallic-gold text-[#1a1000] border border-[--color-gold]/40"
+                        : "bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/30"
                     }`}>
                       {plan.badge}
                     </div>
                   )}
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${plan.highlight ? "bg-purple-500/20 text-purple-400" : "bg-white/8 text-muted-foreground"}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${plan.highlight ? "bg-[--color-gold]/15 text-[--color-gold]" : "bg-white/8 text-muted-foreground"}`}>
                     {plan.icon}
                   </div>
                   <h3 className="text-base font-bold text-white mb-1">{plan.name}</h3>
@@ -289,7 +289,7 @@ export default function Subscribe() {
                   <Button
                     className={`w-full mt-3 mb-4 font-semibold text-sm ${
                       plan.highlight
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0"
+                        ? "btn-primary text-[#1a1000] border-0"
                         : plan.id === "free"
                         ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
                         : ""
@@ -304,7 +304,7 @@ export default function Subscribe() {
                   <ul className="space-y-1.5 flex-1">
                     {plan.outcomes.map((outcome) => (
                       <li key={outcome} className="flex items-start gap-2">
-                        <Check className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-purple-400" : "text-green-400"}`} />
+                        <Check className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-[--color-gold]" : "text-green-400"}`} />
                         <span className="text-xs text-foreground/75 leading-snug">{outcome}</span>
                       </li>
                     ))}
@@ -337,8 +337,8 @@ export default function Subscribe() {
               { label: "4K Render",       res: "2160p", price: "£6", icon: "", highlight: false, badge: null },
               { label: "Cinematic Pack",  res: "4K + WizSound™ + Priority", price: "£7", icon: "", highlight: true, badge: "Best Value" },
             ].map((item) => (
-              <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-amber-500/40 bg-amber-500/5 shadow-[0_0_24px_-6px_rgba(245,158,11,0.3)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
-                {item.badge && <div className="inline-block rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-0.5 mb-3 border border-amber-500/30">{item.badge}</div>}
+              <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-[--color-gold]/40 bg-[--color-gold]/5 shadow-[0_0_24px_-6px_rgba(184,137,42,0.3)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
+                {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
                 <div className="text-3xl mb-2">{item.icon}</div>
                 <h3 className="font-bold text-white text-sm mb-1">{item.label}</h3>
                 <p className="text-xs text-muted-foreground mb-3">{item.res}</p>
@@ -354,7 +354,7 @@ export default function Subscribe() {
       <section className="py-16 border-t border-white/10 px-4">
         <div className="container max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs text-purple-300 font-medium mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-1.5 text-xs text-[--color-gold] font-medium mb-4">
               <Volume2 className="h-3.5 w-3.5" />WizSound™ Audio Engine
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Make your video cinematic</h2>
@@ -366,14 +366,14 @@ export default function Subscribe() {
               { tier: "WizSound Active",    desc: "Stereo widening + EQ boost",                                                      price: "£1/render", highlight: false, badge: null },
               { tier: "WizSound Spatial",   desc: "Full spatial mix — immersive depth, dynamic range, cinema-grade stereo",        price: "£3/render", highlight: true,  badge: "Recommended" },
             ].map((item) => (
-              <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-purple-500/50 bg-gradient-to-b from-purple-950/50 to-background shadow-[0_0_30px_-8px_rgba(168,85,247,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
-                {item.badge && <div className="inline-block rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold px-3 py-0.5 mb-3 border border-purple-500/30">{item.badge}</div>}
+              <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-[#2a1f00]/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
+                {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
                 <div className="flex items-center gap-2 mb-2">
-                  <Volume2 className={`h-4 w-4 ${item.highlight ? "text-purple-400" : "text-muted-foreground"}`} />
+                  <Volume2 className={`h-4 w-4 ${item.highlight ? "text-[--color-gold]" : "text-muted-foreground"}`} />
                   <h3 className="font-bold text-white text-sm">{item.tier}</h3>
                 </div>
                 <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{item.desc}</p>
-                <p className={`text-lg font-extrabold ${item.highlight ? "text-purple-300" : "text-white"}`}>{item.price}</p>
+                <p className={`text-lg font-extrabold ${item.highlight ? "text-[--color-gold]" : "text-white"}`}>{item.price}</p>
               </div>
             ))}
           </div>
@@ -421,9 +421,9 @@ export default function Subscribe() {
                 <tr className="border-b border-white/10">
                   <th className="text-left p-4 text-muted-foreground font-medium w-40">Feature</th>
                   {["Free", "Starter", "Basic", "Creator", "Pro", "Studio"].map((name) => (
-                    <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-purple-300" : "text-white"}`}>
+                    <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-[--color-gold]" : "text-white"}`}>
                       {name}
-                      {name === "Creator" && <div className="text-xs text-purple-400 font-normal mt-0.5">Most Popular</div>}
+                      {name === "Creator" && <div className="text-xs text-[--color-gold]/70 font-normal mt-0.5">Most Popular</div>}
                     </th>
                   ))}
                 </tr>
@@ -433,7 +433,7 @@ export default function Subscribe() {
                   <tr key={row.feature} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.015]" : ""}`}>
                     <td className="p-4 text-muted-foreground text-xs font-medium">{row.feature}</td>
                     {([row.free, row.starter, row.basic, row.creator, row.pro, row.studio] as (string | boolean)[]).map((val, j) => (
-                      <td key={j} className={`p-4 text-center ${j === 3 ? "bg-purple-500/5" : ""}`}>{renderCell(val)}</td>
+                      <td key={j} className={`p-4 text-center ${j === 3 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
                     ))}
                   </tr>
                 ))}
@@ -471,14 +471,14 @@ export default function Subscribe() {
           <p className="text-muted-foreground mb-8 text-lg">No credit card required. See your storyboard before you spend a penny.</p>
           <Button
             size="lg"
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold px-10 py-4 text-base rounded-full shadow-[0_0_30px_-6px_rgba(168,85,247,0.5)]"
+            className="btn-primary font-bold px-10 py-4 text-base rounded-full"
             onClick={() => handlePlanSelect("free")}
           >
             Start Creating <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
           <p className="mt-4 text-xs text-muted-foreground">
             Already have an account?{" "}
-            <a href="/dashboard" className="text-purple-400 hover:text-purple-300 underline underline-offset-2">
+            <a href="/dashboard" className="text-[--color-gold] hover:text-[--color-gold]/80 underline underline-offset-2">
               Go to your dashboard →
             </a>
           </p>

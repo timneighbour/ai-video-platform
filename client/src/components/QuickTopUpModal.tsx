@@ -135,8 +135,8 @@ export function QuickTopUpModal({
       <DialogContent className="sm:max-w-md bg-background border-border">
         <DialogHeader className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-amber-500/15 flex items-center justify-center">
-              <Zap className="h-4 w-4 text-amber-400" />
+            <div className="h-8 w-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center">
+              <Zap className="h-4 w-4 text-[--color-gold]" />
             </div>
             <DialogTitle className="text-lg font-semibold">Top up your Credits</DialogTitle>
           </div>
@@ -150,7 +150,7 @@ export function QuickTopUpModal({
         {/* Balance indicator */}
         {currentBalance > 0 && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
-            <Zap className="h-3 w-3 text-amber-400" />
+            <Zap className="h-3 w-3 text-[--color-gold]" />
             <span>Current balance: <strong className="text-foreground">{currentBalance} Credits</strong></span>
           </div>
         )}
@@ -184,7 +184,7 @@ export function QuickTopUpModal({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-foreground">{pack.label}</span>
                       {pack.badge && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-amber-500/15 text-amber-400 border-amber-500/20">
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30">
                           {pack.badge}
                         </Badge>
                       )}

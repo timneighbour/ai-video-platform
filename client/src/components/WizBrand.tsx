@@ -76,15 +76,15 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
 // ── Colour map (Tailwind doesn't support dynamic class names) ─────────────────
 const colourMap: Record<WizLayer, { text: string; bg: string; border: string; ring: string }> = {
   create: {
-    text: "text-violet-300",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/25",
+    text: "text-[--color-gold]",
+    bg: "bg-[--color-gold]/15",
+    border: "border-[--color-gold]/30",
     ring: "ring-violet-500/30",
   },
   render: {
-    text: "text-purple-300",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/25",
+    text: "text-[--color-gold]",
+    bg: "bg-[--color-gold]/15",
+    border: "border-[--color-gold]/30",
     ring: "ring-purple-500/30",
   },
   sound: {
@@ -94,8 +94,8 @@ const colourMap: Record<WizLayer, { text: string; bg: string; border: string; ri
     ring: "ring-indigo-500/30",
   },
   pilot: {
-    text: "text-fuchsia-300",
-    bg: "bg-fuchsia-500/10",
+    text: "text-[--color-gold]",
+    bg: "bg-[--color-gold]/15",
     border: "border-fuchsia-500/25",
     ring: "ring-fuchsia-500/30",
   },

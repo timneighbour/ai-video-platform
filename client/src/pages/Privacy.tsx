@@ -23,7 +23,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-bold text-white mb-3">1. Who We Are</h2>
             <p>WIZ AI ("we", "us", "our") is an AI-powered video creation platform operated at <strong>www.wiz-ai.io</strong>. We are committed to protecting your personal data and being transparent about how we use it.</p>
-            <p className="mt-2">For any privacy-related questions, contact us at: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
+            <p className="mt-2">For any privacy-related questions, contact us at: <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a></p>
           </section>
 
           <section>
@@ -52,7 +52,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-bold text-white mb-3">4. Data Storage and Retention</h2>
             <p>Your data is stored on secure cloud infrastructure (AWS). Uploaded audio and image files are retained for 90 days after your last activity, then automatically deleted unless you request earlier removal.</p>
-            <p className="mt-2">Account data is retained for as long as your account is active. You may request deletion at any time by emailing <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a>.</p>
+            <p className="mt-2">Account data is retained for as long as your account is active. You may request deletion at any time by emailing <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a>.</p>
           </section>
 
           <section>
@@ -73,7 +73,7 @@ export default function Privacy() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">7. Your Rights</h2>
-            <p>Depending on your location, you may have the right to access, correct, delete, or export your personal data. To exercise any of these rights, contact us at <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a>.</p>
+            <p>Depending on your location, you may have the right to access, correct, delete, or export your personal data. To exercise any of these rights, contact us at <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a>.</p>
           </section>
 
           <section>
@@ -83,7 +83,7 @@ export default function Privacy() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">9. Contact</h2>
-            <p>For any privacy concerns or data requests, please email: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
+            <p>For any privacy concerns or data requests, please email: <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a></p>
           </section>
         </div>
       </main>

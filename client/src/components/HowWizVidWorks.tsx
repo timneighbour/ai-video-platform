@@ -9,7 +9,7 @@ const STEPS = [
     title: "Upload Audio or Type a Prompt",
     description: "Drop in your track or describe your vision. WIZ AI accepts any audio file or a simple text prompt to kick off the creative process.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step1-PezKstNEpNvaVTiKdFVnXf.webp",
-    accent: "from-violet-500 to-purple-600",
+    accent: "from-[#b8892a] to-[#4a3010]",
     glow: "rgba(139,92,246,0.3)",
   },
   {
@@ -17,7 +17,7 @@ const STEPS = [
     title: "AI Generates Your Storyboard",
     description: "Our Cinematic Engine analyses your audio and instantly generates a scene-by-scene storyboard — completely free, unlimited regenerations.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step2-T3Sv5TmeeN44qoMFcVAjXS.webp",
-    accent: "from-fuchsia-500 to-violet-600",
+    accent: "from-[#b8892a] to-[#4a3010]",
     glow: "rgba(217,70,239,0.3)",
   },
   {
@@ -25,7 +25,7 @@ const STEPS = [
     title: "Preview Your Scenes",
     description: "Review each scene, tweak prompts, and reorder clips until the storyboard matches your creative vision — before spending a single credit.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step3-56PvLkzpwjnZhXAa8BwgP8.webp",
-    accent: "from-blue-500 to-violet-600",
+    accent: "from-blue-500 to-[#4a3010]",
     glow: "rgba(59,130,246,0.3)",
   },
   {
@@ -33,7 +33,7 @@ const STEPS = [
     title: "Apply WizSound™ + WizLumina™",
     description: "Elevate your video with Studio-Grade Sound and Film-Level Visuals. Choose Enhance or go full Cinematic Mode for the complete IMAX experience.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step4-8VnjmVDLFCTrnhiYfERbHz.webp",
-    accent: "from-amber-500 to-fuchsia-500",
+    accent: "from-[#b8892a] to-[#4a3010]",
     glow: "rgba(245,158,11,0.3)",
   },
   {
@@ -41,7 +41,7 @@ const STEPS = [
     title: "Render Your Cinematic Video",
     description: "Hit render and receive your finished video in 720p, 1080p, or 4K — ready to share on YouTube, Instagram, TikTok, or anywhere you create.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step5-aWVkp46Dt35wGRfwfgDX6S.webp",
-    accent: "from-emerald-500 to-violet-600",
+    accent: "from-[#9090a0] to-[#4a3010]",
     glow: "rgba(16,185,129,0.3)",
   },
 ];
@@ -58,8 +58,8 @@ export function HowWizVidWorks() {
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-semibold tracking-wider uppercase mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-semibold tracking-wider uppercase mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
             Simple 5-Step Process
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
@@ -112,7 +112,7 @@ export function HowWizVidWorks() {
         <div className="text-center mt-16">
           <a
             href="/music-video/create"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold text-base hover:from-violet-500 hover:to-fuchsia-500 transition-all duration-300 shadow-[0_0_40px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.5)]"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] text-white font-bold text-base hover:from-[#b8892a] hover:to-[#4a3010] transition-all duration-300 shadow-[0_0_40px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.5)]"
             onClick={(e) => { e.preventDefault(); window.location.href = "/music-video/create"; }}
           >
             Start Creating

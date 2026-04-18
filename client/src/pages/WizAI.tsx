@@ -75,9 +75,9 @@ const WHY_WIZ = [
 function BackgroundOrbs() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-violet-600/8 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: "8s" }} />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[--color-gold]/15 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: "8s" }} />
       <div className="absolute top-2/3 right-0 w-80 h-80 bg-blue-600/6 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: "12s", animationDelay: "2s" }} />
-      <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-fuchsia-600/5 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: "10s", animationDelay: "4s" }} />
+      <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-[--color-gold]/15 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: "10s", animationDelay: "4s" }} />
     </div>
   );
 }
@@ -140,7 +140,7 @@ export default function WizAI() {
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative pt-40 pb-32 px-6 text-center">
         <FadeSection>
-          <p className="text-xs tracking-[0.3em] uppercase text-violet-400/80 mb-6">Creative Intelligence Platform</p>
+          <p className="text-xs tracking-[0.3em] uppercase text-[--color-gold]/80 mb-6">Creative Intelligence Platform</p>
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto">
             Create anything.{" "}
             <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-fuchsia-400 bg-clip-text text-transparent">

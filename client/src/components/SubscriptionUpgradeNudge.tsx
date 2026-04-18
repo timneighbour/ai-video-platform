@@ -59,13 +59,13 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
 
   return (
     <div
-      className={`relative flex items-start gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 to-purple-950/40 px-4 py-3 shadow-lg shadow-violet-900/20 backdrop-blur-sm ${className}`}
+      className={`relative flex items-start gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-[#4a3010]/40 px-4 py-3 shadow-lg shadow-violet-900/20 backdrop-blur-sm ${className}`}
       role="status"
       aria-live="polite"
     >
       {/* Icon */}
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-500/20">
-        <TrendingDown className="h-4 w-4 text-violet-400" />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[--color-gold]/15">
+        <TrendingDown className="h-4 w-4 text-[--color-gold]" />
       </div>
 
       {/* Text */}
@@ -83,7 +83,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
         <Link href="/pricing">
           <Button
             size="sm"
-            className="h-7 bg-violet-600 hover:bg-violet-500 text-white text-xs px-3 gap-1.5"
+            className="h-7 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs px-3 gap-1.5"
           >
             <Sparkles className="h-3 w-3" />
             See Creator Plan

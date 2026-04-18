@@ -47,14 +47,14 @@ export default function LanguageSelector() {
               onClick={() => handleSelect(lang.code)}
               className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-white/10 ${
                 currentLang.code === lang.code
-                  ? "bg-purple-500/20 text-purple-300"
+                  ? "bg-[--color-gold]/15 text-[--color-gold]"
                   : "text-white/70 hover:text-white"
               }`}
             >
               <span className="text-lg">{lang.flag}</span>
               <span className="font-medium">{lang.name}</span>
               {currentLang.code === lang.code && (
-                <span className="ml-auto text-purple-400 text-xs">✓</span>
+                <span className="ml-auto text-[--color-gold] text-xs">✓</span>
               )}
             </button>
           ))}

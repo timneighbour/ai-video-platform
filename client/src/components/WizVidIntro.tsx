@@ -119,7 +119,7 @@ export default function WizAIIntro({ onClose }: WizVidIntroProps) {
       {/* Black background while video loads */}
       {!videoReady && (
         <div className="absolute inset-0 bg-black flex items-center justify-center" style={{ zIndex: 2 }}>
-          <div className="w-8 h-8 border-2 border-amber-400/40 border-t-amber-400 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[--color-gold]/30 border-t-amber-400 rounded-full animate-spin" />
         </div>
       )}
 

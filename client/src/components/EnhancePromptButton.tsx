@@ -51,7 +51,7 @@ export default function EnhancePromptButton({
         onEnhanced(result.enhanced);
         toast.success("Prompt enhanced by WizGenesis™", {
           description: "Your vision has been refined into cinematic detail.",
-          icon: <Sparkles className="w-4 h-4 text-rose-400" />,
+          icon: <Sparkles className="w-4 h-4 text-[--color-silver]" />,
         });
       } else {
         toast.info("Prompt looks good already", {
@@ -77,7 +77,7 @@ export default function EnhancePromptButton({
           size="sm"
           onClick={handleEnhance}
           disabled={isEnhancing || !prompt || prompt.trim().length < 3}
-          className="h-7 px-2.5 gap-1.5 text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/40 rounded-lg transition-all duration-200 disabled:opacity-40"
+          className="h-7 px-2.5 gap-1.5 text-xs font-semibold text-[--color-silver] hover:text-[--color-silver] hover:bg-[--color-silver]/10 border border-[--color-silver]/20 hover:border-[--color-silver]/40 rounded-lg transition-all duration-200 disabled:opacity-40"
         >
           {isEnhancing ? (
             <>

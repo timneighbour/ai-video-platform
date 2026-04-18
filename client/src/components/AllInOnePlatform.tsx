@@ -13,12 +13,12 @@ const STEPS = [
     title: "Create or Upload Audio",
     desc: "Create a song with AI or upload your own track",
     color: "violet",
-    iconBg: "bg-violet-500/20",
-    iconColor: "text-violet-400",
-    borderColor: "border-violet-500/30",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
+    borderColor: "border-[--color-gold]/30",
     glowColor: "shadow-violet-500/20",
-    dotColor: "bg-violet-500",
-    lineColor: "from-violet-500/60",
+    dotColor: "bg-[--color-gold]",
+    lineColor: "from-[#b8892a]/60",
   },
   {
     step: 2,
@@ -27,12 +27,12 @@ const STEPS = [
     title: "Generate Your Video",
     desc: "Turn your audio into a cinematic video or animation",
     color: "cyan",
-    iconBg: "bg-cyan-500/20",
-    iconColor: "text-cyan-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     borderColor: "border-cyan-500/30",
     glowColor: "shadow-cyan-500/20",
     dotColor: "bg-cyan-500",
-    lineColor: "from-cyan-500/60",
+    lineColor: "from-[#9090a0]/60",
   },
   {
     step: 3,
@@ -41,12 +41,12 @@ const STEPS = [
     title: "Lock Your Character",
     desc: "Upload a photo or generate your own AI character — locked across every scene",
     color: "pink",
-    iconBg: "bg-pink-500/20",
-    iconColor: "text-pink-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     borderColor: "border-pink-500/30",
     glowColor: "shadow-pink-500/20",
     dotColor: "bg-pink-500",
-    lineColor: "from-pink-500/60",
+    lineColor: "from-[#9090a0]/60",
   },
   {
     step: 4,
@@ -55,12 +55,12 @@ const STEPS = [
     title: "Build Your Storyboard",
     desc: "Preview and refine every scene before rendering your full video",
     color: "amber",
-    iconBg: "bg-amber-500/20",
-    iconColor: "text-amber-400",
-    borderColor: "border-amber-500/30",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
+    borderColor: "border-[--color-gold]/30",
     glowColor: "shadow-amber-500/20",
-    dotColor: "bg-amber-500",
-    lineColor: "from-amber-500/60",
+    dotColor: "bg-[--color-gold]",
+    lineColor: "from-[#b8892a]/60",
   },
   {
     step: 5,
@@ -69,12 +69,12 @@ const STEPS = [
     title: "Full Video Render",
     desc: "Render your complete video only when you're happy",
     color: "emerald",
-    iconBg: "bg-emerald-500/20",
-    iconColor: "text-emerald-400",
-    borderColor: "border-emerald-500/30",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
+    borderColor: "border-[--color-silver]/30",
     glowColor: "shadow-emerald-500/20",
-    dotColor: "bg-emerald-500",
-    lineColor: "from-emerald-500/60",
+    dotColor: "bg-[--color-silver]",
+    lineColor: "from-[#9090a0]/60",
   },
   {
     step: 6,
@@ -97,12 +97,12 @@ const STEPS = [
     title: "Share & Grow",
     desc: "Share your creation, grow your audience, and promote your content",
     color: "rose",
-    iconBg: "bg-rose-500/20",
-    iconColor: "text-rose-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     borderColor: "border-rose-500/30",
     glowColor: "shadow-rose-500/20",
     dotColor: "bg-rose-500",
-    lineColor: "from-rose-500/60",
+    lineColor: "from-[#9090a0]/60",
   },
 ];
 
@@ -134,9 +134,9 @@ export default function AllInOnePlatform() {
     >
       {/* Ambient background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[400px] rounded-full bg-violet-600/6 blur-[120px]" />
-        <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-cyan-600/5 blur-[100px]" />
-        <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[300px] rounded-full bg-rose-600/5 blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[400px] rounded-full bg-[--color-gold]/15 blur-[120px]" />
+        <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-[--color-silver]/10 blur-[100px]" />
+        <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[300px] rounded-full bg-[--color-silver]/10 blur-[100px]" />
       </div>
 
       <div className="relative max-w-7xl mx-auto">
@@ -145,22 +145,22 @@ export default function AllInOnePlatform() {
           className={`text-center mb-16 transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
           {/* Label pill */}
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/25 rounded-full px-4 py-1.5 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-            <span className="text-violet-300 text-xs font-semibold uppercase tracking-widest">All-in-One Platform</span>
+          <div className="inline-flex items-center gap-2 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-4 py-1.5 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+            <span className="text-[--color-gold] text-xs font-semibold uppercase tracking-widest">All-in-One Platform</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4 tracking-tight">
             The complete AI video creation platform
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-rose-400">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#b8892a] via-cyan-400 to-[#2e2e36]">
               — all in one place
             </span>
           </h2>
           <p className="text-white/55 text-lg max-w-2xl mx-auto leading-relaxed">
-            From <span className="text-violet-300 font-semibold">idea</span> → to{" "}
-            <span className="text-cyan-300 font-semibold">song</span> → to{" "}
-            <span className="text-pink-300 font-semibold">video</span> → to{" "}
-            <span className="text-rose-300 font-semibold">audience</span>.{" "}
+            From <span className="text-[--color-gold] font-semibold">idea</span> → to{" "}
+            <span className="text-[--color-silver] font-semibold">song</span> → to{" "}
+            <span className="text-[--color-silver] font-semibold">video</span> → to{" "}
+            <span className="text-[--color-silver] font-semibold">audience</span>.{" "}
             No tools. No complexity. Just create.
           </p>
         </div>
@@ -169,7 +169,7 @@ export default function AllInOnePlatform() {
         <div className="hidden lg:block">
           <div className="relative">
             {/* Connecting line */}
-            <div className="absolute top-[52px] left-[calc(100%/14)] right-[calc(100%/14)] h-px bg-gradient-to-r from-violet-500/40 via-cyan-500/40 via-pink-500/40 via-amber-500/40 via-emerald-500/40 via-sky-500/40 to-rose-500/40" />
+            <div className="absolute top-[52px] left-[calc(100%/14)] right-[calc(100%/14)] h-px bg-gradient-to-r from-[#b8892a]/40 via-cyan-500/40 via-pink-500/40 via-amber-500/40 via-emerald-500/40 via-sky-500/40 to-[#2e2e36]/40" />
 
             <div className="grid grid-cols-7 gap-3">
               {STEPS.map((s, i) => {
@@ -262,7 +262,7 @@ export default function AllInOnePlatform() {
           </p>
           <NavLink
             href="/create"
-            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
+            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
           >
             Start Creating
             <ArrowRight className="w-4 h-4" />

@@ -178,8 +178,8 @@ export default function WizScore() {
     return (
       <div className="min-h-screen bg-[#060608] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-6">
-            <Music2 className="w-8 h-8 text-violet-400" />
+          <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6">
+            <Music2 className="w-8 h-8 text-[--color-gold]" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">WizScore™</h1>
           <p className="text-white/50 mb-8">Sign in to generate AI-matched soundtracks for your videos.</p>
@@ -205,12 +205,12 @@ export default function WizScore() {
       <div className="max-w-5xl mx-auto px-5 py-12">
         {/* Hero */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-            <span className="text-violet-300 text-xs font-semibold tracking-wide uppercase">AI Video-to-Music</span>
+          <div className="inline-flex items-center gap-2 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-4 py-1.5 mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
+            <span className="text-[--color-gold] text-xs font-semibold tracking-wide uppercase">AI Video-to-Music</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
-            WizScore<span className="text-violet-400">™</span>
+            WizScore<span className="text-[--color-gold]">™</span>
           </h1>
           <p className="text-xl text-white/50 max-w-xl mx-auto leading-relaxed">
             Upload any video. AI analyses the mood, pacing, and energy — then generates a perfectly synced original soundtrack.
@@ -223,12 +223,12 @@ export default function WizScore() {
             {/* Left: Upload */}
             <div className="p-8 border-r border-white/[0.06]">
               <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                <Film className="w-5 h-5 text-violet-400" /> Upload Video
+                <Film className="w-5 h-5 text-[--color-gold]" /> Upload Video
               </h2>
 
               {!videoFile ? (
                 <div
-                  className="border-2 border-dashed border-white/[0.12] rounded-2xl p-10 text-center cursor-pointer hover:border-violet-500/40 hover:bg-violet-500/[0.03] transition-all duration-200"
+                  className="border-2 border-dashed border-white/[0.12] rounded-2xl p-10 text-center cursor-pointer hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15[0.03] transition-all duration-200"
                   onDrop={handleDrop}
                   onDragOver={(e) => e.preventDefault()}
                   onClick={() => fileInputRef.current?.click()}
@@ -272,7 +272,7 @@ export default function WizScore() {
             {/* Right: Status + Result */}
             <div className="p-8">
               <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                <Music2 className="w-5 h-5 text-emerald-400" /> Your Soundtrack
+                <Music2 className="w-5 h-5 text-[--color-silver]" /> Your Soundtrack
               </h2>
 
               {step === "idle" && (
@@ -285,8 +285,8 @@ export default function WizScore() {
               {(step === "uploading" || step === "analyzing" || step === "generating") && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-                      <div className="w-3 h-3 rounded-full bg-violet-400 animate-pulse" />
+                    <div className="w-8 h-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
+                      <div className="w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
                     </div>
                     <p className="text-white/70 text-sm font-medium">{STEP_LABELS[step]}</p>
                   </div>
@@ -301,8 +301,8 @@ export default function WizScore() {
                       { label: "Compose soundtrack", done: progress >= 100 },
                     ].map(({ label, done }) => (
                       <div key={label} className="flex items-center gap-2.5">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done ? "bg-emerald-500/20" : "bg-white/[0.05]"}`}>
-                          {done && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done ? "bg-[--color-silver]/10" : "bg-white/[0.05]"}`}>
+                          {done && <CheckCircle2 className="w-3 h-3 text-[--color-silver]" />}
                         </div>
                         <span className={`text-xs ${done ? "text-white/60" : "text-white/25"}`}>{label}</span>
                       </div>
@@ -330,12 +330,12 @@ export default function WizScore() {
                   </div>
 
                   {/* Audio player */}
-                  <div className="bg-gradient-to-r from-violet-500/10 to-emerald-500/10 border border-violet-500/20 rounded-2xl p-4">
+                  <div className="bg-gradient-to-r from-[#b8892a]/10 to-[#2e2e36]/10 border border-[--color-gold]/30 rounded-2xl p-4">
                     <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
                     <div className="flex items-center gap-3">
                       <button
                         onClick={togglePlay}
-                        className="w-10 h-10 rounded-full bg-violet-500 hover:bg-violet-400 flex items-center justify-center transition-colors flex-shrink-0"
+                        className="w-10 h-10 rounded-full bg-[--color-gold] hover:bg-[--color-gold]/20 flex items-center justify-center transition-colors flex-shrink-0"
                       >
                         {isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
                       </button>
@@ -399,9 +399,9 @@ export default function WizScore() {
         {/* How it works */}
         <div className="mt-16 grid md:grid-cols-3 gap-6">
           {[
-            { icon: Film, title: "Upload Your Video", desc: "Drop any video — short film, music video, reel, or YouTube clip. Up to 100MB.", colour: "text-violet-400", bg: "bg-violet-500/10" },
-            { icon: Wand2, title: "AI Analyses the Scene", desc: "WizScore reads the mood, pacing, energy, and duration — frame by frame.", colour: "text-emerald-400", bg: "bg-emerald-500/10" },
-            { icon: Music2, title: "Synced Soundtrack", desc: "An original instrumental track is composed and trimmed to end exactly on your final frame.", colour: "text-amber-400", bg: "bg-amber-500/10" },
+            { icon: Film, title: "Upload Your Video", desc: "Drop any video — short film, music video, reel, or YouTube clip. Up to 100MB.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
+            { icon: Wand2, title: "AI Analyses the Scene", desc: "WizScore reads the mood, pacing, energy, and duration — frame by frame.", colour: "text-[--color-silver]", bg: "bg-[--color-silver]/10" },
+            { icon: Music2, title: "Synced Soundtrack", desc: "An original instrumental track is composed and trimmed to end exactly on your final frame.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
           ].map(({ icon: Icon, title, desc, colour, bg }) => (
             <div key={title} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
               <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-4`}>

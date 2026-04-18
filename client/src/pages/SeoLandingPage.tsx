@@ -53,13 +53,13 @@ function injectJsonLd(id: string, data: object) {
 function DemoVideoEmbed({ keyword }: { keyword: string }) {
   return (
     <div className="my-8 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-      <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 px-4 py-3 flex items-center gap-2">
-        <Play className="w-4 h-4 text-pink-400" />
+      <div className="bg-gradient-to-r from-[#b8892a]/50 to-[#2e2e36]/50 px-4 py-3 flex items-center gap-2">
+        <Play className="w-4 h-4 text-[--color-silver]" />
         <span className="text-sm text-white/70 font-medium">Demo: {keyword}</span>
-        <Badge className="ml-auto bg-pink-500/20 text-pink-300 border-pink-500/30 text-xs">AI Generated</Badge>
+        <Badge className="ml-auto bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30 text-xs">AI Generated</Badge>
       </div>
       <div className="aspect-video bg-black/60 flex items-center justify-center relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-black/60 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/30 to-black/60 pointer-events-none" />
         <div className="relative z-10 text-center">
           <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-white/20 transition-colors">
             <Play className="w-8 h-8 text-white ml-1" />
@@ -82,17 +82,17 @@ function TrustBar() {
       </span>
       <span className="text-white/20 hidden sm:inline">|</span>
       <span className="flex items-center gap-1.5">
-        <TrendingUp className="w-4 h-4 text-violet-400" />
+        <TrendingUp className="w-4 h-4 text-[--color-gold]" />
         10,000+ videos generated
       </span>
       <span className="text-white/20 hidden sm:inline">|</span>
       <span className="flex items-center gap-1.5">
-        <Star className="w-4 h-4 text-amber-400" />
+        <Star className="w-4 h-4 text-[--color-gold]" />
         Trusted by creators worldwide
       </span>
       <span className="text-white/20 hidden sm:inline">|</span>
       <span className="flex items-center gap-1.5">
-          <Clock className="w-4 h-4 text-pink-400" />
+          <Clock className="w-4 h-4 text-[--color-silver]" />
           Free to create
       </span>
     </div>
@@ -117,7 +117,7 @@ function CTAButton({
       <Link href="/music-video">
         <Button
           size="lg"
-          className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold px-8 py-4 rounded-xl text-lg shadow-lg shadow-pink-500/25 w-full sm:w-auto"
+          className="bg-gradient-to-r from-[#9090a0] to-[#4a3010] hover:from-[#9090a0] hover:to-[#4a3010] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-lg shadow-pink-500/25 w-full sm:w-auto"
         >
           <Sparkles className="w-5 h-5 mr-2" />
           {label}
@@ -257,7 +257,7 @@ export default function SeoLandingPage() {
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Page Not Found</h1>
           <Link href="/">
-            <Button className="bg-pink-500 hover:bg-pink-600">Back to Home</Button>
+            <Button className="bg-[--color-silver] hover:bg-[--color-silver]/15">Back to Home</Button>
           </Link>
         </div>
       </div>
@@ -306,7 +306,7 @@ export default function SeoLandingPage() {
             <Link href="/pricing" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">Pricing</Link>
           </div>
           <Link href="/music-video">
-            <Button className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-sm px-4 py-2 rounded-lg">
+            <Button className="bg-gradient-to-r from-[#9090a0] to-[#4a3010] hover:from-[#9090a0] hover:to-[#4a3010] text-white text-sm px-4 py-2 rounded-lg">
               Start Creating
             </Button>
           </Link>
@@ -323,7 +323,7 @@ export default function SeoLandingPage() {
 
         {/* H1 + Top CTA */}
         <div className="mb-10">
-          <Badge className="mb-4 bg-pink-500/20 text-pink-300 border-pink-500/30">
+          <Badge className="mb-4 bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30">
             <Zap className="w-3 h-3 mr-1" />
             AI-Powered • No Editing Required
           </Badge>
@@ -352,9 +352,9 @@ export default function SeoLandingPage() {
             {page.howToSteps.map((step, i) => (
               <div
                 key={i}
-                className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors"
+                className="flex gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[--color-gold]/30 transition-colors"
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#9090a0] to-[#4a3010] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                   {i + 1}
                 </div>
                 <div>
@@ -366,7 +366,7 @@ export default function SeoLandingPage() {
         </section>
 
         {/* Mid CTA */}
-        <div className="my-12 p-8 rounded-2xl bg-gradient-to-r from-pink-900/30 to-purple-900/30 border border-pink-500/20 text-center">
+        <div className="my-12 p-8 rounded-2xl bg-gradient-to-r from-[#9090a0]/30 to-[#4a3010]/30 border border-[--color-silver]/20 text-center">
           <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
           <p className="text-white/60 mb-2">Join thousands of creators already using WIZ AI</p>
           <p className="text-white/40 text-sm mb-6">No credit card required · Free to create · Only pay to render</p>
@@ -396,7 +396,7 @@ export default function SeoLandingPage() {
           <h2 className="text-3xl font-bold mb-6">
             Best AI Tool for {page.keyword.replace(/^AI /i, "")}
           </h2>
-          <div className="p-8 rounded-2xl bg-gradient-to-br from-purple-900/40 to-pink-900/20 border border-purple-500/20">
+          <div className="p-8 rounded-2xl bg-gradient-to-br from-[#b8892a]/40 to-[#2e2e36]/20 border border-[--color-gold]/30">
             <div className="flex items-center gap-3 mb-4">
               <img
                 src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
@@ -419,9 +419,9 @@ export default function SeoLandingPage() {
             {page.useCases.map((uc, i) => (
               <div
                 key={i}
-                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors"
+                className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[--color-gold]/30 transition-colors"
               >
-                <h3 className="font-bold text-lg mb-2 text-purple-300">{uc.title}</h3>
+                <h3 className="font-bold text-lg mb-2 text-[--color-gold]">{uc.title}</h3>
                 <p className="text-white/70">{uc.description}</p>
               </div>
             ))}
@@ -436,7 +436,7 @@ export default function SeoLandingPage() {
             { icon: <Zap className="w-6 h-6" />, value: "6", label: "AI Video Styles" },
           ].map((stat, i) => (
             <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <div className="text-pink-400 flex justify-center mb-2">{stat.icon}</div>
+              <div className="text-[--color-silver] flex justify-center mb-2">{stat.icon}</div>
               <div className="text-3xl font-black text-white mb-1">{stat.value}</div>
               <div className="text-white/50 text-sm">{stat.label}</div>
             </div>
@@ -465,8 +465,8 @@ export default function SeoLandingPage() {
             <div className="grid sm:grid-cols-3 gap-4">
               {relatedPages.map((rp) => (
                 <Link key={rp.slug} href={`/seo/${rp.slug}`}>
-                  <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer">
-                    <ArrowRight className="w-4 h-4 text-purple-400 mb-2" />
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-[--color-gold]/30 hover:bg-white/10 transition-all cursor-pointer">
+                    <ArrowRight className="w-4 h-4 text-[--color-gold] mb-2" />
                     <p className="text-white/80 text-sm font-medium">{rp.keyword}</p>
                   </div>
                 </Link>
@@ -476,8 +476,8 @@ export default function SeoLandingPage() {
         )}
 
         {/* Bottom CTA */}
-        <div className="my-16 p-10 rounded-3xl bg-gradient-to-br from-pink-900/40 via-purple-900/40 to-blue-900/40 border border-white/10 text-center">
-          <Sparkles className="w-12 h-12 text-pink-400 mx-auto mb-4" />
+        <div className="my-16 p-10 rounded-3xl bg-gradient-to-br from-[#9090a0]/40 via-purple-900/40 to-blue-900/40 border border-white/10 text-center">
+          <Sparkles className="w-12 h-12 text-[--color-silver] mx-auto mb-4" />
           <h2 className="text-4xl font-black mb-4">Ready to Create Your First AI Video?</h2>
           <p className="text-white/60 text-lg mb-8 max-w-xl mx-auto">
             No editing. No experience needed. Just upload your audio or idea and let WIZ AI do the rest.
@@ -493,7 +493,7 @@ export default function SeoLandingPage() {
             media creators. Our {page.keyword.toLowerCase()} technology allows anyone to create professional-quality
             videos without editing skills. Whether you need an {page.keyword.toLowerCase()} for YouTube, TikTok, or any
             platform, WIZ AI delivers stunning results in minutes.{" "}
-            <Link href="/" className="text-purple-400 hover:text-purple-300 ml-1">
+            <Link href="/" className="text-[--color-gold] hover:text-[--color-gold] ml-1">
               Learn more about WIZ AI →
             </Link>
           </p>
@@ -504,7 +504,7 @@ export default function SeoLandingPage() {
       <footer className="border-t border-white/10 py-12 mt-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <Link href="/">
-            <span className="font-bold text-xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent cursor-pointer">
+            <span className="font-bold text-xl bg-gradient-to-r from-[#9090a0] to-[#4a3010] bg-clip-text text-transparent cursor-pointer">
               WIZ AI
             </span>
           </Link>

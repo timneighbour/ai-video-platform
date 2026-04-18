@@ -4869,3 +4869,110 @@
 - [x] METAL-3: Rebuilt metallic-silver CSS with 14-stop gradient matching logo 'AI' lettering
 - [x] METAL-4: Upgraded btn-primary to polished metallic gold surface with bevel and highlight
 - [x] METAL-5: New metallic classes applied to hero, product names, engine names, CTAs, section labels
+
+## LAUNCH READINESS QA PASS (Ella)
+---
+
+### QA-1: Visual Brand Consistency
+- [x] QA-VIS-1: Audit homepage — luxury brand system, no old branding, no emojis
+- [x] QA-VIS-2: Audit pricing page — consistent nav, styling, copy
+- [x] QA-VIS-3: Audit help page — consistent nav, styling, copy
+- [x] QA-VIS-4: Audit create/onboarding page — WIZ AI branded, no old names
+- [ ] QA-VIS-5: Audit sign-in/auth screens — luxury styling
+- [ ] QA-VIS-6: Audit dashboard — no old WizVid branding, premium feel
+- [ ] QA-VIS-7: Audit projects page — clean, usable, premium
+- [ ] QA-VIS-8: Audit WizAudio tool page — WIZ AI branded, no Suno wrapper look
+- [ ] QA-VIS-9: Audit WizImage tool page — WIZ AI branded, no Grok wrapper look
+- [ ] QA-VIS-10: Audit WizVideo tool page — WIZ AI branded
+- [ ] QA-VIS-11: Audit WizShorts tool page — WIZ AI branded
+- [ ] QA-VIS-12: Audit WizAnimate tool page — no Pixar wording
+- [ ] QA-VIS-13: Audit WizScript tool page — WIZ AI branded
+- [ ] QA-VIS-14: Audit checkout/billing flow — WIZ AI branded
+- [ ] QA-VIS-15: Audit notification/render status pages — premium wording
+
+### QA-2: Brand/Copy QA
+- [x] QA-COPY-1: Remove all old WizVid references from public-facing pages
+- [ ] QA-COPY-2: Remove all old WizBeat references
+- [ ] QA-COPY-3: Remove all "Powered by Suno" or "Powered by Grok" dominance
+- [ ] QA-COPY-4: Fix all unicode issues (\u2014, \u0087, etc.)
+- [ ] QA-COPY-5: Fix broken words, weird spacing, typos
+- [x] QA-COPY-6: Ensure correct product family naming (WizAudio, WizImage, WizVideo, WizShorts, WizAnimate, WizScript)
+- [ ] QA-COPY-7: Ensure correct engine family naming (WizSound, WizLumina, WizGenesis, WizBoost)
+- [ ] QA-COPY-8: WIZ AI must always feel like the master brand
+
+### QA-3: Product Flow QA
+- [ ] QA-FLOW-1: WizAudio — prompt, style/duration, generate, save/access result
+- [ ] QA-FLOW-2: WizImage — prompt, style/aspect ratio, generate, save/access result
+- [ ] QA-FLOW-3: WizVideo — project start, idea/audio upload, storyboard, preview, build/render
+- [ ] QA-FLOW-4: WizShorts — short-form video, text/image inputs, Shorts/Reels/TikTok positioning
+- [ ] QA-FLOW-5: WizAnimate — animation project, stylised 3D wording (not Pixar)
+- [ ] QA-FLOW-6: WizScript — text to scene/video flow, naming consistent
+
+### QA-4: Save/Projects QA
+- [ ] QA-SAVE-1: Projects save correctly
+- [ ] QA-SAVE-2: Scene edits save correctly
+- [ ] QA-SAVE-3: Selected styles save correctly
+- [ ] QA-SAVE-4: Generated assets remain attached
+- [ ] QA-SAVE-5: User can leave and return
+- [ ] QA-SAVE-6: Projects page is clean and usable
+- [ ] QA-SAVE-7: Project statuses are clear (Draft, Ready to Build, Building Your Video, Completed, Failed)
+
+### QA-5: Build/Render/Notification QA
+- [ ] QA-BUILD-1: User can initiate build/render
+- [ ] QA-BUILD-2: Status changes clearly during render
+- [ ] QA-BUILD-3: Completion is visible in-app
+- [ ] QA-BUILD-4: Download is obvious
+- [ ] QA-BUILD-5: Failed builds show helpful message
+- [ ] QA-BUILD-6: Premium wording (Building Your Video, Finalising, Ready to Download)
+
+### QA-6: Payment/Checkout QA
+- [ ] QA-PAY-1: Subscription checkout works
+- [ ] QA-PAY-2: Credit pack checkout works
+- [ ] QA-PAY-3: Free account flow works
+- [ ] QA-PAY-4: Post-payment credit allocation confirmed
+- [ ] QA-PAY-5: Plan access after payment confirmed
+- [ ] QA-PAY-6: Billing copy uses WIZ AI branding (no old WizVid billing identity)
+- [ ] QA-PAY-7: Pricing is clear (what users get, credits, subscription vs PAYG, expiry)
+
+### QA-7: SEO/Metadata QA
+- [ ] QA-SEO-1: Browser title is "WIZ AI | Create anything. Instantly."
+- [ ] QA-SEO-2: Homepage meta description is WIZ AI branded
+- [x] QA-SEO-3: Pricing/help/product page titles are WIZ AI branded
+- [ ] QA-SEO-4: Open Graph image/title/description are correct
+- [ ] QA-SEO-5: Twitter/X card data is correct
+- [ ] QA-SEO-6: Favicon is WIZ AI
+- [ ] QA-SEO-7: sitemap.xml includes key pages
+- [ ] QA-SEO-8: robots.txt is not blocking important pages
+- [ ] QA-SEO-9: Canonical URLs are correct
+- [x] QA-SEO-10: No old WizVid metadata remains
+
+### QA-8: Analytics/Tracking QA
+- [ ] QA-TRACK-1: Homepage view tracked
+- [ ] QA-TRACK-2: Product card click tracked
+- [ ] QA-TRACK-3: Start Creating click tracked
+- [ ] QA-TRACK-4: Pricing page view tracked
+- [ ] QA-TRACK-5: Checkout started tracked
+- [ ] QA-TRACK-6: Purchase completed tracked
+- [ ] QA-TRACK-7: Sign-up completed tracked
+- [ ] QA-TRACK-8: Project created tracked
+- [ ] QA-TRACK-9: Build/render started tracked
+- [ ] QA-TRACK-10: Build/render completed tracked
+
+### QA-9: Mobile/Responsive QA
+- [ ] QA-MOB-1: Homepage hero mobile
+- [ ] QA-MOB-2: Product cards mobile
+- [ ] QA-MOB-3: Menu/dropdown mobile
+- [ ] QA-MOB-4: Pricing cards mobile
+- [ ] QA-MOB-5: Help page mobile
+- [ ] QA-MOB-6: Product tools mobile
+- [ ] QA-MOB-7: Project dashboard mobile
+
+### QA-10: Performance QA
+- [ ] QA-PERF-1: Homepage loads quickly
+- [ ] QA-PERF-2: Video backgrounds are optimised
+- [ ] QA-PERF-3: No console errors
+- [ ] QA-PERF-4: No broken lazy loading
+- [ ] QA-PERF-5: No layout shift
+
+### QA-11: Final Go/No-Go Report
+- [ ] QA-REPORT: Compile and deliver final launch readiness report

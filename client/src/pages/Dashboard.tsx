@@ -37,7 +37,7 @@ const CREATE_ACTIONS = [
     subtitle: "Music video from your track",
     icon: Film,
     href: "/music-video/create",
-    gradient: "from-violet-600 to-purple-700",
+    gradient: "from-[#b8892a] to-[#4a3010]",
     glow: "shadow-violet-500/25",
     badge: "Most Popular",
   },
@@ -57,7 +57,7 @@ const CREATE_ACTIONS = [
     subtitle: "Fun animated stories for children",
     icon: Baby,
     href: "/kids-video",
-    gradient: "from-pink-600 to-rose-700",
+    gradient: "from-[#9090a0] to-[#2e2e36]",
     glow: "shadow-pink-500/25",
     badge: null,
   },
@@ -86,10 +86,10 @@ const INSPIRATION = [
 // ── Status badge helper ──────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    completed: { label: "Complete", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20" },
-    rendering: { label: "Building Your Video", cls: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
+    completed: { label: "Complete", cls: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20" },
+    rendering: { label: "Building Your Video", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     assembling: { label: "Assembling", cls: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
-    storyboard_ready: { label: "Ready", cls: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
+    storyboard_ready: { label: "Ready", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     failed: { label: "Failed", cls: "bg-red-500/15 text-red-400 border-red-500/20" },
     draft: { label: "Draft", cls: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20" },
   };
@@ -107,7 +107,7 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
   return (
     <div className="w-full h-1 bg-white/8 rounded-full overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all"
+        className="h-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] rounded-full transition-all"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -184,7 +184,7 @@ export default function Dashboard() {
             <img src={WIZAI_LOGO} alt="WIZ AI" className="h-12 w-auto" />
           </a>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/15 border border-violet-500/25 text-violet-300 text-xs font-medium">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-medium">
               <Crown className="w-3 h-3" />
               {currentPlan}
             </span>
@@ -210,7 +210,7 @@ export default function Dashboard() {
         {/* ── Welcome ──────────────────────────────────────────────────── */}
         <div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-            <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-fuchsia-400 bg-clip-text text-transparent">Welcome to your Studio</span>
+            <span className="bg-gradient-to-r from-[#b8892a] via-purple-300 to-[#4a3010] bg-clip-text text-transparent">Welcome to your Studio</span>
           </h1>
           <p className="text-zinc-400 mt-2 text-base">
             What do you want to create today{user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Your creative workspace — everything in one place.
@@ -256,9 +256,9 @@ export default function Dashboard() {
         {/* ── Insights Strip ───────────────────────────────────────────── */}
         <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Total Videos", value: totalProjects, icon: Film, color: "text-violet-400" },
-            { label: "Renders Done", value: completedProjects, icon: CheckCircle2, color: "text-emerald-400" },
-            { label: "Renders Left", value: renderBalance, icon: Zap, color: "text-amber-400" },
+            { label: "Total Videos", value: totalProjects, icon: Film, color: "text-[--color-gold]" },
+            { label: "Renders Done", value: completedProjects, icon: CheckCircle2, color: "text-[--color-silver]" },
+            { label: "Renders Left", value: renderBalance, icon: Zap, color: "text-[--color-gold]" },
             { label: "Credits", value: creditBalance.toLocaleString(), icon: Star, color: "text-blue-400" },
           ].map((stat) => {
             const Icon = stat.icon;
@@ -291,7 +291,7 @@ export default function Dashboard() {
                 <a
                   key={job.id}
                   href={`/music-video/create?resume=${job.id}`}
-                  className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-violet-500/30 hover:bg-white/[0.06] transition-all overflow-hidden"
+                  className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-white/[0.06] transition-all overflow-hidden"
                 >
                   {/* Thumbnail */}
                   <div className="relative h-28 bg-zinc-900 overflow-hidden">
@@ -309,7 +309,7 @@ export default function Dashboard() {
                   </div>
                   {/* Info */}
                   <div className="p-3">
-                    <p className="text-sm font-medium text-white truncate group-hover:text-violet-300 transition-colors">
+                    <p className="text-sm font-medium text-white truncate group-hover:text-[--color-gold] transition-colors">
                       {job.title || `Project #${job.id}`}
                     </p>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
@@ -325,7 +325,7 @@ export default function Dashboard() {
                       </div>
                     )}
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs text-violet-400 font-medium">
+                      <div className="flex items-center gap-1.5 text-xs text-[--color-gold] font-medium">
                         <Play className="w-3 h-3" />
                         Continue
                       </div>
@@ -398,12 +398,12 @@ export default function Dashboard() {
               {/* New project card */}
               <a
                 href="/music-video/create"
-                className="group rounded-xl border border-dashed border-white/15 bg-transparent hover:border-violet-500/40 hover:bg-violet-500/5 transition-all flex flex-col items-center justify-center gap-2 aspect-video p-4"
+                className="group rounded-xl border border-dashed border-white/15 bg-transparent hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition-all flex flex-col items-center justify-center gap-2 aspect-video p-4"
               >
-                <div className="w-8 h-8 rounded-full bg-white/8 group-hover:bg-violet-500/20 flex items-center justify-center transition-colors">
-                  <Plus className="w-4 h-4 text-zinc-400 group-hover:text-violet-400 transition-colors" />
+                <div className="w-8 h-8 rounded-full bg-white/8 group-hover:bg-[--color-gold]/15 flex items-center justify-center transition-colors">
+                  <Plus className="w-4 h-4 text-zinc-400 group-hover:text-[--color-gold] transition-colors" />
                 </div>
-                <span className="text-[11px] text-zinc-500 group-hover:text-violet-400 transition-colors text-center">New Project</span>
+                <span className="text-[11px] text-zinc-500 group-hover:text-[--color-gold] transition-colors text-center">New Project</span>
               </a>
             </div>
           </section>
@@ -411,8 +411,8 @@ export default function Dashboard() {
           /* ── Empty State ──────────────────────────────────────────────── */
           <section className="text-center py-16">
             <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-600/30 to-purple-600/30 animate-pulse" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg shadow-violet-500/30">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#b8892a]/30 to-[#4a3010]/30 animate-pulse" />
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-violet-500/30">
                 <Sparkles className="w-9 h-9 text-white" />
               </div>
             </div>
@@ -421,7 +421,7 @@ export default function Dashboard() {
               Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
             </p>
             <a href="/music-video/create">
-              <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 h-12 text-base font-semibold shadow-lg shadow-violet-900/40">
+              <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-violet-900/40">
                 <Sparkles className="w-5 h-5 mr-2" />
                 Start Creating
               </Button>
@@ -437,7 +437,7 @@ export default function Dashboard() {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-[--color-silver]" />
                   Completed Videos
                 </h2>
                 <a href="/projects" className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors">
@@ -446,7 +446,7 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {completedVideos.slice(0, 6).map((job: any) => (
-                  <div key={job.id} className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-emerald-500/30 transition-all overflow-hidden">
+                  <div key={job.id} className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-silver]/40/30 transition-all overflow-hidden">
                     <div className="relative aspect-video bg-zinc-900 overflow-hidden">
                       {job.thumbnailUrl ? (
                         <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -458,7 +458,7 @@ export default function Dashboard() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
                         <span className="text-[10px] font-medium text-white/80 truncate max-w-[60%]">{job.title || `#${job.id}`}</span>
-                        <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/15 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">Done</span>
+                        <span className="text-[10px] text-[--color-silver] font-semibold bg-[--color-silver]/10 border border-[--color-silver]/20 px-1.5 py-0.5 rounded-full">Done</span>
                       </div>
                     </div>
                     <div className="p-3 flex items-center gap-2">
@@ -466,7 +466,7 @@ export default function Dashboard() {
                         href={job.finalVideoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/25 text-violet-300 text-xs font-medium transition-all"
+                        className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-[--color-gold]/15 hover:bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-medium transition-all"
                       >
                         <Play className="w-3 h-3" /> Watch
                       </a>
@@ -493,14 +493,14 @@ export default function Dashboard() {
         })()}
 
         {/* ── Go Cinematic Upgrade Block ───────────────────────────────── */}
-        <section className="relative rounded-2xl overflow-hidden border border-violet-500/20 bg-gradient-to-br from-violet-950/60 via-purple-950/40 to-black p-6 sm:p-8">
+        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/60 via-purple-950/40 to-black p-6 sm:p-8">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />
           <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 uppercase tracking-wider">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] uppercase tracking-wider">
                   – Cinematic Mode
                 </span>
               </div>
@@ -514,14 +514,14 @@ export default function Dashboard() {
                   <span className="text-zinc-500 text-xs">Cinematic audio mastering</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                  <span className="text-fuchsia-400 text-sm font-semibold">WizLumina™</span>
+                  <span className="text-[--color-gold] text-sm font-semibold">WizLumina™</span>
                   <span className="text-zinc-500 text-xs">Film-level colour grading</span>
                 </div>
               </div>
             </div>
             <div className="flex-shrink-0">
               <a href="/music-video/create">
-                <Button className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white px-6 h-11 font-semibold shadow-lg shadow-violet-900/40 whitespace-nowrap">
+                <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-11 font-semibold shadow-lg shadow-violet-900/40 whitespace-nowrap">
                   <Wand2 className="w-4 h-4 mr-2" />
                   Upgrade your next video
                 </Button>
@@ -543,15 +543,15 @@ export default function Dashboard() {
               <a
                 key={idea.title}
                 href={`/music-video/create?prompt=${encodeURIComponent(idea.prompt)}`}
-                className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-violet-500/30 hover:bg-violet-500/5 p-3 transition-all"
+                className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 p-3 transition-all"
               >
-                <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-400 mb-2">
+                <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[--color-gold]/15 text-[--color-gold] mb-2">
                   {idea.genre}
                 </span>
-                <p className="text-xs font-medium text-white group-hover:text-violet-300 transition-colors leading-snug">
+                <p className="text-xs font-medium text-white group-hover:text-[--color-gold] transition-colors leading-snug">
                   {idea.title}
                 </p>
-                <div className="mt-2 flex items-center gap-1 text-[10px] text-zinc-600 group-hover:text-violet-500 transition-colors">
+                <div className="mt-2 flex items-center gap-1 text-[10px] text-zinc-600 group-hover:text-[--color-gold] transition-colors">
                   <Sparkles className="w-2.5 h-2.5" />
                   Try this
                 </div>
@@ -565,7 +565,7 @@ export default function Dashboard() {
           <section className="text-center py-8 border-t border-white/8">
             <p className="text-zinc-400 text-sm mb-4">Your next video could be even better.</p>
             <a href="/music-video/create">
-              <Button variant="outline" className="border-violet-500/30 text-violet-300 bg-transparent hover:bg-violet-500/10 px-6">
+              <Button variant="outline" className="border-[--color-gold]/30 text-[--color-gold] bg-transparent hover:bg-[--color-gold]/15 px-6">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Another Video
               </Button>

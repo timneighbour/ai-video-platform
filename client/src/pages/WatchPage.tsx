@@ -64,7 +64,7 @@ export default function WatchPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-16 h-16 border-4 border-[--color-gold] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-white/60 text-sm">Loading video...</p>
         </div>
       </div>
@@ -100,12 +100,12 @@ export default function WatchPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer group">
-              <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
+              <Sparkles className="w-5 h-5 text-[--color-gold] group-hover:text-[--color-gold] transition-colors" />
               <span className="text-white font-bold text-lg">WIZ AI</span>
             </div>
           </Link>
           <Link href="/create">
-            <Button size="sm" className="bg-purple-600 hover:bg-purple-500 text-white">
+            <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
               Create Your Own
             </Button>
           </Link>
@@ -158,7 +158,7 @@ export default function WatchPage() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                {video.genre && <Badge variant="secondary" className="bg-purple-900/40 text-purple-300 border-purple-700/50">{video.genre}</Badge>}
+                {video.genre && <Badge variant="secondary" className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30">{video.genre}</Badge>}
                 {video.mood && <Badge variant="secondary" className="bg-blue-900/40 text-blue-300 border-blue-700/50">{video.mood}</Badge>}
                 <Badge variant="secondary" className="bg-white/5 text-white/50 border-white/10">AI Generated</Badge>
               </div>
@@ -167,14 +167,14 @@ export default function WatchPage() {
 
           {/* Sidebar CTA */}
           <div className="space-y-4">
-            <div className="rounded-xl bg-gradient-to-br from-purple-900/40 to-blue-900/40 border border-purple-700/30 p-6 space-y-4">
+            <div className="rounded-xl bg-gradient-to-br from-[#b8892a]/40 to-blue-900/40 border border-[--color-gold]/30 p-6 space-y-4">
               <div className="text-center space-y-2">
-                <Sparkles className="w-8 h-8 text-purple-400 mx-auto" />
+                <Sparkles className="w-8 h-8 text-[--color-gold] mx-auto" />
                 <h2 className="text-white font-bold text-lg">Create Your Own AI Music Video</h2>
                 <p className="text-white/60 text-sm">Upload any song and WIZ AI generates a full cinematic music video in minutes.</p>
               </div>
               <Link href="/">
-                <Button className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold">
+                <Button className="w-full bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-semibold">
                   Try WIZ AI Free
                 </Button>
               </Link>
@@ -191,7 +191,7 @@ export default function WatchPage() {
                 "Custom music & soundtracks",
               ].map((feature) => (
                 <div key={feature} className="flex items-center gap-2 text-sm text-white/60">
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] flex-shrink-0" />
                   {feature}
                 </div>
               ))}

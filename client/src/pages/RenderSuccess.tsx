@@ -87,15 +87,15 @@ export default function RenderSuccess() {
       <div className="max-w-md w-full text-center space-y-6">
         {/* Logo */}
         <div className="flex justify-center mb-2">
-          <div className="w-12 h-12 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center">
-            <Film size={22} className="text-violet-400" />
+          <div className="w-12 h-12 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center">
+            <Film size={22} className="text-[--color-gold]" />
           </div>
         </div>
 
         {/* Loading state */}
         {isLoading && (
           <>
-            <Loader2 size={40} className="mx-auto text-violet-400 animate-spin" />
+            <Loader2 size={40} className="mx-auto text-[--color-gold] animate-spin" />
             <h1 className="text-2xl font-bold">Confirming your payment…</h1>
             <p className="text-white/50 text-sm">Please wait while we verify your purchase with Stripe.</p>
           </>
@@ -109,7 +109,7 @@ export default function RenderSuccess() {
             <p className="text-white/60 text-sm">{confirmError}</p>
             <p className="text-white/40 text-xs">
               If you were charged, please contact{" "}
-              <a href="mailto:support@wiz-ai.io" className="text-violet-400 underline">support@wiz-ai.io</a>{" "}
+              <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] underline">support@wiz-ai.io</a>{" "}
               with your order reference: <span className="font-mono text-white/60">{sessionId}</span>
             </p>
             <Button asChild variant="outline" className="mt-4">
@@ -125,11 +125,11 @@ export default function RenderSuccess() {
             <h1 className="text-2xl font-bold">Payment Confirmed!</h1>
             <p className="text-white/60 text-sm">
               Your render has started. Redirecting you to the render progress page in{" "}
-              <span className="text-violet-300 font-semibold">{redirectCountdown}s</span>…
+              <span className="text-[--color-gold] font-semibold">{redirectCountdown}s</span>…
             </p>
             <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full transition-all duration-1000"
+                className="h-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] rounded-full transition-all duration-1000"
                 style={{ width: `${((5 - redirectCountdown) / 5) * 100}%` }}
               />
             </div>
@@ -138,7 +138,7 @@ export default function RenderSuccess() {
             </p>
             <Button
               onClick={() => navigate(`/music-video/create?job_id=${sourceJobId}&render_started=true`)}
-              className="bg-violet-600 hover:bg-violet-700 w-full"
+              className="bg-[--color-gold] hover:bg-[--color-gold]/20 w-full"
             >
               <ExternalLink size={16} className="mr-2" />
               Go to Render Progress Now
@@ -158,7 +158,7 @@ export default function RenderSuccess() {
             </p>
             <p className="text-white/30 text-xs">This usually takes 2–5 minutes.</p>
             <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 animate-pulse rounded-full" style={{ width: "40%" }} />
+              <div className="h-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] animate-pulse rounded-full" style={{ width: "40%" }} />
             </div>
             <Button asChild variant="outline" size="sm">
               <Link href="/dashboard">Go to Dashboard</Link>

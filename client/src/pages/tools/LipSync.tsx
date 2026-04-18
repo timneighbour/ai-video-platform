@@ -207,7 +207,7 @@ export default function LipSync() {
                         <CheckCircle2 className="absolute top-3 right-3 h-4 w-4 text-accent" />
                       )}
                       <div className="flex items-center gap-2 mb-1">
-                        {key === "musetalk" ? <Video className="h-4 w-4 text-accent" /> : <Mic className="h-4 w-4 text-purple-400" />}
+                        {key === "musetalk" ? <Video className="h-4 w-4 text-accent" /> : <Mic className="h-4 w-4 text-[--color-gold]" />}
                         <span className="font-semibold text-sm text-foreground">{eng.label}</span>
                       </div>
                       <Badge variant="secondary" className="text-xs mb-2">{eng.badge}</Badge>

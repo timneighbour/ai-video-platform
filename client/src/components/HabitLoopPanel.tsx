@@ -28,7 +28,7 @@ const TEMPLATES: Template[] = [
     title: "WizVideo",
     description: "Turn any track into a cinematic visual story",
     href: "/music-video/create",
-    gradient: "from-violet-500/20 to-purple-600/10",
+    gradient: "from-[#b8892a]/20 to-[#4a3010]/10",
   },
   {
     id: "lyric-video",
@@ -36,7 +36,7 @@ const TEMPLATES: Template[] = [
     title: "Lyric Video",
     description: "Animated lyrics synced to your music",
     href: "/music-video/create",
-    gradient: "from-fuchsia-500/20 to-pink-600/10",
+    gradient: "from-[#b8892a]/20 to-[#2e2e36]/10",
   },
   {
     id: "faceless",
@@ -52,7 +52,7 @@ const TEMPLATES: Template[] = [
     title: "Kids Animation",
     description: "Colourful animated videos for young audiences",
     href: "/kids-video",
-    gradient: "from-amber-500/20 to-orange-600/10",
+    gradient: "from-[#b8892a]/20 to-orange-600/10",
   },
 ];
 
@@ -66,7 +66,7 @@ export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) 
     <div className={`rounded-xl border border-white/8 bg-white/[0.02] p-5 ${className}`}>
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-4 h-4 text-violet-400 flex-shrink-0" />
+        <Sparkles className="w-4 h-4 text-[--color-gold] flex-shrink-0" />
         <div>
           <h3 className="text-sm font-semibold text-white">What's next?</h3>
           <p className="text-[11px] text-white/40 mt-0.5">
@@ -102,7 +102,7 @@ export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) 
       {/* Primary CTA */}
       <a
         href="/onboarding"
-        className="w-full inline-flex items-center justify-center bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold h-9 rounded-lg transition-colors"
+        className="w-full inline-flex items-center justify-center bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm font-semibold h-9 rounded-lg transition-colors"
       >
         <Sparkles className="w-3.5 h-3.5 mr-1.5" />
         Start a new video

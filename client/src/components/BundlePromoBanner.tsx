@@ -60,28 +60,28 @@ export default function BundlePromoBanner({
 
   return (
     <div
-      className={`relative flex items-center gap-3 rounded-lg border border-violet-500/30 bg-violet-950/40 px-4 py-3 text-sm ${className}`}
+      className={`relative flex items-center gap-3 rounded-lg border border-[--color-gold]/30 bg-[#2a1f00]/40 px-4 py-3 text-sm ${className}`}
     >
       {/* Icon */}
       <div className="flex-shrink-0">
         {isZero ? (
-          <Zap className="h-4 w-4 text-amber-400" />
+          <Zap className="h-4 w-4 text-[--color-gold]" />
         ) : (
-          <Package className="h-4 w-4 text-violet-400" />
+          <Package className="h-4 w-4 text-[--color-silver]" />
         )}
       </div>
 
       {/* Message */}
       <div className="flex-1 min-w-0">
         {isZero ? (
-          <span className="text-amber-300 font-medium">
+          <span className="text-[--color-gold] font-medium">
             You&apos;re out of renders.{" "}
             <span className="text-white/70 font-normal">
               Buy a bundle to keep creating — no subscription needed.
             </span>
           </span>
         ) : (
-          <span className="text-violet-200">
+          <span className="text-white/80">
             <span className="font-medium">
               {remaining} render{remaining !== 1 ? "s" : ""} left.
             </span>{" "}
@@ -95,7 +95,7 @@ export default function BundlePromoBanner({
       {/* CTA */}
       <a
         href="/pricing#bundles"
-        className="flex-shrink-0 inline-flex items-center justify-center border border-violet-500/50 text-violet-300 hover:bg-violet-500/20 hover:text-violet-100 text-xs px-3 h-7 rounded-md transition-colors"
+        className="flex-shrink-0 inline-flex items-center justify-center border border-[--color-gold]/50 text-[--color-gold] hover:bg-[--color-gold]/15 text-xs px-3 h-7 rounded-md transition-colors"
       >
         Get a bundle
       </a>

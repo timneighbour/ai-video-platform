@@ -101,17 +101,17 @@ const STEM_LABELS: Record<string, string> = {
 
 const GENDER_COLORS: Record<string, string> = {
   male: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  female: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+  female: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
   unknown: "bg-zinc-700/40 text-zinc-400 border-zinc-600/30",
 };
 
 const SPEAKER_COLORS = [
-  "from-violet-600 to-purple-700",
-  "from-cyan-600 to-blue-700",
-  "from-pink-600 to-rose-700",
-  "from-amber-600 to-orange-700",
-  "from-emerald-600 to-teal-700",
-  "from-red-600 to-pink-700",
+  "from-[#b8892a] to-[#4a3010]",
+  "from-[#9090a0] to-blue-700",
+  "from-[#9090a0] to-[#2e2e36]",
+  "from-[#b8892a] to-orange-700",
+  "from-[#9090a0] to-teal-700",
+  "from-red-600 to-[#2e2e36]",
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -384,7 +384,7 @@ export default function WizSyncPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-[--color-gold] animate-spin" />
       </div>
     );
   }
@@ -392,12 +392,12 @@ export default function WizSyncPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-6 px-4">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
           <Mic2 className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-2xl font-bold text-white text-center">WizSync™ requires an account</h1>
         <p className="text-zinc-400 text-center max-w-sm">Sign in to analyse audio, detect voices, and assign characters to your music videos.</p>
-        <NavLink href={getLoginUrl()} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors">
+        <NavLink href={getLoginUrl()} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-semibold transition-colors">
           Sign in to continue <ArrowRight className="w-4 h-4" />
         </NavLink>
       </div>
@@ -422,7 +422,7 @@ export default function WizSyncPage() {
                 alt="WizSync™"
                 className="h-8 w-auto object-contain"
               />
-              <Badge className="bg-violet-600/20 text-violet-300 border-violet-500/30 text-xs">Beta</Badge>
+              <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 text-xs">Beta</Badge>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -436,7 +436,7 @@ export default function WizSyncPage() {
 
         {/* ── Hero ── */}
         <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-600/10 border border-violet-500/20 text-violet-300 text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-sm">
             <Sparkles className="w-4 h-4" />
             Voice-to-Character Assignment System
           </div>
@@ -476,7 +476,7 @@ export default function WizSyncPage() {
             <div className="rounded-2xl border border-white/8 bg-white/3 overflow-hidden">
               <div className="p-5 border-b border-white/6">
                 <h2 className="font-semibold text-white flex items-center gap-2">
-                  <UploadCloud className="w-4 h-4 text-violet-400" />
+                  <UploadCloud className="w-4 h-4 text-[--color-gold]" />
                   Upload Audio
                 </h2>
                 <p className="text-xs text-zinc-500 mt-1">MP3, WAV, M4A, OGG · max 50MB</p>
@@ -486,7 +486,7 @@ export default function WizSyncPage() {
                 {/* Drop zone */}
                 <div
                   className={`relative rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
-                    isDragging ? "border-violet-500 bg-violet-500/10" : "border-white/10 hover:border-white/20 bg-white/2"
+                    isDragging ? "border-violet-500 bg-[--color-gold]/15" : "border-white/10 hover:border-white/20 bg-white/2"
                   }`}
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
@@ -503,19 +503,19 @@ export default function WizSyncPage() {
                   <div className="py-8 flex flex-col items-center gap-3 text-center px-4">
                     {isUploadingFile || uploadAudioMutation.isPending ? (
                       <>
-                        <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-[--color-gold] animate-spin" />
                         <p className="text-sm text-zinc-400">Uploading…</p>
                       </>
                     ) : uploadedAudioUrl ? (
                       <>
-                        <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                        <CheckCircle2 className="w-8 h-8 text-[--color-silver]" />
                         <p className="text-sm text-white font-medium truncate max-w-full">{uploadedAudioName}</p>
                         <p className="text-xs text-zinc-500">Click to replace</p>
                       </>
                     ) : (
                       <>
                         <Upload className="w-8 h-8 text-zinc-600" />
-                        <p className="text-sm text-zinc-400">Drop audio here or <span className="text-violet-400">browse</span></p>
+                        <p className="text-sm text-zinc-400">Drop audio here or <span className="text-[--color-gold]">browse</span></p>
                       </>
                     )}
                   </div>
@@ -533,7 +533,7 @@ export default function WizSyncPage() {
 
                 {/* Analyse button */}
                 <Button
-                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold rounded-xl h-11 disabled:opacity-50"
+                  className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold rounded-xl h-11 disabled:opacity-50"
                   disabled={!uploadedAudioUrl || isAnalysing || analyseAudioMutation.isPending}
                   onClick={handleAnalyse}
                 >
@@ -546,9 +546,9 @@ export default function WizSyncPage() {
 
                 {/* Status indicator */}
                 {isAnalysing && (
-                  <div className="rounded-xl bg-violet-500/10 border border-violet-500/20 p-3 text-xs text-violet-300 space-y-1">
+                  <div className="rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 p-3 text-xs text-[--color-gold] space-y-1">
                     <p className="font-medium flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" />Processing…</p>
-                    <p className="text-violet-400/70">Speaker diarisation + stem separation running in parallel. This takes 30–120 seconds.</p>
+                    <p className="text-[--color-gold]/70">Speaker diarisation + stem separation running in parallel. This takes 30–120 seconds.</p>
                   </div>
                 )}
 
@@ -582,7 +582,7 @@ export default function WizSyncPage() {
                         <p className="text-xs text-zinc-500">
                           {job.speakerCount ? `${job.speakerCount} speaker${job.speakerCount !== 1 ? "s" : ""}` : ""}
                           {" · "}
-                          <span className={job.status === "ready" ? "text-emerald-400" : job.status === "error" ? "text-red-400" : "text-amber-400"}>
+                          <span className={job.status === "ready" ? "text-[--color-silver]" : job.status === "error" ? "text-red-400" : "text-[--color-gold]"}>
                             {job.status}
                           </span>
                         </p>
@@ -601,16 +601,16 @@ export default function WizSyncPage() {
             {/* Empty state */}
             {!jobData && !isAnalysing && (
               <div className="rounded-2xl border border-white/8 bg-white/3 p-12 flex flex-col items-center gap-4 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600/20 to-purple-700/20 border border-violet-500/20 flex items-center justify-center">
-                  <Mic2 className="w-8 h-8 text-violet-400" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/20 border border-[--color-gold]/30 flex items-center justify-center">
+                  <Mic2 className="w-8 h-8 text-[--color-gold]" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">No analysis yet</h3>
                 <p className="text-zinc-500 text-sm max-w-sm">Upload an audio track and click <strong className="text-white">Analyse Audio</strong> to detect voices, identify speakers, and separate instrument stems.</p>
                 <div className="grid grid-cols-3 gap-4 mt-4 w-full max-w-sm">
                   {[
-                    { icon: <Users className="w-5 h-5 text-violet-400" />, label: "Detect Voices" },
-                    { icon: <Layers className="w-5 h-5 text-cyan-400" />, label: "Separate Stems" },
-                    { icon: <Zap className="w-5 h-5 text-pink-400" />, label: "Assign Characters" },
+                    { icon: <Users className="w-5 h-5 text-[--color-gold]" />, label: "Detect Voices" },
+                    { icon: <Layers className="w-5 h-5 text-[--color-silver]" />, label: "Separate Stems" },
+                    { icon: <Zap className="w-5 h-5 text-[--color-silver]" />, label: "Assign Characters" },
                   ].map((step) => (
                     <div key={step.label} className="rounded-xl bg-white/3 border border-white/8 p-3 flex flex-col items-center gap-2">
                       {step.icon}
@@ -623,20 +623,20 @@ export default function WizSyncPage() {
 
             {/* Analysing skeleton */}
             {isAnalysing && !isReady && (
-              <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-8 flex flex-col items-center gap-4 text-center">
+              <div className="rounded-2xl border border-[--color-gold]/30 bg-[--color-gold]/15 p-8 flex flex-col items-center gap-4 text-center">
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full border-2 border-violet-500/30 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
+                  <div className="w-16 h-16 rounded-full border-2 border-[--color-gold]/30 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 text-[--color-gold] animate-spin" />
                   </div>
-                  <div className="absolute inset-0 rounded-full border-2 border-violet-500/20 animate-ping" />
+                  <div className="absolute inset-0 rounded-full border-2 border-[--color-gold]/30 animate-ping" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Analysing your audio…</h3>
                 <p className="text-zinc-400 text-sm max-w-sm">
                   Running speaker diarisation with AssemblyAI Universal-2 and separating 6 instrument stems with fal.ai Demucs. This typically takes 30–120 seconds.
                 </p>
                 <div className="flex gap-4 text-xs text-zinc-500">
-                  <span className="flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin text-violet-400" />Speaker detection</span>
-                  <span className="flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin text-cyan-400" />Stem separation</span>
+                  <span className="flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin text-[--color-gold]" />Speaker detection</span>
+                  <span className="flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin text-[--color-silver]" />Stem separation</span>
                 </div>
               </div>
             )}
@@ -645,9 +645,9 @@ export default function WizSyncPage() {
             {isReady && jobData && (
               <>
                 {/* Summary bar */}
-                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 flex items-center justify-between flex-wrap gap-4">
+                <div className="rounded-2xl border border-[--color-silver]/20 bg-[--color-silver]/10 p-5 flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-6 h-6 text-[--color-silver] shrink-0" />
                     <div>
                       <p className="font-semibold text-white">Analysis complete</p>
                       <p className="text-sm text-zinc-400">
@@ -669,9 +669,9 @@ export default function WizSyncPage() {
                 {/* Speakers */}
                 <div>
                   <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-violet-400" />
+                    <Users className="w-5 h-5 text-[--color-gold]" />
                     Detected Speakers
-                    <Badge className="bg-violet-600/20 text-violet-300 border-violet-500/30 text-xs ml-1">
+                    <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 text-xs ml-1">
                       {jobData.speakers.length}
                     </Badge>
                   </h2>
@@ -698,9 +698,9 @@ export default function WizSyncPage() {
                 {stems && (
                   <div>
                     <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Layers className="w-5 h-5 text-cyan-400" />
+                      <Layers className="w-5 h-5 text-[--color-silver]" />
                       Instrument Stems
-                      <Badge className="bg-cyan-600/20 text-cyan-300 border-cyan-500/30 text-xs ml-1">
+                      <Badge className="bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30 text-xs ml-1">
                         {Object.keys(stems).filter((k) => stems[k]).length} / {Object.keys(stems).length}
                       </Badge>
                     </h2>
@@ -716,9 +716,9 @@ export default function WizSyncPage() {
                 {jobData.segments.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Music2 className="w-5 h-5 text-pink-400" />
+                      <Music2 className="w-5 h-5 text-[--color-silver]" />
                       Voice Timeline
-                      <Badge className="bg-pink-600/20 text-pink-300 border-pink-500/30 text-xs ml-1">
+                      <Badge className="bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30 text-xs ml-1">
                         {jobData.segments.length} segments
                       </Badge>
                     </h2>
@@ -751,10 +751,10 @@ export default function WizSyncPage() {
                 )}
 
                 {/* Lip sync CTA */}
-                <div className="rounded-2xl border border-white/8 bg-gradient-to-br from-violet-900/20 to-purple-900/10 p-6 flex items-center justify-between flex-wrap gap-4">
+                <div className="rounded-2xl border border-white/8 bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/10 p-6 flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <h3 className="font-semibold text-white flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-violet-400" />
+                      <Zap className="w-4 h-4 text-[--color-gold]" />
                       Generate Lip Sync
                     </h3>
                     <p className="text-sm text-zinc-400 mt-1">
@@ -762,7 +762,7 @@ export default function WizSyncPage() {
                     </p>
                   </div>
                   <Button
-                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold rounded-xl"
+                    className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold rounded-xl"
                     onClick={() => toast.info("Lip sync generation coming soon!", { description: "Hedra API integration is in progress. Characters and segments are saved and ready." })}
                   >
                     <Zap className="w-4 h-4 mr-2" />
@@ -782,25 +782,25 @@ export default function WizSyncPage() {
             {[
               {
                 step: "01",
-                icon: <Upload className="w-6 h-6 text-violet-400" />,
+                icon: <Upload className="w-6 h-6 text-[--color-gold]" />,
                 title: "Upload Track",
                 desc: "Upload any audio file — a full song, a demo, or a voice recording.",
               },
               {
                 step: "02",
-                icon: <Users className="w-6 h-6 text-cyan-400" />,
+                icon: <Users className="w-6 h-6 text-[--color-silver]" />,
                 title: "Detect Voices",
                 desc: "AssemblyAI Universal-2 identifies every speaker with timestamps and transcripts.",
               },
               {
                 step: "03",
-                icon: <Layers className="w-6 h-6 text-pink-400" />,
+                icon: <Layers className="w-6 h-6 text-[--color-silver]" />,
                 title: "Separate Stems",
                 desc: "fal.ai Demucs splits the track into 6 stems: vocals, drums, bass, guitar, piano, other.",
               },
               {
                 step: "04",
-                icon: <Zap className="w-6 h-6 text-amber-400" />,
+                icon: <Zap className="w-6 h-6 text-[--color-gold]" />,
                 title: "Assign & Sync",
                 desc: "Map each voice to a character, then generate AI lip-sync video per segment.",
               },

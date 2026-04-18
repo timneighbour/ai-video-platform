@@ -186,7 +186,7 @@ export default function EnhancementStudio() {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-600 rounded-lg p-12 text-center cursor-pointer hover:border-purple-500 transition"
+                className="border-2 border-dashed border-slate-600 rounded-lg p-12 text-center cursor-pointer hover:border-[--color-gold]/40 transition"
               >
                 <Upload className="w-12 h-12 mx-auto mb-4 text-slate-400" />
                 <p className="text-white font-semibold mb-2">Drop your video here</p>
@@ -247,7 +247,7 @@ export default function EnhancementStudio() {
                 <Button
                   onClick={handleGenerate}
                   disabled={createJobMutation.isPending}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/20"
                 >
                   {createJobMutation.isPending ? (
                     <>
@@ -282,7 +282,7 @@ export default function EnhancementStudio() {
                 {["analyzing", "generating", "editing", "rendering"].map((status) => (
                   <div key={status} className="flex items-center gap-3">
                     {jobStatus === status ? (
-                      <Loader2 className="w-5 h-5 text-purple-500 animate-spin" />
+                      <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin" />
                     ) : (
                       <CheckCircle2 className="w-5 h-5 text-slate-500" />
                     )}
@@ -293,7 +293,7 @@ export default function EnhancementStudio() {
 
               <div className="bg-slate-700/50 rounded p-4">
                 <p className="text-sm text-slate-400">
-                  Current status: <span className="text-purple-400 font-semibold">{jobStatus}</span>
+                  Current status: <span className="text-[--color-gold] font-semibold">{jobStatus}</span>
                 </p>
               </div>
             </CardContent>
@@ -315,7 +315,7 @@ export default function EnhancementStudio() {
                 <Button
                   onClick={() => handleDownload("16x9")}
                   disabled={isDownloading}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-[--color-gold] hover:bg-[--color-gold]/20"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   16:9
@@ -323,7 +323,7 @@ export default function EnhancementStudio() {
                 <Button
                   onClick={() => handleDownload("9x16")}
                   disabled={isDownloading}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-[--color-gold] hover:bg-[--color-gold]/20"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   9:16

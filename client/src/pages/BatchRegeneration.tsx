@@ -220,7 +220,7 @@ export default function BatchRegeneration() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col gap-2">
           <BackButton fallback="/dashboard" label="Back to Dashboard" />
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-violet-400" />
+            <Zap className="w-5 h-5 text-[--color-gold]" />
             <h1 className="text-lg font-semibold">Batch InstantID Re-generation</h1>
           </div>
         </div>
@@ -228,15 +228,15 @@ export default function BatchRegeneration() {
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Info card */}
-        <Card className="border-violet-500/20 bg-violet-500/5">
+        <Card className="border-[--color-gold]/20 bg-[--color-gold]/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-violet-400" />
+              <RefreshCw className="w-4 h-4 text-[--color-gold]" />
               What this does
             </CardTitle>
             <CardDescription className="text-sm leading-relaxed">
               Re-generates the preview portrait for every photo-mode character in your account using
-              the new <strong className="text-violet-300">InstantID</strong> engine — which achieves
+              the new <strong className="text-[--color-gold]/80">InstantID</strong> engine — which achieves
               near-exact face matching from your uploaded reference photos. Previously generated
               previews used Flux PuLID, which produced lower likeness. Characters are processed one
               at a time; the page updates automatically as each one completes. Hover a thumbnail to
@@ -251,7 +251,7 @@ export default function BatchRegeneration() {
             <Button
               onClick={handleStart}
               disabled={startBatch.isPending}
-              className="bg-violet-600 hover:bg-violet-700 gap-2"
+              className="btn-primary gap-2"
             >
               {startBatch.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

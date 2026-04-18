@@ -404,7 +404,7 @@ export default function Autopilot() {
 
           {/* WizScript + YouTube branding */}
           <div className="flex items-center gap-2.5">
-            <Wand2 className="h-5 w-5 text-purple-400" />
+            <Wand2 className="h-5 w-5 text-[--color-gold]" />
             <span className="font-bold text-white">WizScript</span>
             <span className="text-muted-foreground/40 text-sm">·</span>
             <div className="flex items-center gap-1.5">
@@ -430,7 +430,7 @@ export default function Autopilot() {
                 <div
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                     stepIndex === i
-                      ? "bg-purple-600 text-white"
+                      ? "bg-[--color-gold] text-white"
                       : stepIndex > i
                       ? "bg-green-600/30 text-green-400"
                       : "bg-white/10 text-muted-foreground"
@@ -474,7 +474,7 @@ export default function Autopilot() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="A futuristic city at sunset with flying cars weaving between neon-lit skyscrapers, cinematic drone shot…"
-                className="w-full h-28 sm:h-32 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm"
+                className="w-full h-28 sm:h-32 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-[--color-gold]/50 text-sm"
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-muted-foreground">{prompt.length} / 1000</span>
@@ -490,14 +490,14 @@ export default function Autopilot() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-white mb-1 flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-purple-400" />
+                  <ImageIcon className="h-4 w-4 text-[--color-gold]" />
                   Reference Photo <span className="text-muted-foreground font-normal">(optional)</span>
                 </h3>
                 <p className="text-xs text-muted-foreground mb-3">
                   Upload a photo to guide the AI's visual style, colour palette, or subject matter.
                 </p>
                 {contextImageFile ? (
-                  <div className="flex items-center gap-3 rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 py-3">
+                  <div className="flex items-center gap-3 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-3">
                     {contextImageUrl && (
                       <img src={contextImageUrl} alt="context" className="h-12 w-16 object-cover rounded-lg flex-shrink-0" />
                     )}
@@ -515,10 +515,10 @@ export default function Autopilot() {
                 ) : (
                   <label
                     htmlFor="context-image-upload"
-                    className="flex flex-col items-center justify-center w-full h-20 rounded-xl border-2 border-dashed border-purple-500/30 bg-purple-500/5 cursor-pointer hover:border-purple-500/60 hover:bg-purple-500/10 transition-all"
+                    className="flex flex-col items-center justify-center w-full h-20 rounded-xl border-2 border-dashed border-[--color-gold]/30 bg-[--color-gold]/5 cursor-pointer hover:border-[--color-gold]/60 hover:bg-[--color-gold]/10 transition-all"
                   >
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <ImageIcon className="h-5 w-5 text-purple-400" />
+                      <ImageIcon className="h-5 w-5 text-[--color-gold]" />
                       <span className="text-sm">Tap to upload JPG, PNG, or WEBP</span>
                     </div>
                     <span className="text-xs text-muted-foreground/60 mt-1">Max 10 MB</span>
@@ -593,7 +593,7 @@ export default function Autopilot() {
                     onClick={() => setStyle(s.id)}
                     className={`rounded-xl border overflow-hidden text-left transition-all ${
                       style === s.id
-                        ? "border-purple-500 ring-2 ring-purple-500/40"
+                        ? "border-[--color-gold] ring-2 ring-[--color-gold]/40"
                         : "border-white/10 hover:border-white/30"
                     }`}
                   >
@@ -605,15 +605,15 @@ export default function Autopilot() {
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                         />
                         {style === s.id && (
-                          <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center">
-                            <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-[--color-gold]/15 flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-[--color-gold] flex items-center justify-center">
                               <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                             </div>
                           </div>
                         )}
                       </div>
                     )}
-                    <div className={`p-2 ${style === s.id ? "bg-purple-500/20" : "bg-white/5"}`}>
+                    <div className={`p-2 ${style === s.id ? "bg-[--color-gold]/15" : "bg-white/5"}`}>
                       <div className="font-medium text-sm text-white">{s.label}</div>
                       <div className="text-xs text-white/60 mt-0.5 hidden sm:block">{s.desc}</div>
                     </div>
@@ -633,7 +633,7 @@ export default function Autopilot() {
                       onClick={() => setDuration(d.id)}
                       className={`rounded-xl border p-2.5 text-center transition-all ${
                         duration === d.id
-                          ? "border-purple-500 bg-purple-500/20 text-white"
+                          ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
                           : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -652,7 +652,7 @@ export default function Autopilot() {
                       onClick={() => setAspectRatio(r.id)}
                       className={`flex-1 rounded-xl border p-3 text-center transition-all ${
                         aspectRatio === r.id
-                          ? "border-purple-500 bg-purple-500/20 text-white"
+                          ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
                           : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -668,7 +668,7 @@ export default function Autopilot() {
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                  <Music className="h-4 w-4 text-purple-400" />
+                  <Music className="h-4 w-4 text-[--color-gold]" />
                   Audio / Soundtrack <span className="text-muted-foreground font-normal">(optional)</span>
                 </h3>
                 <div className="flex gap-1 rounded-lg bg-white/10 p-0.5">
@@ -678,7 +678,7 @@ export default function Autopilot() {
                       onClick={() => setAudioMode(mode)}
                       className={`rounded-lg px-3 py-1 text-xs font-medium transition-all ${
                         audioMode === mode
-                          ? "bg-purple-600 text-white"
+                          ? "bg-[--color-gold] text-white"
                           : "bg-transparent text-muted-foreground hover:text-white"
                       }`}
                     >
@@ -691,17 +691,17 @@ export default function Autopilot() {
                 <div>
                   <label
                     htmlFor="audio-upload"
-                    className="flex flex-col items-center justify-center w-full h-24 rounded-xl border-2 border-dashed border-purple-500/30 bg-purple-500/5 cursor-pointer hover:border-purple-500/60 hover:bg-purple-500/10 transition-all"
+                    className="flex flex-col items-center justify-center w-full h-24 rounded-xl border-2 border-dashed border-[--color-gold]/30 bg-[--color-gold]/5 cursor-pointer hover:border-[--color-gold]/60 hover:bg-[--color-gold]/10 transition-all"
                   >
                     {audioFile ? (
-                      <div className="flex items-center gap-2 text-purple-300 px-4 text-center">
+                      <div className="flex items-center gap-2 text-[--color-gold]/80 px-4 text-center">
                         <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
                         <span className="text-sm font-medium truncate">{audioFile.name}</span>
                         <span className="text-xs text-muted-foreground flex-shrink-0">({(audioFile.size / 1024 / 1024).toFixed(1)} MB)</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                        <Music className="h-6 w-6 text-purple-400" />
+                        <Music className="h-6 w-6 text-[--color-gold]" />
                         <span className="text-sm">Tap to upload MP3, WAV, or M4A</span>
                         <span className="text-xs">Max 16 MB</span>
                       </div>
@@ -740,7 +740,7 @@ export default function Autopilot() {
                 size="lg"
                 onClick={handleGenerateStoryboard}
                 disabled={prompt.length < 10}
-                className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                className="gap-2 bg-gradient-to-r btn-primary border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
               >
                 <Sparkles className="h-5 w-5" />
                 Generate Storyboard — Free
@@ -785,7 +785,7 @@ export default function Autopilot() {
                 >
                   {/* Scene header */}
                   <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-sm">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/40 flex items-center justify-center text-[--color-gold]/80 font-bold text-sm">
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -793,7 +793,7 @@ export default function Autopilot() {
                         type="text"
                         value={scene.title}
                         onChange={(e) => updateScene(scene.id, "title", e.target.value)}
-                        className="w-full bg-transparent text-white font-semibold text-sm focus:outline-none focus:ring-1 focus:ring-purple-500/50 rounded px-1 -ml-1"
+                        className="w-full bg-transparent text-white font-semibold text-sm focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 rounded px-1 -ml-1"
                         placeholder="Scene title…"
                       />
                     </div>
@@ -809,7 +809,7 @@ export default function Autopilot() {
                         onClick={() => generatePreviewForScene(scene.id)}
                         title="Generate AI preview image"
                         disabled={scene.previewLoading}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-purple-400 hover:bg-purple-500/10 transition disabled:opacity-50"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-[--color-gold] hover:bg-[--color-gold]/10 transition disabled:opacity-50"
                       >
                         {scene.previewLoading ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -832,7 +832,7 @@ export default function Autopilot() {
                     <div className="mx-4 mb-3 rounded-xl overflow-hidden bg-white/5 border border-white/10 aspect-video relative">
                       {scene.previewLoading ? (
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
-                          <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
+                          <Loader2 className="h-6 w-6 text-[--color-gold] animate-spin" />
                           <p className="text-xs text-muted-foreground">Generating AI preview…</p>
                         </div>
                       ) : scene.previewImageUrl ? (
@@ -849,10 +849,10 @@ export default function Autopilot() {
                   {!scene.previewLoading && !scene.previewImageUrl && (
                     <button
                       onClick={() => generatePreviewForScene(scene.id)}
-                      className="mx-4 mb-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-white/10 bg-white/3 aspect-video flex flex-col items-center justify-center gap-2 hover:border-purple-500/40 hover:bg-purple-500/5 transition group"
+                      className="mx-4 mb-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-white/10 bg-white/3 aspect-video flex flex-col items-center justify-center gap-2 hover:border-[--color-gold]/40 hover:bg-[--color-gold]/5 transition group"
                     >
-                      <ImageIcon className="h-6 w-6 text-muted-foreground/40 group-hover:text-purple-400 transition" />
-                      <span className="text-xs text-muted-foreground/60 group-hover:text-purple-300 transition">
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/40 group-hover:text-[--color-gold] transition" />
+                      <span className="text-xs text-muted-foreground/60 group-hover:text-[--color-gold]/80 transition">
                         Click to generate AI preview image
                       </span>
                     </button>
@@ -864,7 +864,7 @@ export default function Autopilot() {
                     <Textarea
                       value={scene.description}
                       onChange={(e) => updateScene(scene.id, "description", e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-purple-500/50 min-h-[60px]"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 min-h-[60px]"
                       placeholder="Describe what happens in this scene…"
                     />
                   </div>
@@ -875,7 +875,7 @@ export default function Autopilot() {
                     <Textarea
                       value={scene.visualNotes}
                       onChange={(e) => updateScene(scene.id, "visualNotes", e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-purple-500/50 min-h-[48px]"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 min-h-[48px]"
                       placeholder="Camera angle, lighting, mood…"
                     />
                   </div>
@@ -886,7 +886,7 @@ export default function Autopilot() {
             {/* Add Scene button */}
             <button
               onClick={addScene}
-              className="w-full rounded-2xl border-2 border-dashed border-white/10 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-purple-500/40 hover:text-purple-300 hover:bg-purple-500/5 transition"
+              className="w-full rounded-2xl border-2 border-dashed border-white/10 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-[--color-gold]/40 hover:text-[--color-gold]/80 hover:bg-[--color-gold]/5 transition"
             >
               <Plus className="h-4 w-4" />
               Add Scene
@@ -926,7 +926,7 @@ export default function Autopilot() {
                 </Button>
                 <Button
                   onClick={handleRenderVideo}
-                  className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 flex-1"
+                  className="gap-2 bg-gradient-to-r btn-primary border-0 flex-1"
                 >
                   <Play className="h-4 w-4" />
                   Render Video — {creditCost} Credits
@@ -947,8 +947,8 @@ export default function Autopilot() {
         {step === "generating" && (
           <div className="py-12 sm:py-20 space-y-8 max-w-lg mx-auto">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-600/20 border border-purple-500/40 mb-6">
-                <Clapperboard className="h-10 w-10 text-purple-400 animate-pulse" />
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/40 mb-6">
+                <Clapperboard className="h-10 w-10 text-[--color-gold] animate-pulse" />
               </div>
               <div className="flex justify-center mb-3">
                 <WizBrandBadge layer="render" size="md" animated />
@@ -961,7 +961,7 @@ export default function Autopilot() {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{PROGRESS_STAGES[progressStage]?.label}</span>
-                <span className="text-purple-300 font-semibold tabular-nums">{progressPct}%</span>
+                <span className="text-[--color-gold]/80 font-semibold tabular-nums">{progressPct}%</span>
               </div>
               <Progress value={progressPct} className="h-3 bg-white/10" />
               <p className="text-xs text-muted-foreground text-center">
@@ -974,12 +974,12 @@ export default function Autopilot() {
                   key={i}
                   className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-all ${
                     i < progressStage ? "bg-green-500/10 text-green-400"
-                    : i === progressStage ? "bg-purple-500/20 text-white"
+                    : i === progressStage ? "bg-[--color-gold]/15 text-white"
                     : "bg-white/5 text-muted-foreground/50"
                   }`}
                 >
                   {i < progressStage ? <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-400" />
-                  : i === progressStage ? <Loader2 className="h-4 w-4 flex-shrink-0 text-purple-400 animate-spin" />
+                  : i === progressStage ? <Loader2 className="h-4 w-4 flex-shrink-0 text-[--color-gold] animate-spin" />
                   : <div className="h-4 w-4 flex-shrink-0 rounded-full border border-white/20" />}
                   {stage.label}
                 </div>
@@ -1019,7 +1019,7 @@ export default function Autopilot() {
             )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {generatedVideoUrl && (
-                <Button asChild className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0">
+                <Button asChild className="gap-2 bg-gradient-to-r btn-primary border-0">
                   <a href={generatedVideoUrl} download target="_blank" rel="noopener noreferrer">
                     <Download className="h-4 w-4" />
                     Download Video
@@ -1028,7 +1028,7 @@ export default function Autopilot() {
               )}
               <a
                 href="/projects"
-                className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${generatedVideoUrl ? "border border-white/20 text-white hover:bg-white/10" : "bg-gradient-to-r from-purple-600 to-pink-600 text-white"}`}
+                className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${generatedVideoUrl ? "border border-white/20 text-white hover:bg-white/10" : "bg-gradient-to-r btn-primary text-white"}`}
               >
                 <Film className="h-4 w-4" />
                 View All Projects

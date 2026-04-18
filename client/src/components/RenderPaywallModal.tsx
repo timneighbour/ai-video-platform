@@ -189,7 +189,7 @@ export function RenderPaywallModal({
       <DialogContent className="max-w-xl bg-[#080808] border border-white/10 text-white p-0 overflow-hidden rounded-2xl max-h-[90vh] overflow-y-auto">
 
         {/* ── Header ────────────────────────────────────────────────────── */}
-        <div className="relative bg-gradient-to-br from-violet-950/60 via-purple-950/30 to-black px-6 pt-6 pb-5 border-b border-white/8">
+        <div className="relative bg-gradient-to-br from-[#b8892a]/60 via-purple-950/30 to-black px-6 pt-6 pb-5 border-b border-white/8">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />
@@ -208,8 +208,8 @@ export function RenderPaywallModal({
 
           <div className="relative">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-500/20 border border-violet-400/30 text-violet-300 text-xs font-mono tracking-wider uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-mono tracking-wider uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
                 Ready to render
               </span>
             </div>
@@ -219,7 +219,7 @@ export function RenderPaywallModal({
 
           {/* Free render badge */}
           {!renderStatus.isLoading && (hasFreeRenders || isAdmin) && (
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-xs font-medium">
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[--color-silver]/10 border border-[--color-silver]/25 text-[--color-silver] text-xs font-medium">
               <Check className="w-3.5 h-3.5" />
               {isAdmin ? "Admin — unlimited renders" : `${renderStatus.data?.total} free render${(renderStatus.data?.total ?? 0) !== 1 ? "s" : ""} available`}
             </div>
@@ -233,7 +233,7 @@ export function RenderPaywallModal({
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-white">Enhancement Mode</h3>
               {isCinematicMode && (
-                <span className="text-[10px] text-emerald-400 font-medium">Bundle — save £2</span>
+                <span className="text-[10px] text-[--color-silver] font-medium">Bundle — save £2</span>
               )}
             </div>
 
@@ -247,8 +247,8 @@ export function RenderPaywallModal({
                     className={`w-full text-left rounded-xl border p-4 transition-all ${
                       isSelected
                         ? tier.highlight
-                          ? "border-violet-500/60 bg-gradient-to-br from-violet-900/40 to-purple-900/20 ring-1 ring-violet-500/30 shadow-lg shadow-violet-900/20"
-                          : "border-violet-500/40 bg-violet-500/10"
+                          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/20 ring-1 ring-violet-500/30 shadow-lg shadow-violet-900/20"
+                          : "border-[--color-gold]/30 bg-[--color-gold]/15"
                         : "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
                     }`}
                   >
@@ -256,7 +256,7 @@ export function RenderPaywallModal({
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         {/* Radio dot */}
                         <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          isSelected ? "border-violet-400 bg-violet-400" : "border-white/25"
+                          isSelected ? "border-violet-400 bg-[--color-gold]" : "border-white/25"
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                         </div>
@@ -270,14 +270,14 @@ export function RenderPaywallModal({
                             {tier.badge && (
                               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
                                 tier.highlight
-                                  ? "bg-violet-500/25 text-violet-300 border border-violet-500/30"
+                                  ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30"
                                   : "bg-white/10 text-zinc-400"
                               }`}>
                                 {tier.badge}
                               </span>
                             )}
                             {tier.id === "cinematic" && (
-                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30">
                                 BEST EXPERIENCE
                               </span>
                             )}
@@ -291,7 +291,7 @@ export function RenderPaywallModal({
                             </div>
                             <div className="flex items-center gap-1">
                               <span className="text-[10px] text-zinc-600">◆</span>
-                              <span className="text-[11px] text-fuchsia-400 font-medium">{tier.visualLabel}</span>
+                              <span className="text-[11px] text-[--color-gold] font-medium">{tier.visualLabel}</span>
                             </div>
                           </div>
 
@@ -305,7 +305,7 @@ export function RenderPaywallModal({
                             <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-0.5">
                               {[...tier.audioFeatures, ...tier.visualFeatures].slice(0, 6).map((f) => (
                                 <div key={f} className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                                  <Check className="w-2.5 h-2.5 text-violet-400 flex-shrink-0" />
+                                  <Check className="w-2.5 h-2.5 text-[--color-gold] flex-shrink-0" />
                                   {f}
                                 </div>
                               ))}
@@ -317,7 +317,7 @@ export function RenderPaywallModal({
                       {/* Price */}
                       <div className="text-right flex-shrink-0">
                         {tier.bundlePrice === 0 ? (
-                          <span className="text-sm font-semibold text-emerald-400">Free</span>
+                          <span className="text-sm font-semibold text-[--color-silver]">Free</span>
                         ) : (
                           <div>
                             <span className="text-sm font-bold text-white">+£{tier.bundlePrice}</span>
@@ -346,20 +346,20 @@ export function RenderPaywallModal({
                     onClick={() => setQuality(opt.id)}
                     className={`relative rounded-xl border p-3 text-left transition-all ${
                       isSelected
-                        ? "border-violet-500/50 bg-violet-500/15 ring-1 ring-violet-500/25"
+                        ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-violet-500/25"
                         : "border-white/8 bg-white/[0.02] hover:border-white/15"
                     }`}
                   >
                     {opt.badge && (
                       <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap ${
-                        opt.badge === "MOST POPULAR" ? "bg-violet-600 text-white" : "bg-amber-600 text-white"
+                        opt.badge === "MOST POPULAR" ? "bg-[--color-gold] text-white" : "bg-[--color-gold] text-white"
                       }`}>
                         {opt.badge}
                       </span>
                     )}
                     <p className={`text-xs font-semibold ${isSelected ? "text-white" : "text-zinc-300"}`}>{opt.label}</p>
                     <p className="text-[10px] text-zinc-500">{opt.resolution}</p>
-                    <p className={`text-sm font-bold mt-1 ${isSelected ? "text-violet-300" : "text-white"}`}>£{opt.price}</p>
+                    <p className={`text-sm font-bold mt-1 ${isSelected ? "text-[--color-gold]" : "text-white"}`}>£{opt.price}</p>
                   </button>
                 );
               })}
@@ -382,8 +382,8 @@ export function RenderPaywallModal({
             )}
             {isCinematicMode && (
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-emerald-400">Bundle saving</span>
-                <span className="text-xs text-emerald-400">−£2</span>
+                <span className="text-xs text-[--color-silver]">Bundle saving</span>
+                <span className="text-xs text-[--color-silver]">−£2</span>
               </div>
             )}
             <div className="border-t border-white/8 pt-2 mt-2 flex items-center justify-between">
@@ -412,8 +412,8 @@ export function RenderPaywallModal({
             disabled={isLoading}
             className={`w-full h-12 text-base font-bold shadow-lg transition-all ${
               isCinematicMode
-                ? "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 shadow-violet-900/50 text-white"
-                : "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-violet-900/40 text-white"
+                ? "bg-gradient-to-r from-[#b8892a] via-purple-600 to-[#4a3010] hover:from-[#b8892a] hover:via-purple-700 hover:to-[#4a3010] shadow-violet-900/50 text-white"
+                : "bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] shadow-violet-900/40 text-white"
             }`}
           >
             {isLoading ? (

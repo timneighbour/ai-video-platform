@@ -70,7 +70,7 @@ function StatusBadge({ status }: { status: JobStatus | string }) {
   const map: Record<string, { label: string; className: string }> = {
     draft: { label: "Draft", className: "bg-zinc-700 text-zinc-300 border-zinc-600" },
     storyboard_ready: { label: "Ready", className: "bg-blue-500/20 text-blue-300 border-blue-500/40" },
-    rendering: { label: "Building Your Video", className: "bg-purple-500/20 text-purple-300 border-purple-500/40" },
+    rendering: { label: "Building Your Video", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     assembling: { label: "Assembling", className: "bg-yellow-500/20 text-yellow-300 border-yellow-500/40" },
     completed: { label: "Completed", className: "bg-green-500/20 text-green-300 border-green-500/40" },
     failed: { label: "Failed", className: "bg-red-500/20 text-red-300 border-red-500/40" },
@@ -86,7 +86,7 @@ function StatusBadge({ status }: { status: JobStatus | string }) {
 function SceneStatusIcon({ status }: { status: string }) {
   if (status === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />;
   if (status === "failed") return <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />;
-  if (status === "generating") return <Loader2 className="w-3.5 h-3.5 text-purple-400 animate-spin shrink-0" />;
+  if (status === "generating") return <Loader2 className="w-3.5 h-3.5 text-[--color-gold] animate-spin shrink-0" />;
   return <Clock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />;
 }
 
@@ -151,15 +151,15 @@ export default function RenderHistory() {
           <BackButton fallback="/projects" label="Back to Projects" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center">
-                <History className="w-4 h-4 text-purple-400" />
+              <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center">
+                <History className="w-4 h-4 text-[--color-gold]" />
               </div>
               <div>
                 <h1 className="text-base font-semibold text-foreground">Render History</h1>
                 <p className="text-xs text-muted-foreground">{jobs.length} video{jobs.length !== 1 ? "s" : ""}</p>
               </div>
             </div>
-            <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-500 text-white">
+            <Button asChild size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
               <Link href="/music-video/create"><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
             </Button>
           </div>
@@ -174,7 +174,7 @@ export default function RenderHistory() {
         {/* Loading */}
         {jobsQuery.isLoading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+            <Loader2 className="w-6 h-6 text-[--color-gold] animate-spin" />
           </div>
         )}
 
@@ -199,7 +199,7 @@ export default function RenderHistory() {
               <p className="text-zinc-300 font-medium mb-1">No videos yet</p>
               <p className="text-zinc-500 text-sm">Create your first AI music video to see it here</p>
             </div>
-            <Button asChild className="bg-purple-600 hover:bg-purple-500 text-white">
+            <Button asChild className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
               <Link href="/music-video/create"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
             </Button>
           </div>
@@ -218,7 +218,7 @@ export default function RenderHistory() {
               return (
                 <div
                   key={job.id}
-                  className="bg-card border border-border rounded-xl overflow-hidden hover:border-purple-500/30 transition-colors"
+                  className="bg-card border border-border rounded-xl overflow-hidden hover:border-[--color-gold]/30 transition-colors"
                 >
                   <div className="p-4">
                     <div className="flex items-start gap-4">
@@ -315,7 +315,7 @@ export default function RenderHistory() {
                         {(job.status === "draft" || job.status === "storyboard_ready" || job.status === "rendering") && (
                           <Button
                             size="sm"
-                            className="h-7 px-2 text-xs bg-purple-600 hover:bg-purple-500 text-white"
+                            className="h-7 px-2 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
                             asChild
                           >
                             <Link href={`/music-video/create?jobId=${job.id}`}>
@@ -371,7 +371,7 @@ export default function RenderHistory() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-card border-border">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-foreground">
-              <Film className="w-4 h-4 text-purple-400" />
+              <Film className="w-4 h-4 text-[--color-gold]" />
               {detailsQuery.data?.job?.title || `Video #${selectedJobId}`}
               {detailsQuery.data?.job?.status && (
                 <StatusBadge status={detailsQuery.data.job.status} />
@@ -381,7 +381,7 @@ export default function RenderHistory() {
 
           {detailsQuery.isLoading && (
             <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+              <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin" />
             </div>
           )}
 
@@ -458,7 +458,7 @@ export default function RenderHistory() {
                             <span className="font-medium text-foreground">Scene {scene.sceneIndex + 1}</span>
                             <span className="text-muted-foreground capitalize">{scene.status}</span>
                             {scene.lipSync && (
-                              <span className="text-purple-400 text-xs">Lip sync</span>
+                              <span className="text-[--color-gold] text-xs">Lip sync</span>
                             )}
                           </div>
                           {scene.prompt && (

@@ -48,13 +48,13 @@ const TOOLS: Tool[] = [
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",
     href: "/music-video/create",
     icon: <Music className="w-6 h-6" />,
-    iconBg: "bg-violet-500/20",
-    iconColor: "text-violet-400",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
     badge: "Most Popular",
-    badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
-    accentFrom: "from-violet-600/25",
-    accentTo: "to-purple-600/5",
-    borderColor: "border-violet-500/25 hover:border-violet-400/50",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    accentFrom: "from-[#b8892a]/15",
+    accentTo: "to-[#4a3010]/5",
+    borderColor: "border-[--color-gold]/25 hover:border-[--color-gold]/50",
     previewImg: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`,
     popular: true,
     authRequired: true,
@@ -67,14 +67,14 @@ const TOOLS: Tool[] = [
     description: "Type a prompt, choose a style, and WizScript writes a full storyboard and renders a cinematic video. No editing skills needed.",
     href: "/wizpilot",
     icon: <Film className="w-6 h-6" />,
-    iconBg: "bg-cyan-500/20",
-    iconColor: "text-cyan-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     logo: WIZPILOT_LOGO,
     badge: "AI Autopilot",
-    badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-    accentFrom: "from-cyan-600/20",
-    accentTo: "to-blue-600/5",
-    borderColor: "border-cyan-500/20 hover:border-cyan-400/45",
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
+    accentFrom: "from-[#9090a0]/10",
+    accentTo: "to-[#2e2e36]/5",
+    borderColor: "border-[--color-silver]/20 hover:border-[--color-silver]/40",
     previewImg: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq-thumb_855006a3.webp`,
     authRequired: true,
   },
@@ -86,14 +86,14 @@ const TOOLS: Tool[] = [
     description: "WizAnimate™ takes your storyboard and generates cinematic character animation — every movement, gesture, and expression timed to the beat and emotion of your track.",
     href: "/products/wizanimate",
     icon: <Baby className="w-6 h-6" />,
-    iconBg: "bg-cyan-500/20",
-    iconColor: "text-cyan-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     badge: "Animation",
-    badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-    accentFrom: "from-cyan-600/20",
-    accentTo: "to-blue-600/5",
-    borderColor: "border-cyan-500/20 hover:border-cyan-400/45",
-    previewImg: `${CDN}/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV-thumb_59429596.webp`,
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
+    accentFrom: "from-[#9090a0]/10",
+    accentTo: "to-[#2e2e36]/5",
+    borderColor: "border-[--color-silver]/20 hover:border-[--color-silver]/40",
+    previewImg: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq-thumb_855006a3.webp`,
     authRequired: true,
   },
   {
@@ -104,13 +104,13 @@ const TOOLS: Tool[] = [
     description: "Write each scene prompt manually for full creative control. Choose your renderer (Seedance for speed, Kling for quality) and render each scene individually.",
     href: "/text-to-video",
     icon: <Wand2 className="w-6 h-6" />,
-    iconBg: "bg-amber-500/20",
-    iconColor: "text-amber-400",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
     badge: "Advanced",
-    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-    accentFrom: "from-amber-600/20",
-    accentTo: "to-orange-600/5",
-    borderColor: "border-amber-500/20 hover:border-amber-400/45",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    accentFrom: "from-[#b8892a]/12",
+    accentTo: "to-[#4a3010]/5",
+    borderColor: "border-[--color-gold]/20 hover:border-[--color-gold]/40",
     previewImg: `${CDN}/style-documentary-nyjoHJnTHZU2hdjABnnjBm-thumb_3587102a.webp`,
     authRequired: true,
   },
@@ -122,13 +122,13 @@ const TOOLS: Tool[] = [
     description: "Upload a video and an audio track — our AI perfectly syncs the lip movements to the new audio. Ideal for dubbing, music videos, and avatar content.",
     href: "/tools/lip-sync",
     icon: <Mic className="w-6 h-6" />,
-    iconBg: "bg-emerald-500/20",
-    iconColor: "text-emerald-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     badge: "HeyGen AI",
-    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-    accentFrom: "from-emerald-600/20",
-    accentTo: "to-teal-600/5",
-    borderColor: "border-emerald-500/20 hover:border-emerald-400/45",
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
+    accentFrom: "from-[#9090a0]/10",
+    accentTo: "to-[#2e2e36]/5",
+    borderColor: "border-[--color-silver]/20 hover:border-[--color-silver]/40",
     authRequired: true,
   },
   {
@@ -139,31 +139,31 @@ const TOOLS: Tool[] = [
     description: "Upscale to 4K, apply cinematic colour grading with WizLumina™, and enhance audio quality with WizSound™. Make any video look and sound premium.",
     href: "/enhancement-studio",
     icon: <Sparkles className="w-6 h-6" />,
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-400",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
     logo: WIZLUMINA_LOGO,
     badge: "WizLumina™",
-    badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-    accentFrom: "from-purple-600/20",
-    accentTo: "to-indigo-600/5",
-    borderColor: "border-purple-500/20 hover:border-purple-400/45",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    accentFrom: "from-[#b8892a]/12",
+    accentTo: "to-[#4a3010]/5",
+    borderColor: "border-[--color-gold]/20 hover:border-[--color-gold]/40",
     authRequired: true,
   },
   {
     id: "video-to-video",
     name: "Style Transfer",
     tagline: "Transform any video into a new visual style",
-    subheading: "Reimagine any existing video in Anime, Cinematic, Pixar, or a custom style.",
-    description: "Apply Anime, Cinematic, Pixar, or any custom style to an existing video. Powered by Runway ML for high-quality style transformation.",
+    subheading: "Reimagine any existing video in Anime, Cinematic, 3D Animation, or a custom style.",
+    description: "Apply Anime, Cinematic, 3D Animation, or any custom style to an existing video.",
     href: "/tools/video-to-video",
     icon: <Layers className="w-6 h-6" />,
-    iconBg: "bg-rose-500/20",
-    iconColor: "text-rose-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     badge: "Runway ML",
-    badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-    accentFrom: "from-rose-600/20",
-    accentTo: "to-red-600/5",
-    borderColor: "border-rose-500/20 hover:border-rose-400/45",
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
+    accentFrom: "from-[#9090a0]/10",
+    accentTo: "to-[#2e2e36]/5",
+    borderColor: "border-[--color-silver]/20 hover:border-[--color-silver]/40",
     previewImg: `${CDN}/style-anime-bCLhyWeYo6mek5pWMnEUV7-thumb_2704d4cf.webp`,
     authRequired: true,
   },
@@ -175,30 +175,30 @@ const TOOLS: Tool[] = [
     description: "Generate professional voiceovers from any script. Choose from 100+ voices across 30+ languages. Perfect for YouTube, ads, and explainer videos.",
     href: "/tools/voiceover",
     icon: <Zap className="w-6 h-6" />,
-    iconBg: "bg-sky-500/20",
-    iconColor: "text-sky-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     badge: "100+ Voices",
-    badgeColor: "bg-sky-500/20 text-sky-300 border-sky-500/30",
-    accentFrom: "from-sky-600/20",
-    accentTo: "to-blue-600/5",
-    borderColor: "border-sky-500/20 hover:border-sky-400/45",
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
+    accentFrom: "from-[#9090a0]/10",
+    accentTo: "to-[#2e2e36]/5",
+    borderColor: "border-[--color-silver]/20 hover:border-[--color-silver]/40",
     authRequired: true,
   },
   {
     id: "wiz-image",
     name: "WizImage™",
-    tagline: "AI image creator powered by Grok Aurora",
+    tagline: "AI image and artwork creator",
     subheading: "Generate stunning images with the world's #1 ranked AI image model.",
-    description: "Describe any image and Grok Aurora renders it in seconds. Choose from 8 art styles, 4 aspect ratios, and build a personal gallery. Photorealistic, cinematic, anime, oil painting, and more.",
+    description: "Describe any image and WizImage renders it in seconds. Choose from 8 art styles, 4 aspect ratios, and build a personal gallery. Photorealistic, cinematic, anime, oil painting, and more.",
     href: "/wiz-image",
     icon: <ImageIcon className="w-6 h-6" />,
-    iconBg: "bg-fuchsia-500/20",
-    iconColor: "text-fuchsia-400",
-    badge: "New · Grok",
-    badgeColor: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
-    accentFrom: "from-fuchsia-600/20",
-    accentTo: "to-violet-600/5",
-    borderColor: "border-fuchsia-500/20 hover:border-fuchsia-400/45",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
+    badge: "New",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    accentFrom: "from-[#b8892a]/12",
+    accentTo: "to-[#4a3010]/5",
+    borderColor: "border-[--color-gold]/20 hover:border-[--color-gold]/40",
     authRequired: true,
   },
   {
@@ -206,16 +206,16 @@ const TOOLS: Tool[] = [
     name: "WizShorts™",
     tagline: "AI short-form video creator for Shorts, TikTok & Reels",
     subheading: "Turn any topic into a viral short-form video in minutes.",
-    description: "Describe your topic, pick a platform and style, and WizShorts generates a complete 15–60s vertical video using Grok Imagine — the #1 ranked AI video model. Ready to upload to YouTube Shorts, TikTok, or Instagram Reels.",
+    description: "Describe your topic, pick a platform and style, and WizShorts generates a complete 15–60s vertical video. Ready to upload to YouTube Shorts, TikTok, or Instagram Reels.",
     href: "/wiz-shorts",
     icon: <Smartphone className="w-6 h-6" />,
-    iconBg: "bg-pink-500/20",
-    iconColor: "text-pink-400",
-    badge: "New · Grok",
-    badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
-    accentFrom: "from-pink-600/20",
-    accentTo: "to-orange-600/5",
-    borderColor: "border-pink-500/20 hover:border-pink-400/45",
+    iconBg: "bg-[--color-gold]/15",
+    iconColor: "text-[--color-gold]",
+    badge: "New",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    accentFrom: "from-[#b8892a]/12",
+    accentTo: "to-[#4a3010]/5",
+    borderColor: "border-[--color-gold]/20 hover:border-[--color-gold]/40",
     authRequired: true,
   },
   {
@@ -226,13 +226,13 @@ const TOOLS: Tool[] = [
     description: "Upload any audio track. WizSync detects every speaker with timestamps, separates 6 instrument stems, and maps each voice to a character — ready for AI lip-sync generation.",
     href: "/wizsync",
     icon: <Mic2 className="w-6 h-6" />,
-    iconBg: "bg-violet-500/20",
-    iconColor: "text-violet-400",
+    iconBg: "bg-[--color-silver]/10",
+    iconColor: "text-[--color-silver]",
     badge: "Beta",
-    badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/30",
-    accentFrom: "from-violet-600/20",
-    accentTo: "to-purple-600/5",
-    borderColor: "border-violet-500/20 hover:border-violet-400/45",
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
+    accentFrom: "from-[#9090a0]/10",
+    accentTo: "to-[#2e2e36]/5",
+    borderColor: "border-[--color-silver]/20 hover:border-[--color-silver]/40",
     authRequired: true,
   },
 ];
@@ -266,7 +266,7 @@ function ToolCard({ tool }: { tool: Tool }) {
           {/* Popular badge overlay */}
           {tool.popular && (
             <div className="absolute top-3 right-3">
-              <span className="text-[10px] font-bold uppercase tracking-widest bg-violet-500 text-white px-2 py-1 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-widest metallic-gold text-[#1a1000] px-2 py-1 rounded-full">
                 Most Popular
               </span>
             </div>
@@ -355,7 +355,7 @@ export default function Create() {
               </NavLink>
             ) : (
               <a href={getLoginUrl()}>
-                <Button size="sm" className="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4">
+                <Button size="sm" className="btn-primary text-xs px-4">
                   Sign In Free
                 </Button>
               </a>
@@ -367,13 +367,13 @@ export default function Create() {
       {/* Hero */}
       <div className="max-w-6xl mx-auto px-6 pt-16 pb-10">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-            <span className="text-violet-300 text-xs font-semibold uppercase tracking-widest">AI Creator Studio</span>
+          <div className="inline-flex items-center gap-2 bg-[--color-gold]/10 border border-[--color-gold]/20 rounded-full px-4 py-1.5 mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
+            <span className="text-[--color-gold] text-xs font-semibold uppercase tracking-widest">AI Creator Studio</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-5 leading-tight">
             Choose Your<br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="metallic-gold">
               AI Creation Tool
             </span>
           </h1>
@@ -382,7 +382,7 @@ export default function Create() {
           </p>
           {!isAuthenticated && (
             <p className="mt-4 text-white/30 text-sm">
-              <a href={getLoginUrl()} className="text-violet-400 hover:text-violet-300 underline underline-offset-2">
+              <a href={getLoginUrl()} className="text-[--color-gold] hover:text-[--color-gold]/80 underline underline-offset-2">
                 Sign in free
               </a>{" "}
               to unlock all tools — 50 credits included, no card needed.

@@ -647,13 +647,13 @@ export default function Pricing() {
                 Yearly
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-all duration-200 ${
                   billingCycle === "annual"
-                    ? "bg-emerald-500 text-white"
-                    : "bg-emerald-500/20 text-emerald-400"
+                    ? "bg-[--color-silver] text-white"
+                    : "bg-[--color-silver]/20 text-[--color-silver]"
                 }`}>Save 20%</span>
               </button>
             </div>
             {billingCycle === "annual" && (
-              <p className="text-xs text-emerald-400/80 mt-3 font-medium">Save 20% with annual billing — billed as one payment</p>
+              <p className="text-xs text-[--color-silver] mt-3 font-medium">Save 20% with annual billing — billed as one payment</p>
             )}
           </div>
 
@@ -705,13 +705,13 @@ export default function Pricing() {
                           <span className="text-2xl font-extrabold text-white">&pound;{plan.annualPrice}</span>
                           <span className="text-xs text-[--color-silver-dark]/40">/year</span>
                         </div>
-                        <p className="text-[11px] text-emerald-400/80 mt-0.5 font-medium">
+                        <p className="text-[11px] text-[--color-silver] mt-0.5 font-medium">
                           &pound;{Math.round(plan.annualPrice / 12)}/mo · Save 20%
                         </p>
                       </>
                     )}
                   </div>
-                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/12 border border-emerald-400/20 text-emerald-300 text-[11px] font-semibold">
+                  <div className="mt-2.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[--color-silver]/12 border border-[--color-silver]/20 text-[--color-silver] text-[11px] font-semibold">
                     <Zap className="w-2.5 h-2.5" />
                     {plan.rendersPerMonth} renders/mo
                   </div>
@@ -731,7 +731,7 @@ export default function Pricing() {
                   {plan.features.map((f) => (
                     <li key={f.text} className="flex items-start gap-1.5 text-[11px]">
                       {f.included ? (
-                        <Check className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <Check className="w-3 h-3 text-[--color-silver] flex-shrink-0 mt-0.5" />
                       ) : (
                         <X className="w-3 h-3 text-[--color-silver-dark]/15 flex-shrink-0 mt-0.5" />
                       )}
@@ -771,7 +771,7 @@ export default function Pricing() {
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Render bundles</h2>
             <p className="text-sm text-[--color-silver-dark]/45">Buy renders in bulk and save. Bundles never expire.</p>
-            <p className="text-xs text-emerald-400/80 mt-1 font-medium">Save up to 30% vs pay-per-render</p>
+            <p className="text-xs text-[--color-silver] mt-1 font-medium">Save up to 30% vs pay-per-render</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -852,7 +852,7 @@ export default function Pricing() {
                       <td className="px-4 py-3 text-[--color-silver-dark]/50 text-xs">{row.label}</td>
                       {[row.starter, row.basic, row.creator, row.pro, row.studio].map((val, j) => (
                         <td key={j} className={`text-center px-3 py-3 text-xs ${
-                          val === "\u2713" ? "text-emerald-400" :
+                          val === "\u2713" ? "text-[--color-silver]" :
                           val === "\u2014" ? "text-[--color-silver-dark]/15" :
                           j === 2 ? "text-[--color-gold] font-medium bg-[--color-gold]/[0.03]" :
                           "text-[--color-silver-dark]/50"
@@ -919,7 +919,7 @@ export default function Pricing() {
               { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Higher-tier plans get priority processing.", color: "text-[--color-silver-dark]/50" },
               { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images — no new content is generated.", color: "text-[--color-gold]" },
               { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina enhancements are applied.", color: "text-[--color-silver]" },
-              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly from your dashboard or share directly.", color: "text-emerald-300" },
+              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly from your dashboard or share directly.", color: "text-[--color-silver]" },
             ].map((item) => (
               <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-[--color-gold]/[0.02] border border-[--color-gold]/[0.06]">
                 <div className={`flex-shrink-0 mt-0.5 ${item.color}`}>{item.icon}</div>
@@ -939,8 +939,8 @@ export default function Pricing() {
                 <p className="text-xs text-[--color-silver-dark]/45">We'll email you when your render is complete so you don't need to wait on the page.</p>
               </div>
             </div>
-            <div className="flex-1 p-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20 flex items-start gap-3">
-              <Download className="w-4 h-4 text-emerald-300 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 p-4 rounded-xl bg-[--color-silver]/8 border border-[--color-silver]/20 flex items-start gap-3">
+              <Download className="w-4 h-4 text-[--color-silver] flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-[--color-silver-light] mb-1">Instant download</p>
                 <p className="text-xs text-[--color-silver-dark]/45">Your completed video appears in your dashboard. Download MP4 immediately — no waiting.</p>

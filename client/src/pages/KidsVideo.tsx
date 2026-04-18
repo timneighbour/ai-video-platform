@@ -57,11 +57,11 @@ const KIDS_STYLES = [
     label: "Disney",
     desc: "Magical cinematic animation",
     emoji: "",
-    gradient: "from-purple-600 via-violet-500 to-pink-500",
+    gradient: "from-[#b8892a] via-violet-500 to-[#2e2e36]",
     glow: "shadow-purple-500/40",
-    border: "border-purple-500/60",
-    bg: "bg-purple-950/40",
-    selectedBg: "bg-purple-600/20",
+    border: "border-[--color-gold]/30",
+    bg: "bg-[--color-gold]/15",
+    selectedBg: "bg-[--color-gold]/15",
     example: "Frozen · Moana · Encanto",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-disney_9c9b6894.jpg",
   },
@@ -70,11 +70,11 @@ const KIDS_STYLES = [
     label: "Anime",
     desc: "Japanese animation style",
     emoji: "🌸",
-    gradient: "from-pink-600 via-rose-500 to-red-400",
+    gradient: "from-[#9090a0] via-rose-500 to-red-400",
     glow: "shadow-pink-500/40",
     border: "border-pink-500/60",
-    bg: "bg-pink-950/40",
-    selectedBg: "bg-pink-600/20",
+    bg: "bg-[--color-silver]/10",
+    selectedBg: "bg-[--color-silver]/10",
     example: "My Neighbor Totoro · Spirited Away",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-anime_e5435cad.jpg",
   },
@@ -109,11 +109,11 @@ const KIDS_STYLES = [
     label: "Claymation",
     desc: "Playful clay-style animation",
     emoji: "🧸",
-    gradient: "from-amber-600 via-orange-500 to-red-400",
+    gradient: "from-[#b8892a] via-orange-500 to-red-400",
     glow: "shadow-amber-500/40",
-    border: "border-amber-500/60",
-    bg: "bg-amber-950/40",
-    selectedBg: "bg-amber-600/20",
+    border: "border-[--color-gold]/30",
+    bg: "bg-[--color-gold]/15",
+    selectedBg: "bg-[--color-gold]/15",
     example: "Wallace & Gromit · Shaun the Sheep",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation_65d3102c.jpg",
   },
@@ -152,25 +152,25 @@ const HOW_IT_WORKS = [
     step: "1", emoji: "✍️",
     title: "Describe Your Story",
     desc: "Type a simple story idea — or pick from our inspiration prompts. No writing experience needed.",
-    color: "from-pink-500/20 to-rose-500/10 border-pink-500/30",
+    color: "from-[#9090a0]/20 to-[#2e2e36]/10 border-[--color-silver]/30",
   },
   {
     step: "2", emoji: "",
     title: "Lock Your Characters",
     desc: "Define species, colour, and features. AI enforces strict character consistency across every scene.",
-    color: "from-purple-500/20 to-violet-500/10 border-purple-500/30",
+    color: "from-[#b8892a]/20 to-[#4a3010]/10 border-[--color-gold]/30",
   },
   {
     step: "3", emoji: "",
     title: "See Your Free Storyboard",
     desc: "AI instantly creates 4–6 illustrated scenes. Review, edit, regenerate — completely free.",
-    color: "from-blue-500/20 to-cyan-500/10 border-blue-500/30",
+    color: "from-blue-500/20 to-[#2e2e36]/10 border-blue-500/30",
   },
   {
     step: "4", emoji: "🔓",
     title: "Unlock Your Video",
     desc: "Render it into a full animated video with WizSound™ cinematic audio.",
-    color: "from-orange-500/20 to-amber-500/10 border-orange-500/30",
+    color: "from-orange-500/20 to-[#4a3010]/10 border-orange-500/30",
   },
 ];
 
@@ -642,7 +642,7 @@ export default function KidsVideo() {
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🧒</span>
             <span className="font-bold text-white text-sm sm:text-base">WizAnimate™</span>
-            <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs hidden sm:inline-flex">
+            <Badge className="bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/30 text-xs hidden sm:inline-flex">
               AI Animation
             </Badge>
           </div>
@@ -653,7 +653,7 @@ export default function KidsVideo() {
             <Button
               size="sm"
               onClick={() => setStep("story_input")}
-              className="bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 text-xs px-4"
+              className="bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 text-xs px-4"
             >
               Start Creating
             </Button>
@@ -697,17 +697,17 @@ export default function KidsVideo() {
         <div>
           {/* Hero */}
           <section className="relative py-20 sm:py-28 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-950/30 via-background to-purple-950/20 pointer-events-none" />
-            <div className="absolute top-20 left-1/4 w-64 h-64 rounded-full bg-pink-500/5 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-10 right-1/4 w-48 h-48 rounded-full bg-purple-500/5 blur-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#9090a0]/30 via-background to-[#4a3010]/20 pointer-events-none" />
+            <div className="absolute top-20 left-1/4 w-64 h-64 rounded-full bg-[--color-silver]/10 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-10 right-1/4 w-48 h-48 rounded-full bg-[--color-gold]/15 blur-3xl pointer-events-none" />
             <div className="container mx-auto px-4 max-w-4xl text-center relative">
-              <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-xs sm:text-sm text-pink-300 mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[--color-silver]/30 bg-[--color-silver]/10 px-4 py-1.5 text-xs sm:text-sm text-[--color-silver] mb-6">
                 <Lock className="h-3.5 w-3.5" />
                 Character Lock System · Strict Scene Consistency
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
                 WizAnimate™
-                <span className="block bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-[#9090a0] via-blue-400 to-[#4a3010] bg-clip-text text-transparent">
                   Character Animation
                 </span>
               </h1>
@@ -731,7 +731,7 @@ export default function KidsVideo() {
                 <Button
                   size="lg"
                   onClick={() => setStep("story_input")}
-                  className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
+                  className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
                 >
                   <Wand2 className="h-5 w-5" />
                   Create Free Storyboard 🌈
@@ -831,7 +831,7 @@ export default function KidsVideo() {
                 ].map((p) => (
                   <div key={p.duration} className="rounded-2xl border border-white/10 bg-white/5 p-5">
                     <div className="font-bold text-white text-lg mb-1">{p.duration}</div>
-                    <div className="text-pink-400 font-semibold text-sm mb-1">{p.credits}</div>
+                    <div className="text-[--color-silver] font-semibold text-sm mb-1">{p.credits}</div>
                     <div className="text-xs text-muted-foreground">{p.note}</div>
                   </div>
                 ))}
@@ -839,7 +839,7 @@ export default function KidsVideo() {
               <Button
                 size="lg"
                 onClick={() => setStep("story_input")}
-                className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
+                className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
               >
                 <Sparkles className="h-5 w-5" />
                 Start with a Free Storyboard 🌈
@@ -867,7 +867,7 @@ export default function KidsVideo() {
           </section>
 
           {/* Bottom CTA */}
-          <section className="py-16 sm:py-20 border-t border-white/5 bg-gradient-to-b from-background to-pink-950/20">
+          <section className="py-16 sm:py-20 border-t border-white/5 bg-gradient-to-b from-background to-[#2e2e36]/20">
             <div className="container mx-auto px-4 max-w-2xl text-center">
               <div className="text-5xl mb-6">🌈</div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Create Something Magical?</h2>
@@ -875,7 +875,7 @@ export default function KidsVideo() {
               <Button
                 size="lg"
                 onClick={() => setStep("story_input")}
-                className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 px-12 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
+                className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 px-12 py-6 text-base font-semibold shadow-lg shadow-pink-500/25"
               >
                 <Wand2 className="h-5 w-5" />
                 Create Your Kids Animation →
@@ -929,7 +929,7 @@ export default function KidsVideo() {
                       <button
                         key={i}
                         onClick={() => setPrompt(ex)}
-                        className="text-xs rounded-full border border-pink-500/20 bg-pink-500/5 px-3 py-1 text-pink-300 hover:bg-pink-500/15 transition text-left"
+                        className="text-xs rounded-full border border-[--color-silver]/20 bg-[--color-silver]/10 px-3 py-1 text-[--color-silver] hover:bg-[--color-silver]/10 transition text-left"
                       >
                         {ex.slice(0, 45)}…
                       </button>
@@ -979,7 +979,7 @@ export default function KidsVideo() {
                         onClick={() => setVideoLength(v.id)}
                         className={`rounded-xl border p-2.5 text-center transition-all ${
                           videoLength === v.id
-                            ? "border-pink-500 bg-pink-500/20 text-white"
+                            ? "border-pink-500 bg-[--color-silver]/10 text-white"
                             : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                         }`}
                       >
@@ -998,7 +998,7 @@ export default function KidsVideo() {
                         onClick={() => setScreenFormat(f.id)}
                         className={`flex-1 rounded-xl border p-3 text-center transition-all ${
                           screenFormat === f.id
-                            ? "border-pink-500 bg-pink-500/20 text-white"
+                            ? "border-pink-500 bg-[--color-silver]/10 text-white"
                             : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                         }`}
                       >
@@ -1013,7 +1013,7 @@ export default function KidsVideo() {
               {/* Audio Upload */}
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <Music className="h-4 w-4 text-pink-400" />
+                  <Music className="h-4 w-4 text-[--color-silver]" />
                   <span className="text-sm font-medium text-white">Upload Audio</span>
                   <Badge className="bg-white/10 text-muted-foreground border-white/10 text-xs">Optional</Badge>
                 </div>
@@ -1038,8 +1038,8 @@ export default function KidsVideo() {
                   <div
                     className={`rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all ${
                       isDraggingAudio
-                        ? "border-pink-500/60 bg-pink-500/10"
-                        : "border-white/10 hover:border-pink-500/30 hover:bg-pink-500/5"
+                        ? "border-pink-500/60 bg-[--color-silver]/10"
+                        : "border-white/10 hover:border-[--color-silver]/30 hover:bg-[--color-silver]/10"
                     }`}
                     onClick={() => audioInputRef.current?.click()}
                     onDragOver={(e) => { e.preventDefault(); setIsDraggingAudio(true); }}
@@ -1053,7 +1053,7 @@ export default function KidsVideo() {
                   >
                     <Upload className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground">
-                      <span className="text-pink-400 font-medium">Click to upload</span> or drag and drop
+                      <span className="text-[--color-silver] font-medium">Click to upload</span> or drag and drop
                     </p>
                     <p className="text-xs text-muted-foreground/60 mt-1">MP3, WAV, OGG, M4A, WebM · Max 16MB</p>
                   </div>
@@ -1077,7 +1077,7 @@ export default function KidsVideo() {
                   size="lg"
                   onClick={handleGoToCharacters}
                   disabled={prompt.length < 10}
-                  className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                  className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
                 >
                   Next: Design Characters
                   <ChevronRight className="h-5 w-5" />
@@ -1091,7 +1091,7 @@ export default function KidsVideo() {
           {step === "characters" && (
             <div className="space-y-6">
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs sm:text-sm text-purple-300 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 px-4 py-1.5 text-xs sm:text-sm text-[--color-gold] mb-4">
                   <Lock className="h-3.5 w-3.5 flex-shrink-0" />
                   Character Lock System — strict consistency across all scenes
                 </div>
@@ -1102,20 +1102,20 @@ export default function KidsVideo() {
               </div>
 
               {/* Character Lock explainer */}
-              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4 flex items-start gap-3">
-                <Lock className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                <div className="text-xs text-purple-200 leading-relaxed">
-                  <span className="font-semibold text-purple-300">How Character Lock works:</span> Fill in species, colour, features, and outfit. The AI uses these as strict rules — your character must appear <em>identical</em> in every scene. Upload a reference photo for even stronger consistency.
+              <div className="rounded-2xl border border-[--color-gold]/30 bg-[--color-gold]/15 p-4 flex items-start gap-3">
+                <Lock className="h-4 w-4 text-[--color-gold] mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-[--color-gold] leading-relaxed">
+                  <span className="font-semibold text-[--color-gold]">How Character Lock works:</span> Fill in species, colour, features, and outfit. The AI uses these as strict rules — your character must appear <em>identical</em> in every scene. Upload a reference photo for even stronger consistency.
                 </div>
               </div>
 
               <div className="space-y-4">
                 {characters.map((char, idx) => {
                   const slotColors = [
-                    { ring: "ring-purple-500", bg: "bg-purple-900/20", badge: "bg-purple-900/50 text-purple-300 border-purple-800", accent: "text-purple-400", border: "border-purple-500/30" },
+                    { ring: "ring-purple-500", bg: "bg-[--color-gold]/15", badge: "bg-[--color-gold]/15 text-[--color-gold] border-purple-800", accent: "text-[--color-gold]", border: "border-[--color-gold]/30" },
                     { ring: "ring-blue-500",   bg: "bg-blue-900/20",   badge: "bg-blue-900/50 text-blue-300 border-blue-800",     accent: "text-blue-400",   border: "border-blue-500/30" },
-                    { ring: "ring-pink-500",   bg: "bg-pink-900/20",   badge: "bg-pink-900/50 text-pink-300 border-pink-800",     accent: "text-pink-400",   border: "border-pink-500/30" },
-                    { ring: "ring-amber-500",  bg: "bg-amber-900/20",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  accent: "text-amber-400",  border: "border-amber-500/30" },
+                    { ring: "ring-pink-500",   bg: "bg-[--color-silver]/10",   badge: "bg-[--color-silver]/10 text-[--color-silver] border-pink-800",     accent: "text-[--color-silver]",   border: "border-[--color-silver]/30" },
+                    { ring: "ring-amber-500",  bg: "bg-[--color-gold]/15",  badge: "bg-[--color-gold]/15 text-[--color-gold] border-amber-800",  accent: "text-[--color-gold]",  border: "border-[--color-gold]/30" },
                   ][idx % 4];
 
                   const isLocked = !!(char.species || char.colour || char.features || char.outfit);
@@ -1237,12 +1237,12 @@ export default function KidsVideo() {
                               <div>
                                 <label className="text-xs text-muted-foreground mb-1.5 block">Reference Photo (optional)</label>
                                 {char.isUploadingPhoto ? (
-                                  <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 h-20 flex items-center justify-center gap-2">
-                                    <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />
-                                    <span className="text-xs text-purple-300">Uploading…</span>
+                                  <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 h-20 flex items-center justify-center gap-2">
+                                    <Loader2 className="h-4 w-4 text-[--color-gold] animate-spin" />
+                                    <span className="text-xs text-[--color-gold]">Uploading…</span>
                                   </div>
                                 ) : char.photoUrl ? (
-                                  <div className="relative rounded-xl overflow-hidden border border-purple-500/30 h-20">
+                                  <div className="relative rounded-xl overflow-hidden border border-[--color-gold]/30 h-20">
                                     <img src={char.photoUrl} alt="Reference" className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
                                       <button
@@ -1259,7 +1259,7 @@ export default function KidsVideo() {
                                   </div>
                                 ) : (
                                   <label className="cursor-pointer block">
-                                    <div className="rounded-xl border-2 border-dashed border-white/10 bg-white/5 h-20 flex flex-col items-center justify-center gap-1.5 hover:border-purple-500/30 hover:bg-purple-500/5 transition">
+                                    <div className="rounded-xl border-2 border-dashed border-white/10 bg-white/5 h-20 flex flex-col items-center justify-center gap-1.5 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition">
                                       <Camera className="h-5 w-5 text-muted-foreground/40" />
                                       <span className="text-xs text-muted-foreground/60">Upload pet/character photo</span>
                                     </div>
@@ -1281,12 +1281,12 @@ export default function KidsVideo() {
                               <div>
                                 <label className="text-xs text-muted-foreground mb-1.5 block">AI Character Preview</label>
                                 {char.isGenerating ? (
-                                  <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 aspect-square flex flex-col items-center justify-center gap-2">
-                                    <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
-                                    <span className="text-xs text-purple-300">Creating character…</span>
+                                  <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 aspect-square flex flex-col items-center justify-center gap-2">
+                                    <Loader2 className="h-8 w-8 text-[--color-gold] animate-spin" />
+                                    <span className="text-xs text-[--color-gold]">Creating character…</span>
                                   </div>
                                 ) : char.imageUrl && !char.photoUrl ? (
-                                  <div className="relative rounded-xl overflow-hidden aspect-square border border-purple-500/30">
+                                  <div className="relative rounded-xl overflow-hidden aspect-square border border-[--color-gold]/30">
                                     <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover" />
                                     <button
                                       onClick={() => handleGenerateCharacterImage(char.id)}
@@ -1299,10 +1299,10 @@ export default function KidsVideo() {
                                 ) : !char.photoUrl ? (
                                   <button
                                     onClick={() => desc.trim().length >= 5 && handleGenerateCharacterImage(char.id)}
-                                    className="w-full rounded-xl border-2 border-dashed border-purple-500/20 bg-purple-500/5 aspect-square flex flex-col items-center justify-center gap-2 hover:border-purple-500/40 hover:bg-purple-500/10 transition group"
+                                    className="w-full rounded-xl border-2 border-dashed border-[--color-gold]/30 bg-[--color-gold]/15 aspect-square flex flex-col items-center justify-center gap-2 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition group"
                                   >
-                                    <ImageIcon className="h-8 w-8 text-muted-foreground/30 group-hover:text-purple-400 transition" />
-                                    <span className="text-xs text-muted-foreground/50 group-hover:text-purple-300 transition text-center px-2">
+                                    <ImageIcon className="h-8 w-8 text-muted-foreground/30 group-hover:text-[--color-gold] transition" />
+                                    <span className="text-xs text-muted-foreground/50 group-hover:text-[--color-gold] transition text-center px-2">
                                       {desc.trim().length >= 5
                                         ? "Click to generate character image "
                                         : "Fill in species & colour first"}
@@ -1315,7 +1315,7 @@ export default function KidsVideo() {
                                     size="sm"
                                     onClick={() => handleGenerateCharacterImage(char.id)}
                                     disabled={char.isGenerating}
-                                    className="mt-2 gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0 text-xs w-full"
+                                    className="mt-2 gap-2 bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white border-0 text-xs w-full"
                                   >
                                     {char.isGenerating ? (
                                       <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
@@ -1338,7 +1338,7 @@ export default function KidsVideo() {
               {characters.length < 4 && (
                 <button
                   onClick={handleAddCharacter}
-                  className="w-full rounded-2xl border-2 border-dashed border-purple-500/20 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-purple-500/40 hover:text-purple-300 hover:bg-purple-500/5 transition"
+                  className="w-full rounded-2xl border-2 border-dashed border-[--color-gold]/30 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-[--color-gold]/30 hover:text-[--color-gold] hover:bg-[--color-gold]/15 transition"
                 >
                   <Plus className="h-4 w-4" />
                   Add Another Character (up to 4)
@@ -1365,7 +1365,7 @@ export default function KidsVideo() {
                 <Button
                   onClick={handleGenerateStoryboard}
                   disabled={isCreatingJob || isGeneratingStoryboard}
-                  className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 flex-1"
+                  className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 flex-1"
                 >
                   {isCreatingJob ? (
                     <><Loader2 className="h-4 w-4 animate-spin" /> Creating job…</>
@@ -1382,7 +1382,7 @@ export default function KidsVideo() {
           {step === "storyboard" && (
             <div className="space-y-6">
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-4 py-1.5 text-xs sm:text-sm text-pink-300 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[--color-silver]/30 bg-[--color-silver]/10 px-4 py-1.5 text-xs sm:text-sm text-[--color-silver] mb-4">
                   <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
                   {selectedStyle.emoji} {selectedStyle.label} · {videoLength} · {screenFormat}
                 </div>
@@ -1394,13 +1394,13 @@ export default function KidsVideo() {
 
               {/* Generating state */}
               {isGeneratingStoryboard && (
-                <div className="rounded-2xl border border-pink-500/30 bg-pink-500/5 p-8 text-center space-y-4">
+                <div className="rounded-2xl border border-[--color-silver]/30 bg-[--color-silver]/10 p-8 text-center space-y-4">
                   <div className="text-4xl animate-bounce"></div>
                   <div>
                     <h3 className="font-bold text-white mb-1">Creating Your Storyboard…</h3>
                     <p className="text-sm text-muted-foreground">AI is illustrating your story scenes. This takes about 30–60 seconds.</p>
                   </div>
-                  <div className="flex items-center justify-center gap-2 text-pink-300 text-sm">
+                  <div className="flex items-center justify-center gap-2 text-[--color-silver] text-sm">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Generating scene illustrations…</span>
                   </div>
@@ -1425,7 +1425,7 @@ export default function KidsVideo() {
                     <div key={frame.sceneIndex} className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-pink-400 bg-pink-500/20 rounded-full px-2 py-0.5">
+                          <span className="text-xs font-bold text-[--color-silver] bg-[--color-silver]/10 rounded-full px-2 py-0.5">
                             Scene {i + 1}
                           </span>
                           <span className="text-sm font-semibold text-white">{frame.sceneLabel}</span>
@@ -1448,7 +1448,7 @@ export default function KidsVideo() {
                           <button
                             onClick={() => handleRegenerateScene(frame.sceneIndex)}
                             disabled={regeneratingSceneIndex === frame.sceneIndex}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-pink-400 hover:bg-pink-500/10 transition"
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-[--color-silver] hover:bg-[--color-silver]/10 transition"
                             title="Regenerate this scene"
                           >
                             {regeneratingSceneIndex === frame.sceneIndex ? (
@@ -1466,14 +1466,14 @@ export default function KidsVideo() {
                           {regeneratingSceneIndex === frame.sceneIndex && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center pointer-events-none">
                               <div className="text-center">
-                                <Loader2 className="h-8 w-8 text-pink-400 animate-spin mx-auto mb-2" />
-                                <span className="text-xs text-pink-300">Regenerating scene…</span>
+                                <Loader2 className="h-8 w-8 text-[--color-silver] animate-spin mx-auto mb-2" />
+                                <span className="text-xs text-[--color-silver]">Regenerating scene…</span>
                               </div>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-pink-500/20 bg-pink-500/5 aspect-video flex items-center justify-center">
+                        <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-[--color-silver]/20 bg-[--color-silver]/10 aspect-video flex items-center justify-center">
                           <div className="text-center">
                             <ImageIcon className="h-6 w-6 text-muted-foreground/30 mx-auto mb-1" />
                             <span className="text-xs text-muted-foreground/50">Image generation failed for this scene</span>
@@ -1495,7 +1495,7 @@ export default function KidsVideo() {
                                 size="sm"
                                 onClick={() => handleRegenerateScene(frame.sceneIndex, editingSceneText)}
                                 disabled={regeneratingSceneIndex === frame.sceneIndex || editingSceneText.trim().length < 5}
-                                className="gap-1.5 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 text-xs flex-1"
+                                className="gap-1.5 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 text-xs flex-1"
                               >
                                 {regeneratingSceneIndex === frame.sceneIndex ? (
                                   <><Loader2 className="h-3 w-3 animate-spin" /> Regenerating…</>
@@ -1530,7 +1530,7 @@ export default function KidsVideo() {
                   <Button
                     onClick={handleGenerateStoryboard}
                     disabled={isCreatingJob || isGeneratingStoryboard}
-                    className="mt-4 gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0"
+                    className="mt-4 gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0"
                   >
                     <Wand2 className="h-4 w-4" />
                     Generate Storyboard
@@ -1569,7 +1569,7 @@ export default function KidsVideo() {
                       <Button
                         onClick={handleRenderVideo}
                         disabled={isCheckingOut || !jobId}
-                        className="gap-2 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white border-0 flex-1"
+                        className="gap-2 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white border-0 flex-1"
                       >
                         {isCheckingOut ? (
                           <><Loader2 className="h-4 w-4 animate-spin" /> Preparing checkout…</>
@@ -1607,11 +1607,11 @@ export default function KidsVideo() {
 
               {/* Rendering progress */}
               {(renderStatus === "queued" || renderStatus === "processing") && (
-                <div className="rounded-2xl border border-pink-500/30 bg-pink-500/5 p-8 text-center space-y-6">
+                <div className="rounded-2xl border border-[--color-silver]/30 bg-[--color-silver]/10 p-8 text-center space-y-6">
                   <div className="text-5xl animate-bounce"></div>
                   <div className="space-y-3 max-w-sm mx-auto">
                     <Progress value={renderStatus === "processing" ? 65 : 20} className="h-3 rounded-full" />
-                    <p className="text-sm text-pink-300 font-medium">
+                    <p className="text-sm text-[--color-silver] font-medium">
                       {renderStatus === "processing" ? "Building your scenes…" : "Queued — starting soon…"}
                     </p>
                   </div>
@@ -1626,7 +1626,7 @@ export default function KidsVideo() {
                         {s.done ? (
                           <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
                         ) : (
-                          <Loader2 className="h-4 w-4 text-pink-400 animate-spin flex-shrink-0" />
+                          <Loader2 className="h-4 w-4 text-[--color-silver] animate-spin flex-shrink-0" />
                         )}
                         <span className={s.done ? "text-white" : "text-muted-foreground/70"}>{s.label}</span>
                       </div>
@@ -1639,7 +1639,7 @@ export default function KidsVideo() {
               {/* Completed video */}
               {renderStatus === "completed" && videoUrl && (
                 <div className="space-y-4">
-                  <div className="w-full rounded-2xl overflow-hidden border border-pink-500/30 bg-black">
+                  <div className="w-full rounded-2xl overflow-hidden border border-[--color-silver]/30 bg-black">
                     <video src={videoUrl} controls autoPlay muted playsInline className="w-full" style={{ maxHeight: "400px" }} />
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
@@ -1667,7 +1667,7 @@ export default function KidsVideo() {
                     </Button>
                     <a
                       href="/projects"
-                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
+                      className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
                     >
                       <Film className="h-4 w-4" />
                       View All Projects

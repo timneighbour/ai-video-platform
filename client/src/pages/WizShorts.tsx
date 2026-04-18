@@ -28,8 +28,8 @@ interface Scene {
 
 const PLATFORMS: { id: Platform; label: string; icon: React.ReactNode; color: string }[] = [
   { id: "youtube_shorts", label: "YouTube Shorts", icon: <Youtube className="w-4 h-4" />, color: "from-red-600 to-red-500" },
-  { id: "tiktok", label: "TikTok", icon: <Music2 className="w-4 h-4" />, color: "from-pink-600 to-pink-500" },
-  { id: "reels", label: "Instagram Reels", icon: <Smartphone className="w-4 h-4" />, color: "from-purple-600 to-orange-500" },
+  { id: "tiktok", label: "TikTok", icon: <Music2 className="w-4 h-4" />, color: "from-[#9090a0] to-[#2e2e36]" },
+  { id: "reels", label: "Instagram Reels", icon: <Smartphone className="w-4 h-4" />, color: "from-[#b8892a] to-orange-500" },
 ];
 
 const DURATIONS = [15, 30, 45, 60];
@@ -176,16 +176,16 @@ export default function WizShorts() {
       <div className="border-b border-white/10 bg-[#0d0d14]">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-600 to-orange-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9090a0] to-orange-500 flex items-center justify-center">
               <Film className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight">WizShorts</h1>
-              <p className="text-xs text-white/50">AI Short-Form Video Creator · Powered by Grok Imagine</p>
+              <p className="text-xs text-white/50">AI Short-Form Video Creator · WIZ AI</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-pink-500/50 text-pink-300 text-xs hidden sm:flex">
+            <Badge variant="outline" className="border-[--color-silver]/50 text-[--color-silver] text-xs hidden sm:flex">
               YouTube Shorts · TikTok · Reels
             </Badge>
           </div>
@@ -198,7 +198,7 @@ export default function WizShorts() {
               <div key={s} className="flex items-center gap-2">
                 <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
                   step === s
-                    ? "bg-pink-500/20 text-pink-300 border border-pink-500/40"
+                    ? "bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/40"
                     : i < ["setup", "scenes", "render"].indexOf(step)
                     ? "text-white/50 bg-white/5"
                     : "text-white/30"
@@ -225,14 +225,14 @@ export default function WizShorts() {
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g. 5 mind-blowing facts about the deep ocean..."
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none h-28 focus:border-pink-500/50"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 resize-none h-28 focus:border-[--color-silver]/50"
                   maxLength={500}
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-white/30">{topic.length}/500</p>
                   <button
                     onClick={() => setTopic(EXAMPLE_TOPICS[Math.floor(Math.random() * EXAMPLE_TOPICS.length)])}
-                    className="text-xs text-pink-400 hover:text-pink-300 transition-colors"
+                    className="text-xs text-[--color-silver] hover:text-[--color-silver] transition-colors"
                   >
                     Try example
                   </button>
@@ -249,7 +249,7 @@ export default function WizShorts() {
                       onClick={() => setPlatform(p.id)}
                       className={`p-3 rounded-xl border text-center transition-all ${
                         platform === p.id
-                          ? "border-pink-500 bg-pink-500/10 text-white"
+                          ? "border-pink-500 bg-[--color-silver]/10 text-white"
                           : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
                       }`}
                     >
@@ -270,7 +270,7 @@ export default function WizShorts() {
                       onClick={() => setDuration(d)}
                       className={`p-3 rounded-xl border text-center transition-all ${
                         duration === d
-                          ? "border-pink-500 bg-pink-500/10 text-white"
+                          ? "border-pink-500 bg-[--color-silver]/10 text-white"
                           : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
                       }`}
                     >
@@ -291,7 +291,7 @@ export default function WizShorts() {
                       onClick={() => setVisualStyle(s.id)}
                       className={`p-3 rounded-xl border text-left transition-all ${
                         visualStyle === s.id
-                          ? "border-pink-500 bg-pink-500/10 text-white"
+                          ? "border-pink-500 bg-[--color-silver]/10 text-white"
                           : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -306,7 +306,7 @@ export default function WizShorts() {
               <Button
                 onClick={handleCreateJob}
                 disabled={createJobMutation.isPending || generateScenesMutation.isPending || !topic.trim()}
-                className="w-full h-12 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white font-semibold text-base rounded-xl border-0"
+                className="w-full h-12 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white font-semibold text-base rounded-xl border-0"
               >
                 {createJobMutation.isPending || generateScenesMutation.isPending ? (
                   <>
@@ -328,7 +328,7 @@ export default function WizShorts() {
               <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
                 <h3 className="text-sm font-semibold text-white/80">How WizShorts works</h3>
                 {[
-                  { icon: <Sparkles className="w-4 h-4 text-pink-400" />, title: "AI Scene Planning", desc: "GPT breaks your topic into perfectly timed scenes" },
+                  { icon: <Sparkles className="w-4 h-4 text-[--color-silver]" />, title: "AI Scene Planning", desc: "GPT breaks your topic into perfectly timed scenes" },
                   { icon: <Film className="w-4 h-4 text-orange-400" />, title: "Grok Video Generation", desc: "Each scene rendered by the #1 ranked AI video model" },
                   { icon: <Zap className="w-4 h-4 text-yellow-400" />, title: "Auto Assembly", desc: "Scenes stitched together with optional music track" },
                   { icon: <Download className="w-4 h-4 text-green-400" />, title: "Ready to Upload", desc: "9:16 vertical format, ready for Shorts/TikTok/Reels" },
@@ -343,8 +343,8 @@ export default function WizShorts() {
                 ))}
               </div>
 
-              <div className="rounded-2xl border border-pink-500/20 bg-pink-500/5 p-4">
-                <div className="text-xs font-semibold text-pink-300 mb-2">Credit estimate</div>
+              <div className="rounded-2xl border border-[--color-silver]/20 bg-[--color-silver]/10 p-4">
+                <div className="text-xs font-semibold text-[--color-silver] mb-2">Credit estimate</div>
                 <div className="text-2xl font-bold text-white">
                   {Math.ceil(duration / 5) * 5}
                   <span className="text-sm font-normal text-white/50 ml-1">credits</span>
@@ -392,7 +392,7 @@ export default function WizShorts() {
                   </div>
 
                   {/* Preview placeholder — 9:16 aspect */}
-                  <div className="relative bg-gradient-to-br from-pink-900/20 to-orange-900/20 aspect-[9/16] max-h-48 flex items-center justify-center">
+                  <div className="relative bg-gradient-to-br from-[#9090a0]/20 to-orange-900/20 aspect-[9/16] max-h-48 flex items-center justify-center">
                     <Film className="w-8 h-8 text-white/20" />
                     {scene.caption && (
                       <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1">
@@ -413,7 +413,7 @@ export default function WizShorts() {
               <Button
                 onClick={handleStartRender}
                 disabled={startRenderMutation.isPending}
-                className="h-12 px-8 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white font-semibold rounded-xl border-0"
+                className="h-12 px-8 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white font-semibold rounded-xl border-0"
               >
                 {startRenderMutation.isPending ? (
                   <>
@@ -439,10 +439,10 @@ export default function WizShorts() {
               <div className="text-center space-y-6">
                 {/* Animated render indicator */}
                 <div className="relative w-32 h-32 mx-auto">
-                  <div className="absolute inset-0 rounded-full border-2 border-pink-500/20 border-t-pink-500 animate-spin" />
+                  <div className="absolute inset-0 rounded-full border-2 border-[--color-silver]/20 border-t-[--color-silver] animate-spin" />
                   <div className="absolute inset-3 rounded-full border-2 border-orange-500/20 border-b-orange-500 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Film className="w-10 h-10 text-pink-400" />
+                    <Film className="w-10 h-10 text-[--color-silver]" />
                   </div>
                 </div>
 
@@ -460,7 +460,7 @@ export default function WizShorts() {
                 {/* Progress bar */}
                 <div className="w-full bg-white/10 rounded-full h-2">
                   <div
-                    className="h-2 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 transition-all duration-500"
+                    className="h-2 rounded-full bg-gradient-to-r from-[#9090a0] to-orange-500 transition-all duration-500"
                     style={{ width: `${totalScenes > 0 ? (completedScenes / totalScenes) * 100 : 5}%` }}
                   />
                 </div>
@@ -474,14 +474,14 @@ export default function WizShorts() {
                         i < completedScenes
                           ? "border-green-500/50 bg-green-500/10"
                           : i === completedScenes
-                          ? "border-pink-500/50 bg-pink-500/10 animate-pulse"
+                          ? "border-[--color-silver]/50 bg-[--color-silver]/10 animate-pulse"
                           : "border-white/10 bg-white/5"
                       }`}
                     >
                       {i < completedScenes ? (
                         <CheckCircle2 className="w-3 h-3 text-green-400" />
                       ) : i === completedScenes ? (
-                        <Loader2 className="w-3 h-3 text-pink-400 animate-spin" />
+                        <Loader2 className="w-3 h-3 text-[--color-silver] animate-spin" />
                       ) : (
                         <span className="text-[10px] text-white/30">{i + 1}</span>
                       )}
@@ -521,7 +521,7 @@ export default function WizShorts() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button
                     onClick={handleDownload}
-                    className="h-11 px-6 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-500 hover:to-orange-400 text-white font-semibold rounded-xl border-0"
+                    className="h-11 px-6 bg-gradient-to-r from-[#9090a0] to-orange-500 hover:from-[#9090a0] hover:to-orange-400 text-white font-semibold rounded-xl border-0"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download MP4
@@ -548,7 +548,7 @@ export default function WizShorts() {
                 <div className="flex gap-3 justify-center">
                   <Button
                     onClick={() => { setRenderStatus("rendering"); startPolling(jobId!); }}
-                    className="h-11 px-6 bg-gradient-to-r from-pink-600 to-orange-500 text-white font-semibold rounded-xl border-0"
+                    className="h-11 px-6 bg-gradient-to-r from-[#9090a0] to-orange-500 text-white font-semibold rounded-xl border-0"
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Retry

@@ -181,7 +181,7 @@ export default function WizAudioPlayer({
           {imageUrl ? (
             <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
           ) : (
-            <Music2 className="w-5 h-5 text-violet-300" />
+            <Music2 className="w-5 h-5 text-[--color-gold]" />
           )}
         </div>
 
@@ -193,9 +193,9 @@ export default function WizAudioPlayer({
 
         {/* WizSound™ badge */}
         {showBadge && (
-          <div className="flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 rounded-full px-2.5 py-1 flex-shrink-0">
+          <div className="flex items-center gap-1.5 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-2.5 py-1 flex-shrink-0">
             <img src={WIZSOUND_LOGO} alt="WizSound" className="h-3 w-auto" />
-            <span className="text-[9px] font-bold text-violet-300 uppercase tracking-wider">WizSound™</span>
+            <span className="text-[9px] font-bold text-[--color-gold] uppercase tracking-wider">WizSound™</span>
           </div>
         )}
       </div>

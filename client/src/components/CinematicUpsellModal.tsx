@@ -111,8 +111,8 @@ export default function CinematicUpsellModal({
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-[--color-gold]" />
             </div>
             <div>
               <DialogTitle className="text-white text-lg leading-tight">
@@ -126,15 +126,15 @@ export default function CinematicUpsellModal({
         </DialogHeader>
 
         {/* Quality comparison strip */}
-        <div className="mx-6 mt-4 rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-950/30 to-orange-950/20 px-4 py-3 shrink-0">
-          <p className="text-xs font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <div className="mx-6 mt-4 rounded-xl border border-[--color-gold]/20 bg-gradient-to-r from-[#2a1f00]/30 to-[#1a1000]/20 px-4 py-3 shrink-0">
+          <p className="text-xs font-semibold text-[--color-gold] uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <Film className="w-3.5 h-3.5" />
             What cinematic quality adds
           </p>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1">
             {QUALITY_BULLETS.map((b) => (
               <div key={b} className="flex items-center gap-2 text-xs text-zinc-300">
-                <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0" />
                 {b}
               </div>
             ))}
@@ -153,7 +153,7 @@ export default function CinematicUpsellModal({
             <div className="flex items-center gap-2">
               <button
                 onClick={selectAll}
-                className="text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                className="text-xs text-[--color-gold] hover:text-[--color-gold]/80 transition-colors"
               >
                 Select all
               </button>
@@ -184,7 +184,7 @@ export default function CinematicUpsellModal({
                     onClick={() => toggleScene(scene.id)}
                     className={`relative rounded-xl overflow-hidden border-2 transition-all text-left group ${
                       selected
-                        ? "border-amber-500/70 shadow-lg shadow-amber-900/20"
+                        ? "border-[--color-gold]/70 shadow-lg shadow-[#b8892a]/20"
                         : "border-zinc-800 hover:border-zinc-600"
                     }`}
                   >
@@ -206,14 +206,14 @@ export default function CinematicUpsellModal({
                       <div
                         className={`absolute inset-0 transition-all pointer-events-none ${
                           selected
-                            ? "bg-amber-500/10"
+                            ? "bg-[--color-gold]/10"
                             : "bg-transparent group-hover:bg-white/5"
                         }`}
                       />
                       {/* Checkmark */}
                       <div className="absolute top-1.5 right-1.5">
                         {selected ? (
-                          <CheckCircle2 className="w-5 h-5 text-amber-400 drop-shadow" />
+                          <CheckCircle2 className="w-5 h-5 text-[--color-gold] drop-shadow" />
                         ) : (
                           <Circle className="w-5 h-5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
                         )}
@@ -266,7 +266,7 @@ export default function CinematicUpsellModal({
             <div className="space-y-2">
               <Link href="/credits">
                 <Button
-                  className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold gap-2"
+                  className="w-full btn-primary font-semibold gap-2"
                   onClick={onClose}
                 >
                   <Zap className="w-4 h-4" />
@@ -293,7 +293,7 @@ export default function CinematicUpsellModal({
                 Skip for now
               </Button>
               <Button
-                className="flex-[2] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold gap-2 shadow-lg shadow-amber-900/30"
+                className="flex-[2] btn-primary font-bold gap-2"
                 onClick={handleUpgrade}
                 disabled={selectedIds.size === 0 || isUpgrading}
               >

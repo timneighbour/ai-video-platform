@@ -233,8 +233,8 @@ export default function PostRenderCinematicPackModal({
         />
 
         {/* Ambient glow rings */}
-        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-fuchsia-600/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-violet-600/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[--color-gold]/15 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-[--color-gold]/15 blur-3xl pointer-events-none" />
 
         {/* Close (Skip) button — top right */}
         <button
@@ -251,8 +251,8 @@ export default function PostRenderCinematicPackModal({
         <div className="px-6 pt-7 pb-5 text-center relative">
           {/* Celebration icon */}
           <div className="relative mb-4 flex items-center justify-center">
-            <div className="absolute w-20 h-20 rounded-full bg-fuchsia-500/15 animate-ping" style={{ animationDuration: "2.5s" }} />
-            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-fuchsia-500 to-violet-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
+            <div className="absolute w-20 h-20 rounded-full bg-[--color-gold]/15 animate-ping" style={{ animationDuration: "2.5s" }} />
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
           </div>
@@ -274,7 +274,7 @@ export default function PostRenderCinematicPackModal({
         {/* Cinematic Pack card */}
         <div className="px-6 pb-2">
           <div
-            className="relative rounded-2xl p-5 border-2 border-fuchsia-500/60"
+            className="relative rounded-2xl p-5 border-2 border-[--color-gold]/60"
             style={{
               background: "linear-gradient(135deg, rgba(217,70,239,0.12) 0%, rgba(139,92,246,0.08) 100%)",
               boxShadow: "0 0 30px rgba(217,70,239,0.2) inset",
@@ -282,7 +282,7 @@ export default function PostRenderCinematicPackModal({
           >
             {/* Best Value badge */}
             <div className="absolute -top-3 left-5 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white text-[10px] font-bold tracking-wider shadow-lg">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] text-white text-[10px] font-bold tracking-wider shadow-lg">
                 <Star className="w-2.5 h-2.5 fill-white" />
                 BEST VALUE
               </span>
@@ -295,7 +295,7 @@ export default function PostRenderCinematicPackModal({
                   <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>
                       <div
-                        className="inline-flex items-center justify-center w-4 h-4 rounded-full text-fuchsia-400/60 hover:text-fuchsia-300 cursor-help"
+                        className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[--color-gold]/60 hover:text-[--color-gold] cursor-help"
                         aria-label="What's included in the Cinematic Pack?"
                       >
                         <Info className="w-3 h-3" />
@@ -303,13 +303,13 @@ export default function PostRenderCinematicPackModal({
                     </TooltipTrigger>
                     <TooltipContent
                       side="top"
-                      className="max-w-[240px] text-xs leading-relaxed bg-[#1a0a2e] border border-fuchsia-500/30 text-white/85 shadow-xl"
+                      className="max-w-[240px] text-xs leading-relaxed bg-[#0a0800] border border-[--color-gold]/30 text-white/85 shadow-xl"
                     >
                       The Cinematic Pack bundles 4K video rendering with our full WizSound™ Cinematic mastering pipeline and priority queue placement — all at a single price. Individually these would cost £9 (£6 + £3).
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <p className="text-xs text-fuchsia-300/70 mb-3">
+                <p className="text-xs text-[--color-gold]/70 mb-3">
                   4K resolution · WizSound Cinematic audio · Priority rendering
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -322,7 +322,7 @@ export default function PostRenderCinematicPackModal({
                     "Save £2 vs individual",
                   ].map((f) => (
                     <span key={f} className="text-[10px] text-white/45 flex items-center gap-1">
-                      <Check className="w-2.5 h-2.5 text-fuchsia-400/80 flex-shrink-0" />
+                      <Check className="w-2.5 h-2.5 text-[--color-gold]/80 flex-shrink-0" />
                       {f}
                     </span>
                   ))}
@@ -337,7 +337,7 @@ export default function PostRenderCinematicPackModal({
                       <span className="text-3xl font-extrabold text-white">£{DISCOUNT_PRICE}</span>
                     </div>
                     <span className="text-xs text-white/35 line-through">£{FULL_PRICE}</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold">Today only</span>
+                    <span className="text-[10px] text-[--color-silver] font-semibold">Today only</span>
                   </>
                 ) : (
                   <div className="flex items-baseline gap-1">
@@ -351,13 +351,13 @@ export default function PostRenderCinematicPackModal({
 
         {/* Urgency countdown */}
         {discountActive && (
-          <div className="mx-6 mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25">
-            <Clock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-            <p className="text-xs text-amber-300 font-medium">
+          <div className="mx-6 mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30">
+            <Clock className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0" />
+            <p className="text-xs text-[--color-gold] font-medium">
               Today-only discount expires in{" "}
               <span className="font-bold tabular-nums">{formatTime(secondsLeft)}</span>
             </p>
-            <Zap className="w-3 h-3 text-amber-400 flex-shrink-0" />
+            <Zap className="w-3 h-3 text-[--color-gold] flex-shrink-0" />
           </div>
         )}
 
@@ -410,15 +410,15 @@ export default function PostRenderCinematicPackModal({
         {/* Trust line */}
         <div className="px-6 pb-5 flex items-center justify-center gap-5 text-[10px] text-white/25">
           <span className="flex items-center gap-1">
-            <Check className="w-2.5 h-2.5 text-emerald-500/60" />
+            <Check className="w-2.5 h-2.5 text-[--color-silver]/60" />
             Secure payment
           </span>
           <span className="flex items-center gap-1">
-            <Check className="w-2.5 h-2.5 text-emerald-500/60" />
+            <Check className="w-2.5 h-2.5 text-[--color-silver]/60" />
             No hidden fees
           </span>
           <span className="flex items-center gap-1">
-            <Check className="w-2.5 h-2.5 text-emerald-500/60" />
+            <Check className="w-2.5 h-2.5 text-[--color-silver]/60" />
             Instant processing
           </span>
         </div>

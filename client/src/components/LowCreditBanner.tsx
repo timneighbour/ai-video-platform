@@ -66,15 +66,15 @@ export function LowCreditBanner({
         btnSecondary: "text-red-300 hover:text-red-200",
       }
     : {
-        border: "border-amber-500/30",
-        bg: "bg-amber-950/30",
-        icon: "text-amber-400",
-        iconBg: "bg-amber-500/15",
-        title: "text-amber-300",
-        body: "text-amber-200/70",
-        badge: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-        btn: "bg-amber-500 hover:bg-amber-400 text-black font-semibold",
-        btnSecondary: "text-amber-300 hover:text-amber-200",
+        border: "border-[--color-gold]/30",
+        bg: "bg-[--color-gold]/15",
+        icon: "text-[--color-gold]",
+        iconBg: "bg-[--color-gold]/15",
+        title: "text-[--color-gold]",
+        body: "text-[--color-gold]/70",
+        badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+        btn: "bg-[--color-gold] hover:bg-[--color-gold]/20 text-black font-semibold",
+        btnSecondary: "text-[--color-gold] hover:text-[--color-gold]",
       };
 
   /* ── Compact variant (tight spaces) ── */

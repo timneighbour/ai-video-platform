@@ -34,7 +34,7 @@ const options = [
     href: '/music-creator',
     icon: Waves,
     title: 'AI Music Generator',
-    description: 'Generate original, royalty-free music powered by Suno AI in any style.',
+    description: 'Generate original, royalty-free music in any style — powered by WizAudio.',
     isPopular: false,
   },
 ];

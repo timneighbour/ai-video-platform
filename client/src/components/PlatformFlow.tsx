@@ -13,10 +13,10 @@ const STEPS = [
     desc: "Generate an original song with AI or upload your own audio file to begin.",
     color: "violet",
     accent: "#8b5cf6",
-    bg: "from-violet-950/80 to-violet-900/40",
-    border: "border-violet-500/30",
-    pill: "bg-violet-500/15 text-violet-300 border-violet-500/25",
-    dot: "bg-violet-500",
+    bg: "from-[#b8892a]/80 to-[#4a3010]/40",
+    border: "border-[--color-gold]/30",
+    pill: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    dot: "bg-[--color-gold]",
     animType: "waveform",
     ctaLink: "https://www.wiz-ai.io/music-creator",
     ctaLabel: "Start with Audio",
@@ -29,9 +29,9 @@ const STEPS = [
     desc: "Our AI transforms your audio into a fully cinematic, scene-by-scene video.",
     color: "cyan",
     accent: "#06b6d4",
-    bg: "from-cyan-950/80 to-cyan-900/40",
-    border: "border-cyan-500/30",
-    pill: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
+    border: "border-[--color-silver]/30",
+    pill: "bg-[--color-silver]/10 text-[--color-silver] border-cyan-500/25",
     dot: "bg-cyan-500",
     animType: "filmstrip",
   },
@@ -43,10 +43,10 @@ const STEPS = [
     desc: "Upload a photo or generate an AI character — consistent in every frame.",
     color: "pink",
     accent: "#ec4899",
-    bg: "from-pink-950/80 to-pink-900/40",
-    border: "border-pink-500/30",
-    pill: "bg-pink-500/15 text-pink-300 border-pink-500/25",
-    dot: "bg-pink-500",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
+    border: "border-[--color-silver]/30",
+    pill: "bg-[--color-silver]/10 text-[--color-silver] border-pink-500/25",
+    dot: "bg-[--color-silver]",
     animType: "character",
   },
   {
@@ -57,10 +57,10 @@ const STEPS = [
     desc: "Preview and refine your storyboard — adjust prompts, styles, and timing.",
     color: "amber",
     accent: "#f59e0b",
-    bg: "from-amber-950/80 to-amber-900/40",
-    border: "border-amber-500/30",
-    pill: "bg-amber-500/15 text-amber-300 border-amber-500/25",
-    dot: "bg-amber-500",
+    bg: "from-[#b8892a]/80 to-[#4a3010]/40",
+    border: "border-[--color-gold]/30",
+    pill: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
+    dot: "bg-[--color-gold]",
     animType: "panels",
   },
   {
@@ -71,10 +71,10 @@ const STEPS = [
     desc: "Only render when you're happy. Choose quality, resolution, and style.",
     color: "emerald",
     accent: "#10b981",
-    bg: "from-emerald-950/80 to-emerald-900/40",
-    border: "border-emerald-500/30",
-    pill: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
-    dot: "bg-emerald-500",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
+    border: "border-[--color-silver]/30",
+    pill: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/25",
+    dot: "bg-[--color-silver]",
     animType: "progress",
   },
   {
@@ -99,9 +99,9 @@ const STEPS = [
     desc: "Publish, share, and promote your creation across every platform.",
     color: "rose",
     accent: "#f43f5e",
-    bg: "from-rose-950/80 to-rose-900/40",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
     border: "border-rose-500/30",
-    pill: "bg-rose-500/15 text-rose-300 border-rose-500/25",
+    pill: "bg-[--color-silver]/10 text-[--color-silver] border-rose-500/25",
     dot: "bg-rose-500",
     animType: "boost",
   },
@@ -118,7 +118,7 @@ function WaveformAnim({ active }: { active: boolean }) {
       {bars.map((h, i) => (
         <div
           key={i}
-          className="w-1.5 rounded-full bg-violet-400 origin-bottom"
+          className="w-1.5 rounded-full bg-[--color-gold] origin-bottom"
           style={{
             height: active ? `${h * 4}px` : "6px",
             transition: `height 0.4s ease ${i * 30}ms`,
@@ -151,12 +151,12 @@ function FilmstripAnim({ active }: { active: boolean }) {
         {[...frames, ...frames].map((bg, i) => (
           <div
             key={i}
-            className="w-14 h-16 rounded-lg border border-cyan-500/30 flex-shrink-0 relative overflow-hidden"
+            className="w-14 h-16 rounded-lg border border-[--color-silver]/30 flex-shrink-0 relative overflow-hidden"
             style={{ background: bg }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
               <div
-                className="w-5 h-5 rounded-full border-2 border-cyan-400/60"
+                className="w-5 h-5 rounded-full border-2 border-[--color-silver]/60"
                 style={{ opacity: active ? 1 : 0.3, transition: "opacity 0.5s" }}
               />
             </div>
@@ -177,11 +177,11 @@ function CharacterAnim({ active }: { active: boolean }) {
     <div className="h-20 flex items-center justify-center gap-6">
       {/* Photo */}
       <div
-        className="w-14 h-14 rounded-full border-2 border-pink-500/40 bg-pink-950/50 flex items-center justify-center overflow-hidden"
+        className="w-14 h-14 rounded-full border-2 border-[--color-silver]/40 bg-[--color-silver]/10 flex items-center justify-center overflow-hidden"
         style={{ opacity: active ? 1 : 0.4, transition: "opacity 0.5s" }}
       >
-        <div className="w-8 h-8 rounded-full bg-pink-400/30 flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full bg-pink-400/60" />
+        <div className="w-8 h-8 rounded-full bg-[--color-silver]/10 flex items-center justify-center">
+          <div className="w-4 h-4 rounded-full bg-[--color-silver]/10" />
         </div>
       </div>
       {/* Arrow */}
@@ -189,24 +189,24 @@ function CharacterAnim({ active }: { active: boolean }) {
         className="flex flex-col items-center gap-1"
         style={{ opacity: active ? 1 : 0.3, transition: "opacity 0.5s 0.2s" }}
       >
-        <div className="w-8 h-px bg-gradient-to-r from-pink-500/60 to-pink-300/60" />
-        <span className="text-[9px] text-pink-400/70 font-semibold uppercase tracking-wider">AI</span>
-        <div className="w-8 h-px bg-gradient-to-r from-pink-300/60 to-pink-500/60" />
+        <div className="w-8 h-px bg-gradient-to-r from-[#9090a0]/60 to-[#2e2e36]/60" />
+        <span className="text-[9px] text-[--color-silver]/70 font-semibold uppercase tracking-wider">AI</span>
+        <div className="w-8 h-px bg-gradient-to-r from-[#9090a0]/60 to-[#2e2e36]/60" />
       </div>
       {/* AI Character */}
       <div
-        className="w-14 h-14 rounded-full border-2 border-pink-400/60 bg-gradient-to-br from-pink-900/60 to-purple-900/60 flex items-center justify-center relative"
+        className="w-14 h-14 rounded-full border-2 border-[--color-silver]/60 bg-gradient-to-br from-[#9090a0]/60 to-[#4a3010]/60 flex items-center justify-center relative"
         style={{
           opacity: active ? 1 : 0.4,
           transition: "opacity 0.5s 0.3s",
           boxShadow: active ? "0 0 20px rgba(236,72,153,0.3)" : "none",
         }}
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400/40 to-purple-400/40 flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-pink-300/80 to-purple-300/80" />
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#9090a0]/40 to-[#4a3010]/40 flex items-center justify-center">
+          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#9090a0]/80 to-[#4a3010]/80" />
         </div>
         {/* Lock badge */}
-        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-pink-500 flex items-center justify-center">
+        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[--color-silver] flex items-center justify-center">
           <span className="text-[8px]"></span>
         </div>
       </div>
@@ -225,7 +225,7 @@ function PanelsAnim({ active }: { active: boolean }) {
       {panels.map((p, i) => (
         <div
           key={i}
-          className={`${p.w} h-14 rounded-lg border border-amber-500/30 bg-amber-950/40 relative overflow-hidden`}
+          className={`${p.w} h-14 rounded-lg border border-[--color-gold]/30 bg-[--color-gold]/15 relative overflow-hidden`}
           style={{
             opacity: active ? 1 : 0.3,
             transform: active ? "translateY(0)" : "translateY(8px)",
@@ -234,11 +234,11 @@ function PanelsAnim({ active }: { active: boolean }) {
         >
           {/* Scene lines */}
           <div className="absolute bottom-2 left-2 right-2 space-y-1">
-            <div className="h-1 rounded-full bg-amber-400/30" />
-            <div className="h-1 rounded-full bg-amber-400/20 w-3/4" />
+            <div className="h-1 rounded-full bg-[--color-gold]/15" />
+            <div className="h-1 rounded-full bg-[--color-gold]/15 w-3/4" />
           </div>
           {/* Scene number */}
-          <div className="absolute top-1.5 left-2 text-[9px] font-bold text-amber-400/60">
+          <div className="absolute top-1.5 left-2 text-[9px] font-bold text-[--color-gold]/60">
             {i + 1}
           </div>
         </div>
@@ -251,9 +251,9 @@ function ProgressAnim({ active }: { active: boolean }) {
   return (
     <div className="h-20 flex flex-col items-center justify-center gap-3 px-6 w-full">
       {/* Progress bar */}
-      <div className="w-full h-2 rounded-full bg-emerald-950/60 border border-emerald-500/20 overflow-hidden">
+      <div className="w-full h-2 rounded-full bg-[--color-silver]/10 border border-[--color-silver]/20 overflow-hidden">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+          className="h-full rounded-full bg-gradient-to-r from-[#9090a0] to-[#2e2e36]"
           style={{
             width: active ? "85%" : "0%",
             transition: "width 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -264,14 +264,14 @@ function ProgressAnim({ active }: { active: boolean }) {
       {/* Status text */}
       <div className="flex items-center gap-2">
         <div
-          className="w-2 h-2 rounded-full bg-emerald-400"
+          className="w-2 h-2 rounded-full bg-[--color-silver]"
           style={{
             animation: active ? "pulse 1s ease-in-out infinite" : "none",
             opacity: active ? 1 : 0.3,
           }}
         />
         <span
-          className="text-xs text-emerald-300/80 font-medium"
+          className="text-xs text-[--color-silver]/80 font-medium"
           style={{ opacity: active ? 1 : 0.3, transition: "opacity 0.5s" }}
         >
           {active ? "Building scene 4 of 7…" : "Waiting to build"}
@@ -283,7 +283,7 @@ function ProgressAnim({ active }: { active: boolean }) {
         style={{ opacity: active ? 1 : 0.2, transition: "opacity 0.5s 0.5s" }}
       >
         {["4K", "HDR", "No watermark"].map((b) => (
-          <span key={b} className="text-[9px] bg-emerald-500/15 border border-emerald-500/25 text-emerald-300 rounded-full px-2 py-0.5 font-semibold">
+          <span key={b} className="text-[9px] bg-[--color-silver]/10 border border-[--color-silver]/25 text-[--color-silver] rounded-full px-2 py-0.5 font-semibold">
             {b}
           </span>
         ))}
@@ -325,8 +325,8 @@ function NotificationAnim({ active }: { active: boolean }) {
 function BoostAnim({ active }: { active: boolean }) {
   const platforms = [
     { icon: "▶", color: "bg-red-500/20 border-red-500/30 text-red-400", delay: 0 },
-    { icon: "📸", color: "bg-pink-500/20 border-pink-500/30 text-pink-400", delay: 80 },
-    { icon: "♪", color: "bg-rose-500/20 border-rose-500/30 text-rose-400", delay: 160 },
+    { icon: "📸", color: "bg-[--color-silver]/10 border-[--color-silver]/30 text-[--color-silver]", delay: 80 },
+    { icon: "♪", color: "bg-[--color-silver]/10 border-rose-500/30 text-[--color-silver]", delay: 160 },
     { icon: "🐦", color: "bg-sky-500/20 border-sky-500/30 text-sky-400", delay: 240 },
   ];
   return (
@@ -452,12 +452,12 @@ export default function PlatformFlow() {
           className={`text-center mb-14 transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
         >
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
             <span className="text-white/50 text-xs font-semibold uppercase tracking-widest">The Full Journey</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4 tracking-tight">
             From idea to audience —
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-rose-400">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#b8892a] via-cyan-400 to-[#2e2e36]">
               all in one platform
             </span>
           </h2>
@@ -675,7 +675,7 @@ export default function PlatformFlow() {
           </p>
           <NavLink
             href="/create"
-            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
+            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
           >
             Start Your Journey Free
             <ArrowRight className="w-4 h-4" />

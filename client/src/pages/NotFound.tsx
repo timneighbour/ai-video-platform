@@ -6,8 +6,8 @@ export default function NotFound() {
       <div className="w-full max-w-lg mx-4 text-center">
         <div className="flex justify-center mb-6">
           <div className="relative">
-            <div className="absolute inset-0 bg-violet-500/20 rounded-full animate-pulse pointer-events-none" />
-            <AlertCircle className="relative h-16 w-16 text-violet-400" />
+            <div className="absolute inset-0 bg-[--color-gold]/15 rounded-full animate-pulse pointer-events-none" />
+            <AlertCircle className="relative h-16 w-16 text-[--color-gold]" />
           </div>
         </div>
         <h1 className="text-6xl font-bold text-white mb-2">404</h1>
@@ -22,7 +22,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href="/"
-            className="inline-flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+            className="inline-flex items-center justify-center bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
           >
             <Home className="w-4 h-4 mr-2" />
             Go Home

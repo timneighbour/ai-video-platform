@@ -25,7 +25,7 @@ const PIPELINE_STEPS = [
       "Set mood, genre, and visual direction",
     ],
     badge: "Free to start",
-    badgeColor: "bg-violet-500/15 text-violet-300 border-violet-500/25",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   },
   {
     num: "02",
@@ -55,7 +55,7 @@ const PIPELINE_STEPS = [
       "Approve the full storyboard before rendering",
     ],
     badge: "No credits needed",
-    badgeColor: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
+    badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/25",
   },
   {
     num: "04",
@@ -70,7 +70,7 @@ const PIPELINE_STEPS = [
       "WizLumina visual grading for cinematic quality",
     ],
     badge: "Credits used here",
-    badgeColor: "bg-amber-500/15 text-amber-300 border-amber-500/25",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   },
   {
     num: "05",
@@ -85,16 +85,16 @@ const PIPELINE_STEPS = [
       "Publish to WIZ AI and grow with WizBoost",
     ],
     badge: "Your video, your rights",
-    badgeColor: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25",
+    badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-fuchsia-500/25",
   },
 ];
 
 const COLOR_MAP: Record<string, { ring: string; bg: string; text: string; line: string }> = {
-  violet: { ring: "border-violet-500/40", bg: "bg-violet-500/10", text: "text-violet-300", line: "bg-violet-500/20" },
+  violet: { ring: "border-[--color-gold]/30", bg: "bg-[--color-gold]/15", text: "text-[--color-gold]", line: "bg-[--color-gold]/15" },
   blue:   { ring: "border-blue-500/40",   bg: "bg-blue-500/10",   text: "text-blue-300",   line: "bg-blue-500/20" },
-  emerald:{ ring: "border-emerald-500/40",bg: "bg-emerald-500/10",text: "text-emerald-300",line: "bg-emerald-500/20" },
-  amber:  { ring: "border-amber-500/40",  bg: "bg-amber-500/10",  text: "text-amber-300",  line: "bg-amber-500/20" },
-  fuchsia:{ ring: "border-fuchsia-500/40",bg: "bg-fuchsia-500/10",text: "text-fuchsia-300",line: "bg-fuchsia-500/20" },
+  emerald:{ ring: "border-[--color-silver]/40",bg: "bg-[--color-silver]/10",text: "text-[--color-silver]",line: "bg-[--color-silver]/10" },
+  amber:  { ring: "border-[--color-gold]/30",  bg: "bg-[--color-gold]/15",  text: "text-[--color-gold]",  line: "bg-[--color-gold]/15" },
+  fuchsia:{ ring: "border-fuchsia-500/40",bg: "bg-[--color-gold]/15",text: "text-[--color-gold]",line: "bg-[--color-gold]/15" },
 };
 
 export default function HowItWorks() {
@@ -112,7 +112,7 @@ export default function HowItWorks() {
           </Link>
           <a
             href="/music-video"
-            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm px-5 py-2 rounded-xl font-semibold transition-colors"
+            className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm px-5 py-2 rounded-xl font-semibold transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
             Start Creating
@@ -122,12 +122,12 @@ export default function HowItWorks() {
 
       {/* ── Hero ── */}
       <div className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-semibold uppercase tracking-wider mb-6">
           How it works
         </div>
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">
           From idea to video<br />
-          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-blue-400 bg-clip-text text-transparent">in five steps</span>
+          <span className="bg-gradient-to-r from-[#b8892a] via-fuchsia-400 to-blue-400 bg-clip-text text-transparent">in five steps</span>
         </h1>
         <p className="text-white/50 text-lg max-w-xl mx-auto mb-8">
           WIZ AI handles the entire creation pipeline — you just describe what you want.
@@ -206,9 +206,9 @@ export default function HowItWorks() {
           <div className="grid sm:grid-cols-2 gap-4">
             {[
               { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Position is based on your plan tier.", color: "text-white/50" },
-              { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images.", color: "text-violet-300" },
+              { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images.", color: "text-[--color-gold]" },
               { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina are applied.", color: "text-blue-300" },
-              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WIZ AI.", color: "text-emerald-300" },
+              { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly or share directly from WIZ AI.", color: "text-[--color-silver]" },
             ].map((item) => (
               <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-white/4 border border-white/8">
                 <div className={`flex-shrink-0 mt-0.5 ${item.color}`}>{item.icon}</div>
@@ -220,8 +220,8 @@ export default function HowItWorks() {
             ))}
           </div>
 
-          <div className="mt-6 p-4 rounded-xl bg-violet-500/8 border border-violet-500/20 flex items-start gap-3">
-            <Bell className="w-4 h-4 text-violet-300 flex-shrink-0 mt-0.5" />
+          <div className="mt-6 p-4 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-start gap-3">
+            <Bell className="w-4 h-4 text-[--color-gold] flex-shrink-0 mt-0.5" />
             <p className="text-sm text-white/60">
               <span className="text-white/80 font-medium">Email notification</span> — We'll send you an email when your render is complete, so you don't need to stay on the page.
             </p>
@@ -232,7 +232,7 @@ export default function HowItWorks() {
       {/* ── WizBoost teaser ── */}
       <div className="border-t border-white/8 py-16 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 text-xs font-semibold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[--color-gold]/15 border border-fuchsia-500/20 text-[--color-gold] text-xs font-semibold uppercase tracking-wider mb-6">
             WizBoost
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4">
@@ -248,7 +248,7 @@ export default function HowItWorks() {
               { icon: <Sparkles className="w-3.5 h-3.5" />, label: "Grow your fanbase" },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/65">
-                <span className="text-fuchsia-400">{item.icon}</span>
+                <span className="text-[--color-gold]">{item.icon}</span>
                 {item.label}
               </div>
             ))}

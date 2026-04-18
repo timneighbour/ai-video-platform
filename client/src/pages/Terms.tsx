@@ -32,7 +32,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">3. Your Account</h2>
-            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. Notify us immediately at <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a> if you suspect unauthorised access.</p>
+            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. Notify us immediately at <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a> if you suspect unauthorised access.</p>
           </section>
 
           <section>
@@ -60,7 +60,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">6. Credits and Subscriptions</h2>
-            <p>WIZ AI operates on a credit-based system. Credits are consumed when you render videos. Unused credits do not roll over between billing periods unless stated in your plan. Subscription fees are billed in advance and are non-refundable except as set out in our <Link href="/refunds" className="text-purple-400 hover:text-purple-300 underline">Refund Policy</Link>.</p>
+            <p>WIZ AI operates on a credit-based system. Credits are consumed when you render videos. Unused credits do not roll over between billing periods unless stated in your plan. Subscription fees are billed in advance and are non-refundable except as set out in our <Link href="/refunds" className="text-[--color-gold] hover:text-[--color-gold] underline">Refund Policy</Link>.</p>
           </section>
 
           <section>
@@ -90,7 +90,7 @@ export default function Terms() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">12. Contact</h2>
-            <p>For questions about these Terms, contact us at: <a href="mailto:support@wiz-ai.io" className="text-purple-400 hover:text-purple-300 underline">support@wiz-ai.io</a></p>
+            <p>For questions about these Terms, contact us at: <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a></p>
           </section>
         </div>
       </main>

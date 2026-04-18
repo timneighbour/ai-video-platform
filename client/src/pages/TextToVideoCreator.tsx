@@ -327,9 +327,9 @@ export default function TextToVideoCreator() {
           </button>
 
           <div className="flex items-center gap-2.5">
-            <Wand2 className="h-5 w-5 text-violet-400" />
+            <Wand2 className="h-5 w-5 text-[--color-gold]" />
             <span className="font-bold text-white">Text to Video</span>
-            <Badge className="bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs hidden sm:inline-flex">
+            <Badge className="bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 text-xs hidden sm:inline-flex">
               AI Generator
             </Badge>
           </div>
@@ -351,7 +351,7 @@ export default function TextToVideoCreator() {
                 <div
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
                     stepIndex === i
-                      ? "bg-violet-600 text-white"
+                      ? "bg-[--color-gold] text-white"
                       : stepIndex > i
                       ? "bg-green-600/30 text-green-400"
                       : "bg-white/10 text-muted-foreground"
@@ -373,7 +373,7 @@ export default function TextToVideoCreator() {
         {step === "input" && (
           <div className="space-y-6 sm:space-y-8">
             <div className="text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs sm:text-sm text-violet-300 mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 px-4 py-1.5 text-xs sm:text-sm text-[--color-gold] mb-4">
                 <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
                 See your full storyboard before you render — always free
               </div>
@@ -412,7 +412,7 @@ export default function TextToVideoCreator() {
                     <button
                       key={i}
                       onClick={() => setPrompt(ex)}
-                      className="text-xs rounded-full border border-violet-500/20 bg-violet-500/5 px-3 py-1 text-violet-300 hover:bg-violet-500/15 transition text-left"
+                      className="text-xs rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 px-3 py-1 text-[--color-gold] hover:bg-[--color-gold]/15 transition text-left"
                     >
                       {ex.slice(0, 50)}…
                     </button>
@@ -431,7 +431,7 @@ export default function TextToVideoCreator() {
                     onClick={() => setStyle(s.id)}
                     className={`rounded-xl border p-3 text-left transition-all ${
                       style === s.id
-                        ? "border-violet-500 bg-violet-500/20 text-white"
+                        ? "border-violet-500 bg-[--color-gold]/15 text-white"
                         : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                     }`}
                   >
@@ -454,7 +454,7 @@ export default function TextToVideoCreator() {
                       onClick={() => setDuration(d.id)}
                       className={`rounded-xl border p-2.5 text-center transition-all ${
                         duration === d.id
-                          ? "border-violet-500 bg-violet-500/20 text-white"
+                          ? "border-violet-500 bg-[--color-gold]/15 text-white"
                           : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -473,7 +473,7 @@ export default function TextToVideoCreator() {
                       onClick={() => setAspectRatio(r.id)}
                       className={`flex-1 rounded-xl border p-3 text-center transition-all ${
                         aspectRatio === r.id
-                          ? "border-violet-500 bg-violet-500/20 text-white"
+                          ? "border-violet-500 bg-[--color-gold]/15 text-white"
                           : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                       }`}
                     >
@@ -490,7 +490,7 @@ export default function TextToVideoCreator() {
                 size="lg"
                 onClick={handleGenerateStoryboard}
                 disabled={prompt.length < 10}
-                className="gap-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                className="gap-2 bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate Free Storyboard
@@ -524,7 +524,7 @@ export default function TextToVideoCreator() {
                 <div key={scene.id} className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-violet-400 bg-violet-500/20 rounded-full px-2 py-0.5">
+                      <span className="text-xs font-bold text-[--color-gold] bg-[--color-gold]/15 rounded-full px-2 py-0.5">
                         Scene {i + 1}
                       </span>
                       <input
@@ -537,7 +537,7 @@ export default function TextToVideoCreator() {
                       <button
                         onClick={() => generatePreviewForScene(scene.id)}
                         title="Regenerate AI preview"
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-violet-400 hover:bg-violet-500/10 transition"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-[--color-gold] hover:bg-[--color-gold]/15 transition"
                       >
                         <RefreshCw className="h-3.5 w-3.5" />
                       </button>
@@ -559,9 +559,9 @@ export default function TextToVideoCreator() {
                   </div>
 
                   {scene.previewLoading && (
-                    <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-violet-500/20 bg-violet-500/5 aspect-video flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="h-6 w-6 text-violet-400 animate-spin" />
-                      <span className="text-xs text-violet-300">Generating AI preview…</span>
+                    <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 aspect-video flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="h-6 w-6 text-[--color-gold] animate-spin" />
+                      <span className="text-xs text-[--color-gold]">Generating AI preview…</span>
                     </div>
                   )}
                   {!scene.previewLoading && scene.previewImageUrl && (
@@ -576,10 +576,10 @@ export default function TextToVideoCreator() {
                   {!scene.previewLoading && !scene.previewImageUrl && (
                     <button
                       onClick={() => generatePreviewForScene(scene.id)}
-                      className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-violet-500/20 bg-violet-500/5 aspect-video flex flex-col items-center justify-center gap-2 hover:border-violet-500/40 hover:bg-violet-500/10 transition group"
+                      className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-[--color-gold]/30 bg-[--color-gold]/15 aspect-video flex flex-col items-center justify-center gap-2 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition group"
                     >
-                      <ImageIcon className="h-6 w-6 text-muted-foreground/40 group-hover:text-violet-400 transition" />
-                      <span className="text-xs text-muted-foreground/60 group-hover:text-violet-300 transition">
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/40 group-hover:text-[--color-gold] transition" />
+                      <span className="text-xs text-muted-foreground/60 group-hover:text-[--color-gold] transition">
                         Click to generate AI preview image
                       </span>
                     </button>
@@ -609,7 +609,7 @@ export default function TextToVideoCreator() {
 
             <button
               onClick={addScene}
-              className="w-full rounded-2xl border-2 border-dashed border-violet-500/20 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-violet-500/40 hover:text-violet-300 hover:bg-violet-500/5 transition"
+              className="w-full rounded-2xl border-2 border-dashed border-[--color-gold]/30 bg-transparent py-4 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:border-[--color-gold]/30 hover:text-[--color-gold] hover:bg-[--color-gold]/15 transition"
             >
               <Plus className="h-4 w-4" />
               Add Scene
@@ -647,7 +647,7 @@ export default function TextToVideoCreator() {
                 </Button>
                 <Button
                   onClick={handleRenderVideo}
-                  className="gap-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white border-0 flex-1"
+                  className="gap-2 bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white border-0 flex-1"
                 >
                   <Play className="h-4 w-4" />
                   Render Video — {creditCost} Credits
@@ -661,8 +661,8 @@ export default function TextToVideoCreator() {
         {step === "generating" && (
           <div className="flex flex-col items-center justify-center py-16 sm:py-24 space-y-8 text-center">
             <div className="relative">
-              <div className="h-20 w-20 rounded-full bg-violet-600/20 border border-violet-500/30 flex items-center justify-center">
-                <Wand2 className="h-9 w-9 text-violet-400 animate-pulse" />
+              <div className="h-20 w-20 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center">
+                <Wand2 className="h-9 w-9 text-[--color-gold] animate-pulse" />
               </div>
             </div>
             <div>
@@ -676,7 +676,7 @@ export default function TextToVideoCreator() {
             </div>
             <div className="w-full max-w-md space-y-3">
               <Progress value={progressPct} className="h-3 rounded-full" />
-              <p className="text-sm text-violet-300 font-medium">{PROGRESS_STAGES[progressStage].label}</p>
+              <p className="text-sm text-[--color-gold] font-medium">{PROGRESS_STAGES[progressStage].label}</p>
               <p className="text-xs text-muted-foreground">{progressPct}% complete</p>
             </div>
             <div className="space-y-2 w-full max-w-md">
@@ -685,7 +685,7 @@ export default function TextToVideoCreator() {
                   {i < progressStage ? (
                     <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
                   ) : i === progressStage ? (
-                    <Loader2 className="h-4 w-4 text-violet-400 animate-spin flex-shrink-0" />
+                    <Loader2 className="h-4 w-4 text-[--color-gold] animate-spin flex-shrink-0" />
                   ) : (
                     <div className="h-4 w-4 rounded-full border border-white/20 flex-shrink-0" />
                   )}
@@ -712,7 +712,7 @@ export default function TextToVideoCreator() {
               <p className="text-muted-foreground">Watch your AI-generated video below.</p>
             </div>
             {generatedVideoUrl ? (
-              <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-violet-500/30 bg-black">
+              <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-black">
                 <video
                   src={generatedVideoUrl}
                   controls
@@ -724,9 +724,9 @@ export default function TextToVideoCreator() {
                 />
               </div>
             ) : (
-              <div className="w-full max-w-2xl rounded-2xl border border-violet-500/30 bg-violet-500/5 aspect-video flex items-center justify-center">
+              <div className="w-full max-w-2xl rounded-2xl border border-[--color-gold]/30 bg-[--color-gold]/15 aspect-video flex items-center justify-center">
                 <div className="text-center space-y-2">
-                  <Loader2 className="h-8 w-8 text-violet-400 animate-spin mx-auto" />
+                  <Loader2 className="h-8 w-8 text-[--color-gold] animate-spin mx-auto" />
                   <p className="text-sm text-muted-foreground">Loading video…</p>
                 </div>
               </div>
@@ -760,7 +760,7 @@ export default function TextToVideoCreator() {
               )}
               <a
                 href="/projects"
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-[#b8892a] to-blue-600 hover:from-[#b8892a] hover:to-blue-500 text-white flex-1 px-4 py-2 text-sm font-medium transition-all"
               >
                 View All Projects
               </a>

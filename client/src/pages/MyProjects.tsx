@@ -37,10 +37,10 @@ type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "co
 function StatusBadge({ status }: { status: JobStatus }) {
   const config: Record<JobStatus, { label: string; className: string; icon: React.ReactNode }> = {
     draft:            { label: "Draft",            className: "bg-zinc-800 text-zinc-400 border-zinc-700",          icon: <Edit3 className="w-3 h-3" /> },
-    storyboard_ready: { label: "Storyboard Ready", className: "bg-violet-500/15 text-violet-300 border-violet-500/30", icon: <BookmarkCheck className="w-3 h-3" /> },
+    storyboard_ready: { label: "Storyboard Ready", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: <BookmarkCheck className="w-3 h-3" /> },
     rendering:        { label: "Building Your Video",        className: "bg-blue-500/15 text-blue-300 border-blue-500/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     assembling:       { label: "Assembling",       className: "bg-blue-500/15 text-blue-300 border-blue-500/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
-    completed:        { label: "Complete",         className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", icon: <CheckCircle2 className="w-3 h-3" /> },
+    completed:        { label: "Complete",         className: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30", icon: <CheckCircle2 className="w-3 h-3" /> },
     failed:           { label: "Failed",           className: "bg-red-500/15 text-red-300 border-red-500/30",       icon: <AlertCircle className="w-3 h-3" /> },
   };
   const { label, className, icon } = config[status] ?? config.draft;
@@ -111,7 +111,7 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
               <span className="font-semibold text-blue-300">{pct}%</span>
             </div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+              <div className="h-full bg-gradient-to-r from-blue-500 to-[#4a3010] rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
             </div>
           </div>
         )}
@@ -136,7 +136,7 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
             <>
               <Button
                 size="sm"
-                className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8"
+                className="flex-1 bg-[--color-silver] hover:bg-[--color-silver]/15 text-white text-xs h-8"
                 onClick={() => downloadFile(job.finalVideoUrl, `${job.title}-video.mp4`)}
               >
                 <Download className="w-3 h-3 mr-1" />
@@ -176,7 +176,7 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
           ) : (
             <Button
               size="sm"
-              className="flex-1 bg-violet-600 hover:bg-violet-500 text-white text-xs h-8"
+              className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs h-8"
               onClick={() => window.location.href = `/music-video/create?jobId=${job.id}`}
             >
               <Edit3 className="w-3 h-3 mr-1" />
@@ -260,7 +260,7 @@ export default function MyProjects() {
           </div>
           <a
             href="/music-video"
-            className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm px-4 py-2 rounded-xl font-semibold transition-colors"
+            className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm px-4 py-2 rounded-xl font-semibold transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Project
@@ -284,7 +284,7 @@ export default function MyProjects() {
             </p>
             <a
               href="/music-video"
-              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm px-5 py-2.5 rounded-xl font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm px-5 py-2.5 rounded-xl font-semibold transition-colors"
             >
               <Sparkles className="w-4 h-4" />
               Create Your First Video
@@ -310,7 +310,7 @@ export default function MyProjects() {
             {/* Drafts */}
             {drafts.length > 0 && (
               <section>
-                <SectionHeader title="Drafts" count={drafts.length} color="text-violet-400" />
+                <SectionHeader title="Drafts" count={drafts.length} color="text-[--color-gold]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {drafts.map(job => (
                     <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />
@@ -322,7 +322,7 @@ export default function MyProjects() {
             {/* Completed */}
             {completed.length > 0 && (
               <section>
-                <SectionHeader title="Completed" count={completed.length} color="text-emerald-400" />
+                <SectionHeader title="Completed" count={completed.length} color="text-[--color-silver]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {completed.map(job => (
                     <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />
