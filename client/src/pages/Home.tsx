@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import WizProductGrid from "@/components/WizProductGrid";
+import {
+  WizAudioEmblem,
+  WizImageEmblem,
+  WizVideoEmblem,
+  WizShortsEmblem,
+  WizAnimateEmblem,
+  WizScriptEmblem,
+} from "@/components/WizProductEmblems";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { useProjectResume } from "@/hooks/useProjectResume";
@@ -18,6 +26,12 @@ import {
 // ── Assets ───────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZAI_LOGO = `${CDN}/wizai-logo-v3_bd51f720.png`;
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
+const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
+const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp`;
+const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
+const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
 const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
 const HERO_BG_POSTER = `${CDN}/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp`;
 const DEMO_POSTER = `${CDN}/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp`;
@@ -48,42 +62,42 @@ const PRODUCTS = [
     name: "WizAudio",
     label: "Create Audio",
     desc: "Studio-quality songs, vocals, and soundtracks — produced in minutes, not weeks.",
-    icon: <Music2 className="w-5 h-5" />,
+    icon: <WizAudioEmblem size={28} />,
     href: "/music-creator",
   },
   {
     name: "WizImage",
     label: "Create Images",
     desc: "Publish-ready thumbnails, characters, and brand visuals — no designer required.",
-    icon: <Image className="w-5 h-5" />,
+    icon: <WizImageEmblem size={28} />,
     href: "/wiz-image",
   },
   {
     name: "WizVideo",
     label: "Create Videos",
     desc: "Complete cinematic music videos from any track — full narrative, full render.",
-    icon: <Film className="w-5 h-5" />,
+    icon: <WizVideoEmblem size={28} />,
     href: "/music-video/create",
   },
   {
     name: "WizShorts",
     label: "Create Shorts",
     desc: "High-performing Shorts, Reels, and TikToks — ready to post in seconds.",
-    icon: <Zap className="w-5 h-5" />,
+    icon: <WizShortsEmblem size={28} />,
     href: "/wiz-shorts",
   },
   {
     name: "WizAnimate",
     label: "Create Animation",
     desc: "Cinematic 3D animation and stylised motion — from a single prompt.",
-    icon: <Wand2 className="w-5 h-5" />,
+    icon: <WizAnimateEmblem size={28} />,
     href: "/kids-video",
   },
   {
     name: "WizScript",
     label: "Create from Text",
     desc: "Turn any written idea into scenes, storyboards, and a full AI video.",
-    icon: <FileText className="w-5 h-5" />,
+    icon: <WizScriptEmblem size={28} />,
     href: "/text-to-video",
   },
 ];
@@ -404,7 +418,7 @@ function WizEngines() {
       tagline: "Premium Audio Engine",
       desc: "Enhances every audio track with richer depth, spatial clarity, and cinematic presence. From stereo widening to full mastering — your sound becomes studio-grade.",
       benefit: "Your audio sounds professionally mastered, not AI-generated.",
-      icon: <Volume2 className="w-6 h-6" />,
+      logoUrl: WIZSOUND_LOGO,
       accentFrom: "oklch(0.78 0.11 75 / 0.15)",
       accentBorder: "oklch(0.78 0.11 75 / 0.12)",
       accentGlow: "oklch(0.78 0.11 75 / 0.06)",
@@ -415,7 +429,7 @@ function WizEngines() {
       tagline: "Visual Enhancement Engine",
       desc: "Applies cinematic colour grading, HDR tone mapping, and film-level polish to every frame. Your visuals go from raw AI output to cinema-ready.",
       benefit: "Every frame looks colour-graded by a professional colourist.",
-      icon: <Eye className="w-6 h-6" />,
+      logoUrl: WIZLUMINA_LOGO,
       accentFrom: "oklch(0.82 0.01 260 / 0.15)",
       accentBorder: "oklch(0.82 0.01 260 / 0.12)",
       accentGlow: "oklch(0.82 0.01 260 / 0.06)",
@@ -426,7 +440,7 @@ function WizEngines() {
       tagline: "Core Intelligence Engine",
       desc: "Orchestrates the entire creative workflow — from storyboard generation to scene composition to final render. The brain that makes everything work together.",
       benefit: "Your ideas become better, faster, and more consistent automatically.",
-      icon: <Layers className="w-6 h-6" />,
+      logoUrl: WIZGENESIS_LOGO,
       accentFrom: "oklch(0.78 0.11 75 / 0.15)",
       accentBorder: "oklch(0.78 0.11 75 / 0.08)",
       accentGlow: "oklch(0.78 0.11 75 / 0.04)",
@@ -437,7 +451,7 @@ function WizEngines() {
       tagline: "Output Optimisation Engine",
       desc: "Analyses your final render and applies intelligent upscaling, compression optimisation, and platform-specific formatting. Your content arrives publish-ready for YouTube, TikTok, Instagram, and beyond.",
       benefit: "Every export is optimised for maximum quality on every platform.",
-      icon: <Rocket className="w-6 h-6" />,
+      logoUrl: WIZBOOST_LOGO,
       accentFrom: "oklch(0.78 0.11 75 / 0.12)",
       accentBorder: "oklch(0.78 0.11 75 / 0.10)",
       accentGlow: "oklch(0.78 0.11 75 / 0.05)",
@@ -489,13 +503,13 @@ function WizEngines() {
 
               {/* Icon */}
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 relative z-10"
+                className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 relative z-10 overflow-hidden"
                 style={{
                   background: eng.accentGlow,
                   border: `1px solid ${eng.accentBorder}`,
                 }}
               >
-                <span className="text-[--color-gold]">{eng.icon}</span>
+                <img src={eng.logoUrl} alt={eng.name} className="w-10 h-10 object-contain" />
               </div>
 
               {/* Name + tagline */}

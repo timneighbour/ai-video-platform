@@ -9,6 +9,14 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
+import {
+  WizAudioEmblem,
+  WizImageEmblem,
+  WizVideoEmblem,
+  WizShortsEmblem,
+  WizAnimateEmblem,
+  WizScriptEmblem,
+} from "@/components/WizProductEmblems";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
@@ -47,8 +55,8 @@ const TOOLS: Tool[] = [
     subheading: "Turn any track into a full-length, AI-directed music video — scenes, cuts, and all.",
     description: "Upload any track and our AI writes a lyrics-synced storyboard, generates every scene, and assembles a complete music video — in minutes.",
     href: "/music-video/create",
-    icon: <Music className="w-6 h-6" />,
-    iconBg: "bg-[--color-gold]/15",
+    icon: <WizVideoEmblem size={36} />,
+    iconBg: "bg-transparent",
     iconColor: "text-[--color-gold]",
     badge: "Most Popular",
     badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
@@ -85,8 +93,8 @@ const TOOLS: Tool[] = [
     subheading: "Bring your characters to life with fluid, beat-matched AI animation.",
     description: "WizAnimate™ takes your storyboard and generates cinematic character animation — every movement, gesture, and expression timed to the beat and emotion of your track.",
     href: "/products/wizanimate",
-    icon: <Baby className="w-6 h-6" />,
-    iconBg: "bg-[--color-silver]/10",
+    icon: <WizAnimateEmblem size={36} />,
+    iconBg: "bg-transparent",
     iconColor: "text-[--color-silver]",
     badge: "Animation",
     badgeColor: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
@@ -103,8 +111,8 @@ const TOOLS: Tool[] = [
     subheading: "Write each scene yourself for full creative control — choose your renderer and quality.",
     description: "Write each scene prompt manually for full creative control. Choose your renderer (Seedance for speed, Kling for quality) and render each scene individually.",
     href: "/text-to-video",
-    icon: <Wand2 className="w-6 h-6" />,
-    iconBg: "bg-[--color-gold]/15",
+    icon: <WizScriptEmblem size={36} />,
+    iconBg: "bg-transparent",
     iconColor: "text-[--color-gold]",
     badge: "Advanced",
     badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
@@ -191,8 +199,8 @@ const TOOLS: Tool[] = [
     subheading: "Generate stunning images with the world's #1 ranked AI image model.",
     description: "Describe any image and WizImage renders it in seconds. Choose from 8 art styles, 4 aspect ratios, and build a personal gallery. Photorealistic, cinematic, anime, oil painting, and more.",
     href: "/wiz-image",
-    icon: <ImageIcon className="w-6 h-6" />,
-    iconBg: "bg-[--color-gold]/15",
+    icon: <WizImageEmblem size={36} />,
+    iconBg: "bg-transparent",
     iconColor: "text-[--color-gold]",
     badge: "New",
     badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
@@ -208,8 +216,8 @@ const TOOLS: Tool[] = [
     subheading: "Turn any topic into a viral short-form video in minutes.",
     description: "Describe your topic, pick a platform and style, and WizShorts generates a complete 15–60s vertical video. Ready to upload to YouTube Shorts, TikTok, or Instagram Reels.",
     href: "/wiz-shorts",
-    icon: <Smartphone className="w-6 h-6" />,
-    iconBg: "bg-[--color-gold]/15",
+    icon: <WizShortsEmblem size={36} />,
+    iconBg: "bg-transparent",
     iconColor: "text-[--color-gold]",
     badge: "New",
     badgeColor: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",

@@ -4991,3 +4991,21 @@
 - [x] PROD-11: Add cinematic atmospheric depth and background detail to product section
 - [x] PROD-12: Remove flat yellow/brown gold — replace with reflective metal gradient
 - [x] PROD-13: Each card must feel like a branded mini-product, not a generic feature card
+
+## WIZ LOGO RESTORATION + PREMIUM PRODUCT FAMILY
+- [x] LOGO-1: Audit all existing WIZ logo/emblem components in the codebase
+- [x] LOGO-2: Build WizAudio emblem — emerald/teal accent, waveform/soundwave identity
+- [x] LOGO-3: Build WizImage emblem — amber/magenta accent, aperture/visual identity
+- [x] LOGO-4: Build WizVideo emblem — violet/royal blue accent, cinematic frame identity
+- [x] LOGO-5: Build WizShorts emblem — electric cyan accent, fast motion/vertical identity
+- [x] LOGO-6: Build WizAnimate emblem — rose/coral accent, animation/3D identity
+- [x] LOGO-7: Build WizScript emblem — orange/gold accent, storyboard/document identity
+- [x] LOGO-8: WizSound uses real CDN logo image (wizsound-logo-v5)
+- [x] LOGO-9: WizLumina uses real CDN logo image (wizlumina-logo-final)
+- [x] LOGO-10: WizGenesis uses real CDN logo image (wizgenesis-logo-final)
+- [x] LOGO-11: WizBoost uses real CDN logo image (module-wizboost)
+- [x] LOGO-12: Apply product emblems to homepage product cards with accent colours
+- [x] LOGO-13: Apply CDN logos to homepage engine cards (WIZ Engines section)
+- [x] LOGO-14: Apply product emblems to Products dropdown menu (desktop + mobile)
+- [x] LOGO-15: Apply product emblems to Create.tsx product cards
+- [x] LOGO-16: Each product card has accent colour, premium hover, branded visual texture, CTA
