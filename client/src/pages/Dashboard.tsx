@@ -427,23 +427,28 @@ export default function Dashboard() {
           </section>
         ) : (
           /* ── Empty State ──────────────────────────────────────────────── */
-          <section className="text-center py-16">
-            <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#b8892a]/30 to-[#4a3010]/30 animate-pulse" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/30">
-                <Sparkles className="w-9 h-9 text-white" />
+          <section className="relative rounded-2xl overflow-hidden border border-white/8 text-center py-16 px-6">
+            {/* Premium background image */}
+            <img src={DASH_EMPTY_STATE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" loading="eager" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/40 pointer-events-none" />
+            <div className="relative">
+              <div className="relative w-20 h-20 mx-auto mb-6">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#b8892a]/30 to-[#4a3010]/30 animate-pulse" />
+                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/30">
+                  <Sparkles className="w-9 h-9 text-white" />
+                </div>
               </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Let's create your first video</h2>
+              <p className="text-zinc-400 mb-8 max-w-md mx-auto">
+                Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
+              </p>
+              <a href="/music-video/create">
+                <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Start Creating
+                </Button>
+              </a>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Let's create your first video</h2>
-            <p className="text-zinc-400 mb-8 max-w-md mx-auto">
-              Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
-            </p>
-            <a href="/music-video/create">
-              <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
-                <Sparkles className="w-5 h-5 mr-2" />
-                Start Creating
-              </Button>
-            </a>
           </section>
         )}
 
@@ -512,6 +517,9 @@ export default function Dashboard() {
 
         {/* ── Go Cinematic Upgrade Block ───────────────────────────────── */}
         <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 via-[#1a1a1a] to-black p-6 sm:p-8">
+          {/* Cinematic banner background */}
+          <img src={DASH_CINEMATIC_BANNER} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" loading="eager" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent pointer-events-none" />
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />

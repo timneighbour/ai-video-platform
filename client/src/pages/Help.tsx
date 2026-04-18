@@ -321,7 +321,7 @@ export default function Help() {
       {/* Premium hero background */}
       <div className="relative">
         <div className="absolute inset-0 h-72 pointer-events-none overflow-hidden">
-          <img src="/manus-storage/help-hero-bg_a1455798.jpg" alt="" className="w-full h-full object-cover opacity-[0.10]" />
+          <img src="/manus-storage/help-hero-bg_a1455798.jpg" alt="" className="w-full h-full object-cover opacity-[0.18]" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.2) 0%, rgba(4,4,4,0.8) 70%, #040404 100%)' }} />
         </div>
 
@@ -359,9 +359,9 @@ export default function Help() {
             { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/kids-video" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
-              <div className="p-4 rounded-xl bg-[#0a0a0a] border border-[--color-gold]/[0.06] hover:border-[--color-gold]/[0.15] transition-all cursor-pointer text-center">
-                <div className="text-[--color-gold-dark] flex justify-center mb-2">{item.icon}</div>
-                <p className="text-[--color-silver-light] text-xs font-medium">{item.label}</p>
+              <div className="p-4 rounded-xl bg-[#0a0a0a] border border-[--color-gold]/[0.1] hover:border-[--color-gold]/[0.3] hover:bg-[--color-gold]/[0.04] transition-all cursor-pointer text-center group">
+                <div className="text-[--color-gold-dark] group-hover:text-[--color-gold] flex justify-center mb-2 transition-colors">{item.icon}</div>
+                <p className="text-[--color-silver-light] text-xs font-medium group-hover:text-white transition-colors">{item.label}</p>
               </div>
             </Link>
           ))}
@@ -430,32 +430,46 @@ export default function Help() {
         )}
 
         {/* Contact support */}
-        <div className="mt-16 grid md:grid-cols-2 gap-4">
-          <div className="p-7 rounded-2xl bg-[#0a0a0a] border border-[--color-gold]/[0.08] text-center">
-            <MessageCircle className="w-8 h-8 text-[--color-gold] mx-auto mb-4" />
-            <h3 className="text-base font-semibold text-white mb-2">Live Chat</h3>
-            <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Chat with our team in real time. Usually responds in under 2 minutes.</p>
-            <button
-              className="btn-primary btn-sheen btn-sheen w-full rounded-xl font-semibold h-10 text-sm flex items-center justify-center"
-              onClick={() => {
-                if (typeof window !== "undefined" && (window as any).$crisp) {
-                  (window as any).$crisp.push(["do", "chat:open"]);
-                }
-              }}
-            >
-              Start Chat
-            </button>
-          </div>
-          <div className="p-7 rounded-2xl bg-[#0a0a0a] border border-[--color-gold]/[0.08] text-center">
-            <Mail className="w-8 h-8 text-[--color-gold] mx-auto mb-4" />
-            <h3 className="text-base font-semibold text-white mb-2">Email Support</h3>
-            <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Send us a message and we'll get back to you within 24 hours.</p>
-            <a
-              href="mailto:support@wiz-ai.io"
-              className="inline-flex items-center justify-center w-full h-10 rounded-xl border border-[--color-gold]/[0.1] bg-[--color-gold]/[0.04] text-[--color-silver] hover:bg-[--color-gold]/[0.08] transition-all text-sm font-medium"
-            >
-              support@wiz-ai.io
-            </a>
+        <div className="mt-16">
+          <div className="relative rounded-2xl overflow-hidden border border-[--color-gold]/[0.15] p-8 mb-6">
+            <img src="/manus-storage/help-hero-bg_a1455798.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/10 via-transparent to-transparent pointer-events-none" />
+            <div className="relative text-center mb-6">
+              <h2 className="text-xl font-bold text-white mb-1">Still need help?</h2>
+              <p className="text-[--color-silver-dark]/50 text-sm">Our team is ready to assist you</p>
+            </div>
+            <div className="relative grid md:grid-cols-2 gap-4">
+              <div className="p-6 rounded-xl bg-[#0a0a0a]/80 border border-[--color-gold]/[0.12] text-center hover:border-[--color-gold]/[0.25] transition-all">
+                <div className="w-12 h-12 rounded-xl bg-[--color-gold]/[0.1] border border-[--color-gold]/[0.15] flex items-center justify-center mx-auto mb-4">
+                  <MessageCircle className="w-6 h-6 text-[--color-gold]" />
+                </div>
+                <h3 className="text-base font-semibold text-white mb-2">Live Chat</h3>
+                <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Chat with our team in real time. Usually responds in under 2 minutes.</p>
+                <button
+                  className="btn-primary btn-sheen w-full rounded-xl font-semibold h-10 text-sm flex items-center justify-center"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && (window as any).$crisp) {
+                      (window as any).$crisp.push(["do", "chat:open"]);
+                    }
+                  }}
+                >
+                  Start Chat
+                </button>
+              </div>
+              <div className="p-6 rounded-xl bg-[#0a0a0a]/80 border border-[--color-gold]/[0.12] text-center hover:border-[--color-gold]/[0.25] transition-all">
+                <div className="w-12 h-12 rounded-xl bg-[--color-gold]/[0.1] border border-[--color-gold]/[0.15] flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-6 h-6 text-[--color-gold]" />
+                </div>
+                <h3 className="text-base font-semibold text-white mb-2">Email Support</h3>
+                <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Send us a message and we'll get back to you within 24 hours.</p>
+                <a
+                  href="mailto:support@wiz-ai.io"
+                  className="inline-flex items-center justify-center w-full h-10 rounded-xl border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.06] text-[--color-silver] hover:bg-[--color-gold]/[0.12] hover:text-white transition-all text-sm font-medium"
+                >
+                  support@wiz-ai.io
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

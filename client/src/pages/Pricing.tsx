@@ -476,7 +476,7 @@ export default function Pricing() {
         <div className="relative text-center px-6 mb-20 overflow-hidden">
           {/* Premium hero background */}
           <div className="absolute inset-0 -top-28 pointer-events-none">
-            <img src="/manus-storage/pricing-hero-bg_7e23edd2.jpg" alt="" className="w-full h-full object-cover opacity-[0.12]" />
+            <img src="/manus-storage/pricing-hero-bg_7e23edd2.jpg" alt="" className="w-full h-full object-cover opacity-[0.18]" />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.3) 0%, rgba(4,4,4,0.7) 60%, #040404 100%)' }} />
           </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-6">
@@ -951,14 +951,23 @@ export default function Pricing() {
         <WizSoundShowcase />
 
         {/* ── 11. Bottom CTA ── */}
-        <div className="text-center px-6 mt-20">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready to create?</h2>
-          <p className="text-sm text-[--color-silver-dark]/45 mb-6 max-w-sm mx-auto">Start building your video for free — no credit card required. Pay only when you render.</p>
-          <a href={isAuthenticated ? "/music-video/create" : "/onboarding"} className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-sm">
-            <Sparkles className="w-4 h-4" />
-            Start Creating
-          </a>
-          <p className="text-xs text-[--color-silver-dark]/25 mt-4">No credit card required · Cancel anytime</p>
+        <div className="relative text-center px-6 mt-20 py-20 overflow-hidden rounded-2xl mx-6">
+          <img src="/manus-storage/pricing-hero-bg_7e23edd2.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
+          <div className="absolute inset-0 border border-[--color-gold]/[0.15] rounded-2xl pointer-events-none" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+              <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Start Today</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Ready to create?</h2>
+            <p className="text-sm text-[--color-silver-dark]/60 mb-8 max-w-sm mx-auto">Start building your video for free — no credit card required. Pay only when you render.</p>
+            <a href={isAuthenticated ? "/music-video/create" : "/onboarding"} className="btn-primary btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-sm">
+              <Sparkles className="w-4 h-4" />
+              Start Creating
+            </a>
+            <p className="text-xs text-[--color-silver-dark]/30 mt-4">No credit card required · Cancel anytime</p>
+          </div>
         </div>
       </div>
 

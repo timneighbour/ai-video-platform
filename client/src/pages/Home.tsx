@@ -626,42 +626,39 @@ function WizEngines() {
               {/* Bottom fade */}
               <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)" }} />
 
-              <div className="relative z-10 p-8 sm:p-10">
-                {/* Top row: logo left, badge right */}
-                <div className="flex items-start justify-between mb-7">
-                  {/* Logo with glow halo — much larger */}
-                  <div className="relative">
-                    <div
-                      className="absolute inset-0 rounded-2xl blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700"
-                      style={{ background: eng.accentFrom, transform: 'scale(1.6)' }}
-                    />
-                    <div
-                      className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-2xl flex items-center justify-center"
-                      style={{
-                        background: "linear-gradient(145deg, rgba(196,164,100,0.08) 0%, rgba(0,0,0,0.5) 100%)",
-                        border: "1px solid rgba(196,164,100,0.18)",
-                        boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 6px 30px rgba(0,0,0,0.7)",
-                      }}
-                    >
-                      <img
-                        src={eng.logoUrl}
-                        alt={eng.name}
-                        className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_0_24px_rgba(196,164,100,0.5)] group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Engine type badge */}
+              <div className="relative z-10 p-8 sm:p-10 flex flex-col items-center text-center">
+                {/* Logo centred with glow halo */}
+                <div className="relative mb-6">
                   <div
-                    className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.16em] uppercase mt-1"
+                    className="absolute inset-0 rounded-2xl blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700"
+                    style={{ background: eng.accentFrom, transform: 'scale(1.6)' }}
+                  />
+                  <div
+                    className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center"
                     style={{
-                      background: `linear-gradient(135deg, ${eng.accentFrom}, rgba(0,0,0,0.4))`,
-                      border: `1px solid ${eng.accentBorder}`,
-                      color: 'rgba(232,213,160,0.65)',
+                      background: "linear-gradient(145deg, rgba(196,164,100,0.08) 0%, rgba(0,0,0,0.5) 100%)",
+                      border: "1px solid rgba(196,164,100,0.18)",
+                      boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 6px 30px rgba(0,0,0,0.7)",
                     }}
                   >
-                    {eng.tagline}
+                    <img
+                      src={eng.logoUrl}
+                      alt={eng.name}
+                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_24px_rgba(196,164,100,0.5)] group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
+                </div>
+
+                {/* Engine type badge */}
+                <div
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.16em] uppercase mb-4"
+                  style={{
+                    background: `linear-gradient(135deg, ${eng.accentFrom}, rgba(0,0,0,0.4))`,
+                    border: `1px solid ${eng.accentBorder}`,
+                    color: 'rgba(232,213,160,0.65)',
+                  }}
+                >
+                  {eng.tagline}
                 </div>
 
                 {/* Product name — large and bold */}
@@ -677,14 +674,14 @@ function WizEngines() {
 
                 {/* Benefit callout — styled highlight strip */}
                 <div
-                  className="relative z-10 flex items-start gap-3 px-4 py-3.5 rounded-xl"
+                  className="relative z-10 flex items-start gap-3 px-4 py-3.5 rounded-xl w-full"
                   style={{
                     background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.35))`,
                     border: `1px solid ${eng.accentBorder}`,
                   }}
                 >
                   <Check className="w-4 h-4 text-[--color-gold] mt-0.5 flex-shrink-0" />
-                  <p className="text-white/72 text-sm font-medium leading-snug">{eng.benefit}</p>
+                  <p className="text-white/72 text-sm font-medium leading-snug text-left">{eng.benefit}</p>
                 </div>
               </div>
             </div>
@@ -964,7 +961,10 @@ function WizLuminaDemo() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizLumina™</p>
+          <div className="flex items-center justify-center mb-5">
+            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(196,164,100,0.4)]" />
+          </div>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizLumina™ — Visual Enhancement Engine</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             See the difference
           </h2>
@@ -1036,10 +1036,14 @@ function WizLuminaDemo() {
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-10">
-            <a href="/onboarding" className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+          <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
+            <a href="/onboarding" className="btn-primary btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
               <Eye className="w-4 h-4" />
               Start Creating
+            </a>
+            <a href="/products/wizlumina" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.08] hover:text-[--color-gold] transition-all">
+              Find Out More
+              <ArrowRight className="w-4 h-4" />
             </a>
           </div>
         </div>
