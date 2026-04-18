@@ -1211,6 +1211,7 @@ function ContinueProjectBanner() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function Home() {
   useReveal();
+  useEffect(() => { mp.homepageViewed(); }, []);
   return (
     <div className="bg-[#030303] text-white min-h-screen overflow-x-hidden">
       <a

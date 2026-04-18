@@ -411,7 +411,7 @@ export default function MusicCreator() {
             </span>
           </h1>
           <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-            Describe your song, choose a style, and Suno AI generates a complete track with vocals and instruments in minutes.
+            Describe your song, choose a style, and WizAudio generates a complete track with vocals and instruments in minutes.
           </p>
         </div>
 
@@ -438,7 +438,7 @@ export default function MusicCreator() {
               </div>
               {targetDuration === null ? (
                 <div className="text-center py-3">
-                  <p className="text-xs text-[#a1a1aa] mb-3">No duration set — Suno will generate a full-length track</p>
+                  <p className="text-xs text-[#a1a1aa] mb-3">No duration set — WizAudio will generate a full-length track</p>
                   <button
                     onClick={() => setTargetDuration(60)}
                     className="text-xs text-[--color-gold] hover:text-[--color-gold] transition-colors underline-offset-2 hover:underline"
@@ -706,7 +706,7 @@ export default function MusicCreator() {
                     <div className="mt-3 p-3 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs flex items-start gap-2">
                       <span className="text-base leading-none">⚠️</span>
                       <span>
-                        You have a title and style set — Suno will use <strong>custom mode</strong>, which requires lyrics.
+                        You have a title and style set — WizAudio will use <strong>custom mode</strong>, which requires lyrics.
                         Click <strong>"Generate Lyrics with AI"</strong> above or write your own.
                       </span>
                     </div>
@@ -750,8 +750,8 @@ export default function MusicCreator() {
                     onChange={(e) => setModel(e.target.value as "V3_5" | "V4")}
                     className="w-full bg-[#0f0f0f] border border-white/10 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[--color-gold]/30"
                   >
-                    <option value="V4">Suno V4 (recommended)</option>
-                    <option value="V3_5">Suno V3.5</option>
+                    <option value="V4">WizAudio V4 (recommended)</option>
+                    <option value="V3_5">WizAudio V3.5</option>
                   </select>
                 </div>
               </div>

@@ -1,3 +1,4 @@
+import { mp } from "@/lib/mixpanel";
 /**
  * WizLuminaSection — Homepage visual enhancement comparison section.
  *
@@ -276,7 +277,7 @@ export function WizLuminaSection() {
             return (
               <button
                 key={m}
-                onClick={() => setMode(m)}
+                onClick={() => { setMode(m); mp.wizLuminaDemoInteracted(m); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                   active ? "text-white" : "text-white/40 hover:text-white/65"
                 }`}

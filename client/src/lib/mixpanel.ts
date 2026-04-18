@@ -79,14 +79,48 @@ export function resetIdentity() {
 // ── Typed event helpers ──────────────────────────────────────────────────────
 
 export const mp = {
-  // ── Acquisition ──────────────────────────────────────────────────────────
+  // ── Acquisition / Page views ─────────────────────────────────────────────
   heroCTAClicked: () => track("Hero CTA Clicked"),
+  homepageViewed: () => track("Homepage Viewed"),
+  pricingPageViewed: () => track("Pricing Page Viewed"),
+  productCardClicked: (product: string) => track("Product Card Clicked", { product }),
+  exploreProdcutsClicked: () => track("Explore Products Clicked"),
+  watchDemoClicked: () => track("Watch Demo Clicked"),
+
+  // ── Auth funnel ───────────────────────────────────────────────────────────
+  signUpCompleted: (props?: { method?: string }) =>
+    track("Sign Up Completed", props),
+  onboardingStarted: () => track("Onboarding Started"),
+  onboardingCompleted: (product?: string) =>
+    track("Onboarding Completed", { product }),
+
+  // ── Project creation ──────────────────────────────────────────────────────
+  projectCreated: (product: string) => track("Project Created", { product }),
+
+  // ── Build / Render ────────────────────────────────────────────────────────
+  buildStarted: (product: string, quality?: string) =>
+    track("Build Started", { product, quality }),
+  buildCompleted: (product: string, durationSeconds?: number) =>
+    track("Build Completed", { product, duration_seconds: durationSeconds }),
+  buildFailed: (product: string, reason?: string) =>
+    track("Build Failed", { product, reason }),
+  downloadClicked: (product: string) => track("Download Clicked", { product }),
+
+  // ── Checkout / Payments ───────────────────────────────────────────────────
+  checkoutStarted: (plan: string, price?: number) =>
+    track("Checkout Started", { plan, price }),
+  purchaseCompleted: (plan: string, price?: number, currency?: string) =>
+    track("Purchase Completed", { plan, price, currency: currency ?? "GBP" }),
 
   // ── Demo engagement ───────────────────────────────────────────────────────
   demoVideoPlayed: () => track("Demo Video Played"),
   demoVideoPaused: (timeSeconds?: number) =>
     track("Demo Video Paused", { time_seconds: timeSeconds }),
   demoVideoCompleted: () => track("Demo Video Completed"),
+  wizSoundDemoInteracted: (tier: string) =>
+    track("WizSound Demo Interacted", { tier }),
+  wizLuminaDemoInteracted: (action: string) =>
+    track("WizLumina Demo Interacted", { action }),
 
   // ── Creation funnel ───────────────────────────────────────────────────────
   storyboardGenerated: (sceneCount?: number) =>

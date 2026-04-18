@@ -329,7 +329,7 @@ export default function WizShorts() {
                 <h3 className="text-sm font-semibold text-white/80">How WizShorts works</h3>
                 {[
                   { icon: <Sparkles className="w-4 h-4 text-[--color-silver]" />, title: "AI Scene Planning", desc: "GPT breaks your topic into perfectly timed scenes" },
-                  { icon: <Film className="w-4 h-4 text-orange-400" />, title: "Grok Video Generation", desc: "Each scene rendered by the #1 ranked AI video model" },
+                  { icon: <Film className="w-4 h-4 text-orange-400" />, title: "WizPilot™ Video Generation", desc: "Each scene rendered by our top-ranked AI video engine" },
                   { icon: <Zap className="w-4 h-4 text-yellow-400" />, title: "Auto Assembly", desc: "Scenes stitched together with optional music track" },
                   { icon: <Download className="w-4 h-4 text-[--color-silver]" />, title: "Ready to Upload", desc: "9:16 vertical format, ready for Shorts/TikTok/Reels" },
                 ].map((item, i) => (
@@ -490,7 +490,7 @@ export default function WizShorts() {
                 </div>
 
                 <p className="text-xs text-white/30">
-                  Grok Imagine renders each scene in 30–90 seconds. Please keep this tab open.
+                  WizPilot renders each scene in 30–90 seconds. Please keep this tab open.
                 </p>
               </div>
             ) : renderStatus === "complete" && finalVideoUrl ? (

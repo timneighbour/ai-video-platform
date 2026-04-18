@@ -712,7 +712,7 @@ export default function KidsVideo() {
                 </span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Bring your characters to life with fluid, beat-matched AI animation — Pixar-quality output in minutes.
+                Bring your characters to life with fluid, beat-matched AI animation — studio-quality output in minutes.
               </p>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-sm text-muted-foreground mb-10">
                 {[

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, Headphones, Sparkles, Radio } from "lucide-react";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
+import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ── */
 const VIDEO_SRC =
@@ -455,7 +456,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
             return (
               <button
                 key={m}
-                onClick={() => setMode(m)}
+                onClick={() => { setMode(m); mp.wizSoundDemoInteracted(m); }}
                 className={`flex-1 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-250 flex items-center justify-center gap-1.5 ${
                   active ? "text-white" : "text-white/35 hover:text-white/60"
                 }`}

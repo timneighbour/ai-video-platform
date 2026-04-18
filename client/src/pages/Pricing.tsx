@@ -427,6 +427,7 @@ export default function Pricing() {
   const plansRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    mp.pricingPageViewed();
     const params = new URLSearchParams(window.location.search);
     const planParam = params.get("plan");
     if (planParam) {
@@ -442,6 +443,7 @@ export default function Pricing() {
 
   async function handleSubscribe(planId: "starter" | "basic" | "creator" | "pro" | "studio") {
     mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), billingCycle);
+    mp.checkoutStarted(planId);
     if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
     setLoadingPlan(planId);
     try {
@@ -453,6 +455,7 @@ export default function Pricing() {
   }
 
   async function handleBundlePurchase(bundleId: "6" | "15" | "40") {
+    mp.checkoutStarted(`bundle_${bundleId}`);
     if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
     setLoadingBundle(bundleId);
     try {

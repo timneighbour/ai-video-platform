@@ -119,6 +119,7 @@ export function PostRenderRetentionScreen({
 
   function handleDownload() {
     mp.track("PostRender_Download", { jobId });
+    mp.downloadClicked("WizVideo");
     const a = document.createElement("a");
     a.href = finalVideoUrl;
     a.download = videoTitle ? `${videoTitle}.mp4` : "wizai-video.mp4";

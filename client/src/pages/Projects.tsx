@@ -131,7 +131,7 @@ function StatusBadge({ status }: { status: string }) {
     case "completed":
       return <Badge className="bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/25 gap-1 text-[11px] font-semibold"><CheckCircle className="h-3 w-3" /> Complete</Badge>;
     case "rendering": case "assembling": case "processing":
-      return <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 gap-1 text-[11px] font-semibold"><Loader2 className="h-3 w-3 animate-spin" /> Rendering</Badge>;
+      return <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 gap-1 text-[11px] font-semibold"><Loader2 className="h-3 w-3 animate-spin" /> Building Your Video</Badge>;
     case "storyboard_ready":
       return <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 gap-1 text-[11px] font-semibold"><Clapperboard className="h-3 w-3" /> Ready to Render</Badge>;
     case "pending": case "queued":
@@ -171,7 +171,7 @@ function PrimaryCTA({
     case "rendering": case "assembling": case "processing":
       return (
         <Button disabled className={`${cls} gap-2 bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 cursor-not-allowed`}>
-          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Rendering…
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Building Your Video…
         </Button>
       );
     case "storyboard_ready":
