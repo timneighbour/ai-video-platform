@@ -78,7 +78,7 @@ export function ManusDialog({
           {/* Login button */}
           <Button
             onClick={onLogin}
-            className="btn-primary w-full h-10 rounded-xl text-sm font-medium leading-5 tracking-[-0.154px]"
+            className="btn-primary btn-sheen btn-sheen w-full h-10 rounded-xl text-sm font-medium leading-5 tracking-[-0.154px]"
           >
             Sign in to WIZ AI
           </Button>

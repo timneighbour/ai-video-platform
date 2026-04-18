@@ -114,7 +114,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <NavLink
               href={ctaHref}
-              className="btn-primary inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-sm"
+              className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-sm"
             >
               <Sparkles className="w-4 h-4" />
               {ctaLabel} <ArrowRight className="w-4 h-4" />
@@ -270,7 +270,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <p className="text-[--color-silver-dark]/50 mb-8">Start creating cinematic AI videos today — no experience required.</p>
           <NavLink
             href={ctaHref}
-            className="btn-primary inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-sm"
+            className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-sm"
           >
             <Sparkles className="w-4 h-4" />
             {ctaLabel} <ArrowRight className="w-4 h-4" />

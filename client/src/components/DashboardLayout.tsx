@@ -89,7 +89,7 @@ export default function DashboardLayout({
               window.location.href = getLoginUrl();
             }}
             size="lg"
-            className="btn-primary w-full shadow-lg hover:shadow-xl transition-all"
+            className="btn-primary btn-sheen btn-sheen w-full shadow-lg hover:shadow-xl transition-all"
           >
             Sign in
           </Button>

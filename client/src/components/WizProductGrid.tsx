@@ -501,7 +501,7 @@ export default function WizProductGrid() {
 
         {/* CTA */}
         <div className="mt-16 text-center">
-          <a href="/create" className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold">
+          <a href="/create" className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold">
             <span>Explore All Tools</span>
             <ArrowRight className="w-4 h-4" />
           </a>

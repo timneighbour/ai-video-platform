@@ -2492,7 +2492,7 @@ export default function MusicVideoAutopilot() {
                     {/* Primary CTAs */}
                     <div className="flex gap-3 justify-center mb-8">
                       <Button
-                        className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-6 h-12 text-base"
+                        className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-6 h-12 text-base"
                         onClick={() => {
                           const video = document.querySelector('video');
                           if (video) { video.currentTime = 0; video.play(); }
@@ -2542,7 +2542,7 @@ export default function MusicVideoAutopilot() {
                         Copy Link
                       </Button>
                       <Button
-                        className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
+                        className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
                         onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
                       >
                         <Sparkles className="w-5 h-5 mr-2" /> Create Another Video

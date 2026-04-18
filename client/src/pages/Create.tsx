@@ -429,7 +429,7 @@ export default function Create() {
               </NavLink>
             ) : (
               <a href={getLoginUrl()}>
-                <Button size="sm" className="btn-primary text-xs px-4">
+                <Button size="sm" className="btn-primary btn-sheen text-xs px-4">
                   Sign In Free
                 </Button>
               </a>

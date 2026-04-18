@@ -490,7 +490,7 @@ export default function TextToVideoCreator() {
                 size="lg"
                 onClick={handleGenerateStoryboard}
                 disabled={prompt.length < 10}
-                className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                className="gap-2 btn-sheen bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate Free Storyboard

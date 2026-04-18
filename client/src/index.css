@@ -312,6 +312,104 @@ nav a, nav button {
    LUXURY CTA BUTTONS
    ══════════════════════════════════════════════════════════════════════════════ */
 
+/* ── Metallic sheen sweep — diagonal light pass across gold buttons ──
+   Idle loop: every 4.5s  |  Hover: single fast pass (1.1s)
+   Technique: ::after pseudo-element with a translucent diagonal gradient,
+   clipped to the button via overflow:hidden on the parent.
+────────────────────────────────────────────────────────────────────────────── */
+@keyframes btn-sheen-idle {
+  0%   { transform: translateX(-130%) skewX(-18deg); opacity: 0; }
+  6%   { opacity: 1; }
+  38%  { transform: translateX(230%) skewX(-18deg); opacity: 0.55; }
+  39%  { opacity: 0; }
+  100% { transform: translateX(230%) skewX(-18deg); opacity: 0; }
+}
+@keyframes btn-sheen-hover {
+  0%   { transform: translateX(-130%) skewX(-18deg); opacity: 0; }
+  4%   { opacity: 1; }
+  80%  { transform: translateX(230%) skewX(-18deg); opacity: 0.75; }
+  81%  { opacity: 0; }
+  100% { transform: translateX(230%) skewX(-18deg); opacity: 0; }
+}
+
+/* Shared sheen pseudo-element rules */
+.btn-primary,
+.btn-primary-sm,
+.btn-primary-mobile {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after,
+.btn-primary-sm::after,
+.btn-primary-mobile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.06) 38%,
+    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.18) 52%,
+    rgba(255, 255, 255, 0.06) 62%,
+    transparent 75%
+  );
+  transform: translateX(-130%) skewX(-18deg);
+  animation: btn-sheen-idle 4.5s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+.btn-primary:hover::after,
+.btn-primary-sm:hover::after,
+.btn-primary-mobile:hover::after {
+  animation: btn-sheen-hover 1.1s ease-out forwards;
+}
+/* Ensure button text/icons sit above the sheen layer */
+.btn-primary > *,
+.btn-primary-sm > *,
+.btn-primary-mobile > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Tailwind gradient primary buttons — sheen via utility class ──
+   Applied to any Button with bg-gradient-to-r containing the brand gold.
+   Add class `btn-sheen` to any inline-gradient button to opt in.
+────────────────────────────────────────────────────────────────────────────── */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.06) 38%,
+    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.18) 52%,
+    rgba(255, 255, 255, 0.06) 62%,
+    transparent 75%
+  );
+  transform: translateX(-130%) skewX(-18deg);
+  animation: btn-sheen-idle 4.5s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+.btn-sheen:hover::after {
+  animation: btn-sheen-hover 1.1s ease-out forwards;
+}
+.btn-sheen > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* Primary CTA — polished metallic gold with bevel, highlight edge, and shadow depth */
 .btn-primary {
   background: linear-gradient(

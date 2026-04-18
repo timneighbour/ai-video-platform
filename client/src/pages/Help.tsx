@@ -371,7 +371,7 @@ export default function Help() {
             <h3 className="text-base font-semibold text-white mb-2">Live Chat</h3>
             <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Chat with our team in real time. Usually responds in under 2 minutes.</p>
             <button
-              className="btn-primary w-full rounded-xl font-semibold h-10 text-sm flex items-center justify-center"
+              className="btn-primary btn-sheen btn-sheen w-full rounded-xl font-semibold h-10 text-sm flex items-center justify-center"
               onClick={() => {
                 if (typeof window !== "undefined" && (window as any).$crisp) {
                   (window as any).$crisp.push(["do", "chat:open"]);

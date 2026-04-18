@@ -474,7 +474,7 @@ export default function Subscribe() {
           <p className="text-muted-foreground mb-8 text-lg">No credit card required. See your storyboard before you spend a penny.</p>
           <Button
             size="lg"
-            className="btn-primary font-bold px-10 py-4 text-base rounded-full"
+            className="btn-primary btn-sheen btn-sheen font-bold px-10 py-4 text-base rounded-full"
             onClick={() => handlePlanSelect("free")}
           >
             Start Creating <ChevronRight className="ml-2 h-5 w-5" />

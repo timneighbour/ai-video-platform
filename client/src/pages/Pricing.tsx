@@ -918,7 +918,7 @@ export default function Pricing() {
         <div className="text-center px-6 mt-20">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready to create?</h2>
           <p className="text-sm text-[--color-silver-dark]/45 mb-6 max-w-sm mx-auto">Start building your video for free — no credit card required. Pay only when you render.</p>
-          <a href={isAuthenticated ? "/music-video/create" : "/onboarding"} className="btn-primary inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-sm">
+          <a href={isAuthenticated ? "/music-video/create" : "/onboarding"} className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-sm">
             <Sparkles className="w-4 h-4" />
             Start Creating Free
           </a>

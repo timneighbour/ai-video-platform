@@ -251,7 +251,7 @@ export default function BatchRegeneration() {
             <Button
               onClick={handleStart}
               disabled={startBatch.isPending}
-              className="btn-primary gap-2"
+              className="btn-primary btn-sheen btn-sheen gap-2"
             >
               {startBatch.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

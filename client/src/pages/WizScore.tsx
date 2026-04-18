@@ -183,7 +183,7 @@ export default function WizScore() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">WizScore™</h1>
           <p className="text-white/50 mb-8">Sign in to generate AI-matched soundtracks for your videos.</p>
-          <Button className="btn-primary px-8 py-3 rounded-xl text-base" asChild>
+          <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild>
             <a href={getLoginUrl()}>Sign in to continue</a>
           </Button>
         </div>
@@ -386,7 +386,7 @@ export default function WizScore() {
                 <p className="text-white/30 text-xs">AI will analyse your video and generate a synced soundtrack</p>
               </div>
               <Button
-                className="btn-primary px-8 py-3 rounded-xl text-sm font-bold"
+                className="btn-primary btn-sheen px-8 py-3 rounded-xl text-sm font-bold"
                 onClick={startGeneration}
                 disabled={step !== "idle"}
               >

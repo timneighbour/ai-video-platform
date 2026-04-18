@@ -79,7 +79,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
           {/* CTA */}
           <a
             href={getLoginUrl()}
-            className="btn-primary block w-full text-center font-semibold py-3 rounded-xl text-sm"
+            className="btn-primary btn-sheen btn-sheen block w-full text-center font-semibold py-3 rounded-xl text-sm"
           >
             <Sparkles className="inline w-4 h-4 mr-2 -mt-0.5" />
             Sign in / Create Free Account

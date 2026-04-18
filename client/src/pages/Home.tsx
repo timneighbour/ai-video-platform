@@ -285,7 +285,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-4 mb-12">
             <a
               href="/onboarding"
-              className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+              className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
               onClick={() => mp.heroCTAClicked?.()}
             >
               <Sparkles className="w-5 h-5" />
@@ -375,7 +375,7 @@ function WelcomeSection() {
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="/onboarding"
-                className="btn-primary inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm"
+                className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm"
               >
                 <Sparkles className="w-4 h-4" />
                 Start Creating
@@ -572,7 +572,7 @@ function WizEngines() {
         <div className="text-center mt-16 reveal">
           <a
             href="/onboarding"
-            className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm"
+            className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm"
           >
             <Sparkles className="w-4 h-4" />
             Start Creating
@@ -758,7 +758,7 @@ function WizSoundDemo() {
 
           {/* CTA */}
           <div className="text-center mt-10">
-            <a href="/onboarding" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+            <a href="/onboarding" className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
               <Sparkles className="w-4 h-4" />
               Start Creating
             </a>
@@ -876,7 +876,7 @@ function WizLuminaDemo() {
 
           {/* CTA */}
           <div className="text-center mt-10">
-            <a href="/onboarding" className="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+            <a href="/onboarding" className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
               <Eye className="w-4 h-4" />
               Start Creating
             </a>
@@ -1097,7 +1097,7 @@ function FinalCTA() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/onboarding"
-            className="btn-primary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base"
+            className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base"
           >
             <Sparkles className="w-5 h-5" />
             Start Creating
