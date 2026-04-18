@@ -1464,6 +1464,9 @@ export default function MusicVideoAutopilot() {
               <ArrowLeft className="w-4 h-4" />
               <span>Home</span>
             </NavLink>
+            <NavLink href="/">
+              <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+            </NavLink>
             <NavLink href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard</span>

@@ -798,8 +798,8 @@
 - [ ] Test Suno music generation end-to-end after fix
 
 ## Bug Fix: HTTP 429 Rate Limit on Video Rendering (Priority)
-- [ ] Audit Kling AI client for missing/weak retry logic
-- [ ] Fix rateLimitRetry utility: add Retry-After header parsing, true exponential backoff with jitter
+- [x] Audit Kling AI client for missing/weak retry logic (already implemented)
+- [x] Fix rateLimitRetry utility: add Retry-After header parsing, true exponential backoff with jitter (already implemented)
 - [ ] Add server-side per-user render throttle (max 1 concurrent render job per user)
 - [x] Fix render button: disable immediately on click, prevent duplicate submissions — already implemented
 - [x] Reduce polling frequency from current interval to 15s minimum with adaptive backoff — already implemented
@@ -1090,7 +1090,7 @@
 - [x] TypeScript check: 0 errors, 81/81 tests passing, checkpoint saved
 
 ## Fix: Nav Logo Too Small (Apr 2026)
-- [ ] Increase WizVid logo size in nav header — visible next to Back button on all pages
+- [x] Increase WizVid logo size in nav header — visible next to Back button on all pages
 
 ## Fix: Nav Logo Too Small + Back Button (Apr 2026)
 - [x] Crop WizVid logo (remove excess black padding) and upload cropped version to CDN
