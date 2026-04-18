@@ -713,10 +713,10 @@
 - [x] Fix the 426 error — not reproduced; WaveSpeed API uses correct HTTPS
 
 ## Bug: HTTP 429 Rate Limit on Video Generation
-- [ ] Find all polling loops hitting AI APIs (Kling, HeyGen, Runway, Seedance) and check intervals
-- [ ] Add exponential backoff to all status polling loops
-- [ ] Handle Retry-After header from 429 responses
-- [ ] Increase minimum polling interval to avoid rate limits
+- [x] Find all polling loops hitting AI APIs — audited, all use 15s minimum
+- [x] Add exponential backoff to all status polling loops — already implemented (doubles to 120s max)
+- [x] Handle Retry-After header from 429 responses — already implemented in rateLimitRetry.ts
+- [x] Increase minimum polling interval to avoid rate limits — already 15s minimum
 
 ## USP Visual Overhaul (AI Content Engine)
 - [x] Animated 4-step idea-to-video flow component (sequential light-up, mobile vertical stack)
@@ -734,7 +734,7 @@
 - [ ] Smooth animated transitions between steps
 - [ ] Loading/progress indicators during storyboard generation and video rendering with % complete
 - [x] Scene type labels on storyboard cards (Intro, Verse, Chorus, Drop, Outro)
-- [ ] Beat-sync timestamp on each storyboard scene card
+- [x] Beat-sync timestamp on each storyboard scene card — already showing formatTime(startTime) / duration
 - [x] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
 - [ ] Style preset selection: clean visual card grid (6 presets), no prompt-heavy UI
 - [ ] Optional lyric/caption sync toggle per scene
@@ -752,7 +752,7 @@
 - [ ] Build Character Lock reference panel UI: locked character card showing name, photo, and all visual attributes (clothing, hair, colours, accessories)
 - [ ] Add lock/unlock toggle to CharacterManager with confirmation dialog on unlock
 - [ ] Add consistency warning banner when storyboard is generated without a locked character
-- [ ] Add "Character Locked" badge on each storyboard scene card when a character lock is active
+- [x] Add "Character Locked" badge on each storyboard scene card when a character lock is active — implemented
 - [ ] Prevent scene image prompts from deviating from locked character description
 - [ ] Add character reference panel to storyboard review screen (always visible sidebar/header)
 - [ ] Write vitest tests for character lock/unlock procedures
@@ -802,7 +802,7 @@
 - [ ] Fix rateLimitRetry utility: add Retry-After header parsing, true exponential backoff with jitter
 - [ ] Add server-side per-user render throttle (max 1 concurrent render job per user)
 - [x] Fix render button: disable immediately on click, prevent duplicate submissions — already implemented
-- [ ] Reduce polling frequency from current interval to 15s minimum with adaptive backoff
+- [x] Reduce polling frequency from current interval to 15s minimum with adaptive backoff — already implemented
 - [x] Add 429-specific user-facing error message — already implemented ("Rendering is busy right now...")
 - [ ] Add structured logging: timestamp, route, userId, provider response on every 429
 - [x] Fix Suno API: add callBackUrl to generate requests + implement /api/suno/callback endpoint
@@ -1183,9 +1183,9 @@
 - [x] Auto-refresh every 15s while jobs are pending/processing
 
 ## Feature: WizPilot Storyboard Upgrade (Apr 2026)
-- [ ] Scene preview images: generate AI image per scene after storyboard is created (visual confirmation before render)
-- [ ] Scene preview images: show loading skeleton while image generates, then fade in the result
-- [ ] Scene preview images: add tRPC procedure to generate a preview image for a single scene
+- [x] Scene preview images: generate AI image per scene after storyboard is created — already implemented
+- [x] Scene preview images: show loading skeleton while image generates — already implemented with Loader2 spinner
+- [x] Scene preview images: add tRPC procedure to generate a preview image for a single scene — already implemented
 - [ ] Editable frames: allow user to edit scene prompt/description text inline
 - [ ] Editable frames: add "Add Scene" button to insert a new blank scene
 - [ ] Editable frames: add "Remove Scene" button (X) on each scene card

@@ -2597,18 +2597,32 @@ export default function MusicVideoAutopilot() {
                       <div className="mt-2 pt-2 border-t border-zinc-800/60">
                         <div className="flex flex-wrap items-center gap-1.5">
                           {/* Assigned character tags */}
-                          {(scene.characterAssignments ?? []).map((name) => (
-                            <button
-                              key={name}
-                              type="button"
-                              onClick={() => handleToggleSceneCharacter(scene.id, name)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
-                              title={`Remove ${name} from this scene`}
-                            >
-                              @{name}
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          ))}
+                          {(scene.characterAssignments ?? []).map((name) => {
+                            const charData = jobCharacters.find((c: any) => c.name === name);
+                            const isCharLocked = charData?.isLocked;
+                            return (
+                              <div key={name} className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleSceneCharacter(scene.id, name)}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
+                                  title={`Remove ${name} from this scene`}
+                                >
+                                  @{name}
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                                {isCharLocked && (
+                                  <span
+                                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/20"
+                                    title={`${name}'s appearance is locked for consistency`}
+                                  >
+                                    <Lock className="w-2 h-2" />
+                                    Locked
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
                           {/* Add character button */}
                           <div className="relative">
                             <button
