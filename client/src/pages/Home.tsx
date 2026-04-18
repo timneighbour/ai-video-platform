@@ -753,10 +753,10 @@ function HowItWorks() {
         </div>
         <div className="grid md:grid-cols-4 gap-8">
           {[
-            { ...steps[0], img: "/manus-storage/hiw-step1-choose_1a9333c4.jpg" },
-            { ...steps[1], img: "/manus-storage/hiw-step2-storyboard_bc5ac61b.jpg" },
-            { ...steps[2], img: "/manus-storage/hiw-step3-preview_3f4d6a5d.jpg" },
-            { ...steps[3], img: "/manus-storage/hiw-step4-export_2a73ed91.jpg" },
+            { ...steps[0], img: "/manus-storage/hiw-step1-choose_1102ddee.jpg" },
+            { ...steps[1], img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg" },
+            { ...steps[2], img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg" },
+            { ...steps[3], img: "/manus-storage/hiw-step4-export_68c87f9e.jpg" },
           ].map((s, i) => (
             <div key={s.num} className="reveal relative">
               {i < steps.length - 1 && (
@@ -1055,25 +1055,25 @@ function Testimonials() {
       text: "I made my first music video in 45 minutes. The quality blew my mind. My fans thought I hired a production team.",
       name: "Marcus T.",
       role: "Independent Musician",
-      avatar: "/manus-storage/avatar-marcus_d3c57974.jpg",
+      avatar: "/manus-storage/avatar-marcus_5c70b009.jpg",
     },
     {
       text: "WIZ AI replaced a £3,000/month video editor for my YouTube channel. I now publish three times a week without breaking a sweat.",
       name: "Priya S.",
       role: "YouTube Creator — 180K subscribers",
-      avatar: "/manus-storage/avatar-priya_b75d248c.jpg",
+      avatar: "/manus-storage/avatar-priya_5975eaf5.jpg",
     },
     {
       text: "The character consistency is genuinely impressive. My animated series looks like a real studio production. Nothing else comes close.",
       name: "Daniel K.",
       role: "Animator & Storyteller",
-      avatar: "/manus-storage/avatar-daniel_e6dfd671.jpg",
+      avatar: "/manus-storage/avatar-daniel_64a2beaf.jpg",
     },
     {
       text: "I used WizScript to turn a blog post into a fully produced video in under 10 minutes. The ROI is extraordinary.",
       name: "Sophie L.",
       role: "Brand Content Director",
-      avatar: "/manus-storage/avatar-sophie_d547f8e0.jpg",
+      avatar: "/manus-storage/avatar-sophie_7b87260f.jpg",
     },
   ];
   return (
@@ -1148,9 +1148,9 @@ function Testimonials() {
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const items = dbItems && dbItems.length > 0 ? dbItems : [
-    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_33a758bd.jpg", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
-    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_6094aad5.jpg", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/showcase-star-quest_799ae91d.jpg", description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
+    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg", description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
   ];
 
   return (
@@ -1202,10 +1202,10 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", icon: <Music2 className="w-6 h-6" />, img: "/manus-storage/creator-musicians_d91388ed.jpg" },
-    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", icon: <FileText className="w-6 h-6" />, img: "/manus-storage/creator-content-creators_9b871111.jpg" },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", icon: <Wand2 className="w-6 h-6" />, img: "/manus-storage/creator-animators_6740945f.jpg" },
-    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", icon: <TrendingUp className="w-6 h-6" />, img: "/manus-storage/creator-youtubers-brands_f76f062a.jpg" },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", icon: <Music2 className="w-6 h-6" />, img: "/manus-storage/creator-musicians_32538502.jpg" },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", icon: <FileText className="w-6 h-6" />, img: "/manus-storage/creator-content-creators_231af096.jpg" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", icon: <Wand2 className="w-6 h-6" />, img: "/manus-storage/creator-animators_afc533eb.jpg" },
+    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", icon: <TrendingUp className="w-6 h-6" />, img: "/manus-storage/creator-youtubers-brands_24a3de4e.jpg" },
   ];
   return (
     <section id="built-for" className="relative bg-[#030303] py-28 px-6">

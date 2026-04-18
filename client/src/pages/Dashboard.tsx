@@ -27,6 +27,12 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const DASH_BG_MUSIC_VIDEO = "/manus-storage/dash-card-music-video_894d27ae.jpg";
+const DASH_BG_MUSIC = "/manus-storage/card-wizaudio-v2_ba9bb3e1.jpg";
+const DASH_BG_KIDS = "/manus-storage/dash-card-animation_9f04fd06.jpg";
+const DASH_BG_YOUTUBE = "/manus-storage/dash-card-youtube_cec93053.jpg";
+const DASH_CINEMATIC_BANNER = "/manus-storage/dash-cinematic-banner_10dc07fe.jpg";
+const DASH_EMPTY_STATE = "/manus-storage/dash-empty-state_4cc61677.jpg";
 const WIZLUMINA_ORB = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
 
 // ── Create Action Cards ──────────────────────────────────────────────────────
@@ -40,6 +46,7 @@ const CREATE_ACTIONS = [
     gradient: "from-[#b8892a] to-[#4a3010]",
     glow: "shadow-[#b8892a]/25",
     badge: "Most Popular",
+    bgImage: DASH_BG_MUSIC_VIDEO,
   },
   {
     id: "music",
@@ -50,6 +57,7 @@ const CREATE_ACTIONS = [
     gradient: "from-[#4a4a5a] to-[#2e2e36]",
     glow: "shadow-[#9090a0]/25",
     badge: null,
+    bgImage: DASH_BG_MUSIC,
   },
   {
     id: "kids",
@@ -60,6 +68,7 @@ const CREATE_ACTIONS = [
     gradient: "from-[#9090a0] to-[#2e2e36]",
     glow: "shadow-[#9090a0]/20",
     badge: null,
+    bgImage: DASH_BG_KIDS,
   },
   {
     id: "youtube",
@@ -70,6 +79,7 @@ const CREATE_ACTIONS = [
     gradient: "from-[#3a2a10] to-[#1a1a1a]",
     glow: "shadow-[#b8892a]/20",
     badge: null,
+    bgImage: DASH_BG_YOUTUBE,
   },
 ];
 
@@ -231,6 +241,12 @@ export default function Dashboard() {
                   onClick={() => mp.track("Dashboard_CreateCard_Click", { card: action.id })}
                   className={`relative group rounded-2xl bg-gradient-to-br ${action.gradient} p-5 hover:scale-[1.02] transition-all duration-200 shadow-lg ${action.glow} overflow-hidden`}
                 >
+                  {/* Premium photo background */}
+                  {action.bgImage && (
+                    <img src={action.bgImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-300" loading="eager" />
+                  )}
+                  {/* Dark overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
                   {/* Subtle noise texture */}
                   <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
                     style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
