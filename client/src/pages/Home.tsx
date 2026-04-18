@@ -502,7 +502,8 @@ function WizEngines() {
               className="reveal group relative rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1"
               style={{
                 background: `linear-gradient(160deg, ${eng.accentGlow}, oklch(0.06 0.005 260) 40%)`,
-                border: `1px solid ${eng.accentBorder}`,
+                border: "1px solid rgba(196,164,100,0.18)",
+                boxShadow: "0 1px 0 rgba(232,213,160,0.10) inset, 0 -1px 0 rgba(0,0,0,0.6) inset, 0 4px 24px rgba(0,0,0,0.5)",
               }}
             >
               {/* Corner glow on hover */}
@@ -513,13 +514,14 @@ function WizEngines() {
 
               {/* Icon */}
               <div
-                className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 relative z-10 overflow-hidden"
+                className="w-16 h-16 rounded-xl flex items-center justify-center mb-6 relative z-10 overflow-hidden"
                 style={{
-                  background: eng.accentGlow,
-                  border: `1px solid ${eng.accentBorder}`,
+                  background: "linear-gradient(145deg, rgba(196,164,100,0.12) 0%, rgba(232,213,160,0.06) 100%)",
+                  border: "1px solid rgba(196,164,100,0.25)",
+                  boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 2px 8px rgba(0,0,0,0.5)",
                 }}
               >
-                <img src={eng.logoUrl} alt={eng.name} className="w-10 h-10 object-contain" />
+                <img src={eng.logoUrl} alt={eng.name} className="w-12 h-12 object-contain" />
               </div>
 
               {/* Name + tagline */}
