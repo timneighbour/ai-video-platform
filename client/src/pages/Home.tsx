@@ -388,9 +388,12 @@ function WelcomeSection() {
             </div>
           </div>
           <div className="reveal">
-            <button
+            <div
               onClick={() => setDemoOpen(true)}
-              className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none"
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setDemoOpen(true)}
+              role="button"
+              tabIndex={0}
+              className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer"
               aria-label="Watch WIZ AI demo"
             >
               <img
@@ -419,7 +422,7 @@ function WelcomeSection() {
                   Replay intro
                 </button>
               </div>
-            </button>
+            </div>
           </div>
         </div>
       </div>
