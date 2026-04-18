@@ -5009,3 +5009,11 @@
 - [x] LOGO-14: Apply product emblems to Products dropdown menu (desktop + mobile)
 - [x] LOGO-15: Apply product emblems to Create.tsx product cards
 - [x] LOGO-16: Each product card has accent colour, premium hover, branded visual texture, CTA
+
+## LUXURY METALLIC PRODUCT CARDS
+- [x] METAL-1: Design metallic card CSS system — brushed gold border, polished silver highlight, bevel depth
+- [x] METAL-2: Apply metallic treatment to WizProductGrid homepage cards
+- [x] METAL-3: Apply metallic treatment to Create.tsx tool cards
+- [x] METAL-4: Applied metallic gold border to icon wells in nav dropdown
+- [x] METAL-5: Add reflective hover shimmer animation to all product cards
+- [x] METAL-6: Each card has distinct accent colour + brushed gold metallic frame

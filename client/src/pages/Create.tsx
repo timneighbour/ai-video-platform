@@ -260,8 +260,53 @@ function ToolCard({ tool }: { tool: Tool }) {
   return (
     <div
       onClick={handleClick}
-      className={`group relative cursor-pointer rounded-2xl border bg-gradient-to-br ${tool.accentFrom} ${tool.accentTo} bg-[#111] ${tool.borderColor} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+      className="group relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-300"
+      style={{
+        background: "linear-gradient(160deg, #0d0d0d 0%, #080808 60%, #050505 100%)",
+        border: "1px solid rgba(196,164,100,0.20)",
+        boxShadow: [
+          "0 1px 0 0 rgba(232,213,160,0.12) inset",
+          "0 -1px 0 0 rgba(0,0,0,0.8) inset",
+          "1px 0 0 0 rgba(232,213,160,0.06) inset",
+          "0 4px 20px rgba(0,0,0,0.6)",
+        ].join(", "),
+      }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.style.border = "1px solid rgba(196,164,100,0.50)";
+        el.style.boxShadow = [
+          "0 1px 0 0 rgba(232,213,160,0.28) inset",
+          "0 -1px 0 0 rgba(0,0,0,0.8) inset",
+          "1px 0 0 0 rgba(232,213,160,0.14) inset",
+          "0 8px 40px rgba(196,164,100,0.12)",
+          "0 0 0 1px rgba(196,164,100,0.50)",
+        ].join(", ");
+        el.style.transform = "translateY(-3px) scale(1.01)";
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.style.border = "1px solid rgba(196,164,100,0.20)";
+        el.style.boxShadow = [
+          "0 1px 0 0 rgba(232,213,160,0.12) inset",
+          "0 -1px 0 0 rgba(0,0,0,0.8) inset",
+          "1px 0 0 0 rgba(232,213,160,0.06) inset",
+          "0 4px 20px rgba(0,0,0,0.6)",
+        ].join(", ");
+        el.style.transform = "translateY(0) scale(1)";
+      }}
     >
+      {/* Polished bevel — top edge */}
+      <div className="absolute top-0 left-0 right-0 h-px pointer-events-none z-20"
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(232,213,160,0.18) 20%, rgba(232,213,160,0.32) 50%, rgba(232,213,160,0.18) 80%, transparent 100%)" }} />
+      {/* Polished bevel — left edge */}
+      <div className="absolute top-0 left-0 bottom-0 w-px pointer-events-none z-20"
+        style={{ background: "linear-gradient(180deg, transparent 0%, rgba(232,213,160,0.16) 20%, rgba(232,213,160,0.10) 50%, transparent 100%)" }} />
+      {/* Metallic grain overlay */}
+      <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl opacity-[0.03]"
+        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E")`, backgroundSize: "200px 200px" }} />
+      {/* Brushed metal diagonal shimmer on hover */}
+      <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: "linear-gradient(125deg, transparent 0%, rgba(232,213,160,0.04) 30%, rgba(255,255,255,0.05) 50%, rgba(232,213,160,0.04) 70%, transparent 100%)" }} />
       {/* Preview image strip */}
       {tool.previewImg && (
         <div className="relative h-36 overflow-hidden">
@@ -285,8 +330,15 @@ function ToolCard({ tool }: { tool: Tool }) {
       <div className="p-5">
         {/* Large colourful icon above title */}
         <div className="mb-4 flex items-start justify-between">
-          <div className={`w-14 h-14 rounded-2xl ${tool.iconBg} flex items-center justify-center ${tool.iconColor} group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-            <div className="w-7 h-7">{tool.icon}</div>
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+            style={{
+              background: "linear-gradient(145deg, rgba(196,164,100,0.12) 0%, rgba(232,213,160,0.06) 100%)",
+              border: "1px solid rgba(196,164,100,0.22)",
+              boxShadow: "0 1px 0 rgba(232,213,160,0.10) inset, 0 2px 8px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div className={`w-7 h-7 ${tool.iconColor}`}>{tool.icon}</div>
           </div>
           {tool.authRequired && !isAuthenticated ? (
             <Lock className="w-4 h-4 text-white/30 flex-shrink-0 mt-1" />
@@ -299,7 +351,16 @@ function ToolCard({ tool }: { tool: Tool }) {
           {tool.logo ? (
             <img src={tool.logo} alt={tool.name} className="h-6 w-auto object-contain" />
           ) : (
-            <h3 className="text-white font-bold text-base leading-tight">{tool.name}</h3>
+            <h3
+              className="font-bold text-base leading-tight"
+              style={{
+                background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 35%, #fff 55%, #e8d5a0 70%, #c4a464 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>
+              {tool.name}
+            </h3>
           )}
           {tool.badge && !tool.popular && (
             <span className={`text-[10px] font-semibold uppercase tracking-wider border rounded-full px-2 py-0.5 ${tool.badgeColor}`}>
@@ -319,11 +380,16 @@ function ToolCard({ tool }: { tool: Tool }) {
 
         {/* CTA */}
         <div className="mt-4 flex items-center gap-2">
-          <span className="text-xs font-semibold text-white/40 group-hover:text-white/70 transition-colors">
+          <span
+            className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0"
+            style={{ color: "#c4a464" }}>
             {isAuthenticated ? "Open tool" : "Sign in to start"} →
           </span>
         </div>
       </div>
+      {/* Bottom shimmer on hover */}
+      <div className="absolute bottom-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(196,164,100,0.5), transparent)" }} />
     </div>
   );
 }
