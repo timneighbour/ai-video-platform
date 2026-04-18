@@ -42,21 +42,21 @@ const MODE_META: Record<VisualMode, {
     label: "Enhanced",
     sublabel: "WizLumina™",
     description: "Colour grading, sharpening, and contrast boost — immediate visible improvement.",
-    accentColor: "#f59e0b",
-    borderColor: "rgba(245,158,11,0.4)",
-    glow: "0 0 40px rgba(245,158,11,0.2)",
-    badgeBg: "rgba(245,158,11,0.2)",
-    badgeText: "#fcd34d",
+    accentColor: "#c49a3c",
+    borderColor: "rgba(196,154,60,0.4)",
+    glow: "0 0 40px rgba(196,154,60,0.18)",
+    badgeBg: "rgba(196,154,60,0.18)",
+    badgeText: "#e8c96a",
   },
   cinematic: {
     label: "Cinematic",
     sublabel: "WizLumina™ Ultra",
     description: "HDR tone mapping, deep blacks, vivid highlights, and film-level colour science.",
-    accentColor: "#f59e0b",
-    borderColor: "rgba(245,158,11,0.55)",
-    glow: "0 0 60px rgba(245,158,11,0.3), 0 0 120px rgba(217,70,239,0.1)",
-    badgeBg: "linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,70,239,0.2))",
-    badgeText: "#fde68a",
+    accentColor: "#e8c96a",
+    borderColor: "rgba(232,201,106,0.5)",
+    glow: "0 0 60px rgba(196,154,60,0.25), 0 0 120px rgba(180,180,200,0.06)",
+    badgeBg: "linear-gradient(135deg, rgba(196,154,60,0.25), rgba(180,180,200,0.08))",
+    badgeText: "#f5e4a0",
   },
 };
 
@@ -246,20 +246,20 @@ export function WizLuminaSection() {
     >
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full bg-amber-500/5 blur-[120px]" />
-        <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-violet-600/6 blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full blur-[120px]" style={{background:'rgba(196,154,60,0.04)'}} />
+        <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full blur-[100px]" style={{background:'rgba(180,180,200,0.03)'}} />
       </div>
 
       <div className="relative max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/25 bg-amber-500/8 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{border:'1px solid rgba(196,154,60,0.25)',background:'rgba(196,154,60,0.07)'}}>
             <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-3.5 h-3.5 rounded-full" />
-            <span className="text-amber-300 text-xs font-bold tracking-wider uppercase">Powered by WizLumina™</span>
+            <span className="text-xs font-bold tracking-wider uppercase" style={{color:'#c49a3c'}}>Powered by WizLumina™</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
             See the difference with{" "}
-            <span className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 bg-clip-text text-transparent">
+            <span className="metallic-gold">
               WizLumina™
             </span>
           </h2>
@@ -312,10 +312,10 @@ export function WizLuminaSection() {
             return (
               <div
                 key={feat.title}
-                className="group p-5 rounded-2xl bg-white/3 border border-white/8 hover:border-amber-500/25 hover:bg-amber-500/5 transition-all duration-300"
+                className="group p-5 rounded-2xl bg-white/3 border border-white/8 transition-all duration-300" style={{}} onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(184,137,42,0.25)';(e.currentTarget as HTMLElement).style.background='rgba(184,137,42,0.04)'}} onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.08)';(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}}
               >
-                <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/20 flex items-center justify-center mb-3 group-hover:bg-amber-500/25 transition-colors">
-                  <Icon className="w-4 h-4 text-amber-400" />
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3 transition-colors" style={{background:'rgba(184,137,42,0.12)',border:'1px solid rgba(184,137,42,0.18)'}}>
+                  <Icon className="w-4 h-4" style={{color:'#b8892a'}} />
                 </div>
                 <h3 className="text-sm font-bold text-white mb-1.5">{feat.title}</h3>
                 <p className="text-xs text-white/45 leading-relaxed">{feat.description}</p>
@@ -333,20 +333,20 @@ export function WizLuminaSection() {
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div className="text-center">
-              <div className="text-xs text-amber-400/60 mb-0.5">WizLumina Enhanced</div>
-              <div className="text-lg font-bold text-amber-300">+£2</div>
+              <div className="text-xs mb-0.5" style={{color:'rgba(184,137,42,0.7)'}}>WizLumina Enhanced</div>
+              <div className="text-lg font-bold" style={{color:'#d4aa48'}}>+£2</div>
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div className="text-center">
-              <div className="text-xs text-amber-400/80 mb-0.5">WizLumina Cinematic</div>
-              <div className="text-lg font-bold text-amber-200">+£5</div>
+              <div className="text-xs mb-0.5" style={{color:'rgba(184,137,42,0.85)'}}>WizLumina Cinematic</div>
+              <div className="text-lg font-bold" style={{color:'#e8c878'}}>+£5</div>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-900/30 to-violet-900/20 border border-fuchsia-500/30">
-            <Sparkles className="w-4 h-4 text-fuchsia-400" />
+          <div className="flex items-center gap-2 px-5 py-3 rounded-2xl" style={{background:'linear-gradient(135deg,rgba(184,137,42,0.12),rgba(180,180,200,0.06))',border:'1px solid rgba(184,137,42,0.25)'}}>
+            <Sparkles className="w-4 h-4" style={{color:'#e8c878'}} />
             <div>
-              <div className="text-xs font-bold text-fuchsia-300">Cinematic Bundle</div>
-              <div className="text-[11px] text-white/50">WizSound + WizLumina Cinematic — <span className="text-fuchsia-300 font-semibold">+£8</span></div>
+              <div className="text-xs font-bold" style={{color:'#e8c878'}}>Cinematic Bundle</div>
+              <div className="text-[11px] text-white/50">WizSound + WizLumina Cinematic — <span className="font-semibold" style={{color:'#e8c878'}}>+£8</span></div>
             </div>
           </div>
         </div>

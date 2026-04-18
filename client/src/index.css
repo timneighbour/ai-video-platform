@@ -43,13 +43,15 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* ── Luxury brand tokens ── */
-  --color-gold: oklch(0.78 0.11 75);
-  --color-gold-light: oklch(0.85 0.09 75);
-  --color-gold-dark: oklch(0.62 0.12 65);
-  --color-silver: oklch(0.82 0.01 260);
-  --color-silver-light: oklch(0.92 0.005 260);
-  --color-silver-dark: oklch(0.65 0.015 260);
+  /* ── Luxury brand tokens (matched to WIZ AI logo) ── */
+  --color-gold: oklch(0.72 0.14 70);
+  --color-gold-light: oklch(0.82 0.10 72);
+  --color-gold-dark: oklch(0.50 0.13 55);
+  --color-gold-deep: oklch(0.38 0.10 50);
+  --color-gold-highlight: oklch(0.88 0.07 78);
+  --color-silver: oklch(0.78 0.01 260);
+  --color-silver-light: oklch(0.90 0.005 260);
+  --color-silver-dark: oklch(0.58 0.015 260);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -57,15 +59,15 @@
    ══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --primary: oklch(0.78 0.11 75);           /* brushed metallic gold */
+  --primary: oklch(0.72 0.14 70);           /* brushed metallic gold */
   --primary-foreground: oklch(0.08 0.01 60); /* near-black on gold */
-  --sidebar-primary: oklch(0.78 0.11 75);
+  --sidebar-primary: oklch(0.72 0.14 70);
   --sidebar-primary-foreground: oklch(0.08 0.01 60);
-  --chart-1: oklch(0.78 0.11 75);
-  --chart-2: oklch(0.82 0.01 260);
-  --chart-3: oklch(0.62 0.12 65);
-  --chart-4: oklch(0.85 0.09 75);
-  --chart-5: oklch(0.65 0.015 260);
+  --chart-1: oklch(0.72 0.14 70);
+  --chart-2: oklch(0.78 0.01 260);
+  --chart-3: oklch(0.50 0.13 55);
+  --chart-4: oklch(0.82 0.10 72);
+  --chart-5: oklch(0.58 0.015 260);
   --radius: 0.625rem;
   --background: oklch(0.05 0.005 260);       /* deep rich black */
   --foreground: oklch(0.93 0.005 75);        /* warm white */
@@ -74,22 +76,22 @@
   --popover: oklch(0.08 0.005 260);
   --popover-foreground: oklch(0.93 0.005 75);
   --secondary: oklch(0.11 0.005 260);
-  --secondary-foreground: oklch(0.82 0.01 260); /* polished silver */
+  --secondary-foreground: oklch(0.78 0.01 260); /* polished silver */
   --muted: oklch(0.14 0.005 260);
   --muted-foreground: oklch(0.60 0.01 260);  /* muted silver */
-  --accent: oklch(0.78 0.11 75);             /* gold accent */
+  --accent: oklch(0.72 0.14 70);             /* gold accent */
   --accent-foreground: oklch(0.08 0.01 60);
   --destructive: oklch(0.60 0.22 25);
   --destructive-foreground: oklch(0.95 0.01 0);
   --border: oklch(0.16 0.005 260);           /* subtle charcoal border */
   --input: oklch(0.11 0.005 260);
-  --ring: oklch(0.78 0.11 75);
+  --ring: oklch(0.72 0.14 70);
   --sidebar: oklch(0.05 0.005 260);
   --sidebar-foreground: oklch(0.93 0.005 75);
-  --sidebar-accent: oklch(0.78 0.11 75);
+  --sidebar-accent: oklch(0.72 0.14 70);
   --sidebar-accent-foreground: oklch(0.08 0.01 60);
   --sidebar-border: oklch(0.18 0.005 260);
-  --sidebar-ring: oklch(0.78 0.11 75);
+  --sidebar-ring: oklch(0.72 0.14 70);
 }
 
 * {
@@ -123,32 +125,61 @@ html {
   background: linear-gradient(180deg, oklch(0.78 0.11 75 / 0.8), oklch(0.62 0.12 65 / 0.8));
 }
 
-/* ── Premium metallic text effects ── */
+/* ── Premium metallic text effects — matched to WIZ AI logo ── */
 .text-gold {
-  background: linear-gradient(135deg, oklch(0.85 0.09 75), oklch(0.78 0.11 75), oklch(0.62 0.12 65));
+  background: linear-gradient(
+    160deg,
+    #4a3010 0%,
+    #7a5820 15%,
+    #b8892a 32%,
+    #d4aa48 48%,
+    #e8c878 55%,
+    #f2dfa0 60%,
+    #e8c878 65%,
+    #d4aa48 72%,
+    #b8892a 82%,
+    #7a5820 92%,
+    #4a3010 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 1px 3px rgba(40,20,4,0.8)) drop-shadow(0 0 8px rgba(184,137,42,0.12));
 }
 
 .text-silver {
-  background: linear-gradient(135deg, oklch(0.92 0.005 260), oklch(0.82 0.01 260), oklch(0.70 0.01 260));
+  background: linear-gradient(
+    160deg,
+    #2e2e36 0%,
+    #5a5a68 15%,
+    #9090a0 32%,
+    #c0c0cc 48%,
+    #e4e4ec 55%,
+    #f4f4f8 60%,
+    #e4e4ec 65%,
+    #c0c0cc 72%,
+    #9090a0 82%,
+    #5a5a68 92%,
+    #2e2e36 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 1px 2px rgba(10,10,16,0.7));
 }
 
 .text-gold-solid {
-  color: oklch(0.78 0.11 75);
+  color: #b8892a;
 }
 
 /* ── Luxury glow effects ── */
 .glow-gold {
-  text-shadow: 0 0 20px oklch(0.78 0.11 75 / 0.3), 0 0 40px oklch(0.62 0.12 65 / 0.15);
+  filter: drop-shadow(0 0 12px rgba(196,154,60,0.35)) drop-shadow(0 0 24px rgba(122,85,32,0.2));
 }
 
 .glow-gold-subtle {
-  text-shadow: 0 0 12px oklch(0.78 0.11 75 / 0.2);
+  filter: drop-shadow(0 0 8px rgba(196,154,60,0.2));
 }
 
 /* ── Smooth transitions ── */
@@ -167,7 +198,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .gradient-gold {
-  background: linear-gradient(135deg, oklch(0.85 0.09 75) 0%, oklch(0.78 0.11 75) 50%, oklch(0.62 0.12 65) 100%);
+  background: linear-gradient(135deg, oklch(0.82 0.10 72) 0%, oklch(0.72 0.14 70) 50%, oklch(0.50 0.13 55) 100%);
 }
 
 .gradient-dark {
@@ -238,12 +269,26 @@ nav a, nav button {
     inset 0 1px 0 oklch(1 0 0 / 0.04);
 }
 
-/* ── Gradient text utility — now gold ── */
+/* ── Gradient text utility — premium brushed gold (logo-matched) ── */
 .gradient-text {
-  background: linear-gradient(135deg, oklch(0.85 0.09 75), oklch(0.78 0.11 75), oklch(0.62 0.12 65));
+  background: linear-gradient(
+    160deg,
+    #4a3010 0%,
+    #7a5820 15%,
+    #b8892a 32%,
+    #d4aa48 48%,
+    #e8c878 55%,
+    #f2dfa0 60%,
+    #e8c878 65%,
+    #d4aa48 72%,
+    #b8892a 82%,
+    #7a5820 92%,
+    #4a3010 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 1px 3px rgba(40,20,4,0.8));
 }
 
 /* ── Progress bar shimmer animation ── */
@@ -267,30 +312,53 @@ nav a, nav button {
    LUXURY CTA BUTTONS
    ══════════════════════════════════════════════════════════════════════════════ */
 
-/* Primary CTA — brushed metallic gold with depth */
+/* Primary CTA — polished metallic gold with bevel, highlight edge, and shadow depth */
 .btn-primary {
-  background: linear-gradient(160deg, oklch(0.82 0.10 75) 0%, oklch(0.72 0.12 70) 50%, oklch(0.62 0.12 65) 100%);
-  color: oklch(0.08 0.01 60);
+  background: linear-gradient(
+    180deg,
+    #f0d878 0%,
+    #e8c96a 8%,
+    #d4a832 20%,
+    #c49a3c 45%,
+    #a07828 70%,
+    #7a5520 88%,
+    #5c3d10 100%
+  );
+  color: #1a0f00;
   font-weight: 700;
   letter-spacing: -0.01em;
-  border: 1px solid oklch(0.85 0.09 75 / 0.3);
+  border: 1px solid rgba(240,216,120,0.4);
   box-shadow:
-    0 1px 2px oklch(0 0 0 / 0.3),
-    0 4px 16px oklch(0.78 0.11 75 / 0.15),
-    inset 0 1px 0 oklch(1 0 0 / 0.15);
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset,
+    0 2px 4px rgba(0,0,0,0.5),
+    0 4px 20px rgba(196,154,60,0.2);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, filter 0.25s ease;
 }
 .btn-primary:hover {
   transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(
+    180deg,
+    #f5e490 0%,
+    #f0d878 8%,
+    #ddb840 20%,
+    #cca84a 45%,
+    #aa8832 70%,
+    #8a6530 88%,
+    #6a4d20 100%
+  );
   box-shadow:
-    0 8px 32px oklch(0.78 0.11 75 / 0.3),
-    0 2px 8px oklch(0 0 0 / 0.4),
-    inset 0 1px 0 oklch(1 0 0 / 0.2);
-  filter: brightness(1.08);
+    0 1px 0 rgba(255,255,255,0.3) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset,
+    0 8px 32px rgba(196,154,60,0.35),
+    0 2px 8px rgba(0,0,0,0.5);
 }
 .btn-primary:active {
   transform: translateY(0) scale(0.99);
-  box-shadow: 0 2px 8px oklch(0.78 0.11 75 / 0.2);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.15) inset,
+    0 -1px 0 rgba(0,0,0,0.5) inset,
+    0 2px 8px rgba(196,154,60,0.2);
 }
 
 /* Secondary CTA — dark metallic with subtle gold edge */
@@ -363,15 +431,15 @@ nav a, nav button {
 
 /* ── Dark mode theme (explicit class override) ── */
 .dark {
-  --primary: oklch(0.78 0.11 75);
+  --primary: oklch(0.72 0.14 70);
   --primary-foreground: oklch(0.08 0.01 60);
-  --sidebar-primary: oklch(0.78 0.11 75);
+  --sidebar-primary: oklch(0.72 0.14 70);
   --sidebar-primary-foreground: oklch(0.08 0.01 60);
-  --chart-1: oklch(0.78 0.11 75);
-  --chart-2: oklch(0.82 0.01 260);
-  --chart-3: oklch(0.62 0.12 65);
-  --chart-4: oklch(0.85 0.09 75);
-  --chart-5: oklch(0.65 0.015 260);
+  --chart-1: oklch(0.72 0.14 70);
+  --chart-2: oklch(0.78 0.01 260);
+  --chart-3: oklch(0.50 0.13 55);
+  --chart-4: oklch(0.82 0.10 72);
+  --chart-5: oklch(0.58 0.015 260);
   --radius: 0.625rem;
   --background: oklch(0.05 0.005 260);
   --foreground: oklch(0.93 0.005 75);
@@ -380,22 +448,22 @@ nav a, nav button {
   --popover: oklch(0.08 0.005 260);
   --popover-foreground: oklch(0.93 0.005 75);
   --secondary: oklch(0.11 0.005 260);
-  --secondary-foreground: oklch(0.82 0.01 260);
+  --secondary-foreground: oklch(0.78 0.01 260);
   --muted: oklch(0.14 0.005 260);
   --muted-foreground: oklch(0.60 0.01 260);
-  --accent: oklch(0.78 0.11 75);
+  --accent: oklch(0.72 0.14 70);
   --accent-foreground: oklch(0.08 0.01 60);
   --destructive: oklch(0.60 0.22 25);
   --destructive-foreground: oklch(0.95 0.01 0);
   --border: oklch(0.16 0.005 260);
   --input: oklch(0.11 0.005 260);
-  --ring: oklch(0.78 0.11 75);
+  --ring: oklch(0.72 0.14 70);
   --sidebar: oklch(0.05 0.005 260);
   --sidebar-foreground: oklch(0.93 0.005 75);
-  --sidebar-accent: oklch(0.78 0.11 75);
+  --sidebar-accent: oklch(0.72 0.14 70);
   --sidebar-accent-foreground: oklch(0.08 0.01 60);
   --sidebar-border: oklch(0.18 0.005 260);
-  --sidebar-ring: oklch(0.78 0.11 75);
+  --sidebar-ring: oklch(0.72 0.14 70);
 }
 .dark ::-webkit-scrollbar-track { background: oklch(0.07 0.005 260); }
 .dark ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, oklch(0.78 0.11 75 / 0.5), oklch(0.62 0.12 65 / 0.5)); border-radius: 3px; }
@@ -408,30 +476,30 @@ nav a, nav button {
   --card-foreground: oklch(0.1 0.02 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.1 0.02 260);
-  --primary: oklch(0.62 0.12 65);
+  --primary: oklch(0.50 0.13 55);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.93 0.01 260);
   --secondary-foreground: oklch(0.3 0.05 75);
   --muted: oklch(0.93 0.01 260);
   --muted-foreground: oklch(0.5 0.02 260);
-  --accent: oklch(0.62 0.12 65);
+  --accent: oklch(0.50 0.13 55);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.6 0.28 30);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.88 0.01 260);
   --input: oklch(0.93 0.01 260);
-  --ring: oklch(0.62 0.12 65);
+  --ring: oklch(0.50 0.13 55);
   --sidebar: oklch(0.96 0.005 260);
   --sidebar-foreground: oklch(0.1 0.02 260);
-  --sidebar-primary: oklch(0.62 0.12 65);
+  --sidebar-primary: oklch(0.50 0.13 55);
   --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.62 0.12 65);
+  --sidebar-accent: oklch(0.50 0.13 55);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.88 0.01 260);
-  --sidebar-ring: oklch(0.62 0.12 65);
+  --sidebar-ring: oklch(0.50 0.13 55);
 }
 .light ::-webkit-scrollbar-track { background: oklch(0.93 0.01 260); }
-.light ::-webkit-scrollbar-thumb { background: oklch(0.62 0.12 65); }
+.light ::-webkit-scrollbar-thumb { background: oklch(0.50 0.13 55); }
 
 /* ── Global container centering ── */
 @utility container {
@@ -523,7 +591,7 @@ select {
   border-radius: 0.5rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: oklch(0.82 0.01 260);
+  color: oklch(0.78 0.01 260);
   letter-spacing: 0.01em;
   transition: color 0.2s, background 0.2s;
   cursor: pointer;
@@ -536,7 +604,7 @@ select {
   background: oklch(1 0 0 / 0.04);
 }
 
-/* Small primary button — brushed gold */
+/* Small primary button — polished metallic gold */
 .btn-primary-sm {
   display: inline-flex;
   align-items: center;
@@ -545,17 +613,25 @@ select {
   border-radius: 0.5rem;
   font-size: 0.8125rem;
   font-weight: 700;
-  background: linear-gradient(160deg, oklch(0.82 0.10 75), oklch(0.72 0.12 70), oklch(0.62 0.12 65));
-  color: oklch(0.08 0.01 60);
-  border: 1px solid oklch(0.85 0.09 75 / 0.25);
-  box-shadow: 0 1px 4px oklch(0 0 0 / 0.2), inset 0 1px 0 oklch(1 0 0 / 0.12);
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  background: linear-gradient(180deg, #f0d878 0%, #d4a832 25%, #c49a3c 55%, #7a5520 100%);
+  color: #1a0f00;
+  border: 1px solid rgba(240,216,120,0.35);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset,
+    0 2px 8px rgba(0,0,0,0.4),
+    0 2px 12px rgba(196,154,60,0.15);
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
   text-decoration: none;
 }
 .btn-primary-sm:hover {
   transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 16px oklch(0.78 0.11 75 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.15);
   filter: brightness(1.06);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.28) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset,
+    0 4px 16px rgba(196,154,60,0.28),
+    0 2px 8px rgba(0,0,0,0.45);
 }
 
 /* Mobile nav link */
@@ -565,7 +641,7 @@ select {
   border-radius: 0.625rem;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: oklch(0.82 0.01 260);
+  color: oklch(0.78 0.01 260);
   letter-spacing: 0.01em;
   transition: color 0.2s, background 0.2s;
   text-decoration: none;
@@ -575,7 +651,7 @@ select {
   background: oklch(1 0 0 / 0.04);
 }
 
-/* Mobile primary button — brushed gold */
+/* Mobile primary button — polished metallic gold */
 .btn-primary-mobile {
   display: flex;
   align-items: center;
@@ -585,11 +661,14 @@ select {
   border-radius: 0.625rem;
   font-size: 0.9375rem;
   font-weight: 700;
-  background: linear-gradient(160deg, oklch(0.82 0.10 75), oklch(0.72 0.12 70), oklch(0.62 0.12 65));
-  color: oklch(0.08 0.01 60);
-  border: 1px solid oklch(0.85 0.09 75 / 0.25);
-  box-shadow: 0 1px 4px oklch(0 0 0 / 0.2), inset 0 1px 0 oklch(1 0 0 / 0.12);
-  transition: background 0.2s, transform 0.2s;
+  background: linear-gradient(180deg, #f0d878 0%, #d4a832 25%, #c49a3c 55%, #7a5520 100%);
+  color: #1a0f00;
+  border: 1px solid rgba(240,216,120,0.35);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset,
+    0 2px 8px rgba(0,0,0,0.4);
+  transition: filter 0.2s, transform 0.2s;
   text-decoration: none;
 }
 .btn-primary-mobile:hover {
@@ -606,36 +685,82 @@ select {
   100% { background-position: 200% center; }
 }
 
+/* ── PREMIUM BRUSHED METALLIC GOLD — matched to WIZ AI logo ── */
+/*
+  Logo colour analysis ("Wiz" lettering):
+  - Shadow/base:   #4a3010  (deep warm bronze)
+  - Mid-shadow:    #7a5820  (dark brushed gold)
+  - Mid-gold:      #b8892a  (warm brushed gold — dominant tone)
+  - Highlight:     #d4aa48  (bright gold)
+  - Specular peak: #e8c878  (pale champagne)
+  - Edge shimmer:  #f2dfa0  (near-white warm specular)
+*/
 .metallic-gold {
   background: linear-gradient(
-    110deg,
-    oklch(0.62 0.12 65) 0%,
-    oklch(0.78 0.11 75) 25%,
-    oklch(0.90 0.08 80) 50%,
-    oklch(0.78 0.11 75) 75%,
-    oklch(0.62 0.12 65) 100%
+    115deg,
+    #4a3010 0%,
+    #6a4818 8%,
+    #7a5820 16%,
+    #9a7228 26%,
+    #b8892a 36%,
+    #c89e38 44%,
+    #d4aa48 50%,
+    #e8c878 54%,
+    #f2dfa0 57%,
+    #e8c878 60%,
+    #d4aa48 66%,
+    #b8892a 74%,
+    #9a7228 82%,
+    #7a5820 90%,
+    #4a3010 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: metallic-shimmer 6s linear infinite;
+  animation: metallic-shimmer 7s linear infinite;
+  filter:
+    drop-shadow(0 2px 4px rgba(40,20,4,0.85))
+    drop-shadow(0 0 10px rgba(184,137,42,0.10));
 }
 
+/* ── POLISHED SILVER — matched to WIZ AI logo 'AI' lettering ── */
+/*
+  Logo colour analysis ("AI" lettering):
+  - Shadow/base:   #2e2e36  (deep cool charcoal)
+  - Mid-shadow:    #5a5a68  (dark steel)
+  - Mid-silver:    #9090a0  (medium steel-grey — dominant tone)
+  - Highlight:     #c0c0cc  (light silver)
+  - Specular peak: #e4e4ec  (bright near-white)
+  - Edge shimmer:  #f4f4f8  (mirror-white specular)
+*/
 .metallic-silver {
   background: linear-gradient(
-    110deg,
-    oklch(0.65 0.015 260) 0%,
-    oklch(0.82 0.01 260) 25%,
-    oklch(0.95 0.005 260) 50%,
-    oklch(0.82 0.01 260) 75%,
-    oklch(0.65 0.015 260) 100%
+    115deg,
+    #2e2e36 0%,
+    #484854 8%,
+    #5a5a68 16%,
+    #7a7a8a 26%,
+    #9090a0 36%,
+    #ababba 44%,
+    #c0c0cc 50%,
+    #e4e4ec 54%,
+    #f4f4f8 57%,
+    #e4e4ec 60%,
+    #c0c0cc 66%,
+    #9090a0 74%,
+    #7a7a8a 82%,
+    #5a5a68 90%,
+    #2e2e36 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: metallic-shimmer 8s linear infinite;
+  animation: metallic-shimmer 9s linear infinite;
+  filter:
+    drop-shadow(0 2px 3px rgba(10,10,16,0.75))
+    drop-shadow(0 0 8px rgba(192,192,204,0.07));
 }
 
 /* ── Luxury divider line ── */

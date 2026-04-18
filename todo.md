@@ -4793,3 +4793,79 @@
 - [x] LIVE-5C: Help verified — matching nav, luxury styling
 - [x] LIVE-5D: Auth/onboarding verified — luxury styling applied
 - [x] LIVE-5E: Fixed unicode escape sequences rendering literally on Onboarding page (\u2014, \u00B7)
+
+## FULL VISUAL BRAND SYSTEM PASS (Ella)
+
+### 1. Product Emblems
+- [x] BRAND-1A: Generate premium emblem for WizAudio (AI music, vocals, soundtracks)
+- [x] BRAND-1B: Generate premium emblem for WizImage (AI image, character, thumbnail)
+- [x] BRAND-1C: Generate premium emblem for WizVideo (AI music video, cinematic video)
+- [x] BRAND-1D: Generate premium emblem for WizShorts (short-form video for Shorts/Reels/TikTok)
+- [x] BRAND-1E: Generate premium emblem for WizAnimate (animation, 3D storytelling)
+- [x] BRAND-1F: Generate premium emblem for WizScript (text-to-video, script-to-video)
+
+### 2. Engine Emblems
+- [ ] BRAND-2A: Generate premium emblem for WizSound (audio enhancement engine)
+- [ ] BRAND-2B: Generate premium emblem for WizLumina (visual enhancement engine)
+- [ ] BRAND-2C: Generate premium emblem for WizGenesis (core intelligence engine)
+- [ ] BRAND-2D: Generate premium emblem for WizBoost (output optimisation engine)
+
+### 3. Hero & Visual Assets
+- [ ] BRAND-3A: Generate cinematic hero background visuals
+- [ ] BRAND-3B: Generate product showcase visuals for each product
+- [ ] BRAND-3C: Generate engine technology visuals
+
+### 4. Homepage Hero Upgrade
+- [ ] BRAND-4: Upgrade hero with richer visual identity, cinematic depth, reflective gold/silver light
+
+### 5. Product Cards Upgrade
+- [ ] BRAND-5: Transform product cards into luxury branded tiles with emblems and visual textures
+
+### 6. Engine Cards Upgrade
+- [ ] BRAND-6: Transform engine cards into proprietary technology tiles with emblems
+
+### 7. Visual Storytelling
+- [ ] BRAND-7A: WizSound premium audio waveform visual comparison
+- [ ] BRAND-7B: WizLumina premium visual comparison
+- [ ] BRAND-7C: Creator use case visual blocks
+
+### 8. Luxury Material System
+- [ ] BRAND-8: Upgrade CSS with brushed gold textures, polished silver, glass depth, metallic gradients
+
+### 9. Cross-Page Application
+- [ ] BRAND-9A: Apply brand system to Pricing page
+- [ ] BRAND-9B: Apply brand system to Help page
+- [ ] BRAND-9C: Apply brand system to Onboarding page
+- [ ] BRAND-9D: Apply brand system to product tool pages
+
+### 10. Third-Party Visual Dominance
+- [ ] BRAND-10: Remove third-party visual dominance, WIZ AI branding leads everywhere
+
+### 11. Final QA
+- [ ] BRAND-QA1: Every WIZ product has a premium mini-logo/emblem
+- [ ] BRAND-QA2: Every WIZ Engine has a premium emblem
+- [ ] BRAND-QA3: Product cards are visual and branded, not generic icon cards
+- [ ] BRAND-QA4: Engine cards feel proprietary and premium
+- [ ] BRAND-QA5: Homepage has stronger visual storytelling and motion
+- [ ] BRAND-QA6: WizSound has a premium audio visual comparison
+- [ ] BRAND-QA7: WizLumina has a premium visual comparison
+- [ ] BRAND-QA8: Create/onboarding and product tools match the brand
+- [ ] BRAND-QA9: No purple/blue/neon/emoji styling remains
+- [ ] BRAND-QA10: Entire site feels like the Harrods of AI creative production
+
+## Gold Text Colouration Fix
+- [x] GOLD-1: Fixed metallic-gold CSS to match WIZ AI logo's brushed gold (#4a3010 → #b8892a → #e8c878 → #f2dfa0)
+- [x] GOLD-2: Fixed silver text to match logo's polished silver (#2e2e36 → #9090a0 → #e4e4ec → #f4f4f8)
+- [x] GOLD-3: Gold/silver text now has depth with drop-shadow bevel and shimmer animation
+
+## Logo Revert (Tim's request)
+- [x] LOGO-REVERT-1: AI emblems were never integrated — originals (Lucide icons) were always in place
+- [x] LOGO-REVERT-2: Original Lucide icon-based product cards confirmed in place
+- [x] LOGO-REVERT-3: Original Lucide icon-based engine cards confirmed in place
+
+## Metallic Text System Rebuild
+- [x] METAL-1: Rebuilt metallic-gold CSS with 14-stop gradient matching WIZ AI logo tonal range
+- [x] METAL-2: Added drop-shadow depth to metallic text (bevel + ambient glow)
+- [x] METAL-3: Rebuilt metallic-silver CSS with 14-stop gradient matching logo 'AI' lettering
+- [x] METAL-4: Upgraded btn-primary to polished metallic gold surface with bevel and highlight
+- [x] METAL-5: New metallic classes applied to hero, product names, engine names, CTAs, section labels

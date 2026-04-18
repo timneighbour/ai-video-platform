@@ -1006,7 +1006,7 @@ function FinalCTA() {
     <section className="relative bg-[#040404] py-32 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75), transparent 70%)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="relative z-10 max-w-3xl mx-auto text-center reveal">
         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
           <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />

@@ -137,7 +137,7 @@ function SpatialRings({ active, playing }: { active: boolean; playing: boolean }
     <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden rounded-2xl">
       {/* Outer ring */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-fuchsia-500/15"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(184,137,42,0.15)]"
         style={{
           width: "140%",
           height: "140%",
@@ -147,7 +147,7 @@ function SpatialRings({ active, playing }: { active: boolean; playing: boolean }
       />
       {/* Middle ring */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-500/20"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(184,137,42,0.2)]"
         style={{
           width: "110%",
           height: "110%",
@@ -157,7 +157,7 @@ function SpatialRings({ active, playing }: { active: boolean; playing: boolean }
       />
       {/* Inner ring */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-purple-400/25"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(180,180,200,0.2)]"
         style={{
           width: "85%",
           height: "85%",
@@ -323,7 +323,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
       <div className="relative w-full aspect-video bg-black overflow-hidden rounded-t-xl">
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-black z-20 pointer-events-none">
-            <div className="w-8 h-8 rounded-full border-2 border-fuchsia-500/40 border-t-fuchsia-400 animate-spin" />
+            <div className="w-8 h-8 rounded-full border-2 border-[rgba(184,137,42,0.4)] border-t-[#d4aa48] animate-spin" />
           </div>
         )}
         <video
@@ -379,12 +379,12 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
 
         {/* Cinematic spatial indicator — bottom right */}
         {mode === "cinematic" && playing && (
-          <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-fuchsia-500/30">
+          <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-[rgba(184,137,42,0.3)]">
             <div className="flex items-center gap-1">
               {[0, 1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-0.5 rounded-full bg-fuchsia-400"
+                  className="w-0.5 rounded-full bg-[#b8892a]"
                   style={{
                     height: `${8 + Math.random() * 8}px`,
                     animation: `spatialBar 0.8s ease-in-out infinite ${i * 0.1}s`,
@@ -392,7 +392,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
                 />
               ))}
             </div>
-            <span className="text-[9px] font-bold text-fuchsia-300 tracking-wider uppercase">Spatial</span>
+            <span className="text-[9px] font-bold text-[#d4aa48] tracking-wider uppercase">Spatial</span>
           </div>
         )}
       </div>
@@ -472,7 +472,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
           {cfg.description}
         </p>
         {!playing && (
-          <p className="text-fuchsia-400/55 text-[10px] text-center mt-1.5 animate-pulse">
+          <p className="text-[rgba(184,137,42,0.55)] text-[10px] text-center mt-1.5 animate-pulse">
             ▶ Toggle to hear the difference
           </p>
         )}
@@ -542,27 +542,27 @@ export default function WizSoundSection() {
     >
       {/* Ambient background glow for spatial feel */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-fuchsia-500/[0.03] blur-[120px]" />
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-violet-500/[0.04] blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[rgba(184,137,42,0.03)] blur-[120px]" />
+        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-[rgba(184,137,42,0.03)] blur-[100px]" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14 reveal" style={{ transitionDelay: "0ms" }}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300 text-xs font-mono tracking-widest uppercase font-semibold mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.08)] text-[#d4aa48] text-xs font-mono tracking-widest uppercase font-semibold mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#b8892a] animate-pulse" />
             WizSound™ Spatial Audio Engine
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
             Hear the{" "}
-            <span className="bg-gradient-to-r from-fuchsia-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#b8892a] via-[#d4aa48] to-[#e8c878] bg-clip-text text-transparent">
               spatial difference
             </span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
             Cinema-grade immersive audio. Toggle between Standard, Enhanced, and Cinematic spatial modes to experience how WizSound transforms your video's sound.
           </p>
-          <p className="text-fuchsia-400/50 text-sm mt-2 font-medium">
+          <p className="text-[rgba(184,137,42,0.5)] text-sm mt-2 font-medium">
             Best experienced with headphones for full spatial depth
           </p>
         </div>
@@ -597,9 +597,9 @@ export default function WizSoundSection() {
             />
 
             {/* Spatial depth indicator */}
-            <div className="p-4 rounded-xl border border-fuchsia-500/20 bg-gradient-to-br from-fuchsia-500/8 to-violet-500/5">
+            <div className="p-4 rounded-xl border border-[rgba(184,137,42,0.2)] bg-gradient-to-br from-[rgba(184,137,42,0.07)] to-[rgba(180,180,200,0.03)]">
               <div className="flex items-center gap-3 mb-3">
-                <Headphones className="w-5 h-5 text-fuchsia-400 flex-shrink-0" />
+                <Headphones className="w-5 h-5 text-[#b8892a] flex-shrink-0" />
                 <div>
                   <p className="text-white/80 text-sm font-semibold">Spatial Sound Experience</p>
                   <p className="text-white/40 text-[11px]">Inspired by Dolby Cinema immersive audio</p>
@@ -626,11 +626,11 @@ export default function WizSoundSection() {
 
             {/* Pricing callout */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/8 bg-white/[0.03]">
-              <Sparkles className="w-4 h-4 text-violet-400 flex-shrink-0" />
+              <Sparkles className="w-4 h-4 text-[#b8892a] flex-shrink-0" />
               <p className="text-white/45 text-xs leading-relaxed">
                 <span className="text-white/70 font-medium">Standard Audio</span> is free with every render.{" "}
-                <span className="text-violet-300 font-medium">Enhanced</span> +£1 ·{" "}
-                <span className="text-fuchsia-300 font-medium">Cinematic Spatial</span> +£3
+                <span className="text-[#d4aa48] font-medium">Enhanced</span> +£1 ·{" "}
+                <span className="text-[#d4aa48] font-medium">Cinematic Spatial</span> +£3
               </p>
             </div>
           </div>
