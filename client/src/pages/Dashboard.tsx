@@ -501,7 +501,7 @@ export default function Dashboard() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 uppercase tracking-wider">
-                  🎬 Cinematic Mode
+                  – Cinematic Mode
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Go Cinematic</h2>

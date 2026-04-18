@@ -254,7 +254,7 @@ export const musicVideoRouter = router({
         // FALLBACK: evenly distribute text lines if no segments stored (older jobs)
         if (!lyricsSegments && transcribedJob.transcription) {
           const lines = transcribedJob.transcription
-            .split(/[.!?\n🎵]+/)
+            .split(/[.!?\n]+/)
             .map((l) => l.trim())
             .filter((l) => l.length > 0);
           if (lines.length > 0) {

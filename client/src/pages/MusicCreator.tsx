@@ -32,16 +32,16 @@ const GENRES = [
 ];
 
 const MOODS = [
-  { label: "Upbeat", emoji: "🎉" },
+  { label: "Upbeat", emoji: "" },
   { label: "Chill", emoji: "😌" },
   { label: "Romantic", emoji: "💕" },
-  { label: "Epic", emoji: "⚡" },
+  { label: "Epic", emoji: "" },
   { label: "Sad", emoji: "😢" },
-  { label: "Energetic", emoji: "🔥" },
+  { label: "Energetic", emoji: "" },
   { label: "Dark", emoji: "🌑" },
   { label: "Happy", emoji: "😊" },
   { label: "Mysterious", emoji: "🌙" },
-  { label: "Motivational", emoji: "💪" },
+  { label: "Motivational", emoji: "" },
 ];
 
 const VOCAL_STYLES = [
@@ -495,7 +495,7 @@ export default function MusicCreator() {
                   <div className="mb-3 space-y-2.5">
                     {/* Short: 5–30s (ElevenLabs SFX exact duration) */}
                     <div>
-                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Short ⚡ exact (Sound FX)</p>
+                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Short – exact (Sound FX)</p>
                       <div className="flex flex-wrap gap-1.5">
                         {[5, 10, 15, 20, 25, 30].map((s) => (
                           <button
@@ -514,7 +514,7 @@ export default function MusicCreator() {
                     </div>
                     {/* Long: 1m–10m */}
                     <div>
-                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Long 🎼 composition</p>
+                      <p className="text-[10px] text-[#555] uppercase tracking-widest mb-1.5">Long – composition</p>
                       <div className="flex flex-wrap gap-1.5">
                         {[60, 90, 120, 180, 240, 300, 420, 600].map((s) => (
                           <button
@@ -769,9 +769,9 @@ export default function MusicCreator() {
                 <label className="block text-xs text-[#a1a1aa] mb-2 font-medium uppercase tracking-widest">Generation Engine</label>
                 <div className="grid grid-cols-3 gap-1.5 mb-2">
                   {([
-                    { value: "score" as const, label: "Sound FX", icon: "⚡" },
-                    { value: "song" as const, label: "Precision Audio", icon: "🎼" },
-                    { value: "suno" as const, label: "WizAudio", icon: "🎵" },
+                    { value: "score" as const, label: "Sound FX", icon: "" },
+                    { value: "song" as const, label: "Precision Audio", icon: "" },
+                    { value: "suno" as const, label: "WizAudio", icon: "" },
                   ]).map(({ value, label, icon }) => (
                     <button
                       key={value}
@@ -792,9 +792,9 @@ export default function MusicCreator() {
                   ))}
                 </div>
                 <p className="text-[10px] text-[#666] leading-relaxed">
-                  {generationMode === "score" && "⚡ Sound FX — exact-duration sound design. Perfect for stingers, cinematic hits, ambient beds, and short audio clips up to 30s."}
-                  {generationMode === "song" && "🎼 Precision Audio — full production music at any length. Cinematic scores, background tracks, vocal songs — precise duration, no fade, no trim."}
-                  {generationMode === "suno" && "🎵 WizAudio — 2 creative track variations powered by Suno AI. Great for songs with lyrics. If a duration is set, the track is trimmed to fit."}
+                  {generationMode === "score" && "– Sound FX — exact-duration sound design. Perfect for stingers, cinematic hits, ambient beds, and short audio clips up to 30s."}
+                  {generationMode === "song" && "– Precision Audio — full production music at any length. Cinematic scores, background tracks, vocal songs — precise duration, no fade, no trim."}
+                  {generationMode === "suno" && "– WizAudio — 2 creative track variations powered by Suno AI. Great for songs with lyrics. If a duration is set, the track is trimmed to fit."}
                 </p>
               </div>
 

@@ -22,16 +22,16 @@ const BRAND = {
 };
 
 const PROOF_POINTS = [
-  { icon: "🎬", text: "Full cinematic videos — not clips" },
-  { icon: "⚡", text: "From idea to video in under 5 minutes" },
-  { icon: "👁️", text: "Preview every scene before you pay" },
-  { icon: "🔊", text: "WizSound™ cinematic audio built in" },
+  { icon: "", text: "Full cinematic videos — not clips" },
+  { icon: "", text: "From idea to video in under 5 minutes" },
+  { icon: "️", text: "Preview every scene before you pay" },
+  { icon: "", text: "WizSound™ cinematic audio built in" },
 ];
 
 const STYLES = [
-  { label: "Music Videos", emoji: "🎵" },
-  { label: "Cinematic Films", emoji: "🎬" },
-  { label: "Pixar Animation", emoji: "✨" },
+  { label: "Music Videos", emoji: "" },
+  { label: "Cinematic Films", emoji: "" },
+  { label: "Pixar Animation", emoji: "" },
   { label: "Anime", emoji: "⚔️" },
   { label: "Epic Fantasy", emoji: "🐉" },
 ];

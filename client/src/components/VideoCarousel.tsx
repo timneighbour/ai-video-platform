@@ -31,7 +31,7 @@ const toolConfig: Record<string, {
     bgGradient: "from-blue-900/40 via-purple-900/60 to-black",
     icon: Video,
     accentColor: "#7c3aed",
-    particles: ["🎬", "✨", "🌟", "💫", "🎥"],
+    particles: ["", "", "", "", ""],
   },
   "lip-sync": {
     label: "Lip-Sync & Avatars",
@@ -39,7 +39,7 @@ const toolConfig: Record<string, {
     bgGradient: "from-purple-900/40 via-pink-900/60 to-black",
     icon: Mic,
     accentColor: "#ec4899",
-    particles: ["🎤", "👤", "💬", "🗣️", "🎭"],
+    particles: ["", "👤", "", "🗣️", ""],
   },
   "video-to-video": {
     label: "Video-to-Video",
@@ -47,7 +47,7 @@ const toolConfig: Record<string, {
     bgGradient: "from-pink-900/40 via-orange-900/60 to-black",
     icon: Wand2,
     accentColor: "#f97316",
-    particles: ["🎨", "🖌️", "✨", "🌈", "⚡"],
+    particles: ["", "🖌️", "", "🌈", ""],
   },
   "voiceover": {
     label: "AI Voiceover",
@@ -55,7 +55,7 @@ const toolConfig: Record<string, {
     bgGradient: "from-cyan-900/40 via-teal-900/60 to-black",
     icon: Sparkles,
     accentColor: "#06b6d4",
-    particles: ["🎙️", "🔊", "🌊", "💎", "🎵"],
+    particles: ["️", "", "🌊", "", ""],
   },
 };
 

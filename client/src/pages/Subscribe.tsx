@@ -332,10 +332,10 @@ export default function Subscribe() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Standard Render", res: "720p", price: "£2", icon: "🎬", highlight: false, badge: null },
-              { label: "HD Render",       res: "1080p", price: "£4", icon: "🎥", highlight: false, badge: null },
-              { label: "4K Render",       res: "2160p", price: "£6", icon: "✨", highlight: false, badge: null },
-              { label: "Cinematic Pack",  res: "4K + WizSound™ + Priority", price: "£7", icon: "🏆", highlight: true, badge: "Best Value" },
+              { label: "Standard Render", res: "720p", price: "£2", icon: "", highlight: false, badge: null },
+              { label: "HD Render",       res: "1080p", price: "£4", icon: "", highlight: false, badge: null },
+              { label: "4K Render",       res: "2160p", price: "£6", icon: "", highlight: false, badge: null },
+              { label: "Cinematic Pack",  res: "4K + WizSound™ + Priority", price: "£7", icon: "", highlight: true, badge: "Best Value" },
             ].map((item) => (
               <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-amber-500/40 bg-amber-500/5 shadow-[0_0_24px_-6px_rgba(245,158,11,0.3)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
                 {item.badge && <div className="inline-block rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-0.5 mb-3 border border-amber-500/30">{item.badge}</div>}

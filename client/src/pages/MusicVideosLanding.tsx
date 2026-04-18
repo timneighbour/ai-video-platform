@@ -29,7 +29,7 @@ export default function MusicVideosLanding() {
     }
   };
 
-  // 🔥 onMouseDown fires BEFORE Chrome extensions can intercept onClick
+  // – onMouseDown fires BEFORE Chrome extensions can intercept onClick
   const handleCTAMouseDown = () => {
     if (isAuthenticated) {
       window.location.href = "/music-video/create";
@@ -170,9 +170,9 @@ export default function MusicVideosLanding() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { step: "01", icon: "🎵", title: "Upload your song", desc: "Drop in your audio file or paste your lyrics. WizVideo reads every line." },
-              { step: "02", icon: "🎨", title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
-              { step: "03", icon: "🚀", title: "Get your full video", desc: "AI builds your storyboard, renders every scene synced to your music, and delivers a complete video." },
+              { step: "01", icon: "", title: "Upload your song", desc: "Drop in your audio file or paste your lyrics. WizVideo reads every line." },
+              { step: "02", icon: "", title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
+              { step: "03", icon: "", title: "Get your full video", desc: "AI builds your storyboard, renders every scene synced to your music, and delivers a complete video." },
             ].map((s) => (
               <div key={s.step} className="p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all">
                 <div className="text-4xl mb-5">{s.icon}</div>

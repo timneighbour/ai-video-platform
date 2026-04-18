@@ -23,10 +23,10 @@ const STYLES = [
 
 const STATUS_MESSAGES: Record<string, string> = {
   analyzing: "🔍 Analysing video...",
-  generating: "🎵 Generating music...",
+  generating: "– Generating music...",
   editing: "✂️ Editing video...",
-  rendering: "🎬 Building Your Video...",
-  completed: "✅ Complete!",
+  rendering: "– Building Your Video...",
+  completed: "– Complete!",
   failed: "❌ Failed",
 };
 

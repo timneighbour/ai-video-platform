@@ -22,10 +22,10 @@ const BRAND = {
 };
 
 const FEATURES = [
-  { icon: "🎬", title: "Full music videos", desc: "Not clips — complete, ready-to-publish videos from a single prompt." },
-  { icon: "🎨", title: "Storyboard preview", desc: "See every scene before you render. Edit any frame. Only pay when you're happy." },
-  { icon: "🔊", title: "WizSound™ audio", desc: "Proprietary cinematic audio enhancement — studio quality, built in." },
-  { icon: "⚡", title: "Under 5 minutes", desc: "From idea to finished video faster than making a cup of tea." },
+  { icon: "", title: "Full music videos", desc: "Not clips — complete, ready-to-publish videos from a single prompt." },
+  { icon: "", title: "Storyboard preview", desc: "See every scene before you render. Edit any frame. Only pay when you're happy." },
+  { icon: "", title: "WizSound™ audio", desc: "Proprietary cinematic audio enhancement — studio quality, built in." },
+  { icon: "", title: "Under 5 minutes", desc: "From idea to finished video faster than making a cup of tea." },
 ];
 
 const STYLES = ["Cinematic Films", "Music Videos", "Pixar Animation", "Anime", "Epic Fantasy", "Neon Noir"];

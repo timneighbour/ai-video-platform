@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
-import { Button } from "@/components/ui/button";
 import BackButton from "@/components/BackButton";
 import {
   ChevronDown, ChevronUp, MessageCircle, Mail,
-  Zap, Music, Video, Baby, Bot, Search
+  Zap, Music, Video, Baby, Bot, Search, Sparkles
 } from "lucide-react";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
 
 const FAQS = [
@@ -17,44 +15,44 @@ const FAQS = [
     icon: <Zap className="w-4 h-4" />,
     questions: [
       { q: "How do I create my first video?", a: "Choose WizVideo for music videos or WizScript for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
-      { q: "Do I need any editing skills?", a: "No — WIZ AI is fully automated. The AI handles everything from storyboard creation to final rendering. You just provide the input and choose a style." },
-      { q: "How long does it take to generate a video?", a: "Most videos are created within 2–5 minutes depending on length and complexity. You'll see a live progress bar while your video is being generated." },
-      { q: "Is there a free option?", a: "Yes! WIZ AI is completely free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video." },
+      { q: "Do I need any editing skills?", a: "No \u2014 WIZ AI is fully automated. The AI handles everything from storyboard creation to final rendering. You just provide the input and choose a style." },
+      { q: "How long does it take to generate a video?", a: "Most videos are created within 2\u20135 minutes depending on length and complexity. You'll see a live progress bar while your video is being generated." },
+      { q: "Is there a free option?", a: "Yes. WIZ AI is completely free to use \u2014 no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video." },
     ],
   },
   {
-    category: "WizVideo — Music Videos",
+    category: "WizVideo \u2014 Music Videos",
     icon: <Music className="w-4 h-4" />,
     questions: [
       { q: "What audio formats does WizVideo support?", a: "WizVideo supports MP3, WAV, M4A, and OGG audio files up to 50MB. For best results, use a high-quality stereo audio file." },
       { q: "How does lyrics-driven video generation work?", a: "WizVideo automatically transcribes your song lyrics using AI. Each lyric line is mapped to a visual scene, creating a video that perfectly syncs with your music. You can also paste lyrics manually." },
-      { q: "Can I add characters to my music video?", a: "Yes! WizVideo supports up to 4 characters per video. Each character can have multiple reference images for visual consistency, and singing characters get AI lip-sync applied automatically." },
-      { q: "What video styles are available?", a: "WizVideo offers 6 styles: Cinematic, Anime, Pixar 3D, Documentary, Abstract, and Vintage." },
+      { q: "Can I add characters to my music video?", a: "Yes. WizVideo supports up to 4 characters per video. Each character can have multiple reference images for visual consistency, and singing characters get AI lip-sync applied automatically." },
+      { q: "What video styles are available?", a: "WizVideo offers a range of cinematic styles including Cinematic, Anime, 3D Animation, Documentary, Abstract, and Vintage." },
     ],
   },
   {
-    category: "WizScript — AI Video Creator",
+    category: "WizScript \u2014 AI Video Creator",
     icon: <Video className="w-4 h-4" />,
     questions: [
       { q: "What is WizScript?", a: "WizScript is your general-purpose AI video director. Describe any video concept in text, upload reference images, or use an existing video as a starting point. WizScript generates a cinematic storyboard and renders your complete video." },
-      { q: "What types of videos can I create with WizScript?", a: "Anything — YouTube content, social media videos, ads, explainer videos, short films, product showcases, and more." },
+      { q: "What types of videos can I create with WizScript?", a: "Anything \u2014 YouTube content, social media videos, ads, explainer videos, short films, product showcases, and more." },
     ],
   },
   {
     category: "Kids Content",
     icon: <Baby className="w-4 h-4" />,
     questions: [
-      { q: "Can I create kids videos and animations?", a: "Absolutely! WIZ AI is perfect for kids content creators. Use the Pixar 3D or Anime style for animated characters, or create nursery rhyme videos with WizVideo." },
-      { q: "Is the content safe for children?", a: "Yes. WIZ AI's AI is configured to generate family-friendly content. All outputs are reviewed for appropriateness." },
+      { q: "Can I create kids videos and animations?", a: "Absolutely. WIZ AI is ideal for kids content creators. Use the 3D Animation or Anime style for animated characters, or create nursery rhyme videos with WizVideo." },
+      { q: "Is the content safe for children?", a: "Yes. WIZ AI's generation pipeline is configured to produce family-friendly content. All outputs are reviewed for appropriateness." },
     ],
   },
   {
     category: "Billing & Credits",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you render and download the final video. Choose your quality (Standard £2 / HD £4 / 4K £6) and optionally add WizSound™ audio enhancement." },
-      { q: "What is WizSound™?", a: "WizSound™ is our proprietary audio enhancement system. WizSound Enhance (+£1) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+£3) applies our full mastering pipeline with immersive depth and dynamic range — recommended for music videos." },
-      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (£9/month, 2 renders, 720p), Basic (£19/month, 5 renders, 1080p HD), Creator (£29/month, 10 renders, HD + 4K), Pro (£59/month, 25 renders, 4K priority), and Studio (£99/month, 50 renders, 4K + API). Storyboard generation is always free on all plans." },
+      { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you render and download the final video. Choose your quality (Standard \u00A32 / HD \u00A34 / 4K \u00A36) and optionally add WizSound audio enhancement." },
+      { q: "What is WizSound?", a: "WizSound is our proprietary audio enhancement engine. WizSound Enhanced (+\u00A31) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+\u00A33) applies our full mastering pipeline with immersive depth and dynamic range \u2014 recommended for music videos." },
+      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (\u00A39/month, 2 renders, 720p), Basic (\u00A319/month, 5 renders, 1080p HD), Creator (\u00A329/month, 10 renders, HD + 4K), Pro (\u00A359/month, 25 renders, 4K priority), and Studio (\u00A399/month, 50 renders, 4K + API). Storyboard generation is always free on all plans." },
       { q: "Can I cancel my subscription?", a: "Yes, cancel at any time from your Account settings. Your subscription remains active until the end of the billing period." },
       { q: "What payment methods do you accept?", a: "Visa, Mastercard, Amex, Apple Pay, and Google Pay via Stripe." },
     ],
@@ -64,9 +62,9 @@ const FAQS = [
     icon: <Bot className="w-4 h-4" />,
     questions: [
       { q: "Why is my video not generating?", a: "Check that your audio file is in a supported format (MP3, WAV, M4A) and under 50MB. If the issue persists, try refreshing the page. Contact support@wiz-ai.io if it continues." },
-      { q: "My video quality looks low — what can I do?", a: "Make sure you're on the Creator or Studio plan for 1080p/4K export. Also ensure your input audio is high quality." },
+      { q: "My video quality looks low \u2014 what can I do?", a: "Make sure you're on the Creator or Studio plan for 1080p/4K export. Also ensure your input audio is high quality." },
       { q: "How do I download my video?", a: "Once your video is generated, click the Download button on the result screen. Videos are also saved to your Projects page for 30 days." },
-      { q: "I'm getting an error message — what should I do?", a: "Try refreshing the page first. If the error persists, contact us at support@wiz-ai.io with a screenshot." },
+      { q: "I'm getting an error message \u2014 what should I do?", a: "Try refreshing the page first. If the error persists, contact us at support@wiz-ai.io with a screenshot." },
     ],
   },
 ];
@@ -76,19 +74,19 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   return (
     <div
       className={`border rounded-xl overflow-hidden transition-all cursor-pointer ${
-        open ? "border-white/15 bg-[#171717]" : "border-white/8 bg-[#0f0f0f] hover:border-white/12"
+        open ? "border-[--color-gold]/[0.15] bg-[#0e0e0e]" : "border-[--color-gold]/[0.06] bg-[#0a0a0a] hover:border-[--color-gold]/[0.1]"
       }`}
       onClick={() => setOpen(!open)}
     >
       <div className="flex items-center justify-between p-5 gap-4">
-        <p className="font-medium text-white text-sm text-left">{q}</p>
+        <p className="font-medium text-[--color-silver-light] text-sm text-left">{q}</p>
         {open
-          ? <ChevronUp className="w-4 h-4 text-[#a1a1aa] flex-shrink-0" />
-          : <ChevronDown className="w-4 h-4 text-[#a1a1aa] flex-shrink-0" />}
+          ? <ChevronUp className="w-4 h-4 text-[--color-silver-dark]/40 flex-shrink-0" />
+          : <ChevronDown className="w-4 h-4 text-[--color-silver-dark]/40 flex-shrink-0" />}
       </div>
       {open && (
         <div className="px-5 pb-5">
-          <p className="text-[#a1a1aa] text-sm leading-relaxed">{a}</p>
+          <p className="text-[--color-silver-dark]/60 text-sm leading-relaxed">{a}</p>
         </div>
       )}
     </div>
@@ -114,37 +112,34 @@ export default function Help() {
     : filteredFAQs;
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white font-sans">
+    <div className="min-h-screen bg-[#040404] text-white font-sans">
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
+      <nav className="sticky top-0 z-50 bg-[#040404]/90 backdrop-blur-xl border-b border-[--color-gold]/[0.06]">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back to Home" />
             <NavLink href="/" className="hidden md:flex items-center gap-2.5">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
             </NavLink>
           </div>
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Home", href: "/" },
-              { label: "WizVideo", href: "/music-video/create" },
-              { label: "WizScript", href: "/wizpilot" },
+              { label: "Create", href: "/create" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
               <NavLink
                 key={link.label}
                 href={link.href}
-                className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 font-medium inline-block hover:scale-105 hover:-translate-y-0.5 ${link.href === "/help" ? "text-white" : "text-[#a1a1aa] hover:text-white"}`}
+                className={`nav-link ${link.href === "/help" ? "text-[--color-gold]" : ""}`}
               >
                 {link.label}
               </NavLink>
             ))}
           </div>
-          <Link href="/onboarding">
-            <Button className="bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9">
-              Get started
-            </Button>
+          <Link href="/onboarding" className="btn-primary-sm">
+            <Sparkles className="w-3.5 h-3.5" />Start Creating
           </Link>
         </div>
       </nav>
@@ -152,48 +147,50 @@ export default function Help() {
       <div className="max-w-3xl mx-auto px-6 py-20">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">Help Centre</p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-6">
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Help Centre</span>
+          </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-            How can we help?
+            How can we <span className="metallic-gold">help?</span>
           </h1>
-          <p className="text-[#a1a1aa] text-lg max-w-lg mx-auto">
+          <p className="text-[--color-silver-dark]/50 text-lg max-w-lg mx-auto">
             Find answers instantly. If you can't find what you need, our team is here to help.
           </p>
         </div>
 
         {/* Search */}
         <div className="relative mb-10">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a1a1aa]" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[--color-silver-dark]/40" />
           <input
             type="text"
             placeholder="Search for help..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#171717] border border-white/8 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder:text-[#a1a1aa] focus:outline-none focus:border-white/20 transition-all text-sm"
+            className="w-full bg-[#0a0a0a] border border-[--color-gold]/[0.08] rounded-xl pl-11 pr-4 py-3.5 text-white placeholder:text-[--color-silver-dark]/30 focus:outline-none focus:border-[--color-gold]/[0.2] transition-all text-sm"
           />
         </div>
 
         {/* Quick links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
           {[
-            { icon: <Music className="w-4 h-4" />, label: "WizVideo", href: "/music-video/create" },
-            { icon: <Video className="w-4 h-4" />, label: "WizScript", href: "/wizpilot" },
-            { icon: <Baby className="w-4 h-4" />, label: "Kids Animation", href: "/kids-video" },
+            { icon: <Music className="w-4 h-4" />, label: "Music Videos", href: "/music-video/create" },
+            { icon: <Video className="w-4 h-4" />, label: "AI Video", href: "/wizpilot" },
+            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/kids-video" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
-              <div className="p-4 rounded-xl bg-[#171717] border border-white/8 hover:border-white/15 transition-all cursor-pointer text-center card-hover">
-                <div className="text-[#a1a1aa] flex justify-center mb-2">{item.icon}</div>
-                <p className="text-white text-xs font-medium">{item.label}</p>
+              <div className="p-4 rounded-xl bg-[#0a0a0a] border border-[--color-gold]/[0.06] hover:border-[--color-gold]/[0.15] transition-all cursor-pointer text-center">
+                <div className="text-[--color-gold-dark] flex justify-center mb-2">{item.icon}</div>
+                <p className="text-[--color-silver-light] text-xs font-medium">{item.label}</p>
               </div>
             </Link>
           ))}
           <div
             key="live-chat"
             onClick={() => { if (typeof window !== "undefined" && (window as any).$crisp) { (window as any).$crisp.push(["do", "chat:open"]); } }}
-            className="p-4 rounded-xl bg-[#171717] border border-white/8 hover:border-white/15 transition-all cursor-pointer text-center card-hover"
+            className="p-4 rounded-xl bg-[#0a0a0a] border border-[--color-gold]/[0.06] hover:border-[--color-gold]/[0.15] transition-all cursor-pointer text-center"
           >
-            <div className="text-[#a1a1aa] flex justify-center mb-2"><MessageCircle className="w-4 h-4" /></div>
-            <p className="text-white text-xs font-medium">Live Chat</p>
+            <div className="text-[--color-gold-dark] flex justify-center mb-2"><MessageCircle className="w-4 h-4" /></div>
+            <p className="text-[--color-silver-light] text-xs font-medium">Live Chat</p>
           </div>
         </div>
 
@@ -204,8 +201,8 @@ export default function Help() {
               onClick={() => setActiveCategory(null)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                 !activeCategory
-                  ? "bg-white text-black"
-                  : "bg-white/5 text-[#a1a1aa] hover:bg-white/8 hover:text-white border border-white/8"
+                  ? "bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a]"
+                  : "bg-[--color-gold]/[0.04] text-[--color-silver-dark]/60 hover:bg-[--color-gold]/[0.08] hover:text-[--color-silver] border border-[--color-gold]/[0.06]"
               }`}
             >
               All Topics
@@ -216,8 +213,8 @@ export default function Help() {
                 onClick={() => setActiveCategory(activeCategory === cat.category ? null : cat.category)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
                   activeCategory === cat.category
-                    ? "bg-white text-black"
-                    : "bg-white/5 text-[#a1a1aa] hover:bg-white/8 hover:text-white border border-white/8"
+                    ? "bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a]"
+                    : "bg-[--color-gold]/[0.04] text-[--color-silver-dark]/60 hover:bg-[--color-gold]/[0.08] hover:text-[--color-silver] border border-[--color-gold]/[0.06]"
                 }`}
               >
                 {cat.icon}
@@ -230,15 +227,15 @@ export default function Help() {
         {/* FAQ sections */}
         {displayFAQs.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-[#a1a1aa] text-base">No results found for "{searchQuery}"</p>
-            <p className="text-[#a1a1aa]/60 text-sm mt-2">Try a different search term or contact support below</p>
+            <p className="text-[--color-silver-dark]/60 text-base">No results found for "{searchQuery}"</p>
+            <p className="text-[--color-silver-dark]/35 text-sm mt-2">Try a different search term or contact support below</p>
           </div>
         ) : (
           <div className="space-y-10">
             {displayFAQs.map((cat) => (
               <div key={cat.category}>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="text-[#a1a1aa]">{cat.icon}</div>
+                  <div className="text-[--color-gold-dark]">{cat.icon}</div>
                   <h2 className="text-base font-semibold text-white">{cat.category}</h2>
                 </div>
                 <div className="space-y-2">
@@ -253,12 +250,12 @@ export default function Help() {
 
         {/* Contact support */}
         <div className="mt-16 grid md:grid-cols-2 gap-4">
-          <div className="p-7 rounded-2xl bg-[#171717] border border-white/8 text-center card-hover">
-            <MessageCircle className="w-8 h-8 text-[#a1a1aa] mx-auto mb-4" />
+          <div className="p-7 rounded-2xl bg-[#0a0a0a] border border-[--color-gold]/[0.08] text-center">
+            <MessageCircle className="w-8 h-8 text-[--color-gold] mx-auto mb-4" />
             <h3 className="text-base font-semibold text-white mb-2">Live Chat</h3>
-            <p className="text-[#a1a1aa] text-sm mb-5 leading-relaxed">Chat with our team in real time. Usually responds in under 2 minutes.</p>
-            <Button
-              className="bg-white text-black hover:bg-white/90 w-full rounded-xl font-semibold h-10 text-sm"
+            <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Chat with our team in real time. Usually responds in under 2 minutes.</p>
+            <button
+              className="btn-primary w-full rounded-xl font-semibold h-10 text-sm flex items-center justify-center"
               onClick={() => {
                 if (typeof window !== "undefined" && (window as any).$crisp) {
                   (window as any).$crisp.push(["do", "chat:open"]);
@@ -266,23 +263,40 @@ export default function Help() {
               }}
             >
               Start Chat
-            </Button>
+            </button>
           </div>
-          <div className="p-7 rounded-2xl bg-[#171717] border border-white/8 text-center card-hover">
-            <Mail className="w-8 h-8 text-[#a1a1aa] mx-auto mb-4" />
+          <div className="p-7 rounded-2xl bg-[#0a0a0a] border border-[--color-gold]/[0.08] text-center">
+            <Mail className="w-8 h-8 text-[--color-gold] mx-auto mb-4" />
             <h3 className="text-base font-semibold text-white mb-2">Email Support</h3>
-            <p className="text-[#a1a1aa] text-sm mb-5 leading-relaxed">Send us a message and we'll get back to you within 24 hours.</p>
-            <a href="mailto:support@wiz-ai.io">
-              <Button
-                variant="outline"
-                className="border-white/12 text-white hover:bg-white/5 bg-transparent w-full rounded-xl h-10 text-sm font-medium"
-              >
-                support@wiz-ai.io
-              </Button>
+            <p className="text-[--color-silver-dark]/50 text-sm mb-5 leading-relaxed">Send us a message and we'll get back to you within 24 hours.</p>
+            <a
+              href="mailto:support@wiz-ai.io"
+              className="inline-flex items-center justify-center w-full h-10 rounded-xl border border-[--color-gold]/[0.1] bg-[--color-gold]/[0.04] text-[--color-silver] hover:bg-[--color-gold]/[0.08] transition-all text-sm font-medium"
+            >
+              support@wiz-ai.io
             </a>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-[--color-gold]/[0.06] bg-[#030303] py-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
+            <NavLink href="/">
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+            </NavLink>
+            <div className="flex items-center gap-5 text-xs text-[--color-silver-dark]/30">
+              <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</Link>
+              <Link href="/refunds" className="hover:text-[--color-gold-dark] transition-colors">Refund Policy</Link>
+              <Link href="/pricing" className="hover:text-[--color-gold-dark] transition-colors">Pricing</Link>
+            </div>
+          </div>
+          <div className="luxury-divider" />
+          <p className="text-center text-xs text-[--color-silver-dark]/25 pt-6">&copy; 2026 WIZ AI. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }

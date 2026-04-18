@@ -38,7 +38,7 @@ export function NavLink({ href, children, className = "", onClick, style, ...res
       }}
       {...rest}
       onMouseDown={(e) => {
-        // 🔥 fires BEFORE extensions interfere — hardened fallback
+        // – fires BEFORE extensions interfere — hardened fallback
         if (isExternal || isHashLink) return; // let browser handle external/hash
         if (onClick) onClick();
         window.location.href = href;

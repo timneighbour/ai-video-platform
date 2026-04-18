@@ -25,7 +25,7 @@ const REMINDER_MESSAGES: Record<
   { title: string; message: string; actionLabel: string; actionUrl: string }
 > = {
   1: {
-    title: "Your video is waiting ✨",
+    title: "Your video is waiting ",
     message:
       "You started a project but haven't rendered it yet. Pick up where you left off — your scenes are saved and ready to go.",
     actionLabel: "Continue creating",

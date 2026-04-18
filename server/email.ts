@@ -125,7 +125,7 @@ export async function emailNewSignup(user: {
   createdAt?: Date;
 }): Promise<void> {
   await sendOwnerEmail({
-    subject: `🎉 New Signup — ${user.name}`,
+    subject: `– New Signup — ${user.name}`,
     html: template("New User Signup", [
       ["Name", user.name || "Unknown"],
       ["Email", user.email || "—"],
@@ -164,7 +164,7 @@ export async function emailCreditPurchase(data: {
   packLabel?: string;
 }): Promise<void> {
   await sendOwnerEmail({
-    subject: `🎬 Credit Purchase — ${data.credits} credits — ${data.name}`,
+    subject: `– Credit Purchase — ${data.credits} credits — ${data.name}`,
     html: template("Credit Pack Purchased", [
       ["Customer", data.name || "Unknown"],
       ["Email", data.email || "—"],
@@ -211,7 +211,7 @@ export async function emailRenderComplete(data: {
 }): Promise<void> {
   // 1. Notify owner (internal ops log)
   await sendOwnerEmail({
-    subject: `✅ Render Complete — ${data.quality} — ${data.name}`,
+    subject: `– Render Complete — ${data.quality} — ${data.name}`,
     html: template("Render Job Completed", [
       ["Customer", data.name || "Unknown"],
       ["Email", data.email || "—"],
@@ -232,7 +232,7 @@ export async function emailRenderComplete(data: {
       await client.emails.send({
         from: FROM_EMAIL,
         to: data.email,
-        subject: `🎬 Your WIZ AI video is ready! (${data.quality})`,
+        subject: `– Your WIZ AI video is ready! (${data.quality})`,
         html: `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8" /></head>
@@ -244,7 +244,7 @@ export async function emailRenderComplete(data: {
           <tr>
             <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
               <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WIZ AI</span>
-              <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Your video is ready 🎉</span>
+              <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Your video is ready </span>
             </td>
           </tr>
         </table>

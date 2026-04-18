@@ -20,16 +20,16 @@ import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
 
 const VIDEO_STYLES = [
-  { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "🎬" },
+  { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "" },
   { id: "anime",        label: "Anime",         desc: "Japanese animation style",        emoji: "🌸" },
-  { id: "pixar",        label: "Pixar 3D",      desc: "Vibrant 3D animation",            emoji: "🎭" },
-  { id: "documentary",  label: "Documentary",   desc: "Authentic & raw footage",         emoji: "📽️" },
-  { id: "abstract",     label: "Abstract",      desc: "Artistic visual journey",         emoji: "🎨" },
+  { id: "pixar",        label: "Pixar 3D",      desc: "Vibrant 3D animation",            emoji: "" },
+  { id: "documentary",  label: "Documentary",   desc: "Authentic & raw footage",         emoji: "️" },
+  { id: "abstract",     label: "Abstract",      desc: "Artistic visual journey",         emoji: "" },
   { id: "vintage",      label: "Vintage",       desc: "Retro film aesthetic",            emoji: "📺" },
   { id: "neon_noir",    label: "Neon Noir",     desc: "Dark cyberpunk neon glow",        emoji: "🌃" },
-  { id: "disney",       label: "Disney",        desc: "Magical Disney animation",        emoji: "✨" },
+  { id: "disney",       label: "Disney",        desc: "Magical Disney animation",        emoji: "" },
   { id: "epic_fantasy", label: "Epic Fantasy",  desc: "Dramatic magical landscapes",     emoji: "⚔️" },
-  { id: "realistic",    label: "Realistic",     desc: "Photorealistic true-to-life",     emoji: "📷" },
+  { id: "realistic",    label: "Realistic",     desc: "Photorealistic true-to-life",     emoji: "" },
   { id: "horror",       label: "Horror",        desc: "Dark atmospheric tension",        emoji: "👻" },
 ];
 
@@ -406,7 +406,7 @@ export default function TextToVideoCreator() {
               </div>
               {/* Example prompts */}
               <div className="mt-3">
-                <p className="text-xs text-muted-foreground mb-2">💡 Example prompts:</p>
+                <p className="text-xs text-muted-foreground mb-2">– Example prompts:</p>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLE_PROMPTS.slice(0, 3).map((ex, i) => (
                     <button

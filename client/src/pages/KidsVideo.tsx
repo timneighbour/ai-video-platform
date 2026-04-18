@@ -43,7 +43,7 @@ const KIDS_STYLES = [
     id: "pixar3d",
     label: "Pixar 3D",
     desc: "Vibrant 3D animation",
-    emoji: "🎬",
+    emoji: "",
     gradient: "from-blue-600 via-cyan-500 to-blue-400",
     glow: "shadow-blue-500/40",
     border: "border-blue-500/60",
@@ -56,7 +56,7 @@ const KIDS_STYLES = [
     id: "disney",
     label: "Disney",
     desc: "Magical cinematic animation",
-    emoji: "✨",
+    emoji: "",
     gradient: "from-purple-600 via-violet-500 to-pink-500",
     glow: "shadow-purple-500/40",
     border: "border-purple-500/60",
@@ -82,7 +82,7 @@ const KIDS_STYLES = [
     id: "cartoon",
     label: "Cartoon",
     desc: "Classic colourful animation",
-    emoji: "🎨",
+    emoji: "",
     gradient: "from-orange-500 via-amber-500 to-yellow-400",
     glow: "shadow-orange-500/40",
     border: "border-orange-500/60",
@@ -155,13 +155,13 @@ const HOW_IT_WORKS = [
     color: "from-pink-500/20 to-rose-500/10 border-pink-500/30",
   },
   {
-    step: "2", emoji: "🎭",
+    step: "2", emoji: "",
     title: "Lock Your Characters",
     desc: "Define species, colour, and features. AI enforces strict character consistency across every scene.",
     color: "from-purple-500/20 to-violet-500/10 border-purple-500/30",
   },
   {
-    step: "3", emoji: "🎨",
+    step: "3", emoji: "",
     title: "See Your Free Storyboard",
     desc: "AI instantly creates 4–6 illustrated scenes. Review, edit, regenerate — completely free.",
     color: "from-blue-500/20 to-cyan-500/10 border-blue-500/30",
@@ -175,12 +175,12 @@ const HOW_IT_WORKS = [
 ];
 
 const FEATURES = [
-  { icon: "🔒", title: "Character Lock System", desc: "Define species, colour, features, and outfit. AI enforces strict consistency — no variation between scenes." },
+  { icon: "", title: "Character Lock System", desc: "Define species, colour, features, and outfit. AI enforces strict consistency — no variation between scenes." },
   { icon: "📸", title: "Photo Reference Upload", desc: "Upload a photo of your pet or character. AI uses it as the base identity for every scene." },
-  { icon: "🎵", title: "Audio Upload", desc: "Upload kids songs, narration, or voice recordings. Supports lip sync compatibility." },
-  { icon: "🔄", title: "Free Storyboard, Always", desc: "Generate and regenerate your storyboard as many times as you want before spending a single credit." },
-  { icon: "🎬", title: "6 Animation Styles", desc: "Pixar 3D, Disney, Anime, Cartoon, Storybook, or Claymation — each with distinct visual character." },
-  { icon: "🛡️", title: "Child-Safe by Design", desc: "All content is filtered and reviewed to ensure it's safe, positive, and appropriate for children." },
+  { icon: "", title: "Audio Upload", desc: "Upload kids songs, narration, or voice recordings. Supports lip sync compatibility." },
+  { icon: "", title: "Free Storyboard, Always", desc: "Generate and regenerate your storyboard as many times as you want before spending a single credit." },
+  { icon: "", title: "6 Animation Styles", desc: "Pixar 3D, Disney, Anime, Cartoon, Storybook, or Claymation — each with distinct visual character." },
+  { icon: "️", title: "Child-Safe by Design", desc: "All content is filtered and reviewed to ensure it's safe, positive, and appropriate for children." },
 ];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -312,7 +312,7 @@ export default function KidsVideo() {
         setJobId(id);
         setStep("render");
         setRenderStatus("queued");
-        toast.success("Payment successful! Your video is being rendered 🎬");
+        toast.success("Payment successful! Your video is being rendered ");
         window.history.replaceState({}, "", "/kids-video");
         startPollingRender(id);
       }
@@ -348,7 +348,7 @@ export default function KidsVideo() {
         if (job.renderStatus === "completed" && job.videoUrl) {
           setVideoUrl(job.videoUrl);
           clearInterval(pollRef.current!);
-          toast.success("🎉 Your kids animation is ready!");
+          toast.success("– Your kids animation is ready!");
         } else if (job.renderStatus === "failed") {
           clearInterval(pollRef.current!);
           toast.error(job.errorMessage || "Render failed. Please contact support.");
@@ -416,7 +416,7 @@ export default function KidsVideo() {
         characterName: char?.name || "character",
       });
       setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, photoUrl: result.photoUrl, imageUrl: result.photoUrl, isUploadingPhoto: false } : c));
-      toast.success("Photo uploaded! This will be used as the character reference. ✨");
+      toast.success("Photo uploaded! This will be used as the character reference. ");
     } catch (err: any) {
       setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, isUploadingPhoto: false } : c));
       toast.error(err?.message || "Photo upload failed.");
@@ -441,7 +441,7 @@ export default function KidsVideo() {
 
       });
       setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, imageUrl: result.imageUrl ?? null, isGenerating: false } : c));
-      toast.success(`${char.name} generated! ✨`);
+      toast.success(`${char.name} generated! `);
     } catch (err: any) {
       setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, isGenerating: false } : c));
       toast.error(err?.message || "Character generation failed.");
@@ -514,7 +514,7 @@ export default function KidsVideo() {
       const result = await generateStoryboardMutation.mutateAsync({ jobId: currentJobId });
       setStoryboardFrames(result.frames as StoryboardFrame[]);
       mp.storyboardGenerated(result.frames.length);
-      toast.success("Storyboard ready! Review your scenes below 🎨");
+      toast.success("Storyboard ready! Review your scenes below ");
     } catch (err: any) {
       setStoryboardError(err?.message || "Storyboard generation failed. Please try again.");
       toast.error(err?.message || "Storyboard generation failed.");
@@ -536,7 +536,7 @@ export default function KidsVideo() {
       const result = await generateStoryboardMutation.mutateAsync({ jobId });
       setStoryboardFrames(result.frames as StoryboardFrame[]);
       mp.storyboardRegenerated(result.frames.length);
-      toast.success("Storyboard regenerated — free of charge! 🎨");
+      toast.success("Storyboard regenerated — free of charge! ");
     } catch (err: any) {
       setStoryboardError(err?.message || "Regeneration failed.");
       toast.error(err?.message || "Regeneration failed.");
@@ -559,7 +559,7 @@ export default function KidsVideo() {
           ? { ...f, imageUrl: result.imageUrl ?? f.imageUrl }
           : f
       ));
-      toast.success(`Scene ${sceneIndex + 1} regenerated! ✨`);
+      toast.success(`Scene ${sceneIndex + 1} regenerated! `);
     } catch (err: any) {
       toast.error(err?.message || "Scene regeneration failed.");
     } finally {
@@ -852,10 +852,10 @@ export default function KidsVideo() {
             <div className="container mx-auto px-4 max-w-3xl">
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-center">
                 {[
-                  { icon: "🛡️", label: "Child-Safe Content" },
-                  { icon: "🔒", label: "Character Lock" },
+                  { icon: "️", label: "Child-Safe Content" },
+                  { icon: "", label: "Character Lock" },
                   { icon: "📸", label: "Photo Upload" },
-                  { icon: "🎵", label: "Audio Upload" },
+                  { icon: "", label: "Audio Upload" },
                   { icon: "♾️", label: "Unlimited Previews" },
                 ].map((t) => (
                   <div key={t.label} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -923,7 +923,7 @@ export default function KidsVideo() {
                   )}
                 </div>
                 <div className="mt-3 space-y-1">
-                  <p className="text-xs text-muted-foreground mb-2">💡 Need inspiration? Try one of these:</p>
+                  <p className="text-xs text-muted-foreground mb-2">– Need inspiration? Try one of these:</p>
                   <div className="flex flex-wrap gap-2">
                     {PROMPT_EXAMPLES.slice(0, 3).map((ex, i) => (
                       <button
@@ -1095,7 +1095,7 @@ export default function KidsVideo() {
                   <Lock className="h-3.5 w-3.5 flex-shrink-0" />
                   Character Lock System — strict consistency across all scenes
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">🎭 Design Your Characters</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">– Design Your Characters</h2>
                 <p className="text-sm text-muted-foreground max-w-lg mx-auto">
                   Define your characters precisely. The AI will enforce these details in every scene — no variation allowed.
                 </p>
@@ -1304,7 +1304,7 @@ export default function KidsVideo() {
                                     <ImageIcon className="h-8 w-8 text-muted-foreground/30 group-hover:text-purple-400 transition" />
                                     <span className="text-xs text-muted-foreground/50 group-hover:text-purple-300 transition text-center px-2">
                                       {desc.trim().length >= 5
-                                        ? "Click to generate character image 🎨"
+                                        ? "Click to generate character image "
                                         : "Fill in species & colour first"}
                                     </span>
                                   </button>
@@ -1320,7 +1320,7 @@ export default function KidsVideo() {
                                     {char.isGenerating ? (
                                       <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
                                     ) : (
-                                      <><Wand2 className="h-3.5 w-3.5" /> Generate Character Image ✨</>
+                                      <><Wand2 className="h-3.5 w-3.5" /> Generate Character Image </>
                                     )}
                                   </Button>
                                 )}
@@ -1386,7 +1386,7 @@ export default function KidsVideo() {
                   <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
                   {selectedStyle.emoji} {selectedStyle.label} · {videoLength} · {screenFormat}
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">🎬 Your Free Storyboard</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">– Your Free Storyboard</h2>
                 <p className="text-sm text-muted-foreground">
                   AI-generated scenes for your story. Edit descriptions, regenerate individual scenes, or regenerate all — completely free!
                 </p>
@@ -1395,7 +1395,7 @@ export default function KidsVideo() {
               {/* Generating state */}
               {isGeneratingStoryboard && (
                 <div className="rounded-2xl border border-pink-500/30 bg-pink-500/5 p-8 text-center space-y-4">
-                  <div className="text-4xl animate-bounce">🎨</div>
+                  <div className="text-4xl animate-bounce"></div>
                   <div>
                     <h3 className="font-bold text-white mb-1">Creating Your Storyboard…</h3>
                     <p className="text-sm text-muted-foreground">AI is illustrating your story scenes. This takes about 30–60 seconds.</p>
@@ -1525,7 +1525,7 @@ export default function KidsVideo() {
               {/* Empty state while loading */}
               {!isGeneratingStoryboard && storyboardFrames.length === 0 && !storyboardError && (
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-                  <div className="text-4xl mb-3">🎨</div>
+                  <div className="text-4xl mb-3"></div>
                   <p className="text-muted-foreground text-sm">Your storyboard will appear here once generated.</p>
                   <Button
                     onClick={handleGenerateStoryboard}
@@ -1547,7 +1547,7 @@ export default function KidsVideo() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Zap className="h-4 w-4 text-yellow-400" />
-                        <span className="font-semibold text-white">Ready to render? 🚀</span>
+                        <span className="font-semibold text-white">Ready to render? </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {videoLength} · {screenFormat} · {selectedStyle.label}
@@ -1564,7 +1564,7 @@ export default function KidsVideo() {
                         className="gap-2 border-white/20 text-white hover:bg-white/10 flex-1"
                       >
                         {isGeneratingStoryboard ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                        Regenerate All 🎨
+                        Regenerate All 
                       </Button>
                       <Button
                         onClick={handleRenderVideo}
@@ -1594,9 +1594,9 @@ export default function KidsVideo() {
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
-                  {renderStatus === "completed" ? "🎉 Your Animation is Ready!" :
+                  {renderStatus === "completed" ? "– Your Animation is Ready!" :
                    renderStatus === "failed" ? "❌ Render Failed" :
-                   "🎬 Building Your Animation…"}
+                   "– Building Your Animation…"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {renderStatus === "completed" ? "Your animated kids video has been created. Watch it below!" :
@@ -1608,7 +1608,7 @@ export default function KidsVideo() {
               {/* Rendering progress */}
               {(renderStatus === "queued" || renderStatus === "processing") && (
                 <div className="rounded-2xl border border-pink-500/30 bg-pink-500/5 p-8 text-center space-y-6">
-                  <div className="text-5xl animate-bounce">🎬</div>
+                  <div className="text-5xl animate-bounce"></div>
                   <div className="space-y-3 max-w-sm mx-auto">
                     <Progress value={renderStatus === "processing" ? 65 : 20} className="h-3 rounded-full" />
                     <p className="text-sm text-pink-300 font-medium">

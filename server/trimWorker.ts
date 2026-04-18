@@ -118,7 +118,7 @@ async function processTrimQueue() {
           .set({ tracks: JSON.stringify(trimmedTracks), updatedAt: new Date() })
           .where(eq(sunoMusicTasks.id, task.id));
 
-        console.log(`[TrimWorker] Task ${task.id} trimmed and saved ✅`);
+        console.log(`[TrimWorker] Task ${task.id} trimmed and saved `);
       } catch (err: any) {
         console.error(`[TrimWorker] Failed to trim task ${task.id}:`, err?.message ?? err);
         // Mark all as failed so we don't retry endlessly

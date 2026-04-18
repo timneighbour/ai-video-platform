@@ -9,10 +9,10 @@ import { toast } from "sonner";
 import { Sparkles, Download, Trash2, ImageIcon, Wand2, Loader2 } from "lucide-react";
 
 const STYLES = [
-  { id: "photorealistic", label: "Photorealistic", emoji: "📷" },
-  { id: "cinematic", label: "Cinematic", emoji: "🎬" },
-  { id: "anime", label: "Anime", emoji: "✨" },
-  { id: "oil-painting", label: "Oil Painting", emoji: "🎨" },
+  { id: "photorealistic", label: "Photorealistic", emoji: "" },
+  { id: "cinematic", label: "Cinematic", emoji: "" },
+  { id: "anime", label: "Anime", emoji: "" },
+  { id: "oil-painting", label: "Oil Painting", emoji: "" },
   { id: "digital-art", label: "Digital Art", emoji: "💻" },
   { id: "minimalist", label: "Minimalist", emoji: "◻" },
   { id: "surreal", label: "Surreal", emoji: "🌀" },

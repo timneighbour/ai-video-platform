@@ -35,10 +35,10 @@ const PLATFORMS: { id: Platform; label: string; icon: React.ReactNode; color: st
 const DURATIONS = [15, 30, 45, 60];
 
 const VISUAL_STYLES: { id: VisualStyle; label: string; emoji: string; desc: string }[] = [
-  { id: "cinematic", label: "Cinematic", emoji: "🎬", desc: "Film-quality, dramatic lighting" },
-  { id: "anime", label: "Anime", emoji: "✨", desc: "Vibrant, Studio Ghibli-inspired" },
-  { id: "realistic", label: "Realistic", emoji: "📷", desc: "Natural, documentary-style" },
-  { id: "cartoon", label: "Cartoon", emoji: "🎨", desc: "Bold, animated, fun" },
+  { id: "cinematic", label: "Cinematic", emoji: "", desc: "Film-quality, dramatic lighting" },
+  { id: "anime", label: "Anime", emoji: "", desc: "Vibrant, Studio Ghibli-inspired" },
+  { id: "realistic", label: "Realistic", emoji: "", desc: "Natural, documentary-style" },
+  { id: "cartoon", label: "Cartoon", emoji: "", desc: "Bold, animated, fun" },
   { id: "neon-noir", label: "Neon Noir", emoji: "🌆", desc: "Cyberpunk, rain-slicked streets" },
   { id: "minimalist", label: "Minimalist", emoji: "◻", desc: "Clean, elegant, modern" },
 ];

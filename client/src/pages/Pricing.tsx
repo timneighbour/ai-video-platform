@@ -24,7 +24,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
   Check, X, Zap, Star, Crown, ChevronDown, ChevronUp, Sparkles, Download, Music, Film, Package,
-  Clock, Bell, CheckCircle2, Wand2, Volume2, Headphones
+  Clock, Bell, CheckCircle2, Wand2, Volume2, Headphones, ArrowRight
 } from "lucide-react";
 import WizSoundShowcase from "@/components/WizSoundShowcase";
 
@@ -194,33 +194,33 @@ const FAQS = [
 const COMPARISON_FEATURES = [
   { label: "Renders included/month", starter: "2", basic: "5", creator: "15", pro: "25", studio: "40" },
   { label: "Video styles", starter: "All", basic: "All", creator: "All", pro: "All", studio: "All" },
-  { label: "Music video maker", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "WizScript AI creator", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "HD quality (1080p)", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "4K quality (2160p)", starter: "—", basic: "—", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "No watermark", starter: "—", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "Character consistency", starter: "✓", basic: "✓", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "Priority rendering", starter: "—", basic: "—", creator: "✓", pro: "✓", studio: "✓" },
-  { label: "API access", starter: "—", basic: "—", creator: "—", pro: "—", studio: "✓" },
+  { label: "Music video maker", starter: "\u2713", basic: "\u2713", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "WizScript AI creator", starter: "\u2713", basic: "\u2713", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "HD quality (1080p)", starter: "\u2713", basic: "\u2713", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "4K quality (2160p)", starter: "\u2014", basic: "\u2014", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "No watermark", starter: "\u2014", basic: "\u2713", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "Character consistency", starter: "\u2713", basic: "\u2713", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "Priority rendering", starter: "\u2014", basic: "\u2014", creator: "\u2713", pro: "\u2713", studio: "\u2713" },
+  { label: "API access", starter: "\u2014", basic: "\u2014", creator: "\u2014", pro: "\u2014", studio: "\u2713" },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-white/8 last:border-0">
+    <div className="border-b border-[--color-gold]/[0.06] last:border-0">
       <button
         className="w-full flex items-center justify-between py-4 text-left gap-4"
         onClick={() => setOpen(!open)}
       >
-        <span className="text-sm font-medium text-white/85">{q}</span>
+        <span className="text-sm font-medium text-[--color-silver-light]">{q}</span>
         {open ? (
-          <ChevronUp className="w-4 h-4 text-white/40 flex-shrink-0" />
+          <ChevronUp className="w-4 h-4 text-[--color-silver-dark]/40 flex-shrink-0" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-white/40 flex-shrink-0" />
+          <ChevronDown className="w-4 h-4 text-[--color-silver-dark]/40 flex-shrink-0" />
         )}
       </button>
       {open && (
-        <p className="text-sm text-white/55 pb-4 leading-relaxed">{a}</p>
+        <p className="text-sm text-[--color-silver-dark]/55 pb-4 leading-relaxed">{a}</p>
       )}
     </div>
   );
@@ -293,24 +293,24 @@ export default function Pricing() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-[#040404] text-white">
       {/* ── Nav ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/6">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#040404]/90 backdrop-blur-xl border-b border-[--color-gold]/[0.06]">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <NavLink href="/">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[9.1rem] w-auto object-contain drop-shadow-[0_0_16px_rgba(139,92,246,0.6)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
           </NavLink>
           <div className="flex items-center gap-4">
-            <NavLink href="/" className="text-sm text-white/50 hover:text-white transition-colors">Home</NavLink>
-            <NavLink href="/music-video" className="text-sm text-white/50 hover:text-white transition-colors">Create</NavLink>
+            <NavLink href="/" className="nav-link">Home</NavLink>
+            <NavLink href="/create" className="nav-link">Create</NavLink>
             {isAuthenticated ? (
-              <Button className="bg-white text-black hover:bg-white/90 text-sm px-4 h-8 rounded-lg font-semibold" asChild>
-                <Link href="/dashboard"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Dashboard</Link>
-              </Button>
+              <Link href="/dashboard" className="btn-primary-sm">
+                <Sparkles className="w-3.5 h-3.5" />Dashboard
+              </Link>
             ) : (
-              <Button className="bg-white text-black hover:bg-white/90 text-sm px-4 h-8 rounded-lg font-semibold" asChild>
-                <a href={getLoginUrl()}><Sparkles className="w-3.5 h-3.5 mr-1.5" />Get Started Free</a>
-              </Button>
+              <a href={getLoginUrl()} className="btn-primary-sm">
+                <Sparkles className="w-3.5 h-3.5" />Start Creating
+              </a>
             )}
           </div>
         </div>
@@ -319,54 +319,52 @@ export default function Pricing() {
       <div className="pt-28 pb-24">
         {/* ── Hero ── */}
         <div className="text-center px-6 mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-400/25 bg-violet-500/8 text-violet-300 text-xs font-mono tracking-widest uppercase mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-            Pricing
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Pricing</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4">
             Simple pricing.<br />
-            <span className="bg-gradient-to-r from-violet-300 via-purple-200 to-blue-300 bg-clip-text text-transparent">
-              No surprises.
-            </span>
+            <span className="metallic-gold">No surprises.</span>
           </h1>
-          <p className="text-lg text-white/55 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-[--color-silver-dark]/50 max-w-xl mx-auto leading-relaxed">
             Create your video for free. Only pay when you're ready to render and download.
           </p>
         </div>
 
         {/* ── How it works ── */}
         <div className="max-w-4xl mx-auto px-6 mb-20">
-          <h2 className="text-center text-xs font-semibold text-white/35 uppercase tracking-widest mb-8">How it works</h2>
+          <h2 className="text-center text-xs font-semibold text-[--color-gold-dark]/50 uppercase tracking-widest mb-8">How it works</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               {
                 step: "01",
-                icon: <Sparkles className="w-5 h-5 text-violet-400" />,
+                icon: <Sparkles className="w-5 h-5 text-[--color-gold]" />,
                 title: "Create for free",
                 desc: "Upload your audio, generate your storyboard, and build your video. No credit card required to start creating.",
               },
               {
                 step: "02",
-                icon: <Film className="w-5 h-5 text-violet-400" />,
+                icon: <Film className="w-5 h-5 text-[--color-gold]" />,
                 title: "Preview & refine",
                 desc: "Review your scenes, adjust the style, and perfect every detail before committing.",
               },
               {
                 step: "03",
-                icon: <Download className="w-5 h-5 text-violet-400" />,
+                icon: <Download className="w-5 h-5 text-[--color-gold]" />,
                 title: "Pay to render",
                 desc: "Happy with the result? Choose your quality and download. Pay only for what you render.",
               },
             ].map((item) => (
-              <div key={item.step} className="relative p-5 rounded-2xl bg-white/3 border border-white/8">
+              <div key={item.step} className="relative p-5 rounded-2xl glass-card">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xs font-mono text-white/25">{item.step}</span>
-                  <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center">
+                  <span className="text-xs font-mono text-[--color-silver-dark]/25">{item.step}</span>
+                  <div className="w-8 h-8 rounded-lg bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.1] flex items-center justify-center">
                     {item.icon}
                   </div>
                 </div>
                 <h3 className="text-sm font-semibold text-white mb-1.5">{item.title}</h3>
-                <p className="text-xs text-white/45 leading-relaxed">{item.desc}</p>
+                <p className="text-xs text-[--color-silver-dark]/45 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -376,7 +374,7 @@ export default function Pricing() {
         <div className="max-w-5xl mx-auto px-6 mb-20" id="render-pricing">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Full Video Render</h2>
-            <p className="text-sm text-white/45">One price per full video. Save more with monthly plans.</p>
+            <p className="text-sm text-[--color-silver-dark]/45">One price per full video. Save more with monthly plans.</p>
           </div>
 
           {/* Quality tiers */}
@@ -390,40 +388,40 @@ export default function Pricing() {
                 key={tier.label}
                 className={`relative p-5 rounded-2xl border text-center ${
                   tier.badge
-                    ? "border-violet-500/50 bg-violet-500/8 shadow-[0_0_30px_rgba(139,92,246,0.12)]"
-                    : "border-white/10 bg-white/3"
+                    ? "border-[--color-gold]/[0.3] bg-[--color-gold]/[0.04] shadow-[0_0_30px_rgba(196,164,100,0.08)]"
+                    : "border-[--color-gold]/[0.06] bg-[#0a0a0a]"
                 }`}
               >
                 {tier.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-violet-500 text-white text-[10px] font-bold tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider">
                     {tier.badge}
                   </div>
                 )}
                 <div className="text-lg font-bold text-white mb-0.5">{tier.label}</div>
-                <div className="text-xs text-white/40 mb-3">{tier.resolution}</div>
-                <div className="text-3xl font-extrabold text-white mb-1">£{tier.price}</div>
-                <div className="text-xs text-white/35 mb-3">Full Video Render</div>
-                <p className="text-xs text-white/45 leading-relaxed">{tier.desc}</p>
+                <div className="text-xs text-[--color-silver-dark]/40 mb-3">{tier.resolution}</div>
+                <div className="text-3xl font-extrabold text-white mb-1">&pound;{tier.price}</div>
+                <div className="text-xs text-[--color-silver-dark]/35 mb-3">Full Video Render</div>
+                <p className="text-xs text-[--color-silver-dark]/45 leading-relaxed">{tier.desc}</p>
               </div>
             ))}
           </div>
 
-          {/* Audio add-ons — Dolby Cinema spatial sound vibes */}
-          <div className="rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.03] to-transparent p-6">
+          {/* Audio add-ons — WizSound */}
+          <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-gradient-to-br from-[#0a0a0a] to-transparent p-6">
             <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600/20 to-purple-600/20 border border-violet-500/20 flex items-center justify-center">
-                  <Headphones className="w-5 h-5 text-violet-400" />
+                <div className="w-10 h-10 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.12] flex items-center justify-center">
+                  <Headphones className="w-5 h-5 text-[--color-gold]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-bold text-white">Powered by WizSound™</h3>
-                    <span className="px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/25 text-violet-400 text-[9px] font-bold tracking-wider">PROPRIETARY</span>
+                    <h3 className="text-sm font-bold text-white">Powered by WizSound</h3>
+                    <span className="px-1.5 py-0.5 rounded bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.15] text-[--color-gold-dark] text-[9px] font-bold tracking-wider">PROPRIETARY</span>
                   </div>
-                  <p className="text-[11px] text-white/40 mt-0.5">Spatial audio mastering engine — Dolby Cinema vibes for your video</p>
+                  <p className="text-[11px] text-[--color-silver-dark]/40 mt-0.5">Spatial audio mastering engine — cinema-grade immersive sound for your video</p>
                 </div>
               </div>
-              <span className="text-xs text-white/30">Optional — add to any render</span>
+              <span className="text-xs text-[--color-silver-dark]/30">Optional — add to any render</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
@@ -435,7 +433,7 @@ export default function Pricing() {
                   features: ["Stereo output", "Original mix"],
                   badge: null,
                   gradient: "",
-                  borderClass: "border-white/8 bg-white/2",
+                  borderClass: "border-[--color-gold]/[0.06] bg-[#0a0a0a]",
                 },
                 {
                   label: "WizSound Active",
@@ -445,17 +443,17 @@ export default function Pricing() {
                   features: ["Stereo widening", "Frequency EQ", "Noise reduction", "Spatial depth"],
                   badge: null,
                   gradient: "",
-                  borderClass: "border-violet-500/20 bg-violet-500/5",
+                  borderClass: "border-[--color-gold]/[0.12] bg-[--color-gold]/[0.02]",
                 },
                 {
                   label: "WizSound Spatial",
                   sublabel: "+£3",
                   price: 3,
-                  desc: "Full spatial mastering — Dolby Cinema-grade immersive audio",
+                  desc: "Full spatial mastering — cinema-grade immersive audio",
                   features: ["Full mastering pipeline", "Immersive spatial depth", "Dynamic range optimisation", "Streaming-ready loudness", "Cinema-grade output"],
                   badge: "RECOMMENDED",
-                  gradient: "bg-gradient-to-br from-amber-500/8 to-orange-500/5",
-                  borderClass: "border-amber-400/30",
+                  gradient: "bg-gradient-to-br from-[--color-gold]/[0.06] to-transparent",
+                  borderClass: "border-[--color-gold]/[0.25]",
                 },
               ].map((audio) => (
                 <div
@@ -463,28 +461,28 @@ export default function Pricing() {
                   className={`relative p-4 rounded-xl border ${audio.borderClass} ${audio.gradient}`}
                 >
                   {audio.badge && (
-                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-bold tracking-wider whitespace-nowrap shadow-lg shadow-amber-900/30">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[9px] font-bold tracking-wider whitespace-nowrap shadow-lg">
                       {audio.badge}
                     </div>
                   )}
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold text-white">{audio.label}</span>
-                    <span className={`text-sm font-bold ${audio.price === 0 ? "text-white/50" : audio.price === 3 ? "text-amber-300" : "text-violet-300"}`}>
-                      {audio.price === 0 ? "Free" : `+£${audio.price}`}
+                    <span className={`text-sm font-bold ${audio.price === 0 ? "text-[--color-silver-dark]/50" : audio.price === 3 ? "text-[--color-gold]" : "text-[--color-gold-dark]"}`}>
+                      {audio.price === 0 ? "Free" : `+\u00A3${audio.price}`}
                     </span>
                   </div>
-                  <p className="text-[11px] text-white/40 mb-2.5">{audio.desc}</p>
+                  <p className="text-[11px] text-[--color-silver-dark]/40 mb-2.5">{audio.desc}</p>
                   <div className="space-y-1">
                     {audio.features.map((f) => (
-                      <div key={f} className="flex items-center gap-1.5 text-[10px] text-white/50">
-                        <Check className="w-2.5 h-2.5 text-violet-400/60 flex-shrink-0" />
+                      <div key={f} className="flex items-center gap-1.5 text-[10px] text-[--color-silver-dark]/50">
+                        <Check className="w-2.5 h-2.5 text-[--color-gold]/60 flex-shrink-0" />
                         {f}
                       </div>
                     ))}
                   </div>
                   {audio.price === 3 && (
-                    <div className="mt-3 pt-2.5 border-t border-amber-400/15">
-                      <div className="flex items-center gap-1.5 text-[10px] text-amber-300/80">
+                    <div className="mt-3 pt-2.5 border-t border-[--color-gold]/[0.1]">
+                      <div className="flex items-center gap-1.5 text-[10px] text-[--color-gold-dark]">
                         <Volume2 className="w-3 h-3" />
                         <span className="font-medium">Spatial sound — hear the difference in the demo below</span>
                       </div>
@@ -500,15 +498,15 @@ export default function Pricing() {
         <div className="max-w-6xl mx-auto px-6 mb-20">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Subscription plans</h2>
-            <p className="text-sm text-white/45">Includes renders every month. Best value for regular creators.</p>
+            <p className="text-sm text-[--color-silver-dark]/45">Includes renders every month. Best value for regular creators.</p>
             {/* Billing toggle */}
-            <div className="mt-6 inline-flex items-center gap-1 p-1 rounded-full bg-white/6 border border-white/10">
+            <div className="mt-6 inline-flex items-center gap-1 p-1 rounded-full bg-[--color-gold]/[0.04] border border-[--color-gold]/[0.08]">
               <button
                 onClick={() => setBillingCycle("monthly")}
                 className={`relative px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                   billingCycle === "monthly"
-                    ? "bg-white text-black shadow-sm"
-                    : "text-white/55 hover:text-white/80"
+                    ? "bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] shadow-sm"
+                    : "text-[--color-silver-dark]/55 hover:text-[--color-silver]"
                 }`}
               >
                 Monthly
@@ -517,8 +515,8 @@ export default function Pricing() {
                 onClick={() => setBillingCycle("annual")}
                 className={`relative flex items-center gap-2 px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                   billingCycle === "annual"
-                    ? "bg-white text-black shadow-sm"
-                    : "text-white/55 hover:text-white/80"
+                    ? "bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] shadow-sm"
+                    : "text-[--color-silver-dark]/55 hover:text-[--color-silver]"
                 }`}
               >
                 Yearly
@@ -542,21 +540,21 @@ export default function Pricing() {
                 id={`plan-${plan.id}`}
                 className={`relative flex flex-col rounded-2xl border p-5 transition-all duration-500 ${
                   highlightedPlan === plan.id
-                    ? "border-violet-400/80 bg-gradient-to-b from-violet-500/15 to-violet-900/8 shadow-[0_0_60px_rgba(139,92,246,0.3)] ring-2 ring-violet-400/40"
+                    ? "border-[--color-gold]/[0.6] bg-gradient-to-b from-[--color-gold]/[0.08] to-[--color-gold]/[0.02] shadow-[0_0_60px_rgba(196,164,100,0.15)] ring-2 ring-[--color-gold]/[0.3]"
                     : plan.popular
-                    ? "border-violet-500/60 bg-gradient-to-b from-violet-500/10 to-violet-900/5 shadow-[0_0_40px_rgba(139,92,246,0.15)] ring-1 ring-violet-500/30"
-                    : "border-white/10 bg-white/3 hover:border-white/15"
+                    ? "border-[--color-gold]/[0.4] bg-gradient-to-b from-[--color-gold]/[0.06] to-[--color-gold]/[0.01] shadow-[0_0_40px_rgba(196,164,100,0.08)] ring-1 ring-[--color-gold]/[0.2]"
+                    : "border-[--color-gold]/[0.06] bg-[#0a0a0a] hover:border-[--color-gold]/[0.12]"
                 }`}
               >
                 {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-[10px] font-bold tracking-wider whitespace-nowrap shadow-lg shadow-violet-900/30">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider whitespace-nowrap shadow-lg">
                     {plan.badge}
                   </div>
                 )}
 
                 <div className="flex items-center gap-2 mb-3">
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                    plan.popular ? "bg-violet-500/25 text-violet-300" : "bg-white/8 text-white/60"
+                    plan.popular ? "bg-[--color-gold]/[0.15] text-[--color-gold]" : "bg-[--color-gold]/[0.06] text-[--color-silver-dark]/60"
                   }`}>
                     {plan.icon}
                   </div>
@@ -571,19 +569,19 @@ export default function Pricing() {
                     {billingCycle === "monthly" ? (
                       <>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-extrabold text-white">£{plan.monthlyPrice}</span>
-                          <span className="text-xs text-white/40">/mo</span>
+                          <span className="text-2xl font-extrabold text-white">&pound;{plan.monthlyPrice}</span>
+                          <span className="text-xs text-[--color-silver-dark]/40">/mo</span>
                         </div>
-                        <p className="text-[11px] text-white/30 mt-0.5">billed monthly</p>
+                        <p className="text-[11px] text-[--color-silver-dark]/30 mt-0.5">billed monthly</p>
                       </>
                     ) : (
                       <>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-extrabold text-white">£{plan.annualPrice}</span>
-                          <span className="text-xs text-white/40">/year</span>
+                          <span className="text-2xl font-extrabold text-white">&pound;{plan.annualPrice}</span>
+                          <span className="text-xs text-[--color-silver-dark]/40">/year</span>
                         </div>
                         <p className="text-[11px] text-emerald-400/80 mt-0.5 font-medium">
-                          £{Math.round(plan.annualPrice / 12)}/mo · Save 20%
+                          &pound;{Math.round(plan.annualPrice / 12)}/mo · Save 20%
                         </p>
                       </>
                     )}
@@ -594,15 +592,15 @@ export default function Pricing() {
                   </div>
                   {(plan as any).bestValue && (
                     <div className="mt-1.5">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[--color-gold]">
                         {plan.perRender}/render
-                        <span className="ml-1 px-1 py-0.5 rounded bg-amber-500/15 border border-amber-400/20 text-amber-300 text-[9px] font-bold tracking-wider">BEST VALUE</span>
+                        <span className="ml-1 px-1 py-0.5 rounded bg-[--color-gold]/[0.1] border border-[--color-gold]/[0.15] text-[--color-gold-dark] text-[9px] font-bold tracking-wider">BEST VALUE</span>
                       </span>
                     </div>
                   )}
                 </div>
 
-                <p className="text-[11px] text-white/40 mb-4 leading-relaxed">{plan.desc}</p>
+                <p className="text-[11px] text-[--color-silver-dark]/40 mb-4 leading-relaxed">{plan.desc}</p>
 
                 <ul className="space-y-1.5 mb-5 flex-1">
                   {plan.features.map((f) => (
@@ -610,9 +608,9 @@ export default function Pricing() {
                       {f.included ? (
                         <Check className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
                       ) : (
-                        <X className="w-3 h-3 text-white/15 flex-shrink-0 mt-0.5" />
+                        <X className="w-3 h-3 text-[--color-silver-dark]/15 flex-shrink-0 mt-0.5" />
                       )}
-                      <span className={f.included ? "text-white/70" : "text-white/25"}>{f.text}</span>
+                      <span className={f.included ? "text-[--color-silver]/70" : "text-[--color-silver-dark]/25"}>{f.text}</span>
                     </li>
                   ))}
                 </ul>
@@ -622,32 +620,32 @@ export default function Pricing() {
                   disabled={loadingPlan === plan.id}
                   className={`w-full rounded-xl font-semibold text-xs h-9 px-3 ${
                     plan.popular
-                      ? "bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
-                      : "bg-white/10 text-white hover:bg-white/15 border border-white/15"
+                      ? "btn-primary"
+                      : "bg-[--color-gold]/[0.06] text-[--color-silver] hover:bg-[--color-gold]/[0.12] border border-[--color-gold]/[0.1]"
                   }`}
                 >
                   {loadingPlan === plan.id ? (
                     <span className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                      Loading…
+                      Loading...
                     </span>
                   ) : (
                     billingCycle === "monthly"
-                      ? `Get ${plan.name} — £${plan.monthlyPrice}/mo`
-                      : `Get ${plan.name} — £${plan.annualPrice}/yr`
+                      ? `Get ${plan.name} \u2014 \u00A3${plan.monthlyPrice}/mo`
+                      : `Get ${plan.name} \u2014 \u00A3${plan.annualPrice}/yr`
                   )}
                 </Button>
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-white/25 mt-6 tracking-wide">No hidden fees · Cancel anytime · Full control before checkout</p>
+          <p className="text-center text-xs text-[--color-silver-dark]/25 mt-6 tracking-wide">No hidden fees · Cancel anytime · Full control before checkout</p>
         </div>
 
         {/* ── Render bundles ── */}
         <div className="max-w-4xl mx-auto px-6 mb-20" id="bundles">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Render bundles</h2>
-            <p className="text-sm text-white/45">Buy renders in bulk and save. Bundles never expire.</p>
+            <p className="text-sm text-[--color-silver-dark]/45">Buy renders in bulk and save. Bundles never expire.</p>
             <p className="text-xs text-emerald-400/80 mt-1 font-medium">Save up to 30% vs pay-per-render</p>
           </div>
 
@@ -657,30 +655,30 @@ export default function Pricing() {
                 key={bundle.id}
                 className={`relative flex flex-col p-5 rounded-2xl border ${
                   bundle.popular
-                    ? "border-violet-500/50 bg-violet-500/8 shadow-[0_0_25px_rgba(139,92,246,0.12)]"
+                    ? "border-[--color-gold]/[0.3] bg-[--color-gold]/[0.04] shadow-[0_0_25px_rgba(196,164,100,0.08)]"
                     : bundle.bestValue
-                    ? "border-amber-500/30 bg-amber-500/5"
-                    : "border-white/10 bg-white/3"
+                    ? "border-[--color-gold]/[0.2] bg-[--color-gold]/[0.02]"
+                    : "border-[--color-gold]/[0.06] bg-[#0a0a0a]"
                 }`}
               >
                 {bundle.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-violet-500 text-white text-[10px] font-bold tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider">
                     MOST POPULAR
                   </div>
                 )}
                 {bundle.bestValue && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider">
                     BEST VALUE
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-3">
-                  <Package className="w-4 h-4 text-violet-400" />
+                  <Package className="w-4 h-4 text-[--color-gold]" />
                   <span className="text-sm font-semibold text-white">{bundle.label}</span>
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-2xl font-extrabold text-white">£{bundle.price}</span>
+                  <span className="text-2xl font-extrabold text-white">&pound;{bundle.price}</span>
                 </div>
-                <div className="text-xs text-white/40 mb-3">
+                <div className="text-xs text-[--color-silver-dark]/40 mb-3">
                   {bundle.renders} renders · {bundle.perRender} each
                 </div>
                 <div className="flex-1" />
@@ -689,17 +687,17 @@ export default function Pricing() {
                   disabled={loadingBundle === bundle.id}
                   className={`w-full rounded-xl font-semibold text-sm h-9 mt-4 ${
                     bundle.popular
-                      ? "bg-white text-black hover:bg-white/90"
-                      : "bg-white/10 text-white hover:bg-white/15 border border-white/15"
+                      ? "btn-primary"
+                      : "bg-[--color-gold]/[0.06] text-[--color-silver] hover:bg-[--color-gold]/[0.12] border border-[--color-gold]/[0.1]"
                   }`}
                 >
                   {loadingBundle === bundle.id ? (
                     <span className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                      Loading…
+                      Loading...
                     </span>
                   ) : (
-                    `Buy ${bundle.renders} renders — £${bundle.price}`
+                    `Buy ${bundle.renders} renders \u2014 \u00A3${bundle.price}`
                   )}
                 </Button>
               </div>
@@ -710,29 +708,29 @@ export default function Pricing() {
         {/* ── Comparison table ── */}
         <div className="max-w-6xl mx-auto px-6 mb-20">
           <h2 className="text-center text-2xl font-bold text-white mb-8">Full comparison</h2>
-          <div className="rounded-2xl border border-white/8 overflow-hidden">
+          <div className="rounded-2xl border border-[--color-gold]/[0.08] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 bg-white/3">
-                    <th className="text-left px-4 py-3 text-white/40 font-medium text-xs min-w-[160px]">Feature</th>
+                  <tr className="border-b border-[--color-gold]/[0.06] bg-[--color-gold]/[0.02]">
+                    <th className="text-left px-4 py-3 text-[--color-silver-dark]/40 font-medium text-xs min-w-[160px]">Feature</th>
                     {["Starter", "Basic", "Creator", "Pro", "Studio"].map((h) => (
                       <th key={h} className={`text-center px-3 py-3 text-xs font-semibold min-w-[90px] ${
-                        h === "Creator" ? "text-violet-300 bg-violet-500/5" : "text-white/60"
+                        h === "Creator" ? "text-[--color-gold] bg-[--color-gold]/[0.03]" : "text-[--color-silver-dark]/60"
                       }`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {COMPARISON_FEATURES.map((row, i) => (
-                    <tr key={row.label} className={`border-b border-white/5 last:border-0 ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
-                      <td className="px-4 py-3 text-white/50 text-xs">{row.label}</td>
+                    <tr key={row.label} className={`border-b border-[--color-gold]/[0.04] last:border-0 ${i % 2 === 0 ? "" : "bg-[--color-gold]/[0.01]"}`}>
+                      <td className="px-4 py-3 text-[--color-silver-dark]/50 text-xs">{row.label}</td>
                       {[row.starter, row.basic, row.creator, row.pro, row.studio].map((val, j) => (
                         <td key={j} className={`text-center px-3 py-3 text-xs ${
-                          val === "✓" ? "text-emerald-400" :
-                          val === "—" ? "text-white/15" :
-                          j === 2 ? "text-violet-300 font-medium bg-violet-500/5" :
-                          "text-white/50"
+                          val === "\u2713" ? "text-emerald-400" :
+                          val === "\u2014" ? "text-[--color-silver-dark]/15" :
+                          j === 2 ? "text-[--color-gold] font-medium bg-[--color-gold]/[0.03]" :
+                          "text-[--color-silver-dark]/50"
                         }`}>
                           {val}
                         </td>
@@ -745,13 +743,13 @@ export default function Pricing() {
           </div>
         </div>
 
-        {/* ── WizSound™ Technical Showcase ── */}
+        {/* ── WizSound Technical Showcase ── */}
         <WizSoundShowcase />
 
         {/* ── FAQ ── */}
         <div className="max-w-2xl mx-auto px-6 mb-20">
           <h2 className="text-center text-2xl font-bold text-white mb-8">Frequently asked questions</h2>
-          <div className="rounded-2xl border border-white/8 bg-white/2 px-5">
+          <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#0a0a0a] px-5">
             {FAQS.map((faq) => (
               <FAQItem key={faq.q} q={faq.q} a={faq.a} />
             ))}
@@ -761,13 +759,13 @@ export default function Pricing() {
         {/* ── Bottom CTA ── */}
         <div className="text-center px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready to create?</h2>
-          <p className="text-sm text-white/45 mb-6">Start building your video for free — no credit card required.</p>
+          <p className="text-sm text-[--color-silver-dark]/45 mb-6">Start building your video for free — no credit card required.</p>
           <a
             href={isAuthenticated ? "/music-video/create" : "/onboarding"}
-            className="inline-flex items-center gap-2 bg-white text-black font-bold px-8 py-3.5 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:bg-white/95 transition-all duration-300 text-sm"
+            className="btn-primary inline-flex items-center gap-2 px-10 py-4 rounded-2xl text-sm"
           >
             <Sparkles className="w-4 h-4" />
-            {isAuthenticated ? "Open Creator" : "Start Creating — Free"}
+            Start Creating
           </a>
         </div>
       </div>
@@ -781,46 +779,46 @@ export default function Pricing() {
       `}</style>
 
       {/* ── Post-render explanation ── */}
-      <section className="border-t border-white/8 bg-[#0d0d0d] py-16 px-6">
+      <section className="border-t border-[--color-gold]/[0.06] bg-[#080808] py-16 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold uppercase tracking-wider mb-4">
-              After you render
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[--color-gold]/[0.04] border border-[--color-gold]/[0.1] mb-4">
+              <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">After you render</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">What happens after rendering?</h2>
-            <p className="text-white/45 text-sm max-w-lg mx-auto">Your video goes through four processing stages. You'll be notified when it's ready — no need to stay on the page.</p>
+            <p className="text-[--color-silver-dark]/45 text-sm max-w-lg mx-auto">Your video goes through four processing stages. You'll be notified when it's ready — no need to stay on the page.</p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {[
-              { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Higher-tier plans get priority processing.", color: "text-white/50" },
-              { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images — no new content is generated.", color: "text-violet-300" },
-              { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina enhancements are applied.", color: "text-blue-300" },
+              { icon: <Clock className="w-5 h-5" />, stage: "Queued", desc: "Your job enters the render queue. Higher-tier plans get priority processing.", color: "text-[--color-silver-dark]/50" },
+              { icon: <Wand2 className="w-5 h-5" />, stage: "Building Your Video", desc: "AI animates each scene from your approved storyboard images — no new content is generated.", color: "text-[--color-gold]" },
+              { icon: <Film className="w-5 h-5" />, stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound/WizLumina enhancements are applied.", color: "text-[--color-silver]" },
               { icon: <CheckCircle2 className="w-5 h-5" />, stage: "Complete", desc: "Your video is ready. Download instantly from your dashboard or share directly.", color: "text-emerald-300" },
             ].map((item) => (
-              <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-white/4 border border-white/8">
+              <div key={item.stage} className="flex gap-4 p-4 rounded-xl bg-[--color-gold]/[0.02] border border-[--color-gold]/[0.06]">
                 <div className={`flex-shrink-0 mt-0.5 ${item.color}`}>{item.icon}</div>
                 <div>
                   <p className={`text-sm font-semibold mb-1 ${item.color}`}>{item.stage}</p>
-                  <p className="text-xs text-white/45 leading-relaxed">{item.desc}</p>
+                  <p className="text-xs text-[--color-silver-dark]/45 leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 p-4 rounded-xl bg-violet-500/8 border border-violet-500/20 flex items-start gap-3">
-              <Bell className="w-4 h-4 text-violet-300 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 p-4 rounded-xl bg-[--color-gold]/[0.04] border border-[--color-gold]/[0.1] flex items-start gap-3">
+              <Bell className="w-4 h-4 text-[--color-gold] flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-white/80 mb-1">Email notification</p>
-                <p className="text-xs text-white/45">We'll email you when your render is complete so you don't need to wait on the page.</p>
+                <p className="text-sm font-semibold text-[--color-silver-light] mb-1">Email notification</p>
+                <p className="text-xs text-[--color-silver-dark]/45">We'll email you when your render is complete so you don't need to wait on the page.</p>
               </div>
             </div>
             <div className="flex-1 p-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20 flex items-start gap-3">
               <Download className="w-4 h-4 text-emerald-300 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-white/80 mb-1">Instant download</p>
-                <p className="text-xs text-white/45">Your completed video appears in your dashboard. Download MP4 immediately — no waiting.</p>
+                <p className="text-sm font-semibold text-[--color-silver-light] mb-1">Instant download</p>
+                <p className="text-xs text-[--color-silver-dark]/45">Your completed video appears in your dashboard. Download MP4 immediately — no waiting.</p>
               </div>
             </div>
           </div>
@@ -828,13 +826,29 @@ export default function Pricing() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-white/6 py-8 px-6 text-center text-xs text-white/25">
-        <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain mx-auto mb-4 opacity-60" />
-        <p>© 2025 WIZ AI. All rights reserved.</p>
-        <div className="flex items-center justify-center gap-4 mt-3">
-          <Link href="/privacy" className="hover:text-white/50 transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-white/50 transition-colors">Terms</Link>
-          <Link href="/help" className="hover:text-white/50 transition-colors">Help</Link>
+      <footer className="border-t border-[--color-gold]/[0.06] bg-[#030303] py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+            <NavLink href="/">
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+            </NavLink>
+            <div className="flex items-center gap-5 text-xs text-[--color-silver-dark]/30">
+              <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</Link>
+              <Link href="/refunds" className="hover:text-[--color-gold-dark] transition-colors">Refund Policy</Link>
+              <Link href="/help" className="hover:text-[--color-gold-dark] transition-colors">Help</Link>
+            </div>
+          </div>
+          <div className="luxury-divider" />
+          <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-[--color-silver-dark]/25">
+            <p>&copy; 2026 WIZ AI. All rights reserved.</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-[--color-silver-dark]/25 mr-1">Secure payments via</span>
+              {["Visa", "Mastercard", "Amex", "Apple Pay", "Google Pay"].map((m) => (
+                <span key={m} className="text-[11px] text-[--color-silver-dark]/30 border border-[--color-gold]/[0.06] bg-[--color-gold]/[0.02] px-2.5 py-1 rounded-md font-medium">{m}</span>
+              ))}
+            </div>
+          </div>
         </div>
       </footer>
     </div>

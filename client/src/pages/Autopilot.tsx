@@ -181,7 +181,7 @@ export default function Autopilot() {
             setProgressPct(100);
             setGeneratedVideoUrl(result.videoUrl);
             setStep("done");
-            toast.success("🎬 Your video is ready!");
+            toast.success("– Your video is ready!");
             return;
           } else if (result.status === "failed") {
             stopProgressAnimation();
@@ -218,7 +218,7 @@ export default function Autopilot() {
         stopProgressAnimation();
         setProgressPct(100);
         setStep("done");
-        toast.success("🎬 Your video is ready!");
+        toast.success("– Your video is ready!");
       }
     },
     onError: (err) => {
@@ -1007,7 +1007,7 @@ export default function Autopilot() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-600/20 border border-green-500/40 mb-6">
                 <CheckCircle2 className="h-10 w-10 text-green-400" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Video is Ready! 🎬</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Video is Ready! </h2>
               <p className="text-muted-foreground text-sm sm:text-base">
                 Your video has been generated and is ready to watch, download, or share.
               </p>

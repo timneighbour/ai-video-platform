@@ -130,7 +130,7 @@ export default function WizScore() {
               setAudioUrl(firstTrack.audioUrl);
               setStep("complete");
               setProgress(100);
-              toast.success("🎵 WizScore complete!", { description: "Your synced soundtrack is ready." });
+              toast.success("– WizScore complete!", { description: "Your synced soundtrack is ready." });
             } else {
               throw new Error("No audio track returned");
             }

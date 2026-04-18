@@ -207,7 +207,7 @@ function CharacterAnim({ active }: { active: boolean }) {
         </div>
         {/* Lock badge */}
         <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-pink-500 flex items-center justify-center">
-          <span className="text-[8px]">🔒</span>
+          <span className="text-[8px]"></span>
         </div>
       </div>
     </div>

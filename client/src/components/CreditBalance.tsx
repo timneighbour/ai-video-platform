@@ -7,7 +7,7 @@
  *   <CreditBalance variant="inline" /> — inline text with icon (for form sections)
  *
  * Language rules (per design spec):
- *   ✅ Use: Credits, Video creation, Cinematic upgrades
+ *   – Use: Credits, Video creation, Cinematic upgrades
  *   ❌ Never: tokens, cost, API, compute
  */
 import { Zap, AlertCircle, Plus } from "lucide-react";
