@@ -10,7 +10,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import { trpc } from "./lib/trpc";
 import GlobalMuteButton from "./components/GlobalMuteButton";
-import WizVidIntro, { INTRO_SEEN_KEY } from "./components/WizVidIntro";
+import IntroScreen from "./components/IntroScreen";
+import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -192,20 +193,25 @@ function App() {
   // This ensures the intro NEVER mounts on refresh if already seen.
   const [showIntro, setShowIntro] = useState<boolean>(false);
 
-  // Intro disabled — go straight to hero
-  // useEffect(() => {
-  //   try {
-  //     const seen = sessionStorage.getItem(INTRO_SEEN_KEY);
-  //     if (!seen) {
-  //       setShowIntro(true);
-  //     }
-  //   } catch {
-  //     // sessionStorage unavailable (private browsing edge case) — skip intro
-  //   }
-  // }, []);
+  useEffect(() => {
+    try {
+      const seen = sessionStorage.getItem(INTRO_SESSION_KEY);
+      if (!seen) {
+        setShowIntro(true);
+      }
+    } catch {
+      // sessionStorage unavailable (private browsing edge case) — skip intro
+    }
+  }, []);
+
+  // Listen for replay requests dispatched by triggerIntroReplay()
+  useEffect(() => {
+    const handleReplay = () => setShowIntro(true);
+    window.addEventListener("wizai:replay-intro", handleReplay);
+    return () => window.removeEventListener("wizai:replay-intro", handleReplay);
+  }, []);
 
   const handleIntroClose = () => {
-    try { sessionStorage.setItem(INTRO_SEEN_KEY, "true"); } catch {}
     setShowIntro(false);
   };
 
@@ -222,7 +228,7 @@ function App() {
           <GlobalMuteButton />
           {/* Intro shows once per session — sessionStorage flag prevents repeat */}
           {showIntro && (
-            <WizVidIntro onClose={handleIntroClose} />
+            <IntroScreen onComplete={handleIntroClose} />
           )}
         </TooltipProvider>
       </ThemeProvider>
