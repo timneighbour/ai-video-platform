@@ -6,6 +6,7 @@ import multer from "multer";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import rateLimit from "express-rate-limit";
 import { registerOAuthRoutes } from "./oauth";
+import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -237,6 +238,8 @@ async function startServer() {
     }
   });
 
+  // Storage proxy — serves /manus-storage/* assets via signed Forge URLs
+  registerStorageProxy(app);
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API — apply AI generation limiter to generation-heavy procedures

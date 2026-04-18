@@ -270,6 +270,7 @@ function ScriptCardBg() {
 interface Product {
   name: string; label: string; tagline: string; desc: string; href: string;
   emblem: React.ReactNode; accent: AccentKey; cardVisual: React.ReactNode;
+  logoUrl?: string;
 }
 
 const PRODUCTS: Product[] = [
@@ -277,37 +278,43 @@ const PRODUCTS: Product[] = [
     name: "WizAudio", label: "CREATE AUDIO",
     tagline: "AI music & audio production studio",
     desc: "Generate original tracks, soundscapes, and audio from text. Studio-quality sound in seconds.",
-    href: "/create", emblem: <WizAudioEmblem size={56} />, accent: "emerald", cardVisual: <AudioCardBg />,
+    href: "/create", emblem: <WizAudioEmblem size={80} />, accent: "emerald", cardVisual: <AudioCardBg />,
+    logoUrl: undefined,
   },
   {
     name: "WizImage", label: "CREATE IMAGES",
     tagline: "AI image & artwork creator",
     desc: "Describe any image and WizImage renders it in seconds. 8 art styles, photorealistic to cinematic.",
-    href: "/wiz-image", emblem: <WizImageEmblem size={56} />, accent: "amber", cardVisual: <ImageCardBg />,
+    href: "/wiz-image", emblem: <WizImageEmblem size={80} />, accent: "amber", cardVisual: <ImageCardBg />,
+    logoUrl: undefined,
   },
   {
     name: "WizVideo", label: "CREATE VIDEO",
     tagline: "Upload a song, get a full music video",
     desc: "Turn any track into a full-length AI-directed music video — scenes, cuts, and all.",
-    href: "/music-video/create", emblem: <WizVideoEmblem size={56} />, accent: "violet", cardVisual: <VideoCardBg />,
+    href: "/music-video/create", emblem: <WizVideoEmblem size={80} />, accent: "violet", cardVisual: <VideoCardBg />,
+    logoUrl: undefined,
   },
   {
     name: "WizShorts", label: "CREATE SHORTS",
     tagline: "Short-form vertical video creator",
     desc: "Create viral-ready vertical videos for TikTok, Instagram Reels, and YouTube Shorts.",
-    href: "/wiz-shorts", emblem: <WizShortsEmblem size={56} />, accent: "cyan", cardVisual: <ShortsCardBg />,
+    href: "/wiz-shorts", emblem: <WizShortsEmblem size={80} />, accent: "cyan", cardVisual: <ShortsCardBg />,
+    logoUrl: undefined,
   },
   {
     name: "WizAnimate", label: "CREATE ANIMATION",
     tagline: "AI character animation engine",
     desc: "Bring characters to life with fluid, beat-matched AI animation. Every movement timed to the music.",
-    href: "/products/wizanimate", emblem: <WizAnimateEmblem size={56} />, accent: "rose", cardVisual: <AnimateCardBg />,
+    href: "/products/wizanimate", emblem: <WizAnimateEmblem size={80} />, accent: "rose", cardVisual: <AnimateCardBg />,
+    logoUrl: undefined,
   },
   {
     name: "WizScript", label: "CREATE CINEMATIC",
     tagline: "Scene-by-scene cinematic control",
     desc: "Write each scene yourself for full creative control. Script to storyboard to cinematic video.",
-    href: "/text-to-video", emblem: <WizScriptEmblem size={56} />, accent: "orange", cardVisual: <ScriptCardBg />,
+    href: "/text-to-video", emblem: <WizScriptEmblem size={80} />, accent: "orange", cardVisual: <ScriptCardBg />,
+    logoUrl: undefined,
   },
 ];
 
@@ -406,10 +413,10 @@ function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Emblem — bottom right, with accent glow well */}
-        <div className="absolute bottom-2 right-3 z-20 opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105">
+        <div className="absolute bottom-1 right-2 z-20 opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105">
           <div className="relative">
-            <div className="absolute inset-0 rounded-full blur-xl pointer-events-none"
-              style={{ background: a.emblemGlow, transform: "scale(1.5)" }} />
+            <div className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
+              style={{ background: a.emblemGlow, transform: "scale(2)" }} />
             {product.emblem}
           </div>
         </div>
@@ -417,18 +424,29 @@ function ProductCard({ product }: { product: Product }) {
 
       {/* ── Card content ─────────────────────────────────────────────────── */}
       <div className="relative flex flex-col gap-2 p-5 pt-3 z-10">
-        {/* Product name — metallic gradient text */}
-        <h3
-          className="text-xl font-black tracking-tight leading-none"
-          style={{
-            background: a.nameCss,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.8))",
-          }}>
-          {product.name}
-        </h3>
+        {/* Brand logo or product name — premium treatment */}
+        {product.logoUrl ? (
+          <div className="flex items-end gap-2 mb-0.5">
+            <img
+              src={product.logoUrl}
+              alt={product.name}
+              className="h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(196,164,100,0.5)] transition-all duration-300"
+            />
+            <sup className="text-[9px] font-bold tracking-wider mb-2" style={{ color: "rgba(196,164,100,0.7)" }}>TM</sup>
+          </div>
+        ) : (
+          <h3
+            className="text-xl font-black tracking-tight leading-none flex items-start gap-0.5"
+            style={{
+              background: a.nameCss,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.8))",
+            }}>
+            {product.name}<sup className="text-[9px] font-bold mt-0.5" style={{ WebkitTextFillColor: "rgba(196,164,100,0.7)", color: "rgba(196,164,100,0.7)" }}>™</sup>
+          </h3>
+        )}
 
         {/* Tagline */}
         <p className="text-white/70 text-sm font-semibold leading-snug">{product.tagline}</p>
