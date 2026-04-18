@@ -3,8 +3,7 @@
  *
  * Behaviour:
  * - Appears ONCE per browser session (sessionStorage gated)
- * - Muted autoplay by default (mobile-safe, browser-policy compliant)
- * - User can unmute/mute via the audio toggle
+ * - Permanently muted (silent cinematic experience)
  * - "Skip Intro" and "Enter WIZ AI" both dismiss the intro
  * - Smooth fade-out transition into the homepage
  * - Falls back to homepage after 3 s if video fails to load
@@ -13,7 +12,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, ChevronRight, Play } from "lucide-react";
+import { ChevronRight, Play } from "lucide-react";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
@@ -29,7 +28,6 @@ interface IntroScreenProps {
 
 export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(true);
   const [visible, setVisible] = useState(true);   // controls opacity fade
   const [showControls, setShowControls] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -91,20 +89,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
     });
   };
 
-  // ── Audio toggle ──────────────────────────────────────────────────────────
-  const toggleMute = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    const newMuted = !muted;
-    video.muted = newMuted;
-    setMuted(newMuted);
-    // If unmuting and video is paused (e.g. autoplay was blocked), play it
-    if (!newMuted && video.paused) {
-      video.play().catch(() => {});
-    }
-  };
-
-  // ── Manual play (when autoplay is blocked) ────────────────────────────────
+  // ── Manual play (when autoplay is blocked) ─────────────────────────────────
   const handleManualPlay = () => {
     videoRef.current?.play().catch(() => {});
     setShowPlayHint(false);
@@ -126,6 +111,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         poster={POSTER_URL}
         muted
         playsInline
+        // permanently muted — no audio
         preload="auto"
         onCanPlay={handleCanPlay}
         onError={() => dismiss()}
@@ -167,26 +153,8 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           transition: "opacity 0.5s ease",
         }}
       >
-        {/* Top row — mute / unmute */}
-        <div className="flex justify-end">
-          <button
-            onClick={toggleMute}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-white/80 hover:text-white hover:bg-black/60 transition-all text-sm font-medium"
-            aria-label={muted ? "Play with sound" : "Mute"}
-          >
-            {muted ? (
-              <>
-                <VolumeX className="w-4 h-4" />
-                <span className="hidden sm:inline">Play with Sound</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-4 h-4 text-[--color-gold]" />
-                <span className="hidden sm:inline">Mute</span>
-              </>
-            )}
-          </button>
-        </div>
+        {/* Top row — empty (no sound toggle) */}
+        <div />
 
         {/* Bottom row — Skip + Enter */}
         <div className="flex items-center justify-between">
