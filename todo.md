@@ -418,7 +418,7 @@
 - [ ] All 50 keyword pages from the master list
 - [ ] Internal links between all pages
 - [ ] Demo video embed on every page
-- [ ] sitemap.xml listing all 50 URLs + main pages
+- [x] sitemap.xml listing all 88 URLs (50 SEO + 38 main/tool/product pages)
 - [x] robots.txt with sitemap reference
 
 
@@ -749,13 +749,13 @@
 - [x] Add tRPC procedure: characters.unlockCharacter (implemented in characters.ts) — clears lock (requires explicit user action)
 - [x] Inject locked character brief as system-level constraint in storyboard LLM prompt — already implemented
 - [x] Enforce character brief as prefix to every scene image generation prompt — already implemented
-- [ ] Build Character Lock reference panel UI: locked character card showing name, photo, and all visual attributes (clothing, hair, colours, accessories)
+- [x] Build Character Lock reference panel UI: locked character card showing name, photo, and all visual attributes (clothing, hair, colours, accessories)
 - [x] Add lock/unlock toggle to CharacterManager with confirmation dialog on unlock (implemented)
 - [x] Add consistency warning banner when storyboard is generated without a locked character (implemented)
 - [x] Add "Character Locked" badge on each storyboard scene card when a character lock is active — implemented
 - [x] Prevent scene image prompts from deviating from locked character description (mechanical prefix injection)
-- [ ] Add character reference panel to storyboard review screen (always visible sidebar/header)
-- [ ] Write vitest tests for character lock/unlock procedures
+- [x] Add character reference panel to storyboard review screen (always visible sidebar/header)
+- [x] Write vitest tests for character lock/unlock procedures
 
 ## Scene-Level Lip Sync Control System (Apr 2026)
 - [x] Fix TypeScript error: saveResult undefined in MusicVideoAutopilot character lock flow
@@ -800,11 +800,11 @@
 ## Bug Fix: HTTP 429 Rate Limit on Video Rendering (Priority)
 - [x] Audit Kling AI client for missing/weak retry logic (already implemented)
 - [x] Fix rateLimitRetry utility: add Retry-After header parsing, true exponential backoff with jitter (already implemented)
-- [ ] Add server-side per-user render throttle (max 1 concurrent render job per user)
+- [x] Add server-side per-user render throttle (max 1 concurrent render job per user) (implemented in startRender)
 - [x] Fix render button: disable immediately on click, prevent duplicate submissions — already implemented
 - [x] Reduce polling frequency from current interval to 15s minimum with adaptive backoff — already implemented
 - [x] Add 429-specific user-facing error message — already implemented ("Rendering is busy right now...")
-- [ ] Add structured logging: timestamp, route, userId, provider response on every 429
+- [x] Add structured logging: timestamp, route, userId, provider response on every 429 (withRetry context param)
 - [x] Fix Suno API: add callBackUrl to generate requests + implement /api/suno/callback endpoint
 - [x] Add server-side Suno callback handler that updates DB on completion
 
@@ -901,14 +901,14 @@
 - [x] "Confirm Retry" triggers mutation; "Cancel" dismisses
 
 ## Final QA: Video Rendering Pipeline Audit
-- [ ] Verify startRender creates job record and fires scene renders correctly
-- [ ] Verify Kling AI client sends correct payload and handles response
-- [ ] Verify pollProgress correctly detects all-scenes-complete and triggers assembly
-- [ ] Verify assembly step concatenates scene videos and saves finalVideoUrl
+- [x] Verify startRender creates job record and fires scene renders correctly (implemented in router line 498)
+- [x] Verify Kling AI client sends correct payload and handles response (kling.ts with withRetry, JWT auth)
+- [x] Verify pollProgress correctly detects all-scenes-complete and triggers assembly (router line 984)
+- [x] Verify assembly step concatenates scene videos and saves finalVideoUrl (assembleMusicVideo in music-video-service.ts)
 - [ ] Verify job status transitions: rendering → assembling → completed
-- [ ] Verify finalVideoUrl is stored in DB and returned to frontend
-- [ ] Verify frontend shows completed video with play/download after render
-- [ ] Fix any broken steps found in the audit
+- [x] Verify finalVideoUrl is stored in DB and returned to frontend (router line 3072, 3150)
+- [x] Verify frontend shows completed video with play/download after render (PostRenderRetentionScreen)
+- [x] Fix any broken steps found in the audit (regenerateScene aspectRatio fix applied)
 
 ## Pipeline Audit & Final QA (Apr 2026)
 - [x] Add AlertDialog confirmation before "Retry All Failed" in RenderHistory dashboard

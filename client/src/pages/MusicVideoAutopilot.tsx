@@ -76,6 +76,7 @@ import {
   BookmarkCheck,
   Monitor,
   Captions,
+  ShieldCheck,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -2409,6 +2410,53 @@ export default function MusicVideoAutopilot() {
                 />
               </button>
             </div>
+
+            {/* Character Reference Panel */}
+            {jobCharacters.some(c => c.isLocked) && (
+              <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span className="text-sm font-semibold text-white">Characters in this video</span>
+                  <span className="text-xs text-zinc-500 ml-1">Locked appearances enforced in every scene</span>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {jobCharacters.filter(c => c.isLocked).map((char) => (
+                    <div key={char.slotIndex} className="flex items-center gap-3 rounded-lg border border-emerald-800/40 bg-emerald-900/10 px-3 py-2 min-w-0">
+                      {/* Avatar: use primaryPhotoUrl from DB or fallback icon */}
+                      {char.primaryPhotoUrl ? (
+                        <img
+                          src={char.primaryPhotoUrl}
+                          alt={char.name}
+                          className="w-10 h-10 rounded-full object-cover border border-emerald-700/50 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-emerald-900/40 border border-emerald-700/50 flex items-center justify-center flex-shrink-0">
+                          <User className="w-5 h-5 text-emerald-400" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <Lock className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                          <span className="text-sm font-semibold text-white truncate">{char.name}</span>
+                          {char.role && (
+                            <span className="text-[10px] text-zinc-500 truncate">{char.role}</span>
+                          )}
+                        </div>
+                        {/* Show a truncated snippet of the locked description as a visual cue */}
+                        {char.lockedDescription && (
+                          <p
+                            className="text-[10px] text-zinc-500 truncate max-w-[200px]"
+                            title={char.lockedDescription}
+                          >
+                            {char.lockedDescription.slice(0, 80)}{char.lockedDescription.length > 80 ? "…" : ""}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Style Lock Banner */}
             {lockedStyle?.isLocked && lockedStyle.style && (
