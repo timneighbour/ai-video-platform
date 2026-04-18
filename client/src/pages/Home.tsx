@@ -33,6 +33,7 @@ const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.web
 const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
+const WIZSYNC_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`; // placeholder until WizSync logo is uploaded
 const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
 const HERO_BG_POSTER = `${CDN}/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp`;
 const DEMO_POSTER = `${CDN}/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp`;
@@ -109,6 +110,7 @@ function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [enginesOpen, setEnginesOpen] = useState(false);
+  const [wizEnginesOpen, setWizEnginesOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -213,6 +215,7 @@ function Nav() {
                       { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Intelligent upscaling, compression, and platform-specific formatting.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
                       { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
                       { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
+                      { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion to create seamless, rhythm-locked cinematic output.", href: "/products/wizsync", logo: WIZSYNC_LOGO },
                     ].map((eng) => (
                       <a
                         key={eng.name}
@@ -233,7 +236,7 @@ function Nav() {
                     ))}
                   </div>
                   <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.06] flex items-center justify-between px-2">
-                    <p className="text-[10px] text-white/20">6 proprietary engines powering every creation</p>
+                    <p className="text-[10px] text-white/20">7 proprietary engines powering every creation</p>
                     <a href="/#wiz-engines" className="text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
                       See how they work <ArrowRight className="w-3 h-3" />
                     </a>
@@ -309,6 +312,7 @@ function Nav() {
                   { name: "WizBoost™", href: "/products/wizboost" },
                   { name: "WizCreate™", href: "/products/wizcreate" },
                   { name: "WizAnimate™", href: "/products/wizanimate" },
+                  { name: "WizSync™", href: "/products/wizsync" },
                 ] as { name: string; href: string }[]).map((eng) => (
                   <a key={eng.name} href={eng.href} className="mobile-nav-link" onClick={() => setMobileOpen(false)}>{eng.name}</a>
                 ))}
