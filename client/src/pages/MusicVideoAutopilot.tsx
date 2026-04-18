@@ -725,6 +725,7 @@ export default function MusicVideoAutopilot() {
 
       setJobId(result.jobId);
       setTotalScenes(result.sceneCount);
+      mp.projectCreated("WizVideo");
 
       // Save characters (with photos) to the DB so the storyboard LLM can use them
       if (characters.length > 0) {
@@ -1044,6 +1045,7 @@ export default function MusicVideoAutopilot() {
 
     try {
       const result = await startRender.mutateAsync({ jobId: jobId });
+      mp.buildStarted("WizVideo");
       setStep("render");
       setRenderStatus("rendering");
       if (!(result as any).duplicate) {
@@ -1093,6 +1095,7 @@ export default function MusicVideoAutopilot() {
             if (progress.status === "completed" && progress.finalVideoUrl) {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
+              mp.buildCompleted("WizVideo");
               // In-app success notification
               toast.success("Your video is ready!", {
                 description: "Your WIZ AI video has finished rendering. Check your email for a direct download link.",
@@ -1123,6 +1126,7 @@ export default function MusicVideoAutopilot() {
 
             if (progress.status === "failed") {
               isRenderingRef.current = false;
+              mp.buildFailed("WizVideo");
               toast.error("Render failed", { description: "Some scenes could not be generated. Please try regenerating failed scenes." });
               return; // stop polling
             }

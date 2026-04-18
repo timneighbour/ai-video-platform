@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -100,6 +101,7 @@ export default function WizShorts() {
 
       setJobId(job.jobId);
       setTotalScenes(job.sceneCount);
+      mp.projectCreated("WizShorts");
       toast.info(`Generating ${job.sceneCount} scenes...`);
 
       const scenesResult = await generateScenesMutation.mutateAsync({ jobId: job.jobId });
@@ -116,6 +118,7 @@ export default function WizShorts() {
     if (!jobId) return;
     try {
       await startRenderMutation.mutateAsync({ jobId });
+      mp.buildStarted("WizShorts");
       setStep("render");
       setRenderStatus("rendering");
       startPolling(jobId);
@@ -136,10 +139,12 @@ export default function WizShorts() {
           clearInterval(pollIntervalRef.current!);
           setRenderStatus("complete");
           setFinalVideoUrl(result.videoUrl ?? null);
+          mp.buildCompleted("WizShorts");
           toast.success("Your WizShort is ready!");
         } else if (result.status === "failed") {
           clearInterval(pollIntervalRef.current!);
           setRenderStatus("failed");
+          mp.buildFailed("WizShorts");
           toast.error("Render failed. Please try again.");
         }
       } catch (err) {

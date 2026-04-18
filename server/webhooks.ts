@@ -14,6 +14,7 @@ import {
   emailNewSubscription,
   emailFailedPayment,
 } from "./email";
+import { trackPurchaseCompleted } from "./mixpanel-server";
 
 // Lazy-init Stripe client (avoids crash if key not set at import time)
 function getStripe() {
@@ -73,6 +74,14 @@ async function handleCheckoutSessionCompleted(session: any) {
       // TODO: Trigger actual re-render / enhancement pipeline based on purchased add-ons
       // For now, the purchase is recorded via Stripe and the owner is notified.
       // Future: update musicVideoJobs with upsell flags and trigger re-processing.
+      // Track purchase in Mixpanel
+      await trackPurchaseCompleted({
+        userId,
+        plan: `upsell:${addons.join("+")}`,
+        amount: session.amount_total ?? 0,
+        currency: session.currency ?? "gbp",
+        purchaseType: "upsell",
+      }).catch(() => {});
 
       return { success: true, type: "upsell", addons };
     }
@@ -131,6 +140,15 @@ async function handleCheckoutSessionCompleted(session: any) {
         amount: session.amount_total ?? 0,
         packLabel: metadata.pack_label || metadata.pack || metadata.pack_id,
       }).catch(() => {});
+      // Track purchase in Mixpanel
+      await trackPurchaseCompleted({
+        userId,
+        plan: metadata.pack_label || metadata.pack || "credits",
+        amount: session.amount_total ?? 0,
+        currency: session.currency ?? "gbp",
+        purchaseType: "credits",
+        packLabel: metadata.pack_label || metadata.pack,
+      }).catch(() => {});
     } else {
       // Handle subscription — metadata.plan from billing router
       const planId = metadata.plan || metadata.plan_id;
@@ -183,6 +201,14 @@ async function handleCheckoutSessionCompleted(session: any) {
         plan: planId || "unknown",
         amount: session.amount_total ?? 0,
         interval: "month",
+      }).catch(() => {});
+      // Track purchase in Mixpanel
+      await trackPurchaseCompleted({
+        userId,
+        plan: planId || "subscription",
+        amount: session.amount_total ?? 0,
+        currency: session.currency ?? "gbp",
+        purchaseType: "subscription",
       }).catch(() => {});
     }
 

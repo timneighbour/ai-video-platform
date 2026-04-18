@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Music, Play, Sparkles, Wand2, Waves, ArrowRight, ArrowLeft } from 'lucide-react';
+import { mp } from '@/lib/mixpanel';
 
 const options = [
   {
@@ -40,6 +41,7 @@ const options = [
 ];
 
 const Onboarding: React.FC = () => {
+  useEffect(() => { mp.onboardingStarted(); }, []);
   return (
     <div className="min-h-screen bg-[#040404] overflow-hidden">
       {/* Back button */}
@@ -93,6 +95,7 @@ const Onboarding: React.FC = () => {
               <a
                 key={index}
                 href={option.href}
+                onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); }}
                 className="group relative h-full transition-all duration-500 hover:-translate-y-1 outline-none block"
               >
                 {/* Main card container */}

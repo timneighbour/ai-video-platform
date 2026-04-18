@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { identifyUser, resetIdentity } from "@/lib/mixpanel";
+import { identifyUser, resetIdentity, mp } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Home is eagerly loaded — it's the LCP page
@@ -158,7 +158,7 @@ function Router() {
   );
 }
 
-/** Fires identifyUser once the auth state is known */
+/** Fires identifyUser once the auth state is known, and signUpCompleted for brand-new users */
 function MixpanelIdentity() {
   const { data: me } = trpc.auth.me.useQuery();
   useEffect(() => {
@@ -169,6 +169,17 @@ function MixpanelIdentity() {
         plan: (me as Record<string, unknown>).subscriptionPlan as string | undefined,
         role: "Musician",
       });
+      // Fire signUpCompleted for brand-new users (account created within last 2 minutes)
+      // Uses sessionStorage to ensure it fires exactly once per browser session
+      const createdAt = (me as Record<string, unknown>).createdAt;
+      if (createdAt) {
+        const ageMs = Date.now() - new Date(createdAt as string).getTime();
+        const firedKey = `wizai_signup_fired_${me.id}`;
+        if (ageMs < 120_000 && !sessionStorage.getItem(firedKey)) {
+          sessionStorage.setItem(firedKey, "1");
+          mp.signUpCompleted();
+        }
+      }
     } else if (me === null) {
       resetIdentity();
     }

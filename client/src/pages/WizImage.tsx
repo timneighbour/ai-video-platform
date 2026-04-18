@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -50,11 +51,13 @@ export default function WizImage() {
 
   const generateMutation = trpc.wizImage.generateImage.useMutation({
     onSuccess: (data) => {
+      mp.buildCompleted("WizImage");
       setGeneratedImage({ url: data.imageUrl, revisedPrompt: data.revisedPrompt });
       toast.success(`Image generated! (${data.creditsUsed} credits used)`);
       utils.wizImage.getHistory.invalidate();
     },
     onError: (err) => {
+      mp.buildFailed("WizImage");
       toast.error(err.message || "Image generation failed");
     },
   });
@@ -75,6 +78,8 @@ export default function WizImage() {
       toast.error("Please enter a prompt");
       return;
     }
+    mp.projectCreated("WizImage");
+    mp.buildStarted("WizImage");
     generateMutation.mutate({ prompt: prompt.trim(), style: selectedStyle, aspectRatio });
   };
 
