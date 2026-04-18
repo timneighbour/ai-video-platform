@@ -85,7 +85,7 @@ interface CharacterManagerProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SLOT_COLORS = [
-  { ring: "ring-[--color-gold] }, bg: "bg-[--color-gold]/10", badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: "bg-[--color-gold]", dot: "bg-[--color-gold]", tab: "bg-[--color-gold]/80 hover:bg-[--color-gold]" },
+  { ring: "ring-[--color-gold]", bg: "bg-[--color-gold]/10", badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: "bg-[--color-gold]", dot: "bg-[--color-gold]", tab: "bg-[--color-gold]/80 hover:bg-[--color-gold]" },
   { ring: "ring-[--color-silver]", bg: "bg-[--color-silver]/10", badge: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20", icon: "bg-[--color-silver]", dot: "bg-[--color-silver]", tab: "bg-[--color-silver]/60 hover:bg-[--color-silver]/40" },
   { ring: "ring-zinc-500", bg: "bg-zinc-800/50", badge: "bg-zinc-700/50 text-zinc-300 border-zinc-600", icon: "bg-zinc-600", dot: "bg-zinc-400", tab: "bg-zinc-700 hover:bg-zinc-600" },
   { ring: "ring-amber-500",  bg: "bg-amber-900/30",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  icon: "bg-amber-600",  dot: "bg-amber-400",  tab: "bg-amber-700 hover:bg-amber-600" },
