@@ -91,6 +91,10 @@ const SLOT_COLORS = [
   { ring: "ring-[--color-silver]", bg: "bg-[--color-silver]/10", badge: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20", icon: "bg-[--color-silver]", dot: "bg-[--color-silver]", tab: "bg-[--color-silver]/60 hover:bg-[--color-silver]/40" },
   { ring: "ring-zinc-500", bg: "bg-zinc-800/50", badge: "bg-zinc-700/50 text-zinc-300 border-zinc-600", icon: "bg-zinc-600", dot: "bg-zinc-400", tab: "bg-zinc-700 hover:bg-zinc-600" },
   { ring: "ring-amber-500",  bg: "bg-amber-900/30",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  icon: "bg-amber-600",  dot: "bg-amber-400",  tab: "bg-amber-700 hover:bg-amber-600" },
+  { ring: "ring-sky-500",    bg: "bg-sky-900/30",    badge: "bg-sky-900/50 text-sky-300 border-sky-800",        icon: "bg-sky-600",    dot: "bg-sky-400",    tab: "bg-sky-700 hover:bg-sky-600" },
+  { ring: "ring-emerald-500",bg: "bg-emerald-900/30",badge: "bg-emerald-900/50 text-emerald-300 border-emerald-800",icon: "bg-emerald-600",dot: "bg-emerald-400",tab: "bg-emerald-700 hover:bg-emerald-600" },
+  { ring: "ring-violet-500", bg: "bg-violet-900/30", badge: "bg-violet-900/50 text-violet-300 border-violet-800", icon: "bg-violet-600", dot: "bg-violet-400", tab: "bg-violet-700 hover:bg-violet-600" },
+  { ring: "ring-rose-500",   bg: "bg-rose-900/30",   badge: "bg-rose-900/50 text-rose-300 border-rose-800",     icon: "bg-rose-600",   dot: "bg-rose-400",   tab: "bg-rose-700 hover:bg-rose-600" },
 ];
 
 const AI_STYLES: { id: AnimationStyle; label: string; desc: string; emoji: string }[] = [
@@ -166,13 +170,13 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
 export function CharacterManager({
   characters,
   onChange,
-  maxCharacters = 4,
+  maxCharacters = 8,
   disabled = false,
   jobId,
   savedCharacterIds = {},
   videoStyle,
 }: CharacterManagerProps) {
-  const photoInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null]);
+  const photoInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null, null, null, null, null]);
   const [reanalysingSlots, setReanalysingSlots] = useState<Set<number>>(new Set());
   const [generatingSlots, setGeneratingSlots] = useState<Set<number>>(new Set());
 
@@ -330,13 +334,13 @@ export function CharacterManager({
                 {isLocked ? "Locked" : char.mode === "ai_generated" ? "AI Generated" : "Photo Upload"}
               </Badge>
 
-              {/* Preview thumbnail */}
+              {/* Preview thumbnail — taller portrait so the full face is visible */}
               {hasPreview && (
-                <div className="w-7 h-7 rounded-md overflow-hidden flex-shrink-0 ring-1 ring-zinc-600">
+                <div className="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 ring-1 ring-zinc-500 bg-zinc-900">
                   <img
                     src={char.mode === "ai_generated" ? char.aiGeneratedImageUrl : char.photos[0]?.previewUrl}
                     alt={char.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               )}
@@ -600,8 +604,8 @@ export function CharacterManager({
                       <div className="space-y-2">
                         <div className="grid grid-cols-4 gap-2">
                           {char.photos.map((photo, photoIndex) => (
-                            <div key={photoIndex} className="relative group aspect-square rounded-lg overflow-hidden bg-zinc-800">
-                              <img src={photo.previewUrl} alt="" className="w-full h-full object-cover" />
+                            <div key={photoIndex} className="relative group rounded-lg overflow-hidden bg-zinc-900" style={{aspectRatio:'3/4'}}>
+                              <img src={photo.previewUrl} alt="" className="w-full h-full object-contain" />
                               {photo.isPrimary && (
                                 <div className="absolute top-1 left-1">
                                   <Badge className="text-xs px-1 py-0 bg-amber-900/80 text-amber-300 border-amber-700">★</Badge>
@@ -623,7 +627,8 @@ export function CharacterManager({
                           ))}
                           {char.photos.length < 10 && !disabled && (
                             <button type="button" onClick={() => photoInputRefs.current[char.slotIndex]?.click()}
-                              className="aspect-square rounded-lg border-2 border-dashed border-zinc-700 hover:border-zinc-500 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-all">
+                              style={{aspectRatio:'3/4'}}
+                              className="rounded-lg border-2 border-dashed border-zinc-700 hover:border-zinc-500 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-all">
                               <Plus className="w-5 h-5" />
                             </button>
                           )}
@@ -862,7 +867,7 @@ export function CharacterManager({
           <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
             <Plus className="w-4 h-4" />
           </div>
-          <span className="text-sm font-medium">Add Character {characters.length + 1} of {maxCharacters}</span>
+          <span className="text-sm font-medium">Add Character {characters.length + 1}{maxCharacters < 99 ? ` of ${maxCharacters}` : ""}</span>
         </button>
       )}
 

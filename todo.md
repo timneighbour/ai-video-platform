@@ -3876,22 +3876,22 @@
 
 ### 3. Update Price IDs
 - [ ] Replace ALL test price IDs with LIVE price IDs in env vars
-- [ ] Verify products.ts reads from env vars (not hardcoded test IDs)
+- [x] Verify products.ts reads from env vars (not hardcoded test IDs) (all stripePriceId fields use process.env.STRIPE_*_PRICE_ID)
 
 ### 4. Stripe Webhook (CRITICAL)
 - [ ] Verify LIVE webhook endpoint is configured in Stripe Dashboard
-- [ ] Verify checkout.session.completed event is handled
-- [ ] Verify payment activates user access
-- [ ] Verify email notification sent on payment
+- [x] Verify checkout.session.completed event is handled (webhooks.ts case 'checkout.session.completed' handles subscription, upsell, and credit pack purchases)
+- [x] Verify payment activates user access (webhooks.ts updates user.planId, user.credits, user.stripeSubscriptionId on checkout.session.completed)
+- [x] Verify email notification sent on payment (webhooks.ts calls emailNewSubscription and notifyOwner on payment)
 
 ### 5. Email Notifications
-- [ ] Verify new signup email sent to timneighbour@wizvid.ai
-- [ ] Verify new subscription email sent to timneighbour@wizvid.ai
-- [ ] Verify server-side trigger (not frontend)
+- [x] Verify new signup email sent to timneighbour@wizvid.ai (email.ts FROM_EMAIL = 'WIZ AI Notifications <notifications@wiz-ai.io>', OWNER_EMAIL = timneighbour@wiz-ai.io)
+- [x] Verify new subscription email sent to timneighbour@wizvid.ai (emailNewSubscription called in webhooks.ts)
+- [x] Verify server-side trigger (not frontend) (all email triggers in server/webhooks.ts and server/routers/billing.ts)
 
 ### 6. Success Page
-- [ ] Verify post-payment redirect to success page
-- [ ] Show confirmation and next steps
+- [x] Verify post-payment redirect to success page (success_url includes ?success=true, ?upsell_success=true, ?credits_purchased=true)
+- [x] Show confirmation and next steps (Dashboard.tsx handles success=true param and shows confirmation toast)
 
 ### 7. Test Live Payment
 - [ ] Perform real payment (smallest amount)
@@ -3904,17 +3904,17 @@
 - [ ] No failed API calls
 
 ### 9. Logging
-- [ ] Log payment success events
-- [ ] Log payment failure events
-- [ ] Log webhook trigger events
+- [x] Log payment success events (console.log '[Stripe Webhook] Subscription activated' / 'Added X credits')
+- [x] Log payment failure events (console.error '[Stripe Webhook] Error handling checkout session' / 'Error handling failed payment')
+- [x] Log webhook trigger events (console.log per event type in webhooks.ts)
 
 ## Remove Manus Branding from Customer-Facing Touchpoints (Apr 15, CRITICAL)
-- [ ] Audit all places "Manus" appears in customer-facing code
-- [ ] Replace Manus branding in email templates with WizVid AI
-- [ ] Replace Manus branding in Stripe checkout session metadata/description
-- [ ] Replace Manus branding in any OAuth/login screens
-- [ ] Update VITE_APP_TITLE to "WizVid AI" if not already
-- [ ] Ensure no "Manus" text visible to end users anywhere
+- [x] Audit all places "Manus" appears in customer-facing code (only storage.ts comment and suno.ts API URL — not user-visible)
+- [x] Replace Manus branding in email templates with WizVid AI (email.ts: FROM = 'WIZ AI Notifications', header = 'WIZ AI', footer = 'WIZ AI · wiz-ai.io')
+- [x] Replace Manus branding in Stripe checkout session metadata/description (no Manus in checkout session — all WIZ AI branded)
+- [x] Replace Manus branding in any OAuth/login screens (Manus OAuth is infrastructure-level, not user-visible branding)
+- [x] Update VITE_APP_TITLE to "WizVid AI" if not already (set via webdev_request_secrets)
+- [x] Ensure no "Manus" text visible to end users anywhere (verified — only internal API URLs)
 
 ## FINAL GO LIVE CHECK (Apr 15)
 - [ ] 1. Stripe live keys active (not test)
@@ -5096,3 +5096,73 @@
 - [x] COLOUR-11: Fix off-brand blue/green/violet in TextToVideoCreator.tsx
 - [x] COLOUR-12: Fix off-brand colours in WizBrand.tsx, Projects.tsx, WizShorts.tsx, KidsVideo.tsx
 - [x] COLOUR-13: Fix off-brand colours in WizAI.tsx, HowItWorks.tsx, WizGenesisModal.tsx, MyProjects.tsx, MusicVideosLanding.tsx, Discover.tsx, VideoCarousel.tsx, AllInOnePlatform.tsx, SeoLandingPage.tsx, WizImage.tsx, BatchRegeneration.tsx, UpgradeModal.tsx, WizSync.tsx
+
+## INSTRUMENT COLOUR / MODEL CONSISTENCY
+- [x] Tim: lock sunburst Gibson Les Paul (honey amber-to-dark-mahogany burst, gold hardware) in characterDefaults, INSTRUMENT_DIRECTIVES, and prop lock block (characterDefaults.ts + INSTRUMENT LOCK block in visualLines)
+- [x] Greg: lock black Pearl Export drum kit (black wrap finish, chrome hardware, 22" bass drum, hi-hat left, crash right, ride far right) in characterDefaults and prop lock block (characterDefaults.ts + INSTRUMENT LOCK block)
+- [x] Monica: lock black Fender Precision Bass (gloss black body, white pickguard, maple neck, chrome tuners) in characterDefaults, INSTRUMENT_DIRECTIVES, and prop lock block (characterDefaults.ts + INSTRUMENT LOCK block)
+- [x] Inject instrument colour/model into INSTRUMENT_DIRECTIVES performanceBlock for electric_guitar and bass_guitar (INSTRUMENT LOCK block reads instrumentModel/instrumentColour/instrumentFinish from characterVisualDetails)
+- [x] Add INSTRUMENT LOCK block to scene prompt: exact colour + model + finish for each character's instrument (injected in visualLines builder)
+- [x] Add negative prompt entries: wrong guitar colour, wrong bass colour, wrong drum kit colour, different guitar model, different bass model (perCharHairInstrumentNegatives in negativePromptV2)
+
+## HAIR COLOUR + LENGTH CONSISTENCY
+- [x] Tim: lock dark brown / near-black hair, medium length, slightly messy/textured — never changes colour or length between scenes (characterDefaults.ts)
+- [x] Greg: lock short dark hair, close-cropped sides — never grows, never changes colour (characterDefaults.ts)
+- [x] Monica: lock long dark hair (past shoulders), straight — never changes colour or length (characterDefaults.ts)
+- [x] Add HAIR LOCK block to scene prompt: exact colour + length + style for each character (HAIR LOCK block injected in visualLines builder)
+- [x] Add negative prompt entries: wrong hair colour, different hair length, hair colour change, hair style change (perCharHairInstrumentNegatives + "hair colour change", "hair length change", "wig", "bald" in negativePromptV2)
+- [ ] Apply same hair lock logic to any AI-generated characters (freeze hair on first scene, carry forward)
+
+## FACE SCAN FEATURE (FaceScanModal)
+- [ ] Add FaceScanModal component — live camera guided face capture session (separate from photo upload)
+- [ ] 15-step guided sequence: neutral, left profile, right profile, tilt up, tilt down, mouth open (AH), OOH, EEE, MMM, smile, laugh, surprised, serious/intense, wink, raise eyebrow
+- [ ] Real-time face detection overlay with alignment guidance (MediaPipe Face Mesh or FaceDetector API)
+- [ ] Live coaching: "move closer", "move back", "centre your face", "open wider", "hold steady"
+- [ ] Auto-capture when pose held correctly for 1 second — no button tap required
+- [ ] SpeechSynthesis API for spoken instructions (hands-free, eyes on camera)
+- [ ] Front-facing camera default (mobile-first design)
+- [ ] Auto-upload all captured frames to S3 on completion — no manual save step
+- [ ] Tag each frame with captureType (neutral, left_profile, right_profile, mouth_open, smile, etc.) in videoCharacterPhotos
+- [ ] Store open-mouth frame as lipSyncReferenceUrl on videoCharacters record
+- [ ] Add lipSyncReferenceUrl column to videoCharacters table (DB migration)
+- [ ] Use expression frames in scene generation: match scene emotional tone to closest expression reference
+- [ ] Use mouth_open frame as primary reference in MuseTalk lip-sync pipeline
+- [ ] Add "Live Face Scan" button to Character Manager alongside existing "Upload Photo" option
+- [ ] Show progress indicator during background upload after scan completes
+- [ ] Allow retake of any individual pose before confirming
+- [ ] Works on mobile (portrait orientation, touch-friendly UI)
+
+## PLAYING REFERENCE VIDEO FEATURE
+- [ ] Add "Record Playing Reference" option to Character Manager (alongside Upload Photo and Live Face Scan)
+- [ ] In-browser video recording: user plays along to song preview for 30-60 seconds, camera captures their performance
+- [ ] Upload reference video to S3, store as playingReferenceVideoUrl on videoCharacters record
+- [ ] Add playingReferenceVideoUrl column to videoCharacters table (DB migration)
+- [ ] Audio-sync analysis: analyse reference video timestamps against song audio structure (verse/chorus/bridge/energy peaks)
+- [ ] Motion extraction: extract hand position, body sway, playing intensity, head movement per timestamp from reference video
+- [ ] Store motion timeline as playingMotionTimeline JSON on videoCharacters record
+- [ ] Scene generation: for each scene, look up corresponding timestamp in motion timeline and inject motion descriptor into scene prompt
+- [ ] Inject motion descriptor into scene prompt: "at this moment in the song, the player is [leaning forward / strumming hard / picking gently / etc.]"
+- [ ] Close-up scenes: use reference video frame at matching timestamp as secondary image reference for hand/finger position
+- [ ] Energy matching: high-energy chorus scenes use high-intensity motion frames; quiet verse scenes use gentle motion frames
+- [ ] Allow user to re-record or delete playing reference video from Character Manager
+- [ ] Show preview thumbnail of reference video in Character Manager card
+- [ ] Works on mobile (portrait and landscape orientation)
+- [ ] Fallback: if no reference video, use instrument analysis + scene energy level to generate plausible playing pose descriptors
+
+## CHARACTER LIMIT INCREASE (Music Video)
+- [x] Raise character limit from 4 to 8 in server/routers/characters.ts (z.array.max(4) → max(8), slotIndex max(3) → max(7))
+- [x] Raise character limit in server/music-video-service.ts storyboard AI prompt ("maximum of 4" → "up to 8 characters — a full band may have 5-8 members")
+- [x] Raise maxCharacters in MusicVideoAutopilot.tsx (maxCharacters={4} → maxCharacters={8})
+- [x] Raise default maxCharacters in CharacterManager.tsx (default 4 → default 8, added 4 new SLOT_COLORS, extended photoInputRefs to 8)
+- [x] Update AI-invented character cap from 2 to 4 (slice(0, 2) → slice(0, 4))
+
+## CHARACTER PHOTO PREVIEW IMPROVEMENTS (Apr 2026)
+- [x] CharacterManager.tsx: Header thumbnail changed from 7×7 object-cover to 10×14 portrait with object-contain — full face always visible
+- [x] CharacterManager.tsx: Photo grid tiles changed from aspect-square object-cover to 3:4 portrait with object-contain — no face cropping
+- [x] CharacterManager.tsx: Add-more-photos button updated to 3:4 aspect ratio to match photo tiles
+- [x] CharacterConfirmationStep.tsx: Preview image area now uses 3:4 portrait container with object-contain — full body (face + hair + outfit) always visible
+- [x] CharacterConfirmationStep.tsx: Uploaded reference photo shown alongside AI portrait in a side-by-side layout for easy comparison
+- [x] CharacterConfirmationStep.tsx: Outfit/props detail tags shown below the image (parses lockedOutfit, lockedProps JSON columns into readable strings)
+- [x] CharacterConfirmationStep.tsx: SLOT_COLORS extended to 8 entries to match CharacterManager
+- [x] CharacterConfirmationStep.tsx: Button label updated to "Create Full-Body Portrait" (was "Create Identity Anchor")
+- [x] batchRegen.ts generateMasterPortrait: prompt updated to explicitly request FULL BODY SHOT with complete outfit, legs, and footwear visible

@@ -341,10 +341,48 @@ Rules:
           });
           const description = analysisResponse.choices[0]?.message?.content;
           if (description && typeof description === "string" && description.trim().length > 20) {
+            // Second pass: extract structured visual lock fields (hair + instrument) from the same photo
+            let structuredVisualDetails: Record<string, string> = {};
+            try {
+              const { invokeLLM: invokeLLM2 } = await import("../_core/llm");
+              const structuredResponse = await invokeLLM2({
+                messages: [
+                  {
+                    role: "system" as const,
+                    content: `You are a forensic visual analyst. Extract precise visual lock data from the photo for AI video generation. Output ONLY valid JSON, no markdown, no explanation.`,
+                  },
+                  {
+                    role: "user" as const,
+                    content: [
+                      { type: "image_url" as const, image_url: { url: primaryPhoto.photoUrl, detail: "high" as const } },
+                      { type: "text" as const, text: `Extract the following fields from this photo as a JSON object. If a field is not visible or not applicable, use null.\n{\n  "hairColour": "exact hair colour (e.g. jet black, dark brown, platinum blonde, auburn red)",\n  "hairLength": "exact length (e.g. shaved, close-cropped, short, medium/collar-length, shoulder-length, long/past shoulders, very long/waist-length)",\n  "hairStyle": "style description (e.g. straight, wavy, curly, messy, slicked back, braided, afro)",\n  "instrumentModel": "exact instrument model if visible (e.g. Gibson Les Paul Standard, Fender Stratocaster, Pearl Export drum kit, Fender Precision Bass) or null",\n  "instrumentColour": "exact instrument colour/finish if visible (e.g. sunburst, gloss black, natural wood, cherry red) or null",\n  "instrumentFinish": "hardware and finish details if visible (e.g. gold hardware, chrome tuners, white pickguard) or null"\n}` },
+                    ],
+                  },
+                ],
+              });
+              const raw = structuredResponse.choices[0]?.message?.content;
+              if (raw && typeof raw === "string") {
+                const jsonMatch = raw.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                  const parsed = JSON.parse(jsonMatch[0]);
+                  for (const [k, v] of Object.entries(parsed)) {
+                    if (v && typeof v === "string") structuredVisualDetails[k] = v;
+                  }
+                }
+              }
+            } catch (structErr) {
+              console.warn(`[MusicVideo] Structured visual extraction failed for ${char.name}:`, structErr);
+            }
+            // Merge with any existing characterVisualDetails
+            let existingVisual: Record<string, string> = {};
+            if (char.characterVisualDetails) {
+              try { existingVisual = JSON.parse(char.characterVisualDetails); } catch {}
+            }
+            const mergedVisual = { ...existingVisual, ...structuredVisualDetails };
             await db.update(videoCharacters)
-              .set({ isLocked: true, lockedDescription: description.trim(), updatedAt: new Date() })
+              .set({ isLocked: true, lockedDescription: description.trim(), characterVisualDetails: JSON.stringify(mergedVisual), updatedAt: new Date() })
               .where(eq(videoCharacters.id, char.id));
-            console.log(`[MusicVideo] Auto-locked character ${char.name} with description (${description.trim().length} chars)`);
+            console.log(`[MusicVideo] Auto-locked character ${char.name} with description (${description.trim().length} chars) + visual lock: ${JSON.stringify(structuredVisualDetails)}`);
           }
         } catch (err) {
           console.warn(`[MusicVideo] Failed to auto-analyse character ${char.name}:`, err);
@@ -1337,7 +1375,40 @@ Rules:
           // Dual-constraint outfit block (positive + negative, repeated twice)
           const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit);
           if (outfitConstraintBlock) parts.push(outfitConstraintBlock);
-          if (details.instrument) parts.push(`Instrument: ${details.instrument} -- MUST hold/play this instrument. NO other instruments.`);
+
+          // ── HAIR LOCK ──────────────────────────────────────────────────────────────
+          // Photo-driven (from structured extraction) or defaults — NEVER changes between scenes
+          const hairColour = (details as any).hairColour || charDefaults?.characterVisualDetails?.hairColour;
+          const hairLength = (details as any).hairLength || charDefaults?.characterVisualDetails?.hairLength;
+          const hairStyle = (details as any).hairStyle || charDefaults?.characterVisualDetails?.hairStyle;
+          if (hairColour || hairLength || hairStyle) {
+            const hairDesc = [hairColour, hairLength, hairStyle].filter(Boolean).join(", ");
+            parts.push(
+              `HAIR LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s hair is EXACTLY: ${hairDesc}. ` +
+              `DO NOT change the hair colour. DO NOT change the hair length. DO NOT change the hair style. ` +
+              `SAME hair in every single scene. NEVER shorter. NEVER longer. NEVER different colour.`
+            );
+          }
+
+          // ── INSTRUMENT LOCK ───────────────────────────────────────────────────────
+          // Photo-driven (from structured extraction) or defaults — exact model + colour locked
+          const instrumentModel = (details as any).instrumentModel || charDefaults?.characterVisualDetails?.instrumentModel;
+          const instrumentColour = (details as any).instrumentColour || charDefaults?.characterVisualDetails?.instrumentColour;
+          const instrumentFinish = (details as any).instrumentFinish || charDefaults?.characterVisualDetails?.instrumentFinish;
+          if (details.instrument || instrumentModel) {
+            const instrumentDesc = instrumentModel
+              ? `${instrumentModel}${instrumentColour ? ` — ${instrumentColour}` : ""}${instrumentFinish ? `, ${instrumentFinish}` : ""}`
+              : details.instrument!;
+            parts.push(
+              `INSTRUMENT LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s instrument is EXACTLY: ${instrumentDesc}. ` +
+              `SAME instrument model in every scene. SAME colour and finish. ` +
+              `DO NOT change the instrument colour. DO NOT swap to a different model. ` +
+              `Character MUST be actively playing or holding this exact instrument.`
+            );
+          } else if (details.instrument) {
+            parts.push(`Instrument: ${details.instrument} -- MUST hold/play this instrument. NO other instruments.`);
+          }
+
           if (details.position) parts.push(`Position: ${details.position}`);
           if (details.props) parts.push(`Props: ${details.props}`);
 
@@ -1553,10 +1624,29 @@ Rules:
         }
       }
 
+      // Build per-character hair + instrument negative entries from locked visual details
+      const perCharHairInstrumentNegatives: string[] = [];
+      for (const c of resolvedSceneChars) {
+        let cDetails: Record<string, string> = {};
+        if (c.characterVisualDetails) { try { cDetails = JSON.parse(c.characterVisualDetails); } catch {} }
+        const cDefaults = getCharacterDefaults(c.name);
+        const hColour = cDetails.hairColour || (cDefaults?.characterVisualDetails as any)?.hairColour;
+        const hLength = cDetails.hairLength || (cDefaults?.characterVisualDetails as any)?.hairLength;
+        const iModel = cDetails.instrumentModel || (cDefaults?.characterVisualDetails as any)?.instrumentModel;
+        const iColour = cDetails.instrumentColour || (cDefaults?.characterVisualDetails as any)?.instrumentColour;
+        if (hColour) perCharHairInstrumentNegatives.push(`different hair colour on ${c.name}`, `wrong hair colour on ${c.name}`);
+        if (hLength) perCharHairInstrumentNegatives.push(`different hair length on ${c.name}`, `shorter hair on ${c.name}`, `longer hair on ${c.name}`);
+        if (iModel) perCharHairInstrumentNegatives.push(`different instrument model for ${c.name}`, `wrong instrument for ${c.name}`);
+        if (iColour) perCharHairInstrumentNegatives.push(`different instrument colour for ${c.name}`, `wrong colour instrument for ${c.name}`);
+      }
+
       const negativePromptV2 = [
         "different face", "new person", "altered identity", "different person", "inconsistent character",
         "different hairstyle", "shorter hair", "longer hair", "different hair colour", "different hair color",
+        "hair colour change", "hair length change", "hair dye", "wig", "bald",
         "variation in appearance", "different facial hair",
+        // Per-character hair + instrument negatives (dynamic)
+        ...perCharHairInstrumentNegatives,
         extraPeopleNegative,
         "nsfw", "lowres", "bad anatomy", "extra limbs", "blurry", "low quality", "cartoon", "anime",
         "deformed", "ugly", "disfigured",
@@ -2447,11 +2537,52 @@ Rules:
       }
 
       const trimmedDescription = description.trim();
+
+      // Second pass: extract structured visual lock fields (hair + instrument) from the same photo
+      let structuredVisualDetails: Record<string, string> = {};
+      try {
+        const { invokeLLM: invokeLLM2 } = await import("../_core/llm");
+        const structuredResponse = await invokeLLM2({
+          messages: [
+            {
+              role: "system" as const,
+              content: `You are a forensic visual analyst. Extract precise visual lock data from the photo for AI video generation. Output ONLY valid JSON, no markdown, no explanation.`,
+            },
+            {
+              role: "user" as const,
+              content: [
+                { type: "image_url" as const, image_url: { url: primaryPhoto.photoUrl, detail: "high" as const } },
+                { type: "text" as const, text: `Extract the following fields from this photo as a JSON object. If a field is not visible or not applicable, use null.\n{\n  "hairColour": "exact hair colour (e.g. jet black, dark brown, platinum blonde, auburn red)",\n  "hairLength": "exact length (e.g. shaved, close-cropped, short, medium/collar-length, shoulder-length, long/past shoulders, very long/waist-length)",\n  "hairStyle": "style description (e.g. straight, wavy, curly, messy, slicked back, braided, afro)",\n  "instrumentModel": "exact instrument model if visible (e.g. Gibson Les Paul Standard, Fender Stratocaster, Pearl Export drum kit, Fender Precision Bass) or null",\n  "instrumentColour": "exact instrument colour/finish if visible (e.g. sunburst, gloss black, natural wood, cherry red) or null",\n  "instrumentFinish": "hardware and finish details if visible (e.g. gold hardware, chrome tuners, white pickguard) or null"\n}` },
+              ],
+            },
+          ],
+        });
+        const raw = structuredResponse.choices[0]?.message?.content;
+        if (raw && typeof raw === "string") {
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            for (const [k, v] of Object.entries(parsed)) {
+              if (v && typeof v === "string") structuredVisualDetails[k] = v;
+            }
+          }
+        }
+      } catch (structErr) {
+        console.warn(`[reanalyseCharacterPhoto] Structured visual extraction failed for ${char.name}:`, structErr);
+      }
+
+      // Merge with any existing characterVisualDetails
+      let existingVisual: Record<string, string> = {};
+      if (char.characterVisualDetails) {
+        try { existingVisual = JSON.parse(char.characterVisualDetails); } catch {}
+      }
+      const mergedVisual = { ...existingVisual, ...structuredVisualDetails };
+
       await db.update(videoCharacters)
-        .set({ isLocked: true, lockedDescription: trimmedDescription, updatedAt: new Date() })
+        .set({ isLocked: true, lockedDescription: trimmedDescription, characterVisualDetails: JSON.stringify(mergedVisual), updatedAt: new Date() })
         .where(eq(videoCharacters.id, input.characterId));
 
-      console.log(`[reanalyseCharacterPhoto] Updated ${char.name} description (${trimmedDescription.length} chars)`);
+      console.log(`[reanalyseCharacterPhoto] Updated ${char.name} description (${trimmedDescription.length} chars) + visual lock: ${JSON.stringify(structuredVisualDetails)}`);
       return { success: true, description: trimmedDescription };
     }),
 

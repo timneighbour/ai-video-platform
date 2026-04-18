@@ -1,6 +1,6 @@
 /**
  * Video Characters tRPC Router
- * Manages up to 4 named characters per music video job,
+ * Manages up to 8 named characters per music video job,
  * each with multiple reference photos and optional lip sync.
  */
 import { z } from "zod";
@@ -40,7 +40,7 @@ const lockedRulesSchema = z.object({
 }).optional();
 
 const characterInputSchema = z.object({
-  slotIndex: z.number().int().min(0).max(3),
+  slotIndex: z.number().int().min(0).max(7),
   name: z.string().min(1).max(255).default("Character"),
   role: z.string().max(255).optional(),
   enableLipSync: z.boolean().optional().default(false),
@@ -69,7 +69,7 @@ export const charactersRouter = router({
   saveCharacters: protectedProcedure
     .input(z.object({
       jobId: z.number().int(),
-      characters: z.array(characterInputSchema).max(4),
+      characters: z.array(characterInputSchema).max(8),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();

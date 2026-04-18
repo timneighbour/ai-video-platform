@@ -2317,7 +2317,7 @@ export default function MusicVideoAutopilot() {
                   <CharacterManager
                     characters={characters}
                     onChange={setCharacters}
-                    maxCharacters={4}
+                    maxCharacters={8}
                     jobId={jobId}
                     savedCharacterIds={savedCharacterIds}
                     videoStyle={selectedStyle}

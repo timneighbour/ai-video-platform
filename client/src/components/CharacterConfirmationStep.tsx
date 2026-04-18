@@ -12,6 +12,11 @@
  * using the master portrait + locked seed + locked character prompt.
  *
  * Once ALL characters are approved, the "Generate Storyboard" button becomes active.
+ *
+ * UI improvements (Apr 2026):
+ *   - Preview image shown full-height with object-contain so the full body is always visible
+ *   - Uploaded reference photo shown alongside the AI portrait for easy comparison
+ *   - Outfit / hair / instrument details displayed as readable tags below the image
  */
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
@@ -21,7 +26,7 @@ import { toast } from "sonner";
 import {
   CheckCircle2, RefreshCw, ArrowLeft, Sparkles, User,
   ShieldCheck, AlertCircle, Loader2, ImageIcon, Lock, Unlock,
-  Anchor, Info,
+  Anchor, Info, Camera,
 } from "lucide-react";
 
 interface CharacterPreviewState {
@@ -33,12 +38,33 @@ interface CharacterPreviewState {
   previewApproved: boolean;
   primaryPhotoUrl: string | null;
   lockedDescription: string | null;
+  lockedOutfit: string | null;        // raw JSON string from DB
+  lockedProps: string | null;         // raw JSON string from DB
+  lockedRules: string | null;         // raw JSON string from DB
+  characterVisualDetails: string | null; // free-text visual details
   isLocked: boolean;
   photoCount: number;
   masterPortraitUrl: string | null;
   masterSeed: number | null;
   characterPrompt: string | null;
   masterPortraitGeneratedAt: string | null;
+}
+
+/** Parse a JSON column that may be a plain string or a JSON object/array */
+function parseJsonField(raw: string | null): string {
+  if (!raw) return "";
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "string") return parsed;
+    // Flatten object values into a readable string
+    if (typeof parsed === "object" && !Array.isArray(parsed)) {
+      return Object.values(parsed).filter(Boolean).join(", ");
+    }
+    if (Array.isArray(parsed)) return parsed.filter(Boolean).join(", ");
+    return String(parsed);
+  } catch {
+    return raw;
+  }
 }
 
 interface CharacterConfirmationStepProps {
@@ -54,6 +80,10 @@ const SLOT_COLORS = [
   { ring: "ring-blue-500",   bg: "bg-blue-900/20",   badge: "bg-blue-900/50 text-blue-300 border-blue-800",     dot: "bg-blue-400" },
   { ring: "ring-pink-500",   bg: "bg-pink-900/20",   badge: "bg-pink-900/50 text-pink-300 border-pink-800",     dot: "bg-pink-400" },
   { ring: "ring-amber-500",  bg: "bg-amber-900/20",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  dot: "bg-amber-400" },
+  { ring: "ring-sky-500",    bg: "bg-sky-900/20",    badge: "bg-sky-900/50 text-sky-300 border-sky-800",        dot: "bg-sky-400" },
+  { ring: "ring-emerald-500",bg: "bg-emerald-900/20",badge: "bg-emerald-900/50 text-emerald-300 border-emerald-800",dot: "bg-emerald-400" },
+  { ring: "ring-violet-500", bg: "bg-violet-900/20", badge: "bg-violet-900/50 text-violet-300 border-violet-800", dot: "bg-violet-400" },
+  { ring: "ring-rose-500",   bg: "bg-rose-900/20",   badge: "bg-rose-900/50 text-rose-300 border-rose-800",     dot: "bg-rose-400" },
 ];
 
 export default function CharacterConfirmationStep({
@@ -90,6 +120,10 @@ export default function CharacterConfirmationStep({
         previewApproved: c.previewApproved ?? false,
         primaryPhotoUrl: c.primaryPhotoUrl ?? null,
         lockedDescription: c.lockedDescription ?? null,
+        lockedOutfit: c.lockedOutfit ?? null,
+        lockedProps: c.lockedProps ?? null,
+        lockedRules: c.lockedRules ?? null,
+        characterVisualDetails: c.characterVisualDetails ?? null,
         isLocked: c.isLocked ?? false,
         photoCount: c.photoCount ?? 0,
         masterPortraitUrl: c.masterPortraitUrl ?? null,
@@ -103,7 +137,7 @@ export default function CharacterConfirmationStep({
   // Generate master portrait (identity anchor) for a photo-mode character
   const handleGenerateMasterPortrait = async (char: CharacterPreviewState) => {
     setGeneratingMasterPortraits(prev => new Set(prev).add(char.id));
-    toast.loading(`Creating identity anchor for ${char.name}...`, { id: `master-${char.id}` });
+    toast.loading(`Creating full-body portrait for ${char.name}...`, { id: `master-${char.id}` });
     try {
       const result = await generateMasterPortraitMutation.mutateAsync({ characterId: char.id, jobId });
       setCharacters(prev => prev.map(c =>
@@ -116,12 +150,12 @@ export default function CharacterConfirmationStep({
           previewApproved: false,
         } : c
       ));
-      toast.success(`Identity anchor created for ${char.name}!`, {
+      toast.success(`Full-body portrait ready for ${char.name}!`, {
         id: `master-${char.id}`,
-        description: `Engine: ${result.engineUsed} · Seed: ${result.masterSeed}`,
+        description: `Check the face, hair colour, and outfit — then approve.`,
       });
     } catch (err: any) {
-      toast.error(`Failed to create identity anchor for ${char.name}`, {
+      toast.error(`Failed to create portrait for ${char.name}`, {
         id: `master-${char.id}`,
         description: err?.message ?? "Please try again.",
       });
@@ -194,7 +228,7 @@ export default function CharacterConfirmationStep({
             Confirm Your Characters
           </h2>
           <p className="text-zinc-400 text-sm mt-1">
-            Generate an identity-anchored portrait for each character. This becomes the face reference for every scene.
+            Generate a full-body portrait for each character. Check the face, hair colour, and outfit — then approve.
           </p>
         </div>
         <Badge className={`text-sm px-3 py-1.5 ${allApproved ? "bg-emerald-900/60 text-emerald-300 border-emerald-700" : "bg-zinc-800 text-zinc-400 border-zinc-700"}`}>
@@ -237,17 +271,16 @@ export default function CharacterConfirmationStep({
         <div className="flex items-start gap-3 rounded-xl border border-amber-700/50 bg-amber-950/30 px-4 py-3">
           <Anchor className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-amber-300 font-medium text-sm">Generate identity anchors for your photo characters</p>
+            <p className="text-amber-300 font-medium text-sm">Generate full-body portraits for your photo characters</p>
             <p className="text-amber-200/60 text-xs mt-0.5">
-              Characters with uploaded photos need an identity anchor portrait before the storyboard is created.
-              This is a one-time step — click "Create Identity Anchor" on each photo character below.
+              Click "Create Full-Body Portrait" on each photo character below. You'll see the AI version of them — face, hair colour, and complete outfit — so you can verify everything looks right before the storyboard is built.
             </p>
           </div>
         </div>
       )}
 
       {/* Character cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {characters.map((char) => {
           const colors = SLOT_COLORS[char.slotIndex] ?? SLOT_COLORS[0];
           const isGeneratingMaster = generatingMasterPortraits.has(char.id);
@@ -257,6 +290,14 @@ export default function CharacterConfirmationStep({
           const hasMasterPortrait = !!char.masterPortraitUrl;
           const isPhotoChar = char.photoCount > 0;
           const showMasterPortraitBadge = isPhotoChar && hasMasterPortrait && characterLockMode;
+
+          // Build outfit detail tags for display — parse JSON columns into readable strings
+          const detailTags: { label: string; value: string }[] = [];
+          const outfitStr = parseJsonField(char.lockedOutfit);
+          const propsStr = parseJsonField(char.lockedProps);
+          if (outfitStr) detailTags.push({ label: "Outfit", value: outfitStr });
+          if (propsStr) detailTags.push({ label: "Props", value: propsStr });
+          if (!detailTags.length && char.characterVisualDetails) detailTags.push({ label: "Details", value: char.characterVisualDetails });
 
           return (
             <div
@@ -293,10 +334,10 @@ export default function CharacterConfirmationStep({
                 </div>
               </div>
 
-              {/* Preview image area */}
-              <div className="relative bg-zinc-900 min-h-[220px] flex items-center justify-center">
+              {/* ── Main preview area: reference photo + AI portrait side by side ── */}
+              <div className="bg-zinc-900">
                 {isGenerating ? (
-                  <div className="flex flex-col items-center gap-3 py-10">
+                  <div className="flex flex-col items-center gap-3 py-14">
                     <div className="relative">
                       <div className="w-16 h-16 rounded-full bg-[--color-gold]/10 flex items-center justify-center">
                         {isGeneratingMaster
@@ -307,62 +348,111 @@ export default function CharacterConfirmationStep({
                       <div className="absolute inset-0 rounded-full border-2 border-[--color-gold]/50 animate-spin border-t-transparent pointer-events-none" />
                     </div>
                     <p className="text-zinc-400 text-sm">
-                      {isGeneratingMaster ? "Creating identity anchor..." : "Generating AI preview..."}
+                      {isGeneratingMaster ? "Generating full-body portrait..." : "Generating AI preview..."}
                     </p>
                     <p className="text-zinc-600 text-xs">
-                      {isGeneratingMaster ? "InstantID · 30–60 seconds" : "10–20 seconds"}
+                      {isGeneratingMaster ? "Face · Hair · Outfit — 30–60 seconds" : "10–20 seconds"}
                     </p>
                   </div>
                 ) : hasPreview ? (
-                  <>
-                    <img
-                      src={char.previewImageUrl!}
-                      alt={`${char.name} AI preview`}
-                      className="w-full max-h-72 object-cover"
-                    />
-                    {/* Master portrait indicator overlay */}
-                    {showMasterPortraitBadge && !char.previewApproved && (
-                      <div className="absolute bottom-2 left-2 bg-[#1a1a1a]/90 rounded-lg px-2 py-1 flex items-center gap-1.5">
-                        <Anchor className="w-3 h-3 text-[--color-gold]" />
-                        <span className="text-[--color-gold] text-xs font-medium">Identity Anchor</span>
-                      </div>
-                    )}
-                    {char.previewApproved && (
-                      <div className="absolute inset-0 bg-emerald-900/20 flex items-center justify-center pointer-events-none">
-                        <div className="bg-emerald-900/80 rounded-full p-3">
-                          <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                  <div className="flex gap-0">
+                    {/* Reference photo column — only shown for photo-mode characters */}
+                    {isPhotoChar && char.primaryPhotoUrl && (
+                      <div className="w-1/3 flex-shrink-0 border-r border-zinc-800">
+                        <div className="px-2 pt-2 pb-1">
+                          <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
+                            <Camera className="w-3 h-3" /> Your Photo
+                          </p>
+                        </div>
+                        {/* Portrait aspect ratio — object-contain so face is never cropped */}
+                        <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
+                          <img
+                            src={char.primaryPhotoUrl}
+                            alt={`${char.name} reference`}
+                            className="w-full h-full object-contain"
+                          />
                         </div>
                       </div>
                     )}
-                  </>
+
+                    {/* AI portrait column */}
+                    <div className={`relative ${isPhotoChar && char.primaryPhotoUrl ? "w-2/3" : "w-full"}`}>
+                      <div className="px-2 pt-2 pb-1">
+                        <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" /> AI Full-Body Portrait
+                        </p>
+                      </div>
+                      {/* Tall portrait container — object-contain so legs and feet are always visible */}
+                      <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
+                        <img
+                          src={char.previewImageUrl!}
+                          alt={`${char.name} AI portrait`}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      {/* Approved overlay */}
+                      {char.previewApproved && (
+                        <div className="absolute inset-0 bg-emerald-900/20 flex items-center justify-center pointer-events-none rounded-lg">
+                          <div className="bg-emerald-900/80 rounded-full p-3">
+                            <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                          </div>
+                        </div>
+                      )}
+                      {/* Master portrait badge */}
+                      {showMasterPortraitBadge && !char.previewApproved && (
+                        <div className="absolute bottom-4 left-4 bg-[#1a1a1a]/90 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                          <Anchor className="w-3 h-3 text-[--color-gold]" />
+                          <span className="text-[--color-gold] text-xs font-medium">Identity Anchor</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center gap-3 py-10 px-4 text-center">
-                    <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-zinc-600" />
-                    </div>
-                    <p className="text-zinc-400 text-sm font-medium">No preview yet</p>
-                    {isPhotoChar ? (
-                      <p className="text-zinc-600 text-xs">
-                        {characterLockMode
-                          ? `Click "Create Identity Anchor" to generate a face-locked portrait for ${char.name}`
-                          : `Click "Generate Preview" to see how the AI will render ${char.name}`}
-                      </p>
+                    {/* Show reference photo prominently when no AI portrait yet */}
+                    {char.primaryPhotoUrl ? (
+                      <>
+                        <div className="w-full max-w-[160px] mx-auto rounded-xl overflow-hidden bg-zinc-950 ring-1 ring-zinc-700" style={{ aspectRatio: "3/4" }}>
+                          <img
+                            src={char.primaryPhotoUrl}
+                            alt={`${char.name} reference`}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <p className="text-zinc-400 text-sm font-medium">Reference photo uploaded</p>
+                        <p className="text-zinc-600 text-xs max-w-[200px]">
+                          {characterLockMode
+                            ? `Click "Create Full-Body Portrait" to generate the AI version of ${char.name} — face, hair, and outfit`
+                            : `Click "Generate Preview" to see how the AI will render ${char.name}`}
+                        </p>
+                      </>
                     ) : (
-                      <p className="text-zinc-600 text-xs">Generate a preview to confirm this character's appearance</p>
-                    )}
-                    {/* Show reference photo thumbnail if available */}
-                    {char.primaryPhotoUrl && (
-                      <div className="flex items-center gap-2 mt-1">
-                        <img src={char.primaryPhotoUrl} alt="Reference" className="w-10 h-10 rounded-lg object-cover border border-zinc-700" />
-                        <span className="text-zinc-500 text-xs">Reference photo</span>
-                      </div>
+                      <>
+                        <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-zinc-600" />
+                        </div>
+                        <p className="text-zinc-400 text-sm font-medium">No preview yet</p>
+                        <p className="text-zinc-600 text-xs">Generate a preview to confirm this character's appearance</p>
+                      </>
                     )}
                   </div>
                 )}
               </div>
 
+              {/* ── Outfit / hair / instrument detail tags ── */}
+              {detailTags.length > 0 && (
+                <div className="px-3 py-2 bg-zinc-800/60 border-t border-zinc-700/50 space-y-1.5">
+                  {detailTags.map(tag => (
+                    <div key={tag.label} className="flex items-start gap-2">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 min-w-[52px] mt-0.5">{tag.label}</span>
+                      <span className="text-zinc-300 text-xs leading-relaxed">{tag.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Locked description / character prompt preview */}
-              {(char.characterPrompt || char.lockedDescription) && (
+              {!detailTags.length && (char.characterPrompt || char.lockedDescription) && (
                 <div className="px-4 py-2 bg-zinc-800/50 border-t border-zinc-700/50">
                   <p className="text-zinc-500 text-xs line-clamp-2">
                     {char.characterPrompt ?? char.lockedDescription}
@@ -372,7 +462,7 @@ export default function CharacterConfirmationStep({
 
               {/* Action buttons */}
               <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex gap-2">
-                {/* Primary action: Create Identity Anchor (photo chars in lock mode) or Generate Preview */}
+                {/* Primary action: Create Full-Body Portrait (photo chars in lock mode) or Generate Preview */}
                 {isPhotoChar && characterLockMode ? (
                   <Button
                     type="button"
@@ -386,11 +476,11 @@ export default function CharacterConfirmationStep({
                     }`}
                   >
                     {isGeneratingMaster ? (
-                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating anchor...</>
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating portrait...</>
                     ) : hasMasterPortrait ? (
-                      <><RefreshCw className="w-3.5 h-3.5" /> Re-anchor</>
+                      <><RefreshCw className="w-3.5 h-3.5" /> Regenerate Portrait</>
                     ) : (
-                      <><Anchor className="w-3.5 h-3.5" /> Create Identity Anchor</>
+                      <><Anchor className="w-3.5 h-3.5" /> Create Full-Body Portrait</>
                     )}
                   </Button>
                 ) : (
@@ -455,7 +545,7 @@ export default function CharacterConfirmationStep({
             <p className="text-[--color-gold] font-medium text-sm">Approve all characters to continue</p>
             <p className="text-[--color-gold]/60 text-xs mt-0.5">
               {characterLockMode
-                ? "For photo characters: create an identity anchor first, then approve. The anchor portrait will be used as the face reference in every scene."
+                ? "For photo characters: create a full-body portrait first, then verify the face, hair colour, and outfit — then approve. This portrait becomes the face reference in every scene."
                 : "Generate a preview for each character and click \"Approve Look\" to confirm their appearance."}
             </p>
           </div>
@@ -469,7 +559,7 @@ export default function CharacterConfirmationStep({
             <p className="text-emerald-300 font-medium text-sm">All characters approved!</p>
             <p className="text-emerald-200/60 text-xs mt-0.5">
               {characterLockMode && photoChars.length > 0
-                ? "Identity anchors are locked in. Every scene will use InstantID with your master portraits to enforce face consistency."
+                ? "Identity anchors are locked in. Every scene will use your approved portraits to enforce face, hair, and outfit consistency."
                 : "Your characters' appearances are locked in. Click \"Generate Storyboard\" to create your video scenes."}
             </p>
           </div>

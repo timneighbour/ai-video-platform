@@ -43,6 +43,14 @@ export interface CharacterDefaults {
     outfit?: string;
     props?: string;
     position?: string;
+    // Hair lock fields — extracted from photo or set as defaults
+    hairColour?: string;
+    hairLength?: string;
+    hairStyle?: string;
+    // Instrument lock fields — extracted from photo or set as defaults
+    instrumentModel?: string;
+    instrumentColour?: string;
+    instrumentFinish?: string;
   };
 }
 
@@ -86,10 +94,18 @@ export const TIM_DEFAULTS: CharacterDefaults = {
   characterDefaultState: "Standing at microphone, centre stage, singing with intensity",
   characterConstraints: "MUST always wear black leather jacket. MUST be at microphone unless explicitly playing guitar. NEVER in background. NEVER holding drumsticks. NEVER sleeveless.",
   characterVisualDetails: {
-    instrument: "microphone on stand (default) / sunburst Gibson Les Paul (when playing guitar)",
+    instrument: "microphone on stand (default) / sunburst Gibson Les Paul electric guitar (when playing guitar)",
     outfit: "black leather jacket, dark t-shirt underneath, dark jeans with key chain, black boots",
     props: "microphone, key chain",
     position: "centre stage, front",
+    // Hair lock
+    hairColour: "dark brown, near-black",
+    hairLength: "medium length, collar-length",
+    hairStyle: "slightly messy, textured, natural wave",
+    // Instrument lock
+    instrumentModel: "Gibson Les Paul Standard",
+    instrumentColour: "sunburst — honey amber centre fading to dark mahogany edges",
+    instrumentFinish: "gloss finish, gold hardware, cream binding",
   },
 };
 
@@ -137,6 +153,14 @@ export const GREG_DEFAULTS: CharacterDefaults = {
     outfit: "black short-sleeve torn t-shirt, dark jeans, trainers or boots",
     props: "drumsticks, drum kit",
     position: "rear centre, behind drum kit",
+    // Hair lock
+    hairColour: "dark brown, near-black",
+    hairLength: "short, close-cropped",
+    hairStyle: "tight fade on sides, short on top",
+    // Instrument lock
+    instrumentModel: "Pearl Export drum kit",
+    instrumentColour: "jet black wrap finish",
+    instrumentFinish: "chrome hardware, 22-inch bass drum, hi-hat left side, crash cymbal right, ride cymbal far right",
   },
 };
 
@@ -177,10 +201,18 @@ export const MONICA_DEFAULTS: CharacterDefaults = {
   characterDefaultState: "Standing stage right, playing bass guitar, body swaying with the groove",
   characterConstraints: "MUST always be playing bass guitar. MUST wear black outfit with boots. Tattoos and cross necklace MUST be visible. NEVER leather jacket. NEVER plain/generic clothing.",
   characterVisualDetails: {
-    instrument: "bass guitar (always held/played)",
+    instrument: "Fender Precision Bass electric bass guitar (always held/played)",
     outfit: "distressed charcoal grey V-neck t-shirt, form-fitting black leather trousers, black stiletto-heeled ankle boots, silver cross necklace, sleeve tattoos",
     props: "bass guitar, cross necklace, sleeve tattoos",
     position: "stage right, standing",
+    // Hair lock
+    hairColour: "dark brown, near-black",
+    hairLength: "long, past shoulders",
+    hairStyle: "straight, sleek, worn loose",
+    // Instrument lock
+    instrumentModel: "Fender Precision Bass",
+    instrumentColour: "gloss black body",
+    instrumentFinish: "white pickguard, maple neck, chrome tuners and bridge",
   },
 };
 

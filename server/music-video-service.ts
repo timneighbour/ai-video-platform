@@ -221,7 +221,7 @@ CRITICAL RULES — MUST FOLLOW:
    - Clothing/costume specific to this video
    - Any distinctive features
 5. This description will be copied VERBATIM into every scene — make it precise enough for an AI to reproduce the SAME person every time
-6. Keep the total cast to a maximum of 4 characters
+6. Keep the total cast to a maximum of 8 characters (a full band may have 5-8 members — vocalist, guitarist, bassist, drummer, keyboard player, backing vocalists, etc.)
 7. NEVER create a character whose role duplicates a locked character's role
 8. NEVER create a character with unusual hair colours (blue, green, pink, purple) unless explicitly requested
 
@@ -314,7 +314,7 @@ Return a JSON object with a "characters" array. Each character must have:
         }
         return true;
       })
-      .slice(0, 2); // max 2 invented characters
+      .slice(0, 4); // max 4 invented characters (for bands without uploaded photos)
 
     // Build the authoritative roster: locked characters first (with exact descriptions), then invented
     const authorativeLockedChars = lockedCharacters!.map(c => ({

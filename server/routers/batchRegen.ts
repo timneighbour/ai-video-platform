@@ -366,10 +366,14 @@ export const batchRegenRouter = router({
       const masterSeed = Math.floor(Math.random() * 2147483647);
       const description = char.lockedDescription?.trim() ?? "";
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
+      // Build a full-body prompt so the confirmation step shows face + hair + complete outfit.
+      // Explicit full-body framing overrides any reference photo that may be a bust/head shot.
+      const fullBodyPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up.`;
+      const fullBodySuffix = `Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
       const characterPrompt =
         description.length > 20
-          ? `Portrait of ${characterLabel}. ${description}. Same person as reference image, identical face, same hair, same identity, no variation. Clean studio lighting, front-facing, photorealistic, high detail.`
-          : `Portrait of ${characterLabel}. Same person as reference image, identical face, same hair, same identity, no variation. Clean studio lighting, front-facing, photorealistic, high detail.`;
+          ? `${fullBodyPrefix} Full-body portrait of ${characterLabel}. ${description}. Same person as reference image, identical face, same hair colour and style, same identity, no variation. ${fullBodySuffix}`
+          : `${fullBodyPrefix} Full-body portrait of ${characterLabel}. Same person as reference image, identical face, same hair colour and style, same identity, no variation. ${fullBodySuffix}`;
       // Use built-in Forge image generation with reference photo for face consistency
       // (fal.ai / InstantID is unreachable from this server environment)
       const engineUsed = "forge";
