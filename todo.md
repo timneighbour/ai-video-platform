@@ -4676,3 +4676,8 @@
 - [x] ENGINE #5: Position section high on homepage (after product grid or demo section)
 - [x] ENGINE #6: Make benefits obvious and non-technical for each engine
 - [x] ENGINE #7: Responsive design for mobile
+
+## WizBoost Engine Addition
+- [x] BOOST #1: Add WizBoost as 4th premium engine card in WIZ Engines section
+- [x] BOOST #2: Update grid layout from 3-col to 2x2 for 4 engines
+- [x] BOOST #3: Update "How it works together" flow to reference WizBoost

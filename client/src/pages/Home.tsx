@@ -11,7 +11,7 @@ import {
   Sparkles, Play, ArrowRight, Menu, X, ChevronDown,
   Music2, Image, Film, Zap, Wand2, FileText,
   Check, Star, Users, TrendingUp, Globe, Shield,
-  Volume2, VolumeX, Eye, Layers,
+  Volume2, VolumeX, Eye, Layers, Rocket,
 } from "lucide-react";
 
 // ── Assets ───────────────────────────────────────────────────────────────────
@@ -478,13 +478,24 @@ function WizEngines() {
       accentBorder: "oklch(0.78 0.11 75 / 0.08)",
       accentGlow: "oklch(0.78 0.11 75 / 0.04)",
     },
+    {
+      name: "WizBoost",
+      tm: "™",
+      tagline: "Output Optimisation Engine",
+      desc: "Analyses your final render and applies intelligent upscaling, compression optimisation, and platform-specific formatting. Your content arrives publish-ready for YouTube, TikTok, Instagram, and beyond.",
+      benefit: "Every export is optimised for maximum quality on every platform.",
+      icon: <Rocket className="w-6 h-6" />,
+      accentFrom: "oklch(0.78 0.11 75 / 0.12)",
+      accentBorder: "oklch(0.78 0.11 75 / 0.10)",
+      accentGlow: "oklch(0.78 0.11 75 / 0.05)",
+    },
   ];
 
   const flow = [
     { step: "01", label: "You choose what to create", detail: "Music video, animation, short, image, or audio." },
     { step: "02", label: "WIZ AI generates the foundation", detail: "WizGenesis™ builds your storyboard, scenes, and structure." },
-    { step: "03", label: "The WIZ Engines enhance and refine", detail: "WizSound™ and WizLumina™ elevate audio and visuals automatically." },
-    { step: "04", label: "You preview, build, and export", detail: "Review every scene, then render in HD or 4K." },
+    { step: "03", label: "The WIZ Engines enhance and refine", detail: "WizSound™ and WizLumina™ elevate audio and visuals. WizBoost™ optimises the final output." },
+    { step: "04", label: "You preview, build, and export", detail: "Review every scene, then render in HD or 4K — publish-ready for any platform." },
   ];
 
   return (
@@ -506,8 +517,8 @@ function WizEngines() {
           </p>
         </div>
 
-        {/* Engine cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-24">
+        {/* Engine cards — 2×2 grid */}
+        <div className="grid sm:grid-cols-2 gap-6 mb-24">
           {engines.map((eng) => (
             <div
               key={eng.name}
