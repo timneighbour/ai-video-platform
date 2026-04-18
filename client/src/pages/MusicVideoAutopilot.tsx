@@ -1431,8 +1431,9 @@ export default function MusicVideoAutopilot() {
   // Show UI first, gate generate action behind auth
 
   // Use explicit storyboardGenerating state (not mutation.isPending) to avoid the overlay
-  // persisting after scenes have already been received and rendered
-  const isGeneratingStoryboard = storyboardGenerating;
+  // persisting after scenes have already been received and rendered.
+  // Safety net: if we have scenes and are on the storyboard step, the overlay must not show.
+  const isGeneratingStoryboard = storyboardGenerating && !(step === "storyboard" && scenes.length > 0);
 
   return (
     <div className="min-h-screen bg-black text-white">

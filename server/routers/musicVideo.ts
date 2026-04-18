@@ -457,9 +457,10 @@ Rules:
           visualStyle: scene.visualStyle,
           characterAssignments: scene.characterAssignments && scene.characterAssignments.length > 0
             ? JSON.stringify(scene.characterAssignments)
-            // Fallback: if LLM omitted assignments (common for first/last scenes), assign all roster members
+            // Fallback: if LLM omitted assignments, use the lead character (first locked, or first in roster)
+            // Assigning ALL roster members causes visual chaos — solo scenes are more consistent
             : roster.length > 0
-              ? JSON.stringify(roster.map((c: { name: string }) => c.name))
+              ? JSON.stringify([roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name])
               : null,
           status: "pending",
         });
@@ -1912,11 +1913,17 @@ Rules:
         }
         return { success: true, sceneId: input.sceneId, status: "generating" };
       } catch (err) {
-        console.error("[regenerateScene] Failed to start scene render:", err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error("[regenerateScene] Failed to start scene render:", errMsg);
         await db.update(musicVideoScenes)
-          .set({ status: "failed", errorMessage: String(err) })
+          .set({ status: "failed", errorMessage: errMsg })
           .where(eq(musicVideoScenes.id, input.sceneId));
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to start scene regeneration" });
+        // Surface a user-friendly message based on the error type
+        const isApiKeyMissing = /not configured|API_KEY|api key/i.test(errMsg);
+        const userMsg = isApiKeyMissing
+          ? "Video rendering service is not configured. Please contact support."
+          : `Scene render failed: ${errMsg.slice(0, 200)}`;
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: userMsg });
       }
     }),
 
