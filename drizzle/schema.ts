@@ -154,6 +154,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }), // First scene image used as video thumbnail
   errorMessage: text("errorMessage"),
   aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1"
+  contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> — user-uploaded visual references for storyboard generation
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

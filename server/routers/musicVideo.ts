@@ -369,6 +369,22 @@ Rules:
       if (job.enableLipSync) {
         enrichedThemePrompt += "\n\nLip Sync: Include close-up shots of the character's face/mouth in scenes where lyrics are being sung, suitable for lip sync processing.";
       }
+      // Include user-uploaded visual reference assets as context
+      if (job.contextAssetUrls) {
+        try {
+          const assets: Array<{ url: string; mimeType: string; type: string }> = JSON.parse(job.contextAssetUrls);
+          if (assets.length > 0) {
+            const imageAssets = assets.filter(a => a.type === "image");
+            const videoAssets = assets.filter(a => a.type === "video");
+            if (imageAssets.length > 0) {
+              enrichedThemePrompt += `\n\nVisual Reference Images: The user has uploaded ${imageAssets.length} reference image(s) to guide the visual style. Use these as inspiration for the aesthetic, colour palette, and mood of the scenes. Image URLs: ${imageAssets.map(a => a.url).join(", ")}`;
+            }
+            if (videoAssets.length > 0) {
+              enrichedThemePrompt += `\n\nVisual Reference Videos: The user has uploaded ${videoAssets.length} reference video(s) to guide the visual style and pacing. Video URLs: ${videoAssets.map(a => a.url).join(", ")}`;
+            }
+          }
+        } catch { /* ignore malformed JSON */ }
+      }
 
       const { scenes, roster } = await withQuotaGuard(() => generateStoryboard(
         enrichedThemePrompt,
@@ -3136,6 +3152,70 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       const rawContent = response.choices?.[0]?.message?.content;
       const enhanced = (typeof rawContent === "string" ? rawContent.trim() : "") || input.prompt;
       return { enhanced };
+    }),
+
+  // Upload a visual reference asset (photo/video) for storyboard context
+  uploadContextAsset: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      assetBase64: z.string(), // base64-encoded file content
+      mimeType: z.string(), // e.g. "image/jpeg", "video/mp4"
+      assetType: z.enum(["image", "video"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Upload to S3
+      const ext = input.mimeType.split("/")[1]?.replace("jpeg", "jpg") || "bin";
+      const key = `music-video-context/${ctx.user.id}-${input.jobId}-${Date.now()}.${ext}`;
+      const buffer = Buffer.from(input.assetBase64, "base64");
+      const { url } = await storagePut(key, buffer, input.mimeType);
+
+      // Append to existing contextAssetUrls
+      const existing: Array<{ url: string; mimeType: string; type: string }> = [];
+      if (job.contextAssetUrls) {
+        try { existing.push(...JSON.parse(job.contextAssetUrls)); } catch { /* ignore */ }
+      }
+      // Limit to 3 assets
+      if (existing.length >= 3) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Maximum 3 visual references allowed" });
+      }
+      existing.push({ url, mimeType: input.mimeType, type: input.assetType });
+      await db.update(musicVideoJobs)
+        .set({ contextAssetUrls: JSON.stringify(existing) })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Context asset uploaded for job ${input.jobId}: ${url}`);
+      return { url, total: existing.length };
+    }),
+
+  // Remove a visual reference asset from a job
+  removeContextAsset: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      assetUrl: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const existing: Array<{ url: string; mimeType: string; type: string }> = [];
+      if (job.contextAssetUrls) {
+        try { existing.push(...JSON.parse(job.contextAssetUrls)); } catch { /* ignore */ }
+      }
+      const filtered = existing.filter(a => a.url !== input.assetUrl);
+      await db.update(musicVideoJobs)
+        .set({ contextAssetUrls: JSON.stringify(filtered) })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      return { success: true, total: filtered.length };
     }),
 
   // Add a new blank scene to a job's storyboard

@@ -83,6 +83,7 @@ import {
   Piano,
   Mic2,
   Plus,
+  Image as ImageIcon,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -398,6 +399,13 @@ export default function MusicVideoAutopilot() {
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
   const addSceneMutation = trpc.musicVideo.addScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
+  const uploadContextAssetMutation = trpc.musicVideo.uploadContextAsset.useMutation();
+  const removeContextAssetMutation = trpc.musicVideo.removeContextAsset.useMutation();
+
+  // Visual reference assets state (populated from job data)
+  const [contextAssets, setContextAssets] = React.useState<Array<{ url: string; mimeType: string; type: string }>>([]);
+  const [contextAssetUploading, setContextAssetUploading] = React.useState(false);
+
   const sunoGenerateMutation = trpc.suno.generate.useMutation();
   const sunoStatusQuery = trpc.suno.getStatus.useQuery(
     { id: sunoTaskId! },
@@ -644,6 +652,45 @@ export default function MusicVideoAutopilot() {
       toast.success("Scene added", { description: "Edit the prompt and regenerate to customise it." });
     } catch (err: any) {
       toast.error("Could not add scene", { description: err?.message });
+    }
+  };
+
+  // Upload a visual reference asset for storyboard context
+  const handleUploadContextAsset = async (file: File) => {
+    if (!jobId) { toast.error("Save your song first before adding visual references."); return; }
+    if (contextAssets.length >= 3) { toast.error("Maximum 3 visual references allowed."); return; }
+    setContextAssetUploading(true);
+    try {
+      const assetType = file.type.startsWith("video/") ? "video" : "image";
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const result = await uploadContextAssetMutation.mutateAsync({
+        jobId,
+        assetBase64: base64,
+        mimeType: file.type,
+        assetType,
+      });
+      setContextAssets(prev => [...prev, { url: result.url, mimeType: file.type, type: assetType }]);
+      toast.success("Visual reference added", { description: `${result.total}/3 references uploaded` });
+    } catch (err: any) {
+      toast.error("Upload failed", { description: err?.message });
+    } finally {
+      setContextAssetUploading(false);
+    }
+  };
+
+  const handleRemoveContextAsset = async (url: string) => {
+    if (!jobId) return;
+    try {
+      await removeContextAssetMutation.mutateAsync({ jobId, assetUrl: url });
+      setContextAssets(prev => prev.filter(a => a.url !== url));
+      toast.success("Reference removed");
+    } catch (err: any) {
+      toast.error("Could not remove reference", { description: err?.message });
     }
   };
 
@@ -1053,11 +1100,22 @@ export default function MusicVideoAutopilot() {
       }
     }
   };
-  // Fetch full job data (with real scene IDs) after moving to storyboard stepp
+  // Fetch full job data (with real scene IDs) after moving to storyboard step
+  // Also enabled on upload step so contextAssetUrls can be loaded when resuming a job
   const jobQuery = trpc.musicVideo.getJob.useQuery(
     { jobId: jobId! },
-    { enabled: !!jobId && step === "storyboard" }
+    { enabled: !!jobId && (step === "storyboard" || step === "upload") }
   );
+
+  // Populate contextAssets from job data when loading/resuming
+  useEffect(() => {
+    if (jobQuery.data?.job?.contextAssetUrls) {
+      try {
+        const parsed = JSON.parse(jobQuery.data.job.contextAssetUrls);
+        if (Array.isArray(parsed)) setContextAssets(parsed);
+      } catch { /* ignore */ }
+    }
+  }, [jobQuery.data?.job?.contextAssetUrls]);
 
   useEffect(() => {
     if (jobQuery.data?.scenes) {
@@ -1546,9 +1604,18 @@ export default function MusicVideoAutopilot() {
               <Music className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-                WIZSCRIPT AUTOPILOT
-              </h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
+                  WIZSCRIPT AUTOPILOT
+                </h1>
+                {/* YouTube-optimised badge */}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF0000]/15 border border-[#FF0000]/30 text-[#FF4444] select-none">
+                  <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#FF4444]" aria-hidden="true">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                  YouTube Ready
+                </span>
+              </div>
               <p className="text-zinc-400 text-sm">Upload your song. Describe your vision. We'll create the video.</p>
             </div>
           </div>
@@ -2109,6 +2176,75 @@ export default function MusicVideoAutopilot() {
                       );
                     })}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Visual Reference Assets — optional photos/videos for storyboard context */}
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5 text-[--color-gold]" />
+                    Visual References
+                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional · Up to 3</Badge>
+                  </CardTitle>
+                  <p className="text-zinc-500 text-xs mt-1">
+                    Upload photos or short video clips to guide the AI's visual style. These are used as inspiration for colour palette, mood, and aesthetic — not as source footage.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Uploaded assets grid */}
+                  {contextAssets.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {contextAssets.map((asset, i) => (
+                        <div key={i} className="relative group rounded-lg overflow-hidden border border-zinc-700 aspect-video bg-zinc-800">
+                          {asset.type === "image" ? (
+                            <img src={asset.url} alt={`Reference ${i + 1}`} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Film className="w-8 h-8 text-zinc-400" />
+                              <span className="text-xs text-zinc-400 ml-1">Video</span>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveContextAsset(asset.url)}
+                            className="absolute top-1 right-1 bg-black/70 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3.5 h-3.5 text-white" />
+                          </button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-xs text-zinc-300 px-1.5 py-0.5 text-center">
+                            {asset.type === "image" ? "📷 Image" : "🎬 Video"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Upload button */}
+                  {contextAssets.length < 3 && (
+                    <label className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-zinc-700 rounded-lg py-4 cursor-pointer transition-colors hover:border-zinc-500 hover:bg-zinc-800/50 ${
+                      contextAssetUploading ? "opacity-50 pointer-events-none" : ""
+                    }`}>
+                      <input
+                        type="file"
+                        accept="image/*,video/mp4,video/webm,video/mov"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUploadContextAsset(file);
+                          e.target.value = "";
+                        }}
+                        disabled={contextAssetUploading || !jobId}
+                      />
+                      {contextAssetUploading ? (
+                        <><Loader2 className="w-4 h-4 animate-spin text-zinc-400" /><span className="text-zinc-400 text-sm">Uploading…</span></>
+                      ) : (
+                        <><Upload className="w-4 h-4 text-zinc-400" /><span className="text-zinc-400 text-sm">{contextAssets.length === 0 ? "Upload a photo or video clip" : `Add another (${contextAssets.length}/3)`}</span></>
+                      )}
+                    </label>
+                  )}
+                  {!jobId && (
+                    <p className="text-xs text-zinc-600 text-center">Upload your audio first to enable visual references</p>
+                  )}
                 </CardContent>
               </Card>
 

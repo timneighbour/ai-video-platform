@@ -1190,10 +1190,10 @@
 - [x] Editable frames: add "Add Scene" button to insert a new blank scene
 - [x] Editable frames: add "Remove Scene" button (X) on each scene card
 - [x] Editable frames: support copy-paste of scene text (standard browser behaviour + clipboard button)
-- [ ] Photo upload: add image upload input in WizPilot prompt step for AI context
-- [ ] Video upload: add video upload input in WizPilot prompt step for AI context
-- [ ] Photo/video upload: pass uploaded asset URLs to storyboard generation as context
-- [ ] YouTube branding: add YouTube logo/badge to WizPilot page header
+- [x] Photo upload: add image upload input in WizPilot prompt step for AI context
+- [x] Video upload: add video upload input in WizPilot prompt step for AI context
+- [x] Photo/video upload: pass uploaded asset URLs to storyboard generation as context
+- [x] YouTube branding: add YouTube logo/badge to WizPilot page header
 
 ## Fix: Kids Video Storyboard Flow (Apr 2026)
 - [ ] Find Kids Video component and audit current storyboard/scene flow
