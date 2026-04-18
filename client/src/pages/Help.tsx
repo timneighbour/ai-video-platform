@@ -44,7 +44,7 @@ function HelpNav() {
       >
         <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
           <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.75rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
           </a>
 
           <div className="hidden md:flex items-center gap-1">
@@ -458,7 +458,7 @@ export default function Help() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
             <NavLink href="/">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.6rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
             </NavLink>
             <div className="flex items-center gap-5 text-xs text-[--color-silver-dark]/30">
               <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>

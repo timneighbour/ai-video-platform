@@ -479,7 +479,7 @@ export default function Create() {
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Home" />
             <NavLink href="/" className="hidden md:flex items-center">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-20 w-auto object-contain" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.5rem] w-auto object-contain" />
             </NavLink>
           </div>
           <div className="hidden md:flex items-center gap-1">

@@ -204,14 +204,14 @@ function DashboardLayoutContent({
                   <img
                     src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                     alt="WIZ AI"
-                    className="h-[8.125rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
+                    className="h-[7.3rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
                   />
                 </div>
               ) : (
                 <img
                   src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                   alt="WIZ AI"
-                  className="h-[1.875rem] w-[1.875rem] object-contain rounded"
+                  className="h-[1.7rem] w-[1.7rem] object-contain rounded"
                 />
               )}
             </div>

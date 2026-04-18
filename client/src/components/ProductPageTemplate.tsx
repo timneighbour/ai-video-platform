@@ -91,7 +91,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
             <img
               src={logo}
               alt={name}
-              className="h-[7.5rem] w-auto object-contain"
+              className="h-[6.75rem] w-auto object-contain"
               style={{ filter: "drop-shadow(0 0 24px rgba(196,164,100,0.15))" }}
             />
           </div>
@@ -153,7 +153,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                 className="absolute inset-0 opacity-30"
                 style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(196,164,100,0.08) 0%, transparent 70%)" }}
               />
-              <img src={logo} alt={name} className="h-[6.25rem] w-auto object-contain relative z-10 mb-4" />
+              <img src={logo} alt={name} className="h-[5.625rem] w-auto object-contain relative z-10 mb-4" />
               <div className="text-sm font-semibold text-[--color-gold] relative z-10">{name}</div>
               <div className="text-xs text-[--color-silver-dark]/30 relative z-10 mt-1">{role}</div>
             </div>
@@ -283,7 +283,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
             <NavLink href="/">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.6rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
             </NavLink>
             <div className="flex items-center gap-5 text-xs text-[--color-silver-dark]/30">
               <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>

@@ -197,7 +197,7 @@ export default function HowItWorks() {
           <Link href="/">
             <a className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <ArrowLeft className="w-4 h-4 text-white/40" />
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.125rem] w-auto" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[2.8rem] w-auto" />
             </a>
           </Link>
           <a href="/onboarding"
