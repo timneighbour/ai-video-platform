@@ -64,6 +64,7 @@ const WizBoostPage = lazy(() => import("@/pages/products").then(m => ({ default:
 const WizAI = lazy(() => import("@/pages/WizAI"));
 const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
+const ShowcasePage = lazy(() => import("@/pages/Showcase"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -147,6 +148,7 @@ function Router() {
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />
+        <Route path={"/showcase"} component={ShowcasePage} />
         <Route path={"/blog/:slug"} component={BlogPost} />
         <Route path={"/seo/:slug"} component={SeoLandingPage} />
         <Route path={"/watch/:slug"} component={WatchPage} />
