@@ -23,7 +23,7 @@ import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
 
-import { validateSceneFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
+import { validateSceneFaceConsistency, validateFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
 import { classifyScenes } from "../scene-classifier";
@@ -1666,9 +1666,10 @@ Rules:
       let retryCount = 0;
       let lastUrl: string | undefined;
 
-      try {
+       try {
         let url: string | undefined;
-
+        let bestScore = -1; // Face similarity score from variation system (0-100, -1 = not scored)
+        let attemptCount = 0; // Number of variation generation attempts
         if (hasFaceReference) {
           // --- Photo Mode Pipeline V2: Identity-Anchored Generation ---
           // InstantID (primary) or Flux PuLID (fallback). 3 variations, pick best.
@@ -1720,11 +1721,100 @@ Rules:
                              input.previousSceneImageUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
             forgeRefs.push({ url: input.previousSceneImageUrl, mimeType: prevMime });
           }
-          const { url: forgeUrl } = await withQuotaGuard(() => generateImage({
-            prompt: finalImagePrompt,
-            originalImages: forgeRefs.length > 0 ? forgeRefs : undefined,
-          }));
-          url = forgeUrl;
+          // ── 3-VARIATION FACE SCORING SYSTEM ─────────────────────────────────
+          // For photo-mode characters: generate 3 parallel variations, score each
+          // by face similarity vs masterPortraitUrl, pick the best match.
+          // If best score < 0.65 (65/100), auto-regenerate once more (max 2 retries).
+          const VARIATION_COUNT = 3;
+          const FACE_SIMILARITY_THRESHOLD = 65; // 0-100 scale (65 = 0.65)
+          const MAX_RETRIES = 2;
+
+          // Build face reference data for scoring (primary character only for scoring)
+          const primaryCharForScoring = resolvedSceneChars.find(c => c.isLocked && (c.masterPortraitUrl ?? allPhotos.find(p => p.characterId === c.id)?.photoUrl));
+          let refBase64ForScoring: string | null = null;
+          if (primaryCharForScoring) {
+            const primaryPhotoForScoring = allPhotos.find(p => p.characterId === primaryCharForScoring.id && p.isPrimary) ??
+                                           allPhotos.find(p => p.characterId === primaryCharForScoring.id);
+            const refUrlForScoring = primaryCharForScoring.masterPortraitUrl ?? primaryPhotoForScoring?.photoUrl ?? null;
+            if (refUrlForScoring) {
+              try {
+                refBase64ForScoring = await ensureReferencePhotoBase64(primaryCharForScoring.id, refUrlForScoring);
+              } catch (e) {
+                console.warn(`[generateScenePreview] Could not load ref photo for scoring: ${e}`);
+              }
+            }
+          }
+
+          // Helper: generate one variation
+          const generateOneVariation = async (): Promise<string | undefined> => {
+            const { url: varUrl } = await withQuotaGuard(() => generateImage({
+              prompt: finalImagePrompt,
+              originalImages: forgeRefs.length > 0 ? forgeRefs : undefined,
+            }));
+            return varUrl;
+          };
+
+          // Helper: score a generated image URL against the reference
+          const scoreVariation = async (imageUrl: string): Promise<number> => {
+            if (!refBase64ForScoring) return 100; // No reference = assume pass
+            try {
+              const result = await validateFaceConsistency(refBase64ForScoring, imageUrl);
+              return result.provider === "skipped" ? 100 : result.confidence;
+            } catch {
+              return 0;
+            }
+          };
+
+          // Generate 3 variations in parallel
+          console.log(`[generateScenePreview] Scene ${input.sceneId}: generating ${VARIATION_COUNT} variations for face scoring`);
+          let bestUrl: string | undefined;
+          let bestScore = -1;
+          let attemptCount = 0;
+
+          for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            attemptCount++;
+            const variationResults = await Promise.allSettled(
+              Array.from({ length: VARIATION_COUNT }, () => generateOneVariation())
+            );
+            const variationUrls = variationResults
+              .filter((r): r is PromiseFulfilledResult<string | undefined> => r.status === "fulfilled")
+              .map(r => r.value)
+              .filter((v): v is string => !!v);
+
+            if (variationUrls.length === 0) {
+              console.warn(`[generateScenePreview] Scene ${input.sceneId}: all ${VARIATION_COUNT} variations failed on attempt ${attempt + 1}`);
+              break;
+            }
+
+            // Score each variation (parallel)
+            const scores = await Promise.all(variationUrls.map(u => scoreVariation(u)));
+            console.log(`[generateScenePreview] Scene ${input.sceneId} attempt ${attempt + 1}: scores = [${scores.map(s => s.toFixed(1)).join(", ")}]`);
+
+            // Pick best
+            let localBestIdx = 0;
+            for (let i = 1; i < scores.length; i++) {
+              if (scores[i] > scores[localBestIdx]) localBestIdx = i;
+            }
+            const localBestScore = scores[localBestIdx];
+            const localBestUrl = variationUrls[localBestIdx];
+
+            if (localBestScore > bestScore) {
+              bestScore = localBestScore;
+              bestUrl = localBestUrl;
+            }
+
+            // If best score meets threshold, stop early
+            if (bestScore >= FACE_SIMILARITY_THRESHOLD) {
+              console.log(`[generateScenePreview] Scene ${input.sceneId}: face score ${bestScore.toFixed(1)} >= threshold ${FACE_SIMILARITY_THRESHOLD}. Stopping.`);
+              break;
+            }
+
+            console.log(`[generateScenePreview] Scene ${input.sceneId}: best score ${bestScore.toFixed(1)} < threshold ${FACE_SIMILARITY_THRESHOLD}. Retrying (attempt ${attempt + 2}/${MAX_RETRIES})...`);
+          }
+
+          url = bestUrl;
+          const finalFaceScore = bestScore >= 0 ? bestScore : null;
+          console.log(`[generateScenePreview] Scene ${input.sceneId}: selected variation with face score ${finalFaceScore?.toFixed(1) ?? "N/A"} after ${attemptCount} attempt(s)`);
           console.log(`[generateScenePreview] Forge success for scene ${input.sceneId}: ${url}`);
         } else {
           // For scenes without character photos (AI-invented characters), use generic image generation
@@ -1736,12 +1826,24 @@ Rules:
         }
 
         if (url) {
+          const FACE_SIMILARITY_THRESHOLD_DB = 65;
+          const finalScoreForDb = bestScore >= 0 ? bestScore : null;
+          const faceStatusForDb: "matched" | "warning" | "regenerated" | "skipped" =
+            finalScoreForDb === null ? "skipped" :
+            finalScoreForDb >= FACE_SIMILARITY_THRESHOLD_DB ? "matched" :
+            "warning";
+
           await db.update(musicVideoScenes)
-            .set({ previewImageUrl: url })
+            .set({
+              previewImageUrl: url,
+              faceValidationStatus: faceStatusForDb,
+              faceValidationScores: finalScoreForDb !== null ? JSON.stringify({ _bestScore: finalScoreForDb }) : null,
+              faceValidationAttempts: typeof attemptCount !== "undefined" ? attemptCount : 1,
+            })
             .where(eq(musicVideoScenes.id, input.sceneId));
 
-          // ─── Character Lock: validate face consistency ────────────────────
-          if (job.characterLockEnabled !== false) {
+          // ─── Character Lock: full per-character validation ────────────────
+          if (job.characterLockEnabled !== false && resolvedSceneChars.some(c => c.isLocked)) {
             try {
               const lockCharacters: CharacterLockData[] = [];
               for (const char of resolvedSceneChars) {
