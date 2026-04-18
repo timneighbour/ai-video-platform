@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import WizProductGrid from "@/components/WizProductGrid";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { useProjectResume } from "@/hooks/useProjectResume";
@@ -326,57 +327,9 @@ function Hero() {
   );
 }
 
-// ── Choose What You Want to Create ────────────────────────────────────────────
+// ProductGrid replaced by WizProductGrid component
 function ProductGrid() {
-  return (
-    <section id="products" className="relative bg-[#040404] py-28 px-6 scroll-mt-20">
-      {/* Top gold divider */}
-      <div className="luxury-divider absolute top-0 left-0 right-0" />
-
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI Platform</p>
-          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-4">
-            Choose what you want to create
-          </h2>
-          <p className="text-[--color-silver-dark]/60 text-lg max-w-xl leading-relaxed">
-            Six premium AI tools — one unified platform. No editing experience required.
-          </p>
-        </div>
-
-        {/* 3-column grid — luxury cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-[--color-gold]/[0.04] rounded-2xl overflow-hidden border border-[--color-gold]/[0.06]">
-          {PRODUCTS.map((p) => (
-            <a
-              key={p.name}
-              href={p.href}
-              className="group relative flex flex-col gap-5 p-8 bg-[#040404] hover:bg-[#0a0a0a] transition-all duration-500 reveal"
-            >
-              {/* Icon — metallic treatment */}
-              <div className="w-12 h-12 rounded-xl border border-[--color-gold]/[0.1] bg-[--color-gold]/[0.03] flex items-center justify-center text-[--color-gold] group-hover:border-[--color-gold]/[0.25] group-hover:bg-[--color-gold]/[0.06] group-hover:shadow-[0_0_20px_rgba(196,164,100,0.08)] transition-all duration-500 group-hover:scale-110">
-                {p.icon}
-              </div>
-              {/* Text */}
-              <div>
-                <div className="flex items-baseline gap-2 mb-1">
-                  <h3 className="text-xl font-black tracking-tight text-[--color-gold]">{p.name}</h3>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-silver-dark]/25">{p.label}</span>
-                </div>
-                <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed">{p.desc}</p>
-              </div>
-              {/* CTA arrow */}
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                Start with {p.name} <ArrowRight className="w-3 h-3" />
-              </div>
-              {/* Corner ambient glow */}
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "radial-gradient(circle at top right, oklch(0.78 0.11 75 / 0.06), transparent 70%)" }} />
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <WizProductGrid />;
 }
 
 // ── Welcome to WIZ AI (Demo Video) ────────────────────────────────────────────

@@ -783,3 +783,23 @@ select {
   height: 1px;
   background: linear-gradient(90deg, transparent, oklch(0.78 0.11 75 / 0.2), transparent);
 }
+
+/* ── WIZ AI Premium Product Card System ── */
+
+/* Product section atmospheric depth */
+.wiz-products-section {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 20%, rgba(184,137,42,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(184,137,42,0.02) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(184,137,42,0.02) 0%, transparent 60%),
+    linear-gradient(180deg, #030303 0%, #040404 50%, #030303 100%);
+}
+
+/* Emblem hover glow — applied via JS inline style in WizProductGrid */
+.wiz-emblem-hover {
+  filter:
+    drop-shadow(0 0 24px rgba(232,200,120,0.55))
+    drop-shadow(0 0 8px rgba(184,137,42,0.40))
+    drop-shadow(0 6px 12px rgba(0,0,0,0.65));
+  transform: scale(1.1) translateY(-2px);
+}
