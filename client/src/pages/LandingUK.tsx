@@ -28,7 +28,7 @@ const FEATURES = [
   { icon: "", title: "Under 5 minutes", desc: "From idea to finished video faster than making a cup of tea." },
 ];
 
-const STYLES = ["Cinematic Films", "Music Videos", "Pixar Animation", "Anime", "Epic Fantasy", "Neon Noir"];
+const STYLES = ["Cinematic Films", "Music Videos", "Stylised 3D", "Anime", "Epic Fantasy", "Neon Noir"];
 
 const STATS = [
   { value: "5 min", label: "avg. creation time" },

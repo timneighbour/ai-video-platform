@@ -42,7 +42,7 @@ import { WizBrandBadge } from "@/components/WizBrand";
 const KIDS_STYLES = [
   {
     id: "pixar3d",
-    label: "Pixar 3D",
+    label: "Stylised 3D",
     desc: "Vibrant 3D animation",
     emoji: "",
     gradient: "from-blue-600 via-cyan-500 to-blue-400",
@@ -50,7 +50,7 @@ const KIDS_STYLES = [
     border: "border-[--color-gold]/60",
     bg: "bg-[--color-gold]/10",
     selectedBg: "bg-[--color-gold]/15",
-    example: "Toy Story · Finding Nemo · Up",
+    example: "Vibrant · Colourful · Expressive",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-pixar3d_e61a549d.jpg",
   },
   {
@@ -180,7 +180,7 @@ const FEATURES = [
   { icon: "📸", title: "Photo Reference Upload", desc: "Upload a photo of your pet or character. AI uses it as the base identity for every scene." },
   { icon: "", title: "Audio Upload", desc: "Upload kids songs, narration, or voice recordings. Supports lip sync compatibility." },
   { icon: "", title: "Free Storyboard, Always", desc: "Generate and regenerate your storyboard as many times as you want before spending a single credit." },
-  { icon: "", title: "6 Animation Styles", desc: "Pixar 3D, Disney, Anime, Cartoon, Storybook, or Claymation — each with distinct visual character." },
+  { icon: "", title: "6 Animation Styles", desc: "Stylised 3D, Disney, Anime, Cartoon, Storybook, or Claymation — each with distinct visual character." },
   { icon: "️", title: "Child-Safe by Design", desc: "All content is filtered and reviewed to ensure it's safe, positive, and appropriate for children." },
 ];
 

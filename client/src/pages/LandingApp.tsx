@@ -31,7 +31,7 @@ const PROOF_POINTS = [
 const STYLES = [
   { label: "Music Videos", emoji: "" },
   { label: "Cinematic Films", emoji: "" },
-  { label: "Pixar Animation", emoji: "" },
+  { label: "Stylised 3D", emoji: "" },
   { label: "Anime", emoji: "⚔️" },
   { label: "Epic Fantasy", emoji: "🐉" },
 ];

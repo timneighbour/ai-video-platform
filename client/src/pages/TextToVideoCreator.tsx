@@ -23,7 +23,7 @@ import { WizBrandBadge } from "@/components/WizBrand";
 const VIDEO_STYLES = [
   { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "" },
   { id: "anime",        label: "Anime",         desc: "Japanese animation style",        emoji: "🌸" },
-  { id: "pixar",        label: "Pixar 3D",      desc: "Vibrant 3D animation",            emoji: "" },
+  { id: "pixar",        label: "Stylised 3D",  desc: "Vibrant 3D animation",            emoji: "" },
   { id: "documentary",  label: "Documentary",   desc: "Authentic & raw footage",         emoji: "️" },
   { id: "abstract",     label: "Abstract",      desc: "Artistic visual journey",         emoji: "" },
   { id: "vintage",      label: "Vintage",       desc: "Retro film aesthetic",            emoji: "📺" },

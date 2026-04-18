@@ -171,7 +171,7 @@ export default function MusicVideosLanding() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               { step: "01", icon: "", title: "Upload your song", desc: "Drop in your audio file or paste your lyrics. WizVideo reads every line." },
-              { step: "02", icon: "", title: "Choose your style", desc: "Pick from Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
+              { step: "02", icon: "", title: "Choose your style", desc: "Pick from Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage." },
               { step: "03", icon: "", title: "Get your full video", desc: "AI builds your storyboard, renders every scene synced to your music, and delivers a complete video." },
             ].map((s) => (
               <div key={s.step} className="p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all">
@@ -198,7 +198,7 @@ export default function MusicVideosLanding() {
               <div className="space-y-4">
                 {[
                   { icon: <Music className="w-5 h-5" />, title: "Lyrics-driven visuals", desc: "Every line of your song becomes a cinematic scene — automatically synced." },
-                  { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage." },
+                  { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage." },
                   { icon: <Wand2 className="w-5 h-5" />, title: "AI lip-sync characters", desc: "Up to 4 characters with realistic AI lip-sync — real artists or animated." },
                   { icon: <Zap className="w-5 h-5" />, title: "Full video, not clips", desc: "WizVideo delivers a complete, ready-to-publish music video — not a 10-second clip." },
                   { icon: <Sparkles className="w-5 h-5" />, title: "Powered by WizSound™", desc: "Proprietary audio enhancement. Choose WizSound Enhance or WizSound Cinematic for richer, more immersive sound." },

@@ -24,7 +24,7 @@ export const SEO_PAGES: SeoPage[] = [
     intro: "Creating a music video used to mean hiring directors, renting studios, and spending thousands. Not anymore. WIZ AI is an AI music video generator that transforms your audio into a fully animated, cinematic music video in minutes — no editing skills, no expensive software, no stress. Whether you're an indie artist, a band, or a content creator, WIZ AI handles everything from storyboard to final render automatically.",
     howToSteps: [
       "Upload your audio file or paste your song idea",
-      "Choose your animation style — Cinematic, Anime, Pixar 3D, Documentary, Abstract, or Vintage",
+      "Choose your animation style — Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage",
       "Let WIZ AI's AI generate your complete music video automatically",
     ],
     whyBullets: [
@@ -132,7 +132,7 @@ export const SEO_PAGES: SeoPage[] = [
     intro: "Kids' music content is one of the most watched categories on YouTube — but creating animated videos for children's songs is time-consuming and expensive. WIZ AI solves this. As an AI music video generator for kids, it creates bright, engaging, animated music videos from your audio in minutes. Perfect for nursery rhymes, educational songs, and children's entertainment channels.",
     howToSteps: [
       "Upload your kids' song or nursery rhyme audio",
-      "Choose a child-friendly animation style — Pixar 3D, Cartoon, or Animated",
+      "Choose a child-friendly animation style — Stylised 3D, Cartoon, or Animated",
       "Generate a complete, colourful kids' music video automatically",
     ],
     whyBullets: [
@@ -240,7 +240,7 @@ export const SEO_PAGES: SeoPage[] = [
     intro: "Animated music videos are the most shareable, most memorable format in music content — and WIZ AI makes them accessible to every creator. As an AI animated music video maker, WIZ AI generates fully animated scenes, characters, and visuals that bring your music to life. No animation studio. No budget. Just your audio and your imagination.",
     howToSteps: [
       "Upload your audio track",
-      "Choose your animation style — Anime, Pixar 3D, Cartoon, or Abstract",
+      "Choose your animation style — Anime, Stylised 3D, Cartoon, or Abstract",
       "Generate your complete animated music video with AI",
     ],
     whyBullets: [
@@ -840,7 +840,7 @@ export const SEO_PAGES: SeoPage[] = [
     intro: "Animation used to require expensive software and professional skills. With WIZ AI, you can create animated videos using AI in minutes — no design or editing experience needed. WIZ AI is an AI animation video maker that generates complete, professional-quality animated videos from your audio or ideas automatically.",
     howToSteps: [
       "Upload your audio or describe your animation concept",
-      "Choose your animation style — Anime, Pixar 3D, Cartoon, Abstract, or Cinematic",
+      "Choose your animation style — Anime, Stylised 3D, Cartoon, Abstract, or Cinematic",
       "Generate your complete animated video automatically",
     ],
     whyBullets: [

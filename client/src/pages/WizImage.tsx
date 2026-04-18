@@ -186,7 +186,7 @@ export default function WizImage() {
             {generateMutation.isPending ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Generating with Grok Aurora...
+                Generating with WizImage™...
               </>
             ) : (
               <>
@@ -220,7 +220,7 @@ export default function WizImage() {
                   <div className="w-16 h-16 rounded-full border-2 border-[--color-gold]/30 border-t-violet-500 animate-spin" />
                   <Sparkles className="w-6 h-6 text-[--color-gold] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                 </div>
-                <p className="text-sm">Grok Aurora is creating your image...</p>
+                <p className="text-sm">WizImage is rendering your image...</p>
                 <p className="text-xs text-white/30">Usually takes 5–15 seconds</p>
               </div>
             ) : generatedImage ? (

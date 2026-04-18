@@ -27,7 +27,7 @@ const YT_RED = "#FF0000";
 const VIDEO_STYLES = [
   { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-8EttbpJCG8aAwirxMzv25p.webp" },
   { id: "anime", label: "Anime", desc: "Japanese animation style", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-76BJuATsMcjhGJHYLXERiU.webp" },
-  { id: "pixar", label: "Pixar 3D", desc: "Vibrant 3D animation", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-GUBPsNDXp3m9kijU7REvzt.webp" },
+  { id: "pixar", label: "Stylised 3D", desc: "Vibrant 3D animation", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-GUBPsNDXp3m9kijU7REvzt.webp" },
   { id: "documentary", label: "Documentary", desc: "Authentic & raw footage", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-GUdvUoXuDBve4gBc7mKpgx.webp" },
   { id: "abstract", label: "Abstract", desc: "Artistic visual journey", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-WkAJQNtpbvfE2E9GnzkjxJ.webp" },
   { id: "vintage", label: "Vintage", desc: "Retro film aesthetic", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-mkatVcuLLHQ5oBRYWdLWtp.webp" },

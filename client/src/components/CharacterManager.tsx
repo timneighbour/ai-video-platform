@@ -660,7 +660,7 @@ export function CharacterManager({
                       <div>
                         <p className="text-[--color-gold] font-semibold text-sm">AI Character Builder</p>
                         <p className="text-[--color-gold]/70 text-xs mt-0.5 leading-relaxed">
-                          Describe any character — real, animated, or fantastical — and the AI will generate a full visual brief and a preview image. Works for Pixar 3D, anime, cartoon, and photorealistic styles.
+                          Describe any character — real, animated, or fantastical — and the AI will generate a full visual brief and a preview image. Works for Stylised 3D, anime, cartoon, and photorealistic styles.
                         </p>
                       </div>
                     </div>

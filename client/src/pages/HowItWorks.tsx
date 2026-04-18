@@ -34,7 +34,7 @@ const STEPS = [
     desc: "Type a prompt, upload your audio, or let AI generate the music. WIZ AI understands natural language — no technical skills needed.",
     details: [
       "Upload your song or describe your concept",
-      "Choose from 11 cinematic styles (Cinematic, Anime, Pixar 3D, Neon Noir, and more)",
+      "Choose from 11 cinematic styles (Cinematic, Anime, Stylised 3D, Neon Noir, and more)",
       "Set mood, genre, and visual direction",
     ],
     badge: "Free to start", image: STEP_IMAGES.upload, stat: "< 30 sec", statLabel: "to generate",

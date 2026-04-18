@@ -237,7 +237,7 @@ export default function MusicVideoAutopilot() {
     },
     {
       id: "pixar3d",
-      label: "Pixar 3D",
+      label: "Stylised 3D",
       desc: "Vibrant 3D animation",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV.webp",
     },
@@ -1706,7 +1706,7 @@ export default function MusicVideoAutopilot() {
                     {([
                       { value: "solo_artist" as const, label: "Solo Artist", icon: "🎤", desc: "One main performer" },
                       { value: "band" as const, label: "Band", icon: "🎸", desc: "Multiple performers" },
-                      { value: "animated_characters" as const, label: "Animated Group", icon: "🎬", desc: "Pixar/anime style" },
+                      { value: "animated_characters" as const, label: "Animated Group", icon: "🎬", desc: "Stylised 3D / anime" },
                       { value: "solo_animated" as const, label: "Solo Animated", icon: "✨", desc: "Single animated character" },
                     ] as const).map(({ value, label, icon, desc }) => (
                       <button

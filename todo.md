@@ -4881,20 +4881,21 @@
 - [ ] QA-VIS-5: Audit sign-in/auth screens — luxury styling
 - [ ] QA-VIS-6: Audit dashboard — no old WizVid branding, premium feel
 - [ ] QA-VIS-7: Audit projects page — clean, usable, premium
-- [ ] QA-VIS-8: Audit WizAudio tool page — WIZ AI branded, no Suno wrapper look
-- [ ] QA-VIS-9: Audit WizImage tool page — WIZ AI branded, no Grok wrapper look
-- [ ] QA-VIS-10: Audit WizVideo tool page — WIZ AI branded
-- [ ] QA-VIS-11: Audit WizShorts tool page — WIZ AI branded
-- [ ] QA-VIS-12: Audit WizAnimate tool page — no Pixar wording
-- [ ] QA-VIS-13: Audit WizScript tool page — WIZ AI branded
-- [ ] QA-VIS-14: Audit checkout/billing flow — WIZ AI branded
-- [ ] QA-VIS-15: Audit notification/render status pages — premium wording
+- [x] QA-VIS-8: Audit WizAudio tool page — WIZ AI branded, no Suno wrapper look (clean, no Suno visible)
+- [x] QA-VIS-9: Audit WizImage tool page — WIZ AI branded, no Grok wrapper look (fixed: Grok Aurora → WizImage™)
+- [x] QA-VIS-10: Audit WizVideo tool page — WIZ AI branded (clean, no third-party branding)
+- [x] QA-VIS-11: Audit WizShorts tool page — WIZ AI branded (clean, no third-party branding)
+- [x] QA-VIS-12: Audit WizAnimate tool page — no Pixar wording (fixed: Pixar 3D → Stylised 3D)
+- [x] QA-VIS-13: Audit WizScript tool page — WIZ AI branded (clean, no third-party branding)
+- [x] QA-VIS-14: Audit checkout/billing flow — WIZ AI branded (clean, no third-party branding)
+- [x] QA-VIS-15: Audit notification/render status pages — premium wording (clean)
 
 ### QA-2: Brand/Copy QA
 - [x] QA-COPY-1: Remove all old WizVid references from public-facing pages
-- [ ] QA-COPY-2: Remove all old WizBeat references
-- [ ] QA-COPY-3: Remove all "Powered by Suno" or "Powered by Grok" dominance
-- [ ] QA-COPY-4: Fix all unicode issues (\u2014, \u0087, etc.)
+- [x] QA-COPY-1B: Rename all "Pixar 3D" / "Pixar Animation" visible text to "Stylised 3D" across all pages
+- [x] QA-COPY-2: Remove all old WizBeat references (only in CDN file paths, not visible text)
+- [x] QA-COPY-3: Remove all "Powered by Suno" or "Powered by Grok" dominance (none found in visible text)
+- [x] QA-COPY-4: Fix all unicode issues (\u2014, \u0087, etc.) (all are valid JSX string escapes rendering correctly)
 - [ ] QA-COPY-5: Fix broken words, weird spacing, typos
 - [x] QA-COPY-6: Ensure correct product family naming (WizAudio, WizImage, WizVideo, WizShorts, WizAnimate, WizScript)
 - [ ] QA-COPY-7: Ensure correct engine family naming (WizSound, WizLumina, WizGenesis, WizBoost)
@@ -4905,7 +4906,7 @@
 - [ ] QA-FLOW-2: WizImage — prompt, style/aspect ratio, generate, save/access result
 - [ ] QA-FLOW-3: WizVideo — project start, idea/audio upload, storyboard, preview, build/render
 - [ ] QA-FLOW-4: WizShorts — short-form video, text/image inputs, Shorts/Reels/TikTok positioning
-- [ ] QA-FLOW-5: WizAnimate — animation project, stylised 3D wording (not Pixar)
+- [x] QA-FLOW-5: WizAnimate — animation project, stylised 3D wording (not Pixar) (fixed)
 - [ ] QA-FLOW-6: WizScript — text to scene/video flow, naming consistent
 
 ### QA-4: Save/Projects QA
