@@ -31,8 +31,28 @@ export function registerStorageProxy(app: Express) {
         res.status(502).send("Empty signed URL from backend");
         return;
       }
-      res.set("Cache-Control", "no-store");
-      res.redirect(307, url);
+      // Stream the asset directly to the client instead of redirecting.
+      // iOS Safari has issues with 307 redirects to signed CDN URLs for <img> tags.
+      // Streaming also allows us to set proper Cache-Control headers.
+      const assetResp = await fetch(url);
+      if (!assetResp.ok) {
+        res.status(502).send("Asset fetch failed");
+        return;
+      }
+      const contentType = assetResp.headers.get("content-type") ?? "application/octet-stream";
+      const contentLength = assetResp.headers.get("content-length");
+      res.set("Content-Type", contentType);
+      res.set("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
+      res.set("Access-Control-Allow-Origin", "*");
+      if (contentLength) res.set("Content-Length", contentLength);
+      if (assetResp.body) {
+        const { Readable } = await import("stream");
+        const nodeStream = Readable.fromWeb(assetResp.body as any);
+        nodeStream.pipe(res);
+      } else {
+        const buffer = Buffer.from(await assetResp.arrayBuffer());
+        res.send(buffer);
+      }
     } catch (err) {
       console.error("[StorageProxy] failed:", err);
       res.status(502).send("Storage proxy error");

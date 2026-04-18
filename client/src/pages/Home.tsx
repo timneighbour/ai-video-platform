@@ -131,7 +131,7 @@ function Nav() {
         <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
           {/* Logo */}
           <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
           </a>
 
           {/* Desktop nav */}
@@ -752,14 +752,25 @@ function HowItWorks() {
           </h2>
         </div>
         <div className="grid md:grid-cols-4 gap-8">
-          {steps.map((s, i) => (
+          {[
+            { ...steps[0], img: "/manus-storage/hiw-step1-choose_1a9333c4.jpg" },
+            { ...steps[1], img: "/manus-storage/hiw-step2-storyboard_bc5ac61b.jpg" },
+            { ...steps[2], img: "/manus-storage/hiw-step3-preview_3f4d6a5d.jpg" },
+            { ...steps[3], img: "/manus-storage/hiw-step4-export_2a73ed91.jpg" },
+          ].map((s, i) => (
             <div key={s.num} className="reveal relative">
-              {/* Connector line — gold gradient */}
               {i < steps.length - 1 && (
                 <div className="hidden md:block absolute top-8 left-[calc(100%_-_1rem)] w-full h-px" style={{ background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.15), transparent)" }} />
               )}
+              {/* Step image */}
+              <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-5 border border-[--color-gold]/[0.08]">
+                <img src={s.img} alt={s.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
+                <div className="absolute bottom-3 left-3">
+                  <span className="text-[2rem] font-black leading-none metallic-gold opacity-60">{s.num}</span>
+                </div>
+              </div>
               <div className="relative z-10">
-                <div className="text-[3rem] font-black leading-none metallic-gold opacity-30 mb-4">{s.num}</div>
                 <h3 className="text-lg font-bold text-white mb-3">{s.title}</h3>
                 <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{s.desc}</p>
               </div>
@@ -1044,25 +1055,25 @@ function Testimonials() {
       text: "I made my first music video in 45 minutes. The quality blew my mind. My fans thought I hired a production team.",
       name: "Marcus T.",
       role: "Independent Musician",
-      avatar: `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`,
+      avatar: "/manus-storage/avatar-marcus_d3c57974.jpg",
     },
     {
       text: "WIZ AI replaced a £3,000/month video editor for my YouTube channel. I now publish three times a week without breaking a sweat.",
       name: "Priya S.",
       role: "YouTube Creator — 180K subscribers",
-      avatar: `${CDN}/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp`,
+      avatar: "/manus-storage/avatar-priya_b75d248c.jpg",
     },
     {
       text: "The character consistency is genuinely impressive. My animated series looks like a real studio production. Nothing else comes close.",
       name: "Daniel K.",
       role: "Animator & Storyteller",
-      avatar: `${CDN}/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp`,
+      avatar: "/manus-storage/avatar-daniel_e6dfd671.jpg",
     },
     {
       text: "I used WizScript to turn a blog post into a fully produced video in under 10 minutes. The ROI is extraordinary.",
       name: "Sophie L.",
       role: "Brand Content Director",
-      avatar: `${CDN}/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp`,
+      avatar: "/manus-storage/avatar-sophie_d547f8e0.jpg",
     },
   ];
   return (
@@ -1137,9 +1148,9 @@ function Testimonials() {
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const items = dbItems && dbItems.length > 0 ? dbItems : [
-    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${CDN}/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp`, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
-    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: `${CDN}/showcase-music-desert-sunset-gGWfEUTSjXNgKVCvSv5y85.webp`, description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_33a758bd.jpg", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
+    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_6094aad5.jpg", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/showcase-star-quest_799ae91d.jpg", description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
   ];
 
   return (
@@ -1191,10 +1202,10 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", icon: <Music2 className="w-6 h-6" /> },
-    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", icon: <FileText className="w-6 h-6" /> },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", icon: <Wand2 className="w-6 h-6" /> },
-    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", icon: <TrendingUp className="w-6 h-6" /> },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", icon: <Music2 className="w-6 h-6" />, img: "/manus-storage/creator-musicians_d91388ed.jpg" },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", icon: <FileText className="w-6 h-6" />, img: "/manus-storage/creator-content-creators_9b871111.jpg" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", icon: <Wand2 className="w-6 h-6" />, img: "/manus-storage/creator-animators_6740945f.jpg" },
+    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", icon: <TrendingUp className="w-6 h-6" />, img: "/manus-storage/creator-youtubers-brands_f76f062a.jpg" },
   ];
   return (
     <section id="built-for" className="relative bg-[#030303] py-28 px-6">
@@ -1208,15 +1219,23 @@ function BuiltFor() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {audiences.map((a) => (
-            <div key={a.title} className="reveal glass-card p-7 flex flex-col gap-5">
-              <div className="text-[--color-gold]">{a.icon}</div>
-              <div>
-                <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
-                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{a.desc}</p>
+            <div key={a.title} className="reveal relative rounded-2xl overflow-hidden group cursor-pointer" style={{ border: '1px solid rgba(196,164,100,0.12)' }}>
+              {/* Background image */}
+              <div className="absolute inset-0">
+                <img src={a.img} alt={a.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.25) 100%)' }} />
               </div>
-              <a href={a.href} className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors">
-                {a.cta} <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+              {/* Content */}
+              <div className="relative z-10 p-7 flex flex-col gap-4 min-h-[280px]">
+                <div className="text-[--color-gold] w-10 h-10 rounded-xl border border-[--color-gold]/20 bg-black/40 backdrop-blur-sm flex items-center justify-center">{a.icon}</div>
+                <div className="mt-auto">
+                  <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
+                  <p className="text-white/55 text-sm leading-relaxed mb-4">{a.desc}</p>
+                  <a href={a.href} className="inline-flex items-center gap-1.5 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors">
+                    {a.cta} <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -1321,8 +1340,14 @@ function Footer() {
         <div className="border-t border-[--color-gold]/[0.05] pt-8 flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-[--color-silver-dark]/25 mr-1">Secure payments via</span>
-            {["Visa", "Mastercard", "Amex", "Apple Pay", "Google Pay"].map((m) => (
-              <span key={m} className="text-[11px] text-[--color-silver-dark]/30 border border-[--color-gold]/[0.06] bg-[--color-gold]/[0.02] px-2.5 py-1 rounded-md font-medium">{m}</span>
+            {[
+              { name: "Visa", svg: <svg viewBox="0 0 38 24" className="h-5 w-auto"><rect width="38" height="24" rx="4" fill="#1A1F71"/><text x="19" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" fontFamily="Arial">VISA</text></svg> },
+              { name: "Mastercard", svg: <svg viewBox="0 0 38 24" className="h-5 w-auto"><rect width="38" height="24" rx="4" fill="#252525"/><circle cx="14" cy="12" r="7" fill="#EB001B"/><circle cx="24" cy="12" r="7" fill="#F79E1B"/><path d="M19 6.8a7 7 0 0 1 0 10.4A7 7 0 0 1 19 6.8z" fill="#FF5F00"/></svg> },
+              { name: "Amex", svg: <svg viewBox="0 0 38 24" className="h-5 w-auto"><rect width="38" height="24" rx="4" fill="#2E77BC"/><text x="19" y="16" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold" fontFamily="Arial">AMERICAN EXPRESS</text></svg> },
+              { name: "Apple Pay", svg: <svg viewBox="0 0 38 24" className="h-5 w-auto"><rect width="38" height="24" rx="4" fill="#000"/><text x="19" y="16" textAnchor="middle" fill="white" fontSize="8" fontWeight="500" fontFamily="-apple-system,sans-serif"> Pay</text></svg> },
+              { name: "Google Pay", svg: <svg viewBox="0 0 38 24" className="h-5 w-auto"><rect width="38" height="24" rx="4" fill="#fff"/><text x="19" y="16" textAnchor="middle" fill="#3c4043" fontSize="7" fontWeight="500" fontFamily="Arial">Google Pay</text></svg> },
+            ].map((m) => (
+              <span key={m.name} className="flex items-center justify-center border border-[--color-gold]/[0.08] bg-[--color-gold]/[0.02] px-2 py-1 rounded-md" title={m.name}>{m.svg}</span>
             ))}
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-[--color-silver-dark]/25">

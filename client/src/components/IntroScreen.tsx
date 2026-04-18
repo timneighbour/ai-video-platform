@@ -102,6 +102,9 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         opacity: visible ? 1 : 0,
         transition: "opacity 0.6s ease-in-out",
         pointerEvents: visible ? "auto" : "none",
+        // iOS safe area
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
       {/* ── Video ─────────────────────────────────────────────────────────── */}
@@ -111,12 +114,26 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         poster={POSTER_URL}
         muted
         playsInline
+        // iOS-specific attributes for reliable playback
+        {...({ "webkit-playsinline": "true", "x-webkit-airplay": "deny" } as any)}
         // permanently muted — no audio
         preload="auto"
         onCanPlay={handleCanPlay}
         onError={() => dismiss()}
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: videoReady ? 1 : 0, transition: "opacity 0.4s ease" }}
+        onStalled={() => { videoRef.current?.load(); }}
+        onWaiting={() => { /* buffer pause — iOS will resume */ }}
+        className="absolute inset-0 w-full h-full"
+        style={{
+          opacity: videoReady ? 1 : 0,
+          transition: "opacity 0.4s ease",
+          // iOS object-fit fix — use explicit styles instead of Tailwind class
+          objectFit: "cover",
+          objectPosition: "center center",
+          width: "100%",
+          height: "100%",
+          // Prevent iOS from showing native video controls
+          WebkitAppearance: "none",
+        }}
       />
 
       {/* ── Poster shown while video loads ───────────────────────────────── */}

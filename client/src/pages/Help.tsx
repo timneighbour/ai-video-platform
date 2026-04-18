@@ -44,7 +44,7 @@ function HelpNav() {
       >
         <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
           <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
           </a>
 
           <div className="hidden md:flex items-center gap-1">
@@ -318,7 +318,14 @@ export default function Help() {
       {/* Nav (matches homepage) */}
       <HelpNav />
 
-      <div className="max-w-3xl mx-auto px-6 pt-28 pb-20">
+      {/* Premium hero background */}
+      <div className="relative">
+        <div className="absolute inset-0 h-72 pointer-events-none overflow-hidden">
+          <img src="/manus-storage/help-hero-bg_a1455798.jpg" alt="" className="w-full h-full object-cover opacity-[0.10]" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.2) 0%, rgba(4,4,4,0.8) 70%, #040404 100%)' }} />
+        </div>
+
+      <div className="max-w-3xl mx-auto px-6 pt-28 pb-20 relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-6">
@@ -452,6 +459,7 @@ export default function Help() {
           </div>
         </div>
       </div>
+      </div>{/* end relative hero wrapper */}
 
       {/* Footer */}
       <footer className="border-t border-[--color-gold]/[0.06] bg-[#030303] py-12 px-6">

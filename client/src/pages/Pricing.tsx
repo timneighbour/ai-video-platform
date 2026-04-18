@@ -62,7 +62,7 @@ function PricingNav({ isAuthenticated }: { isAuthenticated: boolean }) {
       }`}>
         <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
           <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
           </a>
           <div className="hidden md:flex items-center gap-1">
             <a href="/" className="nav-link">Home</a>
@@ -473,7 +473,12 @@ export default function Pricing() {
       <div className="pt-28 pb-24">
 
         {/* ── 1. Hero ── */}
-        <div className="text-center px-6 mb-20">
+        <div className="relative text-center px-6 mb-20 overflow-hidden">
+          {/* Premium hero background */}
+          <div className="absolute inset-0 -top-28 pointer-events-none">
+            <img src="/manus-storage/pricing-hero-bg_7e23edd2.jpg" alt="" className="w-full h-full object-cover opacity-[0.12]" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.3) 0%, rgba(4,4,4,0.7) 60%, #040404 100%)' }} />
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
             <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Pricing</span>
