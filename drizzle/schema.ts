@@ -274,6 +274,8 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   lockedProps: longtext("lockedProps"),     // JSON: { instrument, mic, other }
   lockedRole: text("lockedRole"),           // e.g. "Lead Singer and Guitarist"
   lockedRules: longtext("lockedRules"),     // JSON: strict behavioural rules (NEVER wears X, ALWAYS holds Y)
+  // Body build hint — injected into portrait and scene prompts so AI matches the user's physique
+  bodyBuild: mysqlEnum("bodyBuild", ["slim", "lean", "average", "athletic", "stocky", "muscular"]).default("average"),
   normalisedAt: timestamp("normalisedAt"),  // When normaliseCharacter() last ran
   isRealPerson: boolean("isRealPerson").default(false), // true = uploaded photo, false = AI-generated
   characterMode: mysqlEnum("characterMode", ["photo", "ai_generated"]).default("photo"), // Source type

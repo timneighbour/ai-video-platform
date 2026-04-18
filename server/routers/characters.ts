@@ -62,6 +62,8 @@ const characterInputSchema = z.object({
   isRealPerson: z.boolean().optional().default(false),
   // MuseTalk face video
   faceVideoUrl: z.string().url().optional(),
+  // Body build hint — injected into portrait prompts so AI matches the user's physique
+  bodyBuild: z.enum(["slim", "lean", "average", "athletic", "stocky", "muscular"]).optional().default("average"),
 });
 
 export const charactersRouter = router({
@@ -138,6 +140,7 @@ export const charactersRouter = router({
           characterMode: charInput.mode ?? "photo",
           isRealPerson: charInput.isRealPerson ?? (charInput.photos.length > 0),
           faceVideoUrl: charInput.faceVideoUrl ?? null,
+          bodyBuild: charInput.bodyBuild ?? "average",
         });
         const characterId = (result as any).insertId as number;
 

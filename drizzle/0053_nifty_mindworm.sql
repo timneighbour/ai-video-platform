@@ -1,0 +1,1 @@
+ALTER TABLE `videoCharacters` ADD `bodyBuild` enum('slim','lean','average','athletic','stocky','muscular') DEFAULT 'average';

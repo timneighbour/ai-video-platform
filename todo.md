@@ -5166,3 +5166,12 @@
 - [x] CharacterConfirmationStep.tsx: SLOT_COLORS extended to 8 entries to match CharacterManager
 - [x] CharacterConfirmationStep.tsx: Button label updated to "Create Full-Body Portrait" (was "Create Identity Anchor")
 - [x] batchRegen.ts generateMasterPortrait: prompt updated to explicitly request FULL BODY SHOT with complete outfit, legs, and footwear visible
+
+## BODY BUILD SELECTOR (Character Setup)
+- [x] Add `bodyBuild` field to Character interface in CharacterManager.tsx (options: slim, lean, average, athletic, stocky, muscular)
+- [x] Add Body Build pill selector UI to character card (below Name/Role, above photo upload)
+- [x] Store bodyBuild in character state and pass through to locked description / visualDetails
+- [x] Inject bodyBuild into generateMasterPortrait prompt in batchRegen.ts
+- [x] Inject bodyBuild into generateCharacterFromDescription prompt in musicVideo.ts
+- [x] Inject bodyBuild into scene generation prompt (visualLines builder in musicVideo.ts)
+- [x] Add bodyBuild to createEmptyCharacter() default (default: "average")

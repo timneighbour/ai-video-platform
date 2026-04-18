@@ -37,6 +37,7 @@ export interface CharacterPhoto {
 
 export type CharacterMode = "photo" | "ai_generated";
 export type AnimationStyle = "realistic" | "pixar3d" | "anime" | "cartoon";
+export type BodyBuild = "slim" | "lean" | "average" | "athletic" | "stocky" | "muscular";
 
 export interface LockedRules {
   role?: string;
@@ -71,6 +72,8 @@ export interface Character {
   lockedProps: string;
   lockedPosition: string;
   lockedRules: LockedRules;
+  /** Body build hint injected into portrait prompts — helps AI match the user's actual physique */
+  bodyBuild: BodyBuild;
 }
 
 interface CharacterManagerProps {
@@ -162,6 +165,7 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
     lockedProps: "",
     lockedPosition: "",
     lockedRules: {},
+    bodyBuild: "average",
   };
 }
 
@@ -249,6 +253,7 @@ export function CharacterManager({
         role: char.role || undefined,
         description: char.aiDescription,
         style: char.aiStyle,
+        bodyBuild: char.bodyBuild ?? "average",
       });
       updateCharacter(slotIndex, {
         aiGeneratedBrief: result.visualBrief,
@@ -407,6 +412,45 @@ export function CharacterManager({
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* ── Body Build selector ── */}
+              <div>
+                <Label className="text-zinc-400 text-xs mb-2 block">Body Build <span className="text-zinc-600 font-normal">(optional — helps the AI match your physique)</span></Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {([
+                    { id: "slim",     label: "Slim",     desc: "Very lean, narrow frame" },
+                    { id: "lean",     label: "Lean",     desc: "Toned, low body fat" },
+                    { id: "average",  label: "Average",  desc: "Typical build" },
+                    { id: "athletic", label: "Athletic", desc: "Muscular and fit" },
+                    { id: "stocky",   label: "Stocky",   desc: "Broad, heavier set" },
+                    { id: "muscular", label: "Muscular", desc: "Very built, large frame" },
+                  ] as { id: BodyBuild; label: string; desc: string }[]).map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      title={opt.desc}
+                      onClick={() => updateCharacter(char.slotIndex, { bodyBuild: opt.id })}
+                      disabled={disabled || isLocked}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                        char.bodyBuild === opt.id
+                          ? "bg-[--color-gold] border-[--color-gold]/80 text-white"
+                          : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-[--color-gold]/60 hover:text-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                {char.bodyBuild !== "average" && (
+                  <p className="text-zinc-600 text-[10px] mt-1">
+                    {char.bodyBuild === "slim" && "AI will render a slim, narrow-framed figure."}
+                    {char.bodyBuild === "lean" && "AI will render a lean, toned figure."}
+                    {char.bodyBuild === "athletic" && "AI will render a fit, athletic figure."}
+                    {char.bodyBuild === "stocky" && "AI will render a broad, heavier-set figure."}
+                    {char.bodyBuild === "muscular" && "AI will render a very muscular, large-framed figure."}
+                  </p>
+                )}
               </div>
 
               {/* ── Structured Character Details ── */}

@@ -2761,9 +2761,21 @@ Rules:
       role: z.string().max(100).optional(),
       description: z.string().min(5).max(500),
       style: z.enum(["realistic", "pixar3d", "anime", "cartoon"]).default("realistic"),
+      bodyBuild: z.enum(["slim", "lean", "average", "athletic", "stocky", "muscular"]).optional().default("average"),
     }))
     .mutation(async ({ input }) => {
       const { invokeLLM } = await import("../_core/llm");
+
+      // Map bodyBuild to a natural-language phrase for the LLM brief and image prompt
+      const bodyBuildPhrases: Record<string, string> = {
+        slim:     "very slim, narrow frame, lean physique, slender build",
+        lean:     "lean, toned physique, low body fat, athletic leanness",
+        average:  "average build, typical physique",
+        athletic: "athletic build, fit and muscular, well-defined physique",
+        stocky:   "stocky build, broad frame, heavier-set physique",
+        muscular: "very muscular, large frame, powerfully built physique",
+      };
+      const bodyBuildPhrase = bodyBuildPhrases[input.bodyBuild ?? "average"] ?? bodyBuildPhrases.average;
 
       const styleGuide: Record<string, string> = {
         realistic: "photorealistic, real human, cinematic photography style, natural skin texture",
@@ -2782,11 +2794,13 @@ Rules:
             content: `You are a character designer writing precise visual briefs for AI video generation.
 Expand the user's short character description into a detailed 80-120 word visual brief for a FULL-BODY STANDING SHOT.
 Style: ${styleLabel} (${styleGuide[input.style]}).
+Body build: ${bodyBuildPhrase}. The brief MUST reflect this body build accurately.
 CRITICAL RULES — ALL MUST BE FOLLOWED:
 - The brief MUST describe a FULL-BODY STANDING FIGURE visible from head to toe.
 - MUST explicitly mention: legs, knees, calves, ankles, feet, and footwear (shoes/boots/trainers).
 - MUST describe the bottom half of the outfit (trousers/jeans/skirt/shorts) AND the footwear.
 - MUST include the phrase "full-length standing figure" or "full body from head to feet" in the brief.
+- MUST describe the body build as: ${bodyBuildPhrase}.
 - Be hyper-specific: exact colours, clothing details, hair style, body type, age, expression.
 - NEVER describe only the face, head, or upper body. ALWAYS include the complete lower body.
 - For animated styles: describe the character AS IF they are that animation style.
@@ -2796,6 +2810,7 @@ CRITICAL RULES — ALL MUST BE FOLLOWED:
           {
             role: "user" as const,
             content: `Character name: ${input.name}${input.role ? `. Role: ${input.role}` : ""}.
+Body build: ${bodyBuildPhrase}.
 User description: "${input.description}"
 Write the full visual brief now.`,
           },
@@ -2807,7 +2822,7 @@ Write the full visual brief now.`,
       // Step 2: Generate preview image — AGGRESSIVE full-body framing with embedded negative instructions
       // Forge API has no separate negative prompt field, so we embed DO NOT / NOT instructions directly
       const fbPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. LEGS VISIBLE. FEET AND SHOES VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up. NOT chest up. The entire body must be in frame.`;
-      const fbSuffix = `Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. 9:16 aspect ratio. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
+      const fbSuffix = `${bodyBuildPhrase}. Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. 9:16 aspect ratio. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
       const imagePrompt = input.style === "realistic"
         ? `${fbPrefix} Photorealistic full-body photo of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. ${fbSuffix}`
         : `${fbPrefix} ${styleLabel} style full-body character art of ${input.name}${input.role ? `, ${input.role}` : ""}. ${visualBrief}. ${styleGuide[input.style]}. Centred composition, clean background, high quality render. ${fbSuffix}`;
