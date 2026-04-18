@@ -144,8 +144,6 @@ export const mp = {
   // ── Subscription ─────────────────────────────────────────────────────────
   planSelected: (plan: string, billingInterval?: "monthly" | "annual") =>
     track("Plan Selected", { plan, billing_interval: billingInterval }),
-  signupCompleted: (plan: string, total: number) =>
-    track("Signup Completed", { plan, total }),
 
   // ── Render paywall ────────────────────────────────────────────────────────
   renderPaywallOpened: () => track("Render Paywall Opened"),

@@ -158,12 +158,14 @@ export default function Dashboard() {
     if (!isAuthenticated) setLocation("/");
   }, [isAuthenticated, setLocation]);
 
-  // Fire Signup Completed when Stripe redirects back with ?success=true
+  // Fire Purchase Completed (client-side confirmation) when Stripe redirects back with ?success=true.
+  // The authoritative server-side Purchase Completed fires from the Stripe webhook in webhooks.ts.
+  // This client-side call is a belt-and-suspenders confirmation that also carries the plan name.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("success") === "true") {
-      const plan = params.get("plan") ?? currentPlan;
-      mp.signupCompleted(plan, 0);
+      const plan = params.get("plan") ?? currentPlan ?? "subscription";
+      mp.purchaseCompleted(plan, 0, "GBP");
       const url = new URL(window.location.href);
       url.searchParams.delete("success");
       url.searchParams.delete("plan");
