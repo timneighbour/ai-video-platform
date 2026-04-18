@@ -50,6 +50,8 @@ export interface Character {
   name: string;
   role: string;
   enableLipSync: boolean;
+  /** Optional face video URL for MuseTalk lip-sync (uploaded short video of the character's face) */
+  faceVideoUrl?: string;
   /** Mode: real photo upload or AI-generated from description */
   mode: CharacterMode;
   // Photo mode
@@ -142,6 +144,7 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
     name: "",
     role: "",
     enableLipSync: true,
+    faceVideoUrl: undefined,
     mode: "photo",
     photos: [],
     aiDescription: "",
@@ -786,6 +789,63 @@ export function CharacterManager({
                     disabled={disabled}
                   />
                 </div>
+                {/* MuseTalk face video upload — shown when lip sync is enabled */}
+                {char.enableLipSync && (
+                  <div className="mt-3 border-t border-[--color-gold]/20 pt-3">
+                    <p className="text-[11px] font-semibold text-[--color-gold]/70 uppercase tracking-widest mb-2">MuseTalk Face Video</p>
+                    <p className="text-[11px] text-zinc-400 mb-2">
+                      Upload a short video (3–10s) of this character's face for realistic lip-sync. Leave empty to use AI-generated mouth animation.
+                    </p>
+                    {char.faceVideoUrl ? (
+                      <div className="flex items-center gap-2">
+                        <video src={char.faceVideoUrl} className="w-16 h-16 rounded-lg object-cover border border-[--color-gold]/30" muted playsInline />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-white font-medium truncate">Face video uploaded</p>
+                          <p className="text-[10px] text-zinc-400">MuseTalk will sync lips to audio</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => updateCharacter(char.slotIndex, { faceVideoUrl: undefined })}
+                          className="text-zinc-500 hover:text-red-400 transition-colors text-xs"
+                          disabled={disabled}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <label className={`flex items-center gap-2 rounded-lg border border-dashed border-[--color-gold]/30 bg-[--color-gold]/5 px-3 py-2 cursor-pointer hover:border-[--color-gold]/60 hover:bg-[--color-gold]/10 transition-all ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          disabled={disabled}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            if (file.size > 50 * 1024 * 1024) {
+                              toast.error('File too large', { description: 'Face video must be under 50MB.' });
+                              return;
+                            }
+                            // Upload via tRPC upload endpoint
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            try {
+                              const res = await fetch('/api/video/upload', { method: 'POST', body: formData });
+                              if (!res.ok) throw new Error('Upload failed');
+                              const { url } = await res.json() as { url: string };
+                              updateCharacter(char.slotIndex, { faceVideoUrl: url });
+                              toast.success('Face video uploaded');
+                            } catch {
+                              toast.error('Upload failed', { description: 'Please try again.' });
+                            }
+                          }}
+                        />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[--color-gold]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        <span className="text-xs text-[--color-gold]/70">Upload face video (MP4/MOV, max 50MB)</span>
+                      </label>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

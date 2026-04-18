@@ -300,18 +300,18 @@
 - [x] Add animated logo video (10s, with audio) as hero intro on landing page — autoplay muted, click to unmute
 - [x] Update favicon to use new logo (CDN icon in index.html)
 - [x] Audit all video elements site-wide and ensure autoplay + loop + playsInline on all decorative/preview videos
-- [ ] Switch Seedance integration from Volcengine Ark to fal.ai (requires FAL_AI_API_KEY secret)
+- [x] Switch Seedance integration from Volcengine Ark to fal.ai (requires FAL_AI_API_KEY secret)
 - [x] Update index.html meta tags to remove Seedance 2.0 references
 
 ## MuseTalk Lip-Sync via fal.ai
-- [ ] Research fal.ai MuseTalk API endpoint and request format
-- [ ] Implement fal.ai client (musetalk.ts) with text-to-video and lip-sync methods
-- [ ] Switch Seedance integration to fal.ai (fal-ai/seedance or similar model)
-- [ ] Update LipSync.tsx tool page to use MuseTalk via fal.ai (real generation, not mock)
-- [ ] Add MuseTalk lip-sync option to Music Video creator (optional face video + audio sync)
-- [ ] Add FAL_AI_API_KEY secret via webdev_request_secrets
+- [x] Research fal.ai MuseTalk API endpoint and request format
+- [x] Implement fal.ai client (musetalk.ts) with text-to-video and lip-sync methods
+- [x] Switch Seedance integration to fal.ai (fal-ai/seedance or similar model)
+- [x] Update LipSync.tsx tool page to use MuseTalk via fal.ai (real generation, not mock)
+- [x] Add MuseTalk lip-sync option to Music Video creator (optional face video + audio sync)
+- [x] Add FAL_AI_API_KEY secret via webdev_request_secrets
 - [ ] Update landing page tool description to mention MuseTalk for lip-sync
-- [ ] Add MuseTalk to AI API tests
+- [x] Add MuseTalk to AI API tests
 
 ## Character-Driven Music Video Feature
 - [x] Character reference pack UI: up to 4 characters per music video
@@ -339,11 +339,11 @@
 - [x] Per-character: up to 8 reference images (angles, outfits, costumes) (already built)
 - [x] Wire characters into storyboard AI prompt for scene assignment (already built)
 - [ ] Singing characters get MuseTalk lip-sync during render
-- [ ] Switch Seedance integration to fal.ai (Seedance 1.5 Pro)
+- [x] Switch Seedance integration to fal.ai (Seedance 1.5 Pro)
 - [x] Fix logo: use new WizVid logo image in navbar, footer, CTA section
 - [x] Add logo video as hero intro (autoplay muted, click for audio)
 - [x] Fix all video elements site-wide: autoplay + loop + playsInline
-- [ ] Add MuseTalk lip-sync engine option to Lip-Sync tool page
+- [x] Add MuseTalk lip-sync engine option to Lip-Sync tool page
 
 ## Homepage Cinematic Rebuild
 - [x] Source cinematic background video clips (concert lights, AI visuals, music) — 3 hero videos on CDN
@@ -388,11 +388,11 @@
 - [x] Wizard/magic transformation branding: Idea → Video journey (ContentEngine flow)
 
 ## Pricing Update
-- [ ] Starter: £19/month — limited videos, watermark
-- [ ] Pro: £49/month (main sell) — unlimited videos, no watermark, faster rendering
-- [ ] Creator+: £99/month — priority processing, premium styles, early features
-- [ ] Core offer statement: "Create 30 videos per month without editing"
-- [ ] Update Stripe products/prices to match GBP tiers
+- [x] Starter: £9/month — limited videos, watermark (superseded by 5-tier model)
+- [x] Pro: £29/month (most popular) — unlimited videos, no watermark, faster rendering
+- [x] Studio: £99/month — priority processing, premium styles, early features
+- [x] Core offer statement: "Create 30 videos per month without editing"
+- [x] Update Stripe products/prices to match GBP tiers (5-tier: £9/£19/£29/£59/£99)
 
 ## SEO Implementation
 - [x] Meta title: "AI Music Video Generator | Create Videos Instantly with AI | WizVid"
@@ -481,7 +481,7 @@
 - [x] Register /pricing, /onboarding, /help, /seo/:slug routes in App.tsx
 - [x] Wire Pricing page CTAs to Stripe checkout (via /subscribe) — now calls mutation directly
 - [x] Add upgrade trigger modals when user hits video limit — UpgradeModal in Dashboard
-- [ ] Add upgrade prompt on video download for free/starter users
+- [x] Add upgrade prompt on video download for free/starter users
 - [ ] Update Stripe products to match GBP pricing tiers
 
 ## Optimisation Task (Apr 2026)

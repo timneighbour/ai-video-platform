@@ -747,6 +747,7 @@ export default function MusicVideoAutopilot() {
               lockedProps: c.lockedProps ? { instrument: c.lockedProps } : undefined,
               lockedPosition: c.lockedPosition || undefined,
               lockedRules: Object.keys(c.lockedRules || {}).length > 0 ? { role: c.lockedRules?.role || c.role || '', mustHave: c.lockedRules?.mustHave, allowedProps: c.lockedRules?.allowedProps, forbidden: c.lockedRules?.forbidden } : undefined,
+              faceVideoUrl: c.faceVideoUrl || undefined,
               photos: c.photos.map((p) => ({
                 photoBase64: p.base64,
                 photoMimeType: p.mimeType,

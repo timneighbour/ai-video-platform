@@ -344,6 +344,13 @@
       "when": 1776447742766,
       "tag": "0048_soft_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "5",
+      "when": 1776523115678,
+      "tag": "0049_soft_silver_sable",
+      "breakpoints": true
     }
   ]
 }

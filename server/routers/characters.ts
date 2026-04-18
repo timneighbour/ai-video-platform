@@ -60,6 +60,8 @@ const characterInputSchema = z.object({
   lockedRules: lockedRulesSchema,
   lockedPosition: z.string().max(500).optional(),
   isRealPerson: z.boolean().optional().default(false),
+  // MuseTalk face video
+  faceVideoUrl: z.string().url().optional(),
 });
 
 export const charactersRouter = router({
@@ -135,6 +137,7 @@ export const charactersRouter = router({
           normalisedAt: defaults ? new Date() : null,
           characterMode: charInput.mode ?? "photo",
           isRealPerson: charInput.isRealPerson ?? (charInput.photos.length > 0),
+          faceVideoUrl: charInput.faceVideoUrl ?? null,
         });
         const characterId = (result as any).insertId as number;
 

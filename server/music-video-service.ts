@@ -15,7 +15,6 @@ import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
-import { initSeedance } from "./ai-apis/seedance";
 import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
 import { submitAtlasVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
@@ -26,7 +25,6 @@ import { RENDERER_COSTS } from "./products";
 import { applyWizSound, type AudioTier } from "./wizsound";
 
 const klingClient = initKlingAI();
-const seedanceClient = initSeedance();
 
 // Prefix used to distinguish fal.ai request IDs from Kling/Volcengine task IDs
 const FAL_REQUEST_ID_PREFIX = "fal:";
@@ -824,15 +822,6 @@ async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, durat
   return `${ATLAS_JOB_ID_PREFIX}${predictionId}`;
 }
 
-async function startSceneRenderSeedance(sceneId: number, prompt: string, duration: number): Promise<string> {
-  const taskId = await seedanceClient.createTextToVideo({
-    prompt,
-    duration: duration <= 5 ? 5 : 10,
-    aspect_ratio: "16:9",
-  });
-  if (!taskId) throw new Error(`Seedance: no task_id returned for scene ${sceneId}`);
-  return taskId;
-}
 
 /**
  * Poll an Atlas Cloud video generation job and update DB when complete.
@@ -1245,7 +1234,45 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       );
     }
 
-    const finalBuffer = fs.readFileSync(finalVideo);
+    // ── MUSETALK POST-PROCESSING ─────────────────────────────────────────────────
+    // If any character has enableLipSync + faceVideoUrl, apply MuseTalk to the final video.
+    // This syncs the character's lips to the audio track using fal.ai MuseTalk.
+    let finalVideoPath = finalVideo;
+    try {
+      const lipSyncChars = await dbConn.select()
+        .from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
+      const charWithFaceVideo = lipSyncChars.find(c => c.faceVideoUrl);
+      if (charWithFaceVideo?.faceVideoUrl) {
+        console.log(`[MuseTalk] Applying lip-sync for character ${charWithFaceVideo.name} (job ${jobId})`);
+        await dbConn.update(musicVideoJobs)
+          .set({ errorMessage: "Applying MuseTalk lip-sync...", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, jobId));
+        // Upload the assembled video to S3 first so MuseTalk can access it via URL
+        const preMusetalkKey = `music-videos/job-${jobId}-pre-musetalk-${Date.now()}.mp4`;
+        const preMtBuf = fs.readFileSync(finalVideo);
+        const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
+        // Apply MuseTalk: source_video_url = assembled video, audio_url = enhanced audio
+        const { FalAiClient } = await import("./ai-apis/falai");
+        const falClient = new FalAiClient();
+        const museTalkUrl = await falClient.museTalkLipSync({
+          source_video_url: preMtUrl,
+          audio_url: job.audioUrl,
+        });
+        // Download MuseTalk output and save to disk
+        const mtResp = await fetch(museTalkUrl);
+        const mtBuf = Buffer.from(await mtResp.arrayBuffer());
+        const mtFile = path.join(tmpDir, "final-musetalk.mp4");
+        fs.writeFileSync(mtFile, mtBuf);
+        finalVideoPath = mtFile;
+        console.log(`[MuseTalk] Lip-sync complete for job ${jobId}`);
+      }
+    } catch (mtErr) {
+      // MuseTalk failure is non-fatal — continue with original video
+      console.warn(`[MuseTalk] Post-processing failed for job ${jobId}: ${mtErr}. Using original video.`);
+    }
+
+    const finalBuffer = fs.readFileSync(finalVideoPath);
     const finalKey = `music-videos/job-${jobId}-final-${Date.now()}.mp4`;
     const { url } = await storagePut(finalKey, finalBuffer, "video/mp4");
 

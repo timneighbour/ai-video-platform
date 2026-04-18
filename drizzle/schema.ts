@@ -274,6 +274,9 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   normalisedAt: timestamp("normalisedAt"),  // When normaliseCharacter() last ran
   isRealPerson: boolean("isRealPerson").default(false), // true = uploaded photo, false = AI-generated
   characterMode: mysqlEnum("characterMode", ["photo", "ai_generated"]).default("photo"), // Source type
+  // MuseTalk lip-sync face video
+  faceVideoUrl: varchar("faceVideoUrl", { length: 1024 }), // S3 URL of face video for MuseTalk lip-sync
+  faceVideoKey: varchar("faceVideoKey", { length: 512 }), // S3 key for face video
   // Whether this character is the primary focus (primary) or background (secondary)
   rolePriority: mysqlEnum("rolePriority", ["primary", "secondary"]).default("primary"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
