@@ -507,48 +507,90 @@ function WizEngines() {
         </div>
 
         {/* Engine cards — 2×2 grid */}
-        <div className="grid sm:grid-cols-2 gap-6 mb-24">
+        <div className="grid sm:grid-cols-2 gap-7 mb-24">
           {engines.map((eng) => (
             <div
               key={eng.name}
-              className="reveal group relative rounded-2xl p-8 transition-all duration-500 hover:-translate-y-1"
+              className="reveal group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2"
               style={{
-                background: `linear-gradient(160deg, ${eng.accentGlow}, oklch(0.06 0.005 260) 40%)`,
-                border: "1px solid rgba(196,164,100,0.18)",
-                boxShadow: "0 1px 0 rgba(232,213,160,0.10) inset, 0 -1px 0 rgba(0,0,0,0.6) inset, 0 4px 24px rgba(0,0,0,0.5)",
+                background: `linear-gradient(160deg, ${eng.accentGlow} 0%, oklch(0.055 0.006 260) 50%, oklch(0.04 0.004 260) 100%)`,
+                border: "1px solid rgba(196,164,100,0.20)",
+                boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 -1px 0 rgba(0,0,0,0.7) inset, 0 8px 48px rgba(0,0,0,0.65), 0 2px 0 rgba(196,164,100,0.06)",
               }}
             >
-              {/* Corner glow on hover */}
+              {/* Full-card hover glow sweep */}
               <div
-                className="absolute top-0 right-0 w-32 h-32 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-                style={{ background: `radial-gradient(circle at top right, ${eng.accentFrom}, transparent 70%)` }}
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                style={{ background: `radial-gradient(ellipse 100% 55% at 50% 0%, ${eng.accentFrom}, transparent 70%)` }}
               />
-
-              {/* Icon */}
+              {/* Top shimmer bar */}
               <div
-                className="w-16 h-16 rounded-xl flex items-center justify-center mb-6 relative z-10 overflow-hidden"
-                style={{
-                  background: "linear-gradient(145deg, rgba(196,164,100,0.12) 0%, rgba(232,213,160,0.06) 100%)",
-                  border: "1px solid rgba(196,164,100,0.25)",
-                  boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 2px 8px rgba(0,0,0,0.5)",
-                }}
-              >
-                <img src={eng.logoUrl} alt={eng.name} className="w-12 h-12 object-contain" />
-              </div>
+                className="absolute top-0 left-0 right-0 h-px opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: `linear-gradient(90deg, transparent 0%, ${eng.accentFrom} 50%, transparent 100%)` }}
+              />
+              {/* Bottom fade */}
+              <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)" }} />
 
-              {/* Name + tagline */}
-              <h3 className="text-xl font-bold text-white mb-1 relative z-10">
-                {eng.name}<span className="text-[--color-gold-dark] text-sm align-super">{eng.tm}</span>
-              </h3>
-              <p className="text-[--color-gold-dark]/60 text-xs font-semibold tracking-wider uppercase mb-4 relative z-10">{eng.tagline}</p>
+              <div className="relative z-10 p-8 sm:p-10">
+                {/* Top row: logo left, badge right */}
+                <div className="flex items-start justify-between mb-7">
+                  {/* Logo with glow halo — much larger */}
+                  <div className="relative">
+                    <div
+                      className="absolute inset-0 rounded-2xl blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700"
+                      style={{ background: eng.accentFrom, transform: 'scale(1.6)' }}
+                    />
+                    <div
+                      className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-2xl flex items-center justify-center"
+                      style={{
+                        background: "linear-gradient(145deg, rgba(196,164,100,0.08) 0%, rgba(0,0,0,0.5) 100%)",
+                        border: "1px solid rgba(196,164,100,0.18)",
+                        boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 6px 30px rgba(0,0,0,0.7)",
+                      }}
+                    >
+                      <img
+                        src={eng.logoUrl}
+                        alt={eng.name}
+                        className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-[0_0_24px_rgba(196,164,100,0.5)] group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  </div>
 
-              {/* Description */}
-              <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed mb-5 relative z-10">{eng.desc}</p>
+                  {/* Engine type badge */}
+                  <div
+                    className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.16em] uppercase mt-1"
+                    style={{
+                      background: `linear-gradient(135deg, ${eng.accentFrom}, rgba(0,0,0,0.4))`,
+                      border: `1px solid ${eng.accentBorder}`,
+                      color: 'rgba(232,213,160,0.65)',
+                    }}
+                  >
+                    {eng.tagline}
+                  </div>
+                </div>
 
-              {/* Benefit callout */}
-              <div className="relative z-10 flex items-start gap-2 pt-4" style={{ borderTop: `1px solid ${eng.accentBorder}` }}>
-                <Check className="w-4 h-4 text-[--color-gold] mt-0.5 flex-shrink-0" />
-                <p className="text-[--color-silver-light]/70 text-sm font-medium">{eng.benefit}</p>
+                {/* Product name — large and bold */}
+                <h3 className="text-3xl sm:text-[2.6rem] font-black text-white tracking-tight leading-none mb-1 relative z-10">
+                  {eng.name}<span className="text-[--color-gold-dark] text-xl align-super ml-0.5">{eng.tm}</span>
+                </h3>
+
+                {/* Tagline as subtitle */}
+                <p className="text-[--color-gold-dark]/55 text-xs font-semibold tracking-[0.22em] uppercase mb-5 relative z-10">{eng.tagline}</p>
+
+                {/* Description */}
+                <p className="text-white/42 text-sm leading-relaxed mb-6 relative z-10 max-w-xs">{eng.desc}</p>
+
+                {/* Benefit callout — styled highlight strip */}
+                <div
+                  className="relative z-10 flex items-start gap-3 px-4 py-3.5 rounded-xl"
+                  style={{
+                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.35))`,
+                    border: `1px solid ${eng.accentBorder}`,
+                  }}
+                >
+                  <Check className="w-4 h-4 text-[--color-gold] mt-0.5 flex-shrink-0" />
+                  <p className="text-white/72 text-sm font-medium leading-snug">{eng.benefit}</p>
+                </div>
               </div>
             </div>
           ))}
