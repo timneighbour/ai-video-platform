@@ -146,7 +146,8 @@ function Nav() {
                 Products <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
               </button>
               {productsOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[520px] bg-[#070707]/99 backdrop-blur-2xl border border-[--color-gold]/[0.10] rounded-2xl shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-4 z-50"
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[520px] pt-3 z-50" style={{ marginTop: 0 }}>
+                <div className="bg-[#070707]/99 backdrop-blur-2xl border border-[--color-gold]/[0.10] rounded-2xl shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-4"
                   style={{ boxShadow: "0 32px 100px rgba(0,0,0,0.85), 0 0 0 1px rgba(196,164,100,0.06) inset, 0 1px 0 rgba(196,164,100,0.12) inset" }}>
                   {/* Dropdown header */}
                   <div className="px-2 pb-3 mb-1 border-b border-[--color-gold]/[0.06]">
@@ -182,6 +183,7 @@ function Nav() {
                     </a>
                   </div>
                 </div>
+                </div>
               )}
             </div>
 
@@ -195,8 +197,9 @@ function Nav() {
                 Wiz Engines <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${enginesOpen ? "rotate-180" : ""}`} />
               </button>
               {enginesOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[640px] pt-3 z-50">
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[640px] bg-[#070707]/99 backdrop-blur-2xl border border-[--color-gold]/[0.10] rounded-2xl p-5 z-50"
+                  className="bg-[#070707]/99 backdrop-blur-2xl border border-[--color-gold]/[0.10] rounded-2xl p-5"
                   style={{ boxShadow: "0 32px 100px rgba(0,0,0,0.85), 0 0 0 1px rgba(196,164,100,0.06) inset, 0 1px 0 rgba(196,164,100,0.12) inset" }}
                 >
                   <div className="px-2 pb-3 mb-2 border-b border-[--color-gold]/[0.06]">
@@ -235,6 +238,7 @@ function Nav() {
                       See how they work <ArrowRight className="w-3 h-3" />
                     </a>
                   </div>
+                </div>
                 </div>
               )}
             </div>
