@@ -17,7 +17,7 @@ import { Volume2, VolumeX, ChevronRight, Play } from "lucide-react";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro_0a722338.mp4";
+  "/manus-storage/wizai-intro-enhanced_9d9dc51f.mp4";
 const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-poster_760474dc.jpg";
 
