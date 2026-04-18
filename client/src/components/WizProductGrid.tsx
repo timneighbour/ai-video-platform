@@ -5,6 +5,7 @@
  */
 import { ArrowRight } from "lucide-react";
 import { mp } from "@/lib/mixpanel";
+
 import {
   WizAudioEmblem,
   WizImageEmblem,
@@ -13,6 +14,21 @@ import {
   WizAnimateEmblem,
   WizScriptEmblem,
 } from "./WizProductEmblems";
+
+const CDN_LOGOS = "/manus-storage";
+const WIZAUDIO_LOGO = `${CDN_LOGOS}/wizaudio-logo-v1_1ca65a3b.png`;
+const WIZIMAGE_LOGO = `${CDN_LOGOS}/wizimage-logo-v1_89aa8458.png`;
+const WIZVIDEO_LOGO = `${CDN_LOGOS}/wizvideo-logo-v1_7b9a6a28.png`;
+const WIZSHORTS_LOGO = `${CDN_LOGOS}/wizshorts-logo-v1_20b45a3d.png`;
+const WIZANIMATE_LOGO_V3 = `${CDN_LOGOS}/wizanimate-logo-v3_c8d75b4e.png`;
+const WIZSCRIPT_LOGO = `${CDN_LOGOS}/wizscript-logo-v1_cb2f7610.png`;
+
+const CARD_BG_AUDIO = `${CDN_LOGOS}/create-card-audio_44346b98.jpg`;
+const CARD_BG_IMAGE = `${CDN_LOGOS}/create-card-image_1b5b141d.jpg`;
+const CARD_BG_VIDEO = `${CDN_LOGOS}/create-card-video_3dad9839.jpg`;
+const CARD_BG_SHORTS = `${CDN_LOGOS}/create-card-shorts_b228be6f.jpg`;
+const CARD_BG_ANIMATE = `${CDN_LOGOS}/create-card-animate_074c9357.jpg`;
+const CARD_BG_SCRIPT = `${CDN_LOGOS}/create-card-script_b14ae652.jpg`;
 
 type AccentKey = "emerald" | "amber" | "violet" | "cyan" | "rose" | "orange";
 
@@ -278,43 +294,49 @@ const PRODUCTS: Product[] = [
     name: "WizAudio", label: "CREATE AUDIO",
     tagline: "AI music & audio production studio",
     desc: "Generate original tracks, soundscapes, and audio from text. Studio-quality sound in seconds.",
-    href: "/create", emblem: <WizAudioEmblem size={80} />, accent: "emerald", cardVisual: <AudioCardBg />,
-    logoUrl: undefined,
+    href: "/create", emblem: <WizAudioEmblem size={80} />, accent: "emerald",
+    cardVisual: <img src={CARD_BG_AUDIO} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    logoUrl: WIZAUDIO_LOGO,
   },
   {
     name: "WizImage", label: "CREATE IMAGES",
     tagline: "AI image & artwork creator",
     desc: "Describe any image and WizImage renders it in seconds. 8 art styles, photorealistic to cinematic.",
-    href: "/wiz-image", emblem: <WizImageEmblem size={80} />, accent: "amber", cardVisual: <ImageCardBg />,
-    logoUrl: undefined,
+    href: "/wiz-image", emblem: <WizImageEmblem size={80} />, accent: "amber",
+    cardVisual: <img src={CARD_BG_IMAGE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    logoUrl: WIZIMAGE_LOGO,
   },
   {
     name: "WizVideo", label: "CREATE VIDEO",
     tagline: "Upload a song, get a full music video",
     desc: "Turn any track into a full-length AI-directed music video — scenes, cuts, and all.",
-    href: "/music-video/create", emblem: <WizVideoEmblem size={80} />, accent: "violet", cardVisual: <VideoCardBg />,
-    logoUrl: undefined,
+    href: "/music-video/create", emblem: <WizVideoEmblem size={80} />, accent: "violet",
+    cardVisual: <img src={CARD_BG_VIDEO} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    logoUrl: WIZVIDEO_LOGO,
   },
   {
     name: "WizShorts", label: "CREATE SHORTS",
     tagline: "Short-form vertical video creator",
     desc: "Create viral-ready vertical videos for TikTok, Instagram Reels, and YouTube Shorts.",
-    href: "/wiz-shorts", emblem: <WizShortsEmblem size={80} />, accent: "cyan", cardVisual: <ShortsCardBg />,
-    logoUrl: undefined,
+    href: "/wiz-shorts", emblem: <WizShortsEmblem size={80} />, accent: "cyan",
+    cardVisual: <img src={CARD_BG_SHORTS} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    logoUrl: WIZSHORTS_LOGO,
   },
   {
     name: "WizAnimate", label: "CREATE ANIMATION",
     tagline: "AI character animation engine",
     desc: "Bring characters to life with fluid, beat-matched AI animation. Every movement timed to the music.",
-    href: "/products/wizanimate", emblem: <WizAnimateEmblem size={80} />, accent: "rose", cardVisual: <AnimateCardBg />,
-    logoUrl: undefined,
+    href: "/products/wizanimate", emblem: <WizAnimateEmblem size={80} />, accent: "rose",
+    cardVisual: <img src={CARD_BG_ANIMATE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    logoUrl: WIZANIMATE_LOGO_V3,
   },
   {
     name: "WizScript", label: "CREATE CINEMATIC",
     tagline: "Scene-by-scene cinematic control",
     desc: "Write each scene yourself for full creative control. Script to storyboard to cinematic video.",
-    href: "/text-to-video", emblem: <WizScriptEmblem size={80} />, accent: "orange", cardVisual: <ScriptCardBg />,
-    logoUrl: undefined,
+    href: "/text-to-video", emblem: <WizScriptEmblem size={80} />, accent: "orange",
+    cardVisual: <img src={CARD_BG_SCRIPT} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    logoUrl: WIZSCRIPT_LOGO,
   },
 ];
 
