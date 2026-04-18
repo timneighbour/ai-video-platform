@@ -287,7 +287,7 @@ function Hero() {
             <a
               href="/onboarding"
               className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
-              onClick={() => mp.heroCTAClicked?.()}
+              onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
             >
               <Sparkles className="w-5 h-5" />
               Start Creating
@@ -376,6 +376,7 @@ function WelcomeSection() {
             <div className="flex flex-col sm:flex-row gap-4">
               <a
                 href="/onboarding"
+                onClick={() => mp.startCreatingClicked("welcome_section")}
                 className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm"
               >
                 <Sparkles className="w-4 h-4" />
@@ -580,6 +581,7 @@ function WizEngines() {
         <div className="text-center mt-16 reveal">
           <a
             href="/onboarding"
+            onClick={() => mp.startCreatingClicked("how_it_works")}
             className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm"
           >
             <Sparkles className="w-4 h-4" />

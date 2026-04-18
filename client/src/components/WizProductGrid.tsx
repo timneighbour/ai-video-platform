@@ -4,6 +4,7 @@
  * reflective gradients, and a metallic grain texture overlay.
  */
 import { ArrowRight } from "lucide-react";
+import { mp } from "@/lib/mixpanel";
 import {
   WizAudioEmblem,
   WizImageEmblem,
@@ -316,6 +317,7 @@ function ProductCard({ product }: { product: Product }) {
   return (
     <a
       href={product.href}
+      onClick={() => mp.productCardClicked(product.name)}
       className="group relative flex flex-col overflow-hidden rounded-2xl transition-all duration-400"
       style={{
         // Deep luxury black base
@@ -501,7 +503,7 @@ export default function WizProductGrid() {
 
         {/* CTA */}
         <div className="mt-16 text-center">
-          <a href="/create" className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold">
+          <a href="/create" onClick={() => mp.startCreatingClicked("homepage_product_grid")} className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold">
             <span>Explore All Tools</span>
             <ArrowRight className="w-4 h-4" />
           </a>

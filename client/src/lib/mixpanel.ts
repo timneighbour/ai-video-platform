@@ -84,6 +84,7 @@ export const mp = {
   homepageViewed: () => track("Homepage Viewed"),
   pricingPageViewed: () => track("Pricing Page Viewed"),
   productCardClicked: (product: string) => track("Product Card Clicked", { product }),
+  startCreatingClicked: (source: string) => track("Start Creating Clicked", { source }),
   exploreProdcutsClicked: () => track("Explore Products Clicked"),
   watchDemoClicked: () => track("Watch Demo Clicked"),
 
