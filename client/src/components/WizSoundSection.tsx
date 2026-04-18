@@ -5,7 +5,7 @@ import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ── */
 const VIDEO_SRC =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_553227ac.mp4";
+  "/manus-storage/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
 // Normal: flat, dry, unprocessed reference — -16 LUFS
 const AUDIO_NORMAL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound_standard_v3_d01b2cbd.mp3";

@@ -901,7 +901,10 @@ function WizSoundDemo() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizSound™</p>
+          {/* WizSound logo */}
+          <div className="flex justify-center mb-5">
+            <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-10 w-auto opacity-90" />
+          </div>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             Hear the difference
           </h2>
@@ -1237,12 +1240,92 @@ function Testimonials() {
 }
 
 // ── Showcase ──────────────────────────────────────────────────────────────────
+// Showcase card with hover-to-play video preview
+function ShowcaseCard({ item }: { item: { id: number; title: string; category: string; posterUrl: string; description: string; videoUrl?: string | null } }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    if (videoRef.current && item.videoUrl) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  return (
+    <div
+      className="reveal group glass-card overflow-hidden cursor-pointer"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="relative aspect-video overflow-hidden bg-black">
+        {/* Poster image */}
+        <img
+          src={item.posterUrl}
+          alt={item.title}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 brightness-[0.9] ${
+            isHovering && videoReady ? "opacity-0" : "opacity-100 group-hover:scale-105"
+          }`}
+          loading="lazy"
+        />
+        {/* Video preview (hover) */}
+        {item.videoUrl && (
+          <video
+            ref={videoRef}
+            src={item.videoUrl}
+            muted
+            loop
+            playsInline
+            preload="none"
+            onCanPlay={() => setVideoReady(true)}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+              isHovering && videoReady ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+        {/* Play button overlay */}
+        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+          isHovering ? "opacity-0" : "opacity-100"
+        }`}>
+          <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm border border-[--color-gold]/30 flex items-center justify-center group-hover:bg-[--color-gold]/10 group-hover:border-[--color-gold]/50 transition-all duration-300">
+            <Play className="w-5 h-5 text-[--color-gold] ml-0.5" fill="currentColor" />
+          </div>
+        </div>
+        {/* Category badge */}
+        <div className="absolute top-3 left-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-gold-dark] bg-black/70 backdrop-blur-sm border border-[--color-gold]/[0.15] px-2.5 py-1 rounded-full">
+            {item.category}
+          </span>
+        </div>
+      </div>
+      <div className="p-5">
+        <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+        <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{item.description}</p>
+      </div>
+      <div className="px-5 pb-5">
+        <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors">
+          Start Creating <ArrowRight className="w-3 h-3" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const items = dbItems && dbItems.length > 0 ? dbItems : [
-    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
-    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg", description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
+    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
   ];
 
   return (
@@ -1262,28 +1345,7 @@ function Showcase() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.slice(0, 3).map((item) => (
-            <div key={item.id} className="reveal group glass-card overflow-hidden">
-              <div className="aspect-video overflow-hidden">
-                <img
-                  src={item.posterUrl}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.9]"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-5">
-                <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[--color-gold-dark] bg-[--color-gold]/[0.05] border border-[--color-gold]/[0.1] px-2.5 py-1 rounded-full mb-3">
-                  {item.category}
-                </span>
-                <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{item.description}</p>
-              </div>
-              <div className="px-5 pb-5">
-                <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors">
-                  Start Creating <ArrowRight className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
+            <ShowcaseCard key={item.id} item={item} />
           ))}
         </div>
       </div>
