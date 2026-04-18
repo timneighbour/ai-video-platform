@@ -155,6 +155,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   errorMessage: text("errorMessage"),
   aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1"
   contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> — user-uploaded visual references for storyboard generation
+  artistType: mysqlEnum("artistType", ["band", "solo_artist", "animated_characters", "solo_animated"]).default("solo_artist"), // Artist type selection from step 1
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

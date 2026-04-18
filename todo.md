@@ -1196,11 +1196,11 @@
 - [x] YouTube branding: add YouTube logo/badge to WizPilot page header
 
 ## Fix: Kids Video Storyboard Flow (Apr 2026)
-- [ ] Find Kids Video component and audit current storyboard/scene flow
-- [ ] Add AI scene preview image generation per scene (same as WizPilot)
-- [ ] Add editable scene text (title, description, visual notes) inline
-- [ ] Add confirm-and-regenerate: user edits scene text, clicks regenerate to get new preview image
-- [ ] Fix mobile layout: responsive scene cards, stacked buttons, full-width CTAs
+- [x] Find Kids Video component and audit current storyboard/scene flow
+- [x] Add AI scene preview image generation per scene (same as WizPilot)
+- [x] Add editable scene text (title, description, visual notes) inline
+- [x] Add confirm-and-regenerate: user edits scene text, clicks regenerate to get new preview image
+- [x] Fix mobile layout: responsive scene cards, stacked buttons, full-width CTAs
 - [ ] Enhance Kids Video style thumbnail to be more obviously kids/animation-focused
 - [ ] Add "Add Scene" and "Remove Scene" controls to Kids Video storyboard
 
@@ -1212,15 +1212,15 @@
 - [ ] Add /kids-video and /text-to-video routes to App.tsx
 
 ## Feature: Music Video Flow Upgrade (Apr 2026)
-- [ ] Step 1: Artist Type selection — Band, Solo Artist, Animated Characters, Solo Animated Character
+- [x] Step 1: Artist Type selection — Band, Solo Artist, Animated Characters, Solo Animated Character
 - [x] Step 2: Audio input — Upload audio, Paste lyrics (copy/paste), or Generate with Suno (style + genre + prompt)
 - [x] Suno integration in Music Video flow: user picks style/genre, generates audio, can save and select before storyboard
 - [ ] Storyboard: AI image preview per scene with editable prompt, regenerate button before confirming render
-- [ ] Credits display + top-up on MusicVideoAutopilot render step
-- [ ] Credits display + top-up on Autopilot (WizPilot) render step
-- [ ] Credits display + top-up on KidsVideo render step
-- [ ] Credits display + top-up on TextToVideoCreator render step
-- [ ] Shared CreditsBanner component for reuse across all video creation pages
+- [x] Credits display + top-up on MusicVideoAutopilot render step
+- [x] Credits display + top-up on Autopilot (WizPilot) render step
+- [x] Credits display + top-up on KidsVideo render step
+- [x] Credits display + top-up on TextToVideoCreator render step
+- [x] Shared CreditsBanner component for reuse across all video creation pages
 
 ## Fix: Light/Dark Theme Toggle (Apr 2026)
 - [ ] Fix light/dark toggle — DEFERRED: site uses 1136 hardcoded dark colors vs 74 CSS vars; full light mode requires major refactor

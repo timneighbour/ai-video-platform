@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` ADD `artistType` enum('band','solo_artist','animated_characters','solo_animated') DEFAULT 'solo_artist';

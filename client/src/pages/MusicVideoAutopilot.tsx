@@ -84,6 +84,7 @@ import {
   Mic2,
   Plus,
   Image as ImageIcon,
+  Users,
 } from "lucide-react";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -403,7 +404,9 @@ export default function MusicVideoAutopilot() {
   const removeContextAssetMutation = trpc.musicVideo.removeContextAsset.useMutation();
 
   // Visual reference assets state (populated from job data)
-  const [contextAssets, setContextAssets] = React.useState<Array<{ url: string; mimeType: string; type: string }>>([]);
+  const [contextAssets, setContextAssets] = React.useState<Array<{ url: string; mimeType: string; type: string }>>([])
+  const [artistType, setArtistType] = useLocalStorage<"solo_artist" | "band" | "animated_characters" | "solo_animated">("musicVideo_artistType", "solo_artist");
+  const updateArtistTypeMutation = trpc.musicVideo.updateArtistType.useMutation();
   const [contextAssetUploading, setContextAssetUploading] = React.useState(false);
 
   const sunoGenerateMutation = trpc.suno.generate.useMutation();
@@ -1107,7 +1110,7 @@ export default function MusicVideoAutopilot() {
     { enabled: !!jobId && (step === "storyboard" || step === "upload") }
   );
 
-  // Populate contextAssets from job data when loading/resuming
+  // Populate contextAssets and artistType from job data when loading/resuming
   useEffect(() => {
     if (jobQuery.data?.job?.contextAssetUrls) {
       try {
@@ -1115,7 +1118,10 @@ export default function MusicVideoAutopilot() {
         if (Array.isArray(parsed)) setContextAssets(parsed);
       } catch { /* ignore */ }
     }
-  }, [jobQuery.data?.job?.contextAssetUrls]);
+    if (jobQuery.data?.job?.artistType) {
+      setArtistType(jobQuery.data.job.artistType as "solo_artist" | "band" | "animated_characters" | "solo_animated");
+    }
+  }, [jobQuery.data?.job?.contextAssetUrls, jobQuery.data?.job?.artistType]);
 
   useEffect(() => {
     if (jobQuery.data?.scenes) {
@@ -1685,6 +1691,52 @@ export default function MusicVideoAutopilot() {
         {step === "upload" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
+              {/* ── Artist Type Selection ── */}
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base text-white flex items-center gap-2">
+                    <Users className="w-4 h-4 text-[--color-gold]" />
+                    Who's in your video?
+                  </CardTitle>
+                  <p className="text-xs text-zinc-500 mt-1">Choose your artist type to optimise character generation and lip sync</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {([
+                      { value: "solo_artist" as const, label: "Solo Artist", icon: "🎤", desc: "One main performer" },
+                      { value: "band" as const, label: "Band", icon: "🎸", desc: "Multiple performers" },
+                      { value: "animated_characters" as const, label: "Animated Group", icon: "🎬", desc: "Pixar/anime style" },
+                      { value: "solo_animated" as const, label: "Solo Animated", icon: "✨", desc: "Single animated character" },
+                    ] as const).map(({ value, label, icon, desc }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => {
+                          setArtistType(value);
+                          if (jobId) {
+                            updateArtistTypeMutation.mutate({ jobId, artistType: value });
+                          }
+                        }}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all text-center ${
+                          artistType === value
+                            ? "border-[--color-gold]/60 bg-[--color-gold]/10 ring-1 ring-[--color-gold]/30"
+                            : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-500 hover:bg-zinc-800"
+                        }`}
+                      >
+                        <span className="text-2xl">{icon}</span>
+                        <div>
+                          <p className={`text-xs font-semibold ${artistType === value ? "text-[--color-gold]" : "text-white"}`}>{label}</p>
+                          <p className="text-[10px] text-zinc-500 mt-0.5">{desc}</p>
+                        </div>
+                        {artistType === value && (
+                          <Check className="w-3.5 h-3.5 text-[--color-gold]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Audio Source: Upload or Generate with AI */}
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader className="pb-3">
@@ -2417,6 +2469,8 @@ export default function MusicVideoAutopilot() {
                 <p className="text-zinc-400 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before rendering</p>
               </div>
               <div className="flex items-center gap-3">
+                {/* Credit balance badge */}
+                <CreditBalance variant="badge" />
                 {/* Render status badge */}
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-medium">
                   <Download className="w-3 h-3" /> Pay to render
@@ -3103,6 +3157,17 @@ export default function MusicVideoAutopilot() {
                 </React.Fragment>
               ))}
             </div>
+            {/* Low credit warning at bottom of storyboard */}
+            {creditBalance < 20 && (
+              <div className="mt-6">
+                <LowCreditBanner
+                  balance={creditBalance}
+                  estimatedCost={creditCost}
+                  variant="inline"
+                  dismissible
+                />
+              </div>
+            )}
           </div>
         )}
         {/* ===== STEP 3: RENDER ===== */}

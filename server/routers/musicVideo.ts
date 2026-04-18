@@ -3218,6 +3218,24 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       return { success: true, total: filtered.length };
     }),
 
+  // Update artist type for a job
+  updateArtistType: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      artistType: z.enum(["band", "solo_artist", "animated_characters", "solo_animated"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoJobs)
+        .set({ artistType: input.artistType })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      return { success: true, artistType: input.artistType };
+    }),
+
   // Add a new blank scene to a job's storyboard
   addScene: protectedProcedure
     .input(z.object({
