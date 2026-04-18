@@ -18,7 +18,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import {
-  Sparkles, Play, ArrowRight, Menu, X, ChevronDown,
+  Sparkles, Play, Pause, ArrowRight, Menu, X, ChevronDown,
   Music2, Image, Film, Zap, Wand2, FileText,
   Check, Star, Users, TrendingUp, Globe, Shield,
   Volume2, VolumeX, Eye, Layers, Rocket,
@@ -782,12 +782,12 @@ function HowItWorks() {
 // ── Why WIZ AI ────────────────────────────────────────────────────────────────
 function WhyWizAI() {
   const reasons = [
-    { icon: <Star className="w-5 h-5" />, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render." },
-    { icon: <Shield className="w-5 h-5" />, title: "Preview before you pay", desc: "See your entire video — every scene, every frame — before spending a single credit on rendering." },
-    { icon: <Zap className="w-5 h-5" />, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically." },
-    { icon: <Globe className="w-5 h-5" />, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform." },
-    { icon: <TrendingUp className="w-5 h-5" />, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition." },
-    { icon: <Users className="w-5 h-5" />, title: "Trusted by real creators", desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results." },
+    { icon: <Star className="w-5 h-5" />, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-full-video-eqHSzVYMM8cyW8Vj7kj3zu.webp" },
+    { icon: <Shield className="w-5 h-5" />, title: "Preview before you pay", desc: "See your entire video — every scene, every frame — before spending a single credit on rendering.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-preview-3EcnyAJpKdbZYsEtaadY7G.webp" },
+    { icon: <Zap className="w-5 h-5" />, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-no-editing-eZyhoAgxQvBABxzyvhiS8n.webp" },
+    { icon: <Globe className="w-5 h-5" />, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-formats-J9obkA5FRn9hJoHiGGooTT.webp" },
+    { icon: <TrendingUp className="w-5 h-5" />, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-faster-Qm5cxtKd2FM7TTwcYAzej8.webp" },
+    { icon: <Users className="w-5 h-5" />, title: "Trusted by real creators", desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-creators-CbBhsfbPiZ2MHcLRi7no7C.webp" },
   ];
   return (
     <section className="relative bg-[#030303] py-28 px-6">
@@ -801,12 +801,21 @@ function WhyWizAI() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {reasons.map((r) => (
-            <div key={r.title} className="reveal glass-card p-7 flex flex-col gap-4">
-              <div className="w-10 h-10 rounded-xl border border-[--color-gold]/[0.1] bg-[--color-gold]/[0.03] flex items-center justify-center text-[--color-gold]">
-                {r.icon}
+            <div key={r.title} className="reveal group relative rounded-2xl overflow-hidden flex flex-col" style={{ border: "1px solid rgba(196,164,100,0.12)", background: "linear-gradient(160deg, rgba(196,164,100,0.04) 0%, rgba(4,4,4,0.95) 100%)" }}>
+              {/* Card image */}
+              <div className="relative h-40 overflow-hidden">
+                <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-55 group-hover:scale-105 transition-all duration-700" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.85) 100%)" }} />
+                {/* Icon badge over image */}
+                <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center text-[--color-gold]">
+                  {r.icon}
+                </div>
               </div>
-              <h3 className="text-base font-bold text-white">{r.title}</h3>
-              <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{r.desc}</p>
+              {/* Card text */}
+              <div className="p-6 flex flex-col gap-3 flex-1">
+                <h3 className="text-base font-bold text-white">{r.title}</h3>
+                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{r.desc}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -821,6 +830,7 @@ const AUDIO_TIERS = [
     id: "normal",
     label: "Normal",
     desc: "Raw AI-generated audio. Functional, but unpolished.",
+    src: "/manus-storage/wizsound-normal_83a5954c.mp3",
     bars: [0.3, 0.5, 0.4, 0.6, 0.3, 0.5, 0.4, 0.3, 0.5, 0.4, 0.6, 0.3, 0.4, 0.5, 0.3, 0.4],
     color: "rgba(120,120,130,0.6)",
     colorActive: "rgba(160,160,170,0.8)",
@@ -829,6 +839,7 @@ const AUDIO_TIERS = [
     id: "enhanced",
     label: "Enhanced",
     desc: "Noise-reduced, balanced, and broadcast-ready.",
+    src: "/manus-storage/wizsound-enhanced_63baf559.mp3",
     bars: [0.4, 0.6, 0.7, 0.8, 0.5, 0.7, 0.6, 0.5, 0.7, 0.6, 0.8, 0.5, 0.6, 0.7, 0.5, 0.6],
     color: "rgba(180,170,140,0.6)",
     colorActive: "rgba(196,164,100,0.85)",
@@ -837,6 +848,7 @@ const AUDIO_TIERS = [
     id: "cinematic",
     label: "Cinematic",
     desc: "Full spatial mix with depth, warmth, and presence. Studio-grade.",
+    src: "/manus-storage/wizsound-cinematic_b322d347.mp3",
     bars: [0.5, 0.7, 0.85, 0.95, 0.7, 0.9, 0.8, 0.65, 0.85, 0.75, 0.95, 0.7, 0.8, 0.9, 0.65, 0.8],
     color: "rgba(180,150,50,0.5)",
     colorActive: "rgba(212,175,55,0.9)",
@@ -845,7 +857,44 @@ const AUDIO_TIERS = [
 
 function WizSoundDemo() {
   const [activeTier, setActiveTier] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const tier = AUDIO_TIERS[activeTier];
+
+  // Switch tier: stop current, reset
+  const handleTierSwitch = (i: number) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setActiveTier(i);
+    setIsPlaying(false);
+    setProgress(0);
+  };
+
+  // Play / pause toggle
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
+  };
+
+  // Progress tracking
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTime = () => setProgress((audio.currentTime / (audio.duration || 1)) * 100);
+    const onEnded = () => { setIsPlaying(false); setProgress(0); };
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("ended", onEnded);
+    return () => { audio.removeEventListener("timeupdate", onTime); audio.removeEventListener("ended", onEnded); };
+  }, [activeTier]);
 
   return (
     <section className="relative bg-[#030303] py-28 px-6">
@@ -867,7 +916,7 @@ function WizSoundDemo() {
             {AUDIO_TIERS.map((t, i) => (
               <button
                 key={t.id}
-                onClick={() => setActiveTier(i)}
+                onClick={() => handleTierSwitch(i)}
                 className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 border ${
                   activeTier === i
                     ? i === 2
@@ -883,10 +932,13 @@ function WizSoundDemo() {
             ))}
           </div>
 
-          {/* Visualiser card */}
+          {/* Player card */}
           <div className="glass-card p-8 max-w-2xl mx-auto">
-            {/* Waveform bars */}
-            <div className="flex items-end justify-center gap-1.5 h-24 mb-8">
+            {/* Hidden audio element */}
+            <audio ref={audioRef} src={tier.src} preload="metadata" />
+
+            {/* Animated waveform bars */}
+            <div className="flex items-end justify-center gap-1.5 h-20 mb-6">
               {tier.bars.map((h, i) => (
                 <div
                   key={i}
@@ -895,30 +947,66 @@ function WizSoundDemo() {
                     height: `${h * 100}%`,
                     background: tier.colorActive,
                     boxShadow: activeTier === 2 ? `0 0 8px ${tier.color}` : "none",
-                    opacity: 0.5 + h * 0.5,
+                    opacity: isPlaying ? (0.4 + h * 0.6) : (0.3 + h * 0.4),
+                    transform: isPlaying ? `scaleY(${0.8 + Math.sin(Date.now() / 200 + i) * 0.2})` : "scaleY(1)",
+                    animation: isPlaying ? `pulse ${0.4 + (i % 4) * 0.1}s ease-in-out infinite alternate` : "none",
                   }}
                 />
               ))}
             </div>
 
-            {/* Tier info */}
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <Volume2 className="w-5 h-5" style={{ color: tier.colorActive }} />
-                <h3 className="text-xl font-bold text-white">{tier.label}</h3>
-                {activeTier === 2 && (
-                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-[--color-gold]/20 bg-[--color-gold]/[0.06] text-[--color-gold-dark]">Recommended</span>
-                )}
+            {/* Progress bar */}
+            <div className="relative h-1 bg-white/[0.06] rounded-full mb-6 overflow-hidden cursor-pointer"
+              onClick={(e) => {
+                if (!audioRef.current) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pct = (e.clientX - rect.left) / rect.width;
+                audioRef.current.currentTime = pct * (audioRef.current.duration || 0);
+              }}
+            >
+              <div
+                className="absolute left-0 top-0 h-full rounded-full transition-all duration-100"
+                style={{ width: `${progress}%`, background: tier.colorActive }}
+              />
+            </div>
+
+            {/* Controls row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={togglePlay}
+                  className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 border"
+                  style={{
+                    background: isPlaying ? `linear-gradient(135deg, ${tier.colorActive}, rgba(0,0,0,0.5))` : "rgba(255,255,255,0.05)",
+                    borderColor: isPlaying ? tier.colorActive : "rgba(255,255,255,0.1)",
+                    boxShadow: isPlaying ? `0 0 20px ${tier.color}` : "none",
+                  }}
+                >
+                  {isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white/80" />}
+                </button>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-white">{tier.label}</h3>
+                    {activeTier === 2 && (
+                      <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-[--color-gold]/20 bg-[--color-gold]/[0.06] text-[--color-gold-dark]">Recommended</span>
+                    )}
+                  </div>
+                  <p className="text-[--color-silver-dark]/40 text-xs">{tier.desc}</p>
+                </div>
               </div>
-              <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed max-w-md mx-auto">{tier.desc}</p>
+              <Volume2 className="w-4 h-4" style={{ color: tier.colorActive }} />
             </div>
           </div>
 
           {/* CTA */}
-          <div className="text-center mt-10">
-            <a href="/onboarding" className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
+          <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
+            <a href="/onboarding" className="btn-primary btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
               <Sparkles className="w-4 h-4" />
               Start Creating
+            </a>
+            <a href="/products/wizsound" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.08] hover:text-[--color-gold] transition-all">
+              Find Out More
+              <ArrowRight className="w-4 h-4" />
             </a>
           </div>
         </div>
