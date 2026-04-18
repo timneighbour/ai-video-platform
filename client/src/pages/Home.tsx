@@ -732,14 +732,39 @@ function WizEngines() {
 
 // ── How It Works ──────────────────────────────────────────────────────────────
 function HowItWorks() {
+  const [activeStep, setActiveStep] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+
   const steps = [
-    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else." },
-    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds." },
-    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want." },
-    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share." },
+    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/hiw-step1-choose_1102ddee.jpg", icon: <Sparkles className="w-5 h-5" /> },
+    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg", icon: <Wand2 className="w-5 h-5" /> },
+    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.", img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg", icon: <Play className="w-5 h-5" /> },
+    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/hiw-step4-export_68c87f9e.jpg", icon: <TrendingUp className="w-5 h-5" /> },
   ];
+
+  // Auto-advance steps every 2.5s when section is in view
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          interval = setInterval(() => {
+            setActiveStep((prev) => (prev + 1) % steps.length);
+          }, 2500);
+        } else {
+          if (interval) clearInterval(interval);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(section);
+    return () => { observer.disconnect(); if (interval) clearInterval(interval); };
+  }, [steps.length]);
+
   return (
-    <section id="how-it-works" className="relative bg-[#040404] py-28 px-6">
+    <section ref={sectionRef} id="how-it-works" className="relative bg-[#040404] py-28 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20 reveal">
@@ -747,31 +772,127 @@ function HowItWorks() {
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
             From idea to finished video in minutes
           </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto mt-4">
+            No editing experience needed. No crew. No timeline. Just describe what you want.
+          </p>
         </div>
-        <div className="grid md:grid-cols-4 gap-8">
-          {[
-            { ...steps[0], img: "/manus-storage/hiw-step1-choose_1102ddee.jpg" },
-            { ...steps[1], img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg" },
-            { ...steps[2], img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg" },
-            { ...steps[3], img: "/manus-storage/hiw-step4-export_68c87f9e.jpg" },
-          ].map((s, i) => (
-            <div key={s.num} className="reveal relative">
+
+        {/* Desktop: 4-column animated grid */}
+        <div className="hidden md:grid md:grid-cols-4 gap-8">
+          {steps.map((s, i) => (
+            <div
+              key={s.num}
+              className="reveal relative cursor-pointer group"
+              onClick={() => setActiveStep(i)}
+            >
+              {/* Connector line */}
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-8 left-[calc(100%_-_1rem)] w-full h-px" style={{ background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.15), transparent)" }} />
+                <div
+                  className="absolute top-8 left-[calc(100%_-_1rem)] w-full h-px transition-all duration-700"
+                  style={{
+                    background: i < activeStep
+                      ? "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.5), oklch(0.78 0.11 75 / 0.15))"
+                      : "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.15), transparent)",
+                  }}
+                />
               )}
               {/* Step image */}
-              <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-5 border border-[--color-gold]/[0.08]">
-                <img src={s.img} alt={s.title} className="w-full h-full object-cover" />
+              <div
+                className={`relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-5 border transition-all duration-500 ${
+                  i === activeStep
+                    ? "border-[--color-gold]/40 shadow-lg shadow-[--color-gold]/10 scale-[1.02]"
+                    : i < activeStep
+                    ? "border-[--color-gold]/20"
+                    : "border-[--color-gold]/[0.06]"
+                }`}
+              >
+                <img
+                  src={s.img}
+                  alt={s.title}
+                  className={`w-full h-full object-cover transition-all duration-500 ${
+                    i === activeStep ? "brightness-100" : i < activeStep ? "brightness-75" : "brightness-50"
+                  }`}
+                />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
+                {/* Step number */}
                 <div className="absolute bottom-3 left-3">
-                  <span className="text-[2rem] font-black leading-none metallic-gold opacity-60">{s.num}</span>
+                  <span className={`text-[2rem] font-black leading-none transition-all duration-500 ${
+                    i <= activeStep ? "metallic-gold opacity-80" : "text-white/20"
+                  }`}>{s.num}</span>
                 </div>
+                {/* Active indicator */}
+                {i === activeStep && (
+                  <div className="absolute top-3 right-3">
+                    <div className="w-2 h-2 rounded-full bg-[--color-gold] animate-pulse" />
+                  </div>
+                )}
               </div>
               <div className="relative z-10">
-                <h3 className="text-lg font-bold text-white mb-3">{s.title}</h3>
-                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{s.desc}</p>
+                <div className={`flex items-center gap-2 mb-2 transition-colors duration-500 ${
+                  i <= activeStep ? "text-[--color-gold-dark]" : "text-white/20"
+                }`}>
+                  {s.icon}
+                  <h3 className={`text-lg font-bold transition-colors duration-500 ${
+                    i <= activeStep ? "text-white" : "text-white/40"
+                  }`}>{s.title}</h3>
+                </div>
+                <p className={`text-sm leading-relaxed transition-colors duration-500 ${
+                  i === activeStep ? "text-[--color-silver-dark]/65" : "text-[--color-silver-dark]/25"
+                }`}>{s.desc}</p>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Mobile: vertical stack */}
+        <div className="md:hidden flex flex-col gap-6">
+          {steps.map((s, i) => (
+            <div
+              key={s.num}
+              className={`reveal flex gap-4 items-start p-4 rounded-xl border transition-all duration-500 ${
+                i === activeStep
+                  ? "border-[--color-gold]/30 bg-[--color-gold]/[0.03]"
+                  : "border-white/5 bg-transparent"
+              }`}
+              onClick={() => setActiveStep(i)}
+            >
+              {/* Number badge */}
+              <div className={`flex-shrink-0 w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-500 ${
+                i <= activeStep
+                  ? "border-[--color-gold]/50 bg-[--color-gold]/10 text-[--color-gold]"
+                  : "border-white/10 bg-white/5 text-white/30"
+              }`}>
+                <span className="text-sm font-black">{s.num}</span>
+              </div>
+              <div className="flex-1">
+                <h3 className={`text-base font-bold mb-1 transition-colors duration-500 ${
+                  i <= activeStep ? "text-white" : "text-white/40"
+                }`}>{s.title}</h3>
+                <p className={`text-sm leading-relaxed transition-colors duration-500 ${
+                  i === activeStep ? "text-[--color-silver-dark]/60" : "text-[--color-silver-dark]/20"
+                }`}>{s.desc}</p>
+              </div>
+              {/* Step image (mobile) */}
+              {i === activeStep && (
+                <div className="flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-[--color-gold]/20">
+                  <img src={s.img} alt={s.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Step progress dots */}
+        <div className="flex justify-center gap-2 mt-12">
+          {steps.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveStep(i)}
+              className={`rounded-full transition-all duration-300 ${
+                i === activeStep ? "w-6 h-2 bg-[--color-gold]" : "w-2 h-2 bg-white/15 hover:bg-white/30"
+              }`}
+              aria-label={`Go to step ${i + 1}`}
+            />
           ))}
         </div>
       </div>
@@ -1398,6 +1519,86 @@ function BuiltFor() {
   );
 }
 
+// ── Feature Block ─────────────────────────────────────────────────────────────
+function FeatureBlock() {
+  const features = [
+    {
+      icon: <Music2 className="w-7 h-7" />,
+      title: "AI Music Generation",
+      desc: "Generate original songs, soundtracks, and audio from a text prompt. Choose genre, mood, tempo, and style — WizSound™ masters every track to broadcast quality.",
+      cta: "Generate a Song",
+      href: "/music-creator",
+      badge: "WizSound™",
+      gradient: "from-[#1a1408] to-[#0d0d0d]",
+      borderGlow: "hover:border-[--color-gold]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.06)]",
+    },
+    {
+      icon: <Film className="w-7 h-7" />,
+      title: "Music Video Creation",
+      desc: "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric.",
+      cta: "Create a Music Video",
+      href: "/music-video/create",
+      badge: "WizCreate™",
+      gradient: "from-[#0d1018] to-[#0d0d0d]",
+      borderGlow: "hover:border-blue-500/20 hover:shadow-[0_0_40px_rgba(59,130,246,0.04)]",
+    },
+    {
+      icon: <Rocket className="w-7 h-7" />,
+      title: "WizPilot Automation",
+      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, audio, render, and delivery. The complete AI video pipeline in one click.",
+      cta: "Try WizPilot",
+      href: "/onboarding",
+      badge: "WizPilot™",
+      gradient: "from-[#0d1808] to-[#0d0d0d]",
+      borderGlow: "hover:border-green-500/20 hover:shadow-[0_0_40px_rgba(34,197,94,0.04)]",
+    },
+  ];
+
+  return (
+    <section className="relative bg-[#030303] py-28 px-6">
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16 reveal">
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Complete AI creative platform</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
+            Create complete AI content
+          </h2>
+          <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto mt-4">
+            Music, video, and storytelling — all in one platform. Replace hours of production with minutes of prompting.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {features.map((f) => (
+            <div
+              key={f.title}
+              className={`reveal group relative rounded-2xl border border-[--color-gold]/[0.08] bg-gradient-to-b ${f.gradient} p-8 flex flex-col gap-5 transition-all duration-500 ${f.borderGlow} cursor-pointer`}
+            >
+              {/* Icon */}
+              <div className="w-14 h-14 rounded-2xl border border-[--color-gold]/15 bg-[--color-gold]/[0.04] flex items-center justify-center text-[--color-gold] group-hover:bg-[--color-gold]/[0.08] transition-colors">
+                {f.icon}
+              </div>
+              {/* Badge */}
+              <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[--color-gold-dark] bg-[--color-gold]/[0.05] border border-[--color-gold]/[0.1] px-2.5 py-1 rounded-full w-fit">
+                {f.badge}
+              </span>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-3">{f.title}</h3>
+                <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed">{f.desc}</p>
+              </div>
+              <a
+                href={f.href}
+                className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors group-hover:gap-3"
+              >
+                {f.cta} <ArrowRight className="w-4 h-4 transition-all" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Final CTA ─────────────────────────────────────────────────────────────────
 function FinalCTA() {
   return (
@@ -1417,19 +1618,30 @@ function FinalCTA() {
         <p className="text-[--color-silver-dark]/50 text-lg mb-10 leading-relaxed">
           Join thousands of creators producing professional audio, video, and animation with WIZ AI. Create free. Pay only when you render.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Dual CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
           <a
             href="/onboarding"
-            className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base"
+            className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
           >
             <Sparkles className="w-5 h-5" />
-            Start Creating
+            Create Your First AI Video
           </a>
+          <a
+            href="/music-creator"
+            className="btn-secondary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
+          >
+            <Music2 className="w-5 h-5" />
+            Generate Your First Song
+          </a>
+        </div>
+        <div className="flex items-center justify-center gap-4 mt-6">
           <a href="/pricing" className="inline-flex items-center gap-2 text-sm text-[--color-silver-dark]/40 hover:text-[--color-silver] transition-colors font-medium">
             View Pricing <ArrowRight className="w-4 h-4" />
           </a>
+          <span className="w-px h-3 bg-[--color-gold]/10" />
+          <span className="text-xs text-[--color-silver-dark]/25">No credit card required. 2 free videos included.</span>
         </div>
-        <p className="mt-6 text-xs text-[--color-silver-dark]/25">No credit card required. 2 free videos included.</p>
       </div>
     </section>
   );
@@ -1562,6 +1774,7 @@ export default function Home() {
         <Testimonials />
         <Showcase />
         <BuiltFor />
+        <FeatureBlock />
         <FinalCTA />
       </main>
       <Footer />

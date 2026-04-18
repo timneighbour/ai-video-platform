@@ -719,12 +719,12 @@
 - [ ] Increase minimum polling interval to avoid rate limits
 
 ## USP Visual Overhaul (AI Content Engine)
-- [ ] Animated 4-step idea-to-video flow component (sequential light-up, mobile vertical stack)
-- [ ] USP sub-headline: "Create complete AI content — music, video, and storytelling in one platform"
-- [ ] 3-column feature block: AI Music Generation / Music Video Creation / WizPilot Automation
+- [x] Animated 4-step idea-to-video flow component (sequential light-up, mobile vertical stack)
+- [x] USP sub-headline: "Create complete AI content — music, video, and storytelling in one platform"
+- [x] 3-column feature block: AI Music Generation / Music Video Creation / WizPilot Automation
 - [ ] Combined flow example section: "From idea to finished video in minutes"
 - [ ] Conversion hook copy: "Replace hours of production..."
-- [ ] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
+- [x] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
 - [ ] Update hero headline positioning copy site-wide
 - [ ] Wire Suno router into main routers.ts and build Suno music creator page
 - [ ] Ensure all animations are smooth, lightweight, and mobile-responsive
