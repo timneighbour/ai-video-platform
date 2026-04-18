@@ -2418,12 +2418,14 @@ export default function MusicVideoAutopilot() {
                 className="w-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold py-3"
                 onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
                 disabled={
-                  createJob.isPending || generateStoryboardMutation.isPending || !title || !themePrompt ||
+                  createJob.isPending || generateStoryboardMutation.isPending || isUploading || !title || !themePrompt ||
                   (audioSourceTab === "upload" ? !audioFile : !sunoGeneratedAudioUrl)
                 }
               >
                 {createJob.isPending || generateStoryboardMutation.isPending ? (
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Storyboard...</>
+                ) : isUploading ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading Song...</>
                 ) : (
                   <><Sparkles className="w-4 h-4 mr-2" /> Generate Free Storyboard</>
                 )}
@@ -2998,14 +3000,27 @@ export default function MusicVideoAutopilot() {
                           {(scene.characterAssignments ?? []).map((name) => {
                             const charData = jobCharacters.find((c: any) => c.name === name);
                             const isCharLocked = charData?.isLocked;
+                            const charAvatarUrl = charData?.primaryPhotoUrl ?? (charData as any)?.aiGeneratedImageUrl ?? null;
                             return (
                               <div key={name} className="flex items-center gap-1">
                                 <button
                                   type="button"
                                   onClick={() => handleToggleSceneCharacter(scene.id, name)}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
+                                  className="inline-flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-full text-xs font-medium bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 hover:bg-red-900/40 hover:text-red-300 hover:border-red-700/60 transition-colors"
                                   title={`Remove ${name} from this scene`}
                                 >
+                                  {charAvatarUrl ? (
+                                    <img
+                                      src={charAvatarUrl}
+                                      alt={name}
+                                      className="w-4 h-4 rounded-full object-cover border border-[--color-gold]/40 flex-shrink-0"
+                                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                    />
+                                  ) : (
+                                    <span className="w-4 h-4 rounded-full bg-[--color-gold]/20 flex items-center justify-center flex-shrink-0 text-[8px] font-bold text-[--color-gold]">
+                                      {name.charAt(0).toUpperCase()}
+                                    </span>
+                                  )}
                                   @{name}
                                   <X className="w-2.5 h-2.5" />
                                 </button>

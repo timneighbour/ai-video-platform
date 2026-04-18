@@ -491,9 +491,12 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
     // Store the clean scene-direction-only prompt for UI display
     const cleanPrompt = finalPrompt;
     
-    // Build the full render prompt with character descriptions prepended
+    // Build the full render prompt with character descriptions prepended.
+    // The "ONLY these characters" constraint prevents the video AI from inventing
+    // extra background musicians, crowd members, or additional performers.
     if (characterPrefixes.length > 0) {
-      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}`;
+      const charNames = validAssignments.join(" and ");
+      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}\n\nIMPORTANT: ONLY ${charNames} appear in this scene. No additional people, musicians, background performers, or crowd members. Exactly ${validAssignments.length} person${validAssignments.length === 1 ? "" : "s"} visible.`;
     }
 
     return {

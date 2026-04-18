@@ -351,6 +351,7 @@ function Hero() {
 
   return (
     <section
+      data-section="hero"
       className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]"
       onMouseMove={handleMouseMove}
     >
@@ -1853,6 +1854,49 @@ function Footer() {
   );
 }
 
+// ── Sticky Mobile CTA Bar ────────────────────────────────────────────────────
+function StickyMobileCTA() {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    const hero = document.querySelector('[data-section="hero"]') as HTMLElement | null;
+    if (!hero) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!dismissed) setVisible(!entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+    io.observe(hero);
+    return () => io.disconnect();
+  }, [dismissed]);
+
+  if (!visible || dismissed) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
+      <div className="bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-[--color-gold]/[0.12] px-4 py-3 flex items-center gap-3 shadow-[0_-8px_32px_rgba(0,0,0,0.6)]">
+        <a
+          href="/onboarding"
+          className="flex-1 btn-primary btn-sheen inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
+          onClick={() => mp.startCreatingClicked?.("sticky_mobile_cta")}
+        >
+          <Sparkles className="w-4 h-4" />
+          Create Your First Video — Free
+        </a>
+        <button
+          onClick={() => setDismissed(true)}
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[--color-silver-dark]/40 hover:text-[--color-silver] transition-colors"
+          aria-label="Dismiss"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Continue Project Banner ────────────────────────────────────────────────────
 function ContinueProjectBanner() {
   const { resumeData, showResume } = useProjectResume();
@@ -1903,6 +1947,7 @@ export default function Home() {
       </main>
       <Footer />
       <ContinueProjectBanner />
+      <StickyMobileCTA />
     </div>
   );
 }
