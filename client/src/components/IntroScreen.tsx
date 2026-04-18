@@ -17,7 +17,7 @@ import { Volume2, VolumeX, ChevronRight, Play } from "lucide-react";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
-  "/manus-storage/wizai-intro-wizsound-cinematic_e1e7ad3f.mp4"; // WizSound™ Cinematic — 13-stage audio chain, -12.25 LUFS, 320kbps AAC
+  "/manus-storage/wizai-intro-george-wizsound_689c34cb.mp4"; // WizSound™ George — ElevenLabs George voice + 13-stage audio chain, -11.2 LUFS, 320kbps AAC
 const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-poster_760474dc.jpg";
 
