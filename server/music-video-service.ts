@@ -9,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { getDb } from "./db";
-import { musicVideoJobs, musicVideoScenes } from "../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacters } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { storagePut } from "./storage";
 import { invokeLLM } from "./_core/llm";
@@ -1253,8 +1253,8 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
         const preMtBuf = fs.readFileSync(finalVideo);
         const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
         // Apply MuseTalk: source_video_url = assembled video, audio_url = enhanced audio
-        const { FalAiClient } = await import("./ai-apis/falai");
-        const falClient = new FalAiClient();
+        const { initFalAI } = await import("./ai-apis/falai");
+        const falClient = initFalAI();
         const museTalkUrl = await falClient.museTalkLipSync({
           source_video_url: preMtUrl,
           audio_url: job.audioUrl,
