@@ -37,13 +37,13 @@ const PLANS = [
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     monthlyPrice: 9,
-    annualTotal: 90,
-    annualSaving: 18,
+    annualTotal: 79,
+    annualSaving: 29,
     tagline: "Create up to 2 videos/month",
     outcomes: [
       "2 renders per month",
       "Standard quality (720p)",
-      "All 6 AI video styles",
+      "All 6 WIZ AI products",
       "Free storyboard generation",
       "WizVideo + WizAudio creation tools",
       "WizScript AI video creator",
@@ -79,17 +79,17 @@ const PLANS = [
     name: "Creator",
     icon: <Rocket className="w-5 h-5" />,
     monthlyPrice: 29,
-    annualTotal: 290,
-    annualSaving: 58,
+    annualTotal: 232,
+    annualSaving: 116,
     tagline: "Create up to 15 videos/month",
     outcomes: [
       "15 renders per month",
-      "HD + 4K access",
+      "Standard, HD & 4K quality",
       "Character consistency",
       "Priority rendering queue",
-      "20% WizSound™ discount",
-      "All 6 AI video styles",
+      "All 6 WIZ AI products",
       "Free storyboard generation",
+      "No watermark on exports",
       "Priority email support",
     ],
     cta: "Upgrade Plan",
@@ -106,11 +106,12 @@ const PLANS = [
     tagline: "Create up to 25 videos/month in 4K",
     outcomes: [
       "25 renders per month",
-      "4K included as standard",
+      "Standard, HD & 4K quality",
+      "Character consistency",
       "Priority rendering queue",
-      "40% WizSound™ discount",
-      "All 6 AI video styles",
+      "All 6 WIZ AI products",
       "Free storyboard generation",
+      "No watermark on exports",
       "Priority support",
     ],
     cta: "Upgrade Plan",
@@ -127,12 +128,12 @@ const PLANS = [
     tagline: "Create up to 40 videos/month",
     outcomes: [
       "40 renders per month",
-      "4K included as standard",
-      "Fastest rendering — top priority",
+      "Standard, HD & 4K quality",
+      "Fastest rendering \u2014 top priority",
       "Character consistency",
-      "60% WizSound™ discount",
-      "API access for automation",
-      "All 6 AI video styles",
+      "Full API access for automation",
+      "All 6 WIZ AI products",
+      "No watermark on exports",
       "Dedicated support",
     ],
     cta: "Upgrade Plan",
@@ -451,10 +452,9 @@ export default function Subscribe() {
         <div className="container max-w-3xl mx-auto">
           <div className="grid gap-4 sm:grid-cols-3 text-center">
             {[
-              { q: "Do credits expire?",        a: "No — your credits roll over and never expire." },
-              { q: "Can I switch plans?",        a: "Yes, upgrade or downgrade anytime. Prorated instantly." },
-              { q: "Is there a refund policy?",  a: "Yes, we offer a 7-day money-back guarantee on all plans." },
-            ].map(({ q, a }) => (
+              { q: "Do subscription renders roll over?",  a: "Subscription renders reset each billing cycle. Render bundles (bought separately) never expire." },
+              { q: "Can I switch plans?",                   a: "Yes, upgrade or downgrade anytime. Prorated instantly." },
+              { q: "Is there a refund policy?",             a: "Yes, we offer a 7-day money-back guarantee on all plans." },        ].map(({ q, a }) => (
               <div key={q} className="rounded-xl border border-white/10 bg-white/5 p-4">
                 <p className="font-semibold text-white text-sm mb-1">{q}</p>
                 <p className="text-xs text-muted-foreground">{a}</p>

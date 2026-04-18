@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause, Video, Mic, Wand2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

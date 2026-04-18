@@ -178,7 +178,7 @@ export default function WatchPage() {
                   Try WIZ AI Free
                 </Button>
               </Link>
-              <p className="text-center text-white/40 text-xs">50 free credits — no credit card required</p>
+              <p className="text-center text-white/40 text-xs">2 free renders — no credit card required</p>
             </div>
 
             {/* Features list */}

@@ -179,7 +179,7 @@ function Nav() {
                   </div>
                   {/* Footer CTA */}
                   <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.06] flex items-center justify-between px-2">
-                    <p className="text-[10px] text-white/20">50 free credits on sign-up</p>
+                    <p className="text-[10px] text-white/20">2 free renders on sign-up — no card required</p>
                     <a href="/onboarding" className="text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
                       Start Creating <ArrowRight className="w-3 h-3" />
                     </a>
@@ -363,18 +363,18 @@ function Hero() {
           {/* Eyebrow */}
           <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] backdrop-blur-sm mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
-            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[--color-gold-dark]">The Premium AI Creative Platform</span>
+            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[--color-gold-dark]">The AI Creative Studio for Serious Creators</span>
           </div>
 
           {/* Headline */}
           <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">
-            Your ideas deserve<br />
-            <span className="metallic-gold">world-class production.</span>
+            Turn any idea into<br />
+            <span className="metallic-gold">a cinematic masterpiece.</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/65 leading-relaxed max-w-xl mb-8">
-            WIZ AI turns any idea into professional audio, images, video, shorts, and animation — in minutes, not months.
+            WIZ AI generates full music videos, AI shorts, animations, and audio tracks from a single idea — with studio-grade quality, character consistency, and no creative limits. Free storyboard on every project.
           </p>
 
           {/* CTAs */}
@@ -385,13 +385,13 @@ function Hero() {
               onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
             >
               <Sparkles className="w-5 h-5" />
-              Start Creating
+              Create Your First Video — Free
             </a>
             <a
-              href="#products"
+              href="/pricing"
               className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
             >
-              Explore Products
+              See Pricing
               <ArrowRight className="w-4 h-4" />
             </a>
             <button
@@ -427,15 +427,19 @@ function Hero() {
             <div className="flex items-center gap-5 text-xs">
               <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
                 <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-[--color-silver]/55 font-semibold">Free</span> to start — no card needed
+                <span className="text-[--color-silver]/55 font-semibold">Free storyboard</span> on every project
               </span>
               <span className="w-px h-3 bg-[--color-gold]/10" />
               <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
-                <span className="text-[--color-silver]/55 font-semibold">5 min</span> from idea to finished video
+                <span className="text-[--color-silver]/55 font-semibold">No card</span> required to start
               </span>
               <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
               <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
                 <span className="text-[--color-silver]/55 font-semibold">Full video</span> — not just clips
+              </span>
+              <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
+              <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
+                <span className="text-[--color-silver]/55 font-semibold">7-day</span> money-back guarantee
               </span>
             </div>
           </div>

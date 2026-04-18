@@ -5,7 +5,7 @@
  * enters the viewport. This prevents blocking render and reduces initial
  * bandwidth consumption.
  */
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface LazyVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string;

@@ -118,7 +118,7 @@ export function HowWizVidWorks() {
             Start Creating
             <span className="text-white/70">→</span>
           </a>
-          <p className="text-xs text-white/30 mt-3">No credit card required · 50 free credits on sign-up</p>
+          <p className="text-xs text-white/30 mt-3">No credit card required · 2 free renders on sign-up</p>
         </div>
       </div>
     </section>

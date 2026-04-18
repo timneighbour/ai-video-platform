@@ -647,7 +647,7 @@
 - [x] CTA standardisation: "Create Your First Video" primary everywhere
 - [x] Positioning: "Create viral videos without editing" hero headline
 - [x] Music video landing page: new headline, video preview, flow explanation, CTA before login
-- [ ] QA: verify all routes, links, no console errors
+- [x] QA: verify all routes, links, no console errors (React import fixes applied to LazyVideo/ProductPageTemplate/VideoCarousel)
 - [x] Fix LCP (18.7s): preload hero video/image, add fetchpriority=high to hero img (preload link + preload=auto on first video)
 - [x] Fix TBT (510ms): defer non-critical JS, split large bundles (28 lazy imports in App.tsx)
 - [x] Add font-display:swap to Google Fonts to eliminate render-blocking (already in index.html: display=swap + media=print onload)

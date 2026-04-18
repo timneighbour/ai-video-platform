@@ -3,7 +3,7 @@
  * Used by: WizCreate, WizAnimate, WizSync, WizSound, WizLumina, WizGenesis, WizBoost
  * Luxury gold/silver/charcoal system — consistent with homepage
  */
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
