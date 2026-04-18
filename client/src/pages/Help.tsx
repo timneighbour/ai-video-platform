@@ -234,7 +234,7 @@ const FAQS = [
     questions: [
       { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you render and download the final video. Choose your quality (Standard \u00A32 / HD \u00A34 / 4K \u00A36) and optionally add WizSound audio enhancement." },
       { q: "What is WizSound?", a: "WizSound is our proprietary audio enhancement engine. WizSound Enhanced (+\u00A31) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+\u00A33) applies our full mastering pipeline with immersive depth and dynamic range \u2014 recommended for music videos." },
-      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (\u00A39/month, 2 renders, 720p), Basic (\u00A319/month, 5 renders, 1080p HD), Creator (\u00A329/month, 10 renders, HD + 4K), Pro (\u00A359/month, 25 renders, 4K priority), and Studio (\u00A399/month, 50 renders, 4K + API). Storyboard generation is always free on all plans." },
+      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (\u00A39/month, 2 renders, 720p), Basic (\u00A319/month, 5 renders, 1080p HD), Creator (£35/month, 15 renders, HD + 4K), Pro (\u00A359/month, 25 renders, 4K priority), and Studio (\u00A399/month, 50 renders, 4K + API). Storyboard generation is always free on all plans." },
       { q: "Can I cancel my subscription?", a: "Yes, cancel at any time from your Account settings. Your subscription remains active until the end of the billing period." },
       { q: "What payment methods do you accept?", a: "Visa, Mastercard, Amex, Apple Pay, and Google Pay via Stripe." },
     ],

@@ -87,7 +87,7 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
           {/* Pricing callout */}
           <div className="bg-gradient-to-r from-pink-500/10 to-purple-600/10 border border-[--color-gold]/30 rounded-xl p-4 mb-5 text-center">
             <span className="text-white/50 text-sm">Creator plan from </span>
-            <span className="text-white font-black text-xl">£29</span>
+            <span className="text-white font-black text-xl">£35</span>
             <span className="text-white/50 text-sm">/month</span>
             <div className="text-[--color-silver] text-xs mt-1 font-medium">Save 20% with annual billing</div>
           </div>

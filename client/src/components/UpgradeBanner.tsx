@@ -21,7 +21,7 @@ const BANNER_CONTENT = {
   watermark: {
     icon: Sparkles,
     text: "Your video has a watermark.",
-    cta: "Remove it with Creator — from £29/month",
+    cta: "Remove it with Creator — from £35/month",
   },
 };
 

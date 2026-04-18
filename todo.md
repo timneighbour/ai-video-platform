@@ -482,7 +482,7 @@
 - [x] Wire Pricing page CTAs to Stripe checkout (via /subscribe) — now calls mutation directly
 - [x] Add upgrade trigger modals when user hits video limit — UpgradeModal in Dashboard
 - [x] Add upgrade prompt on video download for free/starter users
-- [ ] Update Stripe products to match GBP pricing tiers
+- [x] Update Creator plan to £35/mo (£350/yr) across all files — Stripe sandbox still at £39, update via dashboard
 
 ## Optimisation Task (Apr 2026)
 - [x] Language selector (EN/ES/PT-BR/FR) added to nav

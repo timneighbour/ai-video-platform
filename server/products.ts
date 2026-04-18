@@ -1,13 +1,12 @@
 /**
  * Stripe Products & Pricing Configuration
- * WIZ AI GBP pricing: Starter £9/mo | Basic £19/mo | Creator £29/mo (Most Popular) | Pro £59/mo | Studio £99/mo
- * Annual: 2 months free (£90/£190/£290/£590/£990)
- *
+ * WIZ AI GBP pricing: Starter £9/mo | Basic £19/mo | Creator £35/mo (Most Popular) | Pro £59/mo | Studio £99/mo
+ * Annual: 2 months free (£90/£190/£350/£590/£990). *
  * Profitability Control System integrated — see PLAN_COST_TARGETS and RENDERER_COSTS.
  */
 
-/** Free trial credits granted to every new user on first sign-up */
-export const FREE_TRIAL_CREDITS = 50;
+/** Free trial credits granted to every new user on first sign-up (2 free renders × 30 credits each) */
+export const FREE_TRIAL_CREDITS = 60;
 
 /**
  * Credit costs for video generation (user-facing, not API cost).
@@ -98,7 +97,7 @@ export const SUBSCRIPTION_PLANS = {
     name: "Free Trial",
     pricePerMonth: 0,
     pricePerYear: 0,
-    credits: 50,
+    credits: 60,
     videosPerMonth: 2,
     maxVideosPerMonth: 2,
     maxVideoSeconds: 30,
@@ -164,8 +163,8 @@ export const SUBSCRIPTION_PLANS = {
   },
   creator: {
     name: "Creator",
-    pricePerMonth: 29,
-    pricePerYear: 290, // £29 × 10 = £290 (2 months free)
+    pricePerMonth: 35,
+    pricePerYear: 350, // £35 × 10 = £350 (2 months free)
     credits: 180,
     videosPerMonth: 6,
     maxVideosPerMonth: 6,

@@ -78,9 +78,9 @@ const PLANS = [
     id: "creator",
     name: "Creator",
     icon: <Rocket className="w-5 h-5" />,
-    monthlyPrice: 29,
-    annualTotal: 232,
-    annualSaving: 116,
+    monthlyPrice: 35,
+    annualTotal: 350,
+    annualSaving: 70,
     tagline: "Create up to 15 videos/month",
     outcomes: [
       "15 renders per month",

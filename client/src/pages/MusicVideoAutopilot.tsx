@@ -699,6 +699,23 @@ export default function MusicVideoAutopilot() {
           setTranscriptionText(result.text);
           setTranscriptionSegments(result.segments);
           setTranscriptionStatus("done");
+          // Smart vocal detection: auto-set lip sync default based on transcription
+          const transcribedText = (result.text ?? "").toLowerCase().trim();
+          const isInstrumental =
+            !transcribedText ||
+            transcribedText.length < 10 ||
+            /^\[?instrumental\]?$/.test(transcribedText) ||
+            /^\[music\]$/.test(transcribedText) ||
+            (transcribedText.match(/\[/g) ?? []).length > 3; // mostly tags = no real lyrics
+          if (globalLipSync === null) {
+            // Only auto-set if user hasn't manually changed it
+            setGlobalLipSync(!isInstrumental);
+            if (isInstrumental) {
+              toast.info("Instrumental detected", { description: "Lip sync has been turned off automatically. Enable it manually if needed." });
+            } else {
+              toast.success("Vocals detected", { description: "Lip sync is enabled automatically for singing characters." });
+            }
+          }
         } catch (err: any) {
           console.error("Transcription error:", err);
           const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");
