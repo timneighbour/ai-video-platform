@@ -202,16 +202,16 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <img
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+                    src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                     alt="WIZ AI"
-                    className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
+                    className="h-[8.125rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
                   />
                 </div>
               ) : (
                 <img
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+                  src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                   alt="WIZ AI"
-                  className="h-6 w-6 object-contain rounded"
+                  className="h-[1.875rem] w-[1.875rem] object-contain rounded"
                 />
               )}
             </div>

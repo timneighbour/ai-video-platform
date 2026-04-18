@@ -83,7 +83,7 @@ const options = [
   },
 ];
 
-const WIZAI_LOGO = `${CDN}/wizai-logo-v3_bd51f720.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 const Onboarding: React.FC = () => {
   useEffect(() => { mp.onboardingStarted(); }, []);
@@ -135,7 +135,7 @@ const Onboarding: React.FC = () => {
 
       {/* ── WIZ AI logo top-center ─────────────────────────────────────────── */}
       <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50">
-        <img src={WIZAI_LOGO} alt="WIZ AI" className="h-10 w-auto opacity-70" />
+        <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.125rem] w-auto opacity-70" />
       </div>
 
       {/* ── Main content ───────────────────────────────────────────────────── */}

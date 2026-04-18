@@ -4,7 +4,7 @@ import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
 import { Link } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = `${CDN}/wizai-logo-v3_bd51f720.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
 const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
@@ -197,7 +197,7 @@ export default function HowItWorks() {
           <Link href="/">
             <a className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <ArrowLeft className="w-4 h-4 text-white/40" />
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-10 w-auto" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.125rem] w-auto" />
             </a>
           </Link>
           <a href="/onboarding"

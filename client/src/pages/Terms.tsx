@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 export default function Terms() {
   return (
@@ -7,7 +7,7 @@ export default function Terms() {
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[8.125rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
           </Link>
           <Link href="/" className="text-sm text-[#a1a1aa] hover:text-white transition-colors">← Back to Home</Link>
         </div>

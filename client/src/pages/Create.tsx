@@ -17,7 +17,7 @@ import {
 } from "@/components/WizProductEmblems";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = `${CDN}/wizai-logo-v3_bd51f720.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
@@ -479,7 +479,7 @@ export default function Create() {
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Home" />
             <NavLink href="/" className="hidden md:flex items-center">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-16 w-auto object-contain" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-20 w-auto object-contain" />
             </NavLink>
           </div>
           <div className="hidden md:flex items-center gap-1">

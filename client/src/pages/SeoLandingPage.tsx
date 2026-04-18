@@ -217,7 +217,7 @@ export default function SeoLandingPage() {
         name: "WIZ AI",
         logo: {
           "@type": "ImageObject",
-          url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
+          url: "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png",
         },
       },
     });
@@ -294,9 +294,9 @@ export default function SeoLandingPage() {
           <Link href="/">
             <div className="flex items-center cursor-pointer">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+                src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                 alt="WIZ AI"
-                className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
+                className="h-[8.125rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
               />
             </div>
           </Link>
@@ -399,7 +399,7 @@ export default function SeoLandingPage() {
           <div className="p-8 rounded-2xl bg-gradient-to-br from-[#b8892a]/40 to-[#2e2e36]/20 border border-[--color-gold]/30">
             <div className="flex items-center gap-3 mb-4">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+                src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                 alt="WIZ AI"
                 className="w-10 h-10 rounded-xl object-cover"
               />

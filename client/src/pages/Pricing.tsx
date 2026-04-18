@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import WizSoundShowcase from "@/components/WizSoundShowcase";
 
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 const NAV_PRODUCTS = [
   { name: "WizAudio", label: "Create Audio", icon: <Music2 className="w-5 h-5" />, href: "/music-creator" },
@@ -62,7 +62,7 @@ function PricingNav({ isAuthenticated }: { isAuthenticated: boolean }) {
       }`}>
         <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
           <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.8rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.75rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" />
           </a>
           <div className="hidden md:flex items-center gap-1">
             <a href="/" className="nav-link">Home</a>
@@ -968,7 +968,7 @@ export default function Pricing() {
       <footer className="border-t border-[--color-gold]/[0.06] bg-[#030303] py-16 px-6 mt-16">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
-            <NavLink href="/"><img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.2rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" /></NavLink>
+            <NavLink href="/"><img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" /></NavLink>
             <div className="flex items-center gap-5 text-xs text-[--color-silver-dark]/30">
               <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</Link>

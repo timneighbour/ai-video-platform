@@ -9,7 +9,7 @@ import { useLocation, Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
   { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Animated Character" },
@@ -52,7 +52,7 @@ export default function MusicVideosLanding() {
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back to Home" />
             <NavLink href="/" className="hidden md:flex items-center">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[8.125rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110" />
             </NavLink>
           </div>
           <div className="hidden md:flex items-center gap-1">
@@ -271,7 +271,7 @@ export default function MusicVideosLanding() {
       {/* Footer */}
       <footer className="bg-[#0f0f0f] border-t border-white/8 py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
-          <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[6.5rem] w-auto object-contain" />
+          <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[8.125rem] w-auto object-contain" />
           <p>© 2025 WIZ AI. All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
