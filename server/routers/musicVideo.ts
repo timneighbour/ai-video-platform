@@ -77,8 +77,9 @@ export const musicVideoRouter = router({
     .input(
       z.object({
         title: z.string().min(1).max(255),
-        audioBase64: z.string(), // base64 encoded audio
-        audioMimeType: z.enum(["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a"]),
+        audioBase64: z.string().optional(), // base64 encoded audio (mutually exclusive with audioUrl)
+        audioUrl: z.string().url().optional(), // direct URL to audio (e.g. from Suno)
+        audioMimeType: z.enum(["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a"]).optional(),
         audioDuration: z.number().int().min(10).max(360), // 10s to 6 minutes
         themePrompt: z.string().min(10).max(2000),
         genre: z.string().max(128).optional(),
@@ -120,11 +121,27 @@ export const musicVideoRouter = router({
         });
       }
 
-      // Upload audio to S3
-      const audioBuffer = Buffer.from(input.audioBase64, "base64");
-      const ext = input.audioMimeType.split("/")[1].replace("mpeg", "mp3");
-      const audioKey = `music-video-audio/${ctx.user.id}-${Date.now()}.${ext}`;
-      const { url: audioUrl } = await storagePut(audioKey, audioBuffer, input.audioMimeType);
+      // Upload audio to S3 (either from base64 or direct URL)
+      let audioUrl: string;
+      let audioKey: string;
+      if (input.audioUrl) {
+        // Suno path: fetch from URL and re-upload to our S3 for reliability
+        const fetchRes = await fetch(input.audioUrl);
+        const arrayBuf = await fetchRes.arrayBuffer();
+        const audioBuffer = Buffer.from(arrayBuf);
+        audioKey = `music-video-audio/${ctx.user.id}-${Date.now()}.mp3`;
+        const uploaded = await storagePut(audioKey, audioBuffer, "audio/mpeg");
+        audioUrl = uploaded.url;
+      } else if (input.audioBase64) {
+        const mimeType = input.audioMimeType ?? "audio/mpeg";
+        const audioBuffer = Buffer.from(input.audioBase64, "base64");
+        const ext = mimeType.split("/")[1].replace("mpeg", "mp3");
+        audioKey = `music-video-audio/${ctx.user.id}-${Date.now()}.${ext}`;
+        const uploaded = await storagePut(audioKey, audioBuffer, mimeType);
+        audioUrl = uploaded.url;
+      } else {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Either audioBase64 or audioUrl is required." });
+      }
 
       // Upload character image to S3 if provided
       let characterImageUrl: string | null = null;

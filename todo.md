@@ -370,11 +370,11 @@
 - [x] Mobile-first responsive design for all new sections
 
 ## Suno AI Music Generation
-- [ ] Research Suno API availability (official API vs third-party)
-- [ ] Add Suno music generation step to WizBeat flow (generate song from prompt)
-- [ ] If no official API: build guided Suno import workflow (user generates on Suno, imports audio URL)
-- [ ] Add SUNO_API_KEY secret if API available
-- [ ] Wire Suno-generated audio directly into WizBeat storyboard pipeline
+- [x] Research Suno API availability (official API vs third-party)
+- [x] Add Suno music generation step to WizBeat flow (generate song from prompt)
+- [x] If no official API: build guided Suno import workflow (user generates on Suno, imports audio URL)
+- [x] Add SUNO_API_KEY secret if API available
+- [x] Wire Suno-generated audio directly into WizBeat storyboard pipeline
 
 ## Homepage 9-Point Fix
 - [x] Headline: "Your song deserves a music video" (bold impactful statement)
@@ -450,9 +450,9 @@
 - [ ] Apply MuseTalk lip-sync to singing characters
 
 ## Suno AI Integration
-- [ ] Add Suno API key secret
-- [ ] Create server/ai-apis/suno.ts
-- [ ] Add Generate Song with AI option to WizBeat
+- [x] Add Suno API key secret
+- [x] Create server/ai-apis/suno.ts
+- [x] Add Generate Song with AI option to WizBeat
 
 ## Homepage Cinematic Rebuild
 - [x] Rebuild Home.tsx with full-screen cinematic hero
@@ -691,9 +691,9 @@
 - [x] Investigate and fix: showcase card hover-to-play not working
 
 ## Suno Music Creator Feature
-- [ ] Research Suno API availability and integration approach
+- [x] Research Suno API availability and integration approach
 - [x] Build /music-creator page with style/mood/genre selector and prompt input
-- [ ] Integrate Suno API (or structure for plug-in) for music generation
+- [x] Integrate Suno API (or structure for plug-in) for music generation
 - [x] Add playback UI with waveform/audio player on results
 - [x] Add music creator to main navigation
 - [x] Add music creator CTA on landing page
@@ -772,8 +772,8 @@
 - [x] Write vitest tests for updateSceneLipSync, updateAllScenesLipSync, regenerateScene procedures
 
 ## Bug: Suno API callBackUrl Error
-- [ ] Add callBackUrl parameter to all Suno API generation calls
-- [ ] Implement /api/suno/callback endpoint to receive Suno webhook results
+- [x] Add callBackUrl parameter to all Suno API generation calls
+- [x] Implement /api/suno/callback endpoint to receive Suno webhook results
 - [ ] Update ...
 
 ## Ella's Homepage Feedback (8.7/10 → 10/10)
@@ -805,8 +805,8 @@
 - [ ] Reduce polling frequency from current interval to 15s minimum with adaptive backoff
 - [ ] Add 429-specific user-facing error message ("Rendering is busy right now...")
 - [ ] Add structured logging: timestamp, route, userId, provider response on every 429
-- [ ] Fix Suno API: add callBackUrl to generate requests + implement /api/suno/callback endpoint
-- [ ] Add server-side Suno callback handler that updates DB on completion
+- [x] Fix Suno API: add callBackUrl to generate requests + implement /api/suno/callback endpoint
+- [x] Add server-side Suno callback handler that updates DB on completion
 
 ## Pipeline Hardening: End-to-End Video Generation (Priority)
 - [x] Wrap Kling createTextToVideo in withRetry (currently unguarded)
@@ -1213,8 +1213,8 @@
 
 ## Feature: Music Video Flow Upgrade (Apr 2026)
 - [ ] Step 1: Artist Type selection — Band, Solo Artist, Animated Characters, Solo Animated Character
-- [ ] Step 2: Audio input — Upload audio, Paste lyrics (copy/paste), or Generate with Suno (style + genre + prompt)
-- [ ] Suno integration in Music Video flow: user picks style/genre, generates audio, can save and select before storyboard
+- [x] Step 2: Audio input — Upload audio, Paste lyrics (copy/paste), or Generate with Suno (style + genre + prompt)
+- [x] Suno integration in Music Video flow: user picks style/genre, generates audio, can save and select before storyboard
 - [ ] Storyboard: AI image preview per scene with editable prompt, regenerate button before confirming render
 - [ ] Credits display + top-up on MusicVideoAutopilot render step
 - [ ] Credits display + top-up on Autopilot (WizPilot) render step

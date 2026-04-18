@@ -6,9 +6,10 @@
  * - Permanently muted (silent cinematic experience)
  * - "Skip Intro" and "Enter WIZ AI" both dismiss the intro
  * - Smooth fade-out transition into the homepage
- * - Falls back to homepage after 3 s if video fails to load
- * - Replay can be triggered externally via sessionStorage.removeItem + reload,
- *   or via the exported triggerIntroReplay() helper
+ * - Falls back to homepage after 12 s if video fails to load (iOS needs more time)
+ * - Portrait mode: video uses contain so full frame is visible (no text cut-off)
+ * - Landscape mode: video uses cover for full cinematic widescreen look
+ * - Replay can be triggered externally via sessionStorage.removeItem + reload
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -16,42 +17,64 @@ import { ChevronRight, Play } from "lucide-react";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
-  "/manus-storage/wizai-intro-wizsound-pure_8c53762c.mp4"; // WizSound™ Pure — music-only, no narrator, 13-stage chain, -11.32 LUFS, 320kbps AAC
+  "/manus-storage/wizai-intro-wizsound-pure_8c53762c.mp4";
 const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-poster_760474dc.jpg";
 
-const LOAD_TIMEOUT_MS = 3000; // fall back to homepage if video stalls
+// iOS Safari needs significantly more time to buffer — use 12 s
+const LOAD_TIMEOUT_MS = 12000;
 
 interface IntroScreenProps {
   onComplete: () => void;
 }
 
+function useOrientation() {
+  const [isLandscape, setIsLandscape] = useState(
+    () => window.innerWidth > window.innerHeight
+  );
+
+  useEffect(() => {
+    const update = () => setIsLandscape(window.innerWidth > window.innerHeight);
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    // orientationchange fires before dimensions update — re-check after short delay
+    const handleOrientationChange = () => setTimeout(update, 100);
+    window.addEventListener("orientationchange", handleOrientationChange);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+    };
+  }, []);
+
+  return isLandscape;
+}
+
 export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [visible, setVisible] = useState(true);   // controls opacity fade
+  const [visible, setVisible] = useState(true);
   const [showControls, setShowControls] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [showPlayHint, setShowPlayHint] = useState(false);
   const dismissedRef = useRef(false);
   const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLandscape = useOrientation();
 
   // ── Dismiss helper ────────────────────────────────────────────────────────
   const dismiss = useCallback(() => {
     if (dismissedRef.current) return;
     dismissedRef.current = true;
     sessionStorage.setItem(INTRO_SESSION_KEY, "1");
-    // Pause video immediately to avoid audio bleed
     if (videoRef.current) {
       videoRef.current.pause();
     }
-    // Fade out, then hand off to parent
     setVisible(false);
     setTimeout(() => {
       onComplete();
-    }, 600); // matches CSS transition duration
+    }, 600);
   }, [onComplete]);
 
-  // ── Load-timeout fallback ─────────────────────────────────────────────────
+  // ── Load-timeout fallback (12 s — iOS needs more time) ───────────────────
   useEffect(() => {
     loadTimerRef.current = setTimeout(() => {
       if (!videoReady) {
@@ -78,15 +101,33 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
     return () => video.removeEventListener("ended", handleEnded);
   }, [dismiss]);
 
+  // ── iOS Safari: force load() on mount to kick off buffering ──────────────
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // Explicitly call load() — iOS Safari sometimes ignores src until load() is called
+    video.load();
+  }, []);
+
   // ── Video ready ───────────────────────────────────────────────────────────
   const handleCanPlay = () => {
     setVideoReady(true);
     if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
-    // Attempt muted autoplay
     videoRef.current?.play().catch(() => {
-      // Autoplay blocked — show play hint
       setShowPlayHint(true);
     });
+  };
+
+  // ── Handle stall: try reloading on iOS ───────────────────────────────────
+  const handleStalled = () => {
+    const video = videoRef.current;
+    if (!video || videoReady) return;
+    // On iOS, stalled can mean the video hasn't started buffering yet
+    // Calling load() again can kick it back into gear
+    const currentSrc = video.src;
+    if (currentSrc) {
+      video.load();
+    }
   };
 
   // ── Manual play (when autoplay is blocked) ─────────────────────────────────
@@ -95,6 +136,11 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
     setShowPlayHint(false);
   };
 
+  // ── Determine video fit based on orientation ──────────────────────────────
+  // Portrait: contain — shows full video frame, no text cut-off, black bars on sides
+  // Landscape: cover — fills the full cinematic widescreen view
+  const videoObjectFit = isLandscape ? "cover" : "contain";
+
   return (
     <div
       className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden"
@@ -102,11 +148,21 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         opacity: visible ? 1 : 0,
         transition: "opacity 0.6s ease-in-out",
         pointerEvents: visible ? "auto" : "none",
-        // iOS safe area
-        paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
+      {/* ── Poster shown while video loads ───────────────────────────────── */}
+      {!videoReady && (
+        <img
+          src={POSTER_URL}
+          alt=""
+          className="absolute inset-0 w-full h-full"
+          style={{
+            objectFit: videoObjectFit,
+            objectPosition: "center center",
+          }}
+        />
+      )}
+
       {/* ── Video ─────────────────────────────────────────────────────────── */}
       <video
         ref={videoRef}
@@ -114,39 +170,35 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         poster={POSTER_URL}
         muted
         playsInline
-        // iOS-specific attributes for reliable playback
+        // iOS-specific attributes for reliable autoplay
         {...({ "webkit-playsinline": "true", "x-webkit-airplay": "deny" } as any)}
-        // permanently muted — no audio
         preload="auto"
         onCanPlay={handleCanPlay}
+        onCanPlayThrough={handleCanPlay}
         onError={() => dismiss()}
-        onStalled={() => { videoRef.current?.load(); }}
-        onWaiting={() => { /* buffer pause — iOS will resume */ }}
+        onStalled={handleStalled}
+        onWaiting={() => { /* iOS buffer pause — will resume automatically */ }}
         className="absolute inset-0 w-full h-full"
         style={{
           opacity: videoReady ? 1 : 0,
           transition: "opacity 0.4s ease",
-          // iOS object-fit fix — use explicit styles instead of Tailwind class
-          objectFit: "cover",
+          objectFit: videoObjectFit,
           objectPosition: "center center",
           width: "100%",
           height: "100%",
-          // Prevent iOS from showing native video controls
           WebkitAppearance: "none",
         }}
       />
 
-      {/* ── Poster shown while video loads ───────────────────────────────── */}
-      {!videoReady && (
-        <img
-          src={POSTER_URL}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      )}
-
       {/* ── Subtle dark vignette overlay ─────────────────────────────────── */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: isLandscape
+            ? "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 40%, rgba(0,0,0,0.15) 100%)"
+            : "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 30%, rgba(0,0,0,0.3) 100%)",
+        }}
+      />
 
       {/* ── Manual play hint (when autoplay is blocked) ───────────────────── */}
       {showPlayHint && (
@@ -164,17 +216,22 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
 
       {/* ── Controls overlay ─────────────────────────────────────────────── */}
       <div
-        className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8"
+        className="absolute inset-0 flex flex-col justify-between pointer-events-none"
         style={{
           opacity: showControls ? 1 : 0,
           transition: "opacity 0.5s ease",
+          // Respect iOS safe areas
+          paddingTop: "max(env(safe-area-inset-top), 1.5rem)",
+          paddingBottom: "max(env(safe-area-inset-bottom), 1.5rem)",
+          paddingLeft: "max(env(safe-area-inset-left), 1.5rem)",
+          paddingRight: "max(env(safe-area-inset-right), 1.5rem)",
         }}
       >
-        {/* Top row — empty (no sound toggle) */}
+        {/* Top row — empty */}
         <div />
 
         {/* Bottom row — Skip + Enter */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pointer-events-auto">
           {/* Skip Intro */}
           <button
             onClick={dismiss}

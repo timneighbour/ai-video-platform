@@ -190,6 +190,17 @@ export default function MusicVideoAutopilot() {
   // Multi-character state (replaces single character + lip sync) - PERSISTED
   const [characters, setCharacters] = useLocalStorage<Character[]>("musicVideo_characters", []);
 
+  // Suno AI song generation state
+  const [audioSourceTab, setAudioSourceTab] = useLocalStorage<"upload" | "generate">("musicVideo_audioTab", "upload");
+  const [sunoPrompt, setSunoPrompt] = useLocalStorage("musicVideo_sunoPrompt", "");
+  const [sunoStyle, setSunoStyle] = useLocalStorage("musicVideo_sunoStyle", "");
+  const [sunoTaskId, setSunoTaskId] = useLocalStorage<number | null>("musicVideo_sunoTaskId", null);
+  const [sunoPolling, setSunoPolling] = useState(false);
+  const [sunoGenerating, setSunoGenerating] = useState(false);
+  const [sunoTracks, setSunoTracks] = useLocalStorage<Array<{ audioUrl: string; title: string; imageUrl?: string; duration?: number }>>("musicVideo_sunoTracks", []);
+  const [selectedSunoTrack, setSelectedSunoTrack] = useLocalStorage<number | null>("musicVideo_sunoTrackIdx", null);
+  const [sunoGeneratedAudioUrl, setSunoGeneratedAudioUrl] = useLocalStorage<string | null>("musicVideo_sunoAudioUrl", null);
+
   // Transcription / lyrics state — starts immediately on audio file select
   const [transcriptionStatus, setTranscriptionStatus] = useState<string>("idle"); // idle | transcribing | done | failed | quota
   const [quotaError, setQuotaError] = useState<string | null>(null);
@@ -370,6 +381,55 @@ export default function MusicVideoAutopilot() {
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
+  const sunoGenerateMutation = trpc.suno.generate.useMutation();
+  const sunoStatusQuery = trpc.suno.getStatus.useQuery(
+    { id: sunoTaskId! },
+    {
+      enabled: !!sunoTaskId && sunoPolling,
+      refetchInterval: sunoPolling ? 5000 : false,
+      staleTime: 0,
+    }
+  );
+
+  // React to Suno status query results
+  useEffect(() => {
+    if (!sunoPolling || !sunoStatusQuery.data) return;
+    const result = sunoStatusQuery.data;
+    if (result.status === "complete" && result.tracks && result.tracks.length > 0) {
+      setSunoTracks(result.tracks as any);
+      setSelectedSunoTrack(0);
+      setSunoGeneratedAudioUrl((result.tracks[0] as any).audioUrl);
+      setSunoPolling(false);
+      setSunoGenerating(false);
+      toast.success("Song generated!", { description: "Select a track to use it in your video." });
+    } else if (result.status === "failed") {
+      setSunoPolling(false);
+      setSunoGenerating(false);
+      toast.error("Song generation failed", { description: result.errorMessage || "Please try again." });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sunoStatusQuery.data, sunoPolling]);
+
+  const handleSunoGenerate = async () => {
+    if (!sunoPrompt.trim()) { toast.error("Please describe your song first."); return; }
+    setSunoGenerating(true);
+    setSunoTracks([]);
+    setSelectedSunoTrack(null);
+    setSunoGeneratedAudioUrl(null);
+    try {
+      const result = await sunoGenerateMutation.mutateAsync({
+        prompt: sunoPrompt,
+        style: sunoStyle || undefined,
+        title: title || undefined,
+      });
+      setSunoTaskId(result.id);
+      setSunoPolling(true);
+      toast.info("Generating your song...", { description: "This usually takes 30–60 seconds." });
+    } catch (err: any) {
+      setSunoGenerating(false);
+      toast.error("Failed to start song generation", { description: err.message });
+    }
+  };
 
   // Upsell checkout state
   const [upsellAddons, setUpsellAddons] = useState({ cinematicScenes: false, upgrade4K: false, removeWatermark: false });
@@ -681,21 +741,40 @@ export default function MusicVideoAutopilot() {
     });
 
   const handleUploadAndGenerate = async () => {
-    if (!audioFile || !title || !themePrompt) {
-      toast.error("Missing fields", { description: "Please fill in all required fields and upload your song." });
+    const isSunoPath = audioSourceTab === "generate";
+    if (!title || !themePrompt) {
+      toast.error("Missing fields", { description: "Please fill in all required fields." });
+      return;
+    }
+    if (!isSunoPath && !audioFile) {
+      toast.error("Missing audio", { description: "Please upload your song." });
+      return;
+    }
+    if (isSunoPath && !sunoGeneratedAudioUrl) {
+      toast.error("No song selected", { description: "Please generate a song with AI first, then select a track." });
       return;
     }
 
     const UPLOAD_TOAST_ID = "uploading-song";
     try {
-      // Convert audio file to base64
-      const arrayBuffer = await audioFile.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      let binary = "";
-      for (let i = 0; i < uint8Array.length; i++) binary += String.fromCharCode(uint8Array[i]);
-      const base64 = btoa(binary);
-      const mimeType = audioFile.type.includes("wav") ? "audio/wav" :
-                       audioFile.type.includes("mp4") || audioFile.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+      // Determine base64 or URL path
+      let base64: string | undefined;
+      let mimeType: "audio/mpeg" | "audio/wav" | "audio/mp4" | "audio/ogg" | "audio/m4a" | undefined;
+      let directAudioUrl: string | undefined;
+
+      if (isSunoPath) {
+        // Suno path: pass the URL directly — backend will fetch + re-upload to S3
+        directAudioUrl = sunoGeneratedAudioUrl!;
+      } else {
+        // Upload path: convert file to base64
+        const arrayBuffer = await audioFile!.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        let binary = "";
+        for (let i = 0; i < uint8Array.length; i++) binary += String.fromCharCode(uint8Array[i]);
+        base64 = btoa(binary);
+        mimeType = audioFile!.type.includes("wav") ? "audio/wav" :
+                         audioFile!.type.includes("mp4") || audioFile!.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+      }
 
       // Build character data for the job (primary photo per character)
       const firstCharWithPhoto = characters.find(c => c.photos.length > 0);
@@ -711,8 +790,7 @@ export default function MusicVideoAutopilot() {
 
       const result = await createJob.mutateAsync({
         title,
-        audioBase64: base64,
-        audioMimeType: mimeType as any,
+        ...(directAudioUrl ? { audioUrl: directAudioUrl } : { audioBase64: base64!, audioMimeType: mimeType! }),
         audioDuration,
         themePrompt: enrichedThemePrompt,
         genre: genre || undefined,
@@ -1422,15 +1500,129 @@ export default function MusicVideoAutopilot() {
         {step === "upload" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-              {/* Audio Upload */}
+              {/* Audio Source: Upload or Generate with AI */}
               <Card className="bg-zinc-900 border-zinc-800">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Upload className="w-5 h-5 text-[--color-gold]" />
-                    Upload Your Song
-                  </CardTitle>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex rounded-lg border border-zinc-700 p-1 gap-1">
+                      <button
+                        onClick={() => setAudioSourceTab("upload")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          audioSourceTab === "upload"
+                            ? "bg-[--color-gold] text-black"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        Upload Song
+                      </button>
+                      <button
+                        onClick={() => setAudioSourceTab("generate")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          audioSourceTab === "generate"
+                            ? "bg-[--color-gold] text-black"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Generate with AI
+                      </button>
+                    </div>
+                    {audioSourceTab === "generate" && (
+                      <span className="text-xs text-zinc-500 ml-auto">Powered by WizSound™ AI</span>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* ── Generate with Suno ── */}
+                  {audioSourceTab === "generate" && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300">Describe your song</Label>
+                        <Textarea
+                          placeholder="e.g. Upbeat hip-hop track about chasing dreams, energetic beat, motivational lyrics"
+                          value={sunoPrompt}
+                          onChange={(e) => setSunoPrompt(e.target.value)}
+                          className="bg-zinc-800 border-zinc-700 text-white resize-none h-20"
+                          maxLength={400}
+                        />
+                        <p className="text-zinc-600 text-xs text-right">{sunoPrompt.length}/400</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-zinc-300">Music style / genre <span className="text-zinc-500">(optional)</span></Label>
+                        <Input
+                          placeholder="e.g. trap, lo-fi, cinematic orchestral, pop punk"
+                          value={sunoStyle}
+                          onChange={(e) => setSunoStyle(e.target.value)}
+                          className="bg-zinc-800 border-zinc-700 text-white"
+                          maxLength={200}
+                        />
+                      </div>
+                      <Button
+                        onClick={handleSunoGenerate}
+                        disabled={sunoGenerating || !sunoPrompt.trim()}
+                        className="w-full bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold"
+                      >
+                        {sunoGenerating ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating song...</>
+                        ) : (
+                          <><Sparkles className="w-4 h-4 mr-2" />Generate Song</>  
+                        )}
+                      </Button>
+                      {sunoGenerating && (
+                        <div className="rounded-xl border border-zinc-700 bg-zinc-800/50 p-4 text-center">
+                          <Loader2 className="w-8 h-8 text-[--color-gold] mx-auto mb-2 animate-spin" />
+                          <p className="text-zinc-300 text-sm font-medium">Composing your song...</p>
+                          <p className="text-zinc-500 text-xs mt-1">Usually takes 30–60 seconds</p>
+                        </div>
+                      )}
+                      {sunoTracks.length > 0 && (
+                        <div className="space-y-3">
+                          <Label className="text-zinc-300">Choose a track</Label>
+                          {sunoTracks.map((track, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => { setSelectedSunoTrack(idx); setSunoGeneratedAudioUrl(track.audioUrl); }}
+                              className={`rounded-xl border p-3 cursor-pointer transition-all ${
+                                selectedSunoTrack === idx
+                                  ? "border-[--color-gold] bg-[--color-gold]/10"
+                                  : "border-zinc-700 hover:border-zinc-500"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                {track.imageUrl && (
+                                  <img src={track.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-white text-sm font-medium truncate">{track.title || `Track ${idx + 1}`}</p>
+                                  {track.duration && <p className="text-zinc-500 text-xs">{formatDuration(Math.round(track.duration))}</p>}
+                                </div>
+                                {selectedSunoTrack === idx && <Check className="w-4 h-4 text-[--color-gold] shrink-0" />}
+                              </div>
+                              {selectedSunoTrack === idx && track.audioUrl && (
+                                <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                                  <WizAudioPlayer
+                                    audioUrl={track.audioUrl}
+                                    title={track.title || `Track ${idx + 1}`}
+                                    subtitle={track.duration ? formatDuration(Math.round(track.duration)) : ""}
+                                    barCount={24}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          {selectedSunoTrack !== null && (
+                            <p className="text-[--color-gold] text-sm text-center font-medium flex items-center justify-center gap-1.5">
+                              <Check className="w-4 h-4" />
+                              Track selected — fill in the details below to continue
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* ── Upload ── */}
+                  {audioSourceTab === "upload" && (
                   <div
                     className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                       isDragging ? "border-[--color-gold] bg-[--color-gold]/15" :
@@ -1487,9 +1679,10 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
                   </div>
+                  )}
 
-                  {/* Audio length limit warning + upgrade prompt */}
-                  {audioExceedsLimit && (
+                  {/* Audio length limit warning + upgrade prompt - only show in upload tab */}
+                  {audioSourceTab === "upload" && audioExceedsLimit && (
                     <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 px-4 py-3 flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-[--color-gold] mt-0.5 shrink-0" />
                       <div className="flex-1 min-w-0">
@@ -1917,7 +2110,10 @@ export default function MusicVideoAutopilot() {
               <Button
                 className="w-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold py-3"
                 onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
-                disabled={createJob.isPending || generateStoryboardMutation.isPending || !audioFile || !title || !themePrompt}
+                disabled={
+                  createJob.isPending || generateStoryboardMutation.isPending || !title || !themePrompt ||
+                  (audioSourceTab === "upload" ? !audioFile : !sunoGeneratedAudioUrl)
+                }
               >
                 {createJob.isPending || generateStoryboardMutation.isPending ? (
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Storyboard...</>
