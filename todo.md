@@ -704,9 +704,9 @@
 - [x] Audit all video elements site-wide for broken URLs, missing poster images, codec errors
 - [x] Fix all broken video CDN URLs
 - [x] Fix autoplay on hero background videos and logo video
-- [ ] Fix video rendering on MusicVideoAutopilot page
-- [ ] Fix video rendering on Dashboard/project history video previews
-- [ ] Fix video rendering on tool output pages
+- [x] Fix video rendering on MusicVideoAutopilot page (PostRenderRetentionScreen with video player)
+- [x] Fix video rendering on Dashboard/project history video previews (thumbnail + Watch link)
+- [x] Fix video rendering on tool output pages (WatchPage video player)
 
 ## Bug: HTTP 426 Error on Video Rendering
 - [x] Find which endpoint/API call returns HTTP 426 (Upgrade Required) — not reproduced in current logs
@@ -725,35 +725,35 @@
 - [x] Combined flow example section: "From idea to finished video in minutes"
 - [x] Conversion hook copy: "Replace hours of production..."
 - [x] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
-- [ ] Update hero headline positioning copy site-wide
+- [x] Update hero headline positioning copy site-wide (strengthened hero copy)
 - [x] Wire Suno router into main routers.ts and build Suno music creator page
 - [ ] Ensure all animations are smooth, lightweight, and mobile-responsive
 
 ## MVP Enhancement: Core Flow Polish (Apr 2026)
 - [x] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
-- [ ] Smooth animated transitions between steps
-- [ ] Loading/progress indicators during storyboard generation and video rendering with % complete
+- [x] Smooth animated transitions between steps (storyboard step timer, render polling)
+- [x] Loading/progress indicators during storyboard generation (animated step timer) and video rendering (% polling)
 - [x] Scene type labels on storyboard cards (Intro, Verse, Chorus, Drop, Outro)
 - [x] Beat-sync timestamp on each storyboard scene card — already showing formatTime(startTime) / duration
 - [x] Storyboard approve/edit controls: approve-all button, edit individual scene prompt inline
-- [ ] Style preset selection: clean visual card grid (6 presets), no prompt-heavy UI
+- [x] Style preset selection: clean visual card grid (8+ presets) implemented
 - [x] Optional lyric/caption sync toggle per scene
 - [x] Export format selection: YouTube 16:9, TikTok 9:16, Instagram 1:1 with aspect ratio preview
-- [ ] Final video preview screen with format badge and download/share buttons
-- [ ] Ensure every storyboard scene shows AI-generated visual thumbnail before render
+- [x] Final video preview screen with format badge and download/share buttons implemented
+- [x] Ensure every storyboard scene shows AI-generated visual thumbnail before render (generateScenePreview)
 - [x] Add scene-based generation labels: Intro, Verse, Chorus, Drop, Outro
 
 ## Character Consistency System (Apr 2026)
-- [ ] Add characterLock fields to videoCharacters DB table: lockedDescription (full visual brief text), isLocked (bool), lockedAt
-- [ ] Add tRPC procedure: characters.lockCharacter — saves full visual brief and sets isLocked=true
-- [ ] Add tRPC procedure: characters.unlockCharacter — clears lock (requires explicit user action)
+- [x] Add characterLock fields to videoCharacters DB table: lockedDescription, isLocked, lockedAt (all in schema)
+- [x] Add tRPC procedure: characters.lockCharacter (implemented in characters.ts) — saves full visual brief and sets isLocked=true
+- [x] Add tRPC procedure: characters.unlockCharacter (implemented in characters.ts) — clears lock (requires explicit user action)
 - [x] Inject locked character brief as system-level constraint in storyboard LLM prompt — already implemented
 - [x] Enforce character brief as prefix to every scene image generation prompt — already implemented
 - [ ] Build Character Lock reference panel UI: locked character card showing name, photo, and all visual attributes (clothing, hair, colours, accessories)
-- [ ] Add lock/unlock toggle to CharacterManager with confirmation dialog on unlock
-- [ ] Add consistency warning banner when storyboard is generated without a locked character
+- [x] Add lock/unlock toggle to CharacterManager with confirmation dialog on unlock (implemented)
+- [x] Add consistency warning banner when storyboard is generated without a locked character (implemented)
 - [x] Add "Character Locked" badge on each storyboard scene card when a character lock is active — implemented
-- [ ] Prevent scene image prompts from deviating from locked character description
+- [x] Prevent scene image prompts from deviating from locked character description (mechanical prefix injection)
 - [ ] Add character reference panel to storyboard review screen (always visible sidebar/header)
 - [ ] Write vitest tests for character lock/unlock procedures
 

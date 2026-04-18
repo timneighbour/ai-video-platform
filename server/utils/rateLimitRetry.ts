@@ -13,6 +13,13 @@ export interface RetryOptions {
   initialDelayMs?: number;
   maxDelayMs?: number;
   backoffFactor?: number;
+  /** Optional context for structured logging (provider name, route, userId, etc.) */
+  context?: {
+    provider?: string;
+    route?: string;
+    userId?: string | number;
+    [key: string]: unknown;
+  };
 }
 
 function jitter(ms: number, pct = 0.2): number {
@@ -73,8 +80,11 @@ export async function withRetry<T>(
 
       waitMs = Math.min(waitMs, maxDelayMs);
 
+      const ctxStr = options.context
+        ? ` | provider=${options.context.provider ?? "unknown"} route=${options.context.route ?? ""} userId=${options.context.userId ?? ""}`
+        : "";
       console.warn(
-        `[RateLimit] ${new Date().toISOString()} HTTP ${status} on attempt ${attempt}/${maxAttempts}. ` +
+        `[RateLimit] ${new Date().toISOString()} HTTP ${status} on attempt ${attempt}/${maxAttempts}.${ctxStr} ` +
         `Retry-After header: ${retryAfterHeader ?? "none"}. Waiting ${Math.round(waitMs)}ms before retry...`
       );
 
