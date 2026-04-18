@@ -7,7 +7,22 @@ import { ReactNode } from "react";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
-import { ArrowRight, Check, ChevronRight, Sparkles } from "lucide-react";
+import {
+  ArrowRight, Check, ChevronRight, Sparkles,
+  Upload, Cpu, Layout, CheckCircle, FileText, Music, PlayCircle, ArrowRightCircle,
+  Zap, ShieldCheck, Film, Video, Eye, Star, Brain, Layers, Download,
+  Settings, Send, BarChart2, RefreshCw, Link2, Wand2,
+} from "lucide-react";
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  upload: Upload, cpu: Cpu, layout: Layout, "check-circle": CheckCircle,
+  "file-text": FileText, music: Music, "play-circle": PlayCircle,
+  "arrow-right-circle": ArrowRightCircle, zap: Zap, "shield-check": ShieldCheck,
+  film: Film, video: Video, eye: Eye, sparkles: Sparkles, star: Star,
+  brain: Brain, wand: Wand2, layers: Layers, download: Download,
+  settings: Settings, send: Send, "bar-chart": BarChart2,
+  refresh: RefreshCw, link: Link2,
+};
 
 export interface ProductStep {
   num: string;
@@ -47,6 +62,7 @@ export interface ProductPageProps {
   howItWorks: ProductStep[];
   benefits: ProductBenefit[];
   exampleOutput?: ReactNode;
+  heroImage?: string;
   related: RelatedProduct[];
 }
 
@@ -56,7 +72,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
   const {
     name, role, tagline, headline, subheadline, logo,
     ctaHref, ctaLabel, whatItDoes, capabilities, howItWorks, benefits,
-    exampleOutput, related,
+    exampleOutput, heroImage, related,
   } = props;
 
   return (
@@ -147,15 +163,32 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                 ))}
               </ul>
             </div>
-            {/* Visual placeholder — luxury glass card */}
-            <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#0a0a0a] p-8 flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden">
-              <div
-                className="absolute inset-0 opacity-30"
-                style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(196,164,100,0.08) 0%, transparent 70%)" }}
-              />
-              <img src={logo} alt={name} className="h-[5.625rem] w-auto object-contain relative z-10 mb-4" />
-              <div className="text-sm font-semibold text-[--color-gold] relative z-10">{name}</div>
-              <div className="text-xs text-[--color-silver-dark]/30 relative z-10 mt-1">{role}</div>
+            {/* Hero image panel */}
+            <div className="rounded-2xl border border-[--color-gold]/[0.08] overflow-hidden relative min-h-[280px]">
+              {heroImage ? (
+                <img
+                  src={heroImage}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                  style={{ minHeight: 280 }}
+                />
+              ) : (
+                <div className="bg-[#0a0a0a] p-8 flex flex-col items-center justify-center min-h-[280px] relative">
+                  <div
+                    className="absolute inset-0 opacity-30"
+                    style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(196,164,100,0.08) 0%, transparent 70%)" }}
+                  />
+                  <img src={logo} alt={name} className="h-[5.625rem] w-auto object-contain relative z-10 mb-4" />
+                  <div className="text-sm font-semibold text-[--color-gold] relative z-10">{name}</div>
+                  <div className="text-xs text-[--color-silver-dark]/30 relative z-10 mt-1">{role}</div>
+                </div>
+              )}
+              {/* Logo overlay on hero image */}
+              {heroImage && (
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-xl px-3 py-2">
+                  <img src={logo} alt={name} className="h-7 w-auto object-contain" />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -181,11 +214,13 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                   {step.num}
                 </div>
                 {/* Icon */}
-                <div className="text-3xl mb-3">
+                <div className="w-9 h-9 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.12] flex items-center justify-center mb-3">
                   {step.icon.startsWith("http") ? (
-                    <img src={step.icon} alt={step.title} className="w-8 h-8 object-contain" />
+                    <img src={step.icon} alt={step.title} className="w-5 h-5 object-contain" />
+                  ) : ICON_MAP[step.icon] ? (
+                    (() => { const Icon = ICON_MAP[step.icon]; return <Icon className="w-4.5 h-4.5 text-[--color-gold]" />; })()
                   ) : (
-                    <span className="text-[--color-gold]">{step.icon}</span>
+                    <span className="text-sm text-[--color-gold]">{step.icon}</span>
                   )}
                 </div>
                 <h3 className="text-sm font-bold text-white mb-2">{step.title}</h3>

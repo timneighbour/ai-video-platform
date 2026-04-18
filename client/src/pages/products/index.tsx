@@ -6,6 +6,16 @@
  */
 import ProductPageTemplate, { ProductPageProps } from "@/components/ProductPageTemplate";
 
+const HERO_IMGS = {
+  wizcreate:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp",
+  wizanimate: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp",
+  wizsound:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp",
+  wizlumina:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizlumina-hero-kHJx4qngFnx5nokUsLwRYb.webp",
+  wizgenesis: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizgenesis-hero-2m3zQM9m3ofJdcMKk2ytLD.webp",
+  wizboost:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizboost-hero-9jAjBQAVS3hYY2DDCWTta7.webp",
+  wizsync:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp",
+};
+
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 
 const ALL_RELATED = [
@@ -44,10 +54,10 @@ const WIZCREATE: ProductPageProps = {
     "Multi-scene narrative structure",
   ],
   howItWorks: [
-    { num: "01", icon: "♫", title: "Upload or describe", desc: "Upload an audio track or describe your video concept in plain language." },
-    { num: "02", icon: "◈", title: "AI analyses content", desc: "WizCreate analyses mood, tempo, lyrics, and narrative arc to plan the video." },
-    { num: "03", icon: "■", title: "Storyboard generated", desc: "A complete scene-by-scene storyboard is created with visual direction for each moment." },
-    { num: "04", icon: "✓", title: "Review & proceed", desc: "Review the storyboard, make adjustments, then pass it to WizAnimate for production." },
+    { num: "01", icon: "upload", title: "Upload or describe", desc: "Upload an audio track or describe your video concept in plain language." },
+    { num: "02", icon: "cpu", title: "AI analyses content", desc: "WizCreate analyses mood, tempo, lyrics, and narrative arc to plan the video." },
+    { num: "03", icon: "layout", title: "Storyboard generated", desc: "A complete scene-by-scene storyboard is created with visual direction for each moment." },
+    { num: "04", icon: "check-circle", title: "Review & proceed", desc: "Review the storyboard, make adjustments, then pass it to WizAnimate for production." },
   ],
   benefits: [
     { title: "Zero creative block", desc: "WizCreate generates a complete visual plan in seconds — no storyboarding experience needed." },
@@ -57,6 +67,7 @@ const WIZCREATE: ProductPageProps = {
     { title: "Iterative refinement", desc: "Not happy with a scene? Regenerate individual scenes without redoing the whole storyboard." },
     { title: "Feeds the full pipeline", desc: "WizCreate output flows directly into WizAnimate, WizSync, and WizGenesis." },
   ],
+  heroImage: HERO_IMGS.wizcreate,
   related: ALL_RELATED.filter(r => r.name !== "WizCreate™"),
 };
 
@@ -86,10 +97,10 @@ const WIZANIMATE: ProductPageProps = {
     "Works with WizSync™ for lip sync integration",
   ],
   howItWorks: [
-    { num: "01", icon: "■", title: "Receive storyboard", desc: "WizAnimate receives the scene plan from WizCreate™ with timing and character data." },
-    { num: "02", icon: "♫", title: "Audio analysis", desc: "The audio is analysed for beat, energy, and emotional arc to drive animation decisions." },
-    { num: "03", icon: "◆", title: "Animation generated", desc: "Characters are animated with motion that matches the audio's rhythm and emotional tone." },
-    { num: "04", icon: "→", title: "Passes to WizSync", desc: "Animated scenes are passed to WizSync™ for voice assignment and lip sync generation." },
+    { num: "01", icon: "file-text", title: "Receive storyboard", desc: "WizAnimate receives the scene plan from WizCreate™ with timing and character data." },
+    { num: "02", icon: "music", title: "Audio analysis", desc: "The audio is analysed for beat, energy, and emotional arc to drive animation decisions." },
+    { num: "03", icon: "play-circle", title: "Animation generated", desc: "Characters are animated with motion that matches the audio's rhythm and emotional tone." },
+    { num: "04", icon: "arrow-right-circle", title: "Passes to WizSync", desc: "Animated scenes are passed to WizSync™ for voice assignment and lip sync generation." },
   ],
   benefits: [
     { title: "Cinematic performance quality", desc: "Animation quality that rivals professional motion capture — generated automatically from audio." },
@@ -99,6 +110,7 @@ const WIZANIMATE: ProductPageProps = {
     { title: "Style flexibility", desc: "Works with any visual style — cinematic, anime, 3D, or illustrated." },
     { title: "Seamless pipeline integration", desc: "Output flows directly into WizSync™ for lip sync and WizSound™ for audio enhancement." },
   ],
+  heroImage: HERO_IMGS.wizanimate,
   related: ALL_RELATED.filter(r => r.name !== "WizAnimate™"),
 };
 
@@ -128,10 +140,10 @@ const WIZSOUND: ProductPageProps = {
     "Automatic loudness normalisation to broadcast standards",
   ],
   howItWorks: [
-    { num: "01", icon: "♫", title: "Audio ingested", desc: "Your audio track is ingested and analysed for frequency content, dynamic range, and noise." },
-    { num: "02", icon: "▲", title: "Enhancement applied", desc: "WizSound applies its proprietary cinematic enhancement chain — EQ, compression, spatial widening." },
-    { num: "03", icon: "☆", title: "Quality check", desc: "The enhanced audio is checked against broadcast loudness standards and adjusted." },
-    { num: "04", icon: "■", title: "Baked into video", desc: "The enhanced audio is baked into the final video render by WizGenesis™." },
+    { num: "01", icon: "music", title: "Audio ingested", desc: "Your audio track is ingested and analysed for frequency content, dynamic range, and noise." },
+    { num: "02", icon: "zap", title: "Enhancement applied", desc: "WizSound applies its proprietary cinematic enhancement chain — EQ, compression, spatial widening." },
+    { num: "03", icon: "shield-check", title: "Quality check", desc: "The enhanced audio is checked against broadcast loudness standards and adjusted." },
+    { num: "04", icon: "film", title: "Baked into video", desc: "The enhanced audio is baked into the final video render by WizGenesis™." },
   ],
   benefits: [
     { title: "Studio quality without a studio", desc: "WizSound delivers professional audio enhancement that would normally require a mastering engineer." },
@@ -141,6 +153,7 @@ const WIZSOUND: ProductPageProps = {
     { title: "Transparent processing", desc: "WizSound enhances without destroying — your original track's character is preserved." },
     { title: "Automatic in the pipeline", desc: "WizSound runs automatically as part of every WIZ AI render — no manual steps needed." },
   ],
+  heroImage: HERO_IMGS.wizsound,
   related: ALL_RELATED.filter(r => r.name !== "WizSound™"),
 };
 
@@ -170,10 +183,10 @@ const WIZLUMINA: ProductPageProps = {
     "Automatic scene-by-scene colour consistency",
   ],
   howItWorks: [
-    { num: "01", icon: "■", title: "Video received", desc: "WizLumina receives the animated video from WizAnimate™ for visual enhancement." },
-    { num: "02", icon: "◉", title: "Colour analysis", desc: "Each scene is analysed for colour temperature, contrast, and visual mood." },
-    { num: "03", icon: "☆", title: "Enhancement applied", desc: "Cinematic grading, HDR mapping, sharpening, and upscaling are applied frame by frame." },
-    { num: "04", icon: "◈", title: "Cinema-quality output", desc: "The enhanced video is passed to WizGenesis™ for final rendering and export." },
+    { num: "01", icon: "video", title: "Video received", desc: "WizLumina receives the animated video from WizAnimate™ for visual enhancement." },
+    { num: "02", icon: "eye", title: "Colour analysis", desc: "Each scene is analysed for colour temperature, contrast, and visual mood." },
+    { num: "03", icon: "sparkles", title: "Enhancement applied", desc: "Cinematic grading, HDR mapping, sharpening, and upscaling are applied frame by frame." },
+    { num: "04", icon: "star", title: "Cinema-quality output", desc: "The enhanced video is passed to WizGenesis™ for final rendering and export." },
   ],
   benefits: [
     { title: "From flat to cinematic", desc: "WizLumina transforms the characteristic flatness of AI-generated video into rich, vivid imagery." },
@@ -183,6 +196,7 @@ const WIZLUMINA: ProductPageProps = {
     { title: "Scene consistency", desc: "WizLumina maintains consistent colour grading across all scenes for a cohesive visual style." },
     { title: "Automatic in the pipeline", desc: "WizLumina runs automatically as part of every WIZ AI render — no manual colour grading needed." },
   ],
+  heroImage: HERO_IMGS.wizlumina,
   related: ALL_RELATED.filter(r => r.name !== "WizLumina™"),
 };
 
@@ -212,10 +226,10 @@ const WIZGENESIS: ProductPageProps = {
     "Intelligent batch rendering",
   ],
   howItWorks: [
-    { num: "01", icon: "◈", title: "Intelligence analysis", desc: "WizGenesis analyses your storyboard for character consistency, scene coherence, and prompt accuracy." },
-    { num: "02", icon: "☆", title: "Prompt enhancement", desc: "Rough prompts are refined into structured, AI-friendly instructions that preserve your creative intent." },
-    { num: "03", icon: "■", title: "Orchestrated render", desc: "All elements \u2014 animation, spatial audio, visual grading \u2014 are assembled and rendered at studio quality." },
-    { num: "04", icon: "↓", title: "Download & share", desc: "Your finished video is available for instant download and sharing to any platform." },
+    { num: "01", icon: "brain", title: "Intelligence analysis", desc: "WizGenesis analyses your storyboard for character consistency, scene coherence, and prompt accuracy." },
+    { num: "02", icon: "wand", title: "Prompt enhancement", desc: "Rough prompts are refined into structured, AI-friendly instructions that preserve your creative intent." },
+    { num: "03", icon: "layers", title: "Orchestrated render", desc: "All elements — animation, spatial audio, visual grading — are assembled and rendered at studio quality." },
+    { num: "04", icon: "download", title: "Download & share", desc: "Your finished video is available for instant download and sharing to any platform." },
   ],
   benefits: [
     { title: "Character consistency", desc: "WizGenesis preserves character identity, appearance, and outfit across every scene in your video." },
@@ -225,7 +239,8 @@ const WIZGENESIS: ProductPageProps = {
     { title: "Instant distribution", desc: "Download your video or share directly to YouTube, Instagram, and TikTok from the dashboard." },
     { title: "Archive-quality files", desc: "High-bitrate exports ensure your video looks perfect on any screen or platform." },
   ],
-  related: ALL_RELATED.filter(r => r.name !== "WizGenesis\u2122"),
+  heroImage: HERO_IMGS.wizgenesis,
+  related: ALL_RELATED.filter(r => r.name !== "WizGenesis™"),
 };
 
 // ─── WizBoost ─────────────────────────────────────────────────────────────────
@@ -254,10 +269,10 @@ const WIZBOOST: ProductPageProps = {
     "Performance tracking across all distribution channels",
   ],
   howItWorks: [
-    { num: "01", icon: "■", title: "Video completed", desc: "Your video is rendered and ready by WizGenesis™ — WizBoost™ takes it from here." },
-    { num: "02", icon: "▲", title: "Platform optimisation", desc: "WizBoost optimises your video's metadata, format, and thumbnail for each target platform." },
-    { num: "03", icon: "→", title: "Distribution launched", desc: "Your video is distributed to your connected platforms and amplified through the creator network." },
-    { num: "04", icon: "◉", title: "Performance tracked", desc: "Analytics track views, engagement, and growth across all platforms in real time." },
+    { num: "01", icon: "check-circle", title: "Video completed", desc: "Your video is rendered and ready by WizGenesis™ — WizBoost™ takes it from here." },
+    { num: "02", icon: "settings", title: "Platform optimisation", desc: "WizBoost optimises your video's metadata, format, and thumbnail for each target platform." },
+    { num: "03", icon: "send", title: "Distribution launched", desc: "Your video is distributed to your connected platforms and amplified through the creator network." },
+    { num: "04", icon: "bar-chart", title: "Performance tracked", desc: "Analytics track views, engagement, and growth across all platforms in real time." },
   ],
   benefits: [
     { title: "Reach beyond your followers", desc: "WizBoost connects your content to the WIZ AI creator network for cross-promotion and discovery." },
@@ -267,6 +282,7 @@ const WIZBOOST: ProductPageProps = {
     { title: "SEO and discoverability", desc: "Automatic hashtag and metadata optimisation ensures your content is found by the right audience." },
     { title: "Creator network access", desc: "Join a network of WIZ AI creators for collaboration, cross-promotion, and shared growth." },
   ],
+  heroImage: HERO_IMGS.wizboost,
   related: ALL_RELATED.filter(r => r.name !== "WizBoost™"),
 };
 

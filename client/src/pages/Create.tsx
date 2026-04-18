@@ -23,7 +23,7 @@ const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
-const WIZSYNC_LOGO = `${CDN}/wizsync-logo-v1-K2ytFZNzrXoNE6jw2kuhnN.webp`;
+const WIZSYNC_LOGO = `${CDN}/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png`;
 
 const IMG = {
   musicVideo:   `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`,

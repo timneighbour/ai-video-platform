@@ -33,7 +33,7 @@ const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.web
 const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
-const WIZSYNC_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`; // placeholder until WizSync logo is uploaded
+const WIZSYNC_LOGO = `${CDN}/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png`;
 const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
 const HERO_BG_POSTER = `${CDN}/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp`;
 const DEMO_POSTER = `${CDN}/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp`;
@@ -242,7 +242,7 @@ function Nav() {
                     </a>
                   </div>
                 </div>
-                </div>
+              </div>
               )}
             </div>
             <a href="/pricing" className="nav-link">Pricing</a>
