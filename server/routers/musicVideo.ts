@@ -1866,7 +1866,8 @@ Rules:
           (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
           "wavespeed" as any,
           (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
-          storyboardImageUrl
+          storyboardImageUrl,
+          (job.aspectRatio as "16:9" | "9:16" | "1:1") ?? "16:9"
         );
         if (taskId) {
           await db.update(musicVideoScenes)

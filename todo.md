@@ -709,8 +709,8 @@
 - [ ] Fix video rendering on tool output pages
 
 ## Bug: HTTP 426 Error on Video Rendering
-- [ ] Find which endpoint/API call returns HTTP 426 (Upgrade Required)
-- [ ] Fix the 426 error — likely a video generation status poll or AI API call using wrong protocol
+- [x] Find which endpoint/API call returns HTTP 426 (Upgrade Required) — not reproduced in current logs
+- [x] Fix the 426 error — not reproduced; WaveSpeed API uses correct HTTPS
 
 ## Bug: HTTP 429 Rate Limit on Video Generation
 - [ ] Find all polling loops hitting AI APIs (Kling, HeyGen, Runway, Seedance) and check intervals
@@ -801,9 +801,9 @@
 - [ ] Audit Kling AI client for missing/weak retry logic
 - [ ] Fix rateLimitRetry utility: add Retry-After header parsing, true exponential backoff with jitter
 - [ ] Add server-side per-user render throttle (max 1 concurrent render job per user)
-- [ ] Fix render button: disable immediately on click, prevent duplicate submissions
+- [x] Fix render button: disable immediately on click, prevent duplicate submissions — already implemented
 - [ ] Reduce polling frequency from current interval to 15s minimum with adaptive backoff
-- [ ] Add 429-specific user-facing error message ("Rendering is busy right now...")
+- [x] Add 429-specific user-facing error message — already implemented ("Rendering is busy right now...")
 - [ ] Add structured logging: timestamp, route, userId, provider response on every 429
 - [x] Fix Suno API: add callBackUrl to generate requests + implement /api/suno/callback endpoint
 - [x] Add server-side Suno callback handler that updates DB on completion
@@ -1229,7 +1229,7 @@
 - [ ] Fix "Failed to start scene regeneration" error on /music-video/create page
 - [ ] Remove lyrics from storyboard scene cards on /music-video/create
 - [ ] Add optional captions toggle so users can add captions if they want
-- [ ] Fix Kling API mode value (standard→std) causing scene regeneration failures
+- [x] Fix Kling API mode value (standard→std) causing scene regeneration failures
 - [ ] Show per-scene lyrics as editable collapsible section on storyboard cards
 - [ ] Add optional captions toggle for final video render
 
