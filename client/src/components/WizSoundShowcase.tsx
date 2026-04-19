@@ -92,8 +92,9 @@ const TIERS: {
 /* ── DSP chain builders (same as WizSoundDemoPlayer) ────────────────── */
 function buildStandardChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
   const gain = ctx.createGain(); gain.gain.value = 1.0;
-  src.connect(gain); gain.connect(ctx.destination);
-  return { gain, disconnect: () => { try { gain.disconnect(); } catch {} } };
+  const analyser = ctx.createAnalyser(); analyser.fftSize = 256; analyser.smoothingTimeConstant = 0.8;
+  src.connect(gain); gain.connect(analyser); analyser.connect(ctx.destination);
+  return { gain, analyser, disconnect: () => { try { gain.disconnect(); analyser.disconnect(); } catch {} } };
 }
 
 function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
@@ -122,9 +123,10 @@ function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode)
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = -18; comp.knee.value = 12; comp.ratio.value = 2.5; comp.attack.value = 0.01; comp.release.value = 0.25;
   const gain = ctx.createGain(); gain.gain.value = 1.0; // was 1.35 — unity
-  merger.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); trebleEQ.connect(comp); comp.connect(gain); gain.connect(ctx.destination);
+  const analyser = ctx.createAnalyser(); analyser.fftSize = 256; analyser.smoothingTimeConstant = 0.8;
+  merger.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); trebleEQ.connect(comp); comp.connect(gain); gain.connect(analyser); analyser.connect(ctx.destination);
   return {
-    gain,
+    gain, analyser,
     disconnect: () => {
       try {
         splitter.disconnect(); merger.disconnect();
@@ -132,7 +134,7 @@ function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode)
         sideGainL.disconnect(); sideGainR.disconnect(); sideWidth.disconnect();
         outL.disconnect(); outR.disconnect();
         bassEQ.disconnect(); midEQ.disconnect(); trebleEQ.disconnect();
-        comp.disconnect(); gain.disconnect();
+        comp.disconnect(); gain.disconnect(); analyser.disconnect();
       } catch {}
     },
   };
@@ -166,9 +168,10 @@ function buildCinematicChain(ctx: AudioContext, src: MediaElementAudioSourceNode
   merger.connect(subBass); subBass.connect(bass); bass.connect(mid); mid.connect(presence); presence.connect(air); air.connect(comp);
   comp.connect(reverbDry); comp.connect(reverbDelay);
   reverbDelay.connect(reverbWet);
-  reverbDry.connect(gain); reverbWet.connect(gain); gain.connect(ctx.destination);
+  const analyser = ctx.createAnalyser(); analyser.fftSize = 256; analyser.smoothingTimeConstant = 0.8;
+  reverbDry.connect(gain); reverbWet.connect(gain); gain.connect(analyser); analyser.connect(ctx.destination);
   return {
-    gain,
+    gain, analyser,
     disconnect: () => {
       try {
         splitter.disconnect(); merger.disconnect();
@@ -176,7 +179,7 @@ function buildCinematicChain(ctx: AudioContext, src: MediaElementAudioSourceNode
         gainL.disconnect(); gainR.disconnect();
         subBass.disconnect(); bass.disconnect(); mid.disconnect();
         presence.disconnect(); air.disconnect(); comp.disconnect();
-        reverbDelay.disconnect(); reverbWet.disconnect(); reverbDry.disconnect(); gain.disconnect();
+        reverbDelay.disconnect(); reverbWet.disconnect(); reverbDry.disconnect(); gain.disconnect(); analyser.disconnect();
       } catch {}
     },
   };
@@ -210,8 +213,9 @@ export default function WizSoundShowcase() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const chainRef = useRef<{ gain: GainNode; disconnect: () => void } | null>(null);
+  const chainRef = useRef<{ gain: GainNode; analyser: AnalyserNode; disconnect: () => void } | null>(null);
   const rafRef = useRef<number | null>(null);
+  const [activeAnalyser, setActiveAnalyser] = useState<AnalyserNode | null>(null);
 
   const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
   const { data: previews } = trpc.render.getWizSoundPreviews.useQuery();
@@ -261,6 +265,7 @@ export default function WizSoundShowcase() {
     if (t === "standard") chainRef.current = buildStandardChain(ctx, src);
     else if (t === "enhanced") chainRef.current = buildEnhancedChain(ctx, src);
     else chainRef.current = buildCinematicChain(ctx, src);
+    if (chainRef.current) setActiveAnalyser(chainRef.current.analyser);
   }, []);
 
   /* ── Switch tier ─────────────────────────────────────────────────── */
@@ -403,9 +408,9 @@ export default function WizSoundShowcase() {
             </div>
 
             {/* Spectrum bars / Equaliser */}
-            {isPlaying && audioRef.current ? (
+            {isPlaying && activeAnalyser ? (
               <GraphicEqualiser
-                audioRef={audioRef as React.RefObject<HTMLAudioElement>}
+                analyser={activeAnalyser}
                 isPlaying={true}
                 barCount={32}
                 height={36}

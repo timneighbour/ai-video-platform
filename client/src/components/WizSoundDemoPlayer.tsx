@@ -113,18 +113,23 @@ interface AudioChain {
   ctx: AudioContext;
   source: MediaElementAudioSourceNode;
   gainNode: GainNode;
+  analyser: AnalyserNode;
   disconnect: () => void;
 }
 
 function buildStandardChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
-  // Standard: raw passthrough — source → gain (unity) → destination
+  // Standard: raw passthrough — source → gain (unity) → analyser → destination
   const gainNode = ctx.createGain();
   gainNode.gain.value = 1.0;
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.8;
   source.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  gainNode.connect(analyser);
+  analyser.connect(ctx.destination);
   return {
-    ctx, source, gainNode,
-    disconnect: () => { try { gainNode.disconnect(); } catch {} },
+    ctx, source, gainNode, analyser,
+    disconnect: () => { try { gainNode.disconnect(); analyser.disconnect(); } catch {} },
   };
 }
 
@@ -186,11 +191,15 @@ function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNo
   bassEQ.connect(midEQ);
   midEQ.connect(trebleEQ);
   trebleEQ.connect(comp);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.8;
   comp.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  gainNode.connect(analyser);
+  analyser.connect(ctx.destination);
 
   return {
-    ctx, source, gainNode,
+    ctx, source, gainNode, analyser,
     disconnect: () => {
       try {
         splitter.disconnect(); merger.disconnect();
@@ -198,7 +207,7 @@ function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNo
         sideGainL.disconnect(); sideGainR.disconnect(); sideWidth.disconnect();
         outL.disconnect(); outR.disconnect();
         bassEQ.disconnect(); midEQ.disconnect(); trebleEQ.disconnect();
-        comp.disconnect(); gainNode.disconnect();
+        comp.disconnect(); gainNode.disconnect(); analyser.disconnect();
       } catch {}
     },
   };
@@ -276,12 +285,16 @@ function buildCinematicChain(ctx: AudioContext, source: MediaElementAudioSourceN
   comp.connect(reverbDry);
   comp.connect(reverbDelay);
   reverbDelay.connect(reverbWet);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.8;
   reverbDry.connect(gainNode);
   reverbWet.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  gainNode.connect(analyser);
+  analyser.connect(ctx.destination);
 
   return {
-    ctx, source, gainNode,
+    ctx, source, gainNode, analyser,
     disconnect: () => {
       try {
         splitter.disconnect(); merger.disconnect();
@@ -291,7 +304,7 @@ function buildCinematicChain(ctx: AudioContext, source: MediaElementAudioSourceN
         presence.disconnect(); air.disconnect();
         comp.disconnect();
         reverbDelay.disconnect(); reverbWet.disconnect(); reverbDry.disconnect();
-        gainNode.disconnect();
+        gainNode.disconnect(); analyser.disconnect();
       } catch {}
     },
   };
@@ -331,6 +344,7 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const chainRef = useRef<AudioChain | null>(null);
   const progressRafRef = useRef<number | null>(null);
+  const [activeAnalyser, setActiveAnalyser] = useState<AnalyserNode | null>(null);
 
   const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
   const { data: previews } = trpc.render.getWizSoundPreviews.useQuery();
@@ -384,6 +398,7 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
       chain = buildCinematicChain(ctx, src);
     }
     chainRef.current = chain;
+    setActiveAnalyser(chain.analyser);
   }, [ensureAudioContext]);
 
   /* ── Load audio element when previews arrive ─────────────────────── */
@@ -617,12 +632,13 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
 
         {/* Visualiser / spectrum */}
         <div className="mb-3 h-14">
-          {isPlaying && audioRef.current ? (
+          {isPlaying && activeAnalyser ? (
             <GraphicEqualiser
-              audioRef={audioRef as React.RefObject<HTMLAudioElement>}
+              analyser={activeAnalyser}
               isPlaying={true}
               barCount={32}
               height={56}
+              accentHex={tier.accentHex}
             />
           ) : (
             <IdleSpectrum bars={tier.bars} colour={tier.colour} />
