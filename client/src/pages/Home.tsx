@@ -415,22 +415,22 @@ function Nav() {
 
           {/* ── Mobile hamburger ── */}
           <button
-            className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-gold]/40"
+            className="flex md:hidden relative w-10 h-10 items-center justify-center rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-gold]/40"
             style={mobileOpen ? { background: "oklch(0.78 0.11 75 / 0.08)", border: "1px solid oklch(0.78 0.11 75 / 0.20)" } : { border: "1px solid transparent" }}
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            <div className="relative w-5 h-4 flex flex-col justify-between">
-              <span className={`block h-0.5 rounded-full transition-all duration-300 origin-center ${
-                mobileOpen ? "rotate-45 translate-y-[7px] bg-[--color-gold]" : "bg-[--color-silver]"
-              }`} />
-              <span className={`block h-0.5 rounded-full transition-all duration-300 ${
-                mobileOpen ? "opacity-0 scale-x-0 bg-[--color-gold]" : "bg-[--color-silver]"
-              }`} />
-              <span className={`block h-0.5 rounded-full transition-all duration-300 origin-center ${
-                mobileOpen ? "-rotate-45 -translate-y-[7px] bg-[--color-gold]" : "bg-[--color-silver]"
-              }`} />
+            <div className="relative w-6 h-[18px] flex flex-col justify-between">
+              <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
+                mobileOpen ? "rotate-45 translate-y-[8px] bg-[#c9a84c]" : "bg-white"
+              }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
+              <span className={`block h-[2px] w-full rounded-full transition-all duration-300 ${
+                mobileOpen ? "opacity-0 scale-x-0" : "bg-white"
+              }`} style={{ opacity: mobileOpen ? 0 : 0.9 }} />
+              <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
+                mobileOpen ? "-rotate-45 -translate-y-[8px] bg-[#c9a84c]" : "bg-white"
+              }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
             </div>
           </button>
         </div>
