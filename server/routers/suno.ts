@@ -219,12 +219,15 @@ export const sunoRouter = router({
       }
 
       // ── Suno (full creative songs, trimmed to target) ─────────────────────────
-      const isCustomMode = !!(input.style && input.title);
-      if (isCustomMode && !input.instrumental && (!input.lyrics || input.lyrics.trim().length < 20)) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Please enter at least a few lines of lyrics before generating in custom mode.",
-        });
+      // Custom mode requires BOTH style AND lyrics (or instrumental flag).
+      // If the user only provided a prompt description (no lyrics), fall back to
+      // Suno's non-custom mode by omitting style/title so the model generates freely.
+      const hasLyrics = !!(input.lyrics && input.lyrics.trim().length >= 20);
+      const isCustomMode = !!(input.style && input.title) && (hasLyrics || input.instrumental);
+      if (!!(input.style && input.title) && !input.instrumental && !hasLyrics) {
+        // Silently downgrade to non-custom mode — use the prompt as the description
+        // and let Suno handle lyrics generation automatically.
+        Object.assign(input, { style: undefined, title: input.title });
       }
 
       let suno: ReturnType<typeof initSuno>;

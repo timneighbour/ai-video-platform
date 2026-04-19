@@ -1821,7 +1821,7 @@ export default function MusicVideoAutopilot() {
                           {sunoTracks.map((track, idx) => (
                             <div
                               key={idx}
-                              onClick={() => { setSelectedSunoTrack(idx); setSunoGeneratedAudioUrl(track.audioUrl); }}
+                              onClick={() => { setSelectedSunoTrack(idx); setSunoGeneratedAudioUrl(track.audioUrl); if (track.duration) setAudioDuration(Math.round(track.duration)); }}
                               className={`rounded-xl border p-3 cursor-pointer transition-all ${
                                 selectedSunoTrack === idx
                                   ? "border-[--color-gold] bg-[--color-gold]/10"
