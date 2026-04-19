@@ -528,7 +528,7 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
 
   // Story input
   storyPrompt: text("storyPrompt").notNull(),
-  animationStyle: mysqlEnum("animationStyle", ["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation"]).notNull().default("pixar3d"),
+  animationStyle: mysqlEnum("animationStyle", ["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation", "ghibli", "pixar_movie", "manga", "retro80s", "watercolor"]).notNull().default("pixar3d"),
   videoLength: mysqlEnum("videoLength", ["5s", "10s", "15s", "30s", "60s"]).notNull().default("15s"),
   screenFormat: mysqlEnum("screenFormat", ["16:9", "9:16", "1:1"]).notNull().default("16:9"),
 
@@ -563,7 +563,7 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
 export type KidsVideoJob = typeof kidsVideoJobs.$inferSelect;
 export type InsertKidsVideoJob = typeof kidsVideoJobs.$inferInsert;
 
-export type KidsAnimationStyle = "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation";
+export type KidsAnimationStyle = "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation" | "ghibli" | "pixar_movie" | "manga" | "retro80s" | "watercolor";
 export type KidsVideoLength = "5s" | "10s" | "15s" | "30s" | "60s";
 export type KidsScreenFormat = "16:9" | "9:16" | "1:1";
 

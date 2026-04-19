@@ -400,6 +400,13 @@
       "when": 1776622148848,
       "tag": "0056_lush_johnny_blaze",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "5",
+      "when": 1776631274883,
+      "tag": "0057_aromatic_nighthawk",
+      "breakpoints": true
     }
   ]
 }

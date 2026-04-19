@@ -517,7 +517,7 @@ export default function KidsVideo() {
     try {
       const result = await generateCharacterMutation.mutateAsync({
         characterPrompt: `${char.name}: ${desc}`,
-        animationStyle: (style === "disney" ? "pixar3d" : style) as "pixar3d" | "anime" | "cartoon" | "storybook" | "claymation",
+        animationStyle: style as "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation" | "ghibli" | "pixar_movie" | "manga" | "retro80s" | "watercolor",
 
       });
       setCharacters((prev) => prev.map((c) => c.id === charId ? { ...c, imageUrl: result.imageUrl ?? null, isGenerating: false } : c));
@@ -576,7 +576,7 @@ export default function KidsVideo() {
       if (!currentJobId) {
         const result = await createJobMutation.mutateAsync({
           storyPrompt: prompt,
-          animationStyle: style as "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation",
+          animationStyle: style as "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation" | "ghibli" | "pixar_movie" | "manga" | "retro80s" | "watercolor",
           videoLength: videoLength as "5s" | "10s" | "15s" | "30s" | "60s",
           screenFormat: screenFormat as "16:9" | "9:16" | "1:1",
           referenceImageUrls: referenceImageUrls.length > 0 ? referenceImageUrls : undefined,

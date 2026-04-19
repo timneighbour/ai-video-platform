@@ -1,0 +1,1 @@
+ALTER TABLE `kidsVideoJobs` MODIFY COLUMN `animationStyle` enum('pixar3d','disney','anime','cartoon','storybook','claymation','ghibli','pixar_movie','manga','retro80s','watercolor') NOT NULL DEFAULT 'pixar3d';

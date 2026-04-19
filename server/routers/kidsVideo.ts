@@ -29,6 +29,11 @@ const STYLE_PROMPTS: Record<string, string> = {
   cartoon: "Classic cartoon style, bold outlines, bright primary colours, exaggerated expressions, playful",
   storybook: "Children's storybook illustration style, watercolour, soft textures, fairy-tale aesthetic, whimsical",
   claymation: "Claymation stop-motion style, textured clay look, rounded shapes, playful and tactile",
+  ghibli: "Studio Ghibli painterly hand-drawn style, lush natural backgrounds, soft warm palette, whimsical magical realism",
+  pixar_movie: "Photorealistic Pixar movie quality 3D animation, subsurface scattering, cinematic lighting, expressive characters",
+  manga: "Black and white manga comic art style, bold ink lines, screen tone shading, expressive panel composition",
+  retro80s: "Retro 1980s neon synthwave cartoon style, bold neon colours, geometric shapes, vintage Saturday morning cartoon",
+  watercolor: "Soft watercolour illustration style, gentle washes of colour, painterly textures, dreamy fairy-tale atmosphere",
 };
 
 // Character lock schema
@@ -70,7 +75,7 @@ export const kidsVideoRouter = router({
     .input(
       z.object({
         storyPrompt: z.string().min(10).max(1000),
-        animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation"]).default("pixar3d"),
+        animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation", "ghibli", "pixar_movie", "manga", "retro80s", "watercolor"]).default("pixar3d"),
         videoLength: z.enum(["5s", "10s", "15s", "30s", "60s"]).default("15s"),
         screenFormat: z.enum(["16:9", "9:16", "1:1"]).default("16:9"),
         referenceImageUrls: z.array(z.string().url()).optional(),
@@ -319,7 +324,7 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
     .input(
       z.object({
         characterPrompt: z.string().min(5).max(500),
-        animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation"]).default("pixar3d"),
+        animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation", "ghibli", "pixar_movie", "manga", "retro80s", "watercolor"]).default("pixar3d"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -469,7 +474,7 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
       z.object({
         jobId: z.number().int(),
         storyPrompt: z.string().min(10).max(1000).optional(),
-        animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation"]).optional(),
+        animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation", "ghibli", "pixar_movie", "manga", "retro80s", "watercolor"]).optional(),
         videoLength: z.enum(["5s", "10s", "15s", "30s", "60s"]).optional(),
         screenFormat: z.enum(["16:9", "9:16", "1:1"]).optional(),
         referenceImageUrls: z.array(z.string()).optional(),
