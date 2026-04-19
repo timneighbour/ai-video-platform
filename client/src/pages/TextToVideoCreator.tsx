@@ -21,17 +21,20 @@ import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
 
 const VIDEO_STYLES = [
-  { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       emoji: "" },
-  { id: "anime",        label: "Anime",         desc: "Japanese animation style",        emoji: "🌸" },
-  { id: "pixar",        label: "Stylised 3D",  desc: "Vibrant 3D animation",            emoji: "" },
-  { id: "documentary",  label: "Documentary",   desc: "Authentic & raw footage",         emoji: "️" },
-  { id: "abstract",     label: "Abstract",      desc: "Artistic visual journey",         emoji: "" },
-  { id: "vintage",      label: "Vintage",       desc: "Retro film aesthetic",            emoji: "📺" },
-  { id: "neon_noir",    label: "Neon Noir",     desc: "Dark cyberpunk neon glow",        emoji: "🌃" },
-  { id: "disney",       label: "Disney",        desc: "Magical Disney animation",        emoji: "" },
-  { id: "epic_fantasy", label: "Epic Fantasy",  desc: "Dramatic magical landscapes",     emoji: "⚔️" },
-  { id: "realistic",    label: "Realistic",     desc: "Photorealistic true-to-life",     emoji: "" },
-  { id: "horror",       label: "Horror",        desc: "Dark atmospheric tension",        emoji: "👻" },
+  { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&q=80" },
+  { id: "anime",        label: "Anime",         desc: "Japanese animation style",        image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&q=80" },
+  { id: "pixar",        label: "Stylised 3D",  desc: "Vibrant 3D animation",            image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80" },
+  { id: "documentary",  label: "Documentary",   desc: "Authentic & raw footage",         image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&q=80" },
+  { id: "abstract",     label: "Abstract",      desc: "Artistic visual journey",         image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80" },
+  { id: "vintage",      label: "Vintage",       desc: "Retro film grain aesthetic",      image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80" },
+  { id: "neon_noir",    label: "Neon Noir",     desc: "Dark cyberpunk neon glow",        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" },
+  { id: "disney",       label: "Disney",        desc: "Magical Disney animation",        image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-disney_9c9b6894.jpg" },
+  { id: "epic_fantasy", label: "Epic Fantasy",  desc: "Dramatic magical landscapes",     image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" },
+  { id: "realistic",    label: "Realistic",     desc: "Photorealistic true-to-life",     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80" },
+  { id: "horror",       label: "Horror",        desc: "Dark atmospheric tension",        image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=400&q=80" },
+  { id: "watercolor",   label: "Watercolour",   desc: "Painterly soft art style",        image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&q=80" },
+  { id: "cyberpunk",    label: "Cyberpunk",     desc: "Neon-lit dystopian future",       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
+  { id: "oil_painting", label: "Oil Painting",  desc: "Rich classical art style",        image: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400&q=80" },
 ];
 
 const DURATIONS = [
@@ -329,10 +332,15 @@ export default function TextToVideoCreator() {
           </button>
 
           <div className="flex items-center gap-2.5">
-            <Wand2 className="h-5 w-5 text-[--color-gold]" />
-            <span className="font-bold text-white">Text to Video</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/20">
+              <Wand2 className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <span className="font-bold text-white text-sm">Text to Video</span>
+              <span className="hidden sm:inline text-white/40 text-xs ml-1.5">· WIZ AI</span>
+            </div>
             <Badge className="bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 text-xs hidden sm:inline-flex">
-              AI Generator
+              WizGenesis™
             </Badge>
           </div>
 
@@ -359,7 +367,7 @@ export default function TextToVideoCreator() {
                       : "bg-white/10 text-muted-foreground"
                   }`}
                 >
-                  {stepIndex > i ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                  {stepIndex > i ? <CheckCircle2 className="h-3 w-3" /> : stepIndex === i ? <Sparkles className="h-3 w-3" /> : <span className="w-3 h-3 text-[10px] font-bold flex items-center justify-center">{i+1}</span>}
                   <span className="whitespace-nowrap">{s.label}</span>
                 </div>
                 {i < 2 && <ChevronRight className="h-3 w-3 text-muted-foreground/40 flex-shrink-0" />}
@@ -425,21 +433,33 @@ export default function TextToVideoCreator() {
 
             {/* Style */}
             <div>
-              <label className="block text-sm font-medium text-white mb-3">Video Style</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-white/90 uppercase tracking-wider">Video Style</label>
+                <span className="text-xs text-[--color-gold]">{VIDEO_STYLES.find(s => s.id === style)?.label}</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {VIDEO_STYLES.map((s) => (
                   <button
                     key={s.id}
                     onClick={() => setStyle(s.id)}
-                    className={`rounded-xl border p-3 text-left transition-all ${
+                    className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
                       style === s.id
-                        ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
-                        : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
+                        ? "border-[--color-gold] shadow-lg shadow-[--color-gold]/20"
+                        : "border-white/10 hover:border-white/30"
                     }`}
+                    style={{ aspectRatio: "16/9" }}
                   >
-                    <div className="text-lg mb-1">{s.emoji}</div>
-                    <div className="font-medium text-sm">{s.label}</div>
-                    <div className="text-xs opacity-70 mt-0.5">{s.desc}</div>
+                    <img src={s.image} alt={s.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                    {style === s.id && (
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[--color-gold] flex items-center justify-center">
+                        <CheckCircle2 className="h-3 w-3 text-black" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 p-2">
+                      <div className="text-xs font-bold text-white">{s.label}</div>
+                      <div className="text-[10px] text-white/60 leading-tight mt-0.5 hidden sm:block">{s.desc}</div>
+                    </div>
                   </button>
                 ))}
               </div>

@@ -16,7 +16,7 @@ import {
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Platform = "youtube_shorts" | "tiktok" | "reels";
-type VisualStyle = "cinematic" | "anime" | "realistic" | "cartoon" | "neon-noir" | "minimalist";
+type VisualStyle = "cinematic" | "anime" | "realistic" | "cartoon" | "neon-noir" | "minimalist" | "documentary" | "epic-fantasy" | "vintage" | "horror" | "watercolor" | "cyberpunk";
 type WizStep = "setup" | "scenes" | "render";
 
 interface Scene {
@@ -35,13 +35,19 @@ const PLATFORMS: { id: Platform; label: string; icon: React.ReactNode; color: st
 
 const DURATIONS = [15, 30, 45, 60];
 
-const VISUAL_STYLES: { id: VisualStyle; label: string; emoji: string; desc: string }[] = [
-  { id: "cinematic", label: "Cinematic", emoji: "", desc: "Film-quality, dramatic lighting" },
-  { id: "anime", label: "Anime", emoji: "", desc: "Vibrant, Studio Ghibli-inspired" },
-  { id: "realistic", label: "Realistic", emoji: "", desc: "Natural, documentary-style" },
-  { id: "cartoon", label: "Cartoon", emoji: "", desc: "Bold, animated, fun" },
-  { id: "neon-noir", label: "Neon Noir", emoji: "🌆", desc: "Cyberpunk, rain-slicked streets" },
-  { id: "minimalist", label: "Minimalist", emoji: "◻", desc: "Clean, elegant, modern" },
+const VISUAL_STYLES: { id: VisualStyle; label: string; desc: string; image: string }[] = [
+  { id: "cinematic",    label: "Cinematic",     desc: "Film-quality, dramatic lighting",    image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&q=80" },
+  { id: "anime",        label: "Anime",          desc: "Vibrant, Studio Ghibli-inspired",    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&q=80" },
+  { id: "realistic",   label: "Realistic",      desc: "Natural, true-to-life footage",      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80" },
+  { id: "cartoon",     label: "Cartoon",        desc: "Bold, animated, colourful fun",      image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80" },
+  { id: "neon-noir",   label: "Neon Noir",      desc: "Cyberpunk, rain-slicked streets",    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" },
+  { id: "minimalist",  label: "Minimalist",     desc: "Clean, elegant, modern",             image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80" },
+  { id: "documentary", label: "Documentary",    desc: "Authentic raw footage style",        image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&q=80" },
+  { id: "epic-fantasy",label: "Epic Fantasy",   desc: "Dramatic magical landscapes",        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" },
+  { id: "vintage",     label: "Vintage",        desc: "Retro film grain aesthetic",         image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80" },
+  { id: "horror",      label: "Horror",         desc: "Dark atmospheric tension",           image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=400&q=80" },
+  { id: "watercolor",  label: "Watercolour",    desc: "Painterly, soft artistic style",     image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&q=80" },
+  { id: "cyberpunk",   label: "Cyberpunk",      desc: "Neon-lit dystopian future",          image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" },
 ];
 
 const EXAMPLE_TOPICS = [
@@ -180,12 +186,18 @@ export default function WizShorts() {
       {/* Header */}
       <div className="border-b border-white/10 bg-[#0d0d14]">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9090a0] to-orange-500 flex items-center justify-center">
-              <Film className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#b8892a] to-orange-600 shadow-lg shadow-orange-500/20">
+              <svg viewBox="0 0 40 40" className="w-8 h-8" fill="none">
+                <rect x="4" y="10" width="24" height="20" rx="3" stroke="white" strokeWidth="2" fill="none"/>
+                <path d="M28 16l8-4v16l-8-4V16z" fill="white"/>
+                <rect x="8" y="14" width="6" height="2" rx="1" fill="white" opacity="0.7"/>
+                <rect x="8" y="18" width="10" height="2" rx="1" fill="white" opacity="0.5"/>
+                <rect x="8" y="22" width="7" height="2" rx="1" fill="white" opacity="0.4"/>
+              </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">WizShorts</h1>
+              <h1 className="text-xl font-bold tracking-tight">WizShorts™</h1>
               <p className="text-xs text-white/50">AI Short-Form Video Creator · WIZ AI</p>
             </div>
           </div>
@@ -288,21 +300,37 @@ export default function WizShorts() {
 
               {/* Visual Style */}
               <div className="space-y-3">
-                <label className="text-sm font-medium text-white/70">Visual style</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold text-white/90 uppercase tracking-wider">Visual Style</label>
+                  <span className="text-xs text-[--color-gold]">{VISUAL_STYLES.find(s => s.id === visualStyle)?.label}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {VISUAL_STYLES.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setVisualStyle(s.id)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
                         visualStyle === s.id
-                          ? "border-pink-500 bg-[--color-silver]/10 text-white"
-                          : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
+                          ? "border-[--color-gold] shadow-lg shadow-[--color-gold]/20"
+                          : "border-white/10 hover:border-white/30"
                       }`}
+                      style={{ aspectRatio: "16/9" }}
                     >
-                      <div className="text-xl mb-1">{s.emoji}</div>
-                      <div className="text-xs font-semibold">{s.label}</div>
-                      <div className="text-[10px] text-white/40 mt-0.5">{s.desc}</div>
+                      <img
+                        src={s.image}
+                        alt={s.label}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                      {visualStyle === s.id && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[--color-gold] flex items-center justify-center">
+                          <CheckCircle2 className="w-3 h-3 text-black" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <div className="text-xs font-bold text-white">{s.label}</div>
+                        <div className="text-[10px] text-white/60 leading-tight mt-0.5 hidden sm:block">{s.desc}</div>
+                      </div>
                     </button>
                   ))}
                 </div>

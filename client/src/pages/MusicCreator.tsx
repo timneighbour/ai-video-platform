@@ -32,16 +32,10 @@ const GENRES = [
 ];
 
 const MOODS = [
-  { label: "Upbeat", emoji: "" },
-  { label: "Chill", emoji: "😌" },
-  { label: "Romantic", emoji: "💕" },
-  { label: "Epic", emoji: "" },
-  { label: "Sad", emoji: "😢" },
-  { label: "Energetic", emoji: "" },
-  { label: "Dark", emoji: "🌑" },
-  { label: "Happy", emoji: "😊" },
-  { label: "Mysterious", emoji: "🌙" },
-  { label: "Motivational", emoji: "" },
+  "Upbeat", "Chill", "Romantic", "Epic", "Sad", "Energetic",
+  "Dark", "Happy", "Mysterious", "Motivational", "Melancholic",
+  "Aggressive", "Dreamy", "Nostalgic", "Triumphant", "Tense",
+  "Playful", "Spiritual", "Groovy", "Cinematic",
 ];
 
 const VOCAL_STYLES = [
@@ -609,15 +603,15 @@ export default function MusicCreator() {
               <div className="flex flex-wrap gap-2">
                 {MOODS.map((m) => (
                   <button
-                    key={m.label}
-                    onClick={() => setSelectedMood(selectedMood === m.label ? "" : m.label)}
+                    key={m}
+                    onClick={() => setSelectedMood(selectedMood === m ? "" : m)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                      selectedMood === m.label
+                      selectedMood === m
                         ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]"
                         : "bg-white/4 border-white/8 text-[#a1a1aa] hover:border-white/16 hover:text-white"
                     }`}
                   >
-                    {m.emoji} {m.label}
+                    {m}
                   </button>
                 ))}
               </div>

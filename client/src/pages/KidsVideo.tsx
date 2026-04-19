@@ -44,7 +44,6 @@ const KIDS_STYLES = [
     id: "pixar3d",
     label: "Stylised 3D",
     desc: "Vibrant 3D animation",
-    emoji: "",
     gradient: "from-blue-600 via-cyan-500 to-blue-400",
     glow: "shadow-[--color-gold]/40",
     border: "border-[--color-gold]/60",
@@ -57,7 +56,6 @@ const KIDS_STYLES = [
     id: "disney",
     label: "Disney",
     desc: "Magical cinematic animation",
-    emoji: "",
     gradient: "from-[#b8892a] via-[#e8c878] to-[#2e2e36]",
     glow: "shadow-[#b8892a]/40",
     border: "border-[--color-gold]/30",
@@ -70,7 +68,6 @@ const KIDS_STYLES = [
     id: "anime",
     label: "Anime",
     desc: "Japanese animation style",
-    emoji: "🌸",
     gradient: "from-[#9090a0] via-rose-500 to-red-400",
     glow: "shadow-[--color-gold]/40",
     border: "border-[--color-gold]/60",
@@ -83,7 +80,6 @@ const KIDS_STYLES = [
     id: "cartoon",
     label: "Cartoon",
     desc: "Classic colourful animation",
-    emoji: "",
     gradient: "from-orange-500 via-amber-500 to-yellow-400",
     glow: "shadow-orange-500/40",
     border: "border-orange-500/60",
@@ -96,7 +92,6 @@ const KIDS_STYLES = [
     id: "storybook",
     label: "Storybook",
     desc: "Illustrated fairy-tale style",
-    emoji: "📖",
     gradient: "from-green-600 via-emerald-500 to-teal-400",
     glow: "shadow-[--color-silver]/40",
     border: "border-[--color-silver]/60",
@@ -109,7 +104,6 @@ const KIDS_STYLES = [
     id: "claymation",
     label: "Claymation",
     desc: "Playful clay-style animation",
-    emoji: "🧸",
     gradient: "from-[#b8892a] via-orange-500 to-red-400",
     glow: "shadow-amber-500/40",
     border: "border-[--color-gold]/30",
@@ -117,6 +111,66 @@ const KIDS_STYLES = [
     selectedBg: "bg-[--color-gold]/15",
     example: "Wallace & Gromit · Shaun the Sheep",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation_65d3102c.jpg",
+  },
+  {
+    id: "ghibli",
+    label: "Studio Ghibli",
+    desc: "Painterly hand-drawn magic",
+    gradient: "from-emerald-600 via-teal-500 to-cyan-400",
+    glow: "shadow-emerald-500/40",
+    border: "border-emerald-500/60",
+    bg: "bg-emerald-950/40",
+    selectedBg: "bg-emerald-600/20",
+    example: "Spirited Away · Princess Mononoke",
+    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&q=80",
+  },
+  {
+    id: "pixar_movie",
+    label: "Pixar Movie",
+    desc: "Photorealistic 3D characters",
+    gradient: "from-sky-600 via-blue-500 to-indigo-400",
+    glow: "shadow-sky-500/40",
+    border: "border-sky-500/60",
+    bg: "bg-sky-950/40",
+    selectedBg: "bg-sky-600/20",
+    example: "Toy Story · Finding Nemo · Inside Out",
+    image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80",
+  },
+  {
+    id: "manga",
+    label: "Manga",
+    desc: "Black & white comic art style",
+    gradient: "from-gray-600 via-slate-500 to-zinc-400",
+    glow: "shadow-slate-500/40",
+    border: "border-slate-500/60",
+    bg: "bg-slate-950/40",
+    selectedBg: "bg-slate-600/20",
+    example: "Dragon Ball · Naruto · One Piece",
+    image: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=600&q=80",
+  },
+  {
+    id: "retro80s",
+    label: "Retro 80s",
+    desc: "Neon synthwave cartoon style",
+    gradient: "from-purple-600 via-pink-500 to-rose-400",
+    glow: "shadow-purple-500/40",
+    border: "border-purple-500/60",
+    bg: "bg-purple-950/40",
+    selectedBg: "bg-purple-600/20",
+    example: "He-Man · Thundercats · Transformers",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80",
+  },
+  {
+    id: "watercolor",
+    label: "Watercolour",
+    desc: "Soft painterly illustration",
+    gradient: "from-pink-500 via-rose-400 to-orange-300",
+    glow: "shadow-pink-500/40",
+    border: "border-pink-500/60",
+    bg: "bg-pink-950/40",
+    selectedBg: "bg-pink-600/20",
+    example: "Beatrix Potter · Eloise · Madeline",
+    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&q=80",
   },
 ] as const;
 
@@ -150,7 +204,7 @@ const PROMPT_EXAMPLES = [
 
 const HOW_IT_WORKS = [
   {
-    step: "1", emoji: "✍️",
+    step: "1", emoji: "",
     title: "Describe Your Story",
     desc: "Type a simple story idea — or pick from our inspiration prompts. No writing experience needed.",
     color: "from-[#9090a0]/20 to-[#2e2e36]/10 border-[--color-silver]/30",
@@ -168,7 +222,7 @@ const HOW_IT_WORKS = [
     color: "from-blue-500/20 to-[#2e2e36]/10 border-blue-500/30",
   },
   {
-    step: "4", emoji: "🔓",
+    step: "4", emoji: "",
     title: "Unlock Your Video",
     desc: "Render it into a full animated video with WizSound™ cinematic audio.",
     color: "from-orange-500/20 to-[#4a3010]/10 border-orange-500/30",
@@ -176,12 +230,12 @@ const HOW_IT_WORKS = [
 ];
 
 const FEATURES = [
-  { icon: "", title: "Character Lock System", desc: "Define species, colour, features, and outfit. AI enforces strict consistency — no variation between scenes." },
-  { icon: "📸", title: "Photo Reference Upload", desc: "Upload a photo of your pet or character. AI uses it as the base identity for every scene." },
-  { icon: "", title: "Audio Upload", desc: "Upload kids songs, narration, or voice recordings. Supports lip sync compatibility." },
-  { icon: "", title: "Free Storyboard, Always", desc: "Generate and regenerate your storyboard as many times as you want before spending a single credit." },
-  { icon: "", title: "6 Animation Styles", desc: "Stylised 3D, Disney, Anime, Cartoon, Storybook, or Claymation — each with distinct visual character." },
-  { icon: "️", title: "Child-Safe by Design", desc: "All content is filtered and reviewed to ensure it's safe, positive, and appropriate for children." },
+  { title: "Character Lock System", desc: "Define species, colour, features, and outfit. AI enforces strict consistency — no variation between scenes." },
+  { title: "Photo Reference Upload", desc: "Upload a photo of your pet or character. AI uses it as the base identity for every scene." },
+  { title: "Audio Upload", desc: "Upload kids songs, narration, or voice recordings. Supports lip sync compatibility." },
+  { title: "Free Storyboard, Always", desc: "Generate and regenerate your storyboard as many times as you want before spending a single credit." },
+  { title: "12 Animation Styles", desc: "Stylised 3D, Disney, Anime, Cartoon, Storybook, Claymation, Ghibli, Pixar, Manga, Retro 80s, Watercolour — each with distinct visual character." },
+  { title: "Child-Safe by Design", desc: "All content is filtered and reviewed to ensure it's safe, positive, and appropriate for children." },
 ];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -667,7 +721,15 @@ export default function KidsVideo() {
             </span>
           </button>
           <div className="flex items-center gap-2.5">
-            <span className="text-xl">🧒</span>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#9090a0] to-orange-500 flex items-center justify-center">
+              <svg viewBox="0 0 28 28" className="w-5 h-5" fill="none">
+                <rect x="4" y="4" width="9" height="9" rx="2" fill="white" opacity="0.9"/>
+                <rect x="15" y="4" width="9" height="9" rx="2" fill="white" opacity="0.6"/>
+                <rect x="4" y="15" width="9" height="9" rx="2" fill="white" opacity="0.6"/>
+                <rect x="15" y="15" width="9" height="9" rx="2" fill="white" opacity="0.3"/>
+                <circle cx="14" cy="14" r="3" fill="white" opacity="0.95"/>
+              </svg>
+            </div>
             <span className="font-bold text-white text-sm sm:text-base">WizAnimate™</span>
             <Badge className="bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/30 text-xs hidden sm:inline-flex">
               AI Animation
@@ -743,7 +805,7 @@ export default function KidsVideo() {
               </p>
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-sm text-muted-foreground mb-10">
                 {[
-                  { value: "6", label: "Animation styles" },
+                  { value: "12", label: "Animation styles" },
                   { value: "Free", label: "Storyboard preview" },
                   { value: "100%", label: "Child-safe content" },
                   { value: "< 5 min", label: "To final video" },
@@ -761,7 +823,7 @@ export default function KidsVideo() {
                   className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-[#b8892a]/25"
                 >
                   <Wand2 className="h-5 w-5" />
-                  Create Free Storyboard 🌈
+                  Create Free Storyboard
                 </Button>
                 <p className="text-xs text-muted-foreground">No credit card · No sign-up required to preview</p>
               </div>
@@ -778,7 +840,9 @@ export default function KidsVideo() {
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {HOW_IT_WORKS.map((item) => (
                   <div key={item.step} className={`rounded-2xl border bg-gradient-to-br p-5 ${item.color}`}>
-                    <div className="text-3xl mb-3">{item.emoji}</div>
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center mb-3">
+                    <span className="text-lg font-bold text-[--color-gold]">{item.step}</span>
+                  </div>
                     <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Step {item.step}</div>
                     <h3 className="text-sm font-bold text-white mb-1.5">{item.title}</h3>
                     <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -792,7 +856,7 @@ export default function KidsVideo() {
           <section className="py-16 sm:py-20 border-t border-white/5 bg-white/[0.02]">
             <div className="container mx-auto px-4 max-w-5xl">
               <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">6 Animation Styles</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">12 Animation Styles</h2>
                 <p className="text-muted-foreground">Every style is character-consistent across all scenes</p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -811,7 +875,7 @@ export default function KidsVideo() {
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                      <div className="absolute top-2 left-2 text-2xl">{s.emoji}</div>
+
                     </div>
                     {/* Text content */}
                     <div className={`${s.bg} p-3 text-center`}>
@@ -836,7 +900,10 @@ export default function KidsVideo() {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {FEATURES.map((f) => (
                   <div key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 hover:border-white/20 hover:bg-white/[0.07] transition-all">
-                    <div className="text-2xl mb-3">{f.icon}</div>
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[--color-gold]/20 to-[--color-gold]/5 border border-[--color-gold]/20 flex items-center justify-center mb-3">
+                    <Sparkles className="w-5 h-5 text-[--color-gold]" />
+                  </div>
+                  {/* icon field removed */}
                     <h3 className="font-bold text-white text-sm mb-1.5">{f.title}</h3>
                     <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
                   </div>
@@ -869,7 +936,7 @@ export default function KidsVideo() {
                 className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 px-10 py-6 text-base font-semibold shadow-lg shadow-[#b8892a]/25"
               >
                 <Sparkles className="h-5 w-5" />
-                Start with a Free Storyboard 🌈
+                Start with a Free Storyboard
               </Button>
             </div>
           </section>
@@ -879,14 +946,14 @@ export default function KidsVideo() {
             <div className="container mx-auto px-4 max-w-3xl">
               <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-center">
                 {[
-                  { icon: "️", label: "Child-Safe Content" },
-                  { icon: "", label: "Character Lock" },
-                  { icon: "📸", label: "Photo Upload" },
-                  { icon: "", label: "Audio Upload" },
-                  { icon: "♾️", label: "Unlimited Previews" },
+                  "Child-Safe Content",
+                  "Character Lock",
+                  "Photo Upload",
+                  "Audio Upload",
+                  "Unlimited Previews",
                 ].map((t) => (
-                  <div key={t.label} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{t.icon}</span><span>{t.label}</span>
+                  <div key={t} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="w-4 h-4 text-[--color-gold] flex-shrink-0" /><span>{t}</span>
                   </div>
                 ))}
               </div>
@@ -896,7 +963,9 @@ export default function KidsVideo() {
           {/* Bottom CTA */}
           <section className="py-16 sm:py-20 border-t border-white/5 bg-gradient-to-b from-background to-[#2e2e36]/20">
             <div className="container mx-auto px-4 max-w-2xl text-center">
-              <div className="text-5xl mb-6">🌈</div>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[--color-gold]/20 to-orange-500/20 border border-[--color-gold]/20 flex items-center justify-center mb-6 mx-auto">
+                <Sparkles className="w-8 h-8 text-[--color-gold]" />
+              </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Create Something Magical?</h2>
               <p className="text-muted-foreground mb-8">Your child's story, brought to life in minutes. Start with a free storyboard — no credit card needed.</p>
               <Button
@@ -924,7 +993,7 @@ export default function KidsVideo() {
             <div className="space-y-6 sm:space-y-8">
               <div className="text-center">
                 <WizBrandBadge layer="create" animated className="mb-4" />
-                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">🌈 Tell Your Story</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Tell Your Story</h1>
                 <p className="text-muted-foreground text-sm sm:text-base">
                   Describe your story idea, pick an animation style, and we'll create a free storyboard for you to review.
                 </p>
@@ -988,10 +1057,7 @@ export default function KidsVideo() {
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                        {/* Emoji badge */}
-                        {s.emoji && (
-                          <div className="absolute top-1.5 left-2 text-xl">{s.emoji}</div>
-                        )}
+
                         {/* Selected tick */}
                         {style === s.id && (
                           <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -1414,7 +1480,7 @@ export default function KidsVideo() {
                   {isCreatingJob ? (
                     <><Loader2 className="h-4 w-4 animate-spin" /> Creating job…</>
                   ) : (
-                    <><Wand2 className="h-4 w-4" /> Generate Free Storyboard 🌈</>
+                    <><Wand2 className="h-4 w-4" /> Generate Free Storyboard</>
                   )}
                 </Button>
               </div>
@@ -1428,7 +1494,7 @@ export default function KidsVideo() {
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[--color-silver]/30 bg-[--color-silver]/10 px-4 py-1.5 text-xs sm:text-sm text-[--color-silver] mb-4">
                   <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
-                  {selectedStyle.emoji} {selectedStyle.label} · {videoLength} · {screenFormat}
+                  {selectedStyle.label} · {videoLength} · {screenFormat}
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">– Your Free Storyboard</h2>
                 <p className="text-sm text-muted-foreground">
@@ -1658,7 +1724,7 @@ export default function KidsVideo() {
               <div className="text-center">
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
                   {renderStatus === "completed" ? "– Your Animation is Ready!" :
-                   renderStatus === "failed" ? "❌ Render Failed" :
+                   renderStatus === "failed" ? "Render Failed" :
                    "– Building Your Animation…"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
@@ -1695,7 +1761,7 @@ export default function KidsVideo() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">This page will update automatically when your animation is ready 🌈</p>
+                  <p className="text-xs text-muted-foreground">This page will update automatically when your animation is ready.</p>
                 </div>
               )}
 
@@ -1761,7 +1827,7 @@ export default function KidsVideo() {
                   onClick={handleReset}
                   className="text-sm text-muted-foreground hover:text-white transition underline underline-offset-4"
                 >
-                  Create another kids animation 🌈
+                  Create another kids animation
                 </button>
               </div>
             </div>
