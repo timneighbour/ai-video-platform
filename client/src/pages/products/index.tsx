@@ -334,6 +334,57 @@ const WIZBOOST: ProductPageProps = {
   related: ALL_RELATED.filter(r => r.name !== "WizBoost™"),
 };
 
+// ─── WizScript ───────────────────────────────────────────────────────────────
+const WIZSCRIPT: ProductPageProps = {
+  name: "WizScript™",
+  role: "The Storyteller",
+  tagline: "AI Script & Storyboard Engine",
+  headline: "From plain text to a fully-structured video script",
+  subheadline: "WizScript™ transforms your idea — a single sentence, a concept, a topic — into a scene-by-scene video script with dialogue, visual direction, and storyboard panels, ready for WizGenesis™ to render.",
+  logo: "/manus-storage/wizscript-logo-v1_df85b4ab.png",
+  accentFrom: "from-violet-400",
+  accentTo: "to-purple-600",
+  accentGlow: "rgba(139,92,246,0.25)",
+  borderColour: "border-violet-500/30",
+  bgColour: "bg-violet-500/5",
+  badgeClass: "text-violet-300 bg-violet-500/10 border-violet-500/25",
+  ctaHref: "/text-to-video",
+  ctaLabel: "Write Your First Script",
+  whatItDoes: "WizScript™ is the creative intelligence layer of WIZ AI. It takes your raw idea — a sentence, a topic, or a mood — and structures it into a complete, production-ready video script. Each scene is defined with visual direction, dialogue, and timing, giving WizGenesis™ everything it needs to render your video automatically.",
+  capabilities: [
+    "Plain-text to full video script in seconds",
+    "Scene-by-scene structure with dialogue and visual direction",
+    "Automatic storyboard panel generation",
+    "Genre and tone customisation (cinematic, documentary, social, educational)",
+    "Character voice and style consistency across scenes",
+    "Direct handoff to WizGenesis™ for rendering",
+  ],
+  howItWorks: [
+    { num: "01", icon: "edit", title: "Describe your idea", desc: "Type a sentence, a concept, or a topic. WizScript™ understands tone, genre, and intent from plain language." },
+    { num: "02", icon: "cpu", title: "AI structures the script", desc: "WizScript™ generates a full scene-by-scene script with dialogue, visual cues, and timing for every scene." },
+    { num: "03", icon: "image", title: "Storyboard generated", desc: "Each scene is visualised as a storyboard panel — giving you a preview of the final video before rendering begins." },
+    { num: "04", icon: "zap", title: "Hand off to WizGenesis™", desc: "Your completed script and storyboard are sent directly to WizGenesis™ for full cinematic video rendering." },
+  ],
+  benefits: [
+    { title: "No writing experience needed", desc: "WizScript™ does the creative heavy lifting — you just describe your idea and it builds the full script." },
+    { title: "Consistent character voices", desc: "Characters maintain their tone, style, and dialogue patterns across every scene in your script." },
+    { title: "Genre-aware storytelling", desc: "WizScript™ adapts its structure and language to match your chosen genre — cinematic, educational, social, or documentary." },
+    { title: "Storyboard preview", desc: "See every scene visualised before rendering — so you can edit, reorder, or regenerate individual scenes." },
+    { title: "Scene-level control", desc: "Edit any individual scene, regenerate specific sections, or override dialogue — full creative control at every step." },
+    { title: "Seamless WizGenesis™ handoff", desc: "Your script flows directly into WizGenesis™ with no manual setup — from idea to rendered video in one workflow." },
+  ],
+  keyFeatures: [
+    { icon: "edit", title: "Plain-Text Script Generation", desc: "Converts a single sentence or concept into a fully structured video script with scenes, dialogue, and visual direction — no writing experience required." },
+    { icon: "image", title: "Automatic Storyboard Panels", desc: "Generates a visual storyboard panel for every scene, giving you a cinematic preview of your video before rendering begins." },
+    { icon: "cpu", title: "Genre & Tone Intelligence", desc: "Adapts script structure, language, and pacing to match your chosen genre — cinematic drama, educational explainer, social short, or documentary." },
+    { icon: "settings", title: "Scene-Level Editing", desc: "Edit, regenerate, or reorder individual scenes without rewriting the entire script — full granular control over every part of your story." },
+    { icon: "star", title: "Character Voice Consistency", desc: "Maintains consistent character voices, dialogue styles, and personality traits across all scenes for a coherent, professional narrative." },
+    { icon: "zap", title: "WizGenesis™ Integration", desc: "Scripts flow directly into WizGenesis™ for rendering — no manual export, no format conversion, no setup. One click from script to final video." },
+  ],
+  heroImage: "/manus-storage/product-wizscript-hero_bb15d595.png",
+  related: ALL_RELATED.filter(r => r.name !== "WizCreate™"),
+};
+
 // ─── Page exports ─────────────────────────────────────────────────────────────
 
 export function WizCreatePage() {
@@ -356,4 +407,8 @@ export function WizGenesisPage() {
 
 export function WizBoostPage() {
   return <ProductPageTemplate {...WIZBOOST} />;
+}
+
+export function WizScriptPage() {
+  return <ProductPageTemplate {...WIZSCRIPT} />;
 }

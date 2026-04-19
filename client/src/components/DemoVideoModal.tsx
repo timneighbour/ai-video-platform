@@ -1,17 +1,17 @@
 /**
- * DemoVideoModal — WizSound™ comparison demo
+ * DemoVideoModal — WIZ AI product demo with premium overlay captions
  *
  * Architecture:
  * - ONE <audio> element whose src is swapped on toggle (guarantees zero overlap)
  * - Web Audio API AnalyserNode reads real FFT data → drives EQ bars from actual signal
  * - Standard track: SubwooferTension-WizAI (flat, dry, unprocessed)
  * - WizSound track: Sub-bassRavel-WizAI (cinematic, boosted bass + presence)
- * - BiquadFilter chain applied in Web Audio graph for WizSound mode:
- *     lowShelf +8dB @ 120Hz, peaking +5dB @ 3kHz, highShelf +3dB @ 8kHz
- *   giving an immediately audible difference on the SAME signal path
+ * - React-based caption overlay timed to video currentTime (not VTT)
+ *   → positioned at top-centre, high-contrast, premium typography
+ *   → covers all WIZ AI USPs + WizLumina upsell moment
  */
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Play, Pause, Volume2, VolumeX, Sparkles, Maximize2, Subtitles } from "@/lib/icons";
+import { X, Play, Pause, Volume2, VolumeX, Sparkles, Maximize2 } from "@/lib/icons";
 import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ──────────────────────────────────────────────────────── */
@@ -19,7 +19,7 @@ const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
 
 const VIDEO_SRC =
-  "/manus-storage/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
+  "/manus-storage/demo-video-only_404f1adb.mp4";
 
 // Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before" experience
 const AUDIO_STANDARD =
@@ -28,6 +28,33 @@ const AUDIO_STANDARD =
 // WizSound Cinematic: same source track, FFmpeg DSP processed — EQ boosted, compressed, +6 LUFS louder — the "wow" moment
 const AUDIO_WIZSOUND =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3";
+
+/* ── Premium caption timeline ────────────────────────────────────────── */
+// Each entry: [startSec, endSec, headline, subtext?, accentColour?, isLuminaUpsell?]
+interface CaptionEntry {
+  start: number;
+  end: number;
+  headline: string;
+  sub?: string;
+  accent?: string; // CSS colour for headline gradient
+  isLumina?: boolean;
+  isSoundUpsell?: boolean;
+}
+
+const CAPTION_TIMELINE: CaptionEntry[] = [
+  { start: 0,   end: 4,   headline: "Six AI tools. One creative platform.", sub: "WIZ AI — built for creators who think in stories", accent: "#d4af37" },
+  { start: 4,   end: 8,   headline: "WizCreate™ — Turn any idea into a storyboard", sub: "Describe your concept. AI builds the full scene plan.", accent: "#c4a464" },
+  { start: 8,   end: 12,  headline: "WizAnimate™ — Bring characters to life", sub: "Pixar-quality animation styles. No rigging. No keyframes.", accent: "#67e8f9" },
+  { start: 12,  end: 16,  headline: "WizScript™ — Plain text to full video script", sub: "Scene-by-scene structure, dialogue, and visual direction — instantly.", accent: "#a78bfa" },
+  { start: 16,  end: 20,  headline: "WizGenesis™ — Cinematic rendering engine", sub: "4K output. Consistent characters. Every scene, every time.", accent: "#f9a8d4" },
+  { start: 20,  end: 24,  headline: "WizLumina™ — See the difference", sub: "AI colour grading and cinematic enhancement — before and after.", accent: "#fbbf24", isLumina: true },
+  { start: 24,  end: 28,  headline: "WizSound™ — Hear the difference", sub: "Spatial audio mastering. Toggle Standard vs WizSound™ below.", accent: "#d4af37", isSoundUpsell: true },
+  { start: 28,  end: 32,  headline: "WizBoost™ — Distribute to the world", sub: "YouTube, Instagram, TikTok — one click, all platforms.", accent: "#fb923c" },
+];
+
+function getCaption(t: number): CaptionEntry | null {
+  return CAPTION_TIMELINE.find(c => t >= c.start && t < c.end) ?? null;
+}
 
 /* ── Web Audio context (singleton, created on first user gesture) ─────── */
 let sharedCtx: AudioContext | null = null;
@@ -74,11 +101,10 @@ function EQBars({ analyser, wizsound, active }: EQBarsProps) {
       for (let i = 0; i < BAR_COUNT; i++) {
         let rawVal: number;
         if (analyser && active) {
-          // Sample from frequency bins — weight toward lower bins for music
           const binIndex = Math.floor(Math.pow(i / BAR_COUNT, 1.5) * (dataArray.length * 0.75));
           rawVal = dataArray[Math.min(binIndex, dataArray.length - 1)] / 255;
         } else {
-          rawVal = 0.04; // Flat line when paused
+          rawVal = 0.04;
         }
 
         const h = Math.max(2, rawVal * H * 0.92);
@@ -101,7 +127,6 @@ function EQBars({ analyser, wizsound, active }: EQBarsProps) {
         ctx.roundRect(x, H - h, barW, h, [2, 2, 0, 0]);
         ctx.fill();
 
-        // Glow on tall bars for WizSound
         if (wizsound && rawVal > 0.5) {
           ctx.shadowColor = "rgba(212,175,55,0.4)";
           ctx.shadowBlur = 6;
@@ -127,6 +152,136 @@ function EQBars({ analyser, wizsound, active }: EQBarsProps) {
   );
 }
 
+/* ── WizLumina before/after upsell overlay ───────────────────────────── */
+function LuminaUpsellOverlay({ visible }: { visible: boolean }) {
+  if (!visible) return null;
+  return (
+    <div
+      className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none"
+      style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.5) 100%)" }}
+    >
+      <div
+        className="flex gap-0 rounded-xl overflow-hidden border border-white/20 shadow-2xl"
+        style={{ maxWidth: "60%", boxShadow: "0 0 40px rgba(251,191,36,0.25)" }}
+      >
+        {/* Before */}
+        <div className="relative flex-1">
+          <div
+            className="w-full h-20 sm:h-28"
+            style={{
+              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+              filter: "grayscale(0.6) brightness(0.7)",
+            }}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-center py-1">
+            <span className="text-white/60 text-[0.6rem] font-semibold tracking-widest uppercase">Before</span>
+          </div>
+        </div>
+        {/* Divider */}
+        <div className="w-0.5 bg-white/30" />
+        {/* After */}
+        <div className="relative flex-1">
+          <div
+            className="w-full h-20 sm:h-28"
+            style={{
+              background: "linear-gradient(135deg, #1a1a2e 0%, #2d1b69 50%, #0f3460 100%)",
+              filter: "saturate(1.8) brightness(1.2) contrast(1.1)",
+            }}
+          />
+          <div className="absolute bottom-0 left-0 right-0 py-1 text-center"
+            style={{ background: "linear-gradient(90deg, rgba(251,191,36,0.3), rgba(196,164,100,0.3))" }}>
+            <span
+              className="text-[0.6rem] font-bold tracking-widest uppercase"
+              style={{
+                background: "linear-gradient(90deg,#fbbf24,#d4af37)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >WizLumina™ Enhanced</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Premium caption overlay ─────────────────────────────────────────── */
+interface CaptionOverlayProps {
+  caption: CaptionEntry | null;
+  playing: boolean;
+}
+
+function CaptionOverlay({ caption, playing }: CaptionOverlayProps) {
+  const [visible, setVisible] = useState(false);
+  const [displayed, setDisplayed] = useState<CaptionEntry | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (caption && playing) {
+      if (caption !== displayed) {
+        // Fade out then in for new caption
+        setVisible(false);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+          setDisplayed(caption);
+          setVisible(true);
+        }, 200);
+      } else {
+        setVisible(true);
+      }
+    } else {
+      setVisible(false);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [caption, playing]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!displayed) return null;
+
+  const accent = displayed.accent ?? "#ffffff";
+
+  return (
+    <div
+      className="absolute top-14 left-0 right-0 z-20 flex justify-center px-4 pointer-events-none"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(-6px)",
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+      }}
+    >
+      <div
+        className="max-w-xl w-full text-center rounded-xl px-5 py-3"
+        style={{
+          background: "rgba(0,0,0,0.72)",
+          backdropFilter: "blur(12px)",
+          border: `1px solid ${accent}30`,
+          boxShadow: `0 4px 24px rgba(0,0,0,0.6), 0 0 20px ${accent}15`,
+        }}
+      >
+        <p
+          className="text-sm sm:text-base font-bold leading-tight tracking-wide"
+          style={{
+            background: `linear-gradient(90deg, ${accent}, ${accent}cc)`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            textShadow: "none",
+          }}
+        >
+          {displayed.headline}
+        </p>
+        {displayed.sub && (
+          <p className="text-[0.7rem] sm:text-xs text-white/65 mt-1 leading-relaxed font-medium">
+            {displayed.sub}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main component ──────────────────────────────────────────────────── */
 interface DemoVideoModalProps {
   open: boolean;
@@ -135,7 +290,6 @@ interface DemoVideoModalProps {
 
 export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  // SINGLE audio element — src swapped on toggle
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Web Audio nodes
@@ -151,13 +305,14 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  // IMPORTANT: Default to Standard Audio so user hears flat version first
-  // Toggling to WizSound™ creates the "wow" moment that sells the upgrade
+  // Default to Standard Audio so user hears flat version first — toggling to WizSound™ is the "wow" moment
   const [wizsoundMode, setWizsoundMode] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [captions, setCaptions] = useState(false);
-  // Expose analyser to EQ component only after graph is built
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
+
+  // Derived: current caption and WizLumina upsell visibility
+  const currentCaption = getCaption(currentTime);
+  const showLuminaUpsell = playing && currentCaption?.isLumina === true;
 
   /* ── Build Web Audio graph (once, on first play) ─────────────────── */
   const buildAudioGraph = useCallback(() => {
@@ -168,25 +323,20 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     const ctx = getAudioContext();
     audioCtxRef.current = ctx;
 
-    // Source node
     const source = ctx.createMediaElementSource(audio);
     sourceNodeRef.current = source;
 
-    // Analyser (reads actual FFT data)
     const analyserNode = ctx.createAnalyser();
     analyserNode.fftSize = 256;
     analyserNode.smoothingTimeConstant = 0.8;
     analyserRef.current = analyserNode;
 
-    // EQ chain for WizSound™ enhancement
-    // Low shelf: +8dB @ 120Hz — deep bass boost
     const lowShelf = ctx.createBiquadFilter();
     lowShelf.type = "lowshelf";
     lowShelf.frequency.value = 120;
-    lowShelf.gain.value = 0; // starts at 0, set by applyEQ()
+    lowShelf.gain.value = 0;
     lowShelfRef.current = lowShelf;
 
-    // Peaking: +5dB @ 3kHz — vocal presence / clarity
     const peaking = ctx.createBiquadFilter();
     peaking.type = "peaking";
     peaking.frequency.value = 3000;
@@ -194,14 +344,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     peaking.gain.value = 0;
     peakingRef.current = peaking;
 
-    // High shelf: +3dB @ 8kHz — air / brightness
     const highShelf = ctx.createBiquadFilter();
     highShelf.type = "highshelf";
     highShelf.frequency.value = 8000;
     highShelf.gain.value = 0;
     highShelfRef.current = highShelf;
 
-    // Chain: source → lowShelf → peaking → highShelf → analyser → destination
     source.connect(lowShelf);
     lowShelf.connect(peaking);
     peaking.connect(highShelf);
@@ -215,7 +363,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   /* ── Apply / remove EQ based on mode ────────────────────────────── */
   const applyEQ = useCallback((wizSound: boolean) => {
     const ramp = audioCtxRef.current?.currentTime ?? 0;
-    const t = ramp + 0.05; // 50ms ramp for smooth transition
+    const t = ramp + 0.05;
     if (lowShelfRef.current) {
       lowShelfRef.current.gain.linearRampToValueAtTime(wizSound ? 8 : 0, t);
     }
@@ -236,11 +384,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     const wasPlaying = !audio.paused;
     const savedTime = video.currentTime;
 
-    // Swap source
     audio.src = toWizSound ? AUDIO_WIZSOUND : AUDIO_STANDARD;
     audio.load();
-
-    // Restore position and apply EQ
     audio.currentTime = savedTime;
     applyEQ(toWizSound);
 
@@ -326,10 +471,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     const aud = audioRef.current;
     if (!vid) return;
 
-    // Build Web Audio graph on first user gesture
     buildAudioGraph();
 
-    // Resume AudioContext if suspended (browser autoplay policy)
     if (audioCtxRef.current?.state === "suspended") {
       await audioCtxRef.current.resume();
     }
@@ -376,7 +519,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   }, [duration]);
 
   const handleFullscreen = useCallback(() => {
-    const el = document.getElementById("wizvid-demo-container");
+    const el = document.getElementById("wizai-demo-container");
     if (el?.requestFullscreen) el.requestFullscreen();
   }, []);
 
@@ -400,7 +543,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
       <div className="relative z-10 w-full max-w-5xl mx-4 flex flex-col gap-0">
 
-          {/* ── Header label ── */}
+        {/* ── Header label ── */}
         <div className="flex items-center justify-center gap-2 pb-3">
           <Sparkles className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.7)' }} />
           <p
@@ -418,14 +561,14 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           >
             {wizsoundMode
               ? "WizSound™ Cinematic — Hear the difference"
-              : "Standard Audio — Press play, then toggle WizSound™"}
+              : "WIZ AI — Six tools. One creative platform."}
           </p>
           <Sparkles className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.7)' }} />
         </div>
 
         {/* ── Modal container ── */}
         <div
-          id="wizvid-demo-container"
+          id="wizai-demo-container"
           className="relative w-full rounded-2xl overflow-hidden bg-black"
           style={{
             aspectRatio: "16/9",
@@ -435,7 +578,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             transition: "box-shadow 0.4s ease",
           }}
         >
-          {/* ── Toggle pill — positioned high so it doesn't overlap video content ── */}
+          {/* ── Premium caption overlay (top-centre, above toggle pill) ── */}
+          <CaptionOverlay caption={currentCaption} playing={playing} />
+
+          {/* ── WizLumina upsell overlay ── */}
+          <LuminaUpsellOverlay visible={showLuminaUpsell} />
+
+          {/* ── WizSound toggle pill ── */}
           <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/85 border border-white/15 backdrop-blur-md p-1 shadow-xl">
             <button
               onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(false); }}
@@ -481,13 +630,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             onEnded={handleEnded}
           >
             <source src={VIDEO_SRC} type="video/mp4" />
-            {captions && (
-              <track kind="subtitles" src="/captions/intro-film.vtt" srcLang="en" label="English" default />
-            )}
           </video>
 
           {/* ── Single audio element — src swapped on toggle ── */}
-          {/* Start with Standard Audio src — user hears flat version first */}
           <audio
             ref={audioRef}
             src={AUDIO_STANDARD}
@@ -498,7 +643,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           {/* ── Close ── */}
           <button
             onMouseDown={onClose}
-            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
+            className="absolute top-4 right-4 z-40 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
             aria-label="Close demo"
           >
             <X className="w-4 h-4" />
@@ -509,7 +654,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <button
               onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
               className="absolute inset-0 z-10 flex items-center justify-center group cursor-pointer"
-              aria-label="Play demo"
+              aria-label="Play WIZ AI demo"
             >
               <div className="relative w-20 h-20 sm:w-24 sm:h-24">
                 <span className="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none" />
@@ -590,7 +735,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                   <span
                     className="font-bold text-[0.65rem] tracking-wide"
                     style={{
-                     background: "linear-gradient(90deg,#d4af37,#c4a464)",
+                      background: "linear-gradient(90deg,#d4af37,#c4a464)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text",
@@ -607,16 +752,6 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               <span className="text-white/50 text-xs font-mono tabular-nums">
                 {fmt(currentTime)} / {fmt(duration)}
               </span>
-
-              <button
-                onMouseDown={(e) => { e.preventDefault(); setCaptions(c => !c); }}
-                className={`w-8 h-8 flex items-center justify-center transition-colors cursor-pointer ${
-                  captions ? "text-white" : "text-white/40 hover:text-white/80"
-                }`}
-                aria-label="Toggle captions"
-              >
-                <Subtitles className="w-4 h-4" />
-              </button>
 
               <button
                 onMouseDown={handleFullscreen}
@@ -645,7 +780,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <span
               className="font-bold"
               style={{
-                background: "linear-gradient(90deg,#a78bfa,#e879f9)",
+                background: "linear-gradient(90deg,#d4af37,#c4a464)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -653,7 +788,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             >
               WizSound™
             </span>
-            {" "}to hear the difference
+            {" "}to hear the difference · WIZ AI — six tools, one platform
           </p>
         </div>
       </div>
