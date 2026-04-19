@@ -63,6 +63,7 @@ const PRODUCTS = [
   {
     name: "WizAudio",
     label: "Create Audio",
+    tagline: "AI Music & Audio Studio",
     desc: "Generate full studio-quality music tracks from a text prompt in seconds.",
     icon: <WizAudioEmblem size={28} />,
     href: "/music-creator",
@@ -70,6 +71,7 @@ const PRODUCTS = [
   {
     name: "WizImage",
     label: "Create Images",
+    tagline: "AI Image & Artwork Creator",
     desc: "Create cinematic AI images and visual assets from any idea, instantly.",
     icon: <WizImageEmblem size={28} />,
     href: "/wiz-image",
@@ -77,6 +79,7 @@ const PRODUCTS = [
   {
     name: "WizVideo",
     label: "Create Videos",
+    tagline: "AI Music Video Generator",
     desc: "Turn your music into a full AI-generated music video, scene by scene.",
     icon: <WizVideoEmblem size={28} />,
     href: "/music-video/create",
@@ -84,6 +87,7 @@ const PRODUCTS = [
   {
     name: "WizShorts",
     label: "Create Shorts",
+    tagline: "AI Short-Form Video Creator",
     desc: "Produce scroll-stopping vertical short-form videos for social media in minutes.",
     icon: <WizShortsEmblem size={28} />,
     href: "/wiz-shorts",
@@ -91,6 +95,7 @@ const PRODUCTS = [
   {
     name: "WizAnimate",
     label: "Create Animation",
+    tagline: "AI Character Animation Engine",
     desc: "Bring characters and scenes to life with AI-powered animation.",
     icon: <WizAnimateEmblem size={28} />,
     href: "/kids-video",
@@ -98,6 +103,7 @@ const PRODUCTS = [
   {
     name: "WizScript",
     label: "Create from Text",
+    tagline: "AI Script & Storyboard Builder",
     desc: "Describe your idea in plain text and let AI build the full video script and storyboard.",
     icon: <WizScriptEmblem size={28} />,
     href: "/text-to-video",
@@ -148,39 +154,47 @@ function Nav() {
                 Products <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
               </button>
               {productsOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[520px] pt-3 z-50" style={{ marginTop: 0 }}>
-                <div className="bg-[#070707]/99 backdrop-blur-2xl border border-[--color-gold]/[0.10] rounded-2xl shadow-[0_32px_100px_rgba(0,0,0,0.85)] p-4"
-                  style={{ boxShadow: "0 32px 100px rgba(0,0,0,0.85), 0 0 0 1px rgba(196,164,100,0.06) inset, 0 1px 0 rgba(196,164,100,0.12) inset" }}>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[560px] pt-3 z-50" style={{ marginTop: 0 }}>
+                <div
+                  className="bg-[#060606]/[0.98] backdrop-blur-2xl border border-[--color-gold]/[0.12] rounded-2xl p-5"
+                  style={{ boxShadow: "0 40px_120px rgba(0,0,0,0.9), 0 0 0 1px rgba(196,164,100,0.07) inset, 0 1px 0 rgba(196,164,100,0.15) inset, 0 0 60px rgba(196,164,100,0.03)" }}
+                >
                   {/* Dropdown header */}
-                  <div className="px-2 pb-3 mb-1 border-b border-[--color-gold]/[0.06]">
-                    <p className="text-[9px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/50">WIZ AI Platform — Six Creation Tools</p>
+                  <div className="px-1 pb-3 mb-2 border-b border-[--color-gold]/[0.07] flex items-center justify-between">
+                    <p className="text-[9px] font-black tracking-[0.32em] uppercase text-[--color-gold-dark]/45">WIZ AI — Six Creation Tools</p>
+                    <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/30">Platform</span>
                   </div>
                   {/* Two-column product grid */}
-                  <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-2 gap-1.5">
                     {PRODUCTS.map((p) => (
                       <a
                         key={p.name}
                         href={p.href}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[--color-gold]/[0.05] border border-transparent hover:border-[--color-gold]/[0.08] transition-all duration-200 group"
+                        className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[--color-gold]/[0.06] border border-transparent hover:border-[--color-gold]/[0.12] transition-all duration-200 group"
                       >
-                        {/* Emblem */}
-                        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.03] border border-[--color-gold]/[0.06] group-hover:border-[--color-gold]/[0.15] transition-all duration-200">
-                          <span className="opacity-70 group-hover:opacity-100 transition-opacity scale-75">{p.icon}</span>
+                        {/* Logo emblem */}
+                        <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl bg-white/[0.02] border border-[--color-gold]/[0.07] group-hover:border-[--color-gold]/[0.20] group-hover:bg-[--color-gold]/[0.04] transition-all duration-200 overflow-hidden">
+                          {p.logo ? (
+                            <img src={p.logo} alt={p.name} className="w-8 h-8 object-contain opacity-75 group-hover:opacity-100 transition-opacity" />
+                          ) : (
+                            <span className="opacity-60 group-hover:opacity-100 transition-opacity scale-75">{p.icon}</span>
+                          )}
                         </div>
-                        {/* Name + tagline */}
-                        <div className="min-w-0">
-                          <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">
-                            {p.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/60">™</sup>
+                        {/* Name + tagline + desc */}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">
+                            {p.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup>
                           </p>
-                          <p className="text-[10px] text-white/30 mt-0.5 leading-tight truncate">{p.desc}</p>
+                          <p className="text-[10px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight truncate group-hover:text-[--color-gold-dark]/70 transition-colors">{p.tagline ?? p.desc}</p>
                         </div>
+                        <ArrowRight className="w-3 h-3 text-[--color-gold]/0 group-hover:text-[--color-gold]/40 transition-all duration-200 flex-shrink-0 -translate-x-1 group-hover:translate-x-0" />
                       </a>
                     ))}
                   </div>
                   {/* Footer CTA */}
-                  <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.06] flex items-center justify-between px-2">
-                    <p className="text-[10px] text-white/20">2 free renders on sign-up — no card required</p>
-                    <a href="/onboarding" className="text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
+                  <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.07] flex items-center justify-between px-1">
+                    <p className="text-[10px] text-white/18 font-medium">Free storyboard on every project — no card required</p>
+                    <a href="/onboarding" className="text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1.5">
                       Start Creating <ArrowRight className="w-3 h-3" />
                     </a>
                   </div>
@@ -362,20 +376,25 @@ function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
         <div className="max-w-3xl">
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] backdrop-blur-sm mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
-            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[--color-gold-dark]">The AI Creative Studio for Serious Creators</span>
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-8 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
+            <span className="relative flex items-center justify-center w-2 h-2">
+              <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
+            </span>
+            <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">The AI Creative Studio for Serious Creators</span>
+            <span className="w-px h-3 bg-[--color-gold]/20" />
+            <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">WIZ AI</span>
           </div>
 
           {/* Headline */}
           <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">
-            Turn any idea into<br />
-            <span className="metallic-gold">a cinematic masterpiece.</span>
+            Create anything.<br />
+            <span className="metallic-gold">Instantly.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/65 leading-relaxed max-w-xl mb-8">
-            From idea to fully produced video — with studio-grade sound and film-level visuals. Free storyboard on every project.
+          <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/70 leading-relaxed max-w-xl mb-8">
+            Music. Videos. Animation. Images. Shorts. All from a single idea — with studio-grade audio and film-level visuals built in. No experience required.
           </p>
 
           {/* CTAs */}
@@ -409,17 +428,19 @@ function Hero() {
             </button>
           </div>
 
-          {/* 5-icon value strip */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-10">
+          {/* 6-icon value strip */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mb-10">
             {[
-              { icon: <Film className="w-4 h-4" />, label: "AI Video" },
-              { icon: <Volume2 className="w-4 h-4" />, label: "Studio Sound" },
-              { icon: <Eye className="w-4 h-4" />, label: "Cinematic Visuals" },
-              { icon: <Zap className="w-4 h-4" />, label: "Instant Rendering" },
-              { icon: <Wand2 className="w-4 h-4" />, label: "Multiple Styles" },
-            ].map((item) => (
-              <span key={item.label} className="flex items-center gap-1.5 text-[11px] font-semibold text-[--color-silver-dark]/50 tracking-wide">
-                <span className="text-[--color-gold]/60">{item.icon}</span>
+              { icon: <Film className="w-3.5 h-3.5" />, label: "AI Video" },
+              { icon: <Volume2 className="w-3.5 h-3.5" />, label: "Studio Audio" },
+              { icon: <Eye className="w-3.5 h-3.5" />, label: "Cinematic Visuals" },
+              { icon: <Zap className="w-3.5 h-3.5" />, label: "Instant Rendering" },
+              { icon: <Wand2 className="w-3.5 h-3.5" />, label: "8 Art Styles" },
+              { icon: <Sparkles className="w-3.5 h-3.5" />, label: "Free Storyboard" },
+            ].map((item, i) => (
+              <span key={item.label} className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.06em] uppercase text-[--color-silver-dark]/45">
+                {i > 0 && <span className="w-px h-3 bg-[--color-gold]/10 mr-1" />}
+                <span className="text-[--color-gold]/55">{item.icon}</span>
                 {item.label}
               </span>
             ))}
