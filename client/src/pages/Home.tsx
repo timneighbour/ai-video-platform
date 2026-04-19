@@ -110,14 +110,57 @@ const PRODUCTS = [
   },
 ];
 
+// ── Nav engines data ─────────────────────────────────────────────────────────
+const WIZ_ENGINES = [
+  { name: "WizSound", tagline: "Premium Audio Engine", desc: "Upgrades every track from raw AI to broadcast-quality Cinematic audio.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
+  { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "Transforms raw AI footage into polished, colour-graded cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
+  { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "Powers every creative decision inside WIZ AI — smarter, faster, more consistent.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
+  { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Accelerates render speed and sharpens final quality on every export.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
+  { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
+  { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
+  { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion for rhythm-locked output.", href: "/products/wizsync", logo: WIZSYNC_LOGO },
+];
+
+// ── Dropdown wrapper with fade+slide animation ────────────────────────────────
+function NavDropdown({ open, children, wide }: { open: boolean; children: React.ReactNode; wide?: boolean }) {
+  return (
+    <div
+      className={`absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50 transition-all duration-200 origin-top ${
+        open ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-y-95 -translate-y-1 pointer-events-none"
+      }`}
+      style={{ width: wide ? 680 : 580 }}
+    >
+      {/* Arrow tip */}
+      <div className="flex justify-center mb-[-1px]">
+        <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-[#070707]" style={{ marginBottom: -7 }} />
+      </div>
+      {children}
+    </div>
+  );
+}
+
 // ── Nav ───────────────────────────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [enginesOpen, setEnginesOpen] = useState(false);
-  const [wizEnginesOpen, setWizEnginesOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
+  const [mobileEnginesOpen, setMobileEnginesOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth >= 768) setMobileOpen(false); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Lock body scroll when mobile menu open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -125,226 +168,449 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close dropdowns on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setProductsOpen(false); setEnginesOpen(false); setMobileOpen(false); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <>
       <nav
+        role="navigation"
+        aria-label="Main navigation"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-[#060606]/95 backdrop-blur-2xl border-b border-[--color-gold]/[0.06] shadow-[0_1px_40px_rgba(0,0,0,0.6)]"
-            : "bg-transparent"
+            ? "bg-[#060606]/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
+            : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-[2px]"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
-          {/* Logo */}
-          <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+        {/* Subtle top gold line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent 0%, oklch(0.78 0.11 75 / 0.35) 30%, oklch(0.78 0.11 75 / 0.55) 50%, oklch(0.78 0.11 75 / 0.35) 70%, transparent 100%)" }} />
+
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 h-[72px] flex items-center justify-between gap-4">
+
+          {/* ── Logo ── */}
+          <a href="/" className="flex items-center flex-shrink-0 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-gold]/40 rounded-lg" aria-label="WIZ AI Home">
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.2rem] w-auto object-contain drop-shadow-[0_0_14px_rgba(196,164,100,0.18)]" loading="eager" decoding="async" />
           </a>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-0.5">
+          {/* ── Desktop nav links ── */}
+          <div className="hidden md:flex items-center gap-0">
+
             <a href="/" className="nav-link">Home</a>
 
-            {/* Products dropdown */}
+            {/* PRODUCTS dropdown */}
             <div
               className="relative"
               onMouseEnter={() => setProductsOpen(true)}
               onMouseLeave={() => setProductsOpen(false)}
             >
-              <button className="nav-link flex items-center gap-1">
-                Products <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
+              <button
+                className={`nav-link flex items-center gap-1 transition-colors ${
+                  productsOpen ? "text-[--color-gold-light]" : ""
+                }`}
+                aria-haspopup="true"
+                aria-expanded={productsOpen}
+                onClick={() => setProductsOpen((v) => !v)}
+              >
+                Products
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                  productsOpen ? "rotate-180 text-[--color-gold]" : ""
+                }`} />
               </button>
-              {productsOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[560px] pt-3 z-50" style={{ marginTop: 0 }}>
+
+              <NavDropdown open={productsOpen}>
                 <div
-                  className="bg-[#060606]/[0.98] backdrop-blur-2xl border border-[--color-gold]/[0.12] rounded-2xl p-5"
-                  style={{ boxShadow: "0 40px_120px rgba(0,0,0,0.9), 0 0 0 1px rgba(196,164,100,0.07) inset, 0 1px 0 rgba(196,164,100,0.15) inset, 0 0 60px rgba(196,164,100,0.03)" }}
+                  className="rounded-2xl overflow-hidden"
+                  style={{
+                    background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
+                    border: "1px solid oklch(0.78 0.11 75 / 0.14)",
+                    boxShadow: "0 40px 120px rgba(0,0,0,0.95), 0 0 0 1px rgba(196,164,100,0.06) inset, 0 1px 0 rgba(196,164,100,0.18) inset",
+                  }}
                 >
-                  {/* Dropdown header */}
-                  <div className="px-1 pb-3 mb-2 border-b border-[--color-gold]/[0.07] flex items-center justify-between">
-                    <p className="text-[9px] font-black tracking-[0.32em] uppercase text-[--color-gold-dark]/45">WIZ AI — Six Creation Tools</p>
-                    <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/30">Platform</span>
+                  {/* Header */}
+                  <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: "1px solid oklch(0.78 0.11 75 / 0.08)", background: "oklch(0.78 0.11 75 / 0.025)" }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+                      <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">WIZ AI — Creation Tools</span>
+                    </div>
+                    <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>6 Tools</span>
                   </div>
-                  {/* Two-column product grid */}
-                  <div className="grid grid-cols-2 gap-1.5">
+
+                  {/* Product grid */}
+                  <div className="p-3 grid grid-cols-2 gap-1">
                     {PRODUCTS.map((p) => (
                       <a
                         key={p.name}
                         href={p.href}
-                        className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[--color-gold]/[0.06] border border-transparent hover:border-[--color-gold]/[0.12] transition-all duration-200 group"
+                        className="group flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                        style={{ border: "1px solid transparent" }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)";
+                          (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.14)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background = "transparent";
+                          (e.currentTarget as HTMLElement).style.borderColor = "transparent";
+                        }}
                       >
-                        {/* Logo emblem */}
-                        <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl bg-white/[0.02] border border-[--color-gold]/[0.07] group-hover:border-[--color-gold]/[0.20] group-hover:bg-[--color-gold]/[0.04] transition-all duration-200 overflow-hidden">
-                          <span className="opacity-65 group-hover:opacity-100 transition-opacity scale-75">{p.icon}</span>
+                        <div
+                          className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200"
+                          style={{ background: "oklch(0.78 0.11 75 / 0.04)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}
+                        >
+                          <span className="opacity-70 group-hover:opacity-100 transition-opacity scale-[0.78]">{p.icon}</span>
                         </div>
-                        {/* Name + tagline + desc */}
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">
                             {p.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup>
                           </p>
-                          <p className="text-[10px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight truncate group-hover:text-[--color-gold-dark]/70 transition-colors">{p.tagline ?? p.desc}</p>
+                          <p className="text-[10.5px] text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors truncate">{p.tagline}</p>
                         </div>
-                        <ArrowRight className="w-3 h-3 text-[--color-gold]/0 group-hover:text-[--color-gold]/40 transition-all duration-200 flex-shrink-0 -translate-x-1 group-hover:translate-x-0" />
+                        <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-40 transition-all duration-200 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 text-[--color-gold]" />
                       </a>
                     ))}
                   </div>
-                  {/* Footer CTA */}
-                  <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.07] flex items-center justify-between px-1">
-                    <p className="text-[10px] text-white/18 font-medium">Free storyboard on every project — no card required</p>
-                    <a href="/onboarding" className="text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1.5">
+
+                  {/* Footer */}
+                  <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
+                    <p className="text-[10px] text-white/20 font-medium">Free storyboard on every project</p>
+                    <a href="/onboarding" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
                       Start Creating <ArrowRight className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
-                </div>
-              )}
+              </NavDropdown>
             </div>
 
-            {/* Wiz Engines dropdown */}
+            {/* WIZ ENGINES dropdown */}
             <div
               className="relative"
               onMouseEnter={() => setEnginesOpen(true)}
               onMouseLeave={() => setEnginesOpen(false)}
             >
-              <button className="nav-link flex items-center gap-1">
-                Wiz Engines <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${enginesOpen ? "rotate-180" : ""}`} />
+              <button
+                className={`nav-link flex items-center gap-1 transition-colors ${
+                  enginesOpen ? "text-[--color-gold-light]" : ""
+                }`}
+                aria-haspopup="true"
+                aria-expanded={enginesOpen}
+                onClick={() => setEnginesOpen((v) => !v)}
+              >
+                Wiz Engines
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                  enginesOpen ? "rotate-180 text-[--color-gold]" : ""
+                }`} />
               </button>
-              {enginesOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-[640px] pt-3 z-50">
+
+              <NavDropdown open={enginesOpen} wide>
                 <div
-                  className="bg-[#070707]/99 backdrop-blur-2xl border border-[--color-gold]/[0.10] rounded-2xl p-5"
-                  style={{ boxShadow: "0 32px 100px rgba(0,0,0,0.85), 0 0 0 1px rgba(196,164,100,0.06) inset, 0 1px 0 rgba(196,164,100,0.12) inset" }}
+                  className="rounded-2xl overflow-hidden"
+                  style={{
+                    background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
+                    border: "1px solid oklch(0.78 0.11 75 / 0.13)",
+                    boxShadow: "0 40px 120px rgba(0,0,0,0.95), 0 0 0 1px rgba(196,164,100,0.05) inset, 0 1px 0 rgba(196,164,100,0.16) inset",
+                  }}
                 >
-                  <div className="px-2 pb-3 mb-2 border-b border-[--color-gold]/[0.06]">
-                    <p className="text-[9px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/50">WIZ AI — Proprietary Intelligence Stack</p>
+                  {/* Header */}
+                  <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.02)" }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+                      <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">Proprietary Intelligence Stack</span>
+                    </div>
+                    <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>7 Engines</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {[
-                      { name: "WizSound", tagline: "Premium Audio Engine", desc: "The premium audio engine that upgrades every track from Normal to Cinematic quality.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
-                      { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "The visual enhancement engine that transforms raw AI footage into polished, cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
-                      { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "The core intelligence engine powering every creative decision inside WIZ AI.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
-                      { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "The output optimisation engine that accelerates render speed and sharpens final quality.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
-                      { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
-                      { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
-                      { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion to create seamless, rhythm-locked cinematic output.", href: "/products/wizsync", logo: WIZSYNC_LOGO },
-                    ].map((eng) => (
+
+                  {/* Engine grid */}
+                  <div className="p-3 grid grid-cols-2 gap-1">
+                    {WIZ_ENGINES.map((eng) => (
                       <a
                         key={eng.name}
                         href={eng.href}
-                        className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-[--color-gold]/[0.05] border border-transparent hover:border-[--color-gold]/[0.10] transition-all duration-200 group"
+                        className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                        style={{ border: "1px solid transparent" }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)";
+                          (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background = "transparent";
+                          (e.currentTarget as HTMLElement).style.borderColor = "transparent";
+                        }}
                       >
-                        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.04] border border-[--color-gold]/[0.08] group-hover:border-[--color-gold]/[0.22] transition-all duration-200 overflow-hidden">
-                          <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain"  loading="lazy" />
+                        <div
+                          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200"
+                          style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}
+                        >
+                          <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">
-                            {eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/60">™</sup>
+                            {eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup>
                           </p>
-                          <p className="text-[10px] font-semibold text-[--color-gold-dark]/60 mt-0.5 leading-tight">{eng.tagline}</p>
-                          <p className="text-[10px] text-white/30 mt-1 leading-relaxed line-clamp-2">{eng.desc}</p>
+                          <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/55 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/80 transition-colors">{eng.tagline}</p>
+                          <p className="text-[10px] text-white/25 mt-1 leading-relaxed line-clamp-2 group-hover:text-white/40 transition-colors">{eng.desc}</p>
                         </div>
                       </a>
                     ))}
                   </div>
-                  <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.06] flex items-center justify-between px-2">
-                    <p className="text-[10px] text-white/20">7 proprietary engines powering every creation</p>
-                    <a href="/#wiz-engines" className="text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
+
+                  {/* Footer */}
+                  <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
+                    <p className="text-[10px] text-white/20">7 proprietary engines — every creation, every time</p>
+                    <a href="/#wiz-engines" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
                       See how they work <ArrowRight className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
-              </div>
-              )}
+              </NavDropdown>
             </div>
+
             <a href="/pricing" className="nav-link">Pricing</a>
             <a href="/help" className="nav-link">Help</a>
           </div>
 
-          {/* Auth */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* ── Auth CTA ── */}
+          <div className="hidden md:flex items-center gap-2.5">
             {isAuthenticated ? (
-              <a href="/dashboard" className="btn-primary-sm flex items-center gap-1.5">
+              <a
+                href="/dashboard"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200"
+                style={{
+                  background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.18) 0%, oklch(0.78 0.11 75 / 0.08) 100%)",
+                  border: "1px solid oklch(0.78 0.11 75 / 0.30)",
+                  color: "oklch(0.88 0.10 75)",
+                  boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
+                }}
+              >
                 <Sparkles className="w-3.5 h-3.5" /> Dashboard
               </a>
             ) : (
               <>
-                <a href={getLoginUrl()} className="text-[13px] text-[--color-silver-dark] hover:text-[--color-silver-light] transition-colors font-medium px-3 py-2">
+                <a
+                  href={getLoginUrl()}
+                  className="text-[13px] font-medium px-3 py-2 rounded-lg transition-colors text-[--color-silver-dark] hover:text-[--color-silver-light] hover:bg-white/[0.04]"
+                >
                   Sign in
                 </a>
-                <a href="/onboarding" className="btn-primary-sm">
+                <a
+                  href="/onboarding"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.22) 0%, oklch(0.60 0.10 65 / 0.18) 100%)",
+                    border: "1px solid oklch(0.78 0.11 75 / 0.35)",
+                    color: "oklch(0.92 0.10 75)",
+                    boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.12), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
+                  }}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
                   Start Creating
                 </a>
               </>
             )}
           </div>
 
-          {/* Mobile toggle */}
+          {/* ── Mobile hamburger ── */}
           <button
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors"
+            className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--color-gold]/40"
+            style={mobileOpen ? { background: "oklch(0.78 0.11 75 / 0.08)", border: "1px solid oklch(0.78 0.11 75 / 0.20)" } : { border: "1px solid transparent" }}
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X className="w-5 h-5 text-[--color-silver]" /> : <Menu className="w-5 h-5 text-[--color-silver]" />}
+            <div className="relative w-5 h-4 flex flex-col justify-between">
+              <span className={`block h-0.5 rounded-full transition-all duration-300 origin-center ${
+                mobileOpen ? "rotate-45 translate-y-[7px] bg-[--color-gold]" : "bg-[--color-silver]"
+              }`} />
+              <span className={`block h-0.5 rounded-full transition-all duration-300 ${
+                mobileOpen ? "opacity-0 scale-x-0 bg-[--color-gold]" : "bg-[--color-silver]"
+              }`} />
+              <span className={`block h-0.5 rounded-full transition-all duration-300 origin-center ${
+                mobileOpen ? "-rotate-45 -translate-y-[7px] bg-[--color-gold]" : "bg-[--color-silver]"
+              }`} />
+            </div>
           </button>
         </div>
       </nav>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}>
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-          <div
-            className="absolute top-[72px] left-0 right-0 bg-[#0a0a0a]/98 backdrop-blur-2xl border-b border-[--color-gold]/[0.06] shadow-[0_16px_60px_rgba(0,0,0,0.7)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-5 py-5 flex flex-col gap-1">
-              <a href="/" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Home</a>
-              <div className="mt-2 pt-2 border-t border-[--color-gold]/[0.06]">
-                <p className="text-[10px] text-[--color-gold-dark]/40 font-bold uppercase tracking-[0.2em] px-4 py-2">Products</p>
-                {PRODUCTS.map((p) => (
+      {/* ── Mobile full-screen drawer ── */}
+      <div
+        className={`fixed inset-0 z-40 md:hidden transition-all duration-300 ${
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileOpen(false)}
+      >
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-black/85 backdrop-blur-md" />
+
+        {/* Drawer panel */}
+        <div
+          className={`absolute top-[72px] left-0 right-0 bottom-0 overflow-y-auto transition-transform duration-300 ${
+            mobileOpen ? "translate-y-0" : "-translate-y-4"
+          }`}
+          style={{
+            background: "linear-gradient(180deg, #080808 0%, #050505 100%)",
+            borderTop: "1px solid oklch(0.78 0.11 75 / 0.12)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="px-4 py-4 flex flex-col gap-1 pb-8">
+
+            {/* Home */}
+            <a
+              href="/"
+              className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200"
+              onClick={() => setMobileOpen(false)}
+            >
+              Home
+            </a>
+
+            {/* Products accordion */}
+            <div className="rounded-xl overflow-hidden" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.08)" }}>
+              <button
+                className="w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-semibold transition-all duration-200"
+                style={mobileProductsOpen ? { background: "oklch(0.78 0.11 75 / 0.06)", color: "oklch(0.88 0.10 75)" } : { color: "rgba(255,255,255,0.8)" }}
+                onClick={() => setMobileProductsOpen((v) => !v)}
+                aria-expanded={mobileProductsOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileProductsOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
+                  Products
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                  mobileProductsOpen ? "rotate-180" : ""
+                }`} style={{ color: mobileProductsOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
+              </button>
+
+              <div className={`overflow-hidden transition-all duration-300 ${
+                mobileProductsOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+              }`}>
+                <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
+                  {PRODUCTS.map((p) => (
+                    <a
+                      key={p.name}
+                      href={p.href}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200"
+                      style={{ border: "1px solid transparent" }}
+                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>
+                        <span className="scale-[0.75]">{p.icon}</span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>
+                          {p.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup>
+                        </p>
+                        <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.tagline}</p>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Wiz Engines accordion */}
+            <div className="rounded-xl overflow-hidden" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.08)" }}>
+              <button
+                className="w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-semibold transition-all duration-200"
+                style={mobileEnginesOpen ? { background: "oklch(0.78 0.11 75 / 0.06)", color: "oklch(0.88 0.10 75)" } : { color: "rgba(255,255,255,0.8)" }}
+                onClick={() => setMobileEnginesOpen((v) => !v)}
+                aria-expanded={mobileEnginesOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileEnginesOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
+                  Wiz Engines
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                  mobileEnginesOpen ? "rotate-180" : ""
+                }`} style={{ color: mobileEnginesOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
+              </button>
+
+              <div className={`overflow-hidden transition-all duration-300 ${
+                mobileEnginesOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
+              }`}>
+                <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
+                  {WIZ_ENGINES.map((eng) => (
+                    <a
+                      key={eng.name}
+                      href={eng.href}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200"
+                      style={{ border: "1px solid transparent" }}
+                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>
+                        <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>
+                          {eng.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup>
+                        </p>
+                        <p className="text-[11px] text-white/40 mt-0.5 truncate">{eng.tagline}</p>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Simple links */}
+            <a href="/pricing" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Pricing</a>
+            <a href="/help" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Help</a>
+
+            {/* CTA buttons */}
+            <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
+              {isAuthenticated ? (
+                <a
+                  href="/dashboard"
+                  className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.20) 0%, oklch(0.60 0.10 65 / 0.15) 100%)",
+                    border: "1px solid oklch(0.78 0.11 75 / 0.35)",
+                    color: "oklch(0.92 0.10 75)",
+                    boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.10)",
+                  }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Sparkles className="w-4 h-4" /> Dashboard
+                </a>
+              ) : (
+                <>
                   <a
-                    key={p.name}
-                    href={p.href}
-                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-[--color-gold]/[0.04] transition-colors"
+                    href={getLoginUrl()}
+                    className="flex items-center justify-center py-3 rounded-xl text-[14px] font-medium text-white/60 hover:text-white/90 transition-colors"
+                    style={{ border: "1px solid rgba(255,255,255,0.08)" }}
                     onClick={() => setMobileOpen(false)}
                   >
-                    <span className="text-[--color-silver-dark]">{p.icon}</span>
-                    <span className="text-[14px] font-semibold text-[--color-gold-light]">{p.name}</span>
+                    Sign in
                   </a>
-                ))}
-              </div>
-              <div className="mt-2 pt-2 border-t border-[--color-gold]/[0.06]">
-                {/* Mobile: Wiz Engines */}
-                <p className="text-[10px] text-[--color-gold-dark]/40 font-bold uppercase tracking-[0.2em] px-4 py-2 mt-1">Wiz Engines</p>
-                {([
-                  { name: "WizSound™", href: "/products/wizsound" },
-                  { name: "WizLumina™", href: "/products/wizlumina" },
-                  { name: "WizGenesis™", href: "/products/wizgenesis" },
-                  { name: "WizBoost™", href: "/products/wizboost" },
-                  { name: "WizCreate™", href: "/products/wizcreate" },
-                  { name: "WizAnimate™", href: "/products/wizanimate" },
-                  { name: "WizSync™", href: "/products/wizsync" },
-                ] as { name: string; href: string }[]).map((eng) => (
-                  <a key={eng.name} href={eng.href} className="mobile-nav-link" onClick={() => setMobileOpen(false)}>{eng.name}</a>
-                ))}
-                <a href="/pricing" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Pricing</a>
-                <a href="/help" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Help</a>
-              </div>
-              <div className="mt-3 pt-3 border-t border-[--color-gold]/[0.08] flex flex-col gap-2">
-                {isAuthenticated ? (
-                  <a href="/dashboard" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>
-                    <Sparkles className="w-4 h-4" /> Dashboard
+                  <a
+                    href="/onboarding"
+                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200"
+                    style={{
+                      background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.22) 0%, oklch(0.60 0.10 65 / 0.18) 100%)",
+                      border: "1px solid oklch(0.78 0.11 75 / 0.40)",
+                      color: "oklch(0.92 0.10 75)",
+                      boxShadow: "0 0 28px oklch(0.78 0.11 75 / 0.14)",
+                    }}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <Sparkles className="w-4 h-4" /> Start Creating — Free
                   </a>
-                ) : (
-                  <>
-                    <a href={getLoginUrl()} className="text-center text-sm text-[--color-silver-dark] hover:text-[--color-silver-light] py-2.5 transition-colors" onClick={() => setMobileOpen(false)}>Sign in</a>
-                    <a href="/onboarding" className="btn-primary-mobile" onClick={() => setMobileOpen(false)}>Start Creating</a>
-                  </>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }
