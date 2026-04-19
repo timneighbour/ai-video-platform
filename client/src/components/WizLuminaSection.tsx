@@ -199,7 +199,7 @@ function ComparisonSlider({ mode }: { mode: VisualMode }) {
       <div className="absolute top-3 right-3 z-10 pointer-events-none">
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm border"
           style={{ borderColor: meta.borderColor, background: meta.badgeBg }}>
-          <img src={WIZLUMINA_LOGO} alt="" className="w-3 h-3 rounded-full" />
+          <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-3 h-3 rounded-full" />
           <span className="text-[10px] font-bold" style={{ color: meta.badgeText }}>{meta.sublabel}</span>
         </div>
       </div>
@@ -291,7 +291,7 @@ export function WizLuminaSection() {
                 }}
                 aria-pressed={active}
               >
-                {m === "standard" ? <Eye className="w-3.5 h-3.5" /> : <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 rounded-full" />}
+                {m === "standard" ? <Eye className="w-3.5 h-3.5" /> : <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-3.5 h-3.5 rounded-full" />}
                 {c.label}
               </button>
             );

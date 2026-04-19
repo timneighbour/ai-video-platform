@@ -210,7 +210,7 @@ export function WizGenesisModal({
           <div className="relative">
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-silver]/10 border border-rose-400/30 text-[--color-silver] text-xs font-mono tracking-wider uppercase">
-                <img src={WIZGENESIS_LOGO} alt="" className="w-4 h-4 rounded-full" />
+                <img src={WIZGENESIS_LOGO} alt="WizGenesis" aria-hidden="true" className="w-4 h-4 rounded-full" />
                 WizGenesis™
               </span>
             </div>

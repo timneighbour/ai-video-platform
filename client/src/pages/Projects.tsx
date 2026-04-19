@@ -413,7 +413,7 @@ export default function Projects() {
               {completed && job.finalVideoUrl ? (
                 <>
                   {job.thumbnailUrl ? (
-                    <img src={job.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                    <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover" />
                   ) : (
                     <video src={job.finalVideoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
                   )}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
 import { triggerIntroReplay } from "@/lib/introReplay";
 import WizProductGrid from "@/components/WizProductGrid";
 import {
@@ -430,7 +431,7 @@ function Nav() {
                   boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
                 }}
               >
-                <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" /> Dashboard
+                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" /> Dashboard
               </a>
             ) : (
               <>
@@ -450,7 +451,7 @@ function Nav() {
                     boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.12), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
                   }}
                 >
-                  <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />
+                  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />
                   Start Creating
                 </a>
               </>
@@ -631,7 +632,7 @@ function Nav() {
                   }}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" /> Dashboard
+                  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Dashboard
                 </a>
               ) : (
                 <>
@@ -654,7 +655,7 @@ function Nav() {
                     }}
                     onClick={() => setMobileOpen(false)}
                   >
-                    <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" /> Start Creating — Free
+                    <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Start Creating — Free
                   </a>
                 </>
               )}
@@ -717,7 +718,7 @@ function Hero() {
               className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
               onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
             >
-              <img src={WIZAI_LOGO} alt="" className="w-5 h-5 object-contain" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
               Create Your First Video — Free
             </a>
             <a
@@ -744,12 +745,12 @@ function Hero() {
           {/* 6-icon value strip */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mb-10">
             {[
-              { icon: <img src={WIZCREATE_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "AI Video" },
+              { icon: <img src={WIZCREATE_LOGO} alt="WizCreate" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "AI Video" },
               { icon: <WaveformSVG className="w-3.5 h-3.5" color="currentColor" />, label: "Studio Audio" },
-              { icon: <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "Cinematic Visuals" },
-              { icon: <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "Instant Rendering" },
-              { icon: <img src={WIZANIMATE_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "8 Art Styles" },
-              { icon: <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "Free Storyboard" },
+              { icon: <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Cinematic Visuals" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Instant Rendering" },
+              { icon: <img src={WIZANIMATE_LOGO} alt="WizAnimate" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "8 Art Styles" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Free Storyboard" },
             ].map((item, i) => (
               <span key={item.label} className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.06em] uppercase text-[--color-silver-dark]/45">
                 {i > 0 && <span className="w-px h-3 bg-[--color-gold]/10 mr-1" />}
@@ -764,7 +765,7 @@ function Hero() {
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2">
                 {WHO_IMAGES.map((src, i) => (
-                  <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover"  loading="lazy" />
+                  <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" loading="lazy" />
                 ))}
               </div>
               <div>
@@ -829,7 +830,7 @@ function WelcomeSection() {
                 onClick={() => mp.startCreatingClicked("welcome_section")}
                 className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm"
               >
-                <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
+                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
                 Start Creating
               </a>
               <a href="/pricing" className="btn-secondary inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm">
@@ -1161,7 +1162,7 @@ function WizEngines() {
             onClick={() => mp.startCreatingClicked("how_it_works")}
             className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm"
           >
-            <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
             Start Creating
           </a>
         </div>
@@ -1301,7 +1302,7 @@ function HowItWorks() {
                 <div className={`flex items-center gap-2 mb-2 transition-colors duration-500 ${
                   i <= activeStep ? "text-[--color-gold-dark]" : "text-white/20"
                 }`}>
-                  <img src={(s as any).logo} alt="" className="w-5 h-5 object-contain opacity-80" />
+                  <img src={(s as any).logo} alt={(s as any).badge ?? s.title} aria-hidden="true" className="w-5 h-5 object-contain opacity-80" />
                   <h3 className={`text-lg font-bold transition-colors duration-500 ${
                     i <= activeStep ? "text-white" : "text-white/40"
                   }`}>{s.title}</h3>
@@ -1415,7 +1416,7 @@ function WhyWizAI() {
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.0) 0%, rgba(4,4,4,0.55) 100%)" }} />
                 {/* Icon badge over image */}
                 <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                  <img src={(r as any).logo} alt="" className="w-6 h-6 object-contain opacity-80" />
+                  <img src={(r as any).logo} alt="WIZ AI" aria-hidden="true" className="w-6 h-6 object-contain opacity-80" />
                 </div>
               </div>
               {/* Card text */}
@@ -1611,7 +1612,7 @@ function WizSoundDemo() {
           {/* CTA */}
           <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
             <a href="/onboarding" className="btn-primary btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
-              <img src={WIZSOUND_LOGO} alt="" className="w-4 h-4 object-contain" />
+              <img src={WIZSOUND_LOGO} alt="WizSound" aria-hidden="true" className="w-4 h-4 object-contain" />
               Start Creating
             </a>
             <a href="/products/wizsound" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.08] hover:text-[--color-gold] transition-all">
@@ -1713,7 +1714,7 @@ function WizLuminaDemo() {
             >
               {/* Handle */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border-2 border-white/40 flex items-center justify-center shadow-xl">
-                <img src={WIZLUMINA_LOGO} alt="" className="w-5 h-5 object-contain opacity-80" />
+                <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-5 h-5 object-contain opacity-80" />
               </div>
             </div>
 
@@ -1736,7 +1737,7 @@ function WizLuminaDemo() {
           {/* CTA */}
           <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
             <a href="/onboarding" className="btn-primary btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
-              <img src={WIZLUMINA_LOGO} alt="" className="w-4 h-4 object-contain" />
+              <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-4 h-4 object-contain" />
               Start Creating
             </a>
             <a href="/products/wizlumina" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.08] hover:text-[--color-gold] transition-all">
@@ -1990,7 +1991,7 @@ function BuiltFor() {
               {/* Content */}
               <div className="relative z-10 p-7 flex flex-col gap-4 min-h-[280px]">
                 <div className="w-10 h-10 rounded-xl border border-[--color-gold]/20 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                  <img src={(a as any).logo} alt="" className="w-6 h-6 object-contain opacity-90" />
+                  <img src={(a as any).logo} alt="WIZ AI" aria-hidden="true" className="w-6 h-6 object-contain opacity-90" />
                 </div>
                 <div className="mt-auto">
                   <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
@@ -2064,7 +2065,7 @@ function FeatureBlock() {
             >
               {/* Icon */}
               <div className="w-14 h-14 rounded-2xl border border-[--color-gold]/15 bg-[--color-gold]/[0.04] flex items-center justify-center group-hover:bg-[--color-gold]/[0.08] transition-colors">
-                <img src={(f as any).logo} alt="" className="w-9 h-9 object-contain" />
+                <img src={(f as any).logo} alt={(f as any).badge ?? "WIZ AI"} className="w-9 h-9 object-contain" />
               </div>
               {/* Badge */}
               <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[--color-gold-dark] bg-[--color-gold]/[0.05] border border-[--color-gold]/[0.1] px-2.5 py-1 rounded-full w-fit">
@@ -2257,7 +2258,7 @@ function SeeTheDifference() {
           {/* CTA */}
           <div className="text-center">
             <a href="/pricing" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm">
-              <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
               Upgrade to Cinematic Mode
             </a>
             <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every render upgrade</p>
@@ -2277,7 +2278,7 @@ function FinalCTA() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.28] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="relative z-10 max-w-3xl mx-auto text-center reveal">
         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
-          <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />
+          <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />
           <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">No credit card required</span>
         </div>
         <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">
@@ -2293,14 +2294,14 @@ function FinalCTA() {
             href="/onboarding"
             className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
           >
-            <img src={WIZAI_LOGO} alt="" className="w-5 h-5 object-contain" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
             Create Your First AI Video
           </a>
           <a
             href="/music-creator"
             className="btn-secondary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
           >
-            <img src={WIZSOUND_LOGO} alt="" className="w-5 h-5 object-contain" />
+            <img src={WIZSOUND_LOGO} alt="WizSound" aria-hidden="true" className="w-5 h-5 object-contain" />
             Generate Your First Song
           </a>
         </div>
@@ -2549,7 +2550,7 @@ function StickyMobileCTA() {
           className="flex-1 btn-primary btn-sheen inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
           onClick={() => mp.startCreatingClicked?.("sticky_mobile_cta")}
         >
-          <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
+          <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
           Create Your First Video — Free
         </a>
         <button
@@ -2589,6 +2590,10 @@ export default function Home() {
   useEffect(() => { mp.homepageViewed(); }, []);
   return (
     <div className="bg-[#030303] text-white min-h-screen overflow-x-hidden">
+      <Helmet>
+        <title>WIZ AI — AI Video, Audio &amp; Image Creator</title>
+        <meta name="description" content="Create stunning AI videos, music videos, animations, and cinematic visuals in minutes. WIZ AI combines WizCreate, WizAnimate, WizSound, and WizLumina into one powerful creative platform." />
+      </Helmet>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg focus:font-semibold"

@@ -241,7 +241,7 @@ export default function RenderHistory() {
                             </div>
                           </>
                         ) : job.thumbnailUrl ? (
-                          <img src={job.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                          <img src={job.thumbnailUrl} alt={job.title || `Video #${job.id}`} className="w-full h-full object-cover" />
                         ) : (
                           <Film className="w-5 h-5 text-zinc-600" />
                         )}
