@@ -1,12 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+/**
+ * WizSoundShowcase — three-tier audio comparison with real-time Web Audio API processing
+ *
+ * Uses a SINGLE source track. Each tier applies a different DSP chain:
+ *   Standard  → raw passthrough (no processing)
+ *   Active    → stereo widening (M/S), 3-band EQ, dynamic compression, −16 LUFS gain
+ *   Spatial   → Haas psychoacoustic widening, 5-band EQ, harmonic saturation,
+ *               reverb simulation, −14 LUFS gain
+ *
+ * Defaults to Standard so users hear the improvement stage by stage.
+ */
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 
-/* ── Types ─────────────────────────────────────────────────────────── */
 type Tier = "standard" | "enhanced" | "cinematic";
 
-/* ── Tier data ──────────────────────────────────────────────────────── */
 const TIERS: {
   id: Tier;
   label: string;
@@ -19,7 +28,7 @@ const TIERS: {
   pipeline: string[];
   lufs: string;
   bars: number[];
-} [] = [
+}[] = [
   {
     id: "standard",
     label: "Standard Audio",
@@ -43,7 +52,7 @@ const TIERS: {
     price: "+£1",
     tagline: "Polished, fuller sound",
     colour: "from-[#b8892a] to-[#4a3010]",
-    glow: "rgba(139,92,246,0.4)",
+    glow: "rgba(184,137,42,0.4)",
     specs: [
       { label: "Stereo Width", value: "×2.5", bar: 72 },
       { label: "Dynamic Range", value: "Compressed", bar: 65 },
@@ -59,8 +68,8 @@ const TIERS: {
     label: "WizSound Spatial",
     price: "+£3",
     tagline: "Spatial audio mastering — cinema-grade immersive sound",
-    colour: "from-[#b8892a] to-[#2e2e36]",
-    glow: "rgba(217,70,239,0.45)",
+    colour: "from-[#9b59b6] to-[#6c3483]",
+    glow: "rgba(155,89,182,0.45)",
     badge: "RECOMMENDED",
     specs: [
       { label: "Stereo Width", value: "×3.5 + Haas", bar: 95 },
@@ -80,22 +89,116 @@ const TIERS: {
   },
 ];
 
+/* ── DSP chain builders (same as WizSoundDemoPlayer) ────────────────── */
+function buildStandardChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
+  const gain = ctx.createGain(); gain.gain.value = 1.0;
+  src.connect(gain); gain.connect(ctx.destination);
+  return { gain, disconnect: () => { try { gain.disconnect(); } catch {} } };
+}
+
+function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
+  const splitter = ctx.createChannelSplitter(2);
+  const merger = ctx.createChannelMerger(2);
+  const midGainL = ctx.createGain(); midGainL.gain.value = 0.5;
+  const midGainR = ctx.createGain(); midGainR.gain.value = 0.5;
+  const midMix = ctx.createGain(); midMix.gain.value = 1.0;
+  const sideGainL = ctx.createGain(); sideGainL.gain.value = 0.5;
+  const sideGainR = ctx.createGain(); sideGainR.gain.value = -0.5;
+  const sideWidth = ctx.createGain(); sideWidth.gain.value = 2.5;
+  const outL = ctx.createGain(); outL.gain.value = 1.0;
+  const outR = ctx.createGain(); outR.gain.value = 1.0;
+  src.connect(splitter);
+  splitter.connect(midGainL, 0); splitter.connect(midGainR, 1);
+  midGainL.connect(midMix); midGainR.connect(midMix);
+  splitter.connect(sideGainL, 0); splitter.connect(sideGainR, 1);
+  sideGainL.connect(sideWidth); sideGainR.connect(sideWidth);
+  midMix.connect(outL); sideWidth.connect(outL);
+  midMix.connect(outR); sideWidth.connect(outR);
+  outL.connect(merger, 0, 0); outR.connect(merger, 0, 1);
+  const bassEQ = ctx.createBiquadFilter(); bassEQ.type = "lowshelf"; bassEQ.frequency.value = 120; bassEQ.gain.value = 4.5;
+  const midEQ = ctx.createBiquadFilter(); midEQ.type = "peaking"; midEQ.frequency.value = 2500; midEQ.Q.value = 1.2; midEQ.gain.value = 3.0;
+  const trebleEQ = ctx.createBiquadFilter(); trebleEQ.type = "highshelf"; trebleEQ.frequency.value = 8000; trebleEQ.gain.value = 3.5;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -24; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.15;
+  const gain = ctx.createGain(); gain.gain.value = 1.35;
+  merger.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); trebleEQ.connect(comp); comp.connect(gain); gain.connect(ctx.destination);
+  return {
+    gain,
+    disconnect: () => {
+      try {
+        splitter.disconnect(); merger.disconnect();
+        midGainL.disconnect(); midGainR.disconnect(); midMix.disconnect();
+        sideGainL.disconnect(); sideGainR.disconnect(); sideWidth.disconnect();
+        outL.disconnect(); outR.disconnect();
+        bassEQ.disconnect(); midEQ.disconnect(); trebleEQ.disconnect();
+        comp.disconnect(); gain.disconnect();
+      } catch {}
+    },
+  };
+}
+
+function buildCinematicChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
+  const splitter = ctx.createChannelSplitter(2);
+  const merger = ctx.createChannelMerger(2);
+  const delayL = ctx.createDelay(0.05); delayL.delayTime.value = 0.00205;
+  const delayR = ctx.createDelay(0.05); delayR.delayTime.value = 0.00212;
+  const sideBoostL = ctx.createGain(); sideBoostL.gain.value = 1.6;
+  const sideBoostR = ctx.createGain(); sideBoostR.gain.value = 1.6;
+  src.connect(splitter);
+  splitter.connect(delayL, 0); splitter.connect(delayR, 1);
+  delayL.connect(sideBoostL); delayR.connect(sideBoostR);
+  sideBoostL.connect(merger, 0, 0); sideBoostR.connect(merger, 0, 1);
+  const subBass = ctx.createBiquadFilter(); subBass.type = "lowshelf"; subBass.frequency.value = 60; subBass.gain.value = 5.5;
+  const bass = ctx.createBiquadFilter(); bass.type = "peaking"; bass.frequency.value = 180; bass.Q.value = 0.8; bass.gain.value = 4.0;
+  const mid = ctx.createBiquadFilter(); mid.type = "peaking"; mid.frequency.value = 1200; mid.Q.value = 1.5; mid.gain.value = 2.5;
+  const presence = ctx.createBiquadFilter(); presence.type = "peaking"; presence.frequency.value = 4000; presence.Q.value = 1.2; presence.gain.value = 4.0;
+  const air = ctx.createBiquadFilter(); air.type = "highshelf"; air.frequency.value = 10000; air.gain.value = 5.0;
+  const waveshaper = ctx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) {
+    const x = (i * 2) / 256 - 1;
+    curve[i] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x));
+  }
+  waveshaper.curve = curve; waveshaper.oversample = "4x";
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 6; comp.ratio.value = 6; comp.attack.value = 0.001; comp.release.value = 0.08;
+  const reverbDelay = ctx.createDelay(0.5); reverbDelay.delayTime.value = 0.08;
+  const reverbFeedback = ctx.createGain(); reverbFeedback.gain.value = 0.22;
+  const reverbWet = ctx.createGain(); reverbWet.gain.value = 0.18;
+  const reverbDry = ctx.createGain(); reverbDry.gain.value = 0.82;
+  const gain = ctx.createGain(); gain.gain.value = 1.55;
+  merger.connect(subBass); subBass.connect(bass); bass.connect(mid); mid.connect(presence); presence.connect(air);
+  air.connect(waveshaper); waveshaper.connect(comp);
+  comp.connect(reverbDry); comp.connect(reverbDelay);
+  reverbDelay.connect(reverbFeedback); reverbFeedback.connect(reverbDelay);
+  reverbDelay.connect(reverbWet);
+  reverbDry.connect(gain); reverbWet.connect(gain); gain.connect(ctx.destination);
+  return {
+    gain,
+    disconnect: () => {
+      try {
+        splitter.disconnect(); merger.disconnect();
+        delayL.disconnect(); delayR.disconnect();
+        sideBoostL.disconnect(); sideBoostR.disconnect();
+        subBass.disconnect(); bass.disconnect(); mid.disconnect();
+        presence.disconnect(); air.disconnect();
+        waveshaper.disconnect(); comp.disconnect();
+        reverbDelay.disconnect(); reverbFeedback.disconnect();
+        reverbWet.disconnect(); reverbDry.disconnect(); gain.disconnect();
+      } catch {}
+    },
+  };
+}
+
 /* ── Animated spectrum bars ─────────────────────────────────────────── */
-function SpectrumBars({ bars, colour, playing }: { bars: number[]; colour: string; playing: boolean }) {
+function SpectrumBars({ bars, colour }: { bars: number[]; colour: string }) {
   return (
     <div className="flex items-end gap-[2px] h-14 w-full" aria-hidden="true">
       {bars.map((h, i) => (
         <div
           key={i}
           className={`flex-1 rounded-sm bg-gradient-to-t ${colour} opacity-80`}
-          style={{
-            height: playing ? `${h * 1.8}px` : `${h * 0.9}px`,
-            maxHeight: "100%",
-            transition: `height ${0.12 + (i % 5) * 0.04}s ease-in-out`,
-            animation: playing
-              ? `specBar${(i % 5) + 1} ${0.5 + (i % 7) * 0.08}s ease-in-out ${i * 0.02}s infinite alternate`
-              : "none",
-          }}
+          style={{ height: `${h * 0.9}px`, maxHeight: "100%", transition: `height ${0.12 + (i % 5) * 0.04}s ease-in-out` }}
         />
       ))}
     </div>
@@ -104,85 +207,114 @@ function SpectrumBars({ bars, colour, playing }: { bars: number[]; colour: strin
 
 /* ── Main component ─────────────────────────────────────────────────── */
 export default function WizSoundShowcase() {
-  const [activeTier, setActiveTier] = useState<Tier>("cinematic");
-  const [playingTier, setPlayingTier] = useState<Tier | null>(null);
-  const [previewProgress, setPreviewProgress] = useState<Record<Tier, number>>({
-    standard: 0, enhanced: 0, cinematic: 0,
-  });
+  // Default to "standard" so users hear the improvement stage by stage
+  const [activeTier, setActiveTier] = useState<Tier>("standard");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
-  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
-  const audioRefs = useRef<Record<Tier, HTMLAudioElement | null>>({
-    standard: null, enhanced: null, cinematic: null,
-  });
+  const [loaded, setLoaded] = useState(false);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const chainRef = useRef<{ gain: GainNode; disconnect: () => void } | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
   const { data: previews } = trpc.render.getWizSoundPreviews.useQuery();
 
   const tier = TIERS.find((t) => t.id === activeTier)!;
 
-  /* ── Sync volume + global mute ─────────────────────────────────── */
+  /* ── Load single audio element ───────────────────────────────────── */
   useEffect(() => {
-    (["standard", "enhanced", "cinematic"] as Tier[]).forEach((t) => {
-      const el = audioRefs.current[t];
-      if (el) {
-        el.volume = isMuted ? 0 : volume;
-        el.muted = isMuted;
-      }
-    });
+    if (!previews) return;
+    const src = previews.standard || previews.enhanced || previews.cinematic;
+    if (!src) return;
+    const el = new Audio();
+    el.crossOrigin = "anonymous";
+    el.preload = "auto";
+    el.src = src;
+    el.volume = isMuted ? 0 : volume;
+    el.muted = isMuted;
+    el.onloadedmetadata = () => { setDuration(el.duration); setLoaded(true); };
+    el.onended = () => { setIsPlaying(false); setProgress(0); };
+    audioRef.current = el;
+    return () => { el.pause(); el.src = ""; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previews]);
+
+  /* ── Sync volume / mute ──────────────────────────────────────────── */
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.volume = isMuted ? 0 : volume;
+    el.muted = isMuted;
   }, [volume, isMuted]);
 
-  /* ── Toggle preview playback ──────────────────────────────────────── */
-  const togglePlay = (t: Tier) => {
-    const el = audioRefs.current[t];
-    if (!el || !previews) return;
-
-    if (playingTier === t) {
-      el.pause();
-      setPlayingTier(null);
-    } else {
-      // Stop any currently playing
-      (["standard", "enhanced", "cinematic"] as Tier[]).forEach((other) => {
-        const o = audioRefs.current[other];
-        if (o && other !== t) { o.pause(); o.currentTime = 0; }
-      });
-      el.volume = isMuted ? 0 : volume;
-      el.muted = isMuted;
-      el.currentTime = 0;
-      if (!isMuted) requestAudioFocus("wizsound-showcase");
-      el.play().catch(() => {});
-      setPlayingTier(t);
-      setActiveTier(t);
+  /* ── Build DSP chain ─────────────────────────────────────────────── */
+  const buildChain = useCallback((t: Tier) => {
+    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-  };
+    const ctx = audioCtxRef.current;
+    if (ctx.state === "suspended") ctx.resume();
+    const el = audioRef.current;
+    if (!el) return;
+    if (chainRef.current) { chainRef.current.disconnect(); chainRef.current = null; }
+    if (sourceNodeRef.current) { try { sourceNodeRef.current.disconnect(); } catch {} }
+    let src: MediaElementAudioSourceNode;
+    try { src = ctx.createMediaElementSource(el); sourceNodeRef.current = src; }
+    catch { src = sourceNodeRef.current!; }
+    if (t === "standard") chainRef.current = buildStandardChain(ctx, src);
+    else if (t === "enhanced") chainRef.current = buildEnhancedChain(ctx, src);
+    else chainRef.current = buildCinematicChain(ctx, src);
+  }, []);
+
+  /* ── Switch tier ─────────────────────────────────────────────────── */
+  const switchTier = useCallback((t: Tier) => {
+    setActiveTier(t);
+    if (isPlaying) buildChain(t);
+  }, [isPlaying, buildChain]);
+
+  /* ── Toggle play ─────────────────────────────────────────────────── */
+  const togglePlay = useCallback(async () => {
+    const el = audioRef.current;
+    if (!el || !loaded) return;
+    if (isPlaying) {
+      el.pause(); setIsPlaying(false);
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    } else {
+      buildChain(activeTier);
+      el.volume = isMuted ? 0 : volume; el.muted = isMuted;
+      if (!isMuted) requestAudioFocus("wizsound-showcase");
+      try {
+        await el.play(); setIsPlaying(true);
+        const tick = () => {
+          if (el.duration > 0) setProgress((el.currentTime / el.duration) * 100);
+          rafRef.current = requestAnimationFrame(tick);
+        };
+        rafRef.current = requestAnimationFrame(tick);
+      } catch {}
+    }
+  }, [isPlaying, loaded, activeTier, buildChain, isMuted, volume, requestAudioFocus]);
+
+  /* ── Cleanup ─────────────────────────────────────────────────────── */
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (audioRef.current) audioRef.current.pause();
+      if (chainRef.current) chainRef.current.disconnect();
+      if (audioCtxRef.current) { try { audioCtxRef.current.close(); } catch {} }
+    };
+  }, []);
 
   return (
     <section className="py-20 px-4 relative overflow-hidden" aria-labelledby="wizsound-showcase-heading">
-      {/* Hidden audio elements */}
-      {previews && (["standard", "enhanced", "cinematic"] as Tier[]).map((t) => (
-        <audio
-          key={t}
-          ref={(el) => { audioRefs.current[t] = el; }}
-          src={previews[t]}
-          preload="auto"
-          onTimeUpdate={(e) => {
-            const el = e.currentTarget;
-            if (el.duration > 0) {
-              setPreviewProgress((p) => ({ ...p, [t]: (el.currentTime / el.duration) * 100 }));
-            }
-          }}
-          onEnded={() => {
-            setPlayingTier(null);
-            setPreviewProgress((p) => ({ ...p, [t]: 0 }));
-          }}
-        />
-      ))}
-
       {/* Background glow */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse at 50% 40%, ${tier.glow} 0%, transparent 65%)`,
-          transition: "background 600ms ease",
-        }}
+        style={{ background: `radial-gradient(ellipse at 50% 40%, ${tier.glow} 0%, transparent 65%)`, transition: "background 600ms ease" }}
       />
 
       <div className="max-w-5xl mx-auto relative">
@@ -199,14 +331,7 @@ export default function WizSoundShowcase() {
             className="text-3xl md:text-4xl font-bold text-white mb-3"
           >
             Powered by{" "}
-            <span
-              style={{
-                background: "linear-gradient(90deg, #a78bfa, #e879f9)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
+            <span style={{ background: "linear-gradient(90deg, #a78bfa, #e879f9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               WizSound™
             </span>
           </h2>
@@ -220,7 +345,7 @@ export default function WizSoundShowcase() {
           {TIERS.map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTier(t.id)}
+              onClick={() => switchTier(t.id)}
               className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
                 activeTier === t.id
                   ? `bg-gradient-to-r ${t.colour} text-white shadow-lg`
@@ -256,18 +381,22 @@ export default function WizSoundShowcase() {
                 )}
                 <p className="text-white/40 text-xs mt-0.5">{tier.tagline}</p>
               </div>
-              {/* Preview play button */}
+              {/* Play/Pause button */}
               <button
-                onClick={() => togglePlay(tier.id)}
-                disabled={!previews}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  playingTier === tier.id
+                onClick={togglePlay}
+                disabled={!loaded}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isPlaying
                     ? `bg-gradient-to-r ${tier.colour} text-white`
                     : "bg-white/8 text-white/60 hover:bg-white/14 hover:text-white border border-white/10"
                 }`}
-                style={playingTier === tier.id ? { boxShadow: `0 0 16px ${tier.glow}` } : {}}
+                style={isPlaying ? { boxShadow: `0 0 16px ${tier.glow}` } : {}}
               >
-                {playingTier === tier.id ? (
+                {!loaded ? (
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/>
+                  </svg>
+                ) : isPlaying ? (
                   <>
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                     Pause
@@ -282,26 +411,35 @@ export default function WizSoundShowcase() {
             </div>
 
             {/* Spectrum bars / Equaliser */}
-            {playingTier === tier.id && audioRefs.current[tier.id] ? (
+            {isPlaying && audioRef.current ? (
               <GraphicEqualiser
-                audioRef={{ current: audioRefs.current[tier.id] } as React.RefObject<HTMLAudioElement>}
+                audioRef={audioRef as React.RefObject<HTMLAudioElement>}
                 isPlaying={true}
                 barCount={32}
                 height={36}
               />
             ) : (
-              <SpectrumBars bars={tier.bars} colour={tier.colour} playing={false} />
+              <SpectrumBars bars={tier.bars} colour={tier.colour} />
             )}
 
-            {/* Progress bar (only when playing) */}
-            {playingTier === tier.id && (
-              <div className="mt-2 h-[2px] bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className={`h-full bg-gradient-to-r ${tier.colour} rounded-full transition-all duration-200`}
-                  style={{ width: `${previewProgress[tier.id]}%` }}
-                />
-              </div>
-            )}
+            {/* Progress bar */}
+            <div className="mt-2 h-[2px] bg-white/10 rounded-full overflow-hidden cursor-pointer"
+              onClick={e => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pct = ((e.clientX - rect.left) / rect.width) * 100;
+                const el = audioRef.current;
+                if (el && el.duration > 0) { el.currentTime = (pct / 100) * el.duration; setProgress(pct); }
+              }}
+            >
+              <div
+                className={`h-full bg-gradient-to-r ${tier.colour} rounded-full transition-all duration-200`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[10px] text-white/25 mt-1 tabular-nums">
+              <span>{`${Math.floor((progress / 100) * duration / 60)}:${String(Math.floor((progress / 100) * duration % 60)).padStart(2, "0")}`}</span>
+              <span>{duration ? `${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, "0")}` : "--:--"}</span>
+            </div>
           </div>
 
           {/* Two-column: specs + pipeline */}
@@ -325,7 +463,6 @@ export default function WizSoundShowcase() {
                   </div>
                 ))}
               </div>
-
               {/* LUFS badge */}
               <div className="mt-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
                 <svg className="w-3.5 h-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -343,22 +480,18 @@ export default function WizSoundShowcase() {
               <ol className="space-y-3">
                 {tier.pipeline.map((step, i) => (
                   <li key={step} className="flex items-start gap-3">
-                    <span
-                      className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${tier.colour} text-white text-[10px] font-bold flex items-center justify-center mt-0.5`}
-                    >
+                    <span className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${tier.colour} text-white text-[10px] font-bold flex items-center justify-center mt-0.5`}>
                       {i + 1}
                     </span>
                     <span className="text-sm text-white/70 leading-snug">{step}</span>
                   </li>
                 ))}
               </ol>
-
-              {/* Streaming compatibility note for Cinematic */}
               {tier.id === "cinematic" && (
-                <div className="mt-6 p-3 rounded-lg bg-[--color-gold]/15 border border-[--color-gold]/20">
-                  <p className="text-xs text-[--color-gold]/80 leading-relaxed">
-                    <span className="font-semibold text-[--color-gold]">Spatial + Streaming ready.</span>{" "}
-                    Cinema-grade spatial mastering normalised to −14 LUFS — the loudness standard used by Spotify, Apple Music, and YouTube. Dolby Cinema-inspired immersive depth.
+                <div className="mt-6 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                  <p className="text-xs text-purple-300/80 leading-relaxed">
+                    <span className="font-semibold text-purple-300">Spatial + Streaming ready.</span>{" "}
+                    Cinema-grade spatial mastering normalised to −14 LUFS — the loudness standard used by Spotify, Apple Music, and YouTube.
                   </p>
                 </div>
               )}
@@ -368,7 +501,7 @@ export default function WizSoundShowcase() {
           {/* Volume control footer */}
           <div className="px-8 py-4 border-t border-white/8 flex items-center gap-3">
             <button
-              onClick={() => { if (isMuted) { requestAudioFocus("wizsound-showcase"); } globalToggleMute(); }}
+              onClick={() => { if (isMuted) requestAudioFocus("wizsound-showcase"); globalToggleMute(); }}
               className="text-white/40 hover:text-white/70 transition-colors"
               aria-label={isMuted ? "Unmute preview" : "Mute preview"}
             >
@@ -378,16 +511,13 @@ export default function WizSoundShowcase() {
                 </svg>
               ) : (
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
                 </svg>
               )}
             </button>
             <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
+              type="range" min={0} max={1} step={0.01} value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               className="w-24 accent-violet-500 cursor-pointer"
               aria-label="Preview volume"
@@ -406,9 +536,7 @@ export default function WizSoundShowcase() {
                 {TIERS.map((t) => (
                   <th
                     key={t.id}
-                    className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${
-                      activeTier === t.id ? "text-white" : "text-white/40"
-                    }`}
+                    className={`px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider ${activeTier === t.id ? "text-white" : "text-white/40"}`}
                   >
                     {t.id === "standard" ? "Standard" : t.id === "enhanced" ? "Active" : "Spatial"}
                   </th>
@@ -436,7 +564,6 @@ export default function WizSoundShowcase() {
         </div>
       </div>
 
-      {/* Keyframes for spectrum bars */}
       <style>{`
         @keyframes specBar1 { 0% { transform: scaleY(0.7); } 100% { transform: scaleY(1.15); } }
         @keyframes specBar2 { 0% { transform: scaleY(0.5); } 100% { transform: scaleY(1.3); } }

@@ -1,8 +1,13 @@
 /**
- * WizSoundDemoPlayer — reusable three-tier audio comparison player
- * Tiers: Standard Audio | WizSound Active (+£1) | WizSound Spatial (+£3)
- * Uses the same three CDN-hosted demo tracks as WizSoundShowcase.
- * Can be embedded on Pricing page, WizSound product page, or any other page.
+ * WizSoundDemoPlayer — three-tier audio comparison with real-time Web Audio API processing
+ *
+ * A SINGLE source track is used. Each tier applies a different DSP chain:
+ *   Standard  → raw passthrough (no processing)
+ *   Active    → stereo widening (M/S), 3-band EQ, dynamic compression, −16 LUFS gain
+ *   Spatial   → Haas psychoacoustic widening, 5-band EQ, harmonic saturation,
+ *               convolution reverb (simulated via delay+feedback), −14 LUFS gain
+ *
+ * Defaults to Standard so users hear the improvement stage by stage.
  */
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
@@ -18,13 +23,13 @@ interface TierConfig {
   price: string;
   tagline: string;
   badge?: string;
-  colour: string;          // Tailwind gradient classes
-  glowColour: string;      // CSS rgba for box-shadow
-  accentHex: string;       // hex for inline styles
+  colour: string;
+  glowColour: string;
+  accentHex: string;
   specs: { label: string; value: string; bar: number }[];
   pipeline: string[];
   lufs: string;
-  bars: number[];          // idle spectrum bar heights
+  bars: number[];
   description: string;
 }
 
@@ -103,6 +108,209 @@ const TIERS: TierConfig[] = [
   },
 ];
 
+/* ── Web Audio DSP chain builder ──────────────────────────────────────────── */
+interface AudioChain {
+  ctx: AudioContext;
+  source: MediaElementAudioSourceNode;
+  gainNode: GainNode;
+  disconnect: () => void;
+}
+
+function buildStandardChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
+  // Standard: raw passthrough — just connect source → destination
+  const gainNode = ctx.createGain();
+  gainNode.gain.value = 1.0;
+  source.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  return {
+    ctx, source, gainNode,
+    disconnect: () => { try { gainNode.disconnect(); } catch {} },
+  };
+}
+
+function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
+  /**
+   * WizSound Active chain:
+   * source → splitter → M/S widening → merger → 3-band EQ → compressor → gain → destination
+   *
+   * Stereo widening via Mid/Side:
+   *   Mid  = (L + R) / 2  → kept at 1.0
+   *   Side = (L − R) / 2  → boosted to 2.5× for wider stereo image
+   */
+  const splitter = ctx.createChannelSplitter(2);
+  const merger = ctx.createChannelMerger(2);
+
+  // Mid channel (L+R)/2
+  const midGainL = ctx.createGain(); midGainL.gain.value = 0.5;
+  const midGainR = ctx.createGain(); midGainR.gain.value = 0.5;
+  const midMix = ctx.createGain(); midMix.gain.value = 1.0;
+
+  // Side channel (L-R)/2 — boosted for width
+  const sideGainL = ctx.createGain(); sideGainL.gain.value = 0.5;
+  const sideGainR = ctx.createGain(); sideGainR.gain.value = -0.5; // inverted for R
+  const sideWidth = ctx.createGain(); sideWidth.gain.value = 2.5; // 2.5× width
+
+  // Reconstruct L = Mid + Side, R = Mid - Side
+  const outL = ctx.createGain(); outL.gain.value = 1.0;
+  const outR = ctx.createGain(); outR.gain.value = 1.0;
+
+  source.connect(splitter);
+  // Mid path
+  splitter.connect(midGainL, 0); splitter.connect(midGainR, 1);
+  midGainL.connect(midMix); midGainR.connect(midMix);
+  // Side path
+  splitter.connect(sideGainL, 0); splitter.connect(sideGainR, 1);
+  sideGainL.connect(sideWidth); sideGainR.connect(sideWidth);
+  // Reconstruct
+  midMix.connect(outL); sideWidth.connect(outL);
+  midMix.connect(outR); sideWidth.connect(outR);
+  outL.connect(merger, 0, 0);
+  outR.connect(merger, 0, 1);
+
+  // 3-band EQ: bass boost, mid presence, treble air
+  const bassEQ = ctx.createBiquadFilter();
+  bassEQ.type = "lowshelf"; bassEQ.frequency.value = 120; bassEQ.gain.value = 4.5;
+
+  const midEQ = ctx.createBiquadFilter();
+  midEQ.type = "peaking"; midEQ.frequency.value = 2500; midEQ.Q.value = 1.2; midEQ.gain.value = 3.0;
+
+  const trebleEQ = ctx.createBiquadFilter();
+  trebleEQ.type = "highshelf"; trebleEQ.frequency.value = 8000; trebleEQ.gain.value = 3.5;
+
+  // Dynamic compressor
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -24; comp.knee.value = 8;
+  comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.15;
+
+  // Output gain (−16 LUFS equivalent boost)
+  const gainNode = ctx.createGain();
+  gainNode.gain.value = 1.35;
+
+  merger.connect(bassEQ);
+  bassEQ.connect(midEQ);
+  midEQ.connect(trebleEQ);
+  trebleEQ.connect(comp);
+  comp.connect(gainNode);
+  gainNode.connect(ctx.destination);
+
+  return {
+    ctx, source, gainNode,
+    disconnect: () => {
+      try {
+        splitter.disconnect(); merger.disconnect();
+        midGainL.disconnect(); midGainR.disconnect(); midMix.disconnect();
+        sideGainL.disconnect(); sideGainR.disconnect(); sideWidth.disconnect();
+        outL.disconnect(); outR.disconnect();
+        bassEQ.disconnect(); midEQ.disconnect(); trebleEQ.disconnect();
+        comp.disconnect(); gainNode.disconnect();
+      } catch {}
+    },
+  };
+}
+
+function buildCinematicChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
+  /**
+   * WizSound Spatial chain:
+   * source → splitter → Haas widening (psychoacoustic delay) → merger
+   *        → 5-band EQ → harmonic saturation (waveshaper) → compressor
+   *        → reverb (convolver) → gain → destination
+   *
+   * Haas effect: delay L by 2.05ms, R by 2.12ms → perceived spatial width
+   */
+  const splitter = ctx.createChannelSplitter(2);
+  const merger = ctx.createChannelMerger(2);
+
+  // Haas delays
+  const delayL = ctx.createDelay(0.05); delayL.delayTime.value = 0.00205;
+  const delayR = ctx.createDelay(0.05); delayR.delayTime.value = 0.00212;
+
+  // Side boost for extreme width
+  const sideBoostL = ctx.createGain(); sideBoostL.gain.value = 1.6;
+  const sideBoostR = ctx.createGain(); sideBoostR.gain.value = 1.6;
+
+  splitter.connect(delayL, 0);
+  splitter.connect(delayR, 1);
+  delayL.connect(sideBoostL);
+  delayR.connect(sideBoostR);
+  sideBoostL.connect(merger, 0, 0);
+  sideBoostR.connect(merger, 0, 1);
+
+  // 5-band EQ
+  const subBass = ctx.createBiquadFilter();
+  subBass.type = "lowshelf"; subBass.frequency.value = 60; subBass.gain.value = 5.5;
+
+  const bass = ctx.createBiquadFilter();
+  bass.type = "peaking"; bass.frequency.value = 180; bass.Q.value = 0.8; bass.gain.value = 4.0;
+
+  const mid = ctx.createBiquadFilter();
+  mid.type = "peaking"; mid.frequency.value = 1200; mid.Q.value = 1.5; mid.gain.value = 2.5;
+
+  const presence = ctx.createBiquadFilter();
+  presence.type = "peaking"; presence.frequency.value = 4000; presence.Q.value = 1.2; presence.gain.value = 4.0;
+
+  const air = ctx.createBiquadFilter();
+  air.type = "highshelf"; air.frequency.value = 10000; air.gain.value = 5.0;
+
+  // Harmonic saturation via waveshaper (soft clip)
+  const waveshaper = ctx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) {
+    const x = (i * 2) / 256 - 1;
+    curve[i] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x));
+  }
+  waveshaper.curve = curve;
+  waveshaper.oversample = "4x";
+
+  // Compressor (aggressive mastering)
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 6;
+  comp.ratio.value = 6; comp.attack.value = 0.001; comp.release.value = 0.08;
+
+  // Reverb simulation: short delay with feedback (concert hall feel)
+  const reverbDelay = ctx.createDelay(0.5);
+  reverbDelay.delayTime.value = 0.08; // 80ms pre-delay
+  const reverbFeedback = ctx.createGain(); reverbFeedback.gain.value = 0.22;
+  const reverbWet = ctx.createGain(); reverbWet.gain.value = 0.18;
+  const reverbDry = ctx.createGain(); reverbDry.gain.value = 0.82;
+
+  // Output gain (−14 LUFS equivalent)
+  const gainNode = ctx.createGain();
+  gainNode.gain.value = 1.55;
+
+  // Connect chain
+  source.connect(splitter);
+  merger.connect(subBass);
+  subBass.connect(bass); bass.connect(mid); mid.connect(presence); presence.connect(air);
+  air.connect(waveshaper);
+  waveshaper.connect(comp);
+  // Reverb parallel path
+  comp.connect(reverbDry);
+  comp.connect(reverbDelay);
+  reverbDelay.connect(reverbFeedback);
+  reverbFeedback.connect(reverbDelay); // feedback loop
+  reverbDelay.connect(reverbWet);
+  reverbDry.connect(gainNode);
+  reverbWet.connect(gainNode);
+  gainNode.connect(ctx.destination);
+
+  return {
+    ctx, source, gainNode,
+    disconnect: () => {
+      try {
+        splitter.disconnect(); merger.disconnect();
+        delayL.disconnect(); delayR.disconnect();
+        sideBoostL.disconnect(); sideBoostR.disconnect();
+        subBass.disconnect(); bass.disconnect(); mid.disconnect();
+        presence.disconnect(); air.disconnect();
+        waveshaper.disconnect(); comp.disconnect();
+        reverbDelay.disconnect(); reverbFeedback.disconnect();
+        reverbWet.disconnect(); reverbDry.disconnect();
+        gainNode.disconnect();
+      } catch {}
+    },
+  };
+}
+
 /* ── Idle spectrum bars ─────────────────────────────────────────────── */
 function IdleSpectrum({ bars, colour }: { bars: number[]; colour: string }) {
   return (
@@ -124,82 +332,195 @@ function IdleSpectrum({ bars, colour }: { bars: number[]; colour: string }) {
 
 /* ── Main component ─────────────────────────────────────────────────── */
 export default function WizSoundDemoPlayer({ compact = false }: { compact?: boolean }) {
-  const [activeTier, setActiveTier] = useState<Tier>("cinematic");
-  const [playingTier, setPlayingTier] = useState<Tier | null>(null);
-  const [progress, setProgress] = useState<Record<Tier, number>>({ standard: 0, enhanced: 0, cinematic: 0 });
-  const [duration, setDuration] = useState<Record<Tier, number>>({ standard: 0, enhanced: 0, cinematic: 0 });
+  // Default to "standard" so users hear the improvement stage by stage
+  const [activeTier, setActiveTier] = useState<Tier>("standard");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
-  const [loaded, setLoaded] = useState<Record<Tier, boolean>>({ standard: false, enhanced: false, cinematic: false });
-  const audioRefs = useRef<Record<Tier, HTMLAudioElement | null>>({ standard: null, enhanced: null, cinematic: null });
+  const [loaded, setLoaded] = useState(false);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const chainRef = useRef<AudioChain | null>(null);
+  const progressRafRef = useRef<number | null>(null);
+
   const { isMuted, toggleMute: globalToggleMute, requestAudioFocus } = useGlobalAudio();
   const { data: previews } = trpc.render.getWizSoundPreviews.useQuery();
 
   const tier = TIERS.find(t => t.id === activeTier)!;
-  const playingTierConfig = playingTier ? TIERS.find(t => t.id === playingTier) : null;
 
-  /* ── Sync volume + mute ─────────────────────────────────────────── */
-  useEffect(() => {
-    (["standard", "enhanced", "cinematic"] as Tier[]).forEach(t => {
-      const el = audioRefs.current[t];
-      if (el) { el.volume = isMuted ? 0 : volume; el.muted = isMuted; }
-    });
-  }, [volume, isMuted]);
+  /* ── Create/resume AudioContext on first interaction ─────────────── */
+  const ensureAudioContext = useCallback((): AudioContext => {
+    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  }, []);
 
-  /* ── Toggle playback ────────────────────────────────────────────── */
-  const togglePlay = useCallback((t: Tier) => {
-    const el = audioRefs.current[t];
-    if (!el || !previews) return;
+  /* ── Build DSP chain for the current tier ────────────────────────── */
+  const buildChain = useCallback((t: Tier) => {
+    const ctx = ensureAudioContext();
+    const el = audioRef.current;
+    if (!el) return;
 
-    if (playingTier === t) {
-      el.pause();
-      setPlayingTier(null);
+    // Disconnect previous chain
+    if (chainRef.current) {
+      chainRef.current.disconnect();
+      chainRef.current = null;
+    }
+
+    // Disconnect previous source node (can only create one per element)
+    if (sourceNodeRef.current) {
+      try { sourceNodeRef.current.disconnect(); } catch {}
+    }
+
+    // Create source node (reuse if already created for this element)
+    let src: MediaElementAudioSourceNode;
+    try {
+      src = ctx.createMediaElementSource(el);
+      sourceNodeRef.current = src;
+    } catch {
+      // Already created — reuse
+      src = sourceNodeRef.current!;
+    }
+
+    let chain: AudioChain;
+    if (t === "standard") {
+      chain = buildStandardChain(ctx, src);
+    } else if (t === "enhanced") {
+      chain = buildEnhancedChain(ctx, src);
     } else {
-      (["standard", "enhanced", "cinematic"] as Tier[]).forEach(other => {
-        const o = audioRefs.current[other];
-        if (o && other !== t) { o.pause(); o.currentTime = 0; }
-      });
+      chain = buildCinematicChain(ctx, src);
+    }
+    chainRef.current = chain;
+  }, [ensureAudioContext]);
+
+  /* ── Load audio element when previews arrive ─────────────────────── */
+  useEffect(() => {
+    if (!previews) return;
+    // Use the "standard" (normal) track as the single source
+    const src = previews.standard || previews.enhanced || previews.cinematic;
+    if (!src) return;
+
+    const el = new Audio();
+    el.crossOrigin = "anonymous";
+    el.preload = "auto";
+    el.src = src;
+    el.volume = isMuted ? 0 : volume;
+    el.muted = isMuted;
+    el.onloadedmetadata = () => {
+      setDuration(el.duration);
+      setLoaded(true);
+    };
+    el.onended = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+    audioRef.current = el;
+
+    return () => {
+      el.pause();
+      el.src = "";
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previews]);
+
+  /* ── Sync volume / mute ──────────────────────────────────────────── */
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.volume = isMuted ? 0 : volume;
+    el.muted = isMuted;
+    if (chainRef.current) {
+      chainRef.current.gainNode.gain.value = isMuted ? 0 : (
+        activeTier === "standard" ? 1.0 :
+        activeTier === "enhanced" ? 1.35 : 1.55
+      ) * volume;
+    }
+  }, [volume, isMuted, activeTier]);
+
+  /* ── Progress RAF ────────────────────────────────────────────────── */
+  const startProgressTracking = useCallback(() => {
+    const tick = () => {
+      const el = audioRef.current;
+      if (el && el.duration > 0) {
+        setProgress((el.currentTime / el.duration) * 100);
+      }
+      progressRafRef.current = requestAnimationFrame(tick);
+    };
+    progressRafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  const stopProgressTracking = useCallback(() => {
+    if (progressRafRef.current !== null) {
+      cancelAnimationFrame(progressRafRef.current);
+      progressRafRef.current = null;
+    }
+  }, []);
+
+  /* ── Switch tier while playing ───────────────────────────────────── */
+  const switchTier = useCallback((t: Tier) => {
+    setActiveTier(t);
+    if (isPlaying && audioRef.current) {
+      // Rebuild DSP chain for new tier without stopping playback
+      buildChain(t);
+    }
+  }, [isPlaying, buildChain]);
+
+  /* ── Toggle play/pause ───────────────────────────────────────────── */
+  const togglePlay = useCallback(async () => {
+    const el = audioRef.current;
+    if (!el || !loaded) return;
+
+    if (isPlaying) {
+      el.pause();
+      setIsPlaying(false);
+      stopProgressTracking();
+    } else {
+      // Build DSP chain for current tier
+      buildChain(activeTier);
       el.volume = isMuted ? 0 : volume;
       el.muted = isMuted;
-      el.currentTime = 0;
       if (!isMuted) requestAudioFocus("wizsound-demo-player");
-      el.play().catch(() => {});
-      setPlayingTier(t);
-      setActiveTier(t);
+      try {
+        await el.play();
+        setIsPlaying(true);
+        startProgressTracking();
+      } catch (err) {
+        console.warn("Audio play failed:", err);
+      }
     }
-  }, [playingTier, previews, isMuted, volume, requestAudioFocus]);
+  }, [isPlaying, loaded, activeTier, buildChain, isMuted, volume, requestAudioFocus, startProgressTracking, stopProgressTracking]);
 
-  /* ── Seek ───────────────────────────────────────────────────────── */
-  const handleSeek = (t: Tier, pct: number) => {
-    const el = audioRefs.current[t];
-    if (el && el.duration > 0) { el.currentTime = (pct / 100) * el.duration; }
+  /* ── Seek ────────────────────────────────────────────────────────── */
+  const handleSeek = (pct: number) => {
+    const el = audioRef.current;
+    if (el && el.duration > 0) {
+      el.currentTime = (pct / 100) * el.duration;
+      setProgress(pct);
+    }
   };
+
+  /* ── Cleanup on unmount ──────────────────────────────────────────── */
+  useEffect(() => {
+    return () => {
+      stopProgressTracking();
+      if (audioRef.current) { audioRef.current.pause(); }
+      if (chainRef.current) { chainRef.current.disconnect(); }
+      if (audioCtxRef.current) { try { audioCtxRef.current.close(); } catch {} }
+    };
+  }, [stopProgressTracking]);
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
     <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#07070a]"
       style={{ boxShadow: `0 0 80px ${tier.glowColour}, 0 0 20px rgba(0,0,0,0.8)` }}>
-
-      {/* Hidden audio elements */}
-      {previews && (["standard", "enhanced", "cinematic"] as Tier[]).map(t => (
-        <audio
-          key={t}
-          ref={el => { audioRefs.current[t] = el; }}
-          src={previews[t]}
-          preload="auto"
-          crossOrigin="anonymous"
-          onLoadedMetadata={e => {
-            const el = e.currentTarget;
-            setDuration(d => ({ ...d, [t]: el.duration }));
-            setLoaded(l => ({ ...l, [t]: true }));
-          }}
-          onTimeUpdate={e => {
-            const el = e.currentTarget;
-            if (el.duration > 0) setProgress(p => ({ ...p, [t]: (el.currentTime / el.duration) * 100 }));
-          }}
-          onEnded={() => { setPlayingTier(null); setProgress(p => ({ ...p, [t]: 0 })); }}
-        />
-      ))}
 
       {/* Ambient background glow */}
       <div className="absolute inset-0 pointer-events-none transition-all duration-700"
@@ -245,8 +566,8 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
           {TIERS.map(t => (
             <button
               key={t.id}
-              onClick={() => setActiveTier(t.id)}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              onClick={() => switchTier(t.id)}
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
                 activeTier === t.id
                   ? `bg-gradient-to-r ${t.colour} text-white shadow-lg`
                   : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80 border border-white/10"
@@ -282,20 +603,20 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
           </div>
           {/* Play/Pause button */}
           <button
-            onClick={() => togglePlay(tier.id)}
-            disabled={!previews || !loaded[tier.id]}
+            onClick={togglePlay}
+            disabled={!loaded}
             className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed ${
-              playingTier === tier.id
+              isPlaying
                 ? `bg-gradient-to-r ${tier.colour} text-white`
                 : "bg-white/8 text-white/70 hover:bg-white/14 hover:text-white border border-white/15"
             }`}
-            style={playingTier === tier.id ? { boxShadow: `0 0 20px ${tier.glowColour}` } : {}}
+            style={isPlaying ? { boxShadow: `0 0 20px ${tier.glowColour}` } : {}}
           >
-            {!loaded[tier.id] && previews ? (
+            {!loaded ? (
               <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" strokeOpacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/>
               </svg>
-            ) : playingTier === tier.id ? (
+            ) : isPlaying ? (
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
               </svg>
@@ -304,15 +625,15 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
                 <polygon points="5 3 19 12 5 21 5 3"/>
               </svg>
             )}
-            {playingTier === tier.id ? "Pause" : "Preview"}
+            {isPlaying ? "Pause" : "Preview"}
           </button>
         </div>
 
         {/* Visualiser / spectrum */}
         <div className="mb-3 h-14">
-          {playingTier === tier.id && audioRefs.current[tier.id] ? (
+          {isPlaying && audioRef.current ? (
             <GraphicEqualiser
-              audioRef={{ current: audioRefs.current[tier.id] } as React.RefObject<HTMLAudioElement>}
+              audioRef={audioRef as React.RefObject<HTMLAudioElement>}
               isPlaying={true}
               barCount={32}
               height={56}
@@ -328,22 +649,21 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
             className="relative h-1.5 bg-white/8 rounded-full overflow-hidden cursor-pointer group"
             onClick={e => {
               const rect = e.currentTarget.getBoundingClientRect();
-              handleSeek(tier.id, ((e.clientX - rect.left) / rect.width) * 100);
+              handleSeek(((e.clientX - rect.left) / rect.width) * 100);
             }}
           >
             <div
               className={`h-full bg-gradient-to-r ${tier.colour} rounded-full transition-all duration-150`}
-              style={{ width: `${progress[tier.id]}%` }}
+              style={{ width: `${progress}%` }}
             />
-            {/* Thumb */}
             <div
               className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-              style={{ left: `calc(${progress[tier.id]}% - 6px)` }}
+              style={{ left: `calc(${progress}% - 6px)` }}
             />
           </div>
           <div className="flex justify-between text-[10px] text-white/25 mt-1 tabular-nums">
-            <span>{fmt((progress[tier.id] / 100) * (duration[tier.id] || 0))}</span>
-            <span>{duration[tier.id] ? fmt(duration[tier.id]) : "--:--"}</span>
+            <span>{fmt((progress / 100) * (duration || 0))}</span>
+            <span>{duration ? fmt(duration) : "--:--"}</span>
           </div>
         </div>
 
@@ -441,7 +761,7 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
         <span className="ml-auto text-[10px] text-white/20">Preview only · does not affect your render</span>
       </div>
 
-      {/* Keyframes for idle spectrum */}
+      {/* Keyframes */}
       <style>{`
         @keyframes specIdle1 { 0%,100%{transform:scaleY(0.7)} 50%{transform:scaleY(1.15)} }
         @keyframes specIdle2 { 0%,100%{transform:scaleY(0.5)} 50%{transform:scaleY(1.3)} }
