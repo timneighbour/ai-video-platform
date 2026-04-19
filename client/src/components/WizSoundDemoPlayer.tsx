@@ -117,7 +117,7 @@ interface AudioChain {
 }
 
 function buildStandardChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
-  // Standard: raw passthrough — just connect source → destination
+  // Standard: raw passthrough — source → gain (unity) → destination
   const gainNode = ctx.createGain();
   gainNode.gain.value = 1.0;
   source.connect(gainNode);
@@ -130,12 +130,11 @@ function buildStandardChain(ctx: AudioContext, source: MediaElementAudioSourceNo
 
 function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
   /**
-   * WizSound Active chain:
-   * source → splitter → M/S widening → merger → 3-band EQ → compressor → gain → destination
+   * WizSound Active chain — subtle, clean enhancement:
+   * source → splitter → gentle M/S widening → merger
+   *        → 3-band EQ (conservative boosts) → soft compressor → gain → destination
    *
-   * Stereo widening via Mid/Side:
-   *   Mid  = (L + R) / 2  → kept at 1.0
-   *   Side = (L − R) / 2  → boosted to 2.5× for wider stereo image
+   * All EQ gains ≤ 2.5 dB to prevent clipping. Side width 1.4× (subtle, not extreme).
    */
   const splitter = ctx.createChannelSplitter(2);
   const merger = ctx.createChannelMerger(2);
@@ -145,46 +144,43 @@ function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNo
   const midGainR = ctx.createGain(); midGainR.gain.value = 0.5;
   const midMix = ctx.createGain(); midMix.gain.value = 1.0;
 
-  // Side channel (L-R)/2 — boosted for width
+  // Side channel (L-R)/2 — gently boosted for subtle width
   const sideGainL = ctx.createGain(); sideGainL.gain.value = 0.5;
-  const sideGainR = ctx.createGain(); sideGainR.gain.value = -0.5; // inverted for R
-  const sideWidth = ctx.createGain(); sideWidth.gain.value = 2.5; // 2.5× width
+  const sideGainR = ctx.createGain(); sideGainR.gain.value = -0.5;
+  const sideWidth = ctx.createGain(); sideWidth.gain.value = 1.4; // subtle 1.4× (was 2.5×)
 
-  // Reconstruct L = Mid + Side, R = Mid - Side
+  // Reconstruct: L = Mid + Side, R = Mid - Side
   const outL = ctx.createGain(); outL.gain.value = 1.0;
   const outR = ctx.createGain(); outR.gain.value = 1.0;
 
   source.connect(splitter);
-  // Mid path
   splitter.connect(midGainL, 0); splitter.connect(midGainR, 1);
   midGainL.connect(midMix); midGainR.connect(midMix);
-  // Side path
   splitter.connect(sideGainL, 0); splitter.connect(sideGainR, 1);
   sideGainL.connect(sideWidth); sideGainR.connect(sideWidth);
-  // Reconstruct
   midMix.connect(outL); sideWidth.connect(outL);
   midMix.connect(outR); sideWidth.connect(outR);
   outL.connect(merger, 0, 0);
   outR.connect(merger, 0, 1);
 
-  // 3-band EQ: bass boost, mid presence, treble air
+  // 3-band EQ — conservative boosts, max 2.5 dB
   const bassEQ = ctx.createBiquadFilter();
-  bassEQ.type = "lowshelf"; bassEQ.frequency.value = 120; bassEQ.gain.value = 4.5;
+  bassEQ.type = "lowshelf"; bassEQ.frequency.value = 100; bassEQ.gain.value = 2.0; // was 4.5
 
   const midEQ = ctx.createBiquadFilter();
-  midEQ.type = "peaking"; midEQ.frequency.value = 2500; midEQ.Q.value = 1.2; midEQ.gain.value = 3.0;
+  midEQ.type = "peaking"; midEQ.frequency.value = 3000; midEQ.Q.value = 0.8; midEQ.gain.value = 1.5; // was 3.0
 
   const trebleEQ = ctx.createBiquadFilter();
-  trebleEQ.type = "highshelf"; trebleEQ.frequency.value = 8000; trebleEQ.gain.value = 3.5;
+  trebleEQ.type = "highshelf"; trebleEQ.frequency.value = 9000; trebleEQ.gain.value = 2.5; // was 3.5
 
-  // Dynamic compressor
+  // Gentle compressor — transparent, not pumping
   const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -24; comp.knee.value = 8;
-  comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.15;
+  comp.threshold.value = -18; comp.knee.value = 12;
+  comp.ratio.value = 2.5; comp.attack.value = 0.01; comp.release.value = 0.25;
 
-  // Output gain (−16 LUFS equivalent boost)
+  // Output gain — unity, compressor provides perceived loudness
   const gainNode = ctx.createGain();
-  gainNode.gain.value = 1.35;
+  gainNode.gain.value = 1.0; // was 1.35 — removed to prevent clipping
 
   merger.connect(bassEQ);
   bassEQ.connect(midEQ);
@@ -210,84 +206,75 @@ function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNo
 
 function buildCinematicChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
   /**
-   * WizSound Spatial chain:
-   * source → splitter → Haas widening (psychoacoustic delay) → merger
-   *        → 5-band EQ → harmonic saturation (waveshaper) → compressor
-   *        → reverb (convolver) → gain → destination
+   * WizSound Spatial chain — clean, immersive, no distortion:
+   * source → splitter → Haas psychoacoustic widening (tiny delays) → merger
+   *        → 5-band EQ (gentle boosts ≤ 2.5 dB) → transparent compressor
+   *        → parallel reverb (short, low wet mix) → gain → destination
    *
-   * Haas effect: delay L by 2.05ms, R by 2.12ms → perceived spatial width
+   * Key changes vs previous version:
+   *   - Removed waveshaper (was causing distortion)
+   *   - All EQ gains ≤ 2.5 dB (was up to 5.5 dB)
+   *   - Removed feedback reverb loop (was ringing/distorting)
+   *   - Side boost reduced to 1.0× (unity, Haas delay provides the width)
+   *   - Output gain 1.05× (barely above unity)
    */
   const splitter = ctx.createChannelSplitter(2);
   const merger = ctx.createChannelMerger(2);
 
-  // Haas delays
-  const delayL = ctx.createDelay(0.05); delayL.delayTime.value = 0.00205;
-  const delayR = ctx.createDelay(0.05); delayR.delayTime.value = 0.00212;
+  // Haas delays — tiny psychoacoustic delays create perceived width without amplitude change
+  const delayL = ctx.createDelay(0.05); delayL.delayTime.value = 0.0018; // 1.8ms left
+  const delayR = ctx.createDelay(0.05); delayR.delayTime.value = 0.0022; // 2.2ms right
 
-  // Side boost for extreme width
-  const sideBoostL = ctx.createGain(); sideBoostL.gain.value = 1.6;
-  const sideBoostR = ctx.createGain(); sideBoostR.gain.value = 1.6;
+  // Unity gain on each channel (no amplitude boost — Haas effect is perceptual, not amplitude)
+  const gainL = ctx.createGain(); gainL.gain.value = 1.0; // was 1.6 — removed
+  const gainR = ctx.createGain(); gainR.gain.value = 1.0;
 
+  source.connect(splitter);
   splitter.connect(delayL, 0);
   splitter.connect(delayR, 1);
-  delayL.connect(sideBoostL);
-  delayR.connect(sideBoostR);
-  sideBoostL.connect(merger, 0, 0);
-  sideBoostR.connect(merger, 0, 1);
+  delayL.connect(gainL);
+  delayR.connect(gainR);
+  gainL.connect(merger, 0, 0);
+  gainR.connect(merger, 0, 1);
 
-  // 5-band EQ
+  // 5-band EQ — all gains ≤ 2.5 dB
   const subBass = ctx.createBiquadFilter();
-  subBass.type = "lowshelf"; subBass.frequency.value = 60; subBass.gain.value = 5.5;
+  subBass.type = "lowshelf"; subBass.frequency.value = 80; subBass.gain.value = 1.5; // was 5.5
 
   const bass = ctx.createBiquadFilter();
-  bass.type = "peaking"; bass.frequency.value = 180; bass.Q.value = 0.8; bass.gain.value = 4.0;
+  bass.type = "peaking"; bass.frequency.value = 200; bass.Q.value = 0.7; bass.gain.value = 1.5; // was 4.0
 
   const mid = ctx.createBiquadFilter();
-  mid.type = "peaking"; mid.frequency.value = 1200; mid.Q.value = 1.5; mid.gain.value = 2.5;
+  mid.type = "peaking"; mid.frequency.value = 1000; mid.Q.value = 1.0; mid.gain.value = 1.0; // was 2.5
 
   const presence = ctx.createBiquadFilter();
-  presence.type = "peaking"; presence.frequency.value = 4000; presence.Q.value = 1.2; presence.gain.value = 4.0;
+  presence.type = "peaking"; presence.frequency.value = 3500; presence.Q.value = 1.0; presence.gain.value = 2.0; // was 4.0
 
   const air = ctx.createBiquadFilter();
-  air.type = "highshelf"; air.frequency.value = 10000; air.gain.value = 5.0;
+  air.type = "highshelf"; air.frequency.value = 10000; air.gain.value = 2.5; // was 5.0
 
-  // Harmonic saturation via waveshaper (soft clip)
-  const waveshaper = ctx.createWaveShaper();
-  const curve = new Float32Array(256);
-  for (let i = 0; i < 256; i++) {
-    const x = (i * 2) / 256 - 1;
-    curve[i] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x));
-  }
-  waveshaper.curve = curve;
-  waveshaper.oversample = "4x";
-
-  // Compressor (aggressive mastering)
+  // Transparent compressor — gentle glue, not pumping
   const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -20; comp.knee.value = 6;
-  comp.ratio.value = 6; comp.attack.value = 0.001; comp.release.value = 0.08;
+  comp.threshold.value = -16; comp.knee.value = 14;
+  comp.ratio.value = 2.0; comp.attack.value = 0.02; comp.release.value = 0.3;
 
-  // Reverb simulation: short delay with feedback (concert hall feel)
+  // Parallel reverb — single-tap delay at very low wet mix (no feedback loop)
   const reverbDelay = ctx.createDelay(0.5);
-  reverbDelay.delayTime.value = 0.08; // 80ms pre-delay
-  const reverbFeedback = ctx.createGain(); reverbFeedback.gain.value = 0.22;
-  const reverbWet = ctx.createGain(); reverbWet.gain.value = 0.18;
-  const reverbDry = ctx.createGain(); reverbDry.gain.value = 0.82;
+  reverbDelay.delayTime.value = 0.06; // 60ms pre-delay (was 80ms with dangerous feedback)
+  const reverbWet = ctx.createGain(); reverbWet.gain.value = 0.08; // 8% wet (was 18% + feedback)
+  const reverbDry = ctx.createGain(); reverbDry.gain.value = 0.92; // 92% dry
 
-  // Output gain (−14 LUFS equivalent)
+  // Output gain — barely above unity
   const gainNode = ctx.createGain();
-  gainNode.gain.value = 1.55;
+  gainNode.gain.value = 1.05; // was 1.55 — removed hot gain
 
   // Connect chain
-  source.connect(splitter);
   merger.connect(subBass);
   subBass.connect(bass); bass.connect(mid); mid.connect(presence); presence.connect(air);
-  air.connect(waveshaper);
-  waveshaper.connect(comp);
-  // Reverb parallel path
+  air.connect(comp);
+  // Parallel reverb
   comp.connect(reverbDry);
   comp.connect(reverbDelay);
-  reverbDelay.connect(reverbFeedback);
-  reverbFeedback.connect(reverbDelay); // feedback loop
   reverbDelay.connect(reverbWet);
   reverbDry.connect(gainNode);
   reverbWet.connect(gainNode);
@@ -299,12 +286,11 @@ function buildCinematicChain(ctx: AudioContext, source: MediaElementAudioSourceN
       try {
         splitter.disconnect(); merger.disconnect();
         delayL.disconnect(); delayR.disconnect();
-        sideBoostL.disconnect(); sideBoostR.disconnect();
+        gainL.disconnect(); gainR.disconnect();
         subBass.disconnect(); bass.disconnect(); mid.disconnect();
         presence.disconnect(); air.disconnect();
-        waveshaper.disconnect(); comp.disconnect();
-        reverbDelay.disconnect(); reverbFeedback.disconnect();
-        reverbWet.disconnect(); reverbDry.disconnect();
+        comp.disconnect();
+        reverbDelay.disconnect(); reverbWet.disconnect(); reverbDry.disconnect();
         gainNode.disconnect();
       } catch {}
     },

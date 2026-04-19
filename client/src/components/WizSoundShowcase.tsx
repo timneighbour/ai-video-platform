@@ -97,6 +97,7 @@ function buildStandardChain(ctx: AudioContext, src: MediaElementAudioSourceNode)
 }
 
 function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
+  // Gentle M/S widening (1.4× side) + conservative 3-band EQ (≤2.5 dB) + soft compressor
   const splitter = ctx.createChannelSplitter(2);
   const merger = ctx.createChannelMerger(2);
   const midGainL = ctx.createGain(); midGainL.gain.value = 0.5;
@@ -104,7 +105,7 @@ function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode)
   const midMix = ctx.createGain(); midMix.gain.value = 1.0;
   const sideGainL = ctx.createGain(); sideGainL.gain.value = 0.5;
   const sideGainR = ctx.createGain(); sideGainR.gain.value = -0.5;
-  const sideWidth = ctx.createGain(); sideWidth.gain.value = 2.5;
+  const sideWidth = ctx.createGain(); sideWidth.gain.value = 1.4; // was 2.5 — subtle
   const outL = ctx.createGain(); outL.gain.value = 1.0;
   const outR = ctx.createGain(); outR.gain.value = 1.0;
   src.connect(splitter);
@@ -115,12 +116,12 @@ function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode)
   midMix.connect(outL); sideWidth.connect(outL);
   midMix.connect(outR); sideWidth.connect(outR);
   outL.connect(merger, 0, 0); outR.connect(merger, 0, 1);
-  const bassEQ = ctx.createBiquadFilter(); bassEQ.type = "lowshelf"; bassEQ.frequency.value = 120; bassEQ.gain.value = 4.5;
-  const midEQ = ctx.createBiquadFilter(); midEQ.type = "peaking"; midEQ.frequency.value = 2500; midEQ.Q.value = 1.2; midEQ.gain.value = 3.0;
-  const trebleEQ = ctx.createBiquadFilter(); trebleEQ.type = "highshelf"; trebleEQ.frequency.value = 8000; trebleEQ.gain.value = 3.5;
+  const bassEQ = ctx.createBiquadFilter(); bassEQ.type = "lowshelf"; bassEQ.frequency.value = 100; bassEQ.gain.value = 2.0; // was 4.5
+  const midEQ = ctx.createBiquadFilter(); midEQ.type = "peaking"; midEQ.frequency.value = 3000; midEQ.Q.value = 0.8; midEQ.gain.value = 1.5; // was 3.0
+  const trebleEQ = ctx.createBiquadFilter(); trebleEQ.type = "highshelf"; trebleEQ.frequency.value = 9000; trebleEQ.gain.value = 2.5; // was 3.5
   const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -24; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.15;
-  const gain = ctx.createGain(); gain.gain.value = 1.35;
+  comp.threshold.value = -18; comp.knee.value = 12; comp.ratio.value = 2.5; comp.attack.value = 0.01; comp.release.value = 0.25;
+  const gain = ctx.createGain(); gain.gain.value = 1.0; // was 1.35 — unity
   merger.connect(bassEQ); bassEQ.connect(midEQ); midEQ.connect(trebleEQ); trebleEQ.connect(comp); comp.connect(gain); gain.connect(ctx.destination);
   return {
     gain,
@@ -138,39 +139,32 @@ function buildEnhancedChain(ctx: AudioContext, src: MediaElementAudioSourceNode)
 }
 
 function buildCinematicChain(ctx: AudioContext, src: MediaElementAudioSourceNode) {
+  // Haas psychoacoustic widening (tiny delays, unity gain) + 5-band EQ (≤2.5 dB) + transparent compressor + gentle reverb
+  // NO waveshaper, NO feedback loop, NO hot gain — clean spatial depth
   const splitter = ctx.createChannelSplitter(2);
   const merger = ctx.createChannelMerger(2);
-  const delayL = ctx.createDelay(0.05); delayL.delayTime.value = 0.00205;
-  const delayR = ctx.createDelay(0.05); delayR.delayTime.value = 0.00212;
-  const sideBoostL = ctx.createGain(); sideBoostL.gain.value = 1.6;
-  const sideBoostR = ctx.createGain(); sideBoostR.gain.value = 1.6;
+  const delayL = ctx.createDelay(0.05); delayL.delayTime.value = 0.0018; // 1.8ms
+  const delayR = ctx.createDelay(0.05); delayR.delayTime.value = 0.0022; // 2.2ms
+  const gainL = ctx.createGain(); gainL.gain.value = 1.0; // unity (was 1.6)
+  const gainR = ctx.createGain(); gainR.gain.value = 1.0;
   src.connect(splitter);
   splitter.connect(delayL, 0); splitter.connect(delayR, 1);
-  delayL.connect(sideBoostL); delayR.connect(sideBoostR);
-  sideBoostL.connect(merger, 0, 0); sideBoostR.connect(merger, 0, 1);
-  const subBass = ctx.createBiquadFilter(); subBass.type = "lowshelf"; subBass.frequency.value = 60; subBass.gain.value = 5.5;
-  const bass = ctx.createBiquadFilter(); bass.type = "peaking"; bass.frequency.value = 180; bass.Q.value = 0.8; bass.gain.value = 4.0;
-  const mid = ctx.createBiquadFilter(); mid.type = "peaking"; mid.frequency.value = 1200; mid.Q.value = 1.5; mid.gain.value = 2.5;
-  const presence = ctx.createBiquadFilter(); presence.type = "peaking"; presence.frequency.value = 4000; presence.Q.value = 1.2; presence.gain.value = 4.0;
-  const air = ctx.createBiquadFilter(); air.type = "highshelf"; air.frequency.value = 10000; air.gain.value = 5.0;
-  const waveshaper = ctx.createWaveShaper();
-  const curve = new Float32Array(256);
-  for (let i = 0; i < 256; i++) {
-    const x = (i * 2) / 256 - 1;
-    curve[i] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x));
-  }
-  waveshaper.curve = curve; waveshaper.oversample = "4x";
+  delayL.connect(gainL); delayR.connect(gainR);
+  gainL.connect(merger, 0, 0); gainR.connect(merger, 0, 1);
+  const subBass = ctx.createBiquadFilter(); subBass.type = "lowshelf"; subBass.frequency.value = 80; subBass.gain.value = 1.5; // was 5.5
+  const bass = ctx.createBiquadFilter(); bass.type = "peaking"; bass.frequency.value = 200; bass.Q.value = 0.7; bass.gain.value = 1.5; // was 4.0
+  const mid = ctx.createBiquadFilter(); mid.type = "peaking"; mid.frequency.value = 1000; mid.Q.value = 1.0; mid.gain.value = 1.0; // was 2.5
+  const presence = ctx.createBiquadFilter(); presence.type = "peaking"; presence.frequency.value = 3500; presence.Q.value = 1.0; presence.gain.value = 2.0; // was 4.0
+  const air = ctx.createBiquadFilter(); air.type = "highshelf"; air.frequency.value = 10000; air.gain.value = 2.5; // was 5.0
   const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -20; comp.knee.value = 6; comp.ratio.value = 6; comp.attack.value = 0.001; comp.release.value = 0.08;
-  const reverbDelay = ctx.createDelay(0.5); reverbDelay.delayTime.value = 0.08;
-  const reverbFeedback = ctx.createGain(); reverbFeedback.gain.value = 0.22;
-  const reverbWet = ctx.createGain(); reverbWet.gain.value = 0.18;
-  const reverbDry = ctx.createGain(); reverbDry.gain.value = 0.82;
-  const gain = ctx.createGain(); gain.gain.value = 1.55;
-  merger.connect(subBass); subBass.connect(bass); bass.connect(mid); mid.connect(presence); presence.connect(air);
-  air.connect(waveshaper); waveshaper.connect(comp);
+  comp.threshold.value = -16; comp.knee.value = 14; comp.ratio.value = 2.0; comp.attack.value = 0.02; comp.release.value = 0.3;
+  // Parallel reverb — single-tap, no feedback, low wet mix
+  const reverbDelay = ctx.createDelay(0.5); reverbDelay.delayTime.value = 0.06;
+  const reverbWet = ctx.createGain(); reverbWet.gain.value = 0.08; // 8% wet (was 18% + feedback)
+  const reverbDry = ctx.createGain(); reverbDry.gain.value = 0.92;
+  const gain = ctx.createGain(); gain.gain.value = 1.05; // was 1.55
+  merger.connect(subBass); subBass.connect(bass); bass.connect(mid); mid.connect(presence); presence.connect(air); air.connect(comp);
   comp.connect(reverbDry); comp.connect(reverbDelay);
-  reverbDelay.connect(reverbFeedback); reverbFeedback.connect(reverbDelay);
   reverbDelay.connect(reverbWet);
   reverbDry.connect(gain); reverbWet.connect(gain); gain.connect(ctx.destination);
   return {
@@ -179,12 +173,10 @@ function buildCinematicChain(ctx: AudioContext, src: MediaElementAudioSourceNode
       try {
         splitter.disconnect(); merger.disconnect();
         delayL.disconnect(); delayR.disconnect();
-        sideBoostL.disconnect(); sideBoostR.disconnect();
+        gainL.disconnect(); gainR.disconnect();
         subBass.disconnect(); bass.disconnect(); mid.disconnect();
-        presence.disconnect(); air.disconnect();
-        waveshaper.disconnect(); comp.disconnect();
-        reverbDelay.disconnect(); reverbFeedback.disconnect();
-        reverbWet.disconnect(); reverbDry.disconnect(); gain.disconnect();
+        presence.disconnect(); air.disconnect(); comp.disconnect();
+        reverbDelay.disconnect(); reverbWet.disconnect(); reverbDry.disconnect(); gain.disconnect();
       } catch {}
     },
   };
