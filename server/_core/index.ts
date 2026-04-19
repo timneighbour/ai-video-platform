@@ -309,16 +309,24 @@ async function startServer() {
         updatedAt: mvJobs.updatedAt,
       }).from(mvJobs).where(eqOp(mvJobs.isPublic, true)) : [];
 
-      const base = "https://www.wizvid.ai";
+      const base = "https://wiz-ai.io";
+      const today = new Date().toISOString().split("T")[0];
       const staticUrls = [
-        { loc: base, priority: "1.0", changefreq: "weekly" },
-        { loc: `${base}/pricing`, priority: "0.9", changefreq: "monthly" },
-        { loc: `${base}/music-video`, priority: "0.9", changefreq: "weekly" },
-        { loc: `${base}/how-it-works`, priority: "0.8", changefreq: "monthly" },
-        { loc: `${base}/blog`, priority: "0.8", changefreq: "weekly" },
-        { loc: `${base}/discover`, priority: "0.7", changefreq: "daily" },
+        { loc: base, priority: "1.0", changefreq: "weekly", lastmod: today },
+        { loc: `${base}/pricing`, priority: "0.9", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/help`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/how-it-works`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/products/wizsound`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/products/wizimage`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/products/wizvideo`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/products/wizshorts`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/products/wizanimate`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/products/wizscript`, priority: "0.8", changefreq: "monthly", lastmod: today },
+        { loc: `${base}/music-creator`, priority: "0.7", changefreq: "weekly", lastmod: today },
+        { loc: `${base}/discover`, priority: "0.7", changefreq: "daily", lastmod: today },
         { loc: `${base}/privacy`, priority: "0.3", changefreq: "yearly" },
         { loc: `${base}/terms`, priority: "0.3", changefreq: "yearly" },
+        { loc: `${base}/refund`, priority: "0.3", changefreq: "yearly" },
       ];
 
       const watchUrls = publicVideos
