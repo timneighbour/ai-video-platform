@@ -23,6 +23,14 @@ import { submitGrokVideo, pollGrokVideo } from "./ai-apis/grok-imagine";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 import { applyWizSound, type AudioTier } from "./wizsound";
+import {
+  checkSubmissionAllowed,
+  logProviderSubmission,
+  markProviderJobFailed,
+  makeIdempotencyKey,
+  getSceneAttemptCount,
+  PROVIDER_COST_USD,
+} from "./spend-protection";
 
 const klingClient = initKlingAI();
 
@@ -518,7 +526,7 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
  */
 /** Prompt modifiers for each lip-sync style */
 // Helper to map storyboard modelAssignment to WaveSpeed model enum
-function mapModelAssignmentToWaveSpeed(modelAssignment: string): WaveSpeedModel {
+export function mapModelAssignmentToWaveSpeed(modelAssignment: string): WaveSpeedModel {
   // hailuo-minimax scenes (wide/atmospheric) → use fast seedance for speed/cost
   if (modelAssignment === "hailuo-minimax") return "bytedance/seedance-2.0-fast/text-to-video";
   return "bytedance/seedance-2.0/text-to-video"; // default: full quality for character scenes
@@ -557,47 +565,50 @@ export async function startSceneRender(
   /** URL of the approved storyboard preview image — passed as reference_images to lock visual appearance */
   storyboardImageUrl?: string | null,
   /** Export aspect ratio — defaults to 16:9 (YouTube) */
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  /** Music video job ID — required for spend-protection checks */
+  jobId: number = 0
 ): Promise<string> {
+  // ── SPEND PROTECTION: Pre-submission guard (Items 1–4, 9) ─────────────────────────
+  // Determine provider for idempotency check (use primary provider in fallback chain)
+  const primaryProvider = (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance")
+    ? "fal_seedance" : renderer;
+  if (jobId > 0) {
+    const blockReason = await checkSubmissionAllowed({ jobId, sceneId, provider: primaryProvider, attempt: 1 });
+    if (blockReason) {
+      console.warn(`[SpendProtection] Scene ${sceneId} BLOCKED: ${blockReason}`);
+      throw new Error(`SPEND_PROTECTION_BLOCK: ${blockReason}`);
+    }
+  }
   // Append lip-sync guidance to the prompt based on the per-scene setting
   const finalPrompt = lipSync
     ? `${prompt} ${LIP_SYNC_STYLE_PROMPTS[lipSyncStyle] ?? LIP_SYNC_STYLE_PROMPTS.natural}`
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
-  // Route to WaveSpeed first (primary renderer) with fallback chain
-  if (renderer === "wavespeed") {
+  // ── PROVIDER FALLBACK CHAIN (cheapest first) ────────────────────────────────
+  // Order: fal.ai (~$0.05/scene) → Atlas Cloud → Hypereal → WaveSpeed (most expensive, last resort)
+  // This applies to all standard renderers: wavespeed, fal_seedance, seedance
+  if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance") {
+    // 1. Try fal.ai Seedance first (cheapest)
     try {
-      return await startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined, aspectRatio);
-    } catch (waveSpeedErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed failed, falling back to Hypereal:`, waveSpeedErr);
-      try {
-        return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio);
-      } catch (hyperealErr) {
-        console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying Atlas Cloud:`, hyperealErr);
-        try {
-          return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration);
-        } catch (atlasErr) {
-          console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, falling back to fal.ai Seedance:`, atlasErr);
-          return startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio);
-        }
-      }
+      return await startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio, jobId);
+    } catch (falErr) {
+      console.warn(`[MusicVideo] Scene ${sceneId} fal.ai failed, trying Atlas Cloud:`, (falErr as Error).message?.slice(0, 100));
     }
-  }
-
-  // Route to the appropriate renderer
-  // fal_seedance and seedance both now try Hypereal first, then fall back to fal.ai
-  if (renderer === "fal_seedance" || renderer === "seedance") {
+    // 2. Try Atlas Cloud
     try {
-      return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio);
+      return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration, jobId);
+    } catch (atlasErr) {
+      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, trying Hypereal:`, (atlasErr as Error).message?.slice(0, 100));
+    }
+    // 3. Try Hypereal
+    try {
+      return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio, jobId);
     } catch (hyperealErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying Atlas Cloud:`, hyperealErr);
-      try {
-        return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration);
-      } catch (atlasErr) {
-        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, falling back to fal.ai Seedance:`, atlasErr);
-        return startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio);
-      }
+      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying WaveSpeed (last resort):`, (hyperealErr as Error).message?.slice(0, 100));
     }
+    // 4. WaveSpeed — last resort (most expensive)
+    return startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined, aspectRatio, jobId);
   }
 
   // Grok Imagine — premium renderer with image-to-video support (storyboard lock)
@@ -617,7 +628,7 @@ export async function startSceneRender(
     return taskId;
   } catch (err) {
     console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to Hypereal Seedance:`, err);
-    return startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio);
+    return startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio, jobId);
   }
 }
 
@@ -632,44 +643,56 @@ async function startSceneRenderKling(prompt: string, duration: number, aspectRat
   return taskId;
 }
 
-async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"): Promise<string> {
+async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9", jobId: number = 0): Promise<string> {
   // Hypereal Seedance 2.0 has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
     ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
     : prompt;
-
   const trySubmit = async (p: string): Promise<string> => {
-    const jobId = await submitHyperealVideo({
+    const hyperealJobId = await submitHyperealVideo({
       model: HYPEREAL_MODELS.SEEDANCE_2_T2V,
       prompt: p,
       duration: duration <= 5 ? 5 : 8,
       mode: "auto",
       aspect_ratio: aspectRatio,
     });
-    if (!jobId) throw new Error(`Hypereal: no jobId returned for scene ${sceneId}`);
-    return jobId;
+    if (!hyperealJobId) throw new Error(`Hypereal: no jobId returned for scene ${sceneId}`);
+    return hyperealJobId;
   };
-
-  let jobId: string;
+  let hyperealJobId: string;
   try {
-    jobId = await trySubmit(safePrompt);
+    hyperealJobId = await trySubmit(safePrompt);
   } catch (err: any) {
     const errMsg = String(err?.message ?? err);
     console.warn(`[MusicVideo] Scene ${sceneId} Hypereal first attempt failed (${errMsg}). Retrying with simplified prompt.`);
     const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
     try {
-      jobId = await trySubmit(fallbackPrompt);
+      hyperealJobId = await trySubmit(fallbackPrompt);
     } catch (retryErr: any) {
       throw new Error(`Hypereal Seedance failed for scene ${sceneId} after retry: ${String(retryErr?.message ?? retryErr)}`);
     }
   }
-
-  console.log(`[MusicVideo] Scene ${sceneId} → Hypereal Seedance 2.0 jobId=${jobId}`);
-  return `${HYPEREAL_JOB_ID_PREFIX}${jobId}`;
+  // ── SPEND PROTECTION: Log successful submission (Items 6 & 7) ─────────────────────
+  if (jobId > 0) {
+    const attemptCount = await getSceneAttemptCount(sceneId);
+    const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "hypereal", attemptCount + 1);
+    await logProviderSubmission({
+      jobId,
+      sceneId,
+      provider: "hypereal",
+      providerJobId: hyperealJobId,
+      idempotencyKey,
+      attemptNumber: attemptCount + 1,
+      estimatedCostUsd: PROVIDER_COST_USD.hypereal,
+      submissionReason: "scene_render",
+    });
+  }
+  console.log(`[MusicVideo] Scene ${sceneId} → Hypereal Seedance 2.0 hyperealJobId=${hyperealJobId}`);
+  return `${HYPEREAL_JOB_ID_PREFIX}${hyperealJobId}`;
 }
 
-async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"): Promise<string> {
+async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9", jobId: number = 0): Promise<string> {
   // fal.ai Seedance has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
@@ -704,6 +727,21 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
     }
   }
 
+  // ── SPEND PROTECTION: Log successful submission (Items 6 & 7) ─────────────────────
+  if (jobId > 0) {
+    const attemptCount = await getSceneAttemptCount(sceneId);
+    const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "fal_seedance", attemptCount + 1);
+    await logProviderSubmission({
+      jobId,
+      sceneId,
+      provider: "fal_seedance",
+      providerJobId: requestId,
+      idempotencyKey,
+      attemptNumber: attemptCount + 1,
+      estimatedCostUsd: PROVIDER_COST_USD.fal_seedance,
+      submissionReason: "scene_render",
+    });
+  }
   console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance requestId=${requestId}`);
   // Prefix the ID so pollSceneStatus knows which API to poll
   return `${FAL_REQUEST_ID_PREFIX}${requestId}`;
@@ -799,7 +837,7 @@ async function pollSceneStatusGrokImagine(
   }
 }
 
-async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, duration: number): Promise<string> {
+async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, duration: number, jobId: number = 0): Promise<string> {
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
     ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
@@ -825,6 +863,21 @@ async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, durat
     }
   }
 
+  // ── SPEND PROTECTION: Log successful submission (Items 6 & 7) ─────────────────────
+  if (jobId > 0) {
+    const attemptCount = await getSceneAttemptCount(sceneId);
+    const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "atlas_cloud", attemptCount + 1);
+    await logProviderSubmission({
+      jobId,
+      sceneId,
+      provider: "atlas_cloud",
+      providerJobId: predictionId,
+      idempotencyKey,
+      attemptNumber: attemptCount + 1,
+      estimatedCostUsd: PROVIDER_COST_USD.atlas_cloud,
+      submissionReason: "scene_render",
+    });
+  }
   console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud Seedance 2.0 predictionId=${predictionId}`);
   return `${ATLAS_JOB_ID_PREFIX}${predictionId}`;
 }
@@ -1328,7 +1381,9 @@ async function startSceneRenderWaveSpeed(
   /** Storyboard preview image URL — used as reference_images to lock visual appearance */
   storyboardImageUrl?: string,
   /** Export aspect ratio — defaults to 16:9 (YouTube) */
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  /** Music video job ID — required for spend-protection checks */
+  jobId: number = 0
 ): Promise<string> {
   // WaveSpeed has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
@@ -1378,6 +1433,21 @@ async function startSceneRenderWaveSpeed(
     }
   }
 
+  // ── SPEND PROTECTION: Log successful submission (Items 6 & 7) ─────────────────────
+  if (jobId > 0) {
+    const attemptCount = await getSceneAttemptCount(sceneId);
+    const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "wavespeed", attemptCount + 1);
+    await logProviderSubmission({
+      jobId,
+      sceneId,
+      provider: "wavespeed",
+      providerJobId: taskId,
+      idempotencyKey,
+      attemptNumber: attemptCount + 1,
+      estimatedCostUsd: PROVIDER_COST_USD.wavespeed,
+      submissionReason: "scene_render",
+    });
+  }
   // Prefix the task ID with model info for routing during polling
   const isFast = model === "bytedance/seedance-2.0-fast/text-to-video";
   const prefix = isFast ? WAVESPEED_HAILUO_PREFIX : WAVESPEED_SEEDANCE_PREFIX;

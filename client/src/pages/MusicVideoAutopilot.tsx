@@ -1414,10 +1414,21 @@ export default function MusicVideoAutopilot() {
         String(err?.message).toLowerCase().includes("rate limit");
 
       const isConcurrentRender = err?.data?.code === "TOO_MANY_REQUESTS" && String(err?.message).toLowerCase().includes("already have a video rendering");
+      const isServiceUnavailable =
+        err?.data?.code === "SERVICE_UNAVAILABLE" ||
+        err?.data?.httpStatus === 503 ||
+        String(err?.message).toLowerCase().includes("video generation service is temporarily unavailable") ||
+        String(err?.message).toLowerCase().includes("all providers unavailable");
+
       if (isConcurrentRender) {
         toast.error("Render already in progress", {
           description: "You already have a video rendering. Please wait for it to complete before starting another.",
           duration: 8000,
+        });
+      } else if (isServiceUnavailable) {
+        toast.error("Video build unavailable right now", {
+          description: "We could not complete your video build right now. Your credits have not been used. Please try again shortly or contact support.",
+          duration: 12000,
         });
       } else if (is429) {
         toast.error("Building is busy right now.", {

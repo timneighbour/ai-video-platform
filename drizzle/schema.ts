@@ -843,3 +843,26 @@ export const analyticsEvents = mysqlTable("analyticsEvents", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+
+// ── PROVIDER JOB TRACKING (Spend Protection Item 6) ──────────────────────────
+// Every provider submission is logged here for idempotency, spend tracking, and audit.
+export const providerJobLogs = mysqlTable("providerJobLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  sceneId: int("sceneId").notNull(),
+  provider: varchar("provider", { length: 64 }).notNull(),
+  providerJobId: varchar("providerJobId", { length: 512 }),
+  idempotencyKey: varchar("idempotencyKey", { length: 256 }).notNull(),
+  status: mysqlEnum("pjlStatus", ["submitted", "completed", "failed", "cancelled"]).default("submitted").notNull(),
+  attemptNumber: int("attemptNumber").default(1).notNull(),
+  estimatedCostUsd: decimal("estimatedCostUsd", { precision: 10, scale: 4 }).default("0.0000"),
+  actualCostUsd: decimal("actualCostUsd", { precision: 10, scale: 4 }),
+  submissionReason: varchar("submissionReason", { length: 255 }),
+  errorMessage: text("errorMessage"),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  failedAt: timestamp("failedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ProviderJobLog = typeof providerJobLogs.$inferSelect;
+export type InsertProviderJobLog = typeof providerJobLogs.$inferInsert;

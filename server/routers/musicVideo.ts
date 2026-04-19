@@ -18,6 +18,7 @@ import {
   pollSceneStatus,
   assembleMusicVideo,
   transcribeJobAudio,
+  mapModelAssignmentToWaveSpeed,
 } from "../music-video-service";
 import { deductCredits, getUserCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
@@ -28,6 +29,7 @@ import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } fro
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
+import { isAnyProviderAvailable, checkAllProviders } from "../provider-health";
 import {
   analyseAudioInstruments,
   assignInstrumentsToCharacters,
@@ -593,6 +595,18 @@ Rules:
         }
       }
 
+      // ── PROVIDER HEALTH GATE ─────────────────────────────────────────────────
+      // Before deducting credits, verify at least one video provider is available.
+      // This prevents users from losing credits when all providers are down.
+      const providerAvailable = await isAnyProviderAvailable();
+      if (!providerAvailable) {
+        console.error(`[MusicVideo] All video providers unavailable — blocking render for job ${input.jobId}`);
+        throw new TRPCError({
+          code: "SERVICE_UNAVAILABLE",
+          message: "We could not start your video build right now — our video generation service is temporarily unavailable. Your credits have not been used. Please try again in a few minutes or contact support.",
+        });
+      }
+
       // Check credits — admins bypass credit checks for testing
       if (!isAdmin) {
         const creditBalance = await getUserCredits(ctx.user.id);
@@ -760,8 +774,17 @@ Rules:
       // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
       const SCENE_STAGGER_MS = 3000;
       (async () => {
+        let successCount = 0;
+        let failCount = 0;
         for (let i = 0; i < scenes.length; i++) {
           const scene = scenes[i];
+          // ── SPEND PROTECTION: Scene-level idempotency guard (Item 7) ─────────────────────
+          // Skip scenes that are already generating or completed to prevent duplicate submissions
+          if (scene.status === "generating" || scene.status === "completed") {
+            console.log(`[SpendProtection] Scene ${scene.id} skipped — already ${scene.status} (idempotency guard)`);
+            successCount++; // count as success so credit refund logic is not triggered
+            continue;
+          }
           if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
           // Use modelAssignment from scene if available, otherwise fall back to router decision
           const rendererType = (scene.modelAssignment as string) ? "wavespeed" : (rendererMap.get(scene.sceneIndex) ?? "seedance");
@@ -950,8 +973,9 @@ Rules:
           }
 
           try {
-            // For now, always use WaveSpeed as primary renderer (via startSceneRender)
-            // The renderer parameter is still used for fallback routing if WaveSpeed fails
+            // Route through WaveSpeed primary renderer (with Hypereal/Atlas/fal.ai fallback chain)
+            // mapModelAssignmentToWaveSpeed converts DB value (e.g. "seedance-2.0") to valid WaveSpeed model path
+            const wsModel = mapModelAssignmentToWaveSpeed(scene.modelAssignment ?? "seedance-2.0");
             const taskId = await startSceneRender(
               scene.id,
               enrichedScenePrompt,
@@ -959,20 +983,39 @@ Rules:
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
               "wavespeed" as any, // Route through WaveSpeed primary renderer
-              rendererType as any,
+              wsModel, // Correctly mapped WaveSpeed model path
               storyboardImageUrl ?? undefined, // STORYBOARD LOCK: pass approved frame as reference
-              (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" // Export format
+              (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1", // Export format
+              input.jobId // ── SPEND PROTECTION: pass jobId for spend-cap and idempotency checks
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
             console.log(`[MusicVideo] Scene ${scene.id} (${i + 1}/${scenes.length}) queued via WaveSpeed (${rendererType}): ${taskId}`);
+            successCount++;
           } catch (err: unknown) {
             const httpStatus = (err as any)?.response?.status;
             console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"})`, err);
             await db!.update(musicVideoScenes)
               .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
+            failCount++;
+          }
+        }
+
+        // ── CREDIT REFUND: If ALL scenes failed to start, refund credits ──────────
+        // Credits are deducted upfront. If no scene could be dispatched to any provider,
+        // the user gets a full refund and the job is marked failed.
+        if (successCount === 0 && failCount > 0 && !isAdmin) {
+          console.error(`[MusicVideo] ALL ${failCount} scenes failed to start for job ${job.id} — issuing full credit refund of ${job.creditCost}`);
+          try {
+            await deductCredits(ctx.user.id, -job.creditCost, `Refund: video build failed (all providers unavailable) — job #${job.id}`);
+            await db!.update(musicVideoJobs)
+              .set({ status: "failed", updatedAt: new Date() })
+              .where(eq(musicVideoJobs.id, job.id));
+            console.log(`[MusicVideo] Refunded ${job.creditCost} credits to user ${ctx.user.id} for failed job ${job.id}`);
+          } catch (refundErr) {
+            console.error(`[MusicVideo] CRITICAL: Failed to refund credits for job ${job.id}:`, refundErr);
           }
         }
       })();
@@ -2120,7 +2163,8 @@ Rules:
           "wavespeed" as any,
           (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
           storyboardImageUrl,
-          (job.aspectRatio as "16:9" | "9:16" | "1:1") ?? "16:9"
+          (job.aspectRatio as "16:9" | "9:16" | "1:1") ?? "16:9",
+          input.jobId // ── SPEND PROTECTION
         );
         if (taskId) {
           await db.update(musicVideoScenes)
@@ -2195,7 +2239,9 @@ Rules:
             (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
             "wavespeed" as any,
             (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
-            retryStoryboardUrl
+            retryStoryboardUrl,
+            undefined, // aspectRatio default
+            input.jobId // ── SPEND PROTECTION
           );
           await db!.update(musicVideoScenes)
             .set({ status: "generating", taskId, updatedAt: new Date() })
@@ -2258,7 +2304,9 @@ Rules:
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
               "wavespeed" as any,
               (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
-              bulkStoryboardUrl
+              bulkStoryboardUrl,
+              undefined, // aspectRatio default
+              input.jobId // ── SPEND PROTECTION
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
@@ -3608,6 +3656,12 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       console.log(`[MusicVideo] Scene added at index ${insertAt} in job ${input.jobId} by user ${ctx.user.id}`);
       return { success: true, sceneId: inserted.id, sceneIndex: insertAt, totalScenes: existing.length + 1 };
     }),
+
+  // Provider health check — returns status of all video generation providers
+  providerHealth: protectedProcedure.query(async () => {
+    const { checkAllProviders } = await import("../provider-health");
+    return checkAllProviders();
+  }),
 
   // List all public videos (for sitemap)
   listPublicVideos: publicProcedure.query(async () => {

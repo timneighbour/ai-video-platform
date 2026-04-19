@@ -65,22 +65,25 @@ export const PLAN_COST_TARGETS = {
 } as const;
 
 /**
- * Renderer cost estimates (GBP per 8-second scene)
- * Based on current API pricing (Apr 2026, £1 = $1.27)
+ * Renderer cost estimates (GBP per 5-second scene)
+ * Based on actual API pricing (Apr 2026, £1 = $1.27)
+ * IMPORTANT: Keep these accurate — the profitability hard-stop system depends on them.
  */
 export const RENDERER_COSTS = {
-  /** Seedance 2.0 via fal.ai — primary cheap renderer (~$0.05-0.10/scene, best margin) */
-  fal_seedance: 0.06,
-  /** Seedance 2.0 via Volcengine — legacy fallback renderer (~$0.15/scene) */
+  /** Seedance 2.0 via fal.ai — primary cheap renderer (~$0.05/scene = £0.04) */
+  fal_seedance: 0.04,
+  /** Seedance 2.0 via Atlas Cloud / Hypereal — secondary fallback (~$0.15/scene = £0.12) */
   seedance: 0.12,
-  /** Kling AI v3 Standard (720p) via official API — premium renderer (~$0.67/scene) */
+  /** Seedance 2.0 via WaveSpeed — EXPENSIVE last-resort (~$3.50/scene = £2.76) */
+  wavespeed_seedance: 2.76,
+  /** Kling AI v3 Standard (720p) via official API — premium renderer (~$0.67/scene = £0.53) */
   kling_standard: 0.53,
-  /** Kling AI v3 Pro (1080p) — high-quality premium renderer (~$0.90/scene) */
+  /** Kling AI v3 Pro (1080p) — high-quality premium renderer (~$0.90/scene = £0.71) */
   kling_pro: 0.71,
-  /** Runway ML gen4_turbo — alternative premium renderer (~$0.40/scene) */
+  /** Runway ML gen4_turbo — alternative premium renderer (~$0.40/scene = £0.31) */
   runway: 0.31,
-  /** Grok Imagine video (720p, 5s) — premium renderer ($0.07/s × 5s = $0.35/scene) */
-  grok_imagine: 0.35,
+  /** Grok Imagine video (720p, 5s) — premium renderer ($0.35/scene = £0.28) */
+  grok_imagine: 0.28,
 } as const;
 
 export type RendererType = keyof typeof RENDERER_COSTS;

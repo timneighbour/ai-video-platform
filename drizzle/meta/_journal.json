@@ -407,6 +407,13 @@
       "when": 1776631274883,
       "tag": "0057_aromatic_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "5",
+      "when": 1776638474093,
+      "tag": "0058_hot_husk",
+      "breakpoints": true
     }
   ]
 }

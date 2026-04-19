@@ -22,6 +22,21 @@ const CREDIT_COSTS: Record<string, number> = {
   "60s": 600,
 };
 
+// Safe display labels for Stripe receipts (never expose internal enum values)
+const ANIMATION_STYLE_LABELS: Record<string, string> = {
+  pixar3d: "Stylised 3D",
+  disney: "Magical Cinematic",
+  anime: "Japanese Anime-Inspired",
+  cartoon: "Classic Cartoon",
+  storybook: "Storybook",
+  claymation: "Clay Animation",
+  ghibli: "Classic Fairytale Animation",
+  pixar_movie: "Premium 3D Animation",
+  manga: "Graphic Novel",
+  retro80s: "Retro Cartoon",
+  watercolor: "Storybook Watercolour",
+};
+
 const STYLE_PROMPTS: Record<string, string> = {
   pixar3d: "Pixar 3D animation style, vibrant colours, expressive characters, high-quality 3D render, warm lighting",
   disney: "Disney animation style, magical, fluid motion, classic Disney character design, rich colours",
@@ -435,7 +450,7 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
             price_data: {
               currency: "gbp",
               product_data: {
-                name: `Kids Animation Render — ${job.videoLength} ${job.animationStyle} animation`,
+                name: `Kids Animation Render — ${job.videoLength} ${ANIMATION_STYLE_LABELS[job.animationStyle] ?? job.animationStyle} animation`,
                 description: `Animated kids video: "${job.storyPrompt.slice(0, 80)}..."`,
               },
               unit_amount: priceInPence,

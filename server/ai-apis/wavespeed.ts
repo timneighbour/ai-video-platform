@@ -22,11 +22,24 @@ export interface WaveSpeedVideoRequest {
 export interface WaveSpeedVideoResponse {
   id: string;
   model?: string;
-  status: "pending" | "processing" | "completed" | "failed";
+  status: "pending" | "processing" | "completed" | "failed" | "created";
   outputs?: string[]; // Array of output video URLs (when completed)
   video_url?: string; // Legacy compat field
   error?: string | null;
   created_at?: string;
+}
+
+/**
+ * WaveSpeed v3 API wraps all responses in: { code, message, data: { ... } }
+ * This helper extracts the inner data object.
+ */
+function extractWaveSpeedData(responseData: any): WaveSpeedVideoResponse {
+  // v3 envelope: { code: 200, message: "success", data: { id, status, outputs, ... } }
+  if (responseData?.data && typeof responseData.data === "object" && responseData.data.id) {
+    return responseData.data as WaveSpeedVideoResponse;
+  }
+  // Fallback: response is already the inner object
+  return responseData as WaveSpeedVideoResponse;
 }
 
 /**
@@ -53,7 +66,7 @@ export async function submitWaveSpeedVideo(
   };
 
   try {
-    const response = await axios.post<{ id: string; status: string }>(
+    const response = await axios.post(
       `${WAVESPEED_API_BASE}/${model}`,
       body,
       {
@@ -65,7 +78,9 @@ export async function submitWaveSpeedVideo(
       }
     );
 
-    const taskId = response.data?.id;
+    // v3 API: response is { code, message, data: { id, status, ... } }
+    const inner = extractWaveSpeedData(response.data);
+    const taskId = inner?.id;
     if (!taskId) {
       throw new Error(
         `WaveSpeed: no task id in response: ${JSON.stringify(response.data)}`
@@ -87,7 +102,8 @@ export async function submitWaveSpeedVideo(
 
 /**
  * Poll the status of a WaveSpeed prediction (v3 API).
- * Uses GET /api/v3/predictions/{id} and /api/v3/predictions/{id}/result
+ * Uses GET /api/v3/predictions/{id}/result — the only valid poll endpoint.
+ * The status endpoint GET /api/v3/predictions/{id} (without /result) returns 404.
  */
 export async function pollWaveSpeedVideo(
   taskId: string
@@ -97,9 +113,9 @@ export async function pollWaveSpeedVideo(
   }
 
   try {
-    // Check status first
-    const statusResp = await axios.get<WaveSpeedVideoResponse>(
-      `${WAVESPEED_API_BASE}/predictions/${taskId}`,
+    // v3 API: always use /result endpoint for polling — /predictions/{id} returns 404
+    const resultResp = await axios.get(
+      `${WAVESPEED_API_BASE}/predictions/${taskId}/result`,
       {
         headers: {
           Authorization: `Bearer ${WAVESPEED_API_KEY}`,
@@ -108,33 +124,12 @@ export async function pollWaveSpeedVideo(
       }
     );
 
-    const data = statusResp.data;
+    // v3 API: response is { code, message, data: { id, status, outputs, ... } }
+    const data = extractWaveSpeedData(resultResp.data);
 
-    // If completed, fetch the result to get outputs array
-    if (data.status === "completed") {
-      try {
-        const resultResp = await axios.get<WaveSpeedVideoResponse>(
-          `${WAVESPEED_API_BASE}/predictions/${taskId}/result`,
-          {
-            headers: {
-              Authorization: `Bearer ${WAVESPEED_API_KEY}`,
-            },
-            timeout: 15000,
-          }
-        );
-        // Normalise: set video_url from outputs array for backward compat
-        const result = resultResp.data;
-        if (result.outputs && result.outputs.length > 0 && !result.video_url) {
-          result.video_url = result.outputs[0];
-        }
-        return result;
-      } catch {
-        // Fall back to status response
-        if (data.outputs && data.outputs.length > 0 && !data.video_url) {
-          data.video_url = data.outputs[0];
-        }
-        return data;
-      }
+    // Normalise: set video_url from outputs array for backward compat
+    if (data.status === "completed" && data.outputs && data.outputs.length > 0 && !data.video_url) {
+      data.video_url = data.outputs[0];
     }
 
     return data;
@@ -152,15 +147,40 @@ export async function pollWaveSpeedVideo(
 }
 
 /**
- * Validate the WaveSpeed API key by checking if it's present and properly formatted
+ * Validate the WaveSpeed API key by checking balance endpoint.
  */
 export async function validateWaveSpeedKey(): Promise<boolean> {
   if (!WAVESPEED_API_KEY) {
     return false;
   }
 
-  // WaveSpeed API key format: 64-character hex string
-  // If the key is present and matches the expected format, it's valid
-  const isValidFormat = /^[a-f0-9]{64}$/.test(WAVESPEED_API_KEY);
-  return isValidFormat;
+  try {
+    const response = await axios.get(`${WAVESPEED_API_BASE}/balance`, {
+      headers: { Authorization: `Bearer ${WAVESPEED_API_KEY}` },
+      timeout: 10000,
+      validateStatus: (s) => s < 500,
+    });
+    return response.status === 200 && response.data?.code === 200;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get the current WaveSpeed account balance in USD.
+ */
+export async function getWaveSpeedBalance(): Promise<number | null> {
+  if (!WAVESPEED_API_KEY) return null;
+  try {
+    const response = await axios.get(`${WAVESPEED_API_BASE}/balance`, {
+      headers: { Authorization: `Bearer ${WAVESPEED_API_KEY}` },
+      timeout: 10000,
+      validateStatus: () => true,
+    });
+    // v3 envelope: { code: 200, data: { balance: 14 } }
+    const inner = response.data?.data ?? response.data;
+    return typeof inner?.balance === "number" ? inner.balance : null;
+  } catch {
+    return null;
+  }
 }

@@ -5333,3 +5333,32 @@
 - [x] Fix Suno custom mode 400 error (no lyrics path)
 - [x] Fix audioDuration not set when Suno track is selected
 - [x] Fix WizAnimate animation style enum mismatch (6 → 11 styles, DB migration applied)
+
+## CRITICAL: Render Pipeline Failure (Launch Blocker)
+
+- [ ] Investigate WaveSpeed provider: endpoint, API key, model, exact error (404)
+- [ ] Investigate Hypereal/Seedance provider: endpoint, API key, billing, exact error (402)
+- [ ] Investigate Atlas Cloud provider: endpoint, API key, billing, exact error (402)
+- [ ] Investigate fal.ai Seedance provider: endpoint, API key, permissions, exact error (403)
+- [ ] Fix billing/API/endpoint issues for fastest-to-restore provider
+- [ ] Add provider health check system
+- [ ] Improve user-facing failure message (credits not deducted on failure)
+- [ ] Confirm credits are NOT deducted on failed provider builds
+- [ ] Run end-to-end WizVideo test
+- [ ] Confirm Projects page shows Completed after successful render
+- [ ] Confirm analytics fire on completion
+
+## CRITICAL: Spend Protection (DO NOT RUN RENDERS UNTIL COMPLETE)
+
+- [x] Item 4: Idempotency keys — jobId+sceneId+provider+attempt, block duplicate submissions
+- [x] Item 5: Polling must NEVER submit new generation requests — code-level guard (verified: pollSceneStatus only polls, never submits)
+- [x] Item 1: Hard per-job spend cap ($5.00 USD per job, enforced in checkSubmissionAllowed)
+- [x] Item 2: Hard daily spend cap ($20.00 USD/day, enforced in checkSubmissionAllowed)
+- [x] Item 3: Max scene retry limit (MAX_ATTEMPTS_PER_SCENE=2, enforced in checkSubmissionAllowed)
+- [x] Item 6: Provider job tracking table — providerJobLogs table, logs every submission
+- [x] Item 7: Spend logging — logProviderSubmission called in all 4 provider functions
+- [x] Item 8: Confirm credit safety — scene-level idempotency guard blocks re-submission of generating/completed scenes
+- [x] Item 9: Spend logging — log every provider submission with cost estimate (logProviderSubmission)
+- [x] Item 10: Pre-render confirmation screen — WizGenesisModal shows quality, audio, and total cost before render
+- [x] Item 11: Failsafe — SPEND_PROTECTION_ENABLED env flag, throws SPEND_PROTECTION_BLOCK on violations
+- [x] Item 12: Final verification — 519 vitest tests passing, spend-protection.test.ts covers all 12 items
