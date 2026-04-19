@@ -739,26 +739,98 @@ function WizEngines() {
           ))}
         </div>
 
-        {/* How it works together */}
+        {/* How it works together — PREMIUM redesign */}
         <div className="reveal">
-          <div className="text-center mb-14">
-            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">How it all works together</p>
-            <h3 className="text-[clamp(1.5rem,3.5vw,2.5rem)] font-black tracking-tight text-white">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5" style={{ background: "oklch(0.78 0.11 75 / 0.08)", border: "1px solid oklch(0.78 0.11 75 / 0.18)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+              <span className="text-[10px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">How it all works together</span>
+            </div>
+            <h3 className="text-[clamp(1.6rem,3.5vw,2.6rem)] font-black tracking-tight text-white">
               More than tools. An intelligent creative system.
             </h3>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          {/* Desktop: horizontal flow */}
+          <div className="hidden md:grid md:grid-cols-4 gap-0 relative">
+            {/* Background track line */}
+            <div className="absolute top-[3.25rem] left-[12.5%] right-[12.5%] h-px" style={{ background: "linear-gradient(90deg, transparent, oklch(0.78 0.11 75 / 0.25) 15%, oklch(0.78 0.11 75 / 0.25) 85%, transparent)" }} />
+
             {flow.map((f, i) => (
-              <div key={f.step} className="reveal relative">
-                {/* Connector */}
+              <div key={f.step} className="reveal relative flex flex-col items-center text-center px-4">
+                {/* Number circle — large and glowing */}
+                <div className="relative mb-6 z-10">
+                  {/* Outer glow ring */}
+                  <div
+                    className="absolute inset-0 rounded-full blur-xl opacity-50"
+                    style={{ background: "oklch(0.78 0.11 75 / 0.4)", transform: "scale(1.8)" }}
+                  />
+                  {/* Circle */}
+                  <div
+                    className="relative w-[4.5rem] h-[4.5rem] rounded-full flex items-center justify-center"
+                    style={{
+                      background: "linear-gradient(145deg, oklch(0.78 0.11 75 / 0.18) 0%, oklch(0.04 0.004 260) 100%)",
+                      border: "1.5px solid oklch(0.78 0.11 75 / 0.55)",
+                      boxShadow: "0 0 0 1px oklch(0.78 0.11 75 / 0.08), 0 4px 24px oklch(0.78 0.11 75 / 0.20), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
+                    }}
+                  >
+                    <span
+                      className="text-2xl font-black tracking-tight"
+                      style={{
+                        background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        filter: "drop-shadow(0 0 8px oklch(0.78 0.11 75 / 0.6))",
+                      }}
+                    >
+                      {f.step}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Arrow connector (not on last) */}
                 {i < flow.length - 1 && (
-                  <div className="hidden md:block absolute top-6 left-[calc(100%_-_0.5rem)] w-full h-px" style={{ background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.15), transparent)" }} />
+                  <div className="absolute top-[3.25rem] left-[calc(50%_+_2.25rem)] right-[calc(-50%_+_2.25rem)] h-px z-0" style={{ background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.4), oklch(0.78 0.11 75 / 0.1))" }}>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0" style={{ borderTop: "4px solid transparent", borderBottom: "4px solid transparent", borderLeft: "6px solid oklch(0.78 0.11 75 / 0.4)" }} />
+                  </div>
                 )}
-                <div className="relative z-10">
-                  <div className="text-[2.5rem] font-black leading-none metallic-gold opacity-25 mb-3">{f.step}</div>
-                  <h4 className="text-base font-bold text-white mb-2">{f.label}</h4>
-                  <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{f.detail}</p>
+
+                {/* Text */}
+                <h4 className="text-[0.95rem] font-bold text-white mb-2 leading-snug">{f.label}</h4>
+                <p className="text-[--color-silver-dark]/50 text-[0.8rem] leading-relaxed">{f.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: vertical stack */}
+          <div className="md:hidden flex flex-col gap-4">
+            {flow.map((f, i) => (
+              <div key={f.step} className="reveal flex gap-5 items-start p-5 rounded-2xl" style={{ background: "oklch(0.055 0.006 260 / 0.8)", border: "1px solid oklch(0.78 0.11 75 / 0.15)", boxShadow: "0 0 30px oklch(0.78 0.11 75 / 0.04)" }}>
+                {/* Number badge */}
+                <div
+                  className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(145deg, oklch(0.78 0.11 75 / 0.18) 0%, oklch(0.04 0.004 260) 100%)",
+                    border: "1.5px solid oklch(0.78 0.11 75 / 0.55)",
+                    boxShadow: "0 0 16px oklch(0.78 0.11 75 / 0.25), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
+                  }}
+                >
+                  <span
+                    className="text-lg font-black"
+                    style={{
+                      background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      filter: "drop-shadow(0 0 6px oklch(0.78 0.11 75 / 0.6))",
+                    }}
+                  >
+                    {f.step}
+                  </span>
+                </div>
+                {/* Vertical connector */}
+                <div className="flex-1">
+                  <h4 className="text-base font-bold text-white mb-1">{f.label}</h4>
+                  <p className="text-[--color-silver-dark]/50 text-sm leading-relaxed">{f.detail}</p>
                 </div>
               </div>
             ))}
@@ -865,11 +937,41 @@ function HowItWorks() {
                   }`}
                  loading="lazy" />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
-                {/* Step number */}
+                {/* Step number — premium glowing badge */}
                 <div className="absolute bottom-3 left-3">
-                  <span className={`text-[2rem] font-black leading-none transition-all duration-500 ${
-                    i <= activeStep ? "metallic-gold opacity-80" : "text-white/20"
-                  }`}>{s.num}</span>
+                  <div
+                    className="relative w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{
+                      background: i <= activeStep
+                        ? "linear-gradient(145deg, oklch(0.78 0.11 75 / 0.25) 0%, oklch(0.04 0.004 260 / 0.9) 100%)"
+                        : "rgba(0,0,0,0.6)",
+                      border: i <= activeStep
+                        ? "1.5px solid oklch(0.78 0.11 75 / 0.6)"
+                        : "1px solid rgba(255,255,255,0.1)",
+                      boxShadow: i <= activeStep
+                        ? "0 0 20px oklch(0.78 0.11 75 / 0.35), inset 0 1px 0 oklch(0.78 0.11 75 / 0.3)"
+                        : "none",
+                      transition: "all 0.5s ease",
+                    }}
+                  >
+                    {i <= activeStep && (
+                      <div
+                        className="absolute inset-0 rounded-full blur-lg opacity-60"
+                        style={{ background: "oklch(0.78 0.11 75 / 0.5)", transform: "scale(1.5)" }}
+                      />
+                    )}
+                    <span
+                      className="relative text-base font-black tracking-tight transition-all duration-500"
+                      style={i <= activeStep ? {
+                        background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        filter: "drop-shadow(0 0 6px oklch(0.78 0.11 75 / 0.8))",
+                      } : { color: "rgba(255,255,255,0.25)" }}
+                    >
+                      {s.num}
+                    </span>
+                  </div>
                 </div>
                 {/* Active indicator */}
                 {i === activeStep && (
@@ -907,13 +1009,29 @@ function HowItWorks() {
               }`}
               onClick={() => setActiveStep(i)}
             >
-              {/* Number badge */}
-              <div className={`flex-shrink-0 w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-500 ${
-                i <= activeStep
-                  ? "border-[--color-gold]/50 bg-[--color-gold]/10 text-[--color-gold]"
-                  : "border-white/10 bg-white/5 text-white/30"
-              }`}>
-                <span className="text-sm font-black">{s.num}</span>
+              {/* Number badge — premium */}
+              <div
+                className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center relative transition-all duration-500"
+                style={i <= activeStep ? {
+                  background: "linear-gradient(145deg, oklch(0.78 0.11 75 / 0.2) 0%, oklch(0.04 0.004 260) 100%)",
+                  border: "1.5px solid oklch(0.78 0.11 75 / 0.55)",
+                  boxShadow: "0 0 16px oklch(0.78 0.11 75 / 0.3), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
+                } : {
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
+              >
+                <span
+                  className="text-sm font-black transition-all duration-500"
+                  style={i <= activeStep ? {
+                    background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    filter: "drop-shadow(0 0 6px oklch(0.78 0.11 75 / 0.7))",
+                  } : { color: "rgba(255,255,255,0.25)" }}
+                >
+                  {s.num}
+                </span>
               </div>
               <div className="flex-1">
                 <h3 className={`text-base font-bold mb-1 transition-colors duration-500 ${
