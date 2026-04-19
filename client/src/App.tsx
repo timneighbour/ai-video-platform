@@ -66,6 +66,7 @@ const WizAI = lazy(() => import("@/pages/WizAI"));
 const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
 const ShowcasePage = lazy(() => import("@/pages/Showcase"));
+const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -167,6 +168,7 @@ function Router() {
         <Route path={"/studio"} component={LandingStudio} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/admin"} component={BlogAdmin} />
+        <Route path={"/admin"} component={AdminPanel} />
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />
