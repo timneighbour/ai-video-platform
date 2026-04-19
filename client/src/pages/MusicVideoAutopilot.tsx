@@ -1614,7 +1614,7 @@ export default function MusicVideoAutopilot() {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
-                  WIZSCRIPT AUTOPILOT
+                  WIZVIDEO AUTOPILOT
                 </h1>
                 {/* YouTube-optimised badge */}
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF0000]/15 border border-[#FF0000]/30 text-[#FF4444] select-none">

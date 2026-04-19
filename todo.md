@@ -5303,3 +5303,10 @@
 - [x] Fix /wiz-animate 404 route alias
 - [x] Upgrade DemoVideoModal with React caption overlay system (8 timed USP captions, WizLumina upsell)
 - [x] Implement 4-schema JSON-LD (SoftwareApplication + aggregateRating, Organization, FAQPage, WebSite)
+
+## QA Test Fixes (19 Apr 2026)
+- [x] Fix Suno generate 400 error (custom mode triggered without lyrics)
+- [x] Fix audioDuration not set when selecting Suno-generated track
+- [x] Fix WizAnimate animation style enum mismatch (6 vs 11 styles)
+- [x] Apply MySQL ALTER TABLE migration for kidsVideoJobs.animationStyle
+- [x] Fix "WIZSCRIPT AUTOPILOT" branding in WizVideo creation wizard header
