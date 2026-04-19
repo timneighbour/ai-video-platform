@@ -632,7 +632,7 @@ export default function WizSyncPage() {
                 </div>
                 <h3 className="text-lg font-semibold text-white">Analysing your audio…</h3>
                 <p className="text-zinc-400 text-sm max-w-sm">
-                  Running speaker diarisation with AssemblyAI Universal-2 and separating 6 instrument stems with WizGenesis™. This typically takes 30–120 seconds.
+                  WizGenesis™ is detecting every voice and separating instrument stems. This typically takes 30–120 seconds.
                 </p>
                 <div className="flex gap-4 text-xs text-zinc-500">
                   <span className="flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin text-[--color-gold]" />Speaker detection</span>
@@ -763,7 +763,7 @@ export default function WizSyncPage() {
                   </div>
                   <Button
                     className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold rounded-xl"
-                    onClick={() => toast.info("Lip sync generation coming soon!", { description: "Hedra API integration is in progress. Characters and segments are saved and ready." })}
+                    onClick={() => toast.info("Lip sync generation coming soon!", { description: "WizPerformer™ is in progress. Characters and segments are saved and ready." })}
                   >
                     <Zap className="w-4 h-4 mr-2" />
                     Generate Lip Sync
@@ -790,7 +790,7 @@ export default function WizSyncPage() {
                 step: "02",
                 icon: <Users className="w-6 h-6 text-[--color-silver]" />,
                 title: "Detect Voices",
-                desc: "AssemblyAI Universal-2 identifies every speaker with timestamps and transcripts.",
+                desc: "WizGenesis™ identifies every speaker with precise timestamps and transcripts.",
               },
               {
                 step: "03",
@@ -829,7 +829,7 @@ export default function WizSyncPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: <Mic2 className="w-5 h-5 text-[--color-gold]" />, title: "AI Speaker Diarisation", desc: "AssemblyAI Universal-2 identifies every unique voice in your track with precise timestamps — even in complex multi-speaker recordings." },
+              { icon: <Mic2 className="w-5 h-5 text-[--color-gold]" />, title: "AI Speaker Detection", desc: "WizGenesis™ identifies every unique voice in your track with precise timestamps — even in complex multi-speaker recordings." },
               { icon: <Layers className="w-5 h-5 text-[--color-gold]" />, title: "6-Stem Audio Separation", desc: "WizGenesis™ splits your track into 6 independent stems — vocals, drums, bass, guitar, piano, and other — for granular creative control." },
               { icon: <Users className="w-5 h-5 text-[--color-gold]" />, title: "Character-to-Voice Mapping", desc: "Assign any detected voice to any character automatically or manually — with full override control for every segment." },
               { icon: <Zap className="w-5 h-5 text-[--color-gold]" />, title: "AI Lip Sync Generation", desc: "Generates frame-accurate lip sync animation per character segment using AI — no manual keyframing or rotoscoping required." },

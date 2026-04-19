@@ -49,7 +49,7 @@ const VOCAL_STYLES = [
 ];
 
 const PROMPT_EXAMPLES = [
-  "A kids pirate adventure song with catchy chorus and fun sound effects",
+  "A kids pirate adventure song with a catchy chorus and upbeat energy",
   "Cinematic orchestral score for an epic fantasy battle scene",
   "Lo-fi hip hop beats for studying, rainy day vibes",
   "Upbeat pop song about summer love and dancing on the beach",
@@ -560,7 +560,7 @@ export default function MusicCreator() {
               <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g. A kids pirate adventure song with catchy chorus and fun sound effects..."
+                placeholder="e.g. A kids pirate adventure song with a catchy chorus and upbeat energy..."
                 className="bg-[#0f0f0f] border-white/10 text-white placeholder:text-[#666] resize-none min-h-[100px] focus:border-[--color-gold]/30 focus:ring-0 rounded-xl"
                 maxLength={400}
               />
