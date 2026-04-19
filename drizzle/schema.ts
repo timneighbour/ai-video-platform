@@ -787,3 +787,59 @@ export const wizShortsScenes = mysqlTable("wizShortsScenes", {
 });
 export type WizShortsScene = typeof wizShortsScenes.$inferSelect;
 export type InsertWizShortsScene = typeof wizShortsScenes.$inferInsert;
+
+// ── Analytics Tables ──────────────────────────────────────────────────────────
+
+export const analyticsSessions = mysqlTable("analyticsSessions", {
+  id: varchar("id", { length: 36 }).primaryKey(), // UUID
+  visitorId: varchar("visitorId", { length: 64 }).notNull(), // fingerprint hash
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+  duration: int("duration").default(0), // seconds
+  pageCount: int("pageCount").default(1),
+  entryPage: varchar("entryPage", { length: 512 }),
+  exitPage: varchar("exitPage", { length: 512 }),
+  referrer: varchar("referrer", { length: 1024 }),
+  utmSource: varchar("utmSource", { length: 255 }),
+  utmMedium: varchar("utmMedium", { length: 255 }),
+  utmCampaign: varchar("utmCampaign", { length: 255 }),
+  country: varchar("country", { length: 64 }),
+  city: varchar("city", { length: 128 }),
+  device: varchar("device", { length: 32 }), // desktop | mobile | tablet
+  browser: varchar("browser", { length: 64 }),
+  os: varchar("os", { length: 64 }),
+  screenWidth: int("screenWidth"),
+  bounced: boolean("bounced").default(true),
+  converted: boolean("converted").default(false), // completed a render/purchase
+});
+export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
+
+export const analyticsPageViews = mysqlTable("analyticsPageViews", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 36 }).notNull(),
+  visitorId: varchar("visitorId", { length: 64 }).notNull(),
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+  path: varchar("path", { length: 512 }).notNull(),
+  title: varchar("title", { length: 512 }),
+  referrer: varchar("referrer", { length: 1024 }),
+  timeOnPage: int("timeOnPage").default(0), // seconds
+  scrollDepth: int("scrollDepth").default(0), // 0-100 percent
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AnalyticsPageView = typeof analyticsPageViews.$inferSelect;
+
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 36 }).notNull(),
+  visitorId: varchar("visitorId", { length: 64 }).notNull(),
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+  event: varchar("event", { length: 128 }).notNull(), // e.g. "cta_click", "signup", "render_started"
+  category: varchar("category", { length: 64 }), // e.g. "conversion", "engagement"
+  label: varchar("label", { length: 255 }),
+  value: varchar("value", { length: 255 }),
+  path: varchar("path", { length: 512 }),
+  meta: json("meta"), // arbitrary extra data
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

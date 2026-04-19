@@ -5288,3 +5288,12 @@
 - [ ] Add PromptEnhancer to any other product with a user-facing description/prompt field
 - [ ] Copy button: copies enhanced text to clipboard, shows "Copied!" toast confirmation
 - [ ] One-click apply: also allow user to click Apply to paste directly into the prompt field
+
+## Real-Time Analytics Dashboard - COMPLETED ✅
+- [x] Create analyticsPageViews, analyticsEvents, analyticsSessions DB tables and migration
+- [x] Build analytics tRPC router with ingestion + aggregated query procedures (overview, time series, page stats, events, device breakdown, traffic sources, conversion funnel, recent sessions)
+- [x] Build wizAnalytics client-side tracker (session management, visitor fingerprinting, page view tracking, custom events, scroll depth, flush on unload)
+- [x] Wire WizAnalyticsTracker into App.tsx for automatic SPA page-view tracking
+- [x] Build AnalyticsDashboard page at /admin/analytics with KPI cards, area chart, funnel, traffic sources, device/browser pie charts, top pages table, top events table, live sessions table
+- [x] Add Analytics Dashboard link to AdminPanel quick links
+- [x] Register /admin/analytics route in App.tsx

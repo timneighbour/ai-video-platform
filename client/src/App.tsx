@@ -8,6 +8,7 @@ import { identifyUser, resetIdentity, mp } from "@/lib/mixpanel";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 import { trpc } from "./lib/trpc";
+import { wizAnalytics } from "./lib/wizAnalytics";
 import GlobalMuteButton from "./components/GlobalMuteButton";
 import IntroScreen from "./components/IntroScreen";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
@@ -67,6 +68,7 @@ const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
 const ShowcasePage = lazy(() => import("@/pages/Showcase"));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
+const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 
 // Minimal fallback — just a dark screen while the chunk loads
 function PageFallback() {
@@ -169,6 +171,7 @@ function Router() {
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/admin"} component={BlogAdmin} />
         <Route path={"/admin"} component={AdminPanel} />
+        <Route path={"/admin/analytics"} component={AnalyticsDashboard} />
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />
@@ -184,6 +187,30 @@ function Router() {
       </Suspense>
     </SafeFallbackRouter>
   );
+}
+
+/** Initialises first-party analytics and tracks page views on route change */
+function WizAnalyticsTracker() {
+  const { data: me } = trpc.auth.me.useQuery();
+  const [location] = useLocation();
+  const [initialized, setInitialized] = useState(false);
+
+  // Init once auth state is resolved
+  useEffect(() => {
+    if (me !== undefined) {
+      wizAnalytics.init(me?.id ?? undefined);
+      setInitialized(true);
+    }
+  }, [me?.id, me]);
+
+  // Track page view on every route change
+  useEffect(() => {
+    if (initialized) {
+      wizAnalytics.page(location);
+    }
+  }, [location, initialized]);
+
+  return null;
 }
 
 /** Fires identifyUser once the auth state is known, and signUpCompleted for brand-new users */
@@ -250,6 +277,7 @@ function App() {
           <Suspense fallback={null}>
             <CrispChat />
           </Suspense>
+          <WizAnalyticsTracker />
           <MixpanelIdentity />
           <NoIndexGuard />
           <Router />
