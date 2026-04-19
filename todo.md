@@ -4878,9 +4878,9 @@
 - [x] QA-VIS-2: Audit pricing page — consistent nav, styling, copy
 - [x] QA-VIS-3: Audit help page — consistent nav, styling, copy
 - [x] QA-VIS-4: Audit create/onboarding page — WIZ AI branded, no old names
-- [ ] QA-VIS-5: Audit sign-in/auth screens — luxury styling
-- [ ] QA-VIS-6: Audit dashboard — no old WizVid branding, premium feel
-- [ ] QA-VIS-7: Audit projects page — clean, usable, premium
+- [x] QA-VIS-5: Audit sign-in/auth screens — luxury styling
+- [x] QA-VIS-6: Audit dashboard — no old WizVid branding, premium feel
+- [x] QA-VIS-7: Audit projects page — clean, usable, premium
 - [x] QA-VIS-8: Audit WizAudio tool page — WIZ AI branded, no Suno wrapper look (clean, no Suno visible)
 - [x] QA-VIS-9: Audit WizImage tool page — WIZ AI branded, no Grok wrapper look (fixed: Grok Aurora → WizImage™)
 - [x] QA-VIS-10: Audit WizVideo tool page — WIZ AI branded (clean, no third-party branding)
@@ -5189,40 +5189,40 @@
 
 ## WIZ AI SECRET SAUCE PROTECTION (Apr 19 2026)
 ### 1. Remove Third-Party Provider Names from Public UI
-- [ ] Remove "Powered by Suno" / "Suno" from all public pages and components
-- [ ] Remove "Grok" / "xAI" / "Grok Imagine" from all public pages and components
-- [ ] Remove "WaveSpeed" from all public pages and components
-- [ ] Remove "Seedance" from all public pages and components
-- [ ] Remove "Kling AI" / "Kling" from all public pages and components
-- [ ] Remove "HeyGen" / "MuseTalk" from all public pages and components
-- [ ] Remove "Runway" / "RunwayML" from all public pages and components
-- [ ] Remove "FAL AI" / "fal.ai" from all public pages and components
-- [ ] Remove "ElevenLabs" from all public pages and components
-- [ ] Replace all provider names with WIZ AI product names
+- [x] Remove "Powered by Suno" / "Suno" from all public pages and components
+- [x] Remove "Grok" / "xAI" / "Grok Imagine" from all public pages and components
+- [x] Remove "WaveSpeed" from all public pages and components
+- [x] Remove "Seedance" from all public pages and components
+- [x] Remove "Kling AI" / "Kling" from all public pages and components
+- [x] Remove "HeyGen" / "MuseTalk" from all public pages and components
+- [x] Remove "Runway" / "RunwayML" from all public pages and components
+- [x] Remove "FAL AI" / "fal.ai" from all public pages and components
+- [x] Remove "ElevenLabs" from all public pages and components
+- [x] Replace all provider names with WIZ AI product names
 
 ### 2. Remove Internal Technical Details from Public Pages
-- [ ] Remove model routing details from public-facing copy
-- [ ] Remove prompt chain descriptions from public pages
-- [ ] Remove API endpoint names that reveal providers
-- [ ] Remove engine weighting/scoring details from public pages
-- [ ] Remove generation parameter details from public copy
-- [ ] Replace technical copy with benefit-focused language
+- [x] Remove model routing details from public-facing copy
+- [x] Remove prompt chain descriptions from public pages
+- [x] Remove API endpoint names that reveal providers
+- [x] Remove engine weighting/scoring details from public pages
+- [x] Remove generation parameter details from public copy
+- [x] Replace technical copy with benefit-focused language
 
 ### 3. WizPerformer Privacy Consent
-- [ ] Add consent modal/screen before face capture begins
-- [ ] Explain what is captured (face photo/reference image)
-- [ ] Explain why it is captured (AI performer generation)
-- [ ] Explain how long it is stored (session / account lifetime)
-- [ ] Add delete option for stored face data
-- [ ] Update Privacy Policy page with WizPerformer section
-- [ ] Add consent checkbox before upload is allowed
+- [x] Add consent modal/screen before face capture begins
+- [x] Explain what is captured (face photo/reference image)
+- [x] Explain why it is captured (AI performer generation)
+- [x] Explain how long it is stored (session / account lifetime)
+- [x] Add delete option for stored face data
+- [x] Update Privacy Policy page with WizPerformer section
+- [x] Add consent checkbox before upload is allowed
 
 ### 4. Server-Side Hardening
-- [ ] Ensure all error responses return generic messages (no provider names, no prompt details)
-- [ ] Remove stack traces from production error responses
-- [ ] Add noindex meta tag to all private/dashboard routes
-- [ ] Verify no API keys are in client bundle (VITE_ prefix only for public keys)
-- [ ] Verify no prompt templates are in client-side code
-- [ ] Verify no model routing logic is in client-side code
-- [ ] Add rate limiting to generation endpoints
-- [ ] Protect all generation/dashboard routes behind auth middleware
+- [x] Ensure all error responses return generic messages (no provider names, no prompt details)
+- [x] Remove stack traces from production error responses
+- [x] Add noindex meta tag to all private/dashboard routes
+- [x] Verify no API keys are in client bundle (VITE_ prefix only for public keys)
+- [x] Verify no prompt templates are in client-side code
+- [x] Verify no model routing logic is in client-side code
+- [x] Add rate limiting to generation endpoints
+- [x] Protect all generation/dashboard routes behind auth middleware

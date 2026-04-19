@@ -251,6 +251,18 @@ async function startServer() {
   app.use("/api/trpc/suno.generate", aiGenerationLimiter);
   app.use("/api/trpc/suno.generateCustom", aiGenerationLimiter);
   app.use("/api/trpc/autopilot.start", aiGenerationLimiter);
+  // Additional generation endpoints
+  app.use("/api/trpc/musicVideo.startRender", aiGenerationLimiter);
+  app.use("/api/trpc/musicVideo.generateMasterPortrait", aiGenerationLimiter);
+  app.use("/api/trpc/musicVideo.generateCharacterFromDescription", aiGenerationLimiter);
+  app.use("/api/trpc/batchRegen.generateMasterPortrait", aiGenerationLimiter);
+  app.use("/api/trpc/kidsVideo.generate", aiGenerationLimiter);
+  app.use("/api/trpc/kidsVideo.startRender", aiGenerationLimiter);
+  app.use("/api/trpc/wizImage.generate", aiGenerationLimiter);
+  app.use("/api/trpc/wizShorts.generate", aiGenerationLimiter);
+  app.use("/api/trpc/lipSync.create", aiGenerationLimiter);
+  app.use("/api/trpc/enhancement.enhance", aiGenerationLimiter);
+  app.use("/api/trpc/textToVideo.generate", aiGenerationLimiter);
   app.use(
     "/api/trpc",
     createExpressMiddleware({

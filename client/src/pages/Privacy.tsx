@@ -16,7 +16,7 @@ export default function Privacy() {
       <main className="max-w-4xl mx-auto px-6 py-16">
         <div className="mb-10">
           <h1 className="text-4xl font-extrabold tracking-tight mb-3">Privacy Policy</h1>
-          <p className="text-[#a1a1aa] text-sm">Last updated: 18 April 2026</p>
+          <p className="text-[#a1a1aa] text-sm">Last updated: 19 April 2026</p>
         </div>
 
         <div className="prose prose-invert max-w-none space-y-8 text-[#d4d4d8] leading-relaxed">
@@ -77,7 +77,21 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-white mb-3">8. Changes to This Policy</h2>
+            <h2 className="text-xl font-bold text-white mb-3">8. WizPerformer — Face Image Processing</h2>
+            <p>WizPerformer is an optional feature that allows you to upload a photo of your face to generate an AI performer that looks like you. This section explains how we handle face image data.</p>
+            <ul className="list-disc pl-6 space-y-2 mt-3">
+              <li><strong>What is collected:</strong> A photograph or image you voluntarily upload. No additional biometric data (facial geometry, measurements, or templates) is extracted or stored beyond the image itself.</li>
+              <li><strong>Why it is collected:</strong> Solely to generate AI performer images and video scenes for your creative project. Your photo is used as a visual reference for AI generation only.</li>
+              <li><strong>How long it is stored:</strong> Face images are stored for the lifetime of your account. You may delete them at any time from your account settings or by emailing <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a>.</li>
+              <li><strong>Who can access it:</strong> Only WIZ AI's secure AI generation pipeline. Your face image is never shared with third parties, used for advertising, or used to train AI models without your explicit consent.</li>
+              <li><strong>Legal basis (GDPR):</strong> Processing is based on your explicit consent, which you provide before uploading. You may withdraw consent at any time by deleting your image.</li>
+              <li><strong>Your rights:</strong> You have the right to access, correct, or delete your face image data at any time. Contact <a href="mailto:support@wiz-ai.io" className="text-[--color-gold] hover:text-[--color-gold] underline">support@wiz-ai.io</a> to exercise these rights.</li>
+            </ul>
+            <p className="mt-3">WizPerformer is entirely optional. You can use WIZ AI to create videos without uploading any face images.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3">9. Changes to This Policy</h2>
             <p>We may update this policy from time to time. We will notify you of significant changes by email or by displaying a notice on the platform. The "last updated" date at the top of this page reflects the most recent revision.</p>
           </section>
 
