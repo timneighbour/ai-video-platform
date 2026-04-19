@@ -23,12 +23,12 @@ const WIZSHORTS_LOGO = `${CDN_LOGOS}/wizshorts-logo-v1_20b45a3d.png`;
 const WIZANIMATE_LOGO_V3 = `${CDN_LOGOS}/wizanimate-logo-v3_c8d75b4e.png`;
 const WIZSCRIPT_LOGO = `${CDN_LOGOS}/wizscript-logo-v1_cb2f7610.png`;
 
-const CARD_BG_AUDIO = `/manus-storage/card-wizaudio-v2_ba9bb3e1.jpg`;
-const CARD_BG_IMAGE = `${CDN_LOGOS}/create-card-image_1b5b141d.jpg`;
-const CARD_BG_VIDEO = `/manus-storage/card-music-video-v2_6f26fb2a.jpg`;
-const CARD_BG_SHORTS = `/manus-storage/card-youtube-creator-v2_2ef15c2b.jpg`;
-const CARD_BG_ANIMATE = `/manus-storage/card-wizanimate-v2_1e933c01.jpg`;
-const CARD_BG_SCRIPT = `/manus-storage/card-text-to-video-v2_35050505.jpg`;
+const CARD_BG_AUDIO = `/manus-storage/card-wizaudio-v2_c9860bf6.webp`;
+const CARD_BG_IMAGE = `/manus-storage/create-card-image_bf605c7f.webp`;
+const CARD_BG_VIDEO = `/manus-storage/card-music-video-v2_5d082d39.webp`;
+const CARD_BG_SHORTS = `/manus-storage/card-youtube-creator-v2_55319d4e.webp`;
+const CARD_BG_ANIMATE = `/manus-storage/card-wizanimate-v2_81648dbe.webp`;
+const CARD_BG_SCRIPT = `/manus-storage/card-text-to-video-v2_083bed3d.webp`;
 
 type AccentKey = "emerald" | "amber" | "violet" | "cyan" | "rose" | "orange";
 

@@ -5310,3 +5310,26 @@
 - [x] Fix WizAnimate animation style enum mismatch (6 vs 11 styles)
 - [x] Apply MySQL ALTER TABLE migration for kidsVideoJobs.animationStyle
 - [x] Fix "WIZSCRIPT AUTOPILOT" branding in WizVideo creation wizard header
+
+## Pre-Launch Production QA (19 Apr 2026)
+- [ ] Replace risky style labels: Pixar Movie → Premium 3D Animation, Studio Ghibli → Classic Fairytale Animation, etc.
+- [ ] Audit and remove all public-facing provider names (Suno, Grok, Kling, Runway, etc.)
+- [ ] Optimise oversized product card images (resize to display size, convert to WebP)
+- [ ] Fix structured data: remove placeholder aggregateRating, update social URLs
+- [ ] Publish checkpoint 494e484e to live production
+- [ ] Run live smoke test on all 8 required URLs
+- [ ] Execute WizVideo full render proof on live site
+- [ ] Execute WizAnimate full render proof on live site
+- [ ] Run PageSpeed Insights retest on live production
+- [ ] Produce final production sign-off report
+
+## Pre-Launch Production QA (19 Apr 2026) - COMPLETED ✅
+- [x] Replace risky animation style labels (Pixar Movie, Studio Ghibli, Disney) with generic labels
+- [x] Audit all public-facing provider name references (Suno, Kling, Runway, HeyGen) — all clean
+- [x] Optimise oversized product card images (resize to 740x494, convert to WebP, 99%+ reduction)
+- [x] Remove placeholder aggregateRating from structured data
+- [x] Update social URLs in JSON-LD sameAs array (placeholder handles — Tim to confirm real URLs)
+- [x] Fix WIZVIDEO AUTOPILOT branding in music video creation wizard header
+- [x] Fix Suno custom mode 400 error (no lyrics path)
+- [x] Fix audioDuration not set when Suno track is selected
+- [x] Fix WizAnimate animation style enum mismatch (6 → 11 styles, DB migration applied)
