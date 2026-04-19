@@ -173,8 +173,26 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Vendor: React core
-          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
+          // Vendor: React core — must include ALL react-* packages to prevent
+          // double-React-instance crashes with the manus-runtime space editor.
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/scheduler/") ||
+            id.includes("node_modules/use-sync-external-store/") ||
+            id.includes("node_modules/react-is/") ||
+            id.includes("node_modules/react-day-picker/") ||
+            id.includes("node_modules/react-resizable-panels/") ||
+            id.includes("node_modules/react-helmet-async/") ||
+            id.includes("node_modules/react-hook-form/") ||
+            id.includes("node_modules/@hookform/") ||
+            id.includes("node_modules/embla-carousel-react/") ||
+            id.includes("node_modules/next-themes/") ||
+            id.includes("node_modules/react-resizable-panels/") ||
+            id.includes("node_modules/input-otp/") ||
+            id.includes("node_modules/vaul/") ||
+            id.includes("node_modules/cmdk/")
+          ) {
             return "vendor-react";
           }
           // Vendor: tRPC + query
@@ -204,8 +222,7 @@ export default defineConfig({
             return "vendor-ui";
           }
           // Vendor: Forms & validation
-          if (id.includes("node_modules/react-hook-form/") || id.includes("node_modules/@hookform/") ||
-              id.includes("node_modules/zod/") || id.includes("node_modules/date-fns/")) {
+          if (id.includes("node_modules/zod/") || id.includes("node_modules/date-fns/")) {
             return "vendor-forms";
           }
           // Vendor: routing
@@ -213,8 +230,7 @@ export default defineConfig({
             return "vendor-router";
           }
           // Vendor: superjson + other utils
-          if (id.includes("node_modules/superjson/") || id.includes("node_modules/react-helmet-async/") ||
-              id.includes("node_modules/@tanstack/")) {
+          if (id.includes("node_modules/superjson/") || id.includes("node_modules/@tanstack/")) {
             return "vendor-utils";
           }
           // All other node_modules go into a shared vendor chunk
