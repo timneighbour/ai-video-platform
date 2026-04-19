@@ -102,34 +102,38 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       </nav>
 
       {/* ── Hero ── */}
-      <section className="relative py-24 px-6 overflow-hidden">
-        {/* Background radial glow — gold tinted */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(196,164,100,0.06) 0%, transparent 65%)" }}
-        />
+      <section className="relative py-28 px-6 overflow-hidden">
+        {/* Multi-layer cinematic background */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 70% at 50% 20%, rgba(196,164,100,0.08) 0%, transparent 60%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(196,164,100,0.04) 0%, transparent 70%)" }} />
+        {/* Subtle grain texture overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 256 256\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noise\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"4\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noise)\"/%3E%3C/svg%3E')" }} />
+
         <div className="max-w-5xl mx-auto text-center relative">
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <img
-              src={logo}
-              alt={name}
-              className="h-[6.75rem] w-auto object-contain"
-              style={{ filter: "drop-shadow(0 0 24px rgba(196,164,100,0.15))" }}
-            />
+          {/* Logo — larger, stronger glow */}
+          <div className="flex justify-center mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 blur-3xl opacity-20" style={{ background: "radial-gradient(circle, rgba(196,164,100,0.6) 0%, transparent 70%)", transform: "scale(2)" }} />
+              <img
+                src={logo}
+                alt={name}
+                className="relative h-28 md:h-36 w-auto object-contain"
+                style={{ filter: "drop-shadow(0 0 32px rgba(196,164,100,0.25)) drop-shadow(0 0 8px rgba(196,164,100,0.15))" }}
+              />
+            </div>
           </div>
 
           {/* Role pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.05] text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark] mb-7">
             <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
             {role} · {tagline}
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 metallic-gold">
+          <h1 className="text-4xl md:text-[3.75rem] font-black tracking-tight leading-[1.08] mb-6 metallic-gold">
             {headline}
           </h1>
-          <p className="text-[--color-silver-dark]/50 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-[--color-silver-dark]/55 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
             {subheadline}
           </p>
 
@@ -144,7 +148,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
             </NavLink>
             <NavLink
               href="/"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold text-sm text-[--color-silver-dark]/60 border border-[--color-gold]/[0.08] hover:border-[--color-gold]/[0.15] hover:text-[--color-silver] transition-all"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold text-sm text-[--color-silver-dark]/60 border border-[--color-gold]/[0.10] hover:border-[--color-gold]/[0.20] hover:text-[--color-silver] transition-all"
             >
               See all modules <ChevronRight className="w-4 h-4" />
             </NavLink>
@@ -215,27 +219,31 @@ export default function ProductPageTemplate(props: ProductPageProps) {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {howItWorks.map((step, i) => (
-              <div key={step.num} className="relative p-6 rounded-2xl border border-[--color-gold]/[0.06] bg-[#0a0a0a]">
-                {/* Step number */}
-                <div className="text-xs font-mono font-bold text-[--color-gold-dark] mb-3 opacity-60">
+              <div key={step.num} className="relative p-6 rounded-2xl border border-[--color-gold]/[0.08] bg-[#0a0a0a] hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.02] transition-all duration-300 group">
+                {/* Step number — large background watermark */}
+                <div className="text-[3.5rem] font-black leading-none text-[--color-gold]/[0.06] absolute top-3 right-4 select-none pointer-events-none">
                   {step.num}
                 </div>
+                {/* Step number label */}
+                <div className="text-[10px] font-mono font-bold text-[--color-gold-dark] mb-4 tracking-[0.2em] opacity-70">
+                  STEP {step.num}
+                </div>
                 {/* Icon */}
-                <div className="w-9 h-9 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.12] flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.14] flex items-center justify-center mb-4 group-hover:bg-[--color-gold]/[0.14] transition-colors">
                   {step.icon.startsWith("http") ? (
                     <img src={step.icon} alt={step.title} className="w-5 h-5 object-contain" />
                   ) : ICON_MAP[step.icon] ? (
-                    (() => { const Icon = ICON_MAP[step.icon]; return <Icon className="w-4.5 h-4.5 text-[--color-gold]" />; })()
+                    (() => { const Icon = ICON_MAP[step.icon]; return <Icon className="w-5 h-5 text-[--color-gold]" />; })()
                   ) : (
                     <span className="text-sm text-[--color-gold]">{step.icon}</span>
                   )}
                 </div>
-                <h3 className="text-sm font-bold text-white mb-2">{step.title}</h3>
-                <p className="text-xs text-[--color-silver-dark]/45 leading-relaxed">{step.desc}</p>
+                <h3 className="text-sm font-bold text-white mb-2 group-hover:text-[--color-gold-light] transition-colors">{step.title}</h3>
+                <p className="text-xs text-[--color-silver-dark]/50 leading-relaxed">{step.desc}</p>
                 {/* Connector arrow */}
                 {i < howItWorks.length - 1 && (
                   <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
-                    <ChevronRight className="w-5 h-5 text-[--color-gold]/[0.15]" />
+                    <ChevronRight className="w-5 h-5 text-[--color-gold]/[0.20]" />
                   </div>
                 )}
               </div>
@@ -341,15 +349,19 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       </section>
 
       {/* ── Final CTA ── */}
-      <section className="py-20 px-6 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+      <section className="relative py-28 px-6 text-center overflow-hidden">
+        {/* Cinematic ambient glow */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(196,164,100,0.07) 0%, transparent 65%)" }} />
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent 0%, rgba(196,164,100,0.15) 50%, transparent 100%)" }} />
+        <div className="max-w-2xl mx-auto relative">
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">Start Now</p>
+          <h2 className="text-3xl md:text-[2.75rem] font-black tracking-tight text-white mb-4 leading-tight">
             Ready to use {name}?
           </h2>
-          <p className="text-[--color-silver-dark]/50 mb-8">Start creating cinematic AI videos today — no experience required.</p>
+          <p className="text-[--color-silver-dark]/50 mb-10 text-lg">Start creating cinematic AI content today — no experience required.</p>
           <NavLink
             href={ctaHref}
-            className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-sm"
+            className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2 px-12 py-4 rounded-2xl font-bold text-sm"
           >
             <Sparkles className="w-4 h-4" />
             {ctaLabel} <ArrowRight className="w-4 h-4" />

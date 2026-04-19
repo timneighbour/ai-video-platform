@@ -574,9 +574,11 @@ function WizEngines() {
       desc: "The premium audio engine that upgrades every track from Normal to Cinematic quality.",
       benefit: "Your audio sounds professionally mastered, not AI-generated.",
       logoUrl: WIZSOUND_LOGO,
-      accentFrom: "oklch(0.78 0.11 75 / 0.15)",
-      accentBorder: "oklch(0.78 0.11 75 / 0.12)",
-      accentGlow: "oklch(0.78 0.11 75 / 0.06)",
+      // Warm gold — audio warmth
+      accentFrom: "oklch(0.80 0.14 72 / 0.18)",
+      accentBorder: "oklch(0.80 0.14 72 / 0.22)",
+      accentGlow: "oklch(0.80 0.14 72 / 0.07)",
+      accentColor: "oklch(0.80 0.14 72)",
     },
     {
       name: "WizLumina",
@@ -585,9 +587,11 @@ function WizEngines() {
       desc: "The visual enhancement engine that transforms raw AI footage into polished, cinematic output.",
       benefit: "Every frame looks colour-graded by a professional colourist.",
       logoUrl: WIZLUMINA_LOGO,
-      accentFrom: "oklch(0.82 0.01 260 / 0.15)",
-      accentBorder: "oklch(0.82 0.01 260 / 0.12)",
-      accentGlow: "oklch(0.82 0.01 260 / 0.06)",
+      // Cool silver-blue — visual clarity
+      accentFrom: "oklch(0.78 0.06 230 / 0.18)",
+      accentBorder: "oklch(0.78 0.06 230 / 0.22)",
+      accentGlow: "oklch(0.78 0.06 230 / 0.07)",
+      accentColor: "oklch(0.78 0.06 230)",
     },
     {
       name: "WizGenesis",
@@ -596,9 +600,11 @@ function WizEngines() {
       desc: "The core intelligence engine powering every creative decision inside WIZ AI.",
       benefit: "Your ideas become better, faster, and more consistent automatically.",
       logoUrl: WIZGENESIS_LOGO,
-      accentFrom: "oklch(0.78 0.11 75 / 0.15)",
-      accentBorder: "oklch(0.78 0.11 75 / 0.08)",
-      accentGlow: "oklch(0.78 0.11 75 / 0.04)",
+      // Deep violet-purple — intelligence
+      accentFrom: "oklch(0.68 0.18 295 / 0.18)",
+      accentBorder: "oklch(0.68 0.18 295 / 0.22)",
+      accentGlow: "oklch(0.68 0.18 295 / 0.07)",
+      accentColor: "oklch(0.68 0.18 295)",
     },
     {
       name: "WizBoost",
@@ -607,9 +613,11 @@ function WizEngines() {
       desc: "The output optimisation engine that accelerates render speed and sharpens final quality.",
       benefit: "Every export is optimised for maximum quality on every platform.",
       logoUrl: WIZBOOST_LOGO,
-      accentFrom: "oklch(0.78 0.11 75 / 0.12)",
-      accentBorder: "oklch(0.78 0.11 75 / 0.10)",
-      accentGlow: "oklch(0.78 0.11 75 / 0.05)",
+      // Electric green — speed/performance
+      accentFrom: "oklch(0.76 0.18 145 / 0.16)",
+      accentBorder: "oklch(0.76 0.18 145 / 0.20)",
+      accentGlow: "oklch(0.76 0.18 145 / 0.06)",
+      accentColor: "oklch(0.76 0.18 145)",
     },
   ];
 
@@ -630,12 +638,15 @@ function WizEngines() {
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section header */}
         <div className="text-center mb-20 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Proprietary Intelligence</p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style={{ background: "oklch(0.78 0.11 75 / 0.08)", border: "1px solid oklch(0.78 0.11 75 / 0.18)" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+            <span className="text-[10px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">Proprietary Intelligence Layer</span>
+          </div>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-5">
             Powered by the <span className="metallic-gold">WIZ Engines</span>
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto leading-relaxed">
-            Every creation on WIZ AI is enhanced by a stack of proprietary engines that make your output smarter, more polished, and more cinematic than ordinary AI tools.
+            Four proprietary engines work silently behind every creation — making your output smarter, more polished, and more cinematic than anything ordinary AI tools can produce.
           </p>
         </div>
 
@@ -666,34 +677,36 @@ function WizEngines() {
 
               <div className="relative z-10 p-8 sm:p-10 flex flex-col items-center text-center">
                 {/* Logo centred with glow halo */}
-                <div className="relative mb-6">
+                <div className="relative mb-7">
                   <div
-                    className="absolute inset-0 rounded-2xl blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-700"
-                    style={{ background: eng.accentFrom, transform: 'scale(1.6)' }}
+                    className="absolute inset-0 rounded-2xl blur-3xl opacity-25 group-hover:opacity-55 transition-opacity duration-700"
+                    style={{ background: (eng as any).accentColor, transform: 'scale(1.8)' }}
                   />
                   <div
                     className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center"
                     style={{
-                      background: "linear-gradient(145deg, rgba(196,164,100,0.08) 0%, rgba(0,0,0,0.5) 100%)",
-                      border: "1px solid rgba(196,164,100,0.18)",
-                      boxShadow: "0 1px 0 rgba(232,213,160,0.12) inset, 0 6px 30px rgba(0,0,0,0.7)",
+                      background: `linear-gradient(145deg, ${eng.accentGlow} 0%, rgba(0,0,0,0.55) 100%)`,
+                      border: `1px solid ${eng.accentBorder}`,
+                      boxShadow: `0 1px 0 ${eng.accentFrom} inset, 0 6px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4)`,
                     }}
                   >
                     <img
                       src={eng.logoUrl}
                       alt={eng.name}
-                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-[0_0_24px_rgba(196,164,100,0.5)] group-hover:scale-105 transition-transform duration-500"
+                      className="w-20 h-20 sm:w-24 sm:h-24 object-contain group-hover:scale-105 transition-transform duration-500"
+                      style={{ filter: `drop-shadow(0 0 20px ${(eng as any).accentColor})` }}
                     />
                   </div>
                 </div>
 
                 {/* Engine type badge */}
                 <div
-                  className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.16em] uppercase mb-4"
+                  className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.18em] uppercase mb-5"
                   style={{
-                    background: `linear-gradient(135deg, ${eng.accentFrom}, rgba(0,0,0,0.4))`,
+                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.5))`,
                     border: `1px solid ${eng.accentBorder}`,
-                    color: 'rgba(232,213,160,0.65)',
+                    color: (eng as any).accentColor,
+                    opacity: 0.85,
                   }}
                 >
                   {eng.tagline}
@@ -705,21 +718,21 @@ function WizEngines() {
                 </h3>
 
                 {/* Tagline as subtitle */}
-                <p className="text-[--color-gold-dark]/55 text-xs font-semibold tracking-[0.22em] uppercase mb-5 relative z-10">{eng.tagline}</p>
+                <p className="text-xs font-semibold tracking-[0.22em] uppercase mb-5 relative z-10" style={{ color: (eng as any).accentColor, opacity: 0.6 }}>{eng.tagline}</p>
 
                 {/* Description */}
-                <p className="text-white/42 text-sm leading-relaxed mb-6 relative z-10 max-w-xs">{eng.desc}</p>
+                <p className="text-white/45 text-sm leading-relaxed mb-6 relative z-10 max-w-xs">{eng.desc}</p>
 
                 {/* Benefit callout — styled highlight strip */}
                 <div
                   className="relative z-10 flex items-start gap-3 px-4 py-3.5 rounded-xl w-full"
                   style={{
-                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.35))`,
+                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.4))`,
                     border: `1px solid ${eng.accentBorder}`,
                   }}
                 >
-                  <Check className="w-4 h-4 text-[--color-gold] mt-0.5 flex-shrink-0" />
-                  <p className="text-white/72 text-sm font-medium leading-snug text-left">{eng.benefit}</p>
+                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: (eng as any).accentColor }} />
+                  <p className="text-white/75 text-sm font-medium leading-snug text-left">{eng.benefit}</p>
                 </div>
               </div>
             </div>
@@ -1484,7 +1497,8 @@ function Showcase() {
   const items = dbItems && dbItems.length > 0 ? dbItems : [
     { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
     { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png", videoUrl: null, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 4, title: "Warrior — AI Image Generation", category: "WizImage", posterUrl: "/manus-storage/demo-ai-image_6fb67221.png", videoUrl: null, description: "A single-prompt AI image — cinematic lighting, detailed environment, photorealistic quality. Generated in under 10 seconds with WizImage." },
   ];
 
   return (
@@ -1502,8 +1516,8 @@ function Showcase() {
             View all <ArrowRight className="w-4 h-4" />
           </a>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.slice(0, 3).map((item) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {items.slice(0, 4).map((item) => (
             <ShowcaseCard key={item.id} item={item} />
           ))}
         </div>
