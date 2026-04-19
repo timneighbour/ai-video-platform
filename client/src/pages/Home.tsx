@@ -65,48 +65,66 @@ const PRODUCTS = [
     label: "Create Audio",
     tagline: "AI Music & Audio Studio",
     desc: "Generate full studio-quality music tracks from a text prompt in seconds.",
-    icon: <WizAudioEmblem size={28} />,
+    icon: <WizAudioEmblem size={36} />,
     href: "/music-creator",
+    glowColor: "oklch(0.72 0.18 160)",
+    bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
+    borderColor: "oklch(0.72 0.18 160 / 0.35)",
   },
   {
     name: "WizImage",
     label: "Create Images",
     tagline: "AI Image & Artwork Creator",
     desc: "Create cinematic AI images and visual assets from any idea, instantly.",
-    icon: <WizImageEmblem size={28} />,
+    icon: <WizImageEmblem size={36} />,
     href: "/wiz-image",
+    glowColor: "oklch(0.78 0.11 75)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
+    borderColor: "oklch(0.78 0.11 75 / 0.35)",
   },
   {
     name: "WizVideo",
     label: "Create Videos",
     tagline: "AI Music Video Generator",
     desc: "Turn your music into a full AI-generated music video, scene by scene.",
-    icon: <WizVideoEmblem size={28} />,
+    icon: <WizVideoEmblem size={36} />,
     href: "/music-video/create",
+    glowColor: "oklch(0.70 0.18 260)",
+    bgGradient: "linear-gradient(135deg, oklch(0.22 0.08 260 / 0.9) 0%, oklch(0.16 0.06 260 / 0.95) 100%)",
+    borderColor: "oklch(0.70 0.18 260 / 0.35)",
   },
   {
     name: "WizShorts",
     label: "Create Shorts",
     tagline: "AI Short-Form Video Creator",
     desc: "Produce scroll-stopping vertical short-form videos for social media in minutes.",
-    icon: <WizShortsEmblem size={28} />,
+    icon: <WizShortsEmblem size={36} />,
     href: "/wiz-shorts",
+    glowColor: "oklch(0.72 0.18 30)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
+    borderColor: "oklch(0.72 0.18 30 / 0.35)",
   },
   {
     name: "WizAnimate",
     label: "Create Animation",
     tagline: "AI Character Animation Engine",
     desc: "Bring characters and scenes to life with AI-powered animation.",
-    icon: <WizAnimateEmblem size={28} />,
+    icon: <WizAnimateEmblem size={36} />,
     href: "/kids-video",
+    glowColor: "oklch(0.68 0.18 330)",
+    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
+    borderColor: "oklch(0.68 0.18 330 / 0.35)",
   },
   {
     name: "WizScript",
     label: "Create from Text",
     tagline: "AI Script & Storyboard Builder",
     desc: "Describe your idea in plain text and let AI build the full video script and storyboard.",
-    icon: <WizScriptEmblem size={28} />,
+    icon: <WizScriptEmblem size={36} />,
     href: "/text-to-video",
+    glowColor: "oklch(0.75 0.16 200)",
+    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 200 / 0.9) 0%, oklch(0.17 0.06 200 / 0.95) 100%)",
+    borderColor: "oklch(0.75 0.16 200 / 0.35)",
   },
 ];
 
@@ -260,9 +278,13 @@ function Nav() {
                       >
                         <div
                           className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200"
-                          style={{ background: "oklch(0.78 0.11 75 / 0.04)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}
+                          style={{
+                            background: (p as any).bgGradient || "oklch(0.78 0.11 75 / 0.06)",
+                            border: `1px solid ${(p as any).borderColor || 'oklch(0.78 0.11 75 / 0.18)'}`,
+                            boxShadow: `0 0 12px ${(p as any).glowColor ? (p as any).glowColor.replace(')', ' / 0.20)').replace('oklch(', 'oklch(') : 'oklch(0.78 0.11 75 / 0.08)'}`,
+                          }}
                         >
-                          <span className="opacity-70 group-hover:opacity-100 transition-opacity scale-[0.78]">{p.icon}</span>
+                          <span className="opacity-85 group-hover:opacity-100 transition-opacity">{p.icon}</span>
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">
@@ -493,22 +515,29 @@ function Nav() {
                     <a
                       key={p.name}
                       href={p.href}
-                      className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200"
-                      style={{ border: "1px solid transparent" }}
-                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      className="flex items-center gap-3.5 px-3 py-3.5 rounded-2xl mt-1.5 transition-all duration-200 group"
+                      style={{ border: `1px solid ${(p as any).borderColor || 'oklch(0.78 0.11 75 / 0.12)'}` }}
+                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = (p as any).bgGradient || "oklch(0.78 0.11 75 / 0.06)"; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}
                     >
-                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>
-                        <span className="scale-[0.75]">{p.icon}</span>
+                      <div
+                        className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl"
+                        style={{
+                          background: (p as any).bgGradient || "oklch(0.78 0.11 75 / 0.08)",
+                          border: `1px solid ${(p as any).borderColor || 'oklch(0.78 0.11 75 / 0.20)'}`,
+                          boxShadow: `0 0 16px ${(p as any).glowColor ? (p as any).glowColor.replace(')', ' / 0.25)').replace('oklch(', 'oklch(') : 'oklch(0.78 0.11 75 / 0.10)'}`,
+                        }}
+                      >
+                        {p.icon}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>
-                          {p.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[15px] font-bold tracking-tight" style={{ color: "oklch(0.92 0.10 75)" }}>
+                          {p.name}<sup className="text-[9px] ml-0.5 font-medium" style={{ color: "oklch(0.78 0.11 75 / 0.7)" }}>™</sup>
                         </p>
-                        <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.tagline}</p>
+                        <p className="text-[12px] text-white/50 mt-0.5 truncate">{p.tagline}</p>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+                      <ArrowRight className="w-4 h-4 ml-auto flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: (p as any).glowColor || "oklch(0.78 0.11 75 / 0.50)" }} />
                     </a>
                   ))}
                 </div>
