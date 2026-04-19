@@ -11,7 +11,57 @@
  * Design: All slots are always expanded. The mode toggle is the first thing visible.
  * AI Generate mode is prominently displayed with a gradient CTA.
  */
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
+
+// ─── CommaInput ───────────────────────────────────────────────────────────────
+// A plain text input that stores its value as a string[] but lets the user type
+// freely (including commas and spaces). The array is only re-parsed on blur,
+// which prevents the cursor-jump bug that occurs when splitting on every change.
+function CommaInput({
+  value,
+  onChange,
+  placeholder,
+  className,
+  disabled,
+}: {
+  value: string[];
+  onChange: (tags: string[]) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+}) {
+  const [local, setLocal] = useState(() => value.join(', '));
+
+  // Sync inbound value changes (e.g. when the parent resets the form) but only
+  // when the joined string actually differs — avoids overwriting mid-edit.
+  useEffect(() => {
+    const joined = value.join(', ');
+    setLocal((prev) => {
+      const prevParsed = prev.split(',').map((s) => s.trim()).filter(Boolean);
+      const same =
+        prevParsed.length === value.length &&
+        prevParsed.every((t, i) => t === value[i]);
+      return same ? prev : joined;
+    });
+  }, [value]);
+
+  return (
+    <input
+      type="text"
+      value={local}
+      onChange={(e) => setLocal(e.target.value)}
+      onBlur={() => {
+        const tags = local.split(',').map((s) => s.trim()).filter(Boolean);
+        onChange(tags);
+        // Re-join so display is normalised (e.g. trailing comma removed)
+        setLocal(tags.join(', '));
+      }}
+      placeholder={placeholder}
+      disabled={disabled}
+      className={`flex h-9 w-full rounded-md border px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${className ?? ''}`}
+    />
+  );
+}
 import WizPerformerConsentModal, { hasGivenConsent, persistConsent } from "@/components/WizPerformerConsentModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -539,10 +589,10 @@ export function CharacterManager({
                       <Badge className="text-[10px] px-1.5 py-0 bg-emerald-900/50 text-emerald-300 border-emerald-800">MUST HAVE</Badge>
                       <Label className="text-zinc-300 text-xs font-medium">Mandatory Rules</Label>
                     </div>
-                    <Input
-                      value={(char.lockedRules?.mustHave || []).join(', ')}
-                      onChange={(e) => updateCharacter(char.slotIndex, {
-                        lockedRules: { ...char.lockedRules, mustHave: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }
+                    <CommaInput
+                      value={char.lockedRules?.mustHave || []}
+                      onChange={(tags) => updateCharacter(char.slotIndex, {
+                        lockedRules: { ...char.lockedRules, mustHave: tags }
                       })}
                       placeholder="e.g. standing at microphone, black leather jacket"
                       className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
@@ -557,10 +607,10 @@ export function CharacterManager({
                       <Badge className="text-[10px] px-1.5 py-0 bg-red-900/50 text-red-300 border-red-800">FORBIDDEN</Badge>
                       <Label className="text-zinc-300 text-xs font-medium">Forbidden</Label>
                     </div>
-                    <Input
-                      value={(char.lockedRules?.forbidden || []).join(', ')}
-                      onChange={(e) => updateCharacter(char.slotIndex, {
-                        lockedRules: { ...char.lockedRules, forbidden: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }
+                    <CommaInput
+                      value={char.lockedRules?.forbidden || []}
+                      onChange={(tags) => updateCharacter(char.slotIndex, {
+                        lockedRules: { ...char.lockedRules, forbidden: tags }
                       })}
                       placeholder="e.g. holding drumsticks, wearing t-shirt only"
                       className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
