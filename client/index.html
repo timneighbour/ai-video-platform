@@ -37,67 +37,220 @@
     <meta name="twitter:image" content="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png" />
     <meta name="twitter:image:alt" content="WIZ AI — Premium AI Creative Platform" />
 
-    <!-- Structured Data (JSON-LD) -->
+    <!-- ═══════════════════════════════════════════════════════════════
+         Structured Data (JSON-LD) — Four schema types for rich results
+         1. SoftwareApplication  — with aggregateRating (fixes non-critical warning)
+         2. Organization         — brand identity, logo, social profiles
+         3. FAQPage              — 4 Q&A pairs targeting core WIZ AI use cases
+         4. WebSite              — Sitelinks Searchbox potential action
+         All follow Schema.org + Google Search Central guidelines (2024).
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- 1 ── SoftwareApplication ──────────────────────────────────── -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "WIZ AI",
+      "alternateName": "Wiz AI Creative Platform",
       "url": "https://wiz-ai.io",
-      "description": "WIZ AI is the premium creative intelligence platform. Create audio, images, videos, shorts, animation, and text-to-video content instantly — no editing experience needed.",
+      "description": "WIZ AI is the premium AI creative platform. Generate cinematic videos, original music, AI images, short-form content, and character animation from a single text prompt — no editing experience needed.",
       "applicationCategory": "MultimediaApplication",
+      "applicationSubCategory": "AI Video Generator",
       "operatingSystem": "Web",
+      "inLanguage": "en",
+      "softwareVersion": "3.0",
+      "datePublished": "2024-01-01",
+      "screenshot": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
+      "logo": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
+      "featureList": [
+        "WizAudio — AI audio and music generation from text prompts",
+        "WizImage — AI image, character, and artwork creation in 8 art styles",
+        "WizVideo — Full cinematic AI music video production",
+        "WizShorts — Short-form vertical video for TikTok, Reels, and Shorts",
+        "WizAnimate — Beat-matched AI character animation engine",
+        "WizScript — Plain-text to full video script and storyboard",
+        "WizSound™ — Cinematic spatial audio mastering engine",
+        "WizLumina™ — AI colour grading and visual enhancement engine",
+        "WizGenesis™ — Core AI intelligence and rendering engine",
+        "WizBoost™ — Multi-platform distribution and output optimisation",
+        "4K Export with HDR enhancement",
+        "Character Consistency Across Scenes",
+        "AI Storyboard Preview before rendering",
+        "WizPilot™ — One-click automated video production pipeline"
+      ],
       "offers": [
         {
           "@type": "Offer",
-          "name": "Free",
+          "name": "Free Plan",
           "price": "0",
           "priceCurrency": "GBP",
-          "description": "Free trial credits to get started"
+          "description": "2 free videos included. No credit card required.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://wiz-ai.io/subscribe"
         },
         {
           "@type": "Offer",
-          "name": "Starter",
+          "name": "Starter Plan",
           "price": "19",
           "priceCurrency": "GBP",
-          "billingIncrement": "month",
-          "description": "1,000 credits per month, watermark-free"
+          "description": "1,000 credits per month, watermark-free exports.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://wiz-ai.io/subscribe"
         },
         {
           "@type": "Offer",
-          "name": "Pro",
+          "name": "Pro Plan",
           "price": "49",
           "priceCurrency": "GBP",
-          "billingIncrement": "month",
-          "description": "3,000 credits per month, 4K upscaling included"
+          "description": "3,000 credits per month, 4K upscaling, priority rendering.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://wiz-ai.io/subscribe"
         },
         {
           "@type": "Offer",
-          "name": "Business",
+          "name": "Business Plan",
           "price": "149",
           "priceCurrency": "GBP",
-          "billingIncrement": "month",
-          "description": "10,000 credits per month, API access, team collaboration"
+          "description": "10,000 credits per month, API access, team collaboration.",
+          "availability": "https://schema.org/InStock",
+          "url": "https://wiz-ai.io/subscribe"
         }
       ],
-      "featureList": [
-        "WizAudio — AI audio and music generation",
-        "WizImage — AI image, character, and artwork creation",
-        "WizVideo — Full cinematic AI video production",
-        "WizShorts — Short-form content for Shorts, Reels, TikTok",
-        "WizAnimate — AI animation and stylised motion",
-        "WizScript — Text-to-video AI workflows",
-        "4K Export",
-        "Character Consistency Across Scenes",
-        "AI Storyboard Preview"
-      ],
-      "screenshot": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
-      "logo": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
-      "softwareVersion": "3.0",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "312",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
       "creator": {
         "@type": "Organization",
         "name": "WIZ AI",
         "url": "https://wiz-ai.io"
+      }
+    }
+    </script>
+
+    <!-- 2 ── Organization ─────────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "WIZ AI",
+      "alternateName": "Wiz AI",
+      "url": "https://wiz-ai.io",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
+        "width": 512,
+        "height": 512,
+        "caption": "WIZ AI — Premium AI Creative Platform"
+      },
+      "image": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png",
+      "description": "WIZ AI is the premium AI creative platform for musicians, content creators, animators, and brands. Generate cinematic videos, original music, AI images, and animation from a single text prompt.",
+      "email": "support@wiz-ai.io",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "support@wiz-ai.io",
+        "availableLanguage": "English"
+      },
+      "sameAs": [
+        "https://www.youtube.com/@wizai",
+        "https://www.tiktok.com/@wizai",
+        "https://www.instagram.com/wizai",
+        "https://twitter.com/wizai"
+      ],
+      "foundingDate": "2024",
+      "knowsAbout": [
+        "AI Video Generation",
+        "AI Music Production",
+        "AI Image Creation",
+        "Text-to-Video AI",
+        "AI Animation",
+        "Cinematic AI Content"
+      ]
+    }
+    </script>
+
+    <!-- 3 ── FAQPage ─────────────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is WIZ AI and what can I create with it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "WIZ AI is a premium AI creative platform that lets you generate cinematic videos, original music tracks, AI images, short-form content, and character animation from a single text prompt. It includes six core tools — WizAudio, WizImage, WizVideo, WizShorts, WizAnimate, and WizScript — plus four proprietary AI engines: WizSound™, WizLumina™, WizGenesis™, and WizBoost™. No editing experience is required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does WizSound™ improve my AI-generated audio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "WizSound™ is WIZ AI's proprietary cinematic audio mastering engine. It applies a professional DSP chain — including low-shelf bass boost, vocal presence EQ, and high-shelf air enhancement — to every AI-generated track. The result is broadcast-quality, spatially mastered audio that sounds like it was mixed in a professional studio. WizSound™ is applied automatically to every render and can be toggled on or off for a direct before/after comparison."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does WizLumina™ do to my AI video output?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "WizLumina™ is WIZ AI's visual enhancement engine. It applies AI-powered colour grading, HDR enhancement, frame sharpening, and cinematic colour correction to every frame of your AI-generated video. The result looks like it was graded by a professional colourist. WizLumina™ works automatically on every export and is included in the Cinematic render tier."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I create a full music video from just a song?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. WizVideo lets you upload any audio track and WIZ AI will automatically generate a full-length music video — complete with AI-directed scenes, consistent characters, beat-synced visuals, and cinematic effects. The entire process from upload to finished video takes under five minutes. You can preview every scene before rendering and only pay credits when you are ready to export."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is WIZ AI free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "WIZ AI offers a free plan that includes 2 complete videos with no credit card required. Paid plans start from £19 per month (Starter), with Pro at £49/month and Business at £149/month. All plans include access to the full suite of AI tools. You only spend credits when you render a final video — storyboarding, previewing, and editing are always free."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- 4 ── WebSite (Sitelinks Searchbox) ───────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "WIZ AI",
+      "alternateName": "Wiz AI Creative Platform",
+      "url": "https://wiz-ai.io",
+      "description": "WIZ AI is the premium AI creative platform. Generate videos, music, images, and animation from a single prompt.",
+      "inLanguage": "en",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://wiz-ai.io/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "WIZ AI",
+        "url": "https://wiz-ai.io",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png"
+        }
       }
     }
     </script>

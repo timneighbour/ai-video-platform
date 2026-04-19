@@ -5297,3 +5297,9 @@
 - [x] Build AnalyticsDashboard page at /admin/analytics with KPI cards, area chart, funnel, traffic sources, device/browser pie charts, top pages table, top events table, live sessions table
 - [x] Add Analytics Dashboard link to AdminPanel quick links
 - [x] Register /admin/analytics route in App.tsx
+
+## SEO Structured Data Enhancement — April 2026
+- [x] Add WizScript product page (/wiz-script route)
+- [x] Fix /wiz-animate 404 route alias
+- [x] Upgrade DemoVideoModal with React caption overlay system (8 timed USP captions, WizLumina upsell)
+- [x] Implement 4-schema JSON-LD (SoftwareApplication + aggregateRating, Organization, FAQPage, WebSite)
