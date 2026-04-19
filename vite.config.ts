@@ -170,10 +170,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     // Never expose source maps in production — protects internal logic
     sourcemap: false,
-    // Use esbuild for fast minification (default, faster than terser)
-    minify: "esbuild",
-    // Target modern browsers for smaller output
-    target: ["es2020", "chrome90", "firefox90", "safari14"],
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -220,21 +216,6 @@ export default defineConfig({
           if (id.includes("node_modules/superjson/") || id.includes("node_modules/react-helmet-async/") ||
               id.includes("node_modules/@tanstack/")) {
             return "vendor-utils";
-          }
-          // Vendor: Stripe
-          if (id.includes("node_modules/@stripe/") || id.includes("node_modules/stripe/")) {
-            return "vendor-stripe";
-          }
-          // Vendor: markdown / rich text rendering
-          if (id.includes("node_modules/marked/") || id.includes("node_modules/streamdown/") ||
-              id.includes("node_modules/react-markdown/") || id.includes("node_modules/remark") ||
-              id.includes("node_modules/rehype")) {
-            return "vendor-markdown";
-          }
-          // Vendor: media / player
-          if (id.includes("node_modules/wavesurfer") || id.includes("node_modules/hls.js") ||
-              id.includes("node_modules/video.js")) {
-            return "vendor-media";
           }
           // All other node_modules go into a shared vendor chunk
           if (id.includes("node_modules/")) {
