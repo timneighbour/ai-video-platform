@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Play, Pause, Video, Mic, Wand2, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, Video, Mic, Wand2, Sparkles } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 
 export interface CarouselVideo {

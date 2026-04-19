@@ -8,7 +8,7 @@ import {
   Wand2, Sparkles, RefreshCw, Play, ChevronRight,
   Zap, CheckCircle2, Clock, ArrowLeft, Loader2,
   AlertCircle, Download, ExternalLink, Plus, Trash2, Copy, ImageIcon,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";

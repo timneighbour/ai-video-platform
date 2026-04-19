@@ -10,7 +10,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { X, TrendingDown, Sparkles } from "lucide-react";
+import { X, TrendingDown, Sparkles } from "@/lib/icons";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 

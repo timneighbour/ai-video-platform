@@ -3,7 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Clock, ArrowRight, Sparkles, Rss } from "lucide-react";
+import { CalendarDays, Clock, ArrowRight, Sparkles, Rss } from "@/lib/icons";
 import { Helmet } from "react-helmet-async";
 
 function formatDate(d: Date | string | null) {

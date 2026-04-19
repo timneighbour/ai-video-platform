@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ChevronRight, Play } from "lucide-react";
+import { ChevronRight, Play } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =

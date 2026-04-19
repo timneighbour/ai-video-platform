@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Wand2, Loader2, Sparkles, Copy, Check, ArrowRight, X } from "lucide-react";
+import { Wand2, Loader2, Sparkles, Copy, Check, ArrowRight, X } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,

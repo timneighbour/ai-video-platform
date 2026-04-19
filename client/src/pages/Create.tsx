@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import {
   Layers, Zap, Sparkles, ArrowRight, Lock, Mic2,
   Star, ChevronRight, Play,
-} from "lucide-react";
+} from "@/lib/icons";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 import {

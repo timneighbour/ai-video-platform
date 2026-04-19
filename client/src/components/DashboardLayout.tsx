@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle } from "@/lib/icons";
 import CreditBalance from "./CreditBalance";
 import { LowCreditBanner } from "./LowCreditBanner";
 import { trpc } from "@/lib/trpc";

@@ -3,7 +3,7 @@ import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Music, Clock, ArrowLeft, Sparkles } from "lucide-react";
+import { Play, Music, Clock, ArrowLeft, Sparkles } from "@/lib/icons";
 
 export default function WatchPage() {
   const { slug } = useParams<{ slug: string }>();

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { LANGUAGES } from "@/lib/i18n";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/lib/icons";
 
 export default function LanguageSelector() {
   const { i18n } = useTranslation();

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Sparkles, Zap, Upload, Video, Mic, CheckCircle2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Sparkles, Zap, Upload, Video, Mic, CheckCircle2, ExternalLink } from "@/lib/icons";
 import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";

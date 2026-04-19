@@ -19,7 +19,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Shield, Camera, Clock, Trash2, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import { Shield, Camera, Clock, Trash2, Lock, ChevronDown, ChevronUp } from "@/lib/icons";
 
 interface WizPerformerConsentModalProps {
   /** Called when the user accepts and ticks the checkbox */

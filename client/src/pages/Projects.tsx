@@ -40,7 +40,7 @@ import {
   Link2,
   Plus,
   Eye,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";

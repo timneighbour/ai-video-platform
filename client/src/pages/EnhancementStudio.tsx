@@ -10,7 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Upload, CheckCircle2, Loader2, Download } from "lucide-react";
+import { AlertCircle, Upload, CheckCircle2, Loader2, Download } from "@/lib/icons";
 import BackButton from "@/components/BackButton";
 
 type Step = "upload" | "style" | "generate" | "processing" | "complete";

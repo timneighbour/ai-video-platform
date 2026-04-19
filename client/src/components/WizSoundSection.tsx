@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, Headphones, Sparkles, Radio } from "lucide-react";
+import { Volume2, VolumeX, Zap, Music2, Film, Play, Pause, Headphones, Sparkles, Radio } from "@/lib/icons";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { mp } from "@/lib/mixpanel";
 

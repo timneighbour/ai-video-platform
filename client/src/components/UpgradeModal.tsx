@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sparkles, Zap, Infinity, X, Rocket, Download, PartyPopper } from "lucide-react";
+import { Sparkles, Zap, Infinity, X, Rocket, Download, PartyPopper } from "@/lib/icons";
 
 interface UpgradeModalProps {
   open: boolean;

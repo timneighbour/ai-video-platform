@@ -9,7 +9,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { X, Zap, Package } from "lucide-react";
+import { X, Zap, Package } from "@/lib/icons";
 
 const DISMISS_KEY = "wizvid_bundle_promo_dismissed";
 

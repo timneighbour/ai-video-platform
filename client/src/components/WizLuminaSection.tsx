@@ -6,7 +6,7 @@ import { mp } from "@/lib/mixpanel";
  * comparison slider for before/after visual demonstration.
  */
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Eye, Sparkles, Film, Palette, Sun, Layers, GripVertical } from "lucide-react";
+import { Eye, Sparkles, Film, Palette, Sun, Layers, GripVertical } from "@/lib/icons";
 
 const WIZLUMINA_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
 const DEMO_VIDEO = "/manus-storage/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type

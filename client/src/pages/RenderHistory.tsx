@@ -36,7 +36,7 @@ import {
   FileVideo,
   History,
   Trash2,
-} from "lucide-react";
+} from "@/lib/icons";
 import { toast } from "sonner";
 import { Link } from "wouter";
 import BackButton from "@/components/BackButton";

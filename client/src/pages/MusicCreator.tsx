@@ -16,12 +16,12 @@ import {
   Music2, Sparkles, Play, Pause, Download, Loader2,
   ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
   FileText, RefreshCw, PenLine, ChevronDown, ChevronUp, X, Trash2,
-} from "lucide-react";
+} from "@/lib/icons";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
-import { Upload, UploadCloud } from "lucide-react";
+import { Upload, UploadCloud } from "@/lib/icons";
 
 // ── Preset data ──────────────────────────────────────────────────────────────
 

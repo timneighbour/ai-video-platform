@@ -8,7 +8,7 @@
  * When the user is not signed in and tries to use a protected feature,
  * show this modal instead of silently redirecting.
  */
-import { X, Sparkles, Lock, Music, Video, Star } from "lucide-react";
+import { X, Sparkles, Lock, Music, Video, Star } from "@/lib/icons";
 import { getLoginUrl } from "@/const";
 
 interface AuthGateProps {

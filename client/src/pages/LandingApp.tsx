@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Play, Zap, CheckCircle2, ArrowRight, Volume2, Star, Clock } from "lucide-react";
+import { Sparkles, Play, Zap, CheckCircle2, ArrowRight, Volume2, Star, Clock } from "@/lib/icons";
 
 const MAIN_APP = "https://wiz-ai.io";
 const CREATE_URL = `${MAIN_APP}/music-video/create`;

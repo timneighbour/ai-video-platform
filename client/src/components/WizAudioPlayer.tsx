@@ -13,7 +13,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import {
   Play, Pause, Volume2, VolumeX, Download,
   SkipBack, SkipForward, Music2,
-} from "lucide-react";
+} from "@/lib/icons";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 
 const WIZSOUND_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/wizsound-logo-v5_76ab5163.png";

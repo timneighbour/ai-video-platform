@@ -11,7 +11,7 @@
  *   giving an immediately audible difference on the SAME signal path
  */
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Play, Pause, Volume2, VolumeX, Sparkles, Maximize2, Subtitles } from "lucide-react";
+import { X, Play, Pause, Volume2, VolumeX, Sparkles, Maximize2, Subtitles } from "@/lib/icons";
 import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ──────────────────────────────────────────────────────── */
@@ -501,7 +501,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
             aria-label="Close demo"
           >
-            <X size={18} />
+            <X className="w-4 h-4" />
           </button>
 
           {/* ── Centre play button ── */}
@@ -514,7 +514,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               <div className="relative w-20 h-20 sm:w-24 sm:h-24">
                 <span className="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none" />
                 <span className="absolute inset-0 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-all shadow-2xl">
-                  <Play size={32} className="text-black ml-1" fill="black" />
+                  <Play className="w-8 h-8 text-black ml-1" />
                 </span>
               </div>
             </button>
@@ -560,7 +560,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
                 aria-label={playing ? "Pause" : "Play"}
               >
-                {playing ? <Pause size={18} /> : <Play size={18} />}
+                {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </button>
 
               <button
@@ -568,7 +568,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
-                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </button>
 
               <div className="flex-1" />
@@ -615,7 +615,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 }`}
                 aria-label="Toggle captions"
               >
-                <Subtitles size={18} />
+                <Subtitles className="w-4 h-4" />
               </button>
 
               <button
@@ -623,7 +623,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
                 aria-label="Fullscreen"
               >
-                <Maximize2 size={18} />
+                <Maximize2 className="w-4 h-4" />
               </button>
             </div>
           </div>

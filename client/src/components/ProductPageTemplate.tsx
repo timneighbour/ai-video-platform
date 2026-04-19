@@ -12,7 +12,7 @@ import {
   Upload, Cpu, Layout, CheckCircle, FileText, Music, PlayCircle, ArrowRightCircle,
   Zap, ShieldCheck, Film, Video, Eye, Star, Brain, Layers, Download,
   Settings, Send, BarChart2, RefreshCw, Link2, Wand2,
-} from "lucide-react";
+} from "@/lib/icons";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   upload: Upload, cpu: Cpu, layout: Layout, "check-circle": CheckCircle,

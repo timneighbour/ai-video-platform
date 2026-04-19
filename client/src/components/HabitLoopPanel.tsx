@@ -9,7 +9,7 @@
  *
  * Keeps the user in a creation loop rather than leaving after download.
  */
-import { Sparkles, Music, FileText, Eye, BookOpen, ArrowRight } from "lucide-react";
+import { Sparkles, Music, FileText, Eye, BookOpen, ArrowRight } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 
 interface Template {

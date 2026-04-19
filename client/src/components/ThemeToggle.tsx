@@ -1,4 +1,4 @@
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon } from "@/lib/icons";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ThemeToggle({ compact = false }: { compact?: boolean }) {

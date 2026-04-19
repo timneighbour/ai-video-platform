@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { AlertTriangle, Zap, ArrowRight, X } from "lucide-react";
+import { AlertTriangle, Zap, ArrowRight, X } from "@/lib/icons";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { QuickTopUpModal } from "./QuickTopUpModal";

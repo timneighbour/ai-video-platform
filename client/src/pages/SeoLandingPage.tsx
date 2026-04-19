@@ -14,7 +14,7 @@ import {
   Shield,
   Star,
   ChevronRight,
-} from "lucide-react";
+} from "@/lib/icons";
 
 // ── Meta helpers ──────────────────────────────────────────────────────────────
 function setMeta(name: string, content: string, property = false) {

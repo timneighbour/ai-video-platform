@@ -6,7 +6,7 @@ import {
   ChevronDown, ChevronUp, MessageCircle, Mail,
   Zap, Music, Music2, Video, Baby, Bot, Search, Sparkles,
   Film, Image, Wand2, FileText, Menu, X
-} from "lucide-react";
+} from "@/lib/icons";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 

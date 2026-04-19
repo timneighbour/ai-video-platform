@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Sparkles, Play, Zap, CheckCircle2, Star, Volume2, ArrowRight } from "lucide-react";
+import { Sparkles, Play, Zap, CheckCircle2, Star, Volume2, ArrowRight } from "@/lib/icons";
 
 const MAIN_APP = "https://wiz-ai.io";
 

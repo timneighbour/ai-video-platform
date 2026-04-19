@@ -27,7 +27,7 @@ import {
   CheckCircle2, RefreshCw, ArrowLeft, Sparkles, User,
   ShieldCheck, AlertCircle, Loader2, ImageIcon, Lock, Unlock,
   Anchor, Info, Camera,
-} from "lucide-react";
+} from "@/lib/icons";
 
 interface CharacterPreviewState {
   id: number;

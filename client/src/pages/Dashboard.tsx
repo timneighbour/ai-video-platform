@@ -10,7 +10,7 @@ import {
   ChevronRight, Play, Zap, Star, ArrowRight, Plus,
   TrendingUp, Clapperboard, Wand2, Settings, Crown,
   CheckCircle2, RefreshCw, Eye, Users, Trash2, AlertTriangle, Loader2
-} from "lucide-react";
+} from "@/lib/icons";
 import {
   AlertDialog,
   AlertDialogAction,

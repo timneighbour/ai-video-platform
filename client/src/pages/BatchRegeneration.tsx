@@ -27,7 +27,7 @@ import {
   RotateCcw,
   StopCircle,
   ImageIcon,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useState } from "react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────

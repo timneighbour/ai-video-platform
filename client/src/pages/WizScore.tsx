@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import {
   Upload, Music2, Wand2, CheckCircle2, AlertCircle,
   Download, Play, Pause, Film, Sparkles, ChevronRight
-} from "lucide-react";
+} from "@/lib/icons";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-final_7a3e9f2d.png`;

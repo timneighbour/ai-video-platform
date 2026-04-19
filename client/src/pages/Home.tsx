@@ -17,12 +17,34 @@ import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import {
-  Sparkles, Play, Pause, ArrowRight, Menu, X, ChevronDown,
-  Music2, Image, Film, Zap, Wand2, FileText,
-  Check, Star, Users, TrendingUp, Globe, Shield,
-  Volume2, VolumeX, Eye, Layers, Rocket,
-} from "lucide-react";
+// Lucide icons removed — replaced with inline SVGs and product logos
+const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+);
+const PlaySVG = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 4.5l9 5.5-9 5.5V4.5z" /></svg>
+);
+const PauseSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="4" height="12" rx="1" /><rect x="9" y="2" width="4" height="12" rx="1" /></svg>
+);
+const WaveformSVG = ({ className = "w-4 h-4", color = "currentColor" }: { className?: string; color?: string }) => (
+  <svg className={className} viewBox="0 0 20 14" fill="none"><path d="M1 7h2M4 4v6M7 2v10M10 5v4M13 3v8M16 4v6M19 7h-2" stroke={color} strokeWidth="1.5" strokeLinecap="round" /></svg>
+);
+const CheckSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 8.5l3.5 3.5 7-7" /></svg>
+);
+const ShieldSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 1.5L2 4v4c0 3.3 2.5 5.5 6 6 3.5-.5 6-2.7 6-6V4L8 1.5z" /></svg>
+);
+const StarSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L8 1z" /></svg>
+);
+const GlobeSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 1.5C6.5 4 6 6 6 8s.5 4 2 6.5M8 1.5C9.5 4 10 6 10 8s-.5 4-2 6.5M1.5 8h13" /></svg>
+);
+const ChevronDownSVG = ({ className = "w-4 h-4", open = false, style }: { className?: string; open?: boolean; style?: React.CSSProperties }) => (
+  <svg className={`${className} transition-transform duration-300 ${open ? "rotate-180" : ""}`} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6l5 5 5-5" /></svg>
+);
 
 // ── Assets ───────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -236,7 +258,7 @@ function Nav() {
                 onClick={() => setProductsOpen((v) => !v)}
               >
                 Products
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
                   productsOpen ? "rotate-180 text-[--color-gold]" : ""
                 }`} />
               </button>
@@ -292,7 +314,7 @@ function Nav() {
                           </p>
                           <p className="text-[10.5px] text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors truncate">{p.tagline}</p>
                         </div>
-                        <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-40 transition-all duration-200 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 text-[--color-gold]" />
+                        <ArrowSVG className="w-3.5 h-3.5 opacity-0 group-hover:opacity-40 transition-all duration-200 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 text-[--color-gold]" />
                       </a>
                     ))}
                   </div>
@@ -301,7 +323,7 @@ function Nav() {
                   <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
                     <p className="text-[10px] text-white/20 font-medium">Free storyboard on every project</p>
                     <a href="/onboarding" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
-                      Start Creating <ArrowRight className="w-3 h-3" />
+                      Start Creating <ArrowSVG className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
@@ -323,7 +345,7 @@ function Nav() {
                 onClick={() => setEnginesOpen((v) => !v)}
               >
                 Wiz Engines
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
                   enginesOpen ? "rotate-180 text-[--color-gold]" : ""
                 }`} />
               </button>
@@ -384,7 +406,7 @@ function Nav() {
                   <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
                     <p className="text-[10px] text-white/20">7 proprietary engines — every creation, every time</p>
                     <a href="/#wiz-engines" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
-                      See how they work <ArrowRight className="w-3 h-3" />
+                      See how they work <ArrowSVG className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
@@ -408,7 +430,7 @@ function Nav() {
                   boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
                 }}
               >
-                <Sparkles className="w-3.5 h-3.5" /> Dashboard
+                <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" /> Dashboard
               </a>
             ) : (
               <>
@@ -428,7 +450,7 @@ function Nav() {
                     boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.12), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
                   }}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />
                   Start Creating
                 </a>
               </>
@@ -502,7 +524,7 @@ function Nav() {
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileProductsOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
                   Products
                 </span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                <ChevronDownSVG className={`w-4 h-4 transition-transform duration-300 ${
                   mobileProductsOpen ? "rotate-180" : ""
                 }`} style={{ color: mobileProductsOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
               </button>
@@ -537,7 +559,7 @@ function Nav() {
                         </p>
                         <p className="text-[12px] text-white/50 mt-0.5 truncate">{p.tagline}</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 ml-auto flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: (p as any).glowColor || "oklch(0.78 0.11 75 / 0.50)" }} />
+                      <ArrowSVG className="w-4 h-4 ml-auto flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: (p as any).glowColor || "oklch(0.78 0.11 75 / 0.50)" }} />
                     </a>
                   ))}
                 </div>
@@ -556,7 +578,7 @@ function Nav() {
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileEnginesOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
                   Wiz Engines
                 </span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
+                <ChevronDownSVG className={`w-4 h-4 transition-transform duration-300 ${
                   mobileEnginesOpen ? "rotate-180" : ""
                 }`} style={{ color: mobileEnginesOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
               </button>
@@ -584,7 +606,7 @@ function Nav() {
                         </p>
                         <p className="text-[11px] text-white/40 mt-0.5 truncate">{eng.tagline}</p>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+                      <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
                     </a>
                   ))}
                 </div>
@@ -609,7 +631,7 @@ function Nav() {
                   }}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <Sparkles className="w-4 h-4" /> Dashboard
+                  <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" /> Dashboard
                 </a>
               ) : (
                 <>
@@ -632,7 +654,7 @@ function Nav() {
                     }}
                     onClick={() => setMobileOpen(false)}
                   >
-                    <Sparkles className="w-4 h-4" /> Start Creating — Free
+                    <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" /> Start Creating — Free
                   </a>
                 </>
               )}
@@ -695,7 +717,7 @@ function Hero() {
               className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
               onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
             >
-              <Sparkles className="w-5 h-5" />
+              <img src={WIZAI_LOGO} alt="" className="w-5 h-5 object-contain" />
               Create Your First Video — Free
             </a>
             <a
@@ -703,7 +725,7 @@ function Hero() {
               className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
             >
               See Pricing
-              <ArrowRight className="w-4 h-4" />
+              <ArrowSVG className="w-4 h-4" />
             </a>
             <button
               onClick={() => setDemoOpen(true)}
@@ -712,7 +734,7 @@ function Hero() {
               <span className="relative w-8 h-8 flex-shrink-0">
                 <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 animate-ping" style={{ animationDuration: "2.5s" }} />
                 <span className="absolute inset-0 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/5 flex items-center justify-center">
-                  <Play className="w-3 h-3 text-[--color-gold] ml-0.5" fill="currentColor" />
+                  <PlaySVG className="w-3 h-3 text-[--color-gold] ml-0.5" />
                 </span>
               </span>
               Watch Demo
@@ -722,12 +744,12 @@ function Hero() {
           {/* 6-icon value strip */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mb-10">
             {[
-              { icon: <Film className="w-3.5 h-3.5" />, label: "AI Video" },
-              { icon: <Volume2 className="w-3.5 h-3.5" />, label: "Studio Audio" },
-              { icon: <Eye className="w-3.5 h-3.5" />, label: "Cinematic Visuals" },
-              { icon: <Zap className="w-3.5 h-3.5" />, label: "Instant Rendering" },
-              { icon: <Wand2 className="w-3.5 h-3.5" />, label: "8 Art Styles" },
-              { icon: <Sparkles className="w-3.5 h-3.5" />, label: "Free Storyboard" },
+              { icon: <img src={WIZCREATE_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "AI Video" },
+              { icon: <WaveformSVG className="w-3.5 h-3.5" color="currentColor" />, label: "Studio Audio" },
+              { icon: <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "Cinematic Visuals" },
+              { icon: <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "Instant Rendering" },
+              { icon: <img src={WIZANIMATE_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "8 Art Styles" },
+              { icon: <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />, label: "Free Storyboard" },
             ].map((item, i) => (
               <span key={item.label} className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.06em] uppercase text-[--color-silver-dark]/45">
                 {i > 0 && <span className="w-px h-3 bg-[--color-gold]/10 mr-1" />}
@@ -807,7 +829,7 @@ function WelcomeSection() {
                 onClick={() => mp.startCreatingClicked("welcome_section")}
                 className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm"
               >
-                <Sparkles className="w-4 h-4" />
+                <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
                 Start Creating
               </a>
               <a href="/pricing" className="btn-secondary inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm">
@@ -834,7 +856,7 @@ function WelcomeSection() {
                 <div className="relative w-16 h-16">
                   <span className="absolute inset-0 rounded-full bg-[--color-gold]/15 animate-ping" style={{ animationDuration: "2.5s" }} />
                   <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 border-2 border-[--color-gold]/40 group-hover:bg-[--color-gold]/15 group-hover:border-[--color-gold]/60 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
-                    <Play className="w-6 h-6 text-[--color-gold] ml-0.5" fill="currentColor" />
+                    <PlaySVG className="w-6 h-6 text-[--color-gold] ml-0.5" />
                   </span>
                 </div>
                 <span className="text-white font-semibold text-sm drop-shadow-lg">Watch 20-sec Demo</span>
@@ -1026,7 +1048,7 @@ function WizEngines() {
                     border: `1px solid ${eng.accentBorder}`,
                   }}
                 >
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: (eng as any).accentColor }} />
+                  <CheckSVG className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: (eng as any).accentColor }} />
                   <p className="text-white/75 text-sm font-medium leading-snug text-left">{eng.benefit}</p>
                 </div>
               </div>
@@ -1139,7 +1161,7 @@ function WizEngines() {
             onClick={() => mp.startCreatingClicked("how_it_works")}
             className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm"
           >
-            <Sparkles className="w-4 h-4" />
+            <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
             Start Creating
           </a>
         </div>
@@ -1154,10 +1176,10 @@ function HowItWorks() {
   const sectionRef = useRef<HTMLElement>(null);
 
   const steps = [
-    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/hiw-step1-choose_1102ddee.jpg", icon: <Sparkles className="w-5 h-5" /> },
-    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg", icon: <Wand2 className="w-5 h-5" /> },
-    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.", img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg", icon: <Play className="w-5 h-5" /> },
-    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/hiw-step4-export_68c87f9e.jpg", icon: <TrendingUp className="w-5 h-5" /> },
+    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/hiw-step1-choose_1102ddee.jpg", logo: WIZAI_LOGO },
+    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg", logo: WIZCREATE_LOGO },
+    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.", img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg", logo: WIZLUMINA_LOGO },
+    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/hiw-step4-export_68c87f9e.jpg", logo: WIZSOUND_LOGO },
   ];
 
   // Auto-advance steps every 2.5s when section is in view
@@ -1279,7 +1301,7 @@ function HowItWorks() {
                 <div className={`flex items-center gap-2 mb-2 transition-colors duration-500 ${
                   i <= activeStep ? "text-[--color-gold-dark]" : "text-white/20"
                 }`}>
-                  {s.icon}
+                  <img src={(s as any).logo} alt="" className="w-5 h-5 object-contain opacity-80" />
                   <h3 className={`text-lg font-bold transition-colors duration-500 ${
                     i <= activeStep ? "text-white" : "text-white/40"
                   }`}>{s.title}</h3>
@@ -1367,12 +1389,12 @@ function HowItWorks() {
 // ── Why WIZ AI ────────────────────────────────────────────────────────────────
 function WhyWizAI() {
   const reasons = [
-    { icon: <Star className="w-5 h-5" />, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-full-video-eqHSzVYMM8cyW8Vj7kj3zu.webp" },
-    { icon: <Shield className="w-5 h-5" />, title: "Preview before you pay", desc: "See your entire video — every scene, every frame — before spending a single credit on rendering.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-preview-3EcnyAJpKdbZYsEtaadY7G.webp" },
-    { icon: <Zap className="w-5 h-5" />, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-no-editing-eZyhoAgxQvBABxzyvhiS8n.webp" },
-    { icon: <Globe className="w-5 h-5" />, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-formats-J9obkA5FRn9hJoHiGGooTT.webp" },
-    { icon: <TrendingUp className="w-5 h-5" />, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-faster-Qm5cxtKd2FM7TTwcYAzej8.webp" },
-    { icon: <Users className="w-5 h-5" />, title: "Trusted by real creators", desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-creators-CbBhsfbPiZ2MHcLRi7no7C.webp" },
+    { logo: WIZAI_LOGO, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-full-video-eqHSzVYMM8cyW8Vj7kj3zu.webp" },
+    { logo: WIZAI_LOGO, title: "Preview before you pay", desc: "See your entire video — every scene, every frame — before spending a single credit on rendering.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-preview-3EcnyAJpKdbZYsEtaadY7G.webp" },
+    { logo: WIZCREATE_LOGO, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-no-editing-eZyhoAgxQvBABxzyvhiS8n.webp" },
+    { logo: WIZANIMATE_LOGO, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-formats-J9obkA5FRn9hJoHiGGooTT.webp" },
+    { logo: WIZCREATE_LOGO, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-faster-Qm5cxtKd2FM7TTwcYAzej8.webp" },
+    { logo: WIZAI_LOGO, title: "Trusted by real creators", desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/why-wiz-creators-CbBhsfbPiZ2MHcLRi7no7C.webp" },
   ];
   return (
     <section className="relative bg-[#030303] py-28 px-6">
@@ -1392,8 +1414,8 @@ function WhyWizAI() {
                 <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-55 group-hover:scale-105 transition-all duration-700"  loading="lazy" />
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.85) 100%)" }} />
                 {/* Icon badge over image */}
-                <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center text-[--color-gold]">
-                  {r.icon}
+                <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                  <img src={(r as any).logo} alt="" className="w-6 h-6 object-contain opacity-80" />
                 </div>
               </div>
               {/* Card text */}
@@ -1570,7 +1592,7 @@ function WizSoundDemo() {
                     boxShadow: isPlaying ? `0 0 20px ${tier.color}` : "none",
                   }}
                 >
-                  {isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white/80" />}
+                  {isPlaying ? <PauseSVG className="w-4 h-4 text-white" /> : <PlaySVG className="w-4 h-4 text-white/80" />}
                 </button>
                 <div>
                   <div className="flex items-center gap-2">
@@ -1582,19 +1604,19 @@ function WizSoundDemo() {
                   <p className="text-[--color-silver-dark]/40 text-xs">{tier.desc}</p>
                 </div>
               </div>
-              <Volume2 className="w-4 h-4" style={{ color: tier.colorActive }} />
+              <WaveformSVG className="w-4 h-4" color={tier.colorActive} />
             </div>
           </div>
 
           {/* CTA */}
           <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
             <a href="/onboarding" className="btn-primary btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
-              <Sparkles className="w-4 h-4" />
+              <img src={WIZSOUND_LOGO} alt="" className="w-4 h-4 object-contain" />
               Start Creating
             </a>
             <a href="/products/wizsound" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.08] hover:text-[--color-gold] transition-all">
               Find Out More
-              <ArrowRight className="w-4 h-4" />
+              <ArrowSVG className="w-4 h-4" />
             </a>
           </div>
         </div>
@@ -1691,7 +1713,7 @@ function WizLuminaDemo() {
             >
               {/* Handle */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border-2 border-white/40 flex items-center justify-center shadow-xl">
-                <Layers className="w-4 h-4 text-white/80" />
+                <img src={WIZLUMINA_LOGO} alt="" className="w-5 h-5 object-contain opacity-80" />
               </div>
             </div>
 
@@ -1714,12 +1736,12 @@ function WizLuminaDemo() {
           {/* CTA */}
           <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
             <a href="/onboarding" className="btn-primary btn-sheen inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm">
-              <Eye className="w-4 h-4" />
+              <img src={WIZLUMINA_LOGO} alt="" className="w-4 h-4 object-contain" />
               Start Creating
             </a>
             <a href="/products/wizlumina" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.08] hover:text-[--color-gold] transition-all">
               Find Out More
-              <ArrowRight className="w-4 h-4" />
+              <ArrowSVG className="w-4 h-4" />
             </a>
           </div>
         </div>
@@ -1800,22 +1822,22 @@ function Testimonials() {
         {/* Payment reassurance strip */}
         <div className="mt-14 reveal flex flex-wrap items-center justify-center gap-8 text-xs text-[--color-silver-dark]/35">
           <span className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[--color-gold]/40" />
+            <ShieldSVG className="w-4 h-4 text-[--color-gold]/40" />
             Secure payment via Stripe
           </span>
           <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
           <span className="flex items-center gap-2">
-            <Check className="w-4 h-4 text-[--color-gold]/40" />
+            <CheckSVG className="w-4 h-4 text-[--color-gold]/40" />
             No credit card to start creating
           </span>
           <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
           <span className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-[--color-gold]/40" />
+            <StarSVG className="w-4 h-4 text-[--color-gold]/40" />
             Cancel anytime — no lock-in
           </span>
           <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
           <span className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-[--color-gold]/40" />
+            <GlobeSVG className="w-4 h-4 text-[--color-gold]/40" />
             Used by creators in 40+ countries
           </span>
         </div>
@@ -1882,7 +1904,7 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
           isHovering ? "opacity-0" : "opacity-100"
         }`}>
           <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm border border-[--color-gold]/30 flex items-center justify-center group-hover:bg-[--color-gold]/10 group-hover:border-[--color-gold]/50 transition-all duration-300">
-            <Play className="w-5 h-5 text-[--color-gold] ml-0.5" fill="currentColor" />
+            <PlaySVG className="w-5 h-5 text-[--color-gold] ml-0.5" />
           </div>
         </div>
         {/* Category badge */}
@@ -1898,7 +1920,7 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
       </div>
       <div className="px-5 pb-5">
         <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors">
-          Start Creating <ArrowRight className="w-3 h-3" />
+          Start Creating <ArrowSVG className="w-3 h-3" />
         </a>
       </div>
     </div>
@@ -1926,7 +1948,7 @@ function Showcase() {
             </h2>
           </div>
           <a href="/showcase" className="inline-flex items-center gap-2 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors">
-            View all <ArrowRight className="w-4 h-4" />
+            View all <ArrowSVG className="w-4 h-4" />
           </a>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1942,10 +1964,10 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", icon: <Music2 className="w-6 h-6" />, img: "/manus-storage/creator-musicians_32538502.jpg" },
-    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", icon: <FileText className="w-6 h-6" />, img: "/manus-storage/creator-content-creators_231af096.jpg" },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", icon: <Wand2 className="w-6 h-6" />, img: "/manus-storage/creator-animators_afc533eb.jpg" },
-    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", icon: <TrendingUp className="w-6 h-6" />, img: "/manus-storage/creator-youtubers-brands_24a3de4e.jpg" },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "/manus-storage/creator-musicians_32538502.jpg" },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "/manus-storage/creator-content-creators_231af096.jpg" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", logo: WIZANIMATE_LOGO, img: "/manus-storage/creator-animators_afc533eb.jpg" },
+    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "/manus-storage/creator-youtubers-brands_24a3de4e.jpg" },
   ];
   return (
     <section id="built-for" className="relative bg-[#030303] py-28 px-6">
@@ -1967,12 +1989,14 @@ function BuiltFor() {
               </div>
               {/* Content */}
               <div className="relative z-10 p-7 flex flex-col gap-4 min-h-[280px]">
-                <div className="text-[--color-gold] w-10 h-10 rounded-xl border border-[--color-gold]/20 bg-black/40 backdrop-blur-sm flex items-center justify-center">{a.icon}</div>
+                <div className="w-10 h-10 rounded-xl border border-[--color-gold]/20 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                  <img src={(a as any).logo} alt="" className="w-6 h-6 object-contain opacity-90" />
+                </div>
                 <div className="mt-auto">
                   <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
                   <p className="text-white/55 text-sm leading-relaxed mb-4">{a.desc}</p>
                   <a href={a.href} className="inline-flex items-center gap-1.5 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors">
-                    {a.cta} <ArrowRight className="w-3.5 h-3.5" />
+                    {a.cta} <ArrowSVG className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </div>
@@ -1988,7 +2012,7 @@ function BuiltFor() {
 function FeatureBlock() {
   const features = [
     {
-      icon: <Music2 className="w-7 h-7" />,
+      logo: WIZSOUND_LOGO,
       title: "AI Music Generation",
       desc: "Generate original songs, soundtracks, and audio from a text prompt. Choose genre, mood, tempo, and style — WizSound™ masters every track to broadcast quality.",
       cta: "Generate a Song",
@@ -1998,7 +2022,7 @@ function FeatureBlock() {
       borderGlow: "hover:border-[--color-gold]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.06)]",
     },
     {
-      icon: <Film className="w-7 h-7" />,
+      logo: WIZCREATE_LOGO,
       title: "Music Video Creation",
       desc: "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric.",
       cta: "Create a Music Video",
@@ -2008,7 +2032,7 @@ function FeatureBlock() {
       borderGlow: "hover:border-blue-500/20 hover:shadow-[0_0_40px_rgba(59,130,246,0.04)]",
     },
     {
-      icon: <Rocket className="w-7 h-7" />,
+      logo: WIZAI_LOGO,
       title: "WizPilot Automation",
       desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, performance-sync, audio, render, and delivery. The complete AI music video pipeline in one click.",
       cta: "Try WizPilot",
@@ -2039,8 +2063,8 @@ function FeatureBlock() {
               className={`reveal group relative rounded-2xl border border-[--color-gold]/[0.08] bg-gradient-to-b ${f.gradient} p-8 flex flex-col gap-5 transition-all duration-500 ${f.borderGlow} cursor-pointer`}
             >
               {/* Icon */}
-              <div className="w-14 h-14 rounded-2xl border border-[--color-gold]/15 bg-[--color-gold]/[0.04] flex items-center justify-center text-[--color-gold] group-hover:bg-[--color-gold]/[0.08] transition-colors">
-                {f.icon}
+              <div className="w-14 h-14 rounded-2xl border border-[--color-gold]/15 bg-[--color-gold]/[0.04] flex items-center justify-center group-hover:bg-[--color-gold]/[0.08] transition-colors">
+                <img src={(f as any).logo} alt="" className="w-9 h-9 object-contain" />
               </div>
               {/* Badge */}
               <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[--color-gold-dark] bg-[--color-gold]/[0.05] border border-[--color-gold]/[0.1] px-2.5 py-1 rounded-full w-fit">
@@ -2054,7 +2078,7 @@ function FeatureBlock() {
                 href={f.href}
                 className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-[--color-gold-dark] hover:text-[--color-gold] transition-colors group-hover:gap-3"
               >
-                {f.cta} <ArrowRight className="w-4 h-4 transition-all" />
+                {f.cta} <ArrowSVG className="w-4 h-4 transition-all" />
               </a>
             </div>
           ))}
@@ -2130,7 +2154,7 @@ function WizVidEngineSection() {
               </div>
               <p className="text-[--color-silver-dark]/45 text-xs leading-relaxed flex-1">{eng.desc}</p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[--color-gold-dark] group-hover:text-[--color-gold] transition-colors">
-                Learn more <ArrowRight className="w-3 h-3" />
+                Learn more <ArrowSVG className="w-3 h-3" />
               </span>
             </a>
           ))}
@@ -2193,7 +2217,7 @@ function SeeTheDifference() {
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-12 rounded-xl bg-[--color-gold]/[0.04] border border-[--color-gold]/[0.08] flex items-center px-4 gap-2">
-                  <Volume2 className="w-4 h-4 text-[--color-gold]/50" />
+                  <WaveformSVG className="w-4 h-4" color="oklch(0.78 0.11 75 / 0.5)" />
                   <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700"
@@ -2233,7 +2257,7 @@ function SeeTheDifference() {
           {/* CTA */}
           <div className="text-center">
             <a href="/pricing" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm">
-              <Sparkles className="w-4 h-4" />
+              <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
               Upgrade to Cinematic Mode
             </a>
             <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every render upgrade</p>
@@ -2253,7 +2277,7 @@ function FinalCTA() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="relative z-10 max-w-3xl mx-auto text-center reveal">
         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
-          <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
+          <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />
           <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">No credit card required</span>
         </div>
         <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">
@@ -2269,20 +2293,20 @@ function FinalCTA() {
             href="/onboarding"
             className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
           >
-            <Sparkles className="w-5 h-5" />
+            <img src={WIZAI_LOGO} alt="" className="w-5 h-5 object-contain" />
             Create Your First AI Video
           </a>
           <a
             href="/music-creator"
             className="btn-secondary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
           >
-            <Music2 className="w-5 h-5" />
+            <img src={WIZSOUND_LOGO} alt="" className="w-5 h-5 object-contain" />
             Generate Your First Song
           </a>
         </div>
         <div className="flex items-center justify-center gap-4 mt-6">
           <a href="/pricing" className="inline-flex items-center gap-2 text-sm text-[--color-silver-dark]/40 hover:text-[--color-silver] transition-colors font-medium">
-            View Pricing <ArrowRight className="w-4 h-4" />
+            View Pricing <ArrowSVG className="w-4 h-4" />
           </a>
           <span className="w-px h-3 bg-[--color-gold]/10" />
           <span className="text-xs text-[--color-silver-dark]/25">No credit card required. 2 free videos included.</span>
@@ -2522,7 +2546,7 @@ function StickyMobileCTA() {
           className="flex-1 btn-primary btn-sheen inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
           onClick={() => mp.startCreatingClicked?.("sticky_mobile_cta")}
         >
-          <Sparkles className="w-4 h-4" />
+          <img src={WIZAI_LOGO} alt="" className="w-4 h-4 object-contain" />
           Create Your First Video — Free
         </a>
         <button
@@ -2530,7 +2554,7 @@ function StickyMobileCTA() {
           className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[--color-silver-dark]/40 hover:text-[--color-silver] transition-colors"
           aria-label="Dismiss"
         >
-          <X className="w-4 h-4" />
+          <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3l10 10M13 3L3 13" /></svg>
         </button>
       </div>
     </div>
@@ -2549,7 +2573,7 @@ function ContinueProjectBanner() {
           <p className="text-sm font-semibold text-white truncate">{resumeData.title || "Untitled project"}</p>
         </div>
         <a href="/dashboard" className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
-          Continue <ArrowRight className="w-3 h-3" />
+          Continue <ArrowSVG className="w-3 h-3" />
         </a>
       </div>
     </div>

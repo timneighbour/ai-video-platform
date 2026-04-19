@@ -24,7 +24,7 @@ import {
   Star, Shield, Film, User, X, ImageIcon, Upload,
   Music, Lock, Eye, Pencil, RotateCcw, Camera,
   ChevronDown, ChevronUp,
-} from "lucide-react";
+} from "@/lib/icons";
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";

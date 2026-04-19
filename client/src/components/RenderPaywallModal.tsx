@@ -17,7 +17,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
   Check, Download, Crown, Sparkles, RefreshCw, Shield, Star
-} from "lucide-react";
+} from "@/lib/icons";
 
 type Quality = "standard" | "hd" | "4k";
 type EnhanceTier = "standard" | "enhance" | "cinematic";

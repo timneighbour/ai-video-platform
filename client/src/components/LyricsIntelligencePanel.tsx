@@ -21,7 +21,7 @@ import {
   Check,
   X,
   ArrowRight,
-} from "lucide-react";
+} from "@/lib/icons";
 
 interface LyricBlock {
   line: string;

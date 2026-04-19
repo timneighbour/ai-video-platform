@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Copy, Check, ArrowRight, Loader2 } from "lucide-react";
+import { Sparkles, Copy, Check, ArrowRight, Loader2 } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";

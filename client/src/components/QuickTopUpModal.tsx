@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Zap, Check, Loader2, ExternalLink, SlidersHorizontal } from "lucide-react";
+import { Zap, Check, Loader2, ExternalLink, SlidersHorizontal } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 interface Pack {
@@ -177,7 +177,7 @@ export function QuickTopUpModal({
                       : "border-muted-foreground/40"
                   )}>
                     {selectedPack === pack.key && (
-                      <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                      <Check className="h-2.5 w-2.5 text-primary-foreground" />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -223,7 +223,7 @@ export function QuickTopUpModal({
                   : "border-muted-foreground/40"
               )}>
                 {selectedPack === "custom" && (
-                  <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                  <Check className="h-2.5 w-2.5 text-primary-foreground" />
                 )}
               </div>
               <div className="flex items-center gap-2 flex-1">

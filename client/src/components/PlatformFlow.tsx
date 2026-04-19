@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { NavLink } from "@/components/NavLink";
-import { ArrowRight, Pause, Play } from "lucide-react";
+import { ArrowRight, Pause, Play } from "@/lib/icons";
 
 // ─── Step definitions ────────────────────────────────────────────────────────
 

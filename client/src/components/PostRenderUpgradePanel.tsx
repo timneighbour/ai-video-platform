@@ -6,7 +6,7 @@
  * paying only the price difference from what they already paid.
  */
 import { useState } from "react";
-import { ArrowUp, Music2, Sparkles, CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowUp, Music2, Sparkles, CheckCircle2, ChevronRight, Loader2 } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";

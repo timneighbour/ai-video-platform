@@ -30,7 +30,7 @@ import {
   Sparkles,
   BookmarkCheck,
   Share2,
-} from "lucide-react";
+} from "@/lib/icons";
 
 type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "completed" | "failed";
 

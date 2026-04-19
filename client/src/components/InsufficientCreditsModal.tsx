@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Zap, ArrowDownCircle, ExternalLink } from "lucide-react";
+import { Zap, ArrowDownCircle, ExternalLink } from "@/lib/icons";
 import { Link } from "wouter";
 
 interface InsufficientCreditsModalProps {

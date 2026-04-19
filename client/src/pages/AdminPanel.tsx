@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Database, RefreshCw, CheckCircle2, XCircle, Loader2, ShieldAlert, Activity } from "lucide-react";
+import { Database, RefreshCw, CheckCircle2, XCircle, Loader2, ShieldAlert, Activity } from "@/lib/icons";
 import { Link } from "wouter";
 
 export default function AdminPanel() {

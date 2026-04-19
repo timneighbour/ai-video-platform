@@ -29,7 +29,7 @@ import {
   Clock,
   Sparkles,
   Info,
-} from "lucide-react";
+} from "@/lib/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // ── Analytics helper ──────────────────────────────────────────────────────────

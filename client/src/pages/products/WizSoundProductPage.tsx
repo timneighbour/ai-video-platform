@@ -10,7 +10,7 @@ import BackButton from "@/components/BackButton";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 import {
   ArrowRight, ChevronRight, Sparkles, Check, ChevronDown,
-} from "lucide-react";
+} from "@/lib/icons";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;

@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Film, Music2, Cpu, Zap } from "lucide-react";
+import { Sparkles, Film, Music2, Cpu, Zap } from "@/lib/icons";
 
 // ── Brand layer config ────────────────────────────────────────────────────────
 export type WizLayer = "create" | "render" | "sound" | "pilot";

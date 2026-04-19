@@ -11,7 +11,7 @@ import {
   Sparkles, Play, Download, ChevronRight, ChevronLeft,
   Loader2, Film, Zap, Clock, CheckCircle2, AlertCircle,
   Youtube, Music2, Smartphone
-} from "lucide-react";
+} from "@/lib/icons";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

@@ -1,12 +1,15 @@
-import { ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 
+// Inline SVG left arrow — no Lucide dependency
+const ArrowLeftSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M13 8H3M7 4l-4 4 4 4" />
+  </svg>
+);
+
 interface BackButtonProps {
-  /** Override the fallback destination (defaults to "/") */
   fallback?: string;
-  /** Override the label text (defaults to "Back") */
   label?: string;
-  /** Additional className for the wrapper */
   className?: string;
 }
 
@@ -33,7 +36,7 @@ export default function BackButton({ fallback = "/", label = "Back", className =
         navigate(fallback);
       }}
     >
-      <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+      <ArrowLeftSVG className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
       {label}
     </a>
   );

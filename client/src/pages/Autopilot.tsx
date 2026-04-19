@@ -9,7 +9,7 @@ import {
   Zap, CheckCircle2, Clock, Film, ArrowLeft, Loader2,
   Music, AlertCircle, Download, ExternalLink, Clapperboard,
   Plus, Trash2, Copy, ImageIcon, Video, X, Eye,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";

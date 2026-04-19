@@ -23,7 +23,7 @@ import {
   Music2, Users, Layers, Zap, ChevronRight, RefreshCw,
   UserCircle2, Guitar, Drum, Piano, Radio, Volume2, Waves,
   ArrowRight, Sparkles, Clock, Play,
-} from "lucide-react";
+} from "@/lib/icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

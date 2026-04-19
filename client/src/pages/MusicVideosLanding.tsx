@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import BackButton from "@/components/BackButton";
 import AuthGate from "@/components/AuthGate";
-import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "lucide-react";
+import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "@/lib/icons";
 import { useLocation, Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 

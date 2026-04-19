@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   Star,
   Clapperboard,
-} from "lucide-react";
+} from "@/lib/icons";
 import CreditBalance from "@/components/CreditBalance";
 
 // ── Standard credit packs ────────────────────────────────────────────────────

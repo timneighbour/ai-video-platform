@@ -1,4 +1,4 @@
-import { AlertCircle, Home, ArrowLeft } from "lucide-react";
+import { AlertCircle, Home, ArrowLeft } from "@/lib/icons";
 
 export default function NotFound() {
   return (

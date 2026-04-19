@@ -26,7 +26,7 @@ import {
   Check, X, ChevronDown, ChevronUp, Sparkles, Download, Music2, Film, Package,
   Wand2, ArrowRight, Image, FileText, Menu, Shield, CreditCard, RefreshCcw,
   Users, Star, Crown, Zap, Play, Headphones, Globe, Layers
-} from "lucide-react";
+} from "@/lib/icons";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 
 // ── CDN assets ────────────────────────────────────────────────────────────────

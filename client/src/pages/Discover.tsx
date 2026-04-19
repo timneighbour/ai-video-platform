@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Youtube, Instagram, Globe, ExternalLink, Play, Sparkles, TrendingUp, Star, Users } from "lucide-react";
+import { Youtube, Instagram, Globe, ExternalLink, Play, Sparkles, TrendingUp, Star, Users } from "@/lib/icons";
 
 // TikTok icon (not in lucide)
 const TikTokIcon = () => (

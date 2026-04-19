@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "@/components/NavLink";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "@/lib/icons";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 

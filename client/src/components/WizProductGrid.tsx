@@ -3,7 +3,7 @@
  * Each card uses brushed gold borders, polished silver highlights, bevelled depth,
  * reflective gradients, and a metallic grain texture overlay.
  */
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/lib/icons";
 import { mp } from "@/lib/mixpanel";
 
 import {

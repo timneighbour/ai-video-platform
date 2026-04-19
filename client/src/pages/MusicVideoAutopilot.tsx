@@ -85,7 +85,7 @@ import {
   Plus,
   Image as ImageIcon,
   Users,
-} from "lucide-react";
+} from "@/lib/icons";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 

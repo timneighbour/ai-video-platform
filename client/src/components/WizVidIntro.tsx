@@ -19,7 +19,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Volume2, VolumeX, X, ChevronRight } from "lucide-react";
+import { Volume2, VolumeX, X, ChevronRight } from "@/lib/icons";
 
 // DEPRECATED — old video asset. Active intro uses IntroScreen.tsx with wizai-intro-wizsound-pure_8c53762c.mp4
 const INTRO_VIDEO_URL =

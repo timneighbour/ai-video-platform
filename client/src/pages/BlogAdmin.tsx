@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { PenLine, Trash2, Eye, EyeOff, Plus, ArrowLeft } from "lucide-react";
+import { PenLine, Trash2, Eye, EyeOff, Plus, ArrowLeft } from "@/lib/icons";
 import { Link } from "wouter";
 
 export default function BlogAdmin() {

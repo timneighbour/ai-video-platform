@@ -75,7 +75,7 @@ import {
   Plus, Trash2, User, Mic, ImagePlus, X,
   Crown, Lock, LockOpen, ShieldCheck,
   RefreshCw, Wand2, Camera, Sparkles,
-} from "lucide-react";
+} from "@/lib/icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

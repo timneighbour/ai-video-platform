@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Check, Sparkles, ArrowLeft, Zap, Gift, Crown, Star, Loader2,
   Rocket, Gem, Volume2, Package, ChevronRight, Minus,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";

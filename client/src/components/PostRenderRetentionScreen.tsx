@@ -15,7 +15,7 @@ import {
   Download, Play, Pause, Share2, Sparkles, Film, Music,
   Baby, Youtube, ChevronRight, ArrowRight, Star, Zap, RefreshCw,
   Rocket, Globe, Instagram, Twitter, Users, Crown
-} from "lucide-react";
+} from "@/lib/icons";
 import { toast } from "sonner";
 
 interface PostRenderRetentionScreenProps {

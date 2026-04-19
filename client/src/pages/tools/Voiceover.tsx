@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Sparkles, Zap, Play } from "lucide-react";
+import { ArrowLeft, Sparkles, Zap, Play } from "@/lib/icons";
 import { useState } from "react";
 import { useLocation } from "wouter";
 

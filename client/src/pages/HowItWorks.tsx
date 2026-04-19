@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
-  CheckCircle2, Clock, Bell, Share2, ArrowRight, Play, Zap, ChevronRight } from "lucide-react";
+  CheckCircle2, Clock, Bell, Share2, ArrowRight, Play, Zap, ChevronRight } from "@/lib/icons";
 import { Link } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";

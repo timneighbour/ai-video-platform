@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
-import { Play, Pause, ArrowLeft, Sparkles } from "lucide-react";
+import { Play, Pause, ArrowLeft, Sparkles } from "@/lib/icons";
 import { Link } from "wouter";
 
 interface ShowcaseItem {

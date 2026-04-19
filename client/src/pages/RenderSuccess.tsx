@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle, Download, Loader2, AlertCircle, ArrowLeft, Film, ExternalLink } from "lucide-react";
+import { CheckCircle, Download, Loader2, AlertCircle, ArrowLeft, Film, ExternalLink } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 
 function useSearchParams() {
@@ -78,7 +78,7 @@ export default function RenderSuccess() {
       <div className="absolute top-6 left-6">
         <Link href="/dashboard">
           <a className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm">
-            <ArrowLeft size={14} />
+            <ArrowLeft className="w-3.5 h-3.5" />
             Dashboard
           </a>
         </Link>
@@ -88,14 +88,14 @@ export default function RenderSuccess() {
         {/* Logo */}
         <div className="flex justify-center mb-2">
           <div className="w-12 h-12 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center">
-            <Film size={22} className="text-[--color-gold]" />
+            <Film className="w-5 h-5 text-[--color-gold]" />
           </div>
         </div>
 
         {/* Loading state */}
         {isLoading && (
           <>
-            <Loader2 size={40} className="mx-auto text-[--color-gold] animate-spin" />
+            <Loader2 className="w-10 h-10 mx-auto text-[--color-gold] animate-spin" />
             <h1 className="text-2xl font-bold">Confirming your payment…</h1>
             <p className="text-white/50 text-sm">Please wait while we verify your purchase with Stripe.</p>
           </>
@@ -104,7 +104,7 @@ export default function RenderSuccess() {
         {/* Error state */}
         {confirmError && (
           <>
-            <AlertCircle size={40} className="mx-auto text-red-400" />
+            <AlertCircle className="w-10 h-10 mx-auto text-red-400" />
             <h1 className="text-2xl font-bold text-red-400">Payment Confirmation Failed</h1>
             <p className="text-white/60 text-sm">{confirmError}</p>
             <p className="text-white/40 text-xs">
@@ -121,7 +121,7 @@ export default function RenderSuccess() {
         {/* Payment confirmed — redirecting to render progress */}
         {confirmed && sourceJobId && (
           <>
-            <CheckCircle size={48} className="mx-auto text-green-400" />
+            <CheckCircle className="w-12 h-12 text-destructive/50" />
             <h1 className="text-2xl font-bold">Payment Confirmed!</h1>
             <p className="text-white/60 text-sm">
               Your render has started. Redirecting you to the render progress page in{" "}
@@ -140,7 +140,7 @@ export default function RenderSuccess() {
               onClick={() => navigate(`/music-video/create?job_id=${sourceJobId}&render_started=true`)}
               className="bg-[--color-gold] hover:bg-[--color-gold]/20 w-full"
             >
-              <ExternalLink size={16} className="mr-2" />
+              <ExternalLink className="w-4 h-4 mr-2" />
               Go to Render Progress Now
             </Button>
           </>
@@ -149,7 +149,7 @@ export default function RenderSuccess() {
         {/* Confirmed but no sourceJobId (non-music-video render) */}
         {confirmed && !sourceJobId && (
           <>
-            <CheckCircle size={48} className="mx-auto text-green-400" />
+            <CheckCircle className="w-12 h-12 text-destructive/50" />
             <h1 className="text-2xl font-bold">
               {isUpgrade ? "Upgrade confirmed!" : "Render started!"}
             </h1>

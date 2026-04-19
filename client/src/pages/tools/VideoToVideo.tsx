@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Sparkles, Zap, Upload } from "lucide-react";
+import { ArrowLeft, Sparkles, Zap, Upload } from "@/lib/icons";
 import { useState } from "react";
 import { useLocation } from "wouter";
 

@@ -10,7 +10,7 @@
  *   – Use: Credits, Video creation, Cinematic upgrades
  *   ❌ Never: tokens, cost, API, compute
  */
-import { Zap, AlertCircle, Plus } from "lucide-react";
+import { Zap, AlertCircle, Plus } from "@/lib/icons";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";

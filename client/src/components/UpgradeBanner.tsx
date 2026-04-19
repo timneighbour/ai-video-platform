@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, X, ArrowRight, Rocket, PartyPopper } from "lucide-react";
+import { Sparkles, X, ArrowRight, Rocket, PartyPopper } from "@/lib/icons";
 
 interface UpgradeBannerProps {
   type?: "limit" | "milestone" | "watermark";

@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Volume2, Film, Layers, Cpu, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Sparkles, Volume2, Film, Layers, Cpu, Mail, ArrowRight, CheckCircle2 } from "@/lib/icons";
 
 const MAIN_APP = "https://wiz-ai.io";
 

@@ -1,18 +1,28 @@
 /**
  * Global Mute/Unmute Button
- *
- * Always visible, clearly indicates state, instantly responsive.
- * Uses the global AudioContext to control all audio across the platform.
+ * No Lucide icons — uses inline SVG waveform / muted-waveform visuals.
  */
-import { Volume2, VolumeX } from "lucide-react";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 
+// Animated waveform bars (sound on)
+const WaveformIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 20 14" fill="none" aria-hidden="true">
+    <path d="M1 7h2M4 4v6M7 2v10M10 5v4M13 3v8M16 4v6M19 7h-2"
+      stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+);
+
+// Flat line with X (muted)
+const MutedIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 20 14" fill="none" aria-hidden="true">
+    <path d="M1 7h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeOpacity="0.4" />
+    <path d="M7 4l6 6M13 4l-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+);
+
 interface GlobalMuteButtonProps {
-  /** Visual variant */
   variant?: "floating" | "inline" | "minimal";
-  /** Additional CSS classes */
   className?: string;
-  /** Size of the icon */
   size?: number;
 }
 
@@ -36,12 +46,12 @@ export default function GlobalMuteButton({
       >
         {isMuted ? (
           <>
-            <VolumeX className="flex-shrink-0" style={{ width: size, height: size }} />
+            <MutedIcon size={size} />
             <span className="text-xs font-medium">Unmute</span>
           </>
         ) : (
           <>
-            <Volume2 className="flex-shrink-0" style={{ width: size, height: size }} />
+            <WaveformIcon size={size} />
             <span className="text-xs font-medium">Mute</span>
           </>
         )}
@@ -56,11 +66,7 @@ export default function GlobalMuteButton({
         aria-label={isMuted ? "Unmute audio" : "Mute audio"}
         className={`p-1.5 rounded-lg transition-colors hover:bg-white/10 ${className}`}
       >
-        {isMuted ? (
-          <VolumeX style={{ width: size, height: size }} />
-        ) : (
-          <Volume2 style={{ width: size, height: size }} />
-        )}
+        {isMuted ? <MutedIcon size={size} /> : <WaveformIcon size={size} />}
       </button>
     );
   }
@@ -76,11 +82,7 @@ export default function GlobalMuteButton({
           : "bg-white/12 border border-white/20 text-white hover:bg-white/16"
       } ${className}`}
     >
-      {isMuted ? (
-        <VolumeX style={{ width: size, height: size }} />
-      ) : (
-        <Volume2 style={{ width: size, height: size }} />
-      )}
+      {isMuted ? <MutedIcon size={size} /> : <WaveformIcon size={size} />}
       {isMuted ? "Unmute" : "Mute"}
     </button>
   );

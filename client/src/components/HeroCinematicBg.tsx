@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play } from "@/lib/icons";
 
 /* ── Video B: Homepage hero background ──────────────────────────────
    Subtle, dark, cinematic loop — supports headline, never overpowers.

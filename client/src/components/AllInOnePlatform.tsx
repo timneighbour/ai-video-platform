@@ -3,7 +3,7 @@ import { NavLink } from "@/components/NavLink";
 import {
   Music2, Film, User, Brain, Zap, Bell, Rocket,
   ChevronRight, ArrowRight,
-} from "lucide-react";
+} from "@/lib/icons";
 
 const STEPS = [
   {

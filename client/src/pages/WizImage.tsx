@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import {
   Sparkles, Download, Trash2, ImageIcon, Wand2, Loader2,
   Shuffle, ChevronRight, Star,
-} from "lucide-react";
+} from "@/lib/icons";
 
 // ─── Style definitions with Unsplash preview images ──────────────────────────
 const STYLES = [

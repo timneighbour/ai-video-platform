@@ -32,7 +32,7 @@ import {
   ArrowRight,
   ExternalLink,
   Loader2,
-} from "lucide-react";
+} from "@/lib/icons";
 import { VIDEO_CREDIT_COSTS } from "../../../shared/const";
 import { Link } from "wouter";
 
