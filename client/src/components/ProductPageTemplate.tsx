@@ -90,7 +90,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back" />
             <div className="flex items-center gap-3">
-              <img src={logo} alt={name} className="h-8 w-auto object-contain" />
+              <img src={logo} alt={name} className="h-8 w-auto object-contain"  loading="lazy" />
               <span className="px-2.5 py-1 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[10px] font-bold tracking-[0.15em] uppercase text-[--color-gold-dark]">{tagline}</span>
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                 alt={name}
                 className="relative h-28 md:h-36 w-auto object-contain"
                 style={{ filter: "drop-shadow(0 0 32px rgba(196,164,100,0.25)) drop-shadow(0 0 8px rgba(196,164,100,0.15))" }}
-              />
+               loading="lazy" />
             </div>
           </div>
 
@@ -182,14 +182,14 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                   alt={name}
                   className="w-full h-full object-cover"
                   style={{ minHeight: 280 }}
-                />
+                 loading="lazy" />
               ) : (
                 <div className="bg-[#0a0a0a] p-8 flex flex-col items-center justify-center min-h-[280px] relative">
                   <div
                     className="absolute inset-0 opacity-30"
                     style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(196,164,100,0.08) 0%, transparent 70%)" }}
                   />
-                  <img src={logo} alt={name} className="h-[5.625rem] w-auto object-contain relative z-10 mb-4" />
+                  <img src={logo} alt={name} className="h-[5.625rem] w-auto object-contain relative z-10 mb-4"  loading="lazy" />
                   <div className="text-sm font-semibold text-[--color-gold] relative z-10">{name}</div>
                   <div className="text-xs text-[--color-silver-dark]/30 relative z-10 mt-1">{role}</div>
                 </div>
@@ -197,7 +197,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
               {/* Logo overlay on hero image */}
               {heroImage && (
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-xl px-3 py-2">
-                  <img src={logo} alt={name} className="h-7 w-auto object-contain" />
+                  <img src={logo} alt={name} className="h-7 w-auto object-contain"  loading="lazy" />
                 </div>
               )}
             </div>
@@ -231,7 +231,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                 {/* Icon */}
                 <div className="w-10 h-10 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.14] flex items-center justify-center mb-4 group-hover:bg-[--color-gold]/[0.14] transition-colors">
                   {step.icon.startsWith("http") ? (
-                    <img src={step.icon} alt={step.title} className="w-5 h-5 object-contain" />
+                    <img src={step.icon} alt={step.title} className="w-5 h-5 object-contain"  loading="lazy" />
                   ) : ICON_MAP[step.icon] ? (
                     (() => { const Icon = ICON_MAP[step.icon]; return <Icon className="w-5 h-5 text-[--color-gold]" />; })()
                   ) : (
@@ -374,7 +374,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
             <NavLink href="/">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.6rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.6rem] w-auto object-contain drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]"  loading="lazy" />
             </NavLink>
             <div className="flex items-center gap-5 text-xs text-[--color-silver-dark]/30">
               <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>

@@ -295,7 +295,7 @@ const PRODUCTS: Product[] = [
     tagline: "AI music & audio production studio",
     desc: "Generate original tracks, soundscapes, and audio from text. Studio-quality sound in seconds.",
     href: "/create", emblem: <WizAudioEmblem size={80} />, accent: "emerald",
-    cardVisual: <img src={CARD_BG_AUDIO} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    cardVisual: <img src={CARD_BG_AUDIO} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60"  loading="lazy" />,
     logoUrl: WIZAUDIO_LOGO,
   },
   {
@@ -303,7 +303,7 @@ const PRODUCTS: Product[] = [
     tagline: "AI image & artwork creator",
     desc: "Describe any image and WizImage renders it in seconds. 8 art styles, photorealistic to cinematic.",
     href: "/wiz-image", emblem: <WizImageEmblem size={80} />, accent: "amber",
-    cardVisual: <img src={CARD_BG_IMAGE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    cardVisual: <img src={CARD_BG_IMAGE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60"  loading="lazy" />,
     logoUrl: WIZIMAGE_LOGO,
   },
   {
@@ -311,7 +311,7 @@ const PRODUCTS: Product[] = [
     tagline: "Upload a song, get a full music video",
     desc: "Turn any track into a full-length AI-directed music video — scenes, cuts, and all.",
     href: "/music-video/create", emblem: <WizVideoEmblem size={80} />, accent: "violet",
-    cardVisual: <img src={CARD_BG_VIDEO} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    cardVisual: <img src={CARD_BG_VIDEO} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60"  loading="lazy" />,
     logoUrl: WIZVIDEO_LOGO,
   },
   {
@@ -319,7 +319,7 @@ const PRODUCTS: Product[] = [
     tagline: "Short-form vertical video creator",
     desc: "Create viral-ready vertical videos for TikTok, Instagram Reels, and YouTube Shorts.",
     href: "/wiz-shorts", emblem: <WizShortsEmblem size={80} />, accent: "cyan",
-    cardVisual: <img src={CARD_BG_SHORTS} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    cardVisual: <img src={CARD_BG_SHORTS} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60"  loading="lazy" />,
     logoUrl: WIZSHORTS_LOGO,
   },
   {
@@ -327,7 +327,7 @@ const PRODUCTS: Product[] = [
     tagline: "AI character animation engine",
     desc: "Bring characters to life with fluid, beat-matched AI animation. Every movement timed to the music.",
     href: "/products/wizanimate", emblem: <WizAnimateEmblem size={80} />, accent: "rose",
-    cardVisual: <img src={CARD_BG_ANIMATE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    cardVisual: <img src={CARD_BG_ANIMATE} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60"  loading="lazy" />,
     logoUrl: WIZANIMATE_LOGO_V3,
   },
   {
@@ -335,7 +335,7 @@ const PRODUCTS: Product[] = [
     tagline: "Scene-by-scene cinematic control",
     desc: "Write each scene yourself for full creative control. Script to storyboard to cinematic video.",
     href: "/text-to-video", emblem: <WizScriptEmblem size={80} />, accent: "orange",
-    cardVisual: <img src={CARD_BG_SCRIPT} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />,
+    cardVisual: <img src={CARD_BG_SCRIPT} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60"  loading="lazy" />,
     logoUrl: WIZSCRIPT_LOGO,
   },
 ];
@@ -453,7 +453,7 @@ function ProductCard({ product }: { product: Product }) {
               src={product.logoUrl}
               alt={product.name}
               className="h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(196,164,100,0.5)] transition-all duration-300"
-            />
+             loading="lazy" />
             <sup className="text-[9px] font-bold tracking-wider mb-2" style={{ color: "rgba(196,164,100,0.7)" }}>TM</sup>
           </div>
         ) : (

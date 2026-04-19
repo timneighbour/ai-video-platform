@@ -306,7 +306,7 @@ function NotificationAnim({ active }: { active: boolean }) {
       >
         <div className="flex items-start gap-2.5">
           <div className="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-500/30 flex items-center justify-center flex-shrink-0 text-sm">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify-v2_a1f9d86c.png" alt="Notify" className="w-4 h-4 object-contain" />
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify-v2_a1f9d86c.png" alt="Notify" className="w-4 h-4 object-contain"  loading="lazy" />
           </div>
           <div>
             <p className="text-sky-200 text-[11px] font-bold leading-tight">Your video is ready!</p>
@@ -340,7 +340,7 @@ function BoostAnim({ active }: { active: boolean }) {
           animation: active ? "rocketBob 2s ease-in-out infinite" : "none",
         }}
       >
-        <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost-v2_24dfd2f9.png" alt="WizBoost" className="w-8 h-8 object-contain" />
+        <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost-v2_24dfd2f9.png" alt="WizBoost" className="w-8 h-8 object-contain"  loading="lazy" />
       </div>
       {/* Platform icons */}
       <div className="flex gap-1.5">
@@ -482,7 +482,7 @@ export default function PlatformFlow() {
                       : "bg-white/4 border-white/8 text-white/40 hover:text-white/70 hover:bg-white/8"
                   }`}
                 >
-                  <img src={s.iconImg} alt={s.label} className="w-4 h-4 object-contain" />
+                  <img src={s.iconImg} alt={s.label} className="w-4 h-4 object-contain"  loading="lazy" />
                   <span>{s.label}</span>
                 </button>
               );
@@ -526,7 +526,7 @@ export default function PlatformFlow() {
               {/* Left: text content */}
               <div className="flex flex-col justify-center p-10">
                 <div className={`inline-flex items-center gap-2 ${step.pill} border rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest w-fit mb-5`}>
-                  <img src={step.iconImg} alt={step.label} className="w-4 h-4 object-contain" />
+                  <img src={step.iconImg} alt={step.label} className="w-4 h-4 object-contain"  loading="lazy" />
                   <span>Step {step.id} of {STEPS.length}</span>
                 </div>
                 <h3
@@ -557,7 +557,7 @@ export default function PlatformFlow() {
                       color: step.accent,
                     }}
                   >
-                    <img src={step.iconImg} alt={step.label} className="w-3.5 h-3.5 object-contain" />
+                    <img src={step.iconImg} alt={step.label} className="w-3.5 h-3.5 object-contain"  loading="lazy" />
                     {(step as any).ctaLabel}
                     <ArrowRight className="w-3 h-3" />
                   </a>
@@ -605,7 +605,7 @@ export default function PlatformFlow() {
                     isActive ? "bg-white/6" : isPast ? "bg-white/2" : "bg-transparent"
                   } hover:bg-white/5`}
                 >
-                  <img src={s.iconImg} alt={s.label} className="w-6 h-6 object-contain mb-1" />
+                  <img src={s.iconImg} alt={s.label} className="w-6 h-6 object-contain mb-1"  loading="lazy" />
                   <span className={`text-[10px] font-semibold ${isActive ? "text-white" : "text-white/35"}`}>
                     {s.label}
                   </span>
@@ -642,7 +642,7 @@ export default function PlatformFlow() {
                     className={`w-10 h-10 rounded-xl border ${s.border} flex items-center justify-center text-lg flex-shrink-0`}
                     style={{ background: `${s.accent}15` }}
                   >
-                    <img src={s.iconImg} alt={s.label} className="w-6 h-6 object-contain" />
+                    <img src={s.iconImg} alt={s.label} className="w-6 h-6 object-contain"  loading="lazy" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">

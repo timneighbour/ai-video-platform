@@ -233,7 +233,7 @@ function Nav() {
                         className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-[--color-gold]/[0.05] border border-transparent hover:border-[--color-gold]/[0.10] transition-all duration-200 group"
                       >
                         <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.04] border border-[--color-gold]/[0.08] group-hover:border-[--color-gold]/[0.22] transition-all duration-200 overflow-hidden">
-                          <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" />
+                          <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain"  loading="lazy" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">
@@ -447,7 +447,7 @@ function Hero() {
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2">
                 {WHO_IMAGES.map((src, i) => (
-                  <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" />
+                  <img key={i} src={src} alt="" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover"  loading="lazy" />
                 ))}
               </div>
               <div>
@@ -533,7 +533,7 @@ function WelcomeSection() {
                 src={DEMO_POSTER}
                 alt="WIZ AI demo"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.85]"
-              />
+               loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                 <div className="relative w-16 h-16">
@@ -695,7 +695,7 @@ function WizEngines() {
                       alt={eng.name}
                       className="w-20 h-20 sm:w-24 sm:h-24 object-contain group-hover:scale-105 transition-transform duration-500"
                       style={{ filter: `drop-shadow(0 0 20px ${(eng as any).accentColor})` }}
-                    />
+                     loading="lazy" />
                   </div>
                 </div>
 
@@ -863,7 +863,7 @@ function HowItWorks() {
                   className={`w-full h-full object-cover transition-all duration-500 ${
                     i === activeStep ? "brightness-100" : i < activeStep ? "brightness-75" : "brightness-50"
                   }`}
-                />
+                 loading="lazy" />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
                 {/* Step number */}
                 <div className="absolute bottom-3 left-3">
@@ -926,7 +926,7 @@ function HowItWorks() {
               {/* Step image (mobile) */}
               {i === activeStep && (
                 <div className="flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border border-[--color-gold]/20">
-                  <img src={s.img} alt={s.title} className="w-full h-full object-cover" />
+                  <img src={s.img} alt={s.title} className="w-full h-full object-cover"  loading="lazy" />
                 </div>
               )}
             </div>
@@ -976,7 +976,7 @@ function WhyWizAI() {
             <div key={r.title} className="reveal group relative rounded-2xl overflow-hidden flex flex-col" style={{ border: "1px solid rgba(196,164,100,0.12)", background: "linear-gradient(160deg, rgba(196,164,100,0.04) 0%, rgba(4,4,4,0.95) 100%)" }}>
               {/* Card image */}
               <div className="relative h-40 overflow-hidden">
-                <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-55 group-hover:scale-105 transition-all duration-700" />
+                <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-55 group-hover:scale-105 transition-all duration-700"  loading="lazy" />
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.85) 100%)" }} />
                 {/* Icon badge over image */}
                 <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center text-[--color-gold]">
@@ -1075,7 +1075,7 @@ function WizSoundDemo() {
         <div className="text-center mb-16 reveal">
           {/* WizSound logo */}
           <div className="flex justify-center mb-5">
-            <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-10 w-auto opacity-90" />
+            <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-10 w-auto opacity-90"  loading="lazy" />
           </div>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             Hear the difference
@@ -1225,7 +1225,7 @@ function WizLuminaDemo() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16 reveal">
           <div className="flex items-center justify-center mb-5">
-            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(196,164,100,0.4)]" />
+            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(196,164,100,0.4)]"  loading="lazy" />
           </div>
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizLumina™ — Visual Enhancement Engine</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
@@ -1251,7 +1251,7 @@ function WizLuminaDemo() {
                 alt="After WizLumina enhancement"
                 className="w-full h-full object-cover"
                 style={{ filter: "contrast(1.15) saturate(1.2) brightness(1.05)" }}
-              />
+               loading="lazy" />
               {/* Warm cinematic overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
             </div>
@@ -1266,7 +1266,7 @@ function WizLuminaDemo() {
                 alt="Before WizLumina"
                 className="w-full h-full object-cover"
                 style={{ filter: "saturate(0.5) brightness(0.75) contrast(0.9)" }}
-              />
+               loading="lazy" />
               {/* Desaturated overlay */}
               <div className="absolute inset-0 bg-black/10" />
             </div>
@@ -1375,7 +1375,7 @@ function Testimonials() {
                   src={q.avatar}
                   alt={q.name}
                   className="w-9 h-9 rounded-full object-cover border border-[--color-gold]/[0.15] flex-shrink-0"
-                />
+                 loading="lazy" />
                 <div>
                   <p className="text-white text-xs font-semibold">{q.name}</p>
                   <p className="text-[--color-silver-dark]/40 text-[11px]">{q.role}</p>
@@ -1549,7 +1549,7 @@ function BuiltFor() {
             <div key={a.title} className="reveal relative rounded-2xl overflow-hidden group cursor-pointer" style={{ border: '1px solid rgba(196,164,100,0.12)' }}>
               {/* Background image */}
               <div className="absolute inset-0">
-                <img src={a.img} alt={a.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={a.img} alt={a.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"  loading="lazy" />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.25) 100%)' }} />
               </div>
               {/* Content */}
@@ -1709,7 +1709,7 @@ function WizVidEngineSection() {
             >
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-2xl blur-2xl opacity-20 group-hover:opacity-40 transition-opacity" style={{ background: 'oklch(0.78 0.11 75 / 0.5)' }} />
-                <img src={eng.logoUrl} alt={eng.name} className="relative w-14 h-14 object-contain" />
+                <img src={eng.logoUrl} alt={eng.name} className="relative w-14 h-14 object-contain"  loading="lazy" />
               </div>
               <div>
                 <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-1">{eng.tagline}</p>
@@ -1775,7 +1775,7 @@ function SeeTheDifference() {
             {/* Audio */}
             <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#080808] p-8 flex flex-col gap-4">
               <div className="flex items-center gap-3 mb-2">
-                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto opacity-80" />
+                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto opacity-80"  loading="lazy" />
                 <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.label}</span>
               </div>
               <div className="flex items-center gap-4">
@@ -1801,7 +1801,7 @@ function SeeTheDifference() {
             {/* Visual */}
             <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#080808] p-8 flex flex-col gap-4">
               <div className="flex items-center gap-3 mb-2">
-                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain opacity-80" />
+                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain opacity-80"  loading="lazy" />
                 <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.label}</span>
               </div>
               <div className="relative aspect-video rounded-xl overflow-hidden border border-[--color-gold]/[0.06]">
@@ -1809,7 +1809,7 @@ function SeeTheDifference() {
                   src={DEMO_POSTER}
                   alt="Visual comparison"
                   className={`w-full h-full object-cover transition-all duration-700 ${tier.visualClass}`}
-                />
+                 loading="lazy" />
                 {activeTier === 2 && (
                   <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
                 )}
@@ -2007,7 +2007,7 @@ function Footer() {
         <div className="grid md:grid-cols-5 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.6rem] w-auto object-contain mb-5 drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]" />
+            <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.6rem] w-auto object-contain mb-5 drop-shadow-[0_0_8px_rgba(196,164,100,0.1)]"  loading="lazy" />
             <p className="text-[--color-silver-dark]/40 text-sm leading-relaxed mb-5 max-w-xs">
               The premium creative intelligence platform. Create audio, images, video, shorts, animation, and text-to-video — instantly.
             </p>

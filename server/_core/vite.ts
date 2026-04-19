@@ -1,3 +1,4 @@
+import compression from "compression";
 import express, { type Express } from "express";
 import fs from "fs";
 import { type Server } from "http";
@@ -58,10 +59,37 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Gzip/deflate compression for all responses
+  app.use(compression({ level: 6, threshold: 1024 }));
+
+  // Serve hashed JS/CSS/image chunks with long-lived immutable cache (1 year)
+  app.use(
+    "/assets",
+    express.static(path.join(distPath, "assets"), {
+      maxAge: "1y",
+      immutable: true,
+      etag: true,
+      lastModified: false,
+    })
+  );
+
+  // Serve all other static files with a shorter cache (1 hour)
+  app.use(
+    express.static(distPath, {
+      maxAge: "1h",
+      etag: true,
+      setHeaders(res, filePath) {
+        // HTML must never be cached so users always get the latest app shell
+        if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        }
+      },
+    })
+  );
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
