@@ -365,7 +365,7 @@ const FAQS = [
   },
   {
     q: "How does WizAudio pricing work?",
-    a: "WizAudio lets you generate AI music tracks, stems, and sound effects. Each audio generation consumes one render credit. WizSound audio mastering add-ons are available at checkout for an additional £1 (WizSound Active) or £3 (WizSound Spatial) per track.",
+    a: "WizAudio is WIZ AI’s music creation engine. Describe the genre, mood, and style — WizAudio generates a full original track, complete with vocals, instrumentation, and mastering. Each audio generation consumes one render credit. WizSound audio mastering add-ons are available at checkout for an additional £1 (WizSound Active) or £3 (WizSound Spatial) per track.",
   },
   {
     q: "How does WizImage pricing work?",

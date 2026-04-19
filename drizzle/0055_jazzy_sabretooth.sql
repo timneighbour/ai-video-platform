@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` ADD `userEditedPrompt` boolean DEFAULT false NOT NULL;

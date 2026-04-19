@@ -3324,21 +3324,21 @@
 - [x] Add Cinematic Mode 🎬 master bundle card as most prominent option
 - [x] Show both audio + visual sub-labels under each tier selection
 - [x] Auto-sync: selecting Cinematic on either system enables both
-- [ ] Update WizSoundSection homepage to reference unified system
-- [ ] Update WizLuminaSection homepage to reference unified system
+- [x] Update WizSoundSection homepage to reference unified system
+- [x] Update WizLuminaSection homepage to reference unified system
 - [ ] Update pricing page to reflect unified tier pricing
 
 ## Homepage Cinematic Rebuild (Pasted_content_04)
 - [x] Update hero headline: "Create Cinematic Videos with AI"
-- [ ] Update hero subheadline: "From idea to fully produced video — with studio-grade sound and film-level visuals."
+- [x] Update hero subheadline: "From idea to fully produced video — with studio-grade sound and film-level visuals."
 - [x] Update hero CTAs: "Start Creating for Free" + "Watch Demo"
-- [ ] Add 5-icon value strip under hero (AI Video, Studio Sound, Cinematic Visuals, Instant Rendering, Multiple Styles)
-- [ ] Update "How It Works" section title: "From Idea to Cinematic Video in Minutes"
-- [ ] Add "The WizVid Engine" ecosystem section (WizCreate, WizSound, WizLumina, WizPilot with logos)
-- [ ] Add "See the Difference" unified comparison section (Standard/Enhance/Cinematic toggle, audio + visual)
-- [ ] Update "Who It's For" section title: "Built for Creators"
+- [x] Add 5-icon value strip under hero (AI Video, Studio Sound, Cinematic Visuals, Instant Rendering, Multiple Styles)
+- [x] Update "How It Works" section title: "From Idea to Cinematic Video in Minutes"
+- [x] Add "The WizVid Engine" ecosystem section (WizCreate, WizSound, WizLumina, WizPilot with logos)
+- [x] Add "See the Difference" unified comparison section (Standard/Enhance/Cinematic toggle, audio + visual)
+- [x] Update "Who It's For" section title: "Built for Creators"
 - [ ] Update pricing section: "Create for free. Pay to render." / "No subscriptions required."
-- [ ] Add trust strip: No credit card, Own your content, No watermark
+- [x] Add trust strip: No credit card, Own your content, No watermark
 - [x] Update final CTA: "Ready to create your video?" / "Start Creating Now"
 - [ ] Wire WizLumina wordmark into homepage ecosystem section
 - [ ] Wire WizLumina icon into paywall badges and WizLumina section
@@ -3346,13 +3346,13 @@
 ## Homepage Cinematic Rebuild (Pasted_content_04)
 - [x] Update hero headline and subheadline
 - [x] Update hero CTAs
-- [ ] Add 5-icon value strip under hero
-- [ ] Update How It Works section title
-- [ ] Add The WizVid Engine ecosystem section
-- [ ] Add See the Difference comparison section
-- [ ] Update Who Its For section title
+- [x] Add 5-icon value strip under hero
+- [x] Update How It Works section title
+- [x] Add The WizVid Engine ecosystem section
+- [x] Add See the Difference comparison section
+- [x] Update Who Its For section title
 - [x] Update pricing section copy
-- [ ] Add trust strip
+- [x] Add trust strip
 - [x] Update final CTA
 - [ ] Wire WizLumina wordmark into ecosystem section
 - [ ] Wire WizLumina icon into paywall
@@ -5226,3 +5226,65 @@
 - [x] Verify no model routing logic is in client-side code
 - [x] Add rate limiting to generation endpoints
 - [x] Protect all generation/dashboard routes behind auth middleware
+
+## SCENE GENERATION HARD CONSTRAINTS (Apr 2026)
+- [ ] NO RANDOM CHARACTERS: Inject hard constraint into all scene prompts — only show the exact characters the user created. No extras, no crowd members, no unnamed background performers, no AI-invented people unless user explicitly requested them.
+- [ ] INSTRUMENT POSITIONING LOCK: Drummers must ALWAYS be seated behind their drum kit. Never standing. Never holding drumsticks in mid-air. Guitarists must have guitar strapped on in playing position. Bassists same. Pianists must be seated at the piano. All instrument positions must match the storyboard reference image exactly.
+- [ ] STAGE ORIENTATION LOCK: Band always faces the camera. Camera is always positioned from the audience's perspective (in front of the stage). Audience is always between the camera and the stage, never behind the performers. Never render the band with their backs to the camera unless it is an explicit artistic choice in the scene description.
+- [ ] PROMPT FIDELITY: When a user edits a scene prompt, the edited text must be used verbatim as the foundation of the enriched prompt. The system must not override, ignore, or dilute user-written scene descriptions. User prompt is always the highest-priority input.
+
+## PROMPT FIDELITY & SCENE INTENT (Apr 2026)
+- [ ] PROMPT INTENT DETECTION: Detect when a user-edited scene prompt is a non-character shot (crowd pan, aerial, establishing, atmosphere, venue wide shot) and skip the hard character count prefix for those scenes — honour the user's prompt as written
+- [ ] USER PROMPT OVERRIDE: When user edits a scene prompt, use their text verbatim as the scene foundation. Never override or dilute user-written descriptions with system defaults
+- [ ] SCENE TYPE AWARENESS: Build a helper function detectSceneType(prompt) that returns 'character_scene' | 'crowd_scene' | 'aerial_scene' | 'atmosphere_scene' | 'establishing_scene' — used to decide which constraint blocks to inject
+- [ ] CHARACTER SCENE ONLY: Only inject hard character count prefix, instrument positioning lock, and stage orientation lock when scene type is 'character_scene'
+- [ ] ATMOSPHERE SCENES: For crowd/aerial/establishing scenes, only inject style lock and visual consistency — no character constraints
+
+## PROMPT FIDELITY & SCENE INTENT (Apr 2026)
+- [ ] PROMPT INTENT DETECTION: Detect when a user-edited scene prompt is a non-character shot (crowd pan, aerial, establishing, atmosphere, venue wide shot) and skip the hard character count prefix for those scenes
+- [ ] USER PROMPT OVERRIDE: When user edits a scene prompt, use their text verbatim as the scene foundation. Never override or dilute user-written descriptions with system defaults
+- [ ] SCENE TYPE AWARENESS: Build detectSceneType(prompt) helper returning 'character_scene' | 'crowd_scene' | 'aerial_scene' | 'atmosphere_scene' | 'establishing_scene'
+- [ ] CHARACTER SCENE ONLY: Only inject hard character count prefix, instrument positioning lock, and stage orientation lock when scene type is 'character_scene'
+- [ ] ATMOSPHERE SCENES: For crowd/aerial/establishing scenes, only inject style lock and visual consistency — no character constraints
+
+## PLATFORM-WIDE PROMPT FIDELITY (Apr 2026)
+- [ ] Add userEditedPrompt boolean column to musicVideoScenes schema — set to true when user saves an edited prompt
+- [ ] Generate and apply DB migration for userEditedPrompt column
+- [ ] updateScene procedure: set userEditedPrompt=true when user saves edited prompt
+- [ ] musicVideo.ts regenerateScene: put user prompt FIRST as DIRECTOR'S INSTRUCTION label, supporting constraints follow
+- [ ] musicVideo.ts regenerateScene: skip cleanScenePrompt stripping for user-edited prompts (honour verbatim)
+- [ ] musicVideo.ts regenerateScene: add detectSceneType() helper — returns character_scene | crowd_scene | aerial_scene | atmosphere_scene | establishing_scene
+- [ ] musicVideo.ts regenerateScene: only inject hard character count prefix and instrument/stage constraints for character_scene type
+- [ ] musicVideo.ts regenerateScene: for crowd/aerial/atmosphere scenes, only inject style lock and visual consistency
+- [ ] musicVideo.ts startRender: same DIRECTOR'S INSTRUCTION restructure for the main render loop
+- [ ] Instrument positioning lock: drummers ALWAYS seated behind kit, guitarists in playing position, pianists seated
+- [ ] Stage orientation lock: band always faces camera, audience always in front of stage
+- [ ] No random characters: only user-created characters appear in any scene
+- [ ] Kids Video (WizAnimate): apply DIRECTOR'S INSTRUCTION pattern to scene prompt builder
+- [ ] WizPilot: apply DIRECTOR'S INSTRUCTION pattern to scene prompt builder
+- [ ] WizScript: apply DIRECTOR'S INSTRUCTION pattern to scene prompt builder
+
+## AI PROMPT ENHANCER (Apr 2026)
+- [ ] Add enhancePrompt tRPC procedure in musicVideo.ts — takes raw user text + context (genre, mood, characters), returns production-ready AI prompt via LLM
+- [ ] Add Enhance button (sparkle icon) next to scene description textarea in MusicVideoAutopilot storyboard editor
+- [ ] Show loading spinner on Enhance button while LLM rewrites the prompt
+- [ ] Replace textarea content with enhanced prompt, allow user to further edit before saving
+- [ ] Add enhancePrompt to WizShorts scene editor
+- [ ] Add enhancePrompt to WizAnimate (Kids Video) scene editor
+- [ ] Add enhancePrompt to WizPilot prompt input
+- [ ] Add enhancePrompt to WizScript scene editor
+- [ ] Add enhancePrompt to Create.tsx manual scene editor
+
+## AI PROMPT ENHANCER - COPY BUTTON & ALL PRODUCTS (Apr 2026)
+- [ ] Build reusable PromptEnhancer component with: textarea input, Enhance button (sparkle icon), enhanced result box, one-click Copy button, loading state
+- [ ] Add PromptEnhancer to MusicVideoAutopilot scene editor (storyboard step)
+- [ ] Add PromptEnhancer to WizShorts scene editor
+- [ ] Add PromptEnhancer to KidsVideo (WizAnimate) scene editor
+- [ ] Add PromptEnhancer to WizPilot prompt input
+- [ ] Add PromptEnhancer to WizScript scene editor
+- [ ] Add PromptEnhancer to Create.tsx manual scene editor
+- [ ] Add PromptEnhancer to MusicCreator (audio/song description)
+- [ ] Add PromptEnhancer to LipSync scene description
+- [ ] Add PromptEnhancer to any other product with a user-facing description/prompt field
+- [ ] Copy button: copies enhanced text to clipboard, shows "Copied!" toast confirmation
+- [ ] One-click apply: also allow user to click Apply to paste directly into the prompt field

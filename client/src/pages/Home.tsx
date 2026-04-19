@@ -63,42 +63,42 @@ const PRODUCTS = [
   {
     name: "WizAudio",
     label: "Create Audio",
-    desc: "Studio-quality songs, vocals, and soundtracks — produced in minutes, not weeks.",
+    desc: "Generate full studio-quality music tracks from a text prompt in seconds.",
     icon: <WizAudioEmblem size={28} />,
     href: "/music-creator",
   },
   {
     name: "WizImage",
     label: "Create Images",
-    desc: "Publish-ready thumbnails, characters, and brand visuals — no designer required.",
+    desc: "Create cinematic AI images and visual assets from any idea, instantly.",
     icon: <WizImageEmblem size={28} />,
     href: "/wiz-image",
   },
   {
     name: "WizVideo",
     label: "Create Videos",
-    desc: "Complete cinematic music videos from any track — full narrative, full render.",
+    desc: "Turn your music into a full AI-generated music video, scene by scene.",
     icon: <WizVideoEmblem size={28} />,
     href: "/music-video/create",
   },
   {
     name: "WizShorts",
     label: "Create Shorts",
-    desc: "High-performing Shorts, Reels, and TikToks — ready to post in seconds.",
+    desc: "Produce scroll-stopping vertical short-form videos for social media in minutes.",
     icon: <WizShortsEmblem size={28} />,
     href: "/wiz-shorts",
   },
   {
     name: "WizAnimate",
     label: "Create Animation",
-    desc: "Cinematic 3D animation and stylised motion — from a single prompt.",
+    desc: "Bring characters and scenes to life with AI-powered animation.",
     icon: <WizAnimateEmblem size={28} />,
     href: "/kids-video",
   },
   {
     name: "WizScript",
     label: "Create from Text",
-    desc: "Turn any written idea into scenes, storyboards, and a full AI video.",
+    desc: "Describe your idea in plain text and let AI build the full video script and storyboard.",
     icon: <WizScriptEmblem size={28} />,
     href: "/text-to-video",
   },
@@ -209,10 +209,10 @@ function Nav() {
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
                     {[
-                      { name: "WizSound", tagline: "Premium Audio Engine", desc: "Studio-grade mastering, spatial widening, and cinematic depth on every track.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
-                      { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "Cinematic colour grading, HDR tone mapping, and film-level polish on every frame.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
-                      { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "Orchestrates the entire creative workflow — storyboard to final render.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
-                      { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Intelligent upscaling, compression, and platform-specific formatting.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
+                      { name: "WizSound", tagline: "Premium Audio Engine", desc: "The premium audio engine that upgrades every track from Normal to Cinematic quality.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
+                      { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "The visual enhancement engine that transforms raw AI footage into polished, cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
+                      { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "The core intelligence engine powering every creative decision inside WIZ AI.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
+                      { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "The output optimisation engine that accelerates render speed and sharpens final quality.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
                       { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
                       { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
                       { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion to create seamless, rhythm-locked cinematic output.", href: "/products/wizsync", logo: WIZSYNC_LOGO },
@@ -554,7 +554,7 @@ function WizEngines() {
       name: "WizSound",
       tm: "™",
       tagline: "Premium Audio Engine",
-      desc: "Enhances every audio track with richer depth, spatial clarity, and cinematic presence. From stereo widening to full mastering — your sound becomes studio-grade.",
+      desc: "The premium audio engine that upgrades every track from Normal to Cinematic quality.",
       benefit: "Your audio sounds professionally mastered, not AI-generated.",
       logoUrl: WIZSOUND_LOGO,
       accentFrom: "oklch(0.78 0.11 75 / 0.15)",
@@ -565,7 +565,7 @@ function WizEngines() {
       name: "WizLumina",
       tm: "™",
       tagline: "Visual Enhancement Engine",
-      desc: "Applies cinematic colour grading, HDR tone mapping, and film-level polish to every frame. Your visuals go from raw AI output to cinema-ready.",
+      desc: "The visual enhancement engine that transforms raw AI footage into polished, cinematic output.",
       benefit: "Every frame looks colour-graded by a professional colourist.",
       logoUrl: WIZLUMINA_LOGO,
       accentFrom: "oklch(0.82 0.01 260 / 0.15)",
@@ -576,7 +576,7 @@ function WizEngines() {
       name: "WizGenesis",
       tm: "™",
       tagline: "Core Intelligence Engine",
-      desc: "Orchestrates the entire creative workflow — from storyboard generation to scene composition to final render. The brain that makes everything work together.",
+      desc: "The core intelligence engine powering every creative decision inside WIZ AI.",
       benefit: "Your ideas become better, faster, and more consistent automatically.",
       logoUrl: WIZGENESIS_LOGO,
       accentFrom: "oklch(0.78 0.11 75 / 0.15)",
@@ -587,7 +587,7 @@ function WizEngines() {
       name: "WizBoost",
       tm: "™",
       tagline: "Output Optimisation Engine",
-      desc: "Analyses your final render and applies intelligent upscaling, compression optimisation, and platform-specific formatting. Your content arrives publish-ready for YouTube, TikTok, Instagram, and beyond.",
+      desc: "The output optimisation engine that accelerates render speed and sharpens final quality.",
       benefit: "Every export is optimised for maximum quality on every platform.",
       logoUrl: WIZBOOST_LOGO,
       accentFrom: "oklch(0.78 0.11 75 / 0.12)",
@@ -1661,12 +1661,12 @@ function WizVidEngineSection() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">The WizVid Engine</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">The WIZ AI Engine</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             Four engines. One platform.
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto">
-            WizVid combines four proprietary AI engines into a single seamless workflow — from idea to finished, cinema-ready video.
+            WIZ AI combines four proprietary AI engines into a single seamless workflow — from idea to finished, cinema-ready video.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1871,8 +1871,8 @@ function DemoVideoGallery() {
     },
     {
       id: "eFwx6fyDOmU",
-      title: "WizSync™ Lip-Sync Demo",
-      engine: "WizSync™",
+      title: "WizLumina™ Lip-Sync Demo",
+      engine: "WizLumina™",
       badge: "WizLumina™ Engine",
       badgeColor: "#0EA5E9",
       description: "AI avatar performance-sync and video translation. Powers WizLumina™ character animation with frame-perfect expression and lip sync.",

@@ -156,6 +156,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1"
   contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> — user-uploaded visual references for storyboard generation
   artistType: mysqlEnum("artistType", ["band", "solo_artist", "animated_characters", "solo_animated"]).default("solo_artist"), // Artist type selection from step 1
+  storyboardLockedAt: timestamp("storyboardLockedAt"), // Set when render starts — storyboard is frozen from this point
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -214,6 +215,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   modelAssignment: mysqlEnum("modelAssignment", ["seedance-2.0", "hailuo-minimax"]).default("seedance-2.0").notNull(), // WaveSpeed model: seedance-2.0 for character-heavy, hailuo-minimax for wide/atmospheric
   lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
+  userEditedPrompt: boolean("userEditedPrompt").default(false).notNull(), // true when the user has manually edited this scene's prompt
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

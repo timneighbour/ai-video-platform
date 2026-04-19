@@ -543,7 +543,7 @@ Rules:
         : scene.characterAssignments;
 
       await db.update(musicVideoScenes)
-        .set({ prompt: input.prompt, visualStyle: input.visualStyle ?? scene.visualStyle, characterAssignments: charAssignmentsJson, updatedAt: new Date() })
+        .set({ prompt: input.prompt, visualStyle: input.visualStyle ?? scene.visualStyle, characterAssignments: charAssignmentsJson, userEditedPrompt: true, updatedAt: new Date() })
         .where(eq(musicVideoScenes.id, input.sceneId));
 
       return { success: true };
@@ -608,7 +608,7 @@ Rules:
       }
       // Update job status, persist the chosen aspect ratio and caption preference
       await db.update(musicVideoJobs)
-        .set({ status: "rendering", completedScenes: 0, aspectRatio: input.aspectRatio, captionsEnabled: input.includeCaptions, updatedAt: new Date() })
+        .set({ status: "rendering", completedScenes: 0, aspectRatio: input.aspectRatio, captionsEnabled: input.includeCaptions, storyboardLockedAt: new Date(), updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
       // Start rendering all scenes asynchronously
@@ -3397,35 +3397,70 @@ Return a JSON array of objects matching the lyric lines provided.`;
       prompt: z.string().min(3).max(2000),
       genre: z.string().optional(),
       mood: z.string().optional(),
+      characters: z.array(z.string()).optional(), // character names in this scene
+      productType: z.enum(["music_video", "kids_video", "shorts", "audio", "script", "lipsync", "general"]).optional(),
     }))
     .mutation(async ({ input }) => {
       const { invokeLLM } = await import("../_core/llm");
-      const response = await invokeLLM({
-        messages: [
-          {
-            role: "system",
-            content: `You are WizGenesis\u2122 \u2014 the intelligence layer of WIZ AI, a cinematic AI video creation platform.
+      const productType = input.productType ?? "general";
+      const charList = (input.characters ?? []).filter(Boolean);
+      const charContext = charList.length > 0 ? `Characters in this scene: ${charList.join(", ")}.` : "";
+      const genreContext = [input.genre, input.mood].filter(Boolean).join(", ");
 
-Your job is to take a rough, casual user prompt and transform it into a structured, detailed, AI-friendly video description that will produce a stunning cinematic music video.
+      const systemPromptMap: Record<string, string> = {
+        kids_video: `You are a professional children's animation director and AI prompt engineer for WIZ AI.
+Take the user's plain-English scene description and rewrite it as a precise, vivid, production-ready prompt for an AI image/video generator.
+The output must be safe for children, colourful, imaginative, and in the style of animated children's content.
+KEEP the user's core intent EXACTLY — do not change what they asked for. Only make it more precise and visually descriptive.
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
+        audio: `You are a professional music producer and AI prompt engineer for WIZ AI.
+Take the user's plain-English audio/music description and rewrite it as a precise, production-ready prompt for an AI music generator.
+KEEP the user's core intent EXACTLY — genre, mood, instruments, tempo, feel. Only add more precise musical vocabulary.
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
+        shorts: `You are a professional social media video director and AI prompt engineer for WIZ AI.
+Take the user's plain-English scene description and rewrite it as a precise, vivid, production-ready prompt for an AI short-form video generator.
+KEEP the user's core intent EXACTLY. Add visual precision: camera angle, lighting, energy, pace, platform-appropriate style.
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
+        lipsync: `You are a professional video director and AI prompt engineer for WIZ AI.
+Take the user's plain-English scene description and rewrite it as a precise, vivid, production-ready prompt for an AI lip-sync video generator.
+KEEP the user's core intent EXACTLY. Add visual precision: character expression, lighting, background, camera angle.
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
+        script: `You are a professional screenwriter and AI prompt engineer for WIZ AI.
+Take the user's plain-English scene description and rewrite it as a precise, vivid, production-ready visual scene description for an AI video generator.
+KEEP the user's core intent EXACTLY. Add visual precision: setting, lighting, character actions, camera movement, mood.
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
+      };
+
+      const defaultSystemPrompt = `You are WizGenesis™ — the intelligence layer of WIZ AI, a cinematic AI video creation platform.
+Your job is to take a rough, casual user prompt and transform it into a structured, detailed, AI-friendly video description that will produce a stunning cinematic result.
 
 Rules:
-1. PRESERVE the user's core intent, characters, and setting \u2014 never change what they asked for
-2. ADD cinematic detail: camera angles, lighting, colour palette, mood, atmosphere, transitions
-3. ADD scene structure hints: opening shot, build-up, climax, resolution
-4. ADD character detail: clothing, expression, body language, positioning
+1. PRESERVE the user's core intent, characters, and setting — NEVER change what they asked for
+2. If the user describes a crowd shot, aerial shot, or atmosphere shot with no performers — honour that EXACTLY
+3. ADD cinematic detail: camera angles, lighting, colour palette, mood, atmosphere
+4. ADD character detail if characters are mentioned: clothing, expression, body language, positioning
 5. ADD environment detail: time of day, weather, textures, depth
-6. Keep it under 500 words \u2014 concise but rich
+6. Keep it under 400 words — concise but rich
 7. Write in present tense, descriptive prose (not bullet points)
-8. Do NOT add music/audio instructions \u2014 WizSound handles that separately
-9. Do NOT mention AI, generation, or rendering \u2014 write as if directing a real shoot
+8. Do NOT add music/audio instructions — WizSound handles that separately
+9. Do NOT mention AI, generation, or rendering — write as if directing a real shoot
 10. Match the genre and mood if provided
 
-Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes around it.`,
-          },
-          {
-            role: "user",
-            content: `Enhance this video concept:\n\n"${input.prompt}"${input.genre ? `\n\nGenre: ${input.genre}` : ""}${input.mood ? `\nMood: ${input.mood}` : ""}`,
-          },
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes around it.`;
+
+      const systemPrompt = systemPromptMap[productType] ?? defaultSystemPrompt;
+
+      const userContent = [
+        charContext,
+        genreContext ? `Genre/mood: ${genreContext}.` : "",
+        `User's description: "${input.prompt}"`,
+        `Rewrite this as a precise, production-ready AI prompt.`,
+      ].filter(Boolean).join(" ");
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
         ],
       });
       const rawContent = response.choices?.[0]?.message?.content;

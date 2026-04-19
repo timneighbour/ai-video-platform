@@ -178,7 +178,7 @@ const FAQS = [
     category: "WizScript \u2014 AI Video Creator",
     icon: <Video className="w-4 h-4" />,
     questions: [
-      { q: "What is WizScript?", a: "WizScript is your general-purpose AI video director. Describe any video concept in text, upload reference images, or use an existing video as a starting point. WizScript generates a cinematic storyboard and renders your complete video." },
+      { q: "What is WizScript?", a: "WizScript converts a plain-text idea into a fully structured video script and storyboard. Define your concept, and WIZ AI generates the scenes, dialogue, and visual direction automatically." },
       { q: "What types of videos can I create with WizScript?", a: "Anything \u2014 YouTube content, social media videos, ads, explainer videos, short films, product showcases, and more." },
     ],
   },
@@ -186,7 +186,7 @@ const FAQS = [
     category: "WizAudio \u2014 AI Music & Audio",
     icon: <Music className="w-4 h-4" />,
     questions: [
-      { q: "What is WizAudio?", a: "WizAudio is WIZ AI\u2019s AI music and audio generation tool. Describe the style, mood, and genre you want, and WizAudio generates a full original track, stems, or sound effects in seconds." },
+      { q: "What is WizAudio?", a: "WizAudio is WIZ AI’s music creation engine. Describe the genre, mood, and style — WizAudio generates a full original track, complete with vocals, instrumentation, and mastering, ready to use in your video projects." },
       { q: "What genres and styles does WizAudio support?", a: "WizAudio supports a wide range of genres including pop, hip-hop, R&B, electronic, cinematic, lo-fi, jazz, classical, and more. You can describe any style in natural language." },
       { q: "Can I use WizAudio tracks in my videos?", a: "Yes. WizAudio tracks are fully compatible with WizVideo and WizScript. Generate your track in WizAudio, then use it as the audio input for your video." },
       { q: "Does WizAudio apply WizSound mastering?", a: "Yes. WizSound audio mastering is available as an optional add-on when you export your WizAudio track \u2014 WizSound Active (+\u00a31) or WizSound Spatial (+\u00a33) for cinema-grade immersive audio." },
@@ -196,7 +196,7 @@ const FAQS = [
     category: "WizImage \u2014 AI Image Creation",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "What is WizImage?", a: "WizImage is WIZ AI\u2019s AI image and artwork generator. Create photorealistic images, character artwork, concept art, product visuals, and more from a text description." },
+      { q: "What is WizImage?", a: "WizImage generates high-resolution, cinematic-quality images from text prompts. Use it to create visual assets, concept art, scene stills, or promotional imagery — all in seconds." },
       { q: "What image styles are available?", a: "WizImage supports photorealistic, cinematic, anime, 3D render, oil painting, watercolour, concept art, and many more styles. You can also upload a reference image to guide the style." },
       { q: "Can I use WizImage to create characters for my videos?", a: "Yes. WizImage is the recommended way to create character reference images for WizVideo. Generate your character in WizImage, then upload the image as a character reference in WizVideo for consistent appearance across scenes." },
       { q: "How many images can I generate?", a: "Each image generation consumes one render credit. You can generate multiple variations and download your favourites." },
@@ -206,7 +206,7 @@ const FAQS = [
     category: "WizShorts \u2014 Short-Form Content",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "What is WizShorts?", a: "WizShorts creates short-form vertical videos optimised for YouTube Shorts, Instagram Reels, and TikTok. It automatically formats, captions, and paces your content for maximum engagement on short-form platforms." },
+      { q: "What is WizShorts?", a: "WizShorts is built for social-first creators. Generate vertical short-form videos optimised for TikTok, Instagram Reels, and YouTube Shorts — with captions, pacing, and visual hooks built in." },
       { q: "How long can WizShorts videos be?", a: "WizShorts generates videos up to 60 seconds in length, formatted in 9:16 vertical aspect ratio for mobile-first platforms." },
       { q: "Can I add captions to WizShorts?", a: "Yes. WizShorts automatically generates and overlays captions synced to your audio. You can customise the caption style and font." },
     ],
@@ -215,7 +215,7 @@ const FAQS = [
     category: "WizAnimate \u2014 AI Animation",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "What is WizAnimate?", a: "WizAnimate generates stylised animation \u2014 3D animation, anime, and motion graphics \u2014 from your storyboard. It is ideal for animated music videos, explainer videos, kids content, and branded motion content." },
+      { q: "What is WizAnimate?", a: "WizAnimate brings AI-generated characters and scenes to life. From lyric videos to animated explainers, WizAnimate adds motion, expression, and cinematic movement to your creative projects." },
       { q: "What animation styles does WizAnimate support?", a: "WizAnimate supports 3D Animation, Anime, Cartoon, Motion Graphics, and Claymation styles. You can mix styles across scenes for a unique look." },
       { q: "Does WizAnimate support character consistency?", a: "Yes. Character consistency is available on Creator, Pro, and Studio plans, ensuring your animated characters look the same across all scenes." },
     ],
