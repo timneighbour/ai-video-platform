@@ -27,6 +27,7 @@ import {
   Wand2, ArrowRight, Image, FileText, Menu, Shield, CreditCard, RefreshCcw,
   Users, Star, Crown, Zap, Play, Headphones, Globe, Layers
 } from "lucide-react";
+import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 
 // ── CDN assets ────────────────────────────────────────────────────────────────
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
@@ -726,83 +727,36 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* WizSound Audio Add-on — premium card */}
-        <div className="relative rounded-2xl overflow-hidden border border-[--color-gold]/[0.12]">
-          {/* Subtle bg */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(196,164,100,0.04) 0%, transparent 60%)' }} />
-          </div>
-          <div className="relative p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[--color-gold]/20 to-[--color-gold]/5 border border-[--color-gold]/20 flex items-center justify-center flex-shrink-0">
-                <Headphones className="w-7 h-7 text-[--color-gold]" />
-              </div>
+        {/* WizSound Audio Add-on — premium player + tier cards */}
+        <div className="space-y-6">
+          {/* Section header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-logo-v5_76ab5163.png"
+                alt="WizSound™"
+                className="h-10 w-auto object-contain"
+                style={{ filter: "drop-shadow(0 0 12px rgba(16,185,129,0.3))" }}
+                loading="lazy"
+              />
               <div>
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <h3 className="text-base font-bold text-white">WizSound Audio Mastering</h3>
-                  <span className="px-2 py-0.5 rounded-full bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.2] text-[--color-gold] text-[9px] font-bold tracking-wider">OPTIONAL ADD-ON</span>
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  <h3 className="text-base font-bold text-white">WizSound™ Audio Mastering</h3>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold tracking-wider">OPTIONAL ADD-ON</span>
                 </div>
-                <p className="text-xs text-white/40">Spatial audio mastering — cinema-grade immersive sound added to any render</p>
+                <p className="text-xs text-white/40">Spatial audio mastering — cinema-grade immersive sound. Press play to hear the difference.</p>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                {
-                  label: "Standard Audio",
-                  sublabel: "Included free",
-                  price: 0,
-                  desc: "Original audio, used as-is",
-                  features: ["Stereo output", "Original mix preserved"],
-                  borderClass: "border-white/[0.07]",
-                  bgClass: "bg-white/[0.02]",
-                  priceColor: "text-white/30",
-                },
-                {
-                  label: "WizSound Active",
-                  sublabel: "+£1",
-                  price: 1,
-                  desc: "Polished, fuller sound with spatial widening",
-                  features: ["Stereo widening", "Frequency EQ", "Noise reduction", "Spatial depth"],
-                  borderClass: "border-[--color-gold]/[0.15]",
-                  bgClass: "bg-[--color-gold]/[0.03]",
-                  priceColor: "text-[--color-gold-dark]",
-                },
-                {
-                  label: "WizSound Spatial",
-                  sublabel: "+£3",
-                  price: 3,
-                  desc: "Full spatial mastering — cinema-grade immersive audio",
-                  features: ["Full mastering pipeline", "Immersive spatial depth", "Dynamic range optimisation", "Streaming-ready loudness", "Cinema-grade output"],
-                  borderClass: "border-[--color-gold]/[0.3]",
-                  bgClass: "bg-gradient-to-br from-[--color-gold]/[0.07] to-transparent",
-                  priceColor: "text-[--color-gold]",
-                  badge: "RECOMMENDED",
-                },
-              ].map((audio) => (
-                <div key={audio.label} className={`relative p-4 rounded-xl border ${audio.borderClass} ${audio.bgClass}`}>
-                  {audio.badge && (
-                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[9px] font-bold tracking-wider whitespace-nowrap shadow-lg">
-                      {audio.badge}
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-white">{audio.label}</span>
-                    <span className={`text-sm font-bold ${audio.priceColor}`}>
-                      {audio.price === 0 ? "Free" : `+£${audio.price}`}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-white/35 mb-3">{audio.desc}</p>
-                  <div className="space-y-1.5">
-                    {audio.features.map((f) => (
-                      <div key={f} className="flex items-center gap-1.5 text-[10px] text-white/45">
-                        <Check className="w-2.5 h-2.5 text-[--color-gold]/60 flex-shrink-0" /> {f}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <a
+              href="/products/wizsound"
+              className="flex-shrink-0 flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              Learn more about WizSound™
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
           </div>
+          {/* Live demo player */}
+          <WizSoundDemoPlayer />
         </div>
       </section>
 

@@ -344,9 +344,7 @@ export function WizAnimatePage() {
   return <ProductPageTemplate {...WIZANIMATE} />;
 }
 
-export function WizSoundPage() {
-  return <ProductPageTemplate {...WIZSOUND} />;
-}
+export { default as WizSoundPage } from "./WizSoundProductPage";
 
 export function WizLuminaPage() {
   return <ProductPageTemplate {...WIZLUMINA} />;
