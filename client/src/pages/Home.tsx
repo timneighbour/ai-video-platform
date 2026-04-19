@@ -174,11 +174,7 @@ function Nav() {
                       >
                         {/* Logo emblem */}
                         <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl bg-white/[0.02] border border-[--color-gold]/[0.07] group-hover:border-[--color-gold]/[0.20] group-hover:bg-[--color-gold]/[0.04] transition-all duration-200 overflow-hidden">
-                          {p.logo ? (
-                            <img src={p.logo} alt={p.name} className="w-8 h-8 object-contain opacity-75 group-hover:opacity-100 transition-opacity" />
-                          ) : (
-                            <span className="opacity-60 group-hover:opacity-100 transition-opacity scale-75">{p.icon}</span>
-                          )}
+                          <span className="opacity-65 group-hover:opacity-100 transition-opacity scale-75">{p.icon}</span>
                         </div>
                         {/* Name + tagline + desc */}
                         <div className="min-w-0 flex-1">
