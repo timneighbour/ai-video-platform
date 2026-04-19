@@ -267,8 +267,8 @@ export default function MusicVideoAutopilot() {
     },
     {
       id: "disney",
-      label: "Disney",
-      desc: "Magical Disney animation",
+      label: "Magical Animated",
+      desc: "Enchanting hand-drawn animation",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-n4CZF3mgReCEjogjqRoDKz.webp",
     },
     {
