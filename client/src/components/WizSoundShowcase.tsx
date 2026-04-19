@@ -13,6 +13,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
+import AudioMetricsPanel from "@/components/AudioMetricsPanel";
 
 type Tier = "standard" | "enhanced" | "cinematic";
 
@@ -439,60 +440,17 @@ export default function WizSoundShowcase() {
             </div>
           </div>
 
-          {/* Two-column: specs + pipeline */}
-          <div className="grid md:grid-cols-2 gap-0 border-t border-white/8">
-            {/* Left: audio metrics */}
-            <div className="p-8 border-r border-white/8">
-              <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">Audio Metrics</h3>
-              <div className="space-y-4">
-                {tier.specs.map((spec) => (
-                  <div key={spec.label}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="text-white/60">{spec.label}</span>
-                      <span className="text-white font-medium">{spec.value}</span>
-                    </div>
-                    <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${tier.colour} rounded-full transition-all duration-700`}
-                        style={{ width: `${spec.bar}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {/* LUFS badge */}
-              <div className="mt-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                <svg className="w-3.5 h-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-                  <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-                </svg>
-                <span className="text-xs text-white/50">Target loudness:</span>
-                <span className="text-xs font-semibold text-white">{tier.lufs}</span>
-              </div>
-            </div>
-
-            {/* Right: processing pipeline */}
-            <div className="p-8">
-              <h3 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">Processing Pipeline</h3>
-              <ol className="space-y-3">
-                {tier.pipeline.map((step, i) => (
-                  <li key={step} className="flex items-start gap-3">
-                    <span className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${tier.colour} text-white text-[10px] font-bold flex items-center justify-center mt-0.5`}>
-                      {i + 1}
-                    </span>
-                    <span className="text-sm text-white/70 leading-snug">{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {tier.id === "cinematic" && (
-                <div className="mt-6 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                  <p className="text-xs text-purple-300/80 leading-relaxed">
-                    <span className="font-semibold text-purple-300">Spatial + Streaming ready.</span>{" "}
-                    Cinema-grade spatial mastering normalised to −14 LUFS — the loudness standard used by Spotify, Apple Music, and YouTube.
-                  </p>
-                </div>
-              )}
-            </div>
+          {/* Real-time audio metrics panel */}
+          <div className="border-t border-white/8 p-8">
+            <AudioMetricsPanel
+              analyser={activeAnalyser}
+              isPlaying={isPlaying}
+              tier={activeTier}
+              accentHex={
+                activeTier === "standard" ? "#94a3b8" :
+                activeTier === "enhanced" ? "#c4a464" : "#b07fd4"
+              }
+            />
           </div>
 
           {/* Volume control footer */}

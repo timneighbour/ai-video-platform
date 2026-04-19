@@ -13,6 +13,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
+import AudioMetricsPanel from "@/components/AudioMetricsPanel";
 
 type Tier = "standard" | "enhanced" | "cinematic";
 
@@ -674,63 +675,15 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
           {tier.description}
         </p>
 
-        {/* Two-column: metrics + pipeline */}
+        {/* Real-time audio metrics panel */}
         {!compact && (
-          <div className="grid md:grid-cols-2 gap-4 border-t border-white/[0.06] pt-5">
-            {/* Audio metrics */}
-            <div>
-              <h4 className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30 mb-3">Audio Metrics</h4>
-              <div className="space-y-3">
-                {tier.specs.map(spec => (
-                  <div key={spec.label}>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-white/50">{spec.label}</span>
-                      <span className="text-white font-medium tabular-nums">{spec.value}</span>
-                    </div>
-                    <div className="h-1 bg-white/8 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${tier.colour} rounded-full transition-all duration-700`}
-                        style={{ width: `${spec.bar}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {/* LUFS badge */}
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                <svg className="w-3 h-3 text-white/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-                  <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-                </svg>
-                <span className="text-[10px] text-white/40">Target loudness:</span>
-                <span className="text-[10px] font-semibold text-white">{tier.lufs}</span>
-              </div>
-            </div>
-
-            {/* Processing pipeline */}
-            <div>
-              <h4 className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30 mb-3">Processing Pipeline</h4>
-              <ol className="space-y-2.5">
-                {tier.pipeline.map((step, i) => (
-                  <li key={step} className="flex items-start gap-2.5">
-                    <span
-                      className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${tier.colour} text-white text-[10px] font-bold flex items-center justify-center mt-0.5`}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="text-xs text-white/60 leading-snug">{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {tier.id === "cinematic" && (
-                <div className="mt-4 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                  <p className="text-xs text-purple-300/80 leading-relaxed">
-                    <span className="font-semibold text-purple-300">Streaming-ready.</span>{" "}
-                    Cinema-grade spatial mastering at −14 LUFS — the standard used by Spotify, Apple Music, and YouTube.
-                  </p>
-                </div>
-              )}
-            </div>
+          <div className="border-t border-white/[0.06] pt-5">
+            <AudioMetricsPanel
+              analyser={activeAnalyser}
+              isPlaying={isPlaying}
+              tier={activeTier}
+              accentHex={tier.accentHex}
+            />
           </div>
         )}
       </div>
