@@ -247,7 +247,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
     return (
       <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
         <img src={ASSETS.staticBg} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/50 to-black/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/65" />
         <button
           onClick={() => { setPaused(false); setPrefersReducedMotion(false); }}
           className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-all pointer-events-auto"
@@ -282,7 +282,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
           style={{
             transform: `translate(${px}px, ${py}px) scale(1.04)`,
             transition: "transform 0.4s ease-out, opacity 1.5s ease",
-            filter: "brightness(0.5) saturate(0.7) contrast(1.15) sepia(0.15)",
+            filter: "brightness(0.75) saturate(1.0) contrast(1.05) sepia(0.05)",
           }}
           aria-hidden="true"
         >
@@ -299,16 +299,16 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
       />
 
       {/* ── Dark gradient overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/92 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70 pointer-events-none" />
       {/* Radial vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% 35%, transparent 30%, rgba(0,0,0,0.75) 100%)" }}
+        style={{ background: "radial-gradient(ellipse at 50% 35%, transparent 30%, rgba(0,0,0,0.45) 100%)" }}
       />
       {/* Left-side gradient for text readability */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to right, rgba(0,0,0,0.6) 0%, transparent 55%)" }}
+        style={{ background: "linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 55%)" }}
       />
       {/* Film grain — very subtle */}
       <div

@@ -554,7 +554,7 @@ export default function Pricing() {
       <section className="relative min-h-[520px] flex flex-col items-center justify-center text-center px-6 pt-28 pb-24 overflow-hidden">
         {/* Cinematic background */}
         <div className="absolute inset-0 pointer-events-none">
-          <img src={PRICING_HERO_BG} alt="" className="w-full h-full object-cover opacity-25" loading="eager" />
+          <img src={PRICING_HERO_BG} alt="" className="w-full h-full object-cover opacity-40 brightness-[1.1] saturate-[1.15]" loading="eager" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(4,4,4,0.2) 0%, rgba(4,4,4,0.55) 50%, #040404 100%)' }} />
           {/* Gold radial glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full opacity-20" style={{ background: 'radial-gradient(ellipse, rgba(196,164,100,0.4) 0%, transparent 70%)' }} />
@@ -563,7 +563,7 @@ export default function Pricing() {
         {/* Floating showcase thumbnails — desktop only */}
         <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-48 rounded-2xl overflow-hidden border border-white/10 shadow-2xl opacity-60" style={{ animation: 'floatUp 6s ease-in-out infinite' }}>
           <img src={SHOWCASE_1} alt="" className="w-full h-32 object-cover" loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-full bg-[--color-gold]/20 border border-[--color-gold]/30 flex items-center justify-center"><Play className="w-2.5 h-2.5 text-[--color-gold] fill-[--color-gold]" /></div>
             <span className="text-[10px] text-white/70 font-medium">WizVideo</span>
@@ -571,7 +571,7 @@ export default function Pricing() {
         </div>
         <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-48 rounded-2xl overflow-hidden border border-white/10 shadow-2xl opacity-60" style={{ animation: 'floatUp 6s ease-in-out infinite 2s' }}>
           <img src={SHOWCASE_2} alt="" className="w-full h-32 object-cover" loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
           <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-full bg-[--color-gold]/20 border border-[--color-gold]/30 flex items-center justify-center"><Play className="w-2.5 h-2.5 text-[--color-gold] fill-[--color-gold]" /></div>
             <span className="text-[10px] text-white/70 font-medium">WizAnimate</span>
@@ -623,8 +623,8 @@ export default function Pricing() {
             <div key={item.step} className="relative rounded-2xl overflow-hidden border border-white/[0.07] group" style={{ animationDelay: `${i * 0.1}s` }}>
               {/* Background photo */}
               <div className="relative h-44 overflow-hidden">
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.85) 100%)' }} />
+                <img src={item.img} alt={item.title} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1] transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.0) 0%, rgba(4,4,4,0.55) 100%)' }} />
                 {/* Step number */}
                 <div className="absolute top-4 left-4">
                   <div className="w-10 h-10 rounded-full border-2 border-[--color-gold]/40 bg-[--color-gold]/10 backdrop-blur-sm flex items-center justify-center">
@@ -699,8 +699,8 @@ export default function Pricing() {
               )}
               {/* Background image */}
               <div className="relative h-36 overflow-hidden">
-                <img src={tier.img} alt={tier.label} className="w-full h-full object-cover" loading="lazy" />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.3) 0%, rgba(4,4,4,0.9) 100%)` }} />
+                <img src={tier.img} alt={tier.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.6) 100%)` }} />
                 {/* Resolution badge */}
                 <div className="absolute bottom-3 left-4 flex items-end gap-2">
                   <span className="text-4xl font-black text-white leading-none">{tier.label}</span>
@@ -999,8 +999,8 @@ export default function Pricing() {
 
               {/* Background image */}
               <div className="relative h-40 overflow-hidden">
-                <img src={bundle.bgImage} alt={bundle.label} className="w-full h-full object-cover" loading="lazy" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.2) 0%, rgba(4,4,4,0.85) 100%)' }} />
+                <img src={bundle.bgImage} alt={bundle.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.05) 0%, rgba(4,4,4,0.55) 100%)' }} />
                 {/* Render count display */}
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <div className="flex items-end gap-2">
@@ -1068,8 +1068,8 @@ export default function Pricing() {
           ].map((cat) => (
             <div key={cat.label} className="relative rounded-2xl overflow-hidden border border-white/[0.07] group">
               <div className="relative h-36 sm:h-44 overflow-hidden">
-                <img src={cat.img} alt={cat.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.8) 100%)` }} />
+                <img src={cat.img} alt={cat.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1] transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.0) 0%, rgba(4,4,4,0.5) 100%)` }} />
                 <div className="absolute bottom-3 left-3">
                   <p className="text-sm font-bold text-white">{cat.label}</p>
                   <p className="text-[10px] text-white/50">{cat.sub}</p>

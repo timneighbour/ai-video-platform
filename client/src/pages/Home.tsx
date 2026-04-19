@@ -849,9 +849,9 @@ function WelcomeSection() {
               <img
                 src={DEMO_POSTER}
                 alt="WIZ AI demo"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.85]"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[1.1] saturate-[1.15]"
                loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/05 to-transparent" />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                 <div className="relative w-16 h-16">
                   <span className="absolute inset-0 rounded-full bg-[--color-gold]/15 animate-ping" style={{ animationDuration: "2.5s" }} />
@@ -990,7 +990,7 @@ function WizEngines() {
                 style={{ background: `linear-gradient(90deg, transparent 0%, ${eng.accentFrom} 50%, transparent 100%)` }}
               />
               {/* Bottom fade */}
-              <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)" }} />
+              <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.2), transparent)" }} />
 
               <div className="relative z-10 p-8 sm:p-10 flex flex-col items-center text-center">
                 {/* Logo centred with glow halo */}
@@ -1002,7 +1002,7 @@ function WizEngines() {
                   <div
                     className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center"
                     style={{
-                      background: `linear-gradient(145deg, ${eng.accentGlow} 0%, rgba(0,0,0,0.55) 100%)`,
+                      background: `linear-gradient(145deg, ${eng.accentGlow} 0%, rgba(0,0,0,0.25) 100%)`,
                       border: `1px solid ${eng.accentBorder}`,
                       boxShadow: `0 1px 0 ${eng.accentFrom} inset, 0 6px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4)`,
                     }}
@@ -1020,7 +1020,7 @@ function WizEngines() {
                 <div
                   className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.18em] uppercase mb-5"
                   style={{
-                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.5))`,
+                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.2))`,
                     border: `1px solid ${eng.accentBorder}`,
                     color: (eng as any).accentColor,
                     opacity: 0.85,
@@ -1044,7 +1044,7 @@ function WizEngines() {
                 <div
                   className="relative z-10 flex items-start gap-3 px-4 py-3.5 rounded-xl w-full"
                   style={{
-                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.4))`,
+                    background: `linear-gradient(135deg, ${eng.accentGlow}, rgba(0,0,0,0.15))`,
                     border: `1px solid ${eng.accentBorder}`,
                   }}
                 >
@@ -1250,10 +1250,10 @@ function HowItWorks() {
                   src={s.img}
                   alt={s.title}
                   className={`w-full h-full object-cover transition-all duration-500 ${
-                    i === activeStep ? "brightness-100" : i < activeStep ? "brightness-75" : "brightness-50"
+                    i === activeStep ? "brightness-110 saturate-110" : i < activeStep ? "brightness-90" : "brightness-75"
                   }`}
                  loading="lazy" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 70%)' }} />
                 {/* Step number — premium glowing badge */}
                 <div className="absolute bottom-3 left-3">
                   <div
@@ -1261,7 +1261,7 @@ function HowItWorks() {
                     style={{
                       background: i <= activeStep
                         ? "linear-gradient(145deg, oklch(0.78 0.11 75 / 0.25) 0%, oklch(0.04 0.004 260 / 0.9) 100%)"
-                        : "rgba(0,0,0,0.6)",
+                        : "rgba(0,0,0,0.35)",
                       border: i <= activeStep
                         ? "1.5px solid oklch(0.78 0.11 75 / 0.6)"
                         : "1px solid rgba(255,255,255,0.1)",
@@ -1411,8 +1411,8 @@ function WhyWizAI() {
             <div key={r.title} className="reveal group relative rounded-2xl overflow-hidden flex flex-col" style={{ border: "1px solid rgba(196,164,100,0.12)", background: "linear-gradient(160deg, rgba(196,164,100,0.04) 0%, rgba(4,4,4,0.95) 100%)" }}>
               {/* Card image */}
               <div className="relative h-40 overflow-hidden">
-                <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-40 group-hover:opacity-55 group-hover:scale-105 transition-all duration-700"  loading="lazy" />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.85) 100%)" }} />
+                <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-80 brightness-[1.1] saturate-[1.1] group-hover:opacity-95 group-hover:scale-105 transition-all duration-700" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.0) 0%, rgba(4,4,4,0.55) 100%)" }} />
                 {/* Icon badge over image */}
                 <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center">
                   <img src={(r as any).logo} alt="" className="w-6 h-6 object-contain opacity-80" />
@@ -1685,7 +1685,7 @@ function WizLuminaDemo() {
                 src={DEMO_POSTER}
                 alt="After WizLumina enhancement"
                 className="w-full h-full object-cover"
-                style={{ filter: "contrast(1.15) saturate(1.2) brightness(1.05)" }}
+                style={{ filter: "contrast(1.2) saturate(1.35) brightness(1.1)" }}
                loading="lazy" />
               {/* Warm cinematic overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
@@ -1700,10 +1700,10 @@ function WizLuminaDemo() {
                 src={DEMO_POSTER}
                 alt="Before WizLumina"
                 className="w-full h-full object-cover"
-                style={{ filter: "saturate(0.5) brightness(0.75) contrast(0.9)" }}
+                style={{ filter: "saturate(0.55) brightness(0.85) contrast(0.95)" }}
                loading="lazy" />
               {/* Desaturated overlay */}
-              <div className="absolute inset-0 bg-black/10" />
+              <div className="absolute inset-0 bg-black/05" />
             </div>
 
             {/* Slider line */}
@@ -1879,7 +1879,7 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
         <img
           src={item.posterUrl}
           alt={item.title}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 brightness-[0.9] ${
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 brightness-[1.05] saturate-[1.1] ${
             isHovering && videoReady ? "opacity-0" : "opacity-100 group-hover:scale-105"
           }`}
           loading="lazy"
@@ -1984,8 +1984,8 @@ function BuiltFor() {
             <div key={a.title} className="reveal relative rounded-2xl overflow-hidden group cursor-pointer" style={{ border: '1px solid rgba(196,164,100,0.12)' }}>
               {/* Background image */}
               <div className="absolute inset-0">
-                <img src={a.img} alt={a.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"  loading="lazy" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.25) 100%)' }} />
+                <img src={a.img} alt={a.title} className="w-full h-full object-cover brightness-[1.1] saturate-[1.1] transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 55%, rgba(0,0,0,0.0) 100%)' }} />
               </div>
               {/* Content */}
               <div className="relative z-10 p-7 flex flex-col gap-4 min-h-[280px]">
@@ -2274,7 +2274,7 @@ function FinalCTA() {
     <section className="relative bg-[#040404] py-32 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.72 0.14 70), transparent 70%)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.28] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="relative z-10 max-w-3xl mx-auto text-center reveal">
         <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
           <img src={WIZAI_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />
@@ -2351,7 +2351,7 @@ function DemoVideoGallery() {
     <section className="relative bg-[#040404] py-28 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full opacity-[0.025] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.22] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 reveal">
@@ -2396,7 +2396,7 @@ function DemoVideoGallery() {
                       }}
                     />
                     {/* Dark overlay */}
-                    <div className="absolute inset-0 bg-black/40 group-hover/play:bg-black/20 transition-colors duration-300" />
+                    <div className="absolute inset-0 bg-black/15 group-hover/play:bg-black/5 transition-colors duration-300" />
                     {/* Play button */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover/play:scale-110 group-hover/play:bg-white/20 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)]">

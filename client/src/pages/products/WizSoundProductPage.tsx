@@ -175,8 +175,8 @@ export default function WizSoundProductPage() {
             loading="eager"
           />
           {/* Multi-layer dark overlay */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(4,4,4,0.96) 0%, rgba(4,4,4,0.85) 50%, rgba(4,4,4,0.5) 100%)" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(4,4,4,1) 0%, transparent 40%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(4,4,4,0.82) 0%, rgba(4,4,4,0.55) 50%, rgba(4,4,4,0.2) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(4,4,4,0.8) 0%, transparent 40%)" }} />
           {/* Emerald/teal glow */}
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 50% at 30% 50%, rgba(16,185,129,0.08) 0%, transparent 60%)" }} />
         </div>
@@ -247,7 +247,7 @@ export default function WizSoundProductPage() {
           <div className="hidden md:grid grid-cols-2 gap-3">
             <div className="rounded-2xl overflow-hidden border border-white/10 col-span-2 h-48">
               <img src={IMG.sphereConcert} alt="Immersive concert" className="w-full h-full object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
             </div>
             <div className="rounded-2xl overflow-hidden border border-white/10 h-36">
               <img src={IMG.studioMicDark} alt="Studio microphone" className="w-full h-full object-cover" loading="lazy" />
@@ -315,7 +315,7 @@ export default function WizSoundProductPage() {
             {/* Hero image panel */}
             <div className="relative rounded-2xl overflow-hidden border border-white/10 h-[360px]">
               <img src={IMG.heroConsole} alt="Professional studio console" className="w-full h-full object-cover" loading="lazy" />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(4,4,4,0.8) 0%, transparent 50%)" }} />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(4,4,4,0.5) 0%, transparent 50%)" }} />
               {/* Logo overlay */}
               <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-xl px-3 py-2">
                 <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-7 w-auto object-contain" loading="lazy" />
@@ -353,7 +353,7 @@ export default function WizSoundProductPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 h-40" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%)" }} />
+                  <div className="absolute inset-0 h-40" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.4) 100%)" }} />
                   {/* Step number */}
                   <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-emerald-500/90 flex items-center justify-center text-xs font-black text-white">
                     {step.num}
@@ -402,7 +402,7 @@ export default function WizSoundProductPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(10,10,12,0.9) 100%)" }} />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(10,10,12,0.5) 100%)" }} />
                   {/* Stat badge */}
                   <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-sm rounded-lg px-2.5 py-1.5 border border-emerald-500/20">
                     <div className="text-lg font-black text-emerald-400 leading-none">{feat.stat}</div>
@@ -435,7 +435,7 @@ export default function WizSoundProductPage() {
           {/* Large hero benefit card */}
           <div className="relative rounded-3xl overflow-hidden border border-emerald-500/15 mb-5 h-64">
             <img src={IMG.concertHall} alt="Concert hall" className="w-full h-full object-cover" loading="lazy" />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(4,4,4,0.95) 0%, rgba(4,4,4,0.6) 60%, rgba(4,4,4,0.2) 100%)" }} />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(4,4,4,0.75) 0%, rgba(4,4,4,0.4) 60%, rgba(4,4,4,0.1) 100%)" }} />
             <div className="absolute inset-0 flex items-center px-10">
               <div className="max-w-lg">
                 <h3 className="text-xl font-bold text-white mb-3">Studio quality without a studio</h3>
@@ -511,7 +511,7 @@ export default function WizSoundProductPage() {
       <section className="relative py-28 px-6 text-center overflow-hidden">
         <div className="absolute inset-0">
           <img src={IMG.studioMoody} alt="Studio" className="w-full h-full object-cover" loading="lazy" />
-          <div className="absolute inset-0" style={{ background: "rgba(4,4,4,0.88)" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(4,4,4,0.65)" }} />
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(16,185,129,0.08) 0%, transparent 65%)" }} />
         </div>
         <div className="max-w-2xl mx-auto relative">
