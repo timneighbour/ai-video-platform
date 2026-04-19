@@ -1,42 +1,30 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
 import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts, creators } from "../drizzle/schema";
 import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost, Creator, InsertCreator } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: mysql.Pool | null = null;
 
-// Lazily create the drizzle instance with a connection pool so idle connections
-// are automatically recycled and stale connections don't cause query failures.
+// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _pool = mysql.createPool({
-        uri: process.env.DATABASE_URL,
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelay: 10000,
-      });
-      _db = drizzle(_pool);
+      _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
-      _pool = null;
     }
   }
   return _db;
 }
 
-/** Call this to force a fresh connection pool on the next getDb() call. */
+/**
+ * Reset the cached DB instance so the next getDb() call re-creates it.
+ * Call this when a stale connection error is detected (e.g. ECONNRESET,
+ * ETIMEDOUT, or "Failed query" after a long idle period).
+ */
 export function resetDb() {
-  if (_pool) {
-    _pool.end().catch(() => {});
-    _pool = null;
-  }
   _db = null;
 }
 
