@@ -170,76 +170,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     // Never expose source maps in production — protects internal logic
     sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Vendor: React core — must include ALL react-* packages to prevent
-          // double-React-instance crashes with the manus-runtime space editor.
-          if (
-            id.includes("node_modules/react/") ||
-            id.includes("node_modules/react-dom/") ||
-            id.includes("node_modules/scheduler/") ||
-            id.includes("node_modules/use-sync-external-store/") ||
-            id.includes("node_modules/react-is/") ||
-            id.includes("node_modules/react-day-picker/") ||
-            id.includes("node_modules/react-resizable-panels/") ||
-            id.includes("node_modules/react-helmet-async/") ||
-            id.includes("node_modules/react-hook-form/") ||
-            id.includes("node_modules/@hookform/") ||
-            id.includes("node_modules/embla-carousel-react/") ||
-            id.includes("node_modules/next-themes/") ||
-            id.includes("node_modules/react-resizable-panels/") ||
-            id.includes("node_modules/input-otp/") ||
-            id.includes("node_modules/vaul/") ||
-            id.includes("node_modules/cmdk/")
-          ) {
-            return "vendor-react";
-          }
-          // Vendor: tRPC + query
-          if (id.includes("node_modules/@trpc/") || id.includes("node_modules/@tanstack/react-query")) {
-            return "vendor-trpc";
-          }
-          // Vendor: Radix UI primitives
-          if (id.includes("node_modules/@radix-ui/")) {
-            return "vendor-radix";
-          }
-          // Vendor: Animation (framer-motion is large)
-          if (id.includes("node_modules/framer-motion/")) {
-            return "vendor-motion";
-          }
-          // Vendor: Charts (recharts is large)
-          if (id.includes("node_modules/recharts/") || id.includes("node_modules/d3")) {
-            return "vendor-charts";
-          }
-          // Vendor: i18n
-          if (id.includes("node_modules/i18next") || id.includes("node_modules/react-i18next")) {
-            return "vendor-i18n";
-          }
-          // Vendor: UI utilities
-          if (id.includes("node_modules/lucide-react/") || id.includes("node_modules/sonner/") ||
-              id.includes("node_modules/class-variance-authority/") || id.includes("node_modules/clsx/") ||
-              id.includes("node_modules/tailwind-merge/")) {
-            return "vendor-ui";
-          }
-          // Vendor: Forms & validation
-          if (id.includes("node_modules/zod/") || id.includes("node_modules/date-fns/")) {
-            return "vendor-forms";
-          }
-          // Vendor: routing
-          if (id.includes("node_modules/wouter/")) {
-            return "vendor-router";
-          }
-          // Vendor: superjson + other utils
-          if (id.includes("node_modules/superjson/") || id.includes("node_modules/@tanstack/")) {
-            return "vendor-utils";
-          }
-          // All other node_modules go into a shared vendor chunk
-          if (id.includes("node_modules/")) {
-            return "vendor-misc";
-          }
-        },
-      },
-    },
+
   },
   server: {
     host: true,
