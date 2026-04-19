@@ -850,7 +850,7 @@ function WelcomeSection() {
                 src={DEMO_POSTER}
                 alt="WIZ AI demo"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-[1.1] saturate-[1.15]"
-               loading="lazy" />
+                loading="lazy" width="1920" height="1080" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/05 to-transparent" />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                 <div className="relative w-16 h-16">
@@ -1686,7 +1686,7 @@ function WizLuminaDemo() {
                 alt="After WizLumina enhancement"
                 className="w-full h-full object-cover"
                 style={{ filter: "contrast(1.2) saturate(1.35) brightness(1.1)" }}
-               loading="lazy" />
+                loading="lazy" width="1920" height="1080" />
               {/* Warm cinematic overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
             </div>
@@ -1701,7 +1701,7 @@ function WizLuminaDemo() {
                 alt="Before WizLumina"
                 className="w-full h-full object-cover"
                 style={{ filter: "saturate(0.55) brightness(0.85) contrast(0.95)" }}
-               loading="lazy" />
+                loading="lazy" width="1920" height="1080" />
               {/* Desaturated overlay */}
               <div className="absolute inset-0 bg-black/05" />
             </div>
@@ -1984,7 +1984,7 @@ function BuiltFor() {
             <div key={a.title} className="reveal relative rounded-2xl overflow-hidden group cursor-pointer" style={{ border: '1px solid rgba(196,164,100,0.12)' }}>
               {/* Background image */}
               <div className="absolute inset-0">
-                <img src={a.img} alt={a.title} className="w-full h-full object-cover brightness-[1.1] saturate-[1.1] transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <img src={a.img} alt={a.title} className="w-full h-full object-cover brightness-[1.1] saturate-[1.1] transition-transform duration-700 group-hover:scale-105" loading="lazy" width="600" height="800" />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.05) 55%, rgba(0,0,0,0.0) 100%)' }} />
               </div>
               {/* Content */}
@@ -2246,7 +2246,7 @@ function SeeTheDifference() {
                   src={DEMO_POSTER}
                   alt="Visual comparison"
                   className={`w-full h-full object-cover transition-all duration-700 ${tier.visualClass}`}
-                 loading="lazy" />
+                  loading="lazy" width="1920" height="1080" />
                 {activeTier === 2 && (
                   <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
                 )}
@@ -2391,6 +2391,9 @@ function DemoVideoGallery() {
                       src={`https://img.youtube.com/vi/${v.id}/maxresdefault.jpg`}
                       alt={v.title}
                       className="w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      width="1280"
+                      height="720"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
                       }}

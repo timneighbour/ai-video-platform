@@ -172,7 +172,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         playsInline
         // iOS-specific attributes for reliable autoplay
         {...({ "webkit-playsinline": "true", "x-webkit-airplay": "deny" } as any)}
-        preload="auto"
+        preload="metadata"
         onCanPlay={handleCanPlay}
         onCanPlayThrough={handleCanPlay}
         onError={() => dismiss()}

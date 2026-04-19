@@ -272,19 +272,21 @@
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
       })(window, document, "clarity", "script", "wbohukdt58");
     </script>
-    <!-- Performance: preconnect to CDN and analytics -->
+    <!-- Performance: preconnect to the 2 most critical origins only (>4 preconnects hurts performance) -->
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
-    <link rel="dns-prefetch" href="https://d2xsxph8kpxj0f.cloudfront.net" />
-    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.clarity.ms" />
-    <!-- LCP: preload nav logo -->
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <!-- LCP critical path: preload hero poster image (the actual LCP element) with high priority -->
+    <link rel="preload" as="image" fetchpriority="high" type="image/webp"
+      href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp" />
+    <!-- Preload intro poster so it paints immediately when IntroScreen mounts -->
+    <link rel="preload" as="image" fetchpriority="high" type="image/jpeg"
+      href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-poster_760474dc.jpg" />
+    <!-- Preload nav logo -->
     <link rel="preload" as="image" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-v3_bd51f720.png" fetchpriority="high" type="image/png" />
-    <!-- LCP: preload first hero background video for faster initial paint -->
-    <link rel="preload" as="video" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hero-nightclub-web_3a88ea3e.mp4" fetchpriority="high" type="video/mp4" />
     <!-- Google Fonts: Sora (headings) + Open Sans (body) — font-display=swap prevents render-blocking -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" /></noscript>
   </head>

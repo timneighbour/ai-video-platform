@@ -170,7 +170,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     // Never expose source maps in production — protects internal logic
     sourcemap: false,
-
+    // Target modern browsers to eliminate legacy JS transpilation (saves ~18 KiB per PageSpeed audit)
+    target: ["es2020", "chrome80", "firefox80", "safari14"],
   },
   server: {
     host: true,
