@@ -11,7 +11,7 @@
  * - The worker skips tasks where all tracks are already trimmed.
  */
 
-import { getDb } from "./db";
+import { getDb, resetDb } from "./db";
 import { sunoMusicTasks } from "../drizzle/schema";
 import { eq, and, isNotNull, desc, ne } from "drizzle-orm";
 import { trimAudioToLength } from "./audioTrim";
@@ -130,7 +130,15 @@ async function processTrimQueue() {
       }
     }
   } catch (err: any) {
-    console.error("[TrimWorker] Error in processTrimQueue:", err?.message ?? err);
+    const msg = err?.message ?? String(err);
+    // If the error looks like a stale connection, reset the pool so the next
+    // run re-establishes a fresh connection automatically.
+    if (msg.includes("Failed query") || msg.includes("ECONNRESET") || msg.includes("ETIMEDOUT") || msg.includes("PROTOCOL_CONNECTION_LOST")) {
+      console.warn("[TrimWorker] Stale DB connection detected — resetting pool for next run.");
+      resetDb();
+    } else {
+      console.error("[TrimWorker] Error in processTrimQueue:", msg);
+    }
   } finally {
     workerRunning = false;
   }
