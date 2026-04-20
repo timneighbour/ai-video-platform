@@ -152,8 +152,14 @@ function vitePluginManusDebugCollector(): Plugin {
 
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
+// In production, serve all hashed JS/CSS/image assets from Bunny CDN edge
+// This means browsers load assets from the nearest of 114 global PoPs instead of the origin
+const BUNNY_CDN_URL = process.env.VITE_CDN_URL || "";
+
 export default defineConfig({
   plugins,
+  // base: point all /assets/* references at Bunny CDN in production
+  base: process.env.NODE_ENV === "production" && BUNNY_CDN_URL ? BUNNY_CDN_URL + "/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

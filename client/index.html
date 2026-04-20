@@ -273,12 +273,13 @@
         }, 2000);
       });
     </script>
-    <!-- Performance: preconnect to the 2 most critical origins only (>4 preconnects hurts performance) -->
+    <!-- Performance: preconnect to critical origins -->
+    <link rel="preconnect" href="https://wiz-ai.b-cdn.net" crossorigin />
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.clarity.ms" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <!-- LCP critical path: preload hero poster image (the actual LCP element) with high priority -->
     <link rel="preload" as="image" fetchpriority="high" type="image/webp"
       href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp" />
