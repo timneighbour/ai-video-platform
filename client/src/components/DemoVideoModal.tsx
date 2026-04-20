@@ -375,7 +375,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     }
   }, []);
 
-  /* ── Switch audio track (swap src, maintain position) ───────────── */
+  /* ── Switch audio track (swap src, maintain position) ─────────────── */
   const switchTrack = useCallback(async (toWizSound: boolean) => {
     const audio = audioRef.current;
     const video = videoRef.current;
@@ -384,19 +384,37 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     const wasPlaying = !audio.paused;
     const savedTime = video.currentTime;
 
+    // Pause current audio immediately to prevent overlap
+    audio.pause();
+
     audio.src = toWizSound ? AUDIO_WIZSOUND : AUDIO_STANDARD;
     audio.load();
-    audio.currentTime = savedTime;
     applyEQ(toWizSound);
 
     if (wasPlaying) {
+      // Wait for the new track to be seekable before playing to eliminate silence gap
+      await new Promise<void>((resolve) => {
+        const onReady = () => {
+          audio.removeEventListener('canplay', onReady);
+          audio.removeEventListener('error', onReady);
+          resolve();
+        };
+        audio.addEventListener('canplay', onReady, { once: true });
+        audio.addEventListener('error', onReady, { once: true });
+        // Fallback: proceed after 800ms even if canplay never fires (iOS Safari)
+        setTimeout(resolve, 800);
+      });
+      audio.currentTime = video.currentTime; // Re-sync after load
+      audio.muted = isMuted;
       try {
         await audio.play();
       } catch {
         // Autoplay blocked — user will hear on next interaction
       }
+    } else {
+      audio.currentTime = savedTime;
     }
-  }, [applyEQ]);
+  }, [applyEQ, isMuted]);
 
   /* ── React to mode toggle ────────────────────────────────────────── */
   useEffect(() => {
@@ -409,16 +427,46 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     if (audio) audio.muted = isMuted;
   }, [isMuted]);
 
+  /* ── AudioContext resume on visibility change (iOS/Android tab-switch fix) ── */
+  useEffect(() => {
+    if (!playing) return;
+    const handleVisibility = async () => {
+      if (document.visibilityState === 'visible') {
+        const ctx = audioCtxRef.current;
+        const aud = audioRef.current;
+        const vid = videoRef.current;
+        // Resume suspended AudioContext (iOS suspends it when tab goes background)
+        if (ctx && ctx.state === 'suspended') {
+          try { await ctx.resume(); } catch { /* ignore */ }
+        }
+        // Re-sync audio position after returning from background
+        if (aud && vid && !aud.paused && Math.abs(vid.currentTime - aud.currentTime) > 0.3) {
+          aud.currentTime = vid.currentTime;
+        }
+        // If audio stalled while video kept playing, restart it
+        if (aud && vid && !vid.paused && aud.paused) {
+          try { await aud.play(); } catch { /* autoplay blocked — user must interact */ }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [playing]);
+
   /* ── Drift correction ────────────────────────────────────────────── */
   useEffect(() => {
     if (!playing) return;
     const interval = setInterval(() => {
       const v = videoRef.current;
       const a = audioRef.current;
-      if (v && a && Math.abs(v.currentTime - a.currentTime) > 0.1) {
+      if (!v || !a) return;
+      const drift = Math.abs(v.currentTime - a.currentTime);
+      // Only correct if drift > 300ms to avoid constant micro-seeks that cause audible glitches
+      // (was 100ms — too tight, caused stuttering on mobile)
+      if (drift > 0.3) {
         a.currentTime = v.currentTime;
       }
-    }, 150);
+    }, 500); // Check every 500ms instead of 150ms — less aggressive, fewer glitches
     return () => clearInterval(interval);
   }, [playing]);
 
