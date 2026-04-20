@@ -5462,5 +5462,5 @@
 - [x] Add Meta Pixel placeholder to index.html (PLACEHOLDER_META_PIXEL_START)
 - [ ] Activate Google Ads tag — awaiting AW-XXXXXXXXXX ID from Tim
 - [ ] Activate Meta Pixel — awaiting 15-16 digit Pixel ID from Tim
-- [ ] Wire Google Ads conversion events (purchase, signup, checkout)
+- [x] Wire Google Ads conversion events (purchaseCompleted, signUpCompleted, checkoutStarted, startCreatingClicked, pricingPageViewed) via gtagConversion() in mixpanel.ts
 - [ ] Wire Meta Pixel standard events (Purchase, CompleteRegistration, InitiateCheckout, ViewContent)

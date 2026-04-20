@@ -14,6 +14,33 @@ declare global {
   }
 }
 
+/** Google Ads tag ID */
+const GADS_ID = "AW-18107688120";
+
+/**
+ * Fire a Google Ads conversion event.
+ * Conversion labels are created in Google Ads → Goals → Conversions.
+ * Until labels are set up, this fires the tag-level event which Google Ads
+ * can use for audience building and smart bidding signals.
+ *
+ * @param label  Conversion label from Google Ads (e.g. "abc123/XYZ").
+ *               Pass undefined to fire a tag-level event without a label.
+ * @param value  Revenue value in GBP (optional, for purchase events)
+ */
+export function gtagConversion(
+  label: string | undefined,
+  value?: number
+) {
+  if (typeof window === "undefined" || !window.gtag) return;
+  const sendTo = label ? `${GADS_ID}/${label}` : GADS_ID;
+  const params: Record<string, unknown> = { send_to: sendTo };
+  if (value !== undefined) {
+    params.value = value;
+    params.currency = "GBP";
+  }
+  window.gtag("event", "conversion", params);
+}
+
 const GA4_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID as string | undefined;
 
 /** Initialise GA4 — called once on app load */

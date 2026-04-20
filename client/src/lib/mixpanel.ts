@@ -11,6 +11,7 @@
  *   mp.identify(userId, { name, email });
  */
 import mixpanel from "mixpanel-browser";
+import { gtagConversion } from "@/lib/analytics";
 
 const TOKEN = import.meta.env.VITE_MIXPANEL_TOKEN as string | undefined;
 
@@ -82,15 +83,28 @@ export const mp = {
   // ── Acquisition / Page views ─────────────────────────────────────────────
   heroCTAClicked: () => track("Hero CTA Clicked"),
   homepageViewed: () => track("Homepage Viewed"),
-  pricingPageViewed: () => track("Pricing Page Viewed"),
+  pricingPageViewed: () => {
+    track("Pricing Page Viewed");
+    // Google Ads: ViewContent signal — no label until conversion is created in Google Ads
+    gtagConversion(undefined);
+  },
   productCardClicked: (product: string) => track("Product Card Clicked", { product }),
-  startCreatingClicked: (source: string) => track("Start Creating Clicked", { source }),
+  startCreatingClicked: (source: string) => {
+    track("Start Creating Clicked", { source });
+    // Google Ads: engagement signal for smart bidding
+    gtagConversion(undefined);
+  },
   exploreProdcutsClicked: () => track("Explore Products Clicked"),
   watchDemoClicked: () => track("Watch Demo Clicked"),
 
   // ── Auth funnel ───────────────────────────────────────────────────────────
-  signUpCompleted: (props?: { method?: string }) =>
-    track("Sign Up Completed", props),
+  signUpCompleted: (props?: { method?: string }) => {
+    track("Sign Up Completed", props);
+    // Google Ads: CompleteRegistration conversion
+    // TODO: Replace undefined with your conversion label once created in Google Ads
+    // e.g. gtagConversion("AbCdEfGhIjK");
+    gtagConversion(undefined);
+  },
   onboardingStarted: () => track("Onboarding Started"),
   onboardingCompleted: (product?: string) =>
     track("Onboarding Completed", { product }),
@@ -108,10 +122,18 @@ export const mp = {
   downloadClicked: (product: string) => track("Download Clicked", { product }),
 
   // ── Checkout / Payments ───────────────────────────────────────────────────
-  checkoutStarted: (plan: string, price?: number) =>
-    track("Checkout Started", { plan, price }),
-  purchaseCompleted: (plan: string, price?: number, currency?: string) =>
-    track("Purchase Completed", { plan, price, currency: currency ?? "GBP" }),
+  checkoutStarted: (plan: string, price?: number) => {
+    track("Checkout Started", { plan, price });
+    // Google Ads: InitiateCheckout conversion signal
+    // TODO: Replace undefined with your conversion label once created in Google Ads
+    gtagConversion(undefined);
+  },
+  purchaseCompleted: (plan: string, price?: number, currency?: string) => {
+    track("Purchase Completed", { plan, price, currency: currency ?? "GBP" });
+    // Google Ads: Purchase conversion — passes revenue value for ROAS bidding
+    // TODO: Replace undefined with your conversion label once created in Google Ads
+    gtagConversion(undefined, price);
+  },
 
   // ── Demo engagement ───────────────────────────────────────────────────────
   demoVideoPlayed: () => track("Demo Video Played"),
