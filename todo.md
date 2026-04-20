@@ -5406,3 +5406,28 @@
 - [x] Update Pricing page: 3-plan layout (Starter/Creator/Pro), scene counts, new prices
 - [x] Update COMPARISON_GROUPS to 3-column table
 - [x] Fix all 520 tests to reflect new cost ordering
+
+## Safe Launch Plan — 20 April 2026
+
+- [x] Disable fal.ai as active provider (set to disabled/emergency only)
+- [x] Confirm WaveSpeed is fully disabled
+- [x] Confirm Atlas Cloud Fast is sole active provider
+- [x] Confirm all spend protections, daily cap, per-job cap, providerJobLogs are active
+- [x] Update website title to: WIZ AI — AI Video, Audio & Image Creator
+- [x] Remove /#pricing from sitemap.xml
+- [x] Add lastmod dates to all sitemap entries
+- [x] Confirm canonical tags are correct on all pages
+- [x] Verify /products/wizsound is live and not blank
+- [x] Verify homepage, pricing, help, legal and all product pages work
+- [ ] Save checkpoint and publish
+
+## WizMotion R&D Track (Private — Do Not Publish)
+
+- [ ] Complete self-hosted POC on RunPod (Wan 2.2 + LTX-Video 2.3)
+- [ ] Quality comparison test vs Atlas Cloud (Seedance 2.0)
+- [ ] Test cost per scene on RunPod A5000
+- [ ] Test reliability and failure rates
+- [ ] Test face/performance limitations vs Seedance censorship
+- [ ] Test audio-sync capability (LTX-Video 2.3)
+- [ ] Decide integration threshold: score 28+/40 = integrate as primary
+- [ ] Only add WizMotion to WIZ AI platform once quality and reliability proven

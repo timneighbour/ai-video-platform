@@ -585,31 +585,22 @@ export async function startSceneRender(
     ? `${prompt} ${LIP_SYNC_STYLE_PROMPTS[lipSyncStyle] ?? LIP_SYNC_STYLE_PROMPTS.natural}`
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
-  // ── PROVIDER FALLBACK CHAIN (cheapest first) ────────────────────────────────
-  // Order: Atlas Cloud Fast (~$0.101/sec) → fal.ai Fast (~$0.242/sec) → Hypereal → STOP
-  // WaveSpeed is DISABLED — too expensive and unreliable (Apr 2026).
-  // This applies to all standard renderers: wavespeed, fal_seedance, seedance, atlas_cloud
+  // ── SAFE LAUNCH PROVIDER CHAIN (Apr 2026) ──────────────────────────────────
+  // ACTIVE:   Atlas Cloud Fast ONLY (~$0.101/sec) — sole provider
+  // DISABLED: fal.ai — previous stuck jobs, Forbidden errors, negative balance, higher cost
+  // DISABLED: WaveSpeed — too expensive and unreliable
+  // DISABLED: Hypereal — no silent fallback to unvetted providers during launch
+  // Policy: If Atlas Cloud fails, surface the error immediately. No silent expensive fallback.
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // 1. Atlas Cloud Fast — PRIMARY (cheapest confirmed: ~$0.101/sec)
+    // Atlas Cloud Fast — SOLE ACTIVE PROVIDER
     try {
       return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration, jobId);
     } catch (atlasErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, trying fal.ai:`, (atlasErr as Error).message?.slice(0, 100));
+      // Do NOT fall back to fal.ai, Hypereal, or WaveSpeed — all disabled for launch.
+      // Surface the error clearly so the user can retry.
+      console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed. No fallback active (safe launch mode).`, (atlasErr as Error).message?.slice(0, 200));
+      throw new Error(`Video generation failed for scene ${sceneId}. Atlas Cloud is the active provider — please try again in a moment.`);
     }
-    // 2. fal.ai Seedance — SECONDARY (~$0.242/sec, 2.4× more expensive)
-    try {
-      return await startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio, jobId);
-    } catch (falErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} fal.ai failed, trying Hypereal:`, (falErr as Error).message?.slice(0, 100));
-    }
-    // 3. Hypereal — TERTIARY (estimated ~$0.10/sec)
-    try {
-      return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio, jobId);
-    } catch (hyperealErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed. WaveSpeed is DISABLED. All providers exhausted.`, (hyperealErr as Error).message?.slice(0, 100));
-    }
-    // WaveSpeed DISABLED — do not fall through to it
-    throw new Error(`All video providers failed for scene ${sceneId}. Please try again later.`);
   }
 
   // Grok Imagine — premium renderer with image-to-video support (storyboard lock)
