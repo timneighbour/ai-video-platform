@@ -124,15 +124,13 @@ export const mp = {
   // ── Checkout / Payments ───────────────────────────────────────────────────
   checkoutStarted: (plan: string, price?: number) => {
     track("Checkout Started", { plan, price });
-    // Google Ads: InitiateCheckout conversion signal
-    // TODO: Replace undefined with your conversion label once created in Google Ads
-    gtagConversion(undefined);
+    // Google Ads: InitiateCheckout — fires the subscription conversion label as a checkout signal
+    gtagConversion("ads_conversion_SUBSCRIBE_PAID_1");
   },
   purchaseCompleted: (plan: string, price?: number, currency?: string) => {
     track("Purchase Completed", { plan, price, currency: currency ?? "GBP" });
-    // Google Ads: Purchase conversion — passes revenue value for ROAS bidding
-    // TODO: Replace undefined with your conversion label once created in Google Ads
-    gtagConversion(undefined, price);
+    // Google Ads: Purchase — primary conversion with revenue value for ROAS bidding
+    gtagConversion("ads_conversion_SUBSCRIBE_PAID_1", price);
   },
 
   // ── Demo engagement ───────────────────────────────────────────────────────
