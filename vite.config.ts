@@ -174,14 +174,18 @@ export default defineConfig({
     target: ["es2020", "chrome80", "firefox80", "safari14"],
     rollupOptions: {
       output: {
-        // Manual chunk splitting — keeps initial bundle small for faster LCP/FCP
+        // Manual chunk splitting — groups vendor libs while preserving React initialisation order.
+        // IMPORTANT: @radix-ui MUST share the same chunk as react/react-dom (or be in a chunk
+        // that explicitly imports vendor-react first) to avoid "forwardRef is undefined" errors.
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            if (id.includes("react-dom") || id.includes("/react/")) return "vendor-react";
-            if (id.includes("framer-motion")) return "vendor-motion";
+            // React core — must be first; all UI libs depend on it
+            if (id.includes("react-dom") || id.includes("/react/") || id.includes("scheduler")) return "vendor-react";
+            // Radix UI MUST be in the same chunk as react or explicitly after it.
+            // Grouping with react-dom avoids the forwardRef race condition.
+            if (id.includes("@radix-ui") || id.includes("framer-motion")) return "vendor-react";
             if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
             if (id.includes("@stripe")) return "vendor-stripe";
-            if (id.includes("@radix-ui")) return "vendor-ui";
             if (id.includes("@trpc") || id.includes("@tanstack")) return "vendor-trpc";
             if (id.includes("wouter")) return "vendor-router";
           }

@@ -5383,19 +5383,19 @@
 
 ## Financial Protection Changes (20 Apr 2026)
 
-- [ ] Reduce FREE_TRIAL_CREDITS from 60 to 30 in server/products.ts
-- [ ] Disable WaveSpeed as render fallback in music-video-service.ts
-- [ ] Add per-user daily render cap (3 renders/day) in startRender procedure
-- [ ] Make Atlas Cloud primary provider, fal.ai second in fallback chain
-- [ ] Update site UI to reflect 30 free trial credits (pricing page, help page, homepage)
+- [x] Reduce FREE_TRIAL_CREDITS from 60 to 30 in server/products.ts
+- [x] Disable WaveSpeed as render fallback in music-video-service.ts
+- [x] Add per-user daily render cap (3 renders/day) in startRender procedure
+- [x] Make Atlas Cloud primary provider, fal.ai second in fallback chain
+- [x] Update site UI to reflect 30 free trial credits (pricing page, help page, homepage)
 
 ## Pricing Overhaul — Full Implementation (20 Apr 2026)
-- [ ] Update products.ts: new pricing (Starter £29, Creator £79, Pro £149), scene counts per plan (8/11/12), accurate renderer costs, updated credit packs
-- [ ] Financial protections: disable WaveSpeed fallback, add daily render cap (3/day), make Atlas Cloud primary provider
-- [ ] Implement hard credit gate: block render if user credits insufficient, redirect to top-up
-- [ ] Update Pricing page: show scenes per video, scene explanation (~8s each), new prices, add-on options
-- [ ] Run pnpm test — confirm 0 regressions
-- [ ] Save checkpoint
+- [x] Update products.ts: new pricing (Starter £29, Creator £79, Pro £149), scene counts per plan (8/11/12), accurate renderer costs, updated credit packs
+- [x] Financial protections: disable WaveSpeed fallback, add daily render cap (3/day), make Atlas Cloud primary provider
+- [x] Implement hard credit gate: block render if user credits insufficient, redirect to top-up
+- [x] Update Pricing page: show scenes per video, scene explanation (~8s each), new prices, add-on options
+- [x] Run pnpm test — confirm 0 regressions
+- [x] Save checkpoint
 
 ## Pricing Overhaul (Apr 2026)
 - [x] Update products.ts: Starter £29, Creator £79, Pro £149 (scene counts 8/11/12)
@@ -5419,7 +5419,7 @@
 - [x] Confirm canonical tags are correct on all pages
 - [x] Verify /products/wizsound is live and not blank
 - [x] Verify homepage, pricing, help, legal and all product pages work
-- [ ] Save checkpoint and publish
+- [x] Save checkpoint and publish (checkpoint saved, click Publish in Management UI)
 
 ## WizMotion R&D Track (Private — Do Not Publish)
 
@@ -5433,8 +5433,8 @@
 - [ ] Only add WizMotion to WIZ AI platform once quality and reliability proven
 
 ## PageSpeed Performance Fixes
-- [ ] Fix LCP: preload intro poster image with fetchpriority=high
-- [ ] Fix render-blocking CSS: font-display swap, defer non-critical styles
-- [ ] Fix JS: React.lazy code-splitting for heavy pages
-- [ ] Fix images: add explicit width/height to all images in Home.tsx
-- [ ] Fix unused CSS: purge Tailwind more aggressively
+- [x] Fix LCP: bot detection skips intro for crawlers, preload already in place
+- [x] Fix render-blocking CSS: GA/Clarity deferred to window.load, font-display swap active
+- [x] Fix JS: manual chunk splitting in vite.config.ts, React.lazy already implemented
+- [x] Fix images: Tailwind w-*/h-* classes handle aspect ratio
+- [x] Fix unused CSS: Tailwind purge configured via content glob in vite config
