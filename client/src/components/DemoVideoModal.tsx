@@ -440,7 +440,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           try { await ctx.resume(); } catch { /* ignore */ }
         }
         // Re-sync audio position after returning from background
-        if (aud && vid && !aud.paused && Math.abs(vid.currentTime - aud.currentTime) > 0.3) {
+        // Only hard-seek if drift is very large (>2s) — the rate-based drift
+        // correction loop will handle smaller drifts without causing pops
+        if (aud && vid && !aud.paused && Math.abs(vid.currentTime - aud.currentTime) > 2.0) {
           aud.currentTime = vid.currentTime;
         }
         // If audio stalled while video kept playing, restart it
@@ -453,21 +455,41 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [playing]);
 
-  /* ── Drift correction ────────────────────────────────────────────── */
+  /* ── Drift correction (rate-based, no seeks = no pops) ───────────── */
+  // Instead of seeking the audio element (which causes buffer decode pops),
+  // we nudge playbackRate to gently speed up or slow down the audio until
+  // it catches up with the video. Only hard-seek as a last resort (>2s drift).
   useEffect(() => {
     if (!playing) return;
     const interval = setInterval(() => {
       const v = videoRef.current;
       const a = audioRef.current;
-      if (!v || !a) return;
-      const drift = Math.abs(v.currentTime - a.currentTime);
-      // Only correct if drift > 300ms to avoid constant micro-seeks that cause audible glitches
-      // (was 100ms — too tight, caused stuttering on mobile)
-      if (drift > 0.3) {
+      if (!v || !a || a.paused) return;
+
+      const drift = v.currentTime - a.currentTime; // positive = audio behind video
+
+      if (Math.abs(drift) > 2.0) {
+        // Large drift (e.g. after seeking the video scrubber) — hard sync is unavoidable
+        // but only do it once, not every tick
         a.currentTime = v.currentTime;
+        a.playbackRate = 1.0;
+      } else if (drift > 0.08) {
+        // Audio is behind — speed it up slightly to catch up (inaudible at 1.04x)
+        a.playbackRate = 1.04;
+      } else if (drift < -0.08) {
+        // Audio is ahead — slow it down slightly
+        a.playbackRate = 0.96;
+      } else {
+        // In sync — restore normal rate
+        a.playbackRate = 1.0;
       }
-    }, 500); // Check every 500ms instead of 150ms — less aggressive, fewer glitches
-    return () => clearInterval(interval);
+    }, 250);
+    return () => {
+      clearInterval(interval);
+      // Always restore normal rate when effect cleans up
+      const a = audioRef.current;
+      if (a) a.playbackRate = 1.0;
+    };
   }, [playing]);
 
   /* ── ESC to close ────────────────────────────────────────────────── */
