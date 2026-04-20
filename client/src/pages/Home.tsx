@@ -191,15 +191,10 @@ function Nav() {
   const [techOpen, setTechOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [mobileTechOpen, setMobileTechOpen] = useState(false);
-  // Timers for delayed close — gives the mouse time to travel from trigger to panel
-  const productsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const techTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isAuthenticated } = useAuth();
 
-  const openProducts = () => { if (productsTimer.current) clearTimeout(productsTimer.current); setProductsOpen(true); setTechOpen(false); };
-  const closeProducts = () => { productsTimer.current = setTimeout(() => setProductsOpen(false), 120); };
-  const openTech = () => { if (techTimer.current) clearTimeout(techTimer.current); setTechOpen(true); setProductsOpen(false); };
-  const closeTech = () => { techTimer.current = setTimeout(() => setTechOpen(false), 120); };
+  const toggleProducts = (e: React.MouseEvent) => { e.stopPropagation(); setProductsOpen((v) => { if (!v) setTechOpen(false); return !v; }); };
+  const toggleTech = (e: React.MouseEvent) => { e.stopPropagation(); setTechOpen((v) => { if (!v) setProductsOpen(false); return !v; }); };
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -260,8 +255,6 @@ function Nav() {
             {/* PRODUCTS dropdown — categorised: Create / Enhance / Grow */}
             <div
               className="relative"
-              onMouseEnter={openProducts}
-              onMouseLeave={closeProducts}
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -270,7 +263,7 @@ function Nav() {
                 }`}
                 aria-haspopup="true"
                 aria-expanded={productsOpen}
-                onClick={() => setProductsOpen((v) => !v)}
+                onClick={toggleProducts}
               >
                 Products
                 <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
@@ -281,8 +274,6 @@ function Nav() {
               <NavDropdown open={productsOpen} wide>
                 <div
                   className="rounded-2xl overflow-hidden"
-                  onMouseEnter={openProducts}
-                  onMouseLeave={closeProducts}
                   style={{
                     background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
                     border: "1px solid oklch(0.78 0.11 75 / 0.14)",
@@ -388,8 +379,6 @@ function Nav() {
             {/* TECHNOLOGY dropdown */}
             <div
               className="relative"
-              onMouseEnter={openTech}
-              onMouseLeave={closeTech}
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -398,7 +387,7 @@ function Nav() {
                 }`}
                 aria-haspopup="true"
                 aria-expanded={techOpen}
-                onClick={() => setTechOpen((v) => !v)}
+                onClick={toggleTech}
               >
                 Technology
                 <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
@@ -409,8 +398,6 @@ function Nav() {
               <NavDropdown open={techOpen} wide>
                 <div
                   className="rounded-2xl overflow-hidden"
-                  onMouseEnter={openTech}
-                  onMouseLeave={closeTech}
                   style={{
                     background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
                     border: "1px solid oklch(0.78 0.11 75 / 0.13)",
