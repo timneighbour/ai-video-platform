@@ -5438,3 +5438,18 @@
 - [x] Fix JS: manual chunk splitting in vite.config.ts, React.lazy already implemented
 - [x] Fix images: Tailwind w-*/h-* classes handle aspect ratio
 - [x] Fix unused CSS: Tailwind purge configured via content glob in vite config
+
+## Nav Dropdown Improvements
+- [ ] Nav: Rebuild Products dropdown with categories (Create / Enhance / Grow) — WizVideo, WizAnimate, WizScript, WizImage under Create; WizSound, WizLumina under Enhance; WizBoost under Grow
+- [ ] Nav: Add Technology dropdown with WizCreate (AI storyboard engine) and WizGenesis (character engine)
+- [ ] Nav: Add WizSound and WizLumina to Products dropdown (currently only in Engines)
+- [ ] Nav: Fix dropdown scroll/hover — use click-to-open or pointer-enter with safe mouse-travel zone so items don't close before user can reach them
+- [ ] Nav: Update nav order to: Create · How It Works · Showcase · Products ▾ · Technology ▾ · Pricing · Help
+
+## Nav Dropdown Improvements - COMPLETED ✅
+- [x] Nav: Rebuild Products dropdown with categories (Create / Enhance / Grow) — WizVideo, WizAnimate, WizScript, WizImage, WizAudio, WizShorts under Create; WizSound, WizLumina under Enhance; WizBoost under Grow
+- [x] Nav: Add Technology dropdown with WizCreate, WizGenesis, WizAnimate, WizSync, WizSound, WizLumina, WizBoost
+- [x] Nav: Add WizSound and WizLumina to Products dropdown (Enhance category)
+- [x] Nav: Fix dropdown scroll/hover — invisible bridge strip + delayed close timer (120ms) so mouse can travel from trigger to panel
+- [x] Nav: Update nav order to: Home · Products ▾ · Technology ▾ · Pricing · Help
+- [x] Nav: Mobile drawer updated with Products (Create/Enhance/Grow) and Technology accordions

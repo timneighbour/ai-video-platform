@@ -81,58 +81,21 @@ function useReveal() {
   }, []);
 }
 
-// ── Products ──────────────────────────────────────────────────────────────────
-const PRODUCTS = [
-  {
-    name: "WizAudio",
-    label: "Create Audio",
-    tagline: "AI Music & Audio Studio",
-    desc: "Generate full studio-quality music tracks from a text prompt in seconds.",
-    icon: <WizAudioEmblem size={36} />,
-    href: "/music-creator",
-    glowColor: "oklch(0.72 0.18 160)",
-    bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
-    borderColor: "oklch(0.72 0.18 160 / 0.35)",
-  },
-  {
-    name: "WizImage",
-    label: "Create Images",
-    tagline: "AI Image & Artwork Creator",
-    desc: "Create cinematic AI images and visual assets from any idea, instantly.",
-    icon: <WizImageEmblem size={36} />,
-    href: "/wiz-image",
-    glowColor: "oklch(0.78 0.11 75)",
-    bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
-    borderColor: "oklch(0.78 0.11 75 / 0.35)",
-  },
+// ── Products — categorised by purpose ────────────────────────────────────────
+const PRODUCTS_CREATE = [
   {
     name: "WizVideo",
-    label: "Create Videos",
     tagline: "AI Music Video Generator",
-    desc: "Turn your music into a full AI-generated music video, scene by scene.",
-    icon: <WizVideoEmblem size={36} />,
+    icon: <WizVideoEmblem size={32} />,
     href: "/music-video/create",
     glowColor: "oklch(0.70 0.18 260)",
     bgGradient: "linear-gradient(135deg, oklch(0.22 0.08 260 / 0.9) 0%, oklch(0.16 0.06 260 / 0.95) 100%)",
     borderColor: "oklch(0.70 0.18 260 / 0.35)",
   },
   {
-    name: "WizShorts",
-    label: "Create Shorts",
-    tagline: "AI Short-Form Video Creator",
-    desc: "Produce scroll-stopping vertical short-form videos for social media in minutes.",
-    icon: <WizShortsEmblem size={36} />,
-    href: "/wiz-shorts",
-    glowColor: "oklch(0.72 0.18 30)",
-    bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
-    borderColor: "oklch(0.72 0.18 30 / 0.35)",
-  },
-  {
     name: "WizAnimate",
-    label: "Create Animation",
-    tagline: "AI Character Animation Engine",
-    desc: "Bring characters and scenes to life with AI-powered animation.",
-    icon: <WizAnimateEmblem size={36} />,
+    tagline: "AI Character Animation",
+    icon: <WizAnimateEmblem size={32} />,
     href: "/kids-video",
     glowColor: "oklch(0.68 0.18 330)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
@@ -140,37 +103,77 @@ const PRODUCTS = [
   },
   {
     name: "WizScript",
-    label: "Create from Text",
     tagline: "AI Script & Storyboard Builder",
-    desc: "Describe your idea in plain text and let AI build the full video script and storyboard.",
-    icon: <WizScriptEmblem size={36} />,
+    icon: <WizScriptEmblem size={32} />,
     href: "/text-to-video",
     glowColor: "oklch(0.75 0.16 200)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 200 / 0.9) 0%, oklch(0.17 0.06 200 / 0.95) 100%)",
     borderColor: "oklch(0.75 0.16 200 / 0.35)",
   },
+  {
+    name: "WizImage",
+    tagline: "AI Image & Artwork Creator",
+    icon: <WizImageEmblem size={32} />,
+    href: "/wiz-image",
+    glowColor: "oklch(0.78 0.11 75)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
+    borderColor: "oklch(0.78 0.11 75 / 0.35)",
+  },
+  {
+    name: "WizAudio",
+    tagline: "AI Music & Audio Studio",
+    icon: <WizAudioEmblem size={32} />,
+    href: "/music-creator",
+    glowColor: "oklch(0.72 0.18 160)",
+    bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
+    borderColor: "oklch(0.72 0.18 160 / 0.35)",
+  },
+  {
+    name: "WizShorts",
+    tagline: "AI Short-Form Video Creator",
+    icon: <WizShortsEmblem size={32} />,
+    href: "/wiz-shorts",
+    glowColor: "oklch(0.72 0.18 30)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
+    borderColor: "oklch(0.72 0.18 30 / 0.35)",
+  },
 ];
 
-// ── Nav engines data ─────────────────────────────────────────────────────────
-const WIZ_ENGINES = [
-  { name: "WizSound", tagline: "Premium Audio Engine", desc: "Upgrades every track from raw AI to broadcast-quality Cinematic audio.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
-  { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "Transforms raw AI footage into polished, colour-graded cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
-  { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "Powers every creative decision inside WIZ AI — smarter, faster, more consistent.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
-  { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Accelerates render speed and sharpens final quality on every export.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
+const PRODUCTS_ENHANCE = [
+  { name: "WizSound", tagline: "Premium Audio Engine", href: "/products/wizsound", logo: WIZSOUND_LOGO, glowColor: "oklch(0.72 0.18 160)" },
+  { name: "WizLumina", tagline: "Visual Enhancement Engine", href: "/products/wizlumina", logo: WIZLUMINA_LOGO, glowColor: "oklch(0.78 0.11 75)" },
+];
+
+const PRODUCTS_GROW = [
+  { name: "WizBoost", tagline: "Output Optimisation Engine", href: "/products/wizboost", logo: WIZBOOST_LOGO, glowColor: "oklch(0.70 0.18 260)" },
+];
+
+// ── Technology — proprietary intelligence stack ───────────────────────────────
+const WIZ_TECHNOLOGY = [
   { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
+  { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "Powers every creative decision inside WIZ AI — smarter, faster, more consistent.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
   { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
   { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion for rhythm-locked output.", href: "/products/wizsync", logo: WIZSYNC_LOGO },
+  { name: "WizSound", tagline: "Premium Audio Engine", desc: "Upgrades every track from raw AI to broadcast-quality Cinematic audio.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
+  { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "Transforms raw AI footage into polished, colour-graded cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
+  { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Accelerates render speed and sharpens final quality on every export.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
 ];
 
 // ── Dropdown wrapper with fade+slide animation ────────────────────────────────
-function NavDropdown({ open, children, wide }: { open: boolean; children: React.ReactNode; wide?: boolean }) {
+// Uses a transparent "bridge" strip between the trigger and the panel so the
+// mouse can travel from button → panel without the onMouseLeave firing.
+function NavDropdown({ open, children, wide, align = "center" }: { open: boolean; children: React.ReactNode; wide?: boolean; align?: "center" | "left" | "right" }) {
+  const translateX = align === "left" ? "0" : align === "right" ? "-100%" : "-50%";
+  const leftPos = align === "left" ? "0" : align === "right" ? "100%" : "50%";
   return (
     <div
-      className={`absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 z-50 transition-all duration-200 origin-top ${
+      className={`absolute z-50 transition-all duration-200 origin-top ${
         open ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-y-95 -translate-y-1 pointer-events-none"
       }`}
-      style={{ width: wide ? 680 : 580 }}
+      style={{ top: "calc(100% - 4px)", left: leftPos, transform: `translateX(${translateX})`, width: wide ? 720 : 620 }}
     >
+      {/* Invisible bridge — fills the gap between button and panel so mouse travel doesn't close the dropdown */}
+      <div className="h-4 w-full" />
       {/* Arrow tip */}
       <div className="flex justify-center mb-[-1px]">
         <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-[#070707]" style={{ marginBottom: -7 }} />
@@ -185,10 +188,18 @@ function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
-  const [enginesOpen, setEnginesOpen] = useState(false);
+  const [techOpen, setTechOpen] = useState(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
-  const [mobileEnginesOpen, setMobileEnginesOpen] = useState(false);
+  const [mobileTechOpen, setMobileTechOpen] = useState(false);
+  // Timers for delayed close — gives the mouse time to travel from trigger to panel
+  const productsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const techTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isAuthenticated } = useAuth();
+
+  const openProducts = () => { if (productsTimer.current) clearTimeout(productsTimer.current); setProductsOpen(true); setTechOpen(false); };
+  const closeProducts = () => { productsTimer.current = setTimeout(() => setProductsOpen(false), 120); };
+  const openTech = () => { if (techTimer.current) clearTimeout(techTimer.current); setTechOpen(true); setProductsOpen(false); };
+  const closeTech = () => { techTimer.current = setTimeout(() => setTechOpen(false), 120); };
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -209,13 +220,15 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close dropdowns on Escape
+  // Close dropdowns on Escape or outside click
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setProductsOpen(false); setEnginesOpen(false); setMobileOpen(false); }
+      if (e.key === "Escape") { setProductsOpen(false); setTechOpen(false); setMobileOpen(false); }
     };
+    const onClickOutside = () => { setProductsOpen(false); setTechOpen(false); };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("click", onClickOutside);
+    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("click", onClickOutside); };
   }, []);
 
   return (
@@ -244,11 +257,12 @@ function Nav() {
 
             <a href="/" className="nav-link">Home</a>
 
-            {/* PRODUCTS dropdown */}
+            {/* PRODUCTS dropdown — categorised: Create / Enhance / Grow */}
             <div
               className="relative"
-              onMouseEnter={() => setProductsOpen(true)}
-              onMouseLeave={() => setProductsOpen(false)}
+              onMouseEnter={openProducts}
+              onMouseLeave={closeProducts}
+              onClick={(e) => e.stopPropagation()}
             >
               <button
                 className={`nav-link flex items-center gap-1 transition-colors ${
@@ -264,9 +278,11 @@ function Nav() {
                 }`} />
               </button>
 
-              <NavDropdown open={productsOpen}>
+              <NavDropdown open={productsOpen} wide>
                 <div
                   className="rounded-2xl overflow-hidden"
+                  onMouseEnter={openProducts}
+                  onMouseLeave={closeProducts}
                   style={{
                     background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
                     border: "1px solid oklch(0.78 0.11 75 / 0.14)",
@@ -277,47 +293,85 @@ function Nav() {
                   <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: "1px solid oklch(0.78 0.11 75 / 0.08)", background: "oklch(0.78 0.11 75 / 0.025)" }}>
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
-                      <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">WIZ AI — Creation Tools</span>
+                      <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">WIZ AI — Product Suite</span>
                     </div>
-                    <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>6 Tools</span>
+                    <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>9 Products</span>
                   </div>
 
-                  {/* Product grid */}
-                  <div className="p-3 grid grid-cols-2 gap-1">
-                    {PRODUCTS.map((p) => (
-                      <a
-                        key={p.name}
-                        href={p.href}
-                        className="group flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
-                        style={{ border: "1px solid transparent" }}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)";
-                          (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.14)";
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.background = "transparent";
-                          (e.currentTarget as HTMLElement).style.borderColor = "transparent";
-                        }}
-                      >
-                        <div
-                          className="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200"
-                          style={{
-                            background: (p as any).bgGradient || "oklch(0.78 0.11 75 / 0.06)",
-                            border: `1px solid ${(p as any).borderColor || 'oklch(0.78 0.11 75 / 0.18)'}`,
-                            boxShadow: `0 0 12px ${(p as any).glowColor ? (p as any).glowColor.replace(')', ' / 0.20)').replace('oklch(', 'oklch(') : 'oklch(0.78 0.11 75 / 0.08)'}`,
-                          }}
-                        >
-                          <span className="opacity-85 group-hover:opacity-100 transition-opacity">{p.icon}</span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">
-                            {p.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup>
-                          </p>
-                          <p className="text-[10.5px] text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors truncate">{p.tagline}</p>
-                        </div>
-                        <ArrowSVG className="w-3.5 h-3.5 opacity-0 group-hover:opacity-40 transition-all duration-200 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 text-[--color-gold]" />
-                      </a>
-                    ))}
+                  <div className="p-4 flex gap-4">
+                    {/* Create column */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Create</p>
+                      <div className="flex flex-col gap-0.5">
+                        {PRODUCTS_CREATE.map((p) => (
+                          <a
+                            key={p.name}
+                            href={p.href}
+                            className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                            style={{ border: "1px solid transparent" }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                          >
+                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden" style={{ background: p.bgGradient, border: `1px solid ${p.borderColor}` }}>
+                              <span className="opacity-85 group-hover:opacity-100 transition-opacity">{p.icon}</span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[12px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">{p.name}<sup className="text-[7px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+                              <p className="text-[10px] text-[--color-gold-dark]/45 leading-tight group-hover:text-[--color-gold-dark]/70 transition-colors truncate">{p.tagline}</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="w-px self-stretch" style={{ background: "oklch(0.78 0.11 75 / 0.08)" }} />
+
+                    {/* Enhance + Grow column */}
+                    <div style={{ width: 200 }} className="flex-shrink-0">
+                      <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Enhance</p>
+                      <div className="flex flex-col gap-0.5 mb-4">
+                        {PRODUCTS_ENHANCE.map((p) => (
+                          <a
+                            key={p.name}
+                            href={p.href}
+                            className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                            style={{ border: "1px solid transparent" }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                          >
+                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
+                              <img src={p.logo} alt={p.name} className="w-5 h-5 object-contain" loading="lazy" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[12px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">{p.name}<sup className="text-[7px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+                              <p className="text-[10px] text-[--color-gold-dark]/45 leading-tight group-hover:text-[--color-gold-dark]/70 transition-colors truncate">{p.tagline}</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                      <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Grow</p>
+                      <div className="flex flex-col gap-0.5">
+                        {PRODUCTS_GROW.map((p) => (
+                          <a
+                            key={p.name}
+                            href={p.href}
+                            className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                            style={{ border: "1px solid transparent" }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                          >
+                            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
+                              <img src={p.logo} alt={p.name} className="w-5 h-5 object-contain" loading="lazy" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[12px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">{p.name}<sup className="text-[7px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+                              <p className="text-[10px] text-[--color-gold-dark]/45 leading-tight group-hover:text-[--color-gold-dark]/70 transition-colors truncate">{p.tagline}</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Footer */}
@@ -331,29 +385,32 @@ function Nav() {
               </NavDropdown>
             </div>
 
-            {/* WIZ ENGINES dropdown */}
+            {/* TECHNOLOGY dropdown */}
             <div
               className="relative"
-              onMouseEnter={() => setEnginesOpen(true)}
-              onMouseLeave={() => setEnginesOpen(false)}
+              onMouseEnter={openTech}
+              onMouseLeave={closeTech}
+              onClick={(e) => e.stopPropagation()}
             >
               <button
                 className={`nav-link flex items-center gap-1 transition-colors ${
-                  enginesOpen ? "text-[--color-gold-light]" : ""
+                  techOpen ? "text-[--color-gold-light]" : ""
                 }`}
                 aria-haspopup="true"
-                aria-expanded={enginesOpen}
-                onClick={() => setEnginesOpen((v) => !v)}
+                aria-expanded={techOpen}
+                onClick={() => setTechOpen((v) => !v)}
               >
-                Wiz Engines
+                Technology
                 <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
-                  enginesOpen ? "rotate-180 text-[--color-gold]" : ""
+                  techOpen ? "rotate-180 text-[--color-gold]" : ""
                 }`} />
               </button>
 
-              <NavDropdown open={enginesOpen} wide>
+              <NavDropdown open={techOpen} wide>
                 <div
                   className="rounded-2xl overflow-hidden"
+                  onMouseEnter={openTech}
+                  onMouseLeave={closeTech}
                   style={{
                     background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
                     border: "1px solid oklch(0.78 0.11 75 / 0.13)",
@@ -371,33 +428,22 @@ function Nav() {
 
                   {/* Engine grid */}
                   <div className="p-3 grid grid-cols-2 gap-1">
-                    {WIZ_ENGINES.map((eng) => (
+                    {WIZ_TECHNOLOGY.map((eng) => (
                       <a
                         key={eng.name}
                         href={eng.href}
                         className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
                         style={{ border: "1px solid transparent" }}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)";
-                          (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)";
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.background = "transparent";
-                          (e.currentTarget as HTMLElement).style.borderColor = "transparent";
-                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
                       >
-                        <div
-                          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200"
-                          style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}
-                        >
+                        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
                           <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">
-                            {eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup>
-                          </p>
-                          <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/55 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/80 transition-colors">{eng.tagline}</p>
-                          <p className="text-[10px] text-white/25 mt-1 leading-relaxed line-clamp-2 group-hover:text-white/40 transition-colors">{eng.desc}</p>
+                          <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">{eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+                          <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors">{eng.tagline}</p>
+                          <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
                         </div>
                       </a>
                     ))}
@@ -531,80 +577,92 @@ function Nav() {
               </button>
 
               <div className={`overflow-hidden transition-all duration-300 ${
-                mobileProductsOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+                mobileProductsOpen ? "max-h-[900px] opacity-100" : "max-h-0 opacity-0"
               }`}>
                 <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
-                  {PRODUCTS.map((p) => (
-                    <a
-                      key={p.name}
-                      href={p.href}
-                      className="flex items-center gap-3.5 px-3 py-3.5 rounded-2xl mt-1.5 transition-all duration-200 group"
-                      style={{ border: `1px solid ${(p as any).borderColor || 'oklch(0.78 0.11 75 / 0.12)'}` }}
-                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = (p as any).bgGradient || "oklch(0.78 0.11 75 / 0.06)"; }}
+                  {/* Create */}
+                  <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-3 mb-1.5 px-3">Create</p>
+                  {PRODUCTS_CREATE.map((p) => (
+                    <a key={p.name} href={p.href} className="flex items-center gap-3.5 px-3 py-3 rounded-2xl mt-1 transition-all duration-200 group" style={{ border: `1px solid ${p.borderColor}` }}
+                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = p.bgGradient; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <div
-                        className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-2xl"
-                        style={{
-                          background: (p as any).bgGradient || "oklch(0.78 0.11 75 / 0.08)",
-                          border: `1px solid ${(p as any).borderColor || 'oklch(0.78 0.11 75 / 0.20)'}`,
-                          boxShadow: `0 0 16px ${(p as any).glowColor ? (p as any).glowColor.replace(')', ' / 0.25)').replace('oklch(', 'oklch(') : 'oklch(0.78 0.11 75 / 0.10)'}`,
-                        }}
-                      >
-                        {p.icon}
-                      </div>
+                      onClick={() => setMobileOpen(false)}>
+                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl" style={{ background: p.bgGradient, border: `1px solid ${p.borderColor}` }}>{p.icon}</div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[15px] font-bold tracking-tight" style={{ color: "oklch(0.92 0.10 75)" }}>
-                          {p.name}<sup className="text-[9px] ml-0.5 font-medium" style={{ color: "oklch(0.78 0.11 75 / 0.7)" }}>™</sup>
-                        </p>
-                        <p className="text-[12px] text-white/50 mt-0.5 truncate">{p.tagline}</p>
+                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.92 0.10 75)" }}>{p.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.7)" }}>™</sup></p>
+                        <p className="text-[11px] text-white/45 mt-0.5 truncate">{p.tagline}</p>
                       </div>
-                      <ArrowSVG className="w-4 h-4 ml-auto flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: (p as any).glowColor || "oklch(0.78 0.11 75 / 0.50)" }} />
+                      <ArrowSVG className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: p.glowColor }} />
+                    </a>
+                  ))}
+                  {/* Enhance */}
+                  <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-4 mb-1.5 px-3">Enhance</p>
+                  {PRODUCTS_ENHANCE.map((p) => (
+                    <a key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
+                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onClick={() => setMobileOpen(false)}>
+                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
+                        <img src={p.logo} alt={p.name} className="w-7 h-7 object-contain" loading="lazy" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>{p.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup></p>
+                        <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.tagline}</p>
+                      </div>
+                      <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+                    </a>
+                  ))}
+                  {/* Grow */}
+                  <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-4 mb-1.5 px-3">Grow</p>
+                  {PRODUCTS_GROW.map((p) => (
+                    <a key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
+                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onClick={() => setMobileOpen(false)}>
+                      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
+                        <img src={p.logo} alt={p.name} className="w-7 h-7 object-contain" loading="lazy" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>{p.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup></p>
+                        <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.tagline}</p>
+                      </div>
+                      <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
                     </a>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Wiz Engines accordion */}
+            {/* Technology accordion */}
             <div className="rounded-xl overflow-hidden" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.08)" }}>
               <button
                 className="w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-semibold transition-all duration-200"
-                style={mobileEnginesOpen ? { background: "oklch(0.78 0.11 75 / 0.06)", color: "oklch(0.88 0.10 75)" } : { color: "rgba(255,255,255,0.8)" }}
-                onClick={() => setMobileEnginesOpen((v) => !v)}
-                aria-expanded={mobileEnginesOpen}
+                style={mobileTechOpen ? { background: "oklch(0.78 0.11 75 / 0.06)", color: "oklch(0.88 0.10 75)" } : { color: "rgba(255,255,255,0.8)" }}
+                onClick={() => setMobileTechOpen((v) => !v)}
+                aria-expanded={mobileTechOpen}
               >
                 <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileEnginesOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
-                  Wiz Engines
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileTechOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
+                  Technology
                 </span>
                 <ChevronDownSVG className={`w-4 h-4 transition-transform duration-300 ${
-                  mobileEnginesOpen ? "rotate-180" : ""
-                }`} style={{ color: mobileEnginesOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
+                  mobileTechOpen ? "rotate-180" : ""
+                }`} style={{ color: mobileTechOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
               </button>
-
               <div className={`overflow-hidden transition-all duration-300 ${
-                mobileEnginesOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
+                mobileTechOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
               }`}>
                 <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
-                  {WIZ_ENGINES.map((eng) => (
-                    <a
-                      key={eng.name}
-                      href={eng.href}
-                      className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200"
-                      style={{ border: "1px solid transparent" }}
+                  {WIZ_TECHNOLOGY.map((eng) => (
+                    <a key={eng.name} href={eng.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid transparent" }}
                       onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                      onClick={() => setMobileOpen(false)}
-                    >
+                      onClick={() => setMobileOpen(false)}>
                       <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>
                         <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>
-                          {eng.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup>
-                        </p>
+                        <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>{eng.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup></p>
                         <p className="text-[11px] text-white/40 mt-0.5 truncate">{eng.tagline}</p>
                       </div>
                       <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
@@ -621,40 +679,13 @@ function Nav() {
             {/* CTA buttons */}
             <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
               {isAuthenticated ? (
-                <a
-                  href="/dashboard"
-                  className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200"
-                  style={{
-                    background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.20) 0%, oklch(0.60 0.10 65 / 0.15) 100%)",
-                    border: "1px solid oklch(0.78 0.11 75 / 0.35)",
-                    color: "oklch(0.92 0.10 75)",
-                    boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.10)",
-                  }}
-                  onClick={() => setMobileOpen(false)}
-                >
+                <a href="/dashboard" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.20) 0%, oklch(0.60 0.10 65 / 0.15) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.35)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.10)" }} onClick={() => setMobileOpen(false)}>
                   <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Dashboard
                 </a>
               ) : (
                 <>
-                  <a
-                    href={getLoginUrl()}
-                    className="flex items-center justify-center py-3 rounded-xl text-[14px] font-medium text-white/60 hover:text-white/90 transition-colors"
-                    style={{ border: "1px solid rgba(255,255,255,0.08)" }}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Sign in
-                  </a>
-                  <a
-                    href="/onboarding"
-                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200"
-                    style={{
-                      background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.22) 0%, oklch(0.60 0.10 65 / 0.18) 100%)",
-                      border: "1px solid oklch(0.78 0.11 75 / 0.40)",
-                      color: "oklch(0.92 0.10 75)",
-                      boxShadow: "0 0 28px oklch(0.78 0.11 75 / 0.14)",
-                    }}
-                    onClick={() => setMobileOpen(false)}
-                  >
+                  <a href={getLoginUrl()} className="flex items-center justify-center py-3 rounded-xl text-[14px] font-medium text-white/60 hover:text-white/90 transition-colors" style={{ border: "1px solid rgba(255,255,255,0.08)" }} onClick={() => setMobileOpen(false)}>Sign in</a>
+                  <a href="/onboarding" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.22) 0%, oklch(0.60 0.10 65 / 0.18) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.40)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 28px oklch(0.78 0.11 75 / 0.14)" }} onClick={() => setMobileOpen(false)}>
                     <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Start Creating — Free
                   </a>
                 </>
@@ -2460,7 +2491,7 @@ function Footer() {
           <div>
             <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Products</h4>
             <div className="flex flex-col gap-3">
-              {PRODUCTS.map((p) => (
+              {[...PRODUCTS_CREATE, ...PRODUCTS_ENHANCE, ...PRODUCTS_GROW].map((p) => (
                 <a key={p.name} href={p.href} className="text-sm text-[--color-silver-dark]/40 hover:text-[--color-gold] transition-colors font-medium">{p.name}</a>
               ))}
             </div>
