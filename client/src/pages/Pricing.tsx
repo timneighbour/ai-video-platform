@@ -4,10 +4,10 @@
  *   1. Nav
  *   2. Hero — cinematic bg, animated badge, headline
  *   3. How it works — visual step cards with photography
- *   4. Per-render pricing — large visual tier cards
+ *   4. Per-video pricing — large visual tier cards
  *   5. Subscription plans — rich cinematic plan cards with bg imagery
  *   6. Product coverage strip — all 6 logos
- *   7. Render bundles — premium bundle cards
+ *   7. Build Credit Packs — premium credit pack cards
  *   8. Social proof / testimonials
  *   9. Trust strip
  *  10. Comparison table — grouped, sticky header
@@ -273,17 +273,17 @@ const PLANS = [
   },
 ]
 
-// ── Render bundles ────────────────────────────────────────────────────────────
+// ── Build Credit Packs ────────────────────────────────────────────────────────
 const BUNDLES = [
   {
     id: "6" as const,
     renders: 6,
     price: 10,
-    perRender: "£1.67",
+    perRender: "£1.67 per Build Credit",
     label: "Starter Pack",
     popular: false,
     bestValue: false,
-    desc: "Top up when you need a few extra Build Credits.",
+    desc: "Perfect when you need a few extra final video builds.",
     bgImage: SHOWCASE_3,
     accentColor: "rgba(100,140,200,0.15)",
     borderColor: "rgba(100,140,200,0.2)",
@@ -292,11 +292,11 @@ const BUNDLES = [
     id: "15" as const,
     renders: 15,
     price: 20,
-    perRender: "£1.33",
+    perRender: "£1.33 per Build Credit",
     label: "Creator Pack",
     popular: true,
     bestValue: false,
-    desc: "The most popular bundle — great for busy months.",
+    desc: "Best for busy months, extra campaigns or multiple video ideas.",
     bgImage: SHOWCASE_1,
     accentColor: "rgba(196,164,100,0.15)",
     borderColor: "rgba(196,164,100,0.4)",
@@ -305,11 +305,11 @@ const BUNDLES = [
     id: "40" as const,
     renders: 40,
     price: 50,
-    perRender: "£1.25",
+    perRender: "£1.25 per Build Credit",
     label: "Studio Pack",
     popular: false,
     bestValue: true,
-    desc: "Best value per Build Credit. Ideal for high-volume production.",
+    desc: "Best value for high-volume creators, agencies and regular production.",
     bgImage: SHOWCASE_2,
     accentColor: "rgba(160,100,220,0.15)",
     borderColor: "rgba(160,100,220,0.25)",
@@ -359,15 +359,15 @@ const FAQS = [
   },
   {
     q: "What happens if I use all my monthly Build Credits?",
-    a: "Your Build Credits reset on your next billing date. In the meantime, you can top up instantly with a credit bundle (6, 15, or 40 videos) or pay per-video at £2–£6 depending on quality. Bundles never expire and are used automatically once your monthly credits run out.",
+    a: "Your Build Credits reset on your next billing date. In the meantime, you can top up instantly with a Build Credit Pack (6, 15, or 40 credits) or pay per video at £2–£6 depending on quality. Build Credit Packs never expire and are used automatically once your monthly credits run out.",
   },
   {
-    q: "What are Build Credit bundles?",
-    a: "Build Credit bundles are pre-purchased packs of video credits. Buy 6, 15, or 40 videos upfront and save compared to pay-per-video pricing. Bundles never expire and work alongside any subscription plan.",
+    q: "What are Build Credit Packs?",
+    a: "Build Credit Packs are pre-purchased packs of Build Credits. Buy 6, 15, or 40 credits upfront and save compared to pay-per-video pricing. Build Credit Packs never expire and work alongside any subscription plan.",
   },
   {
     q: "Do monthly Build Credits roll over?",
-    a: "Monthly Build Credits reset each billing cycle and do not roll over. If you need more flexibility, Build Credit bundles are a better option as they never expire.",
+    a: "Monthly Build Credits reset each billing cycle and do not roll over. If you need more flexibility, a Build Credit Pack is a better option as the credits never expire.",
   },
   {
     q: "What is character consistency?",
@@ -387,7 +387,7 @@ const FAQS = [
   },
   {
     q: "Does pricing cover all WIZ AI products?",
-    a: "Yes. Your monthly Build Credits and credit bundles work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each video or export uses credits regardless of the product used.",
+    a: "Yes. Your monthly Build Credits and Build Credit Packs work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each final video build uses credits regardless of the product used.",
   },
 ];
 
@@ -594,7 +594,7 @@ export default function Pricing() {
       </section>
 
       {/* ── 3. PER-RENDER PRICING ── */}
-      <section className="max-w-5xl mx-auto px-6 mb-24" id="render-pricing">
+      <section className="max-w-5xl mx-auto px-6 mb-24" id="pricing">
         <div className="text-center mb-12">
           <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Pay As You Go</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Pay-per-video pricing</h2>
@@ -824,7 +824,7 @@ export default function Pricing() {
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
                       <div className="text-2xl font-black text-white">{plan.rendersPerMonth}</div>
-                      <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">credits/mo</div>
+                      <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">Build Credits/mo</div>
                     </div>
                     <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
                       <div className="text-[11px] font-bold text-white leading-tight">{plan.outputQuality}</div>
@@ -917,12 +917,32 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* ── 6. RENDER BUNDLES ── */}
+      {/* ── 5b. HOW BUILD CREDITS WORK ── */}
+      <section className="max-w-3xl mx-auto px-6 mb-16">
+        <div className="rounded-2xl border border-[--color-gold]/[0.12] bg-gradient-to-br from-[--color-gold]/[0.04] to-transparent p-8">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(196,164,100,0.12)', border: '1px solid rgba(196,164,100,0.25)' }}>
+              <Zap className="w-5 h-5" style={{ color: 'var(--color-gold)' }} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white mb-4">How Build Credits work</h3>
+              <div className="space-y-3 text-sm text-white/50 leading-relaxed">
+                <p>A Build Credit is used when you create a final downloadable video.</p>
+                <p>You can create, preview and refine your project first. When you are ready to produce the final video, use your monthly Build Credits or buy an extra Build Credit Pack.</p>
+                <p>Failed builds do not use your credits. Build Credit Packs never expire and can be used alongside any active subscription.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. BUILD CREDIT PACKS ── */}
       <section className="max-w-5xl mx-auto px-6 mb-24" id="bundles">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Render Bundles</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Buy renders in bulk. Save more.</h2>
-          <p className="text-sm text-white/40 max-w-md mx-auto">Bundles never expire and work alongside any subscription plan. Top up whenever you need.</p>
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">BUILD CREDIT PACKS</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Need more final videos?</h2>
+          <p className="text-sm text-white/40 max-w-lg mx-auto">Buy extra Build Credits whenever you need them. Build Credit Packs work alongside any WIZ AI subscription and never expire. Use them when you want to build additional final videos beyond your monthly allowance.</p>
+          <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Build Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {BUNDLES.map((bundle) => (
@@ -952,13 +972,13 @@ export default function Pricing() {
               <div className="relative h-40 overflow-hidden">
                 <img src={bundle.bgImage} alt={bundle.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.05) 0%, rgba(4,4,4,0.55) 100%)' }} />
-                {/* Render count display */}
+                {/* Build Credit count display */}
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <div className="flex items-end gap-2">
                     <span className="text-5xl font-black text-white leading-none">{bundle.renders}</span>
                     <div className="mb-1">
-                      <span className="text-sm text-white/60 font-semibold block">renders</span>
-                      <span className="text-xs text-white/40">{bundle.perRender} each</span>
+                      <span className="text-sm text-white/60 font-semibold block">Build Credits</span>
+                      <span className="text-xs text-white/40">{bundle.perRender}</span>
                     </div>
                   </div>
                 </div>
@@ -990,7 +1010,7 @@ export default function Pricing() {
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-1.5">
-                      Buy {bundle.renders} renders — &pound;{bundle.price}
+                      Buy {bundle.renders} Build Credits — £{bundle.price}
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   )}
@@ -1045,7 +1065,7 @@ export default function Pricing() {
               avatar: AVATAR_PRIYA,
               name: "Priya S.",
               role: "Content Creator",
-              quote: "I use WizShorts every week for my Reels. The pay-per-render model means I only pay when I'm happy.",
+              quote: "I use WizShorts every week for my Reels. The pay-per-build model means I only pay when I'm happy.",
               plan: "Basic Plan",
               stars: 5,
             },
@@ -1216,7 +1236,7 @@ export default function Pricing() {
                 <span className="metallic-gold">No card required.</span>
               </h2>
               <p className="text-sm text-white/45 max-w-md leading-relaxed">
-                Build your first video completely free. Only pay when you're ready to render and download your masterpiece.
+                Build your first video completely free. Only pay when you're ready to produce and download your final video.
               </p>
               <div className="flex flex-wrap gap-3 mt-5 justify-center sm:justify-start">
                 {["No credit card to start", "Cancel anytime", "All 6 tools included"].map((item) => (
