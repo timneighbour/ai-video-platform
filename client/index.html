@@ -273,11 +273,12 @@
         }, 2000);
       });
     </script>
-    <!-- Performance: preconnect to critical origins -->
+    <!-- Performance: preconnect to the 3 most critical origins only (>4 is counterproductive) -->
     <link rel="preconnect" href="https://wiz-ai.b-cdn.net" crossorigin />
-    <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- dns-prefetch for secondary origins (cheaper than preconnect) -->
+    <link rel="dns-prefetch" href="https://d2xsxph8kpxj0f.cloudfront.net" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.clarity.ms" />
     <!-- LCP critical path: preload hero poster image (the actual LCP element) with high priority -->

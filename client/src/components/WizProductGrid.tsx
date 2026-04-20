@@ -15,20 +15,20 @@ import {
   WizScriptEmblem,
 } from "./WizProductEmblems";
 
-const CDN_LOGOS = "/manus-storage";
-const WIZAUDIO_LOGO = `${CDN_LOGOS}/wizaudio-logo-v1_1ca65a3b.png`;
-const WIZIMAGE_LOGO = `${CDN_LOGOS}/wizimage-logo-v1_89aa8458.png`;
-const WIZVIDEO_LOGO = `${CDN_LOGOS}/wizvideo-logo-v1_7b9a6a28.png`;
-const WIZSHORTS_LOGO = `${CDN_LOGOS}/wizshorts-logo-v1_20b45a3d.png`;
-const WIZANIMATE_LOGO_V3 = `${CDN_LOGOS}/wizanimate-logo-v3_c8d75b4e.png`;
-const WIZSCRIPT_LOGO = `${CDN_LOGOS}/wizscript-logo-v1_cb2f7610.png`;
+// Permanent WebP CDN URLs — no signed expiry, cacheable for 1 year by Bunny CDN
+const WIZAUDIO_LOGO = `/manus-storage/wizaudio-logo-v1_1a1caef4.webp`;
+const WIZIMAGE_LOGO = `/manus-storage/wizimage-logo-v1_21577b6d.webp`;
+const WIZVIDEO_LOGO = `/manus-storage/wizvideo-logo-v1_a28ad483.webp`;
+const WIZSHORTS_LOGO = `/manus-storage/wizshorts-logo-v1_fa835a18.webp`;
+const WIZANIMATE_LOGO_V3 = `/manus-storage/wizanimate-logo-v3_e21a763d.webp`;
+const WIZSCRIPT_LOGO = `/manus-storage/wizscript-logo-v1_de427063.webp`;
 
-const CARD_BG_AUDIO = `/manus-storage/card-wizaudio-v2_c9860bf6.webp`;
-const CARD_BG_IMAGE = `/manus-storage/create-card-image_bf605c7f.webp`;
-const CARD_BG_VIDEO = `/manus-storage/card-music-video-v2_5d082d39.webp`;
-const CARD_BG_SHORTS = `/manus-storage/card-youtube-creator-v2_55319d4e.webp`;
-const CARD_BG_ANIMATE = `/manus-storage/card-wizanimate-v2_81648dbe.webp`;
-const CARD_BG_SCRIPT = `/manus-storage/card-text-to-video-v2_083bed3d.webp`;
+const CARD_BG_AUDIO = `/manus-storage/card-wizaudio-v2_19498b78.webp`;
+const CARD_BG_IMAGE = `/manus-storage/create-card-image_3b89c617.webp`;
+const CARD_BG_VIDEO = `/manus-storage/card-music-video-v2_ecc2ca2a.webp`;
+const CARD_BG_SHORTS = `/manus-storage/card-youtube-creator-v2_d096d31d.webp`;
+const CARD_BG_ANIMATE = `/manus-storage/card-wizanimate-v2_639d350e.webp`;
+const CARD_BG_SCRIPT = `/manus-storage/card-text-to-video-v2_4ff464b4.webp`;
 
 type AccentKey = "emerald" | "amber" | "violet" | "cyan" | "rose" | "orange";
 

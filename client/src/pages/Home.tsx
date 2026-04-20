@@ -49,7 +49,7 @@ const ChevronDownSVG = ({ className = "w-4 h-4", open = false, style }: { classN
 
 // ── Assets ───────────────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
 const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp`;
