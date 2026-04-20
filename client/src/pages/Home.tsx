@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Helmet } from "react-helmet-async";
+import { useSEO } from "@/hooks/useSEO";
 import { triggerIntroReplay } from "@/lib/introReplay";
 import WizProductGrid from "@/components/WizProductGrid";
 import {
@@ -2586,14 +2586,12 @@ function ContinueProjectBanner() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function Home() {
+  useSEO({ title: "WIZ AI — AI Video, Audio & Image Creator", path: "/", description: "Create stunning AI videos, music videos, animations, and cinematic visuals in minutes. WIZ AI combines WizCreate, WizAnimate, WizSound, and WizLumina into one powerful creative platform." });
   useReveal();
   useEffect(() => { mp.homepageViewed(); }, []);
   return (
     <div className="bg-[#030303] text-white min-h-screen overflow-x-hidden">
-      <Helmet>
-        <title>WIZ AI — AI Video, Audio &amp; Image Creator</title>
-        <meta name="description" content="Create stunning AI videos, music videos, animations, and cinematic visuals in minutes. WIZ AI combines WizCreate, WizAnimate, WizSound, and WizLumina into one powerful creative platform." />
-      </Helmet>
+
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-lg focus:font-semibold"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
@@ -193,6 +194,7 @@ function EmptyState({ category }: { category: string }) {
 }
 
 export default function Discover() {
+  useSEO({ title: "Discover Creators — WIZ AI", path: "/discover", description: "Explore videos and creators on WIZ AI. See what musicians and artists are making with AI-generated music videos." });
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const { data: allCreators = [], isLoading } = trpc.creator.list.useQuery({

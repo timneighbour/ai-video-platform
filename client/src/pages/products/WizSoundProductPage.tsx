@@ -4,6 +4,7 @@
  * Features: premium photography, WizSoundDemoPlayer, back button, cinematic sections
  */
 import React, { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
@@ -144,6 +145,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function WizSoundProductPage() {
+  useSEO({ title: "WizSound™ — Cinematic AI Audio Engine | WIZ AI", path: "/products/wizsound", description: "WizSound™ is WIZ AI's proprietary cinematic audio mastering engine. Broadcast-quality spatial audio applied automatically to every AI-generated track." });
   return (
     <div className="bg-[#040404] text-white min-h-screen overflow-x-hidden">
 

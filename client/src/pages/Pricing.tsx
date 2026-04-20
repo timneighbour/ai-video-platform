@@ -16,6 +16,7 @@
  *  13. Footer
  */
 import { useState, useEffect, useRef } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -480,6 +481,7 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
+  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free, Starter, Pro, and Business plans available. Pay only when you render." });
   const { isAuthenticated } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingBundle, setLoadingBundle] = useState<string | null>(null);

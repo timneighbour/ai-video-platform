@@ -1,7 +1,9 @@
 import { Link } from "wouter";
+import { useSEO } from "@/hooks/useSEO";
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 export default function Terms() {
+  useSEO({ title: "Terms of Service — WIZ AI", path: "/terms", description: "Read the WIZ AI Terms of Service. Understand your rights, content ownership, subscription terms, and acceptable use policy." });
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
   CheckCircle2, Clock, Bell, Share2, ArrowRight, Play, Zap, ChevronRight } from "@/lib/icons";
 import { Link } from "wouter";
@@ -180,6 +181,7 @@ function StepCard({ step, index }: { step: typeof STEPS[0]; index: number }) {
 }
 
 export default function HowItWorks() {
+  useSEO({ title: "How It Works — WIZ AI", path: "/how-it-works", description: "See how WIZ AI turns your audio into a full cinematic music video in minutes. Upload, preview, render, download." });
   const [activeStage, setActiveStage] = useState<number | null>(null);
 
   return (

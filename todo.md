@@ -5362,3 +5362,21 @@
 - [x] Item 10: Pre-render confirmation screen — WizGenesisModal shows quality, audio, and total cost before render
 - [x] Item 11: Failsafe — SPEND_PROTECTION_ENABLED env flag, throws SPEND_PROTECTION_BLOCK on violations
 - [x] Item 12: Final verification — 519 vitest tests passing, spend-protection.test.ts covers all 12 items
+
+## SEO Canonical Fix (Google Search Console) — COMPLETED ✅
+- [x] Create useSEO hook (client/src/hooks/useSEO.ts) — injects per-page canonical, og:url, og:title, og:description, twitter tags
+- [x] Add useSEO to Home.tsx — canonical: https://wiz-ai.io/
+- [x] Add useSEO to Pricing.tsx — canonical: https://wiz-ai.io/pricing
+- [x] Add useSEO to Help.tsx — canonical: https://wiz-ai.io/help
+- [x] Add useSEO to HowItWorks.tsx — canonical: https://wiz-ai.io/how-it-works
+- [x] Add useSEO to Terms.tsx — canonical: https://wiz-ai.io/terms
+- [x] Add useSEO to Refunds.tsx — canonical: https://wiz-ai.io/refunds
+- [x] Add useSEO to Privacy.tsx — canonical: https://wiz-ai.io/privacy
+- [x] Add useSEO to Blog.tsx — canonical: https://wiz-ai.io/blog
+- [x] Add useSEO to MusicVideosLanding.tsx — canonical: https://wiz-ai.io/music-video
+- [x] Add useSEO to Discover.tsx — canonical: https://wiz-ai.io/discover
+- [x] Add useSEO to Showcase.tsx — canonical: https://wiz-ai.io/showcase
+- [x] Add useSEO to ProductPageTemplate.tsx — auto-derives canonical from ctaHref for all 6 product pages
+- [x] Add useSEO to WizSoundProductPage.tsx — canonical: https://wiz-ai.io/products/wizsound
+- [x] Add comment to index.html explaining default canonical is homepage-only
+- [x] Fixes: "Duplicate without user-selected canonical" and "Page with redirect" in Google Search Console

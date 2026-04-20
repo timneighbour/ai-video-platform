@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -18,6 +19,7 @@ const WIZBEAT_IMAGES = [
 ];
 
 export default function MusicVideosLanding() {
+  useSEO({ title: "AI Music Video Generator — WIZ AI", path: "/music-video", description: "Turn any song into a full cinematic music video with AI. Upload your track, preview every scene, and render in minutes. No editing skills needed." });
   const { isAuthenticated } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
 

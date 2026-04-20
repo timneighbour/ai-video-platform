@@ -1,7 +1,9 @@
 import { Link } from "wouter";
+import { useSEO } from "@/hooks/useSEO";
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 export default function Privacy() {
+  useSEO({ title: "Privacy Policy — WIZ AI", path: "/privacy", description: "WIZ AI's privacy policy. How we collect, use, and protect your personal data when you use our AI creative platform." });
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">

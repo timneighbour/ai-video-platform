@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
@@ -296,6 +297,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function Help() {
+  useSEO({ title: "Help & FAQ — WIZ AI", path: "/help", description: "Get answers to common questions about WIZ AI. Learn how to create videos, manage credits, troubleshoot renders, and more." });
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 

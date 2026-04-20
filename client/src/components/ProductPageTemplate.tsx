@@ -4,6 +4,7 @@
  * Luxury gold/silver/charcoal system — consistent with homepage
  */
 import React, { ReactNode } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
@@ -81,6 +82,14 @@ export default function ProductPageTemplate(props: ProductPageProps) {
     ctaHref, ctaLabel, whatItDoes, capabilities, howItWorks, benefits,
     keyFeatures, exampleOutput, heroImage, related,
   } = props;
+
+  // Derive canonical path from ctaHref or name
+  const seoPath = ctaHref.startsWith("/") ? ctaHref.replace(/\/create$/, "") : `/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "")}`;
+  useSEO({
+    title: `${name} — ${tagline} | WIZ AI`,
+    path: seoPath,
+    description: subheadline,
+  });
 
   return (
     <div className="bg-[#040404] text-white min-h-screen overflow-x-hidden">

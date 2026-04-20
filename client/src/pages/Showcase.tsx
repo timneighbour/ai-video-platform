@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { trpc } from "@/lib/trpc";
 import { Play, Pause, ArrowLeft, Sparkles } from "@/lib/icons";
 import { Link } from "wouter";
@@ -105,6 +106,7 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
 }
 
 export default function ShowcasePage() {
+  useSEO({ title: "Showcase — WIZ AI", path: "/showcase", description: "Watch AI-generated music videos created with WIZ AI. See cinematic, animated, and live-action styles made by real artists." });
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const items: ShowcaseItem[] = (dbItems && dbItems.length > 0) ? dbItems : FALLBACK_ITEMS;
 

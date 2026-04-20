@@ -1,10 +1,11 @@
+import { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, ArrowRight, Sparkles, Rss } from "@/lib/icons";
-import { Helmet } from "react-helmet-async";
 
 function formatDate(d: Date | string | null) {
   if (!d) return "";
@@ -22,17 +23,11 @@ function parseTags(raw: string | null): string[] {
 }
 
 export default function Blog() {
+  useSEO({ title: "Blog — WIZ AI | AI Creative Tips & Tutorials", path: "/blog", description: "Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WIZ AI team." });
   const { data: posts, isLoading } = trpc.blog.list.useQuery();
 
   return (
     <>
-      <Helmet>
-        <title>Blog — WIZ AI | AI Creative Tips & Tutorials</title>
-        <meta name="description" content="Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WIZ AI team." />
-        <meta property="og:title" content="WIZ AI Blog — AI Creative Tips & Tutorials" />
-        <meta property="og:description" content="Tips, tutorials, and insights on AI video creation." />
-        <link rel="canonical" href="https://wiz-ai.io/blog" />
-      </Helmet>
 
       {/* ── Header ── */}
       <div className="min-h-screen bg-black text-white">
