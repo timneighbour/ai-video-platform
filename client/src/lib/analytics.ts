@@ -41,6 +41,34 @@ export function gtagConversion(
   window.gtag("event", "conversion", params);
 }
 
+/**
+ * Google Ads delayed navigation helper.
+ *
+ * Use this when navigating to an external URL (e.g. Stripe checkout) so the
+ * conversion event has time to fire before the browser leaves the page.
+ * Waits up to 2 seconds for the gtag callback, then navigates regardless.
+ *
+ * Usage:
+ *   gtagSendEvent(checkoutUrl); // fires conversion then navigates
+ *
+ * @param url  The URL to navigate to after the conversion fires.
+ */
+export function gtagSendEvent(url: string): false {
+  if (typeof window === "undefined" || !window.gtag) {
+    window.location.href = url;
+    return false;
+  }
+  const callback = () => {
+    window.location.href = url;
+  };
+  window.gtag("event", "ads_conversion_SUBSCRIBE_PAID_1", {
+    event_callback: callback,
+    event_timeout: 2000,
+    send_to: `${GADS_ID}/ads_conversion_SUBSCRIBE_PAID_1`,
+  });
+  return false;
+}
+
 const GA4_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID as string | undefined;
 
 /** Initialise GA4 — called once on app load */

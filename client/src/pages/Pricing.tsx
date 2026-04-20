@@ -18,6 +18,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
+import { gtagSendEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -456,7 +457,8 @@ export default function Pricing() {
     setLoadingPlan(planId);
     try {
       const result = await createSubscriptionCheckout.mutateAsync({ plan: planId, origin: window.location.origin });
-      if (result.checkoutUrl) window.location.href = result.checkoutUrl;
+      // gtagSendEvent fires the conversion then navigates — waits up to 2s for the tag
+      if (result.checkoutUrl) gtagSendEvent(result.checkoutUrl);
     } catch (err) {
       toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
     } finally { setLoadingPlan(null); }
@@ -468,7 +470,7 @@ export default function Pricing() {
     setLoadingBundle(bundleId);
     try {
       const result = await createBundleCheckout.mutateAsync({ bundle: bundleId, origin: window.location.origin });
-      if (result.checkoutUrl) window.location.href = result.checkoutUrl;
+      if (result.checkoutUrl) gtagSendEvent(result.checkoutUrl);
     } catch (err) {
       toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
     } finally { setLoadingBundle(null); }
