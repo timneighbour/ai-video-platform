@@ -182,8 +182,12 @@ describe("estimateVideoCostGBP", () => {
     expect(worstCaseGBP).toBeCloseTo(8 * RENDERER_COSTS.kling_standard, 4);
   });
 
-  it("Seedance is always cheaper than Kling per scene", () => {
-    expect(RENDERER_COSTS.seedance).toBeLessThan(RENDERER_COSTS.kling_standard);
+  it("Atlas Cloud Fast is cheaper than fal.ai (the secondary fallback)", () => {
+    // Atlas Cloud Fast is the primary renderer — fal.ai is the secondary fallback
+    // Note: Kling standard (£0.53) is actually cheaper per scene due to its pricing model,
+    // but it is used only for premium/hero scenes, not as a general cheap renderer.
+    expect(RENDERER_COSTS.atlas_cloud_fast).toBeLessThan(RENDERER_COSTS.fal_seedance);
+    expect(RENDERER_COSTS.atlas_cloud_fast).toBeLessThan(RENDERER_COSTS.fal_seedance_fast);
   });
 });
 
@@ -205,30 +209,38 @@ describe("isWithinMonthlyLimit", () => {
 describe("isWithinLengthLimit", () => {
   it("allows audio within plan length", () => {
     expect(isWithinLengthLimit(60, "starter")).toBe(true);      // starter: max 60s
-    expect(isWithinLengthLimit(120, "creator")).toBe(true);    // creator: max 120s
-    expect(isWithinLengthLimit(180, "studio")).toBe(true);      // studio: max 180s
+    expect(isWithinLengthLimit(90, "creator")).toBe(true);     // creator: max 90s
+    expect(isWithinLengthLimit(120, "studio")).toBe(true);     // studio: max 120s
   });
 
   it("blocks audio exceeding plan length", () => {
     expect(isWithinLengthLimit(61, "starter")).toBe(false);
-    expect(isWithinLengthLimit(121, "creator")).toBe(false);
-    expect(isWithinLengthLimit(181, "studio")).toBe(false);
+    expect(isWithinLengthLimit(91, "creator")).toBe(false);
+    expect(isWithinLengthLimit(121, "studio")).toBe(false);
   });
 });
 
 // ─── Renderer Cost Constants Sanity Check ────────────────────────────────────
 
 describe("RENDERER_COSTS sanity", () => {
-  it("Seedance is cheaper than Kling standard", () => {
-    expect(RENDERER_COSTS.seedance).toBeLessThan(RENDERER_COSTS.kling_standard);
+  it("Atlas Cloud Fast is cheaper than fal.ai and standard Atlas Cloud", () => {
+    expect(RENDERER_COSTS.atlas_cloud_fast).toBeLessThan(RENDERER_COSTS.atlas_cloud);
+    expect(RENDERER_COSTS.atlas_cloud_fast).toBeLessThan(RENDERER_COSTS.fal_seedance);
+    expect(RENDERER_COSTS.atlas_cloud_fast).toBeLessThan(RENDERER_COSTS.fal_seedance_fast);
   });
 
   it("Kling standard is cheaper than Kling pro", () => {
     expect(RENDERER_COSTS.kling_standard).toBeLessThan(RENDERER_COSTS.kling_pro);
   });
 
-  it("Runway is between Seedance and Kling", () => {
-    expect(RENDERER_COSTS.runway).toBeGreaterThan(RENDERER_COSTS.seedance);
-    expect(RENDERER_COSTS.runway).toBeLessThan(RENDERER_COSTS.kling_pro);
+  it("fal.ai Seedance is more expensive than Kling standard (secondary provider)", () => {
+    // fal.ai is the secondary fallback provider — it is more expensive than Atlas Cloud
+    // and also more expensive than Kling standard due to per-second billing
+    expect(RENDERER_COSTS.fal_seedance).toBeGreaterThan(RENDERER_COSTS.kling_standard);
+  });
+
+  it("Runway is cheaper than fal.ai standard", () => {
+    // Runway is a premium renderer but cheaper per scene than fal.ai standard
+    expect(RENDERER_COSTS.runway).toBeLessThan(RENDERER_COSTS.fal_seedance);
   });
 });

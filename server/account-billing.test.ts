@@ -83,7 +83,7 @@ describe("billing.getAccountSubscription", () => {
       const planKey = (sub as any).plan as keyof typeof SUBSCRIPTION_PLANS;
       const planInfo = SUBSCRIPTION_PLANS[planKey];
       expect(planInfo.name).toBe("Basic");
-      expect(planInfo.pricePerMonth).toBe(19);
+      expect(planInfo.pricePerMonth).toBe(29); // Basic is a legacy alias for Starter (£29/mo)
     }
   });
 

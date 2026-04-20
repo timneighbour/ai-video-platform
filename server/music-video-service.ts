@@ -586,29 +586,30 @@ export async function startSceneRender(
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   // ── PROVIDER FALLBACK CHAIN (cheapest first) ────────────────────────────────
-  // Order: fal.ai (~$0.05/scene) → Atlas Cloud → Hypereal → WaveSpeed (most expensive, last resort)
-  // This applies to all standard renderers: wavespeed, fal_seedance, seedance
-  if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance") {
-    // 1. Try fal.ai Seedance first (cheapest)
-    try {
-      return await startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio, jobId);
-    } catch (falErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} fal.ai failed, trying Atlas Cloud:`, (falErr as Error).message?.slice(0, 100));
-    }
-    // 2. Try Atlas Cloud
+  // Order: Atlas Cloud Fast (~$0.101/sec) → fal.ai Fast (~$0.242/sec) → Hypereal → STOP
+  // WaveSpeed is DISABLED — too expensive and unreliable (Apr 2026).
+  // This applies to all standard renderers: wavespeed, fal_seedance, seedance, atlas_cloud
+  if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
+    // 1. Atlas Cloud Fast — PRIMARY (cheapest confirmed: ~$0.101/sec)
     try {
       return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration, jobId);
     } catch (atlasErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, trying Hypereal:`, (atlasErr as Error).message?.slice(0, 100));
+      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed, trying fal.ai:`, (atlasErr as Error).message?.slice(0, 100));
     }
-    // 3. Try Hypereal
+    // 2. fal.ai Seedance — SECONDARY (~$0.242/sec, 2.4× more expensive)
+    try {
+      return await startSceneRenderFalSeedance(sceneId, finalPrompt, duration, aspectRatio, jobId);
+    } catch (falErr) {
+      console.warn(`[MusicVideo] Scene ${sceneId} fal.ai failed, trying Hypereal:`, (falErr as Error).message?.slice(0, 100));
+    }
+    // 3. Hypereal — TERTIARY (estimated ~$0.10/sec)
     try {
       return await startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio, jobId);
     } catch (hyperealErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed, trying WaveSpeed (last resort):`, (hyperealErr as Error).message?.slice(0, 100));
+      console.warn(`[MusicVideo] Scene ${sceneId} Hypereal failed. WaveSpeed is DISABLED. All providers exhausted.`, (hyperealErr as Error).message?.slice(0, 100));
     }
-    // 4. WaveSpeed — last resort (most expensive)
-    return startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined, aspectRatio, jobId);
+    // WaveSpeed DISABLED — do not fall through to it
+    throw new Error(`All video providers failed for scene ${sceneId}. Please try again later.`);
   }
 
   // Grok Imagine — premium renderer with image-to-video support (storyboard lock)

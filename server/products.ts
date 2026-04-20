@@ -1,24 +1,56 @@
 /**
  * Stripe Products & Pricing Configuration
- * WIZ AI GBP pricing: Starter £9/mo | Basic £19/mo | Creator £35/mo (Most Popular) | Pro £59/mo | Studio £99/mo
- * Annual: 2 months free (£90/£190/£350/£590/£990). *
- * Profitability Control System integrated — see PLAN_COST_TARGETS and RENDERER_COSTS.
+ * WIZ AI GBP pricing (Apr 2026 — profitable rates):
+ *   Free Trial: 30 credits, 1 video, 8 scenes, 30s, watermarked
+ *   Starter:  £29/mo  — 2 videos, 8 scenes/video,  max 60s
+ *   Creator:  £79/mo  — 6 videos, 11 scenes/video, max 90s  (Most Popular)
+ *   Pro:      £149/mo — 12 videos, 12 scenes/video, max 120s
+ *
+ * Provider cost basis (Atlas Cloud Fast, Seedance 2.0, 720p):
+ *   ~$0.101/sec × 8s/scene = ~$0.81/scene = ~£0.63/scene
+ *
+ * Profitability at these rates:
+ *   Starter:  16 scenes × £0.63 = £10 cost → £19 profit (66% margin)
+ *   Creator:  66 scenes × £0.63 = £41 cost → £38 profit (48% margin)
+ *   Pro:     144 scenes × £0.63 = £91 cost → £58 profit (39% margin)
  */
 
-/** Free trial credits granted to every new user on first sign-up (2 free renders × 30 credits each) */
-export const FREE_TRIAL_CREDITS = 60;
+/** Free trial credits granted to every new user on first sign-up (1 free render, 8 scenes, 30s, watermarked) */
+export const FREE_TRIAL_CREDITS = 30;
+
+/**
+ * Scene limits per plan — enforced at render time.
+ * 1 scene ≈ 8 seconds of video at 720p via Atlas Cloud Seedance 2.0.
+ * A 3-minute music video = ~22 scenes; a 1-minute video = ~8 scenes.
+ */
+export const PLAN_SCENE_LIMITS: Record<string, number> = {
+  free:    8,   // 1 video × 8 scenes = ~64s of video
+  starter: 8,   // 2 videos × 8 scenes = ~64s each
+  creator: 11,  // 6 videos × 11 scenes = ~88s each
+  pro:     12,  // 12 videos × 12 scenes = ~96s each
+};
 
 /**
  * Credit costs for video generation (user-facing, not API cost).
  * These are the credits deducted from the user's balance.
  * Language rule: always say "credits", never "tokens", "cost", or "API".
+ *
+ * Credit allocation basis:
+ *   Free (30 credits) = 1 video × 8 scenes × ~3.75 credits/scene
+ *   Starter (240 credits) = 2 videos × 8 scenes × 15 credits/scene
+ *   Creator (990 credits) = 6 videos × 11 scenes × 15 credits/scene
+ *   Pro (2160 credits) = 12 videos × 12 scenes × 15 credits/scene
+ *
+ * 15 credits/scene is the standard rate. Each scene ≈ 8s video.
  */
+export const CREDITS_PER_SCENE = 15;
+
 export const VIDEO_CREDIT_COSTS = {
   /** Standard video credits by audio duration bucket */
   byDuration: {
-    short:  { maxSeconds: 60,  credits: 30  }, // up to 60s
-    medium: { maxSeconds: 120, credits: 60  }, // up to 120s
-    long:   { maxSeconds: 180, credits: 90  }, // up to 180s
+    short:  { maxSeconds: 60,  credits: 30  }, // up to 60s  (~4 scenes)
+    medium: { maxSeconds: 120, credits: 60  }, // up to 120s (~8 scenes)
+    long:   { maxSeconds: 180, credits: 90  }, // up to 180s (~12 scenes)
   },
   /** Additional credits per premium (cinematic) scene */
   perCinematicScene: 20,
@@ -53,30 +85,46 @@ export const LOW_CREDIT_THRESHOLD = 20;
 /**
  * Profitability Control System — Cost Targets (GBP)
  * Direct render cost targets per completed video.
- * If estimated cost exceeds the hard stop, generation is blocked and scenes are downgraded.
+ * Based on Atlas Cloud Fast tier: ~$0.101/sec × 8s/scene = ~$0.81/scene = ~£0.63/scene
+ * If estimated cost exceeds the hard stop, generation is blocked.
  */
 export const PLAN_COST_TARGETS = {
-  free:    { targetGBP: 0.50, hardStopGBP: 0.75 },
-  starter: { targetGBP: 0.60, hardStopGBP: 1.00 },
-  basic:   { targetGBP: 0.75, hardStopGBP: 1.25 },
-  creator: { targetGBP: 1.50, hardStopGBP: 2.50 },
-  pro:     { targetGBP: 2.50, hardStopGBP: 4.00 },
-  studio:  { targetGBP: 4.50, hardStopGBP: 7.00 },
+  free:    { targetGBP: 5.12,  hardStopGBP: 6.50  }, // 8 scenes × £0.64 = £5.12 (Atlas Cloud Fast)
+  starter: { targetGBP: 5.12,  hardStopGBP: 6.50  }, // 8 scenes × £0.64 = £5.12 (Atlas Cloud Fast)
+  creator: { targetGBP: 7.04,  hardStopGBP: 9.00  }, // 11 scenes × £0.64 = £7.04 (Atlas Cloud Fast)
+  pro:     { targetGBP: 7.68,  hardStopGBP: 9.50  }, // 12 scenes × £0.64 = £7.68 (Atlas Cloud Fast)
+
+  basic:   { targetGBP: 5.12,  hardStopGBP: 6.50  },
+  studio:  { targetGBP: 7.68,  hardStopGBP: 9.50  },
 } as const;
 
 /**
- * Renderer cost estimates (GBP per 5-second scene)
- * Based on actual API pricing (Apr 2026, £1 = $1.27)
+ * Renderer cost estimates (GBP per 8-second scene at 720p)
+ * Based on actual confirmed API pricing (Apr 2026, £1 = $1.27)
  * IMPORTANT: Keep these accurate — the profitability hard-stop system depends on them.
+ *
+ * Provider hierarchy (primary → fallback):
+ *   1. Atlas Cloud Fast  — cheapest confirmed ($0.101/sec = £0.64/8s scene) ← PRIMARY
+ *   2. fal.ai Fast       — 2.4× more expensive ($0.2419/sec = £1.52/8s scene) ← SECONDARY
+ *   3. Hypereal          — estimated ($0.08–0.12/sec = £0.50–0.76/8s scene) ← TERTIARY
+ *   4. WaveSpeed         — DISABLED (too expensive, unreliable)
  */
 export const RENDERER_COSTS = {
-  /** Seedance 2.0 via fal.ai — primary cheap renderer (~$0.05/scene = £0.04) */
-  fal_seedance: 0.04,
-  /** Seedance 2.0 via Atlas Cloud / Hypereal — secondary fallback (~$0.15/scene = £0.12) */
-  seedance: 0.12,
-  /** Seedance 2.0 via WaveSpeed — EXPENSIVE last-resort (~$3.50/scene = £2.76) */
-  wavespeed_seedance: 2.76,
-  /** Kling AI v3 Standard (720p) via official API — premium renderer (~$0.67/scene = £0.53) */
+  /** Atlas Cloud Fast — Seedance 2.0 Fast, 720p (~$0.101/sec × 8s = $0.81 = £0.64) ← PRIMARY */
+  atlas_cloud_fast: 0.64,
+  /** Atlas Cloud Standard — Seedance 2.0, 720p (~$0.127/sec × 8s = $1.02 = £0.80) */
+  atlas_cloud: 0.80,
+  /** fal.ai Fast — Seedance 2.0 Fast, 720p (~$0.2419/sec × 8s = $1.94 = £1.53) ← SECONDARY */
+  fal_seedance_fast: 1.53,
+  /** fal.ai Standard — Seedance 2.0, 720p (~$0.3034/sec × 8s = $2.43 = £1.91) */
+  fal_seedance: 1.91,
+  /** Hypereal — estimated (~$0.10/sec × 8s = $0.80 = £0.63) ← TERTIARY */
+  hypereal: 0.63,
+  /** WaveSpeed Seedance 2.0 — DISABLED. Too expensive ($0.15–0.24/sec) and unreliable. */
+  wavespeed_seedance: 1.51,
+  // Legacy key — maps to Atlas Cloud Fast (primary provider, cheapest)
+  seedance: 0.64,
+  /** Kling AI v3 Standard (720p) — premium renderer (~$0.67/scene = £0.53) */
   kling_standard: 0.53,
   /** Kling AI v3 Pro (1080p) — high-quality premium renderer (~$0.90/scene = £0.71) */
   kling_pro: 0.71,
@@ -100,86 +148,71 @@ export const SUBSCRIPTION_PLANS = {
     name: "Free Trial",
     pricePerMonth: 0,
     pricePerYear: 0,
-    credits: 60,
-    videosPerMonth: 2,
-    maxVideosPerMonth: 2,
+    credits: FREE_TRIAL_CREDITS,
+    videosPerMonth: 1,
+    maxVideosPerMonth: 1,
     maxVideoSeconds: 30,
-    maxPremiumScenesPerVideo: 0, // Standard renderer only
+    maxScenesPerVideo: 8,
+    maxPremiumScenesPerVideo: 0,
     has4K: false,
     hasApiAccess: false,
     popular: false,
     features: [
-      "2 free videos (watermarked)",
-      "All AI tools",
-      "Standard quality",
+      "1 free video (watermarked)",
+      "Up to 8 scenes (~64s of video)",
+      "1 scene ≈ 8 seconds of video",
+      "All AI video styles",
       "WizVideo music video maker",
-      "WizScript AI video creator",
     ],
     stripePriceId: null,
     stripeAnnualPriceId: null,
   },
   starter: {
     name: "Starter",
-    pricePerMonth: 9,
-    pricePerYear: 90, // £9 × 10 = £90 (2 months free)
-    credits: 60,
+    pricePerMonth: 29,
+    pricePerYear: 290, // £29 × 10 = £290 (2 months free)
+    credits: 240,      // 2 videos × 8 scenes × 15 credits/scene
     videosPerMonth: 2,
     maxVideosPerMonth: 2,
     maxVideoSeconds: 60,
+    maxScenesPerVideo: 8,
     maxPremiumScenesPerVideo: 0,
     has4K: false,
     hasApiAccess: false,
     popular: false,
     features: [
-      "2 renders per month",
+      "2 videos per month",
+      "Up to 8 scenes per video (~64s)",
+      "1 scene ≈ 8 seconds of video",
       "Standard quality (720p)",
       "All AI video styles",
       "Free storyboard generation",
+      "No watermark",
       "Email support",
       "Cancel anytime",
     ],
     stripePriceId: process.env.STRIPE_STARTER_PRICE_ID || "price_starter_placeholder",
     stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || "",
   },
-  basic: {
-    name: "Basic",
-    pricePerMonth: 19,
-    pricePerYear: 190, // £19 × 10 = £190 (2 months free)
-    credits: 150,
-    videosPerMonth: 5,
-    maxVideosPerMonth: 5,
-    maxVideoSeconds: 90,
-    maxPremiumScenesPerVideo: 0,
-    has4K: false,
-    hasApiAccess: false,
-    popular: false,
-    features: [
-      "5 renders per month",
-      "HD quality (1080p)",
-      "All AI video styles",
-      "Standard rendering speed",
-      "Email support",
-      "Cancel anytime",
-    ],
-    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID || "price_basic_placeholder",
-    stripeAnnualPriceId: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID || "",
-  },
   creator: {
     name: "Creator",
-    pricePerMonth: 35,
-    pricePerYear: 350, // £35 × 10 = £350 (2 months free)
-    credits: 180,
+    pricePerMonth: 79,
+    pricePerYear: 790, // £79 × 10 = £790 (2 months free)
+    credits: 990,      // 6 videos × 11 scenes × 15 credits/scene
     videosPerMonth: 6,
     maxVideosPerMonth: 6,
-    maxVideoSeconds: 120,
+    maxVideoSeconds: 90,
+    maxScenesPerVideo: 11,
     maxPremiumScenesPerVideo: 2,
     has4K: true,
     hasApiAccess: false,
     popular: true,
     wizSoundDiscount: 0.20,
     features: [
-      "6 renders per month",
-      "HD + 4K access",
+      "6 videos per month",
+      "Up to 11 scenes per video (~88s)",
+      "1 scene ≈ 8 seconds of video",
+      "HD quality (720p + 4K upgrade)",
       "Faster rendering",
       "20% WizSound\u2122 discount",
       "No watermark",
@@ -192,19 +225,22 @@ export const SUBSCRIPTION_PLANS = {
   },
   pro: {
     name: "Pro",
-    pricePerMonth: 59,
-    pricePerYear: 590, // £59 × 10 = £590 (2 months free)
-    credits: 360,
+    pricePerMonth: 149,
+    pricePerYear: 1490, // £149 × 10 = £1,490 (2 months free)
+    credits: 2160,      // 12 videos × 12 scenes × 15 credits/scene
     videosPerMonth: 12,
     maxVideosPerMonth: 12,
-    maxVideoSeconds: 150,
+    maxVideoSeconds: 120,
+    maxScenesPerVideo: 12,
     maxPremiumScenesPerVideo: 5,
     has4K: true,
     hasApiAccess: false,
     popular: false,
     wizSoundDiscount: 0.40,
     features: [
-      "12 renders per month",
+      "12 videos per month",
+      "Up to 12 scenes per video (~96s)",
+      "1 scene ≈ 8 seconds of video",
       "4K quality included",
       "Priority rendering",
       "40% WizSound\u2122 discount",
@@ -216,24 +252,51 @@ export const SUBSCRIPTION_PLANS = {
     stripePriceId: process.env.STRIPE_PRO_PLUS_PRICE_ID || "price_pro_placeholder",
     stripeAnnualPriceId: process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID || "",
   },
+  // Legacy plan aliases — kept for backward compat with existing subscribers
+  basic: {
+    name: "Basic",
+    pricePerMonth: 29,
+    pricePerYear: 290,
+    credits: 240,
+    videosPerMonth: 2,
+    maxVideosPerMonth: 2,
+    maxVideoSeconds: 60,
+    maxScenesPerVideo: 8,
+    maxPremiumScenesPerVideo: 0,
+    has4K: false,
+    hasApiAccess: false,
+    popular: false,
+    features: [
+      "2 videos per month",
+      "Up to 8 scenes per video (~64s)",
+      "Standard quality (720p)",
+      "No watermark",
+      "Email support",
+      "Cancel anytime",
+    ],
+    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID || "price_basic_placeholder",
+    stripeAnnualPriceId: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID || "",
+  },
   studio: {
     name: "Studio",
-    pricePerMonth: 99,
-    pricePerYear: 990, // £99 × 10 = £990 (2 months free)
-    credits: 600,
-    videosPerMonth: 20,
-    maxVideosPerMonth: 20,
-    maxVideoSeconds: 180,
-    maxPremiumScenesPerVideo: 10,
+    pricePerMonth: 149,
+    pricePerYear: 1490,
+    credits: 2160,
+    videosPerMonth: 12,
+    maxVideosPerMonth: 12,
+    maxVideoSeconds: 120,
+    maxScenesPerVideo: 12,
+    maxPremiumScenesPerVideo: 5,
     has4K: true,
     hasApiAccess: true,
     popular: false,
-    wizSoundDiscount: 0.60,
+    wizSoundDiscount: 0.40,
     features: [
-      "20 renders per month",
+      "12 videos per month",
+      "Up to 12 scenes per video (~96s)",
       "4K quality included",
-      "Fastest rendering",
-      "60% WizSound\u2122 discount",
+      "Priority rendering",
+      "40% WizSound\u2122 discount",
       "No watermark",
       "Full cinematic control",
       "API access for automation",
@@ -245,31 +308,39 @@ export const SUBSCRIPTION_PLANS = {
   },
 } as const;
 
+/**
+ * Credit top-up packs — for when subscribers run out of their monthly allocation.
+ * Priced at a premium over the subscription rate (convenience pricing).
+ * Provider cost basis: ~£0.64/scene × 15 credits/scene = ~£0.043/credit
+ */
 export const CREDIT_PACKS = {
   starter: {
     name: "Starter Pack",
-    description: "~10 standard videos",
-    tagline: "Ideal for short creations",
-    price: 9,
-    credits: 300,   // 300 credits ≈ 10 × 30-credit videos
+    description: "3 extra videos (8 scenes each)",
+    tagline: "Top up when you need a bit more",
+    price: 19,
+    credits: 360,   // 3 videos × 8 scenes × 15 credits = 360 credits
+    videos: 3,
     popular: false,
     stripePriceId: process.env.STRIPE_SMALL_PACK_PRICE_ID || "price_small_pack_placeholder",
   },
   creator: {
     name: "Creator Pack",
-    description: "~20 standard videos",
-    tagline: "Best value for regular creators",
-    price: 24,
-    credits: 600,   // 600 credits ≈ 20 × 30-credit videos
+    description: "8 extra videos (11 scenes each)",
+    tagline: "Best value top-up for regular creators",
+    price: 39,
+    credits: 1320,  // 8 videos × 11 scenes × 15 credits = 1,320 credits
+    videos: 8,
     popular: true,
     stripePriceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID || "price_medium_pack_placeholder",
   },
   pro: {
     name: "Pro Pack",
-    description: "~80 standard videos",
-    tagline: "Built for high-volume creation",
-    price: 59,
-    credits: 2400,  // 2400 credits ≈ 80 × 30-credit videos
+    description: "20 extra videos (12 scenes each)",
+    tagline: "High-volume creation at scale",
+    price: 79,
+    credits: 3600,  // 20 videos × 12 scenes × 15 credits = 3,600 credits
+    videos: 20,
     popular: false,
     stripePriceId: process.env.STRIPE_LARGE_PACK_PRICE_ID || "price_large_pack_placeholder",
   },
@@ -277,15 +348,14 @@ export const CREDIT_PACKS = {
 
 /**
  * Cinematic upgrade packs — premium scene credits.
- * Each cinematic scene costs 20 credits.
- * These packs let users top up cinematic scene credits specifically.
+ * Each cinematic scene costs 20 credits (5 extra on top of standard 15).
  */
 export const CINEMATIC_PACKS = {
   ten: {
     name: "10 Cinematic Scenes",
     description: "Apply premium rendering to 10 key scenes",
     price: 15,
-    credits: 200,   // 10 × 20 credits per cinematic scene
+    credits: 200,
     scenes: 10,
     stripePriceId: process.env.STRIPE_CINEMATIC_10_PRICE_ID || "price_cinematic_10_placeholder",
   },
@@ -293,7 +363,7 @@ export const CINEMATIC_PACKS = {
     name: "25 Cinematic Scenes",
     description: "Apply premium rendering to 25 key scenes",
     price: 32,
-    credits: 500,   // 25 × 20 credits
+    credits: 500,
     scenes: 25,
     stripePriceId: process.env.STRIPE_CINEMATIC_25_PRICE_ID || "price_cinematic_25_placeholder",
   },
@@ -301,7 +371,7 @@ export const CINEMATIC_PACKS = {
     name: "50 Cinematic Scenes",
     description: "Apply premium rendering to 50 key scenes",
     price: 58,
-    credits: 1000,  // 50 × 20 credits
+    credits: 1000,
     scenes: 50,
     stripePriceId: process.env.STRIPE_CINEMATIC_50_PRICE_ID || "price_cinematic_50_placeholder",
   },
@@ -310,11 +380,13 @@ export const CINEMATIC_PACKS = {
 export type CinematicPack = keyof typeof CINEMATIC_PACKS;
 
 export type SubscriptionPlan = keyof typeof SUBSCRIPTION_PLANS;
+
 // Legacy aliases for backward compat
 export const PLAN_ALIAS: Record<string, SubscriptionPlan> = {
   creator_plus: "studio",
   business: "studio",
 };
+
 export type CreditPack = keyof typeof CREDIT_PACKS;
 
 export function getSubscriptionPlan(plan: SubscriptionPlan) {
@@ -348,8 +420,7 @@ export function planHasApiAccess(plan: SubscriptionPlan): boolean {
 }
 
 export function planIsUnlimited(_plan: SubscriptionPlan): boolean {
-  // All plans now have explicit monthly video caps — none are truly unlimited.
-  // This function is kept for backward compatibility but always returns false.
+  // All plans have explicit monthly video caps — none are truly unlimited.
   return false;
 }
 
@@ -365,6 +436,18 @@ export function getPlanMaxPremiumScenes(plan: SubscriptionPlan): number {
   return SUBSCRIPTION_PLANS[plan].maxPremiumScenesPerVideo;
 }
 
+export function getPlanMaxScenesPerVideo(plan: SubscriptionPlan): number {
+  return SUBSCRIPTION_PLANS[plan].maxScenesPerVideo;
+}
+
 export function getPlanCostTargets(plan: SubscriptionPlan) {
   return PLAN_COST_TARGETS[plan];
+}
+
+/**
+ * Calculate the estimated credit cost for a render job.
+ * Used by the hard credit gate before any provider is called.
+ */
+export function estimateRenderCreditCost(sceneCount: number): number {
+  return sceneCount * CREDITS_PER_SCENE;
 }

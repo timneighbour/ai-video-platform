@@ -175,16 +175,18 @@ function PricingNav({ isAuthenticated }: { isAuthenticated: boolean }) {
 
 // ── Plan definitions ──────────────────────────────────────────────────────────
 const PLANS = [
+  // 1 scene ≈ 8 seconds of video (Atlas Cloud Seedance 2.0 Fast, 720p)
   {
     id: "starter" as const,
     name: "Starter",
-    monthlyPrice: 9,
-    annualPrice: 79,
+    monthlyPrice: 29,
+    annualPrice: 290,
     bestFor: "First-time creators",
-    tagline: "Try WIZ AI with no commitment.",
+    tagline: "Start creating music videos today.",
     rendersPerMonth: 2,
+    scenesPerVideo: 8,
     outputQuality: "720p",
-    watermark: true,
+    watermark: false,
     priorityRendering: false,
     characterConsistency: false,
     apiAccess: false,
@@ -195,54 +197,25 @@ const PLANS = [
     glowColor: "rgba(100,140,200,0.12)",
     borderColor: "rgba(100,140,200,0.2)",
     features: [
-      { text: "2 renders/month", included: true },
-      { text: "All 6 WIZ AI products", included: true },
+      { text: "2 videos per month", included: true },
+      { text: "Up to 8 scenes per video (≈64s)", included: true },
+      { text: "1 scene ≈ 8 seconds of video", included: true },
       { text: "Standard 720p quality", included: true },
+      { text: "No watermark", included: true },
       { text: "WizSound audio mastering", included: true },
-      { text: "No watermark", included: false },
       { text: "HD & 4K quality", included: false },
       { text: "Character consistency", included: false },
-      { text: "Priority rendering", included: false },
-    ],
-  },
-  {
-    id: "basic" as const,
-    name: "Basic",
-    monthlyPrice: 19,
-    annualPrice: 190,
-    bestFor: "Casual creators",
-    tagline: "Clean exports, no watermark.",
-    rendersPerMonth: 5,
-    outputQuality: "HD 1080p",
-    watermark: false,
-    priorityRendering: false,
-    characterConsistency: false,
-    apiAccess: false,
-    popular: false,
-    badge: null as string | null,
-    accentColor: "oklch(0.70 0.10 160)",
-    bgImage: PLAN_BG_BASIC,
-    glowColor: "rgba(80,180,120,0.12)",
-    borderColor: "rgba(80,180,120,0.2)",
-    features: [
-      { text: "5 renders/month", included: true },
-      { text: "All 6 WIZ AI products", included: true },
-      { text: "720p & HD 1080p quality", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "No watermark", included: true },
-      { text: "4K quality", included: false },
-      { text: "Character consistency", included: false },
-      { text: "Priority rendering", included: false },
     ],
   },
   {
     id: "creator" as const,
     name: "Creator",
-    monthlyPrice: 35,
-    annualPrice: 350,
+    monthlyPrice: 79,
+    annualPrice: 790,
     bestFor: "Active content creators",
-    tagline: "The most popular plan for a reason.",
-    rendersPerMonth: 15,
+    tagline: "More videos, more scenes, more creative control.",
+    rendersPerMonth: 6,
+    scenesPerVideo: 11,
     outputQuality: "4K 2160p",
     watermark: false,
     priorityRendering: true,
@@ -255,24 +228,25 @@ const PLANS = [
     glowColor: "rgba(196,164,100,0.18)",
     borderColor: "rgba(196,164,100,0.45)",
     features: [
-      { text: "15 renders/month", included: true },
-      { text: "All 6 WIZ AI products", included: true },
+      { text: "6 videos per month", included: true },
+      { text: "Up to 11 scenes per video (≈88s)", included: true },
+      { text: "1 scene ≈ 8 seconds of video", included: true },
       { text: "720p, HD & 4K quality", included: true },
-      { text: "WizSound audio mastering", included: true },
       { text: "No watermark", included: true },
+      { text: "WizSound audio mastering", included: true },
       { text: "Character consistency", included: true },
       { text: "Priority rendering", included: true },
-      { text: "API access", included: false },
     ],
   },
   {
     id: "pro" as const,
     name: "Pro",
-    monthlyPrice: 59,
-    annualPrice: 590,
+    monthlyPrice: 149,
+    annualPrice: 1490,
     bestFor: "Professional creators",
-    tagline: "More renders, full quality, full control.",
-    rendersPerMonth: 25,
+    tagline: "12 videos a month. Full cinematic control.",
+    rendersPerMonth: 12,
+    scenesPerVideo: 12,
     outputQuality: "4K 2160p",
     watermark: false,
     priorityRendering: true,
@@ -285,47 +259,17 @@ const PLANS = [
     glowColor: "rgba(160,100,220,0.14)",
     borderColor: "rgba(160,100,220,0.25)",
     features: [
-      { text: "25 renders/month", included: true },
-      { text: "All 6 WIZ AI products", included: true },
-      { text: "720p, HD & 4K quality", included: true },
-      { text: "WizSound audio mastering", included: true },
+      { text: "12 videos per month", included: true },
+      { text: "Up to 12 scenes per video (≈96s)", included: true },
+      { text: "1 scene ≈ 8 seconds of video", included: true },
+      { text: "4K quality included", included: true },
       { text: "No watermark", included: true },
+      { text: "WizSound audio mastering", included: true },
       { text: "Character consistency", included: true },
       { text: "Priority rendering", included: true },
-      { text: "API access", included: false },
     ],
   },
-  {
-    id: "studio" as const,
-    name: "Studio",
-    monthlyPrice: 99,
-    annualPrice: 990,
-    bestFor: "Teams & agencies",
-    tagline: "Full API access. Built for scale.",
-    rendersPerMonth: 40,
-    outputQuality: "4K 2160p",
-    watermark: false,
-    priorityRendering: true,
-    characterConsistency: true,
-    apiAccess: true,
-    popular: false,
-    badge: null as string | null,
-    accentColor: "oklch(0.75 0.09 30)",
-    bgImage: PLAN_BG_STUDIO,
-    glowColor: "rgba(220,140,80,0.14)",
-    borderColor: "rgba(220,140,80,0.25)",
-    features: [
-      { text: "40 renders/month", included: true },
-      { text: "All 6 WIZ AI products", included: true },
-      { text: "720p, HD & 4K quality", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "No watermark", included: true },
-      { text: "Character consistency", included: true },
-      { text: "Priority rendering", included: true },
-      { text: "Full API access", included: true },
-    ],
-  },
-];
+]
 
 // ── Render bundles ────────────────────────────────────────────────────────────
 const BUNDLES = [
@@ -375,26 +319,27 @@ const COMPARISON_GROUPS = [
   {
     group: "Output",
     rows: [
-      { label: "Renders included/month", starter: "2", basic: "5", creator: "15", pro: "25", studio: "40" },
-      { label: "Max output quality", starter: "720p", basic: "HD 1080p", creator: "4K 2160p", pro: "4K 2160p", studio: "4K 2160p" },
-      { label: "Watermark on exports", starter: false, basic: true, creator: true, pro: true, studio: true, isCheck: true },
+      { label: "Videos per month", starter: "2", creator: "6", pro: "12" },
+      { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", pro: "12 (≈96s)" },
+      { label: "Max output quality", starter: "720p", creator: "4K 2160p", pro: "4K 2160p" },
+      { label: "Watermark on exports", starter: true, creator: true, pro: true, isCheck: true },
     ],
   },
   {
     group: "Features",
     rows: [
-      { label: "All 6 WIZ AI products", starter: true, basic: true, creator: true, pro: true, studio: true, isCheck: true },
-      { label: "WizSound audio mastering", starter: true, basic: true, creator: true, pro: true, studio: true, isCheck: true },
-      { label: "Character consistency", starter: false, basic: false, creator: true, pro: true, studio: true, isCheck: true },
-      { label: "Priority rendering", starter: false, basic: false, creator: true, pro: true, studio: true, isCheck: true },
+      { label: "All 6 WIZ AI products", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "WizSound audio mastering", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Character consistency", starter: false, creator: true, pro: true, isCheck: true },
+      { label: "Priority rendering", starter: false, creator: true, pro: true, isCheck: true },
     ],
   },
   {
     group: "Access",
     rows: [
-      { label: "API access", starter: false, basic: false, creator: false, pro: false, studio: true, isCheck: true },
-      { label: "Render bundles", starter: true, basic: true, creator: true, pro: true, studio: true, isCheck: true },
-      { label: "Pay-per-render", starter: true, basic: true, creator: true, pro: true, studio: true, isCheck: true },
+      { label: "Render bundles (top-ups)", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Pay-per-render", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Daily render limit", starter: "3/day", creator: "3/day", pro: "3/day" },
     ],
   },
 ];
@@ -504,7 +449,7 @@ export default function Pricing() {
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
   const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
 
-  async function handleSubscribe(planId: "starter" | "basic" | "creator" | "pro" | "studio") {
+  async function handleSubscribe(planId: "starter" | "creator" | "pro") {
     mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), billingCycle);
     mp.checkoutStarted(planId);
     if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
@@ -1194,14 +1139,14 @@ export default function Pricing() {
 
         <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-6 bg-[#0a0a0a] border-b border-white/[0.07]">
-            <div className="col-span-2 p-4 flex items-center">
+          <div className="grid grid-cols-4 bg-[#0a0a0a] border-b border-white/[0.07]">
+            <div className="col-span-1 p-4 flex items-center">
               <span className="text-xs font-bold text-white/40 uppercase tracking-wider">Feature</span>
             </div>
-            {["Starter", "Basic", "Creator", "Pro", "Studio"].map((name, i) => (
-              <div key={name} className={`p-4 text-center border-l border-white/[0.05] ${i === 2 ? "bg-[--color-gold]/[0.04]" : ""}`}>
+            {["Starter", "Creator", "Pro"].map((name, i) => (
+              <div key={name} className={`p-4 text-center border-l border-white/[0.05] ${i === 1 ? "bg-[--color-gold]/[0.04]" : ""}`}>
                 <p className="text-xs font-bold text-white">{name}</p>
-                {i === 2 && <p className="text-[9px] text-[--color-gold] font-semibold mt-0.5">Most Popular</p>}
+                {i === 1 && <p className="text-[9px] text-[--color-gold] font-semibold mt-0.5">Most Popular</p>}
               </div>
             ))}
           </div>
@@ -1209,7 +1154,7 @@ export default function Pricing() {
           {COMPARISON_GROUPS.map((group, gi) => (
             <div key={group.group}>
               {/* Group header */}
-              <div className="grid grid-cols-6 bg-[#080808] border-b border-white/[0.04]">
+              <div className="grid grid-cols-4 bg-[#080808] border-b border-white/[0.04]">
                 <div className="col-span-6 px-4 py-2.5 flex items-center gap-2">
                   <Layers className="w-3 h-3 text-[--color-gold]/50" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[--color-gold]/50">{group.group}</span>
@@ -1218,15 +1163,15 @@ export default function Pricing() {
               {group.rows.map((row, ri) => (
                 <div
                   key={row.label}
-                  className={`grid grid-cols-6 border-b border-white/[0.04] last:border-0 transition-colors hover:bg-white/[0.01] ${
+                  className={`grid grid-cols-4 border-b border-white/[0.04] last:border-0 transition-colors hover:bg-white/[0.01] ${
                     gi === COMPARISON_GROUPS.length - 1 && ri === group.rows.length - 1 ? "border-0" : ""
                   }`}
                 >
-                  <div className="col-span-2 px-4 py-3.5 flex items-center">
+                  <div className="col-span-1 px-4 py-3.5 flex items-center">
                     <span className="text-xs text-white/55">{row.label}</span>
                   </div>
-                  {(["starter", "basic", "creator", "pro", "studio"] as const).map((planId, pi) => (
-                    <div key={planId} className={`px-2 py-3.5 flex items-center justify-center border-l border-white/[0.04] ${pi === 2 ? "bg-[--color-gold]/[0.02]" : ""}`}>
+                  {(["starter", "creator", "pro"] as const).map((planId, pi) => (
+                    <div key={planId} className={`px-2 py-3.5 flex items-center justify-center border-l border-white/[0.04] ${pi === 1 ? "bg-[--color-gold]/[0.02]" : ""}`}>
                       <CompCell value={(row as Record<string, string | boolean>)[planId]} isCheck={row.isCheck} />
                     </div>
                   ))}

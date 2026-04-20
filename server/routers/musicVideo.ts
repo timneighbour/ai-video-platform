@@ -7,7 +7,7 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
 
 import { storagePut } from "../storage";
 import {
@@ -26,7 +26,7 @@ import { generateImage } from "../_core/imageGeneration";
 
 import { validateSceneFaceConsistency, validateFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
-import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS } from "../products";
+import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxScenesPerVideo } from "../products";
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
 import { isAnyProviderAvailable, checkAllProviders } from "../provider-health";
@@ -593,6 +593,27 @@ Rules:
             message: "You already have a video rendering. Please wait for it to complete before starting another.",
           });
         }
+
+        // ── Daily render cap (3 renders/day per user) ──────────────────────────────
+        // Prevents abuse and protects against runaway API costs.
+        const DAILY_RENDER_CAP = 3;
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const rendersToday = await db.select({ id: musicVideoJobs.id })
+          .from(musicVideoJobs)
+          .where(
+            and(
+              eq(musicVideoJobs.userId, ctx.user.id),
+              inArray(musicVideoJobs.status, ["rendering", "assembling", "completed", "failed"]),
+              gte(musicVideoJobs.updatedAt, todayStart)
+            )
+          );
+        if (rendersToday.length >= DAILY_RENDER_CAP) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: `Daily render limit reached (${DAILY_RENDER_CAP} videos per day). Your limit resets at midnight. Upgrade your plan for higher limits.`,
+          });
+        }
       }
 
       // ── PROVIDER HEALTH GATE ─────────────────────────────────────────────────
@@ -607,13 +628,16 @@ Rules:
         });
       }
 
-      // Check credits — admins bypass credit checks for testing
+      // ── HARD CREDIT GATE ───────────────────────────────────────────────────────────────────────────
+      // Blocks render if user does not have enough credits. Checked BEFORE any provider
+      // is called so no API cost is incurred on insufficient-credit attempts.
       if (!isAdmin) {
         const creditBalance = await getUserCredits(ctx.user.id);
         if (creditBalance < job.creditCost) {
+          const shortfall = job.creditCost - creditBalance;
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `Insufficient credits. Need ${job.creditCost}, have ${creditBalance}`,
+            message: `You need ${job.creditCost} credits to render this video, but you only have ${creditBalance}. Top up ${shortfall} more credits to continue.`,
           });
         }
         await deductCredits(ctx.user.id, job.creditCost, `Music video: ${job.title}`);

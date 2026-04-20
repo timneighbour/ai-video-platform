@@ -5380,3 +5380,29 @@
 - [x] Add useSEO to WizSoundProductPage.tsx — canonical: https://wiz-ai.io/products/wizsound
 - [x] Add comment to index.html explaining default canonical is homepage-only
 - [x] Fixes: "Duplicate without user-selected canonical" and "Page with redirect" in Google Search Console
+
+## Financial Protection Changes (20 Apr 2026)
+
+- [ ] Reduce FREE_TRIAL_CREDITS from 60 to 30 in server/products.ts
+- [ ] Disable WaveSpeed as render fallback in music-video-service.ts
+- [ ] Add per-user daily render cap (3 renders/day) in startRender procedure
+- [ ] Make Atlas Cloud primary provider, fal.ai second in fallback chain
+- [ ] Update site UI to reflect 30 free trial credits (pricing page, help page, homepage)
+
+## Pricing Overhaul — Full Implementation (20 Apr 2026)
+- [ ] Update products.ts: new pricing (Starter £29, Creator £79, Pro £149), scene counts per plan (8/11/12), accurate renderer costs, updated credit packs
+- [ ] Financial protections: disable WaveSpeed fallback, add daily render cap (3/day), make Atlas Cloud primary provider
+- [ ] Implement hard credit gate: block render if user credits insufficient, redirect to top-up
+- [ ] Update Pricing page: show scenes per video, scene explanation (~8s each), new prices, add-on options
+- [ ] Run pnpm test — confirm 0 regressions
+- [ ] Save checkpoint
+
+## Pricing Overhaul (Apr 2026)
+- [x] Update products.ts: Starter £29, Creator £79, Pro £149 (scene counts 8/11/12)
+- [x] Flip provider chain: Atlas Cloud Fast PRIMARY, fal.ai SECONDARY, Hypereal TERTIARY
+- [x] Disable WaveSpeed (too expensive, unreliable)
+- [x] Add daily render cap (3 renders/day per user)
+- [x] Enhance hard credit gate with clear shortfall message
+- [x] Update Pricing page: 3-plan layout (Starter/Creator/Pro), scene counts, new prices
+- [x] Update COMPARISON_GROUPS to 3-column table
+- [x] Fix all 520 tests to reflect new cost ordering
