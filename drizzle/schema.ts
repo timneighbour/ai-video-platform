@@ -866,3 +866,35 @@ export const providerJobLogs = mysqlTable("providerJobLogs", {
 });
 export type ProviderJobLog = typeof providerJobLogs.$inferSelect;
 export type InsertProviderJobLog = typeof providerJobLogs.$inferInsert;
+
+// ── WIZPERFORMER CONSENT LOGGING (GDPR Art. 9 explicit consent) ──────────────
+// Logs each explicit consent given before uploading a performer photo.
+export const wizPerformerConsents = mysqlTable("wizPerformerConsents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  characterId: int("characterId"),
+  policyVersion: varchar("policyVersion", { length: 32 }).notNull().default("2026-04-21"),
+  consentedAt: timestamp("consentedAt").defaultNow().notNull(),
+  ipAddress: varchar("ipAddress", { length: 64 }),
+  userAgent: varchar("userAgent", { length: 512 }),
+  consentHasRight: boolean("consentHasRight").notNull().default(false),
+  consentAgeVerified: boolean("consentAgeVerified").notNull().default(false),
+  consentAiProcessing: boolean("consentAiProcessing").notNull().default(false),
+  consentPrivacyPolicy: boolean("consentPrivacyPolicy").notNull().default(false),
+  withdrawnAt: timestamp("withdrawnAt"),
+});
+export type WizPerformerConsent = typeof wizPerformerConsents.$inferSelect;
+export type InsertWizPerformerConsent = typeof wizPerformerConsents.$inferInsert;
+
+// ── DATA DELETION / EXPORT REQUESTS ──────────────────────────────────────────
+export const dataRequests = mysqlTable("dataRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("dataRequestType", ["deletion", "export"]).notNull(),
+  status: mysqlEnum("dataRequestStatus", ["pending", "processing", "completed", "rejected"]).default("pending").notNull(),
+  requestedAt: timestamp("requestedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  notes: text("notes"),
+});
+export type DataRequest = typeof dataRequests.$inferSelect;
+export type InsertDataRequest = typeof dataRequests.$inferInsert;

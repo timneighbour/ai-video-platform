@@ -5500,3 +5500,31 @@
 - [ ] Update campaign assets document for Performance Max asset coverage
 - [ ] Document 16:9, 9:16, 1:1 video asset requirements
 - [ ] Document image asset requirements (under 5MB, centre safe area)
+
+## GDPR Compliance Pass
+
+- [ ] Cookie consent banner (Accept All / Reject / Manage Preferences)
+- [ ] Consent Mode v2 defaults (all denied until consent)
+- [ ] Conditional tracker loading (GA4, Clarity, Mixpanel gated)
+- [ ] Cookie consent store with timestamp/version
+- [ ] Cookie Settings re-openable from footer
+- [ ] Full Privacy Policy rewrite
+- [ ] Cookie Policy page at /cookie-policy
+- [ ] WizPerformer consent upgrade: 4 checkboxes + DB logging
+- [ ] Acceptable Use Policy expansion in Terms
+- [ ] User data controls in Account page
+- [ ] Footer links updated: Cookie Policy + Cookie Settings on all pages
+- [ ] Tracking verification: all trackers respect consent state
+
+## GDPR Compliance Pass
+
+- [ ] Cookie consent banner
+- [ ] Consent Mode v2 defaults
+- [ ] Conditional tracker loading
+- [ ] Cookie consent store
+- [ ] Full Privacy Policy rewrite
+- [ ] Cookie Policy page
+- [ ] WizPerformer consent upgrade
+- [ ] Acceptable Use Policy expansion
+- [ ] User data controls in Account page
+- [ ] Footer links updated

@@ -320,6 +320,8 @@ export default function MusicVideosLanding() {
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
             <Link href="/refunds" className="hover:text-white transition-colors">Refunds</Link>
+            <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookies</Link>
+            <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer">Cookie Settings</button>
             <a href="mailto:support@wiz-ai.io" className="hover:text-white transition-colors">support@wiz-ai.io</a>
           </div>
         </div>

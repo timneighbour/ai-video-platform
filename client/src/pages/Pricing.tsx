@@ -1263,7 +1263,10 @@ export default function Pricing() {
             <a href="/" className="hover:text-white/60 transition-colors">Home</a>
             <a href="/pricing" className="hover:text-white/60 transition-colors text-[--color-gold]/60">Pricing</a>
             <a href="/help" className="hover:text-white/60 transition-colors">Help</a>
-            <a href="/onboarding" className="hover:text-white/60 transition-colors">Get Started</a>
+            <a href="/privacy" className="hover:text-white/60 transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-white/60 transition-colors">Terms</a>
+            <a href="/cookie-policy" className="hover:text-white/60 transition-colors">Cookies</a>
+            <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-white/60 transition-colors bg-transparent border-0 p-0 cursor-pointer text-xs text-white/30">Cookie Settings</button>
           </div>
           <p className="text-xs text-white/20">&copy; {new Date().getFullYear()} WIZ AI. All rights reserved.</p>
         </div>

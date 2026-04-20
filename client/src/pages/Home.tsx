@@ -2508,6 +2508,8 @@ function Footer() {
               <a href="/privacy" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Privacy Policy</a>
               <a href="/terms" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Terms of Service</a>
               <a href="/refunds" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Refund Policy</a>
+              <a href="/cookie-policy" className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">Cookie Policy</a>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors text-left bg-transparent border-0 p-0 cursor-pointer">Cookie Settings</button>
             </div>
           </div>
         </div>
@@ -2532,6 +2534,8 @@ function Footer() {
               <a href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</a>
               <a href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</a>
               <a href="/refunds" className="hover:text-[--color-gold-dark] transition-colors">Refund Policy</a>
+              <a href="/cookie-policy" className="hover:text-[--color-gold-dark] transition-colors">Cookie Policy</a>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-[--color-gold-dark] transition-colors bg-transparent border-0 p-0 cursor-pointer">Cookie Settings</button>
             </div>
           </div>
         </div>

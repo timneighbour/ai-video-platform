@@ -2,11 +2,103 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CreditCard, Home, Key, Loader2, LogOut } from "@/lib/icons";
+import { ArrowLeft, CreditCard, Home, Key, Loader2, LogOut, Download, Trash2, Shield } from "@/lib/icons";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { openCookieSettings } from "@/lib/cookieConsent";
+
+/** Sub-component: Request data export */
+function DataExportButton() {
+  const requestExport = trpc.privacy.requestDataExport.useMutation({
+    onSuccess: () => {
+      toast.success("Data export requested", {
+        description: "We will prepare your data and email it to you within 30 days.",
+      });
+    },
+    onError: (err) => {
+      toast.error("Request failed", { description: err.message });
+    },
+  });
+
+  return (
+    <Button
+      variant="outline"
+      className="w-full gap-2 justify-start"
+      onClick={() => requestExport.mutate()}
+      disabled={requestExport.isPending || requestExport.isSuccess}
+    >
+      {requestExport.isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Download className="h-4 w-4" />
+      )}
+      {requestExport.isSuccess ? "Export requested — check your email" : "Request Data Export (GDPR Art. 20)"}
+    </Button>
+  );
+}
+
+/** Sub-component: Request account deletion */
+function AccountDeletionButton() {
+  const [confirmed, setConfirmed] = useState(false);
+  const requestDeletion = trpc.privacy.requestAccountDeletion.useMutation({
+    onSuccess: () => {
+      toast.success("Account deletion requested", {
+        description: "Our team will process your request within 30 days and email you confirmation.",
+      });
+    },
+    onError: (err) => {
+      toast.error("Request failed", { description: err.message });
+    },
+  });
+
+  if (!confirmed) {
+    return (
+      <Button
+        variant="outline"
+        className="w-full gap-2 justify-start text-destructive hover:text-destructive"
+        onClick={() => setConfirmed(true)}
+      >
+        <Trash2 className="h-4 w-4" />
+        Request Account Deletion (GDPR Art. 17)
+      </Button>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
+      <p className="text-sm text-destructive font-medium">Are you sure?</p>
+      <p className="text-xs text-muted-foreground">
+        This will submit a deletion request. Your account and all associated data will be permanently deleted within 30 days. This action cannot be undone.
+      </p>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setConfirmed(false)}
+          disabled={requestDeletion.isPending}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => requestDeletion.mutate()}
+          disabled={requestDeletion.isPending || requestDeletion.isSuccess}
+        >
+          {requestDeletion.isPending ? (
+            <><Loader2 className="h-4 w-4 animate-spin mr-2" />Submitting…</>
+          ) : requestDeletion.isSuccess ? (
+            "Request submitted"
+          ) : (
+            "Yes, delete my account"
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function Account() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -228,6 +320,40 @@ export default function Account() {
                   Upgrade to Business
                 </a>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Privacy & Data Controls */}
+          <Card className="border-border/40 bg-card/50 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Shield className="h-4 w-4 text-[--color-gold]" />
+                Privacy & Data
+              </CardTitle>
+              <CardDescription>
+                Manage your data and privacy preferences. Under GDPR and UK GDPR, you have the right to access, export, and delete your data at any time.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Cookie preferences */}
+              <Button
+                variant="outline"
+                className="w-full gap-2 justify-start"
+                onClick={() => openCookieSettings()}
+              >
+                <Shield className="h-4 w-4" />
+                Cookie Preferences
+              </Button>
+              {/* Data export */}
+              <DataExportButton />
+              {/* Account deletion */}
+              <AccountDeletionButton />
+              <p className="text-xs text-muted-foreground pt-1">
+                For urgent privacy requests, email{" "}
+                <a href="mailto:privacy@wiz-ai.io" className="text-[--color-gold] hover:underline">
+                  privacy@wiz-ai.io
+                </a>
+              </p>
             </CardContent>
           </Card>
 

@@ -10,6 +10,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { trpc } from "./lib/trpc";
 import { wizAnalytics } from "./lib/wizAnalytics";
 import GlobalMuteButton from "./components/GlobalMuteButton";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 import IntroScreen from "./components/IntroScreen";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
@@ -53,6 +54,7 @@ const LandingUK = lazy(() => import("@/pages/LandingUK"));
 const LandingApp = lazy(() => import("@/pages/LandingApp"));
 const LandingStudio = lazy(() => import("@/pages/LandingStudio"));
 const AiAnimationMaker = lazy(() => import("@/pages/AiAnimationMaker"));
+const CookiePolicy = lazy(() => import("@/pages/CookiePolicy"));
 const RenderSuccess = lazy(() => import("@/pages/RenderSuccess"));
 const Discover = lazy(() => import("@/pages/Discover"));
 const Create = lazy(() => import("@/pages/Create"));
@@ -173,6 +175,7 @@ function Router() {
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />
+        <Route path={"/cookie-policy"} component={CookiePolicy} />
         <Route path={"/uk"} component={LandingUK} />
         <Route path={"/app"} component={LandingApp} />
         <Route path={"/studio"} component={LandingStudio} />
@@ -306,6 +309,7 @@ function App() {
           <NoIndexGuard />
           <Router />
           <GlobalMuteButton />
+          <CookieConsentBanner />
           {/* Intro shows once per session — sessionStorage flag prevents repeat */}
           {showIntro && (
             <IntroScreen onComplete={handleIntroClose} />

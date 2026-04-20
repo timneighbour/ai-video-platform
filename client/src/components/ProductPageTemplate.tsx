@@ -389,6 +389,8 @@ export default function ProductPageTemplate(props: ProductPageProps) {
               <Link href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</Link>
               <Link href="/refunds" className="hover:text-[--color-gold-dark] transition-colors">Refund Policy</Link>
+              <Link href="/cookie-policy" className="hover:text-[--color-gold-dark] transition-colors">Cookie Policy</Link>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-[--color-gold-dark] transition-colors bg-transparent border-0 p-0 cursor-pointer text-xs text-[--color-silver-dark]/30">Cookie Settings</button>
               <Link href="/help" className="hover:text-[--color-gold-dark] transition-colors">Help</Link>
             </div>
           </div>

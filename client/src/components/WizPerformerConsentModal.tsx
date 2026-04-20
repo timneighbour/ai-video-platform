@@ -3,7 +3,10 @@
  *
  * Shown before a user uploads a face photo for AI performer generation.
  * Explains what is captured, why, how long it is stored, and provides a
- * delete option. Required for GDPR / privacy compliance.
+ * delete option. Required for GDPR / UK GDPR compliance.
+ *
+ * Four explicit checkboxes are required before the user can proceed.
+ * Consent is logged to the DB via trpc.privacy.logPerformerConsent.
  *
  * Usage:
  *   const [consentGiven, setConsentGiven] = useState(false);
@@ -13,6 +16,7 @@
  *     return <WizPerformerConsentModal
  *       onAccept={() => { setConsentGiven(true); setShowConsent(false); }}
  *       onDecline={() => setShowConsent(false)}
+ *       characterId={character?.id}
  *     />;
  *   }
  */
@@ -20,17 +24,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Shield, Camera, Clock, Trash2, Lock, ChevronDown, ChevronUp } from "@/lib/icons";
+import { trpc } from "@/lib/trpc";
 
 interface WizPerformerConsentModalProps {
-  /** Called when the user accepts and ticks the checkbox */
+  /** Called when the user accepts all checkboxes and consent is logged */
   onAccept: () => void;
   /** Called when the user declines or closes the modal */
   onDecline: () => void;
   /** Optional character name for personalised copy */
   characterName?: string;
+  /** Optional character ID to associate with the consent record */
+  characterId?: number;
 }
 
-const CONSENT_STORAGE_KEY = "wizperformer_consent_v1";
+const CONSENT_STORAGE_KEY = "wizperformer_consent_v2";
 
 /** Check if the user has already given consent in this browser session */
 export function hasGivenConsent(): boolean {
@@ -54,19 +61,41 @@ export default function WizPerformerConsentModal({
   onAccept,
   onDecline,
   characterName,
+  characterId,
 }: WizPerformerConsentModalProps) {
-  const [agreed, setAgreed] = useState(false);
+  const [checks, setChecks] = useState({
+    hasRight: false,
+    ageVerified: false,
+    aiProcessing: false,
+    privacyPolicy: false,
+  });
   const [showDetails, setShowDetails] = useState(false);
+  const allChecked = Object.values(checks).every(Boolean);
+  const logConsent = trpc.privacy.logPerformerConsent.useMutation();
 
-  const handleAccept = () => {
-    if (!agreed) return;
+  const handleAccept = async () => {
+    if (!allChecked) return;
+    try {
+      await logConsent.mutateAsync({
+        characterId,
+        consentHasRight: true,
+        consentAgeVerified: true,
+        consentAiProcessing: true,
+        consentPrivacyPolicy: true,
+      });
+    } catch {
+      // Non-blocking — consent UI still proceeds even if DB log fails
+    }
     persistConsent();
     onAccept();
   };
 
+  const toggle = (key: keyof typeof checks) =>
+    setChecks((prev) => ({ ...prev, [key]: !prev[key] }));
+
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg bg-[#0f0f0f] border border-[--color-gold]/30 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-lg bg-[#0f0f0f] border border-[--color-gold]/30 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Gold top bar */}
         <div className="h-1 w-full bg-gradient-to-r from-[--color-gold]/60 via-[--color-gold] to-[--color-gold]/60" />
 
@@ -142,24 +171,54 @@ export default function WizPerformerConsentModal({
           {showDetails && (
             <div className="mb-5 p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 text-xs text-zinc-400 space-y-2 leading-relaxed">
               <p><strong className="text-zinc-300">Data controller:</strong> WIZ AI Ltd. Contact: privacy@wiz-ai.io</p>
-              <p><strong className="text-zinc-300">Legal basis:</strong> Your explicit consent (GDPR Art. 6(1)(a) and Art. 9(2)(a) where applicable).</p>
+              <p><strong className="text-zinc-300">Legal basis:</strong> Your explicit consent (GDPR Art. 6(1)(a) and Art. 9(2)(a) for biometric data).</p>
               <p><strong className="text-zinc-300">Data transfers:</strong> Your image may be processed by our AI generation infrastructure. All processing is governed by data processing agreements that meet GDPR standards.</p>
               <p><strong className="text-zinc-300">Your rights:</strong> You have the right to access, rectify, erase, restrict, or port your data. You may also withdraw consent at any time without affecting the lawfulness of prior processing.</p>
               <p><strong className="text-zinc-300">Full policy:</strong> See our <a href="/privacy" target="_blank" className="text-[--color-gold] hover:underline">Privacy Policy</a> for complete details.</p>
             </div>
           )}
 
-          {/* Consent checkbox */}
-          <label className="flex items-start gap-3 cursor-pointer mb-6 group">
-            <Checkbox
-              checked={agreed}
-              onCheckedChange={(v) => setAgreed(!!v)}
-              className="mt-0.5 border-[--color-gold]/50 data-[state=checked]:bg-[--color-gold] data-[state=checked]:border-[--color-gold]"
-            />
-            <span className="text-sm text-zinc-300 group-hover:text-white transition-colors leading-snug">
-              I understand and consent to WIZ AI processing my photo to generate an AI performer for my creative project. I can withdraw this consent and delete my data at any time.
-            </span>
-          </label>
+          {/* Four explicit consent checkboxes — all required */}
+          <div className="space-y-3 mb-6">
+            <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-2">All four confirmations required</p>
+            {[
+              {
+                key: "hasRight" as const,
+                label: "I confirm that I own the rights to this photo, or have the explicit written consent of the person depicted to use it for AI generation.",
+              },
+              {
+                key: "ageVerified" as const,
+                label: "I confirm that the person in this photo is 18 years of age or older.",
+              },
+              {
+                key: "aiProcessing" as const,
+                label: "I consent to WIZ AI processing this photo using AI to generate performer images and videos for my creative project.",
+              },
+              {
+                key: "privacyPolicy" as const,
+                label: (
+                  <>
+                    I have read and agree to the{" "}
+                    <a href="/privacy" target="_blank" className="text-[--color-gold] hover:underline">
+                      Privacy Policy
+                    </a>{" "}
+                    and understand how my data is used and stored.
+                  </>
+                ),
+              },
+            ].map(({ key, label }) => (
+              <label key={key} className="flex items-start gap-3 cursor-pointer group">
+                <Checkbox
+                  checked={checks[key]}
+                  onCheckedChange={() => toggle(key)}
+                  className="mt-0.5 border-[--color-gold]/50 data-[state=checked]:bg-[--color-gold] data-[state=checked]:border-[--color-gold]"
+                />
+                <span className="text-sm text-zinc-300 group-hover:text-white transition-colors leading-snug">
+                  {label}
+                </span>
+              </label>
+            ))}
+          </div>
 
           {/* Actions */}
           <div className="flex gap-3">
@@ -172,10 +231,10 @@ export default function WizPerformerConsentModal({
             </Button>
             <Button
               className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-              disabled={!agreed}
+              disabled={!allChecked || logConsent.isPending}
               onClick={handleAccept}
             >
-              Continue with Photo Upload
+              {logConsent.isPending ? "Saving consent…" : "Continue with Photo Upload"}
             </Button>
           </div>
         </div>

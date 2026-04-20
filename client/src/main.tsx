@@ -2,6 +2,11 @@ import { trpc } from "@/lib/trpc";
 import "@/lib/i18n"; // initialise i18n before app renders
 import { initGA4 } from "@/lib/analytics";
 import { initMixpanel } from "@/lib/mixpanel";
+import {
+  setConsentModeDefaults,
+  getStoredConsent,
+  applyConsentToTrackers,
+} from "@/lib/cookieConsent";
 import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, httpLink, splitLink, TRPCClientError } from "@trpc/client";
@@ -13,10 +18,24 @@ import { getLoginUrl } from "./const";
 import { GlobalAudioProvider } from "@/contexts/AudioContext";
 import "./index.css";
 
-// Initialise GA4 analytics
+// ── Consent Mode v2: set defaults BEFORE any gtag config calls ──────────────
+// analytics_storage, ad_storage, ad_user_data, ad_personalization are all
+// denied by default until the user explicitly consents via the cookie banner.
+setConsentModeDefaults();
+
+// ── Initialise trackers (consent-gated) ─────────────────────────────────────
+// GA4 and Google Ads scripts are loaded in index.html but Consent Mode v2
+// prevents data collection until consent is granted.
 initGA4();
-// Initialise Mixpanel analytics
+
+// Mixpanel: initialise but respect stored consent (opt-out if no analytics consent)
 initMixpanel();
+
+// Apply stored consent preferences on load (re-applies trackers after page refresh)
+const storedConsent = getStoredConsent();
+if (storedConsent) {
+  applyConsentToTrackers(storedConsent.preferences);
+}
 
 const queryClient = new QueryClient();
 

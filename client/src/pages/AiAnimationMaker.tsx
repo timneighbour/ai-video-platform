@@ -698,6 +698,8 @@ export default function AiAnimationMaker() {
             <NavLink href="/help" className="hover:text-white transition-colors">Help</NavLink>
             <NavLink href="/privacy" className="hover:text-white transition-colors">Privacy</NavLink>
             <NavLink href="/terms" className="hover:text-white transition-colors">Terms</NavLink>
+            <NavLink href="/cookie-policy" className="hover:text-white transition-colors">Cookies</NavLink>
+            <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer text-sm text-[#71717a]">Cookie Settings</button>
           </div>
           <p className="text-[#52525b] text-xs">© 2026 WIZ AI. All rights reserved.</p>
         </div>

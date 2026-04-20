@@ -19,6 +19,7 @@ import { wizScoreRouter } from "./routers/wizScore";
 import { wizImageRouter } from "./routers/wizImage";
 import { wizShortsRouter } from "./routers/wizShorts";
 import { analyticsRouter } from "./routers/analytics";
+import { privacyRouter } from "./routers/privacy";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -40,6 +41,7 @@ export const appRouter = router({
   wizImage: wizImageRouter,
   wizShorts: wizShortsRouter,
   analytics: analyticsRouter,
+  privacy: privacyRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
