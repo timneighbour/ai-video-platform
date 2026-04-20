@@ -393,3 +393,7 @@ startReEngagementJob();
 // Start background audio trim worker (polls every 10s for tasks needing trim)
 import { startTrimWorker } from "../trimWorker";
 startTrimWorker();
+
+// Start Atlas Cloud daily health monitor (runs at 08:00 UTC every day)
+import { startAtlasMonitor } from "../atlas-monitor";
+startAtlasMonitor();

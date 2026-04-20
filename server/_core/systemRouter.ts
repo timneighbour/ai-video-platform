@@ -2,6 +2,7 @@ import { z } from "zod";
 import { notifyOwner } from "./notification";
 import { adminProcedure, publicProcedure, router } from "./trpc";
 import { getDb, resetDb } from "../db";
+import { runAtlasHealthCheck, runDailyAtlasMonitor } from "../atlas-monitor";
 
 export const systemRouter = router({
   health: publicProcedure
@@ -54,5 +55,19 @@ export const systemRouter = router({
       return {
         success: delivered,
       } as const;
+    }),
+
+  /** Run Atlas Cloud health check immediately and return the report (admin only). */
+  atlasHealthCheck: adminProcedure
+    .query(async () => {
+      const report = await runAtlasHealthCheck();
+      return report;
+    }),
+
+  /** Run Atlas Cloud health check and send the owner notification immediately (admin only). */
+  atlasHealthCheckAndNotify: adminProcedure
+    .mutation(async () => {
+      await runDailyAtlasMonitor();
+      return { success: true };
     }),
 });
