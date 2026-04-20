@@ -2336,98 +2336,103 @@ function FinalCTA() {
 }
 
 // ── Demo Video Gallery ──────────────────────────────────────────────────────────
+const DEMO_VIDEOS = [
+  {
+    key: "music-video",
+    title: "Cinematic Music Video Demo",
+    badge: "WizVideo",
+    badgeColor: "#7C3AED",
+    description: "A short example of how WIZ AI can turn a creative idea into cinematic video scenes.",
+    posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
+    videoUrl: null as string | null,
+  },
+  {
+    key: "scene",
+    title: "AI Scene Creation Demo",
+    badge: "WizCreate",
+    badgeColor: "oklch(0.72 0.14 70)",
+    description: "Example cinematic scene generation for music videos, animation and visual storytelling.",
+    posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
+    videoUrl: null as string | null,
+  },
+  {
+    key: "performance",
+    title: "AI Performance Demo",
+    badge: "WizPerformer",
+    badgeColor: "#0EA5E9",
+    description: "Example presenter, expression and lip-sync technology for future WIZ AI performer workflows.",
+    posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png",
+    videoUrl: null as string | null,
+  },
+];
+
 function DemoVideoGallery() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
-
-  const videos = [
-    {
-      id: "nByslCkykj8",
-      title: "WizPilot™ Cinematic Demo",
-      engine: "WizPilot™",
-      badge: "WizPilot™ Engine",
-      badgeColor: "#7C3AED",
-      description: "Text-to-video at cinematic quality. The engine powering WizPilot's render pipeline.",
-    },
-    {
-      id: "TuFqvD6PR54",
-      title: "WizCreate™ Scene Generation",
-      engine: "WizCreate™",
-      badge: "WizCreate™ Engine",
-      badgeColor: "oklch(0.72 0.14 70)",
-      description: "Hyper-realistic image-to-video generation. The visual engine behind WizCreate™ scenes.",
-    },
-    {
-      id: "eFwx6fyDOmU",
-      title: "WizLumina™ Lip-Sync Demo",
-      engine: "WizLumina™",
-      badge: "WizLumina™ Engine",
-      badgeColor: "#0EA5E9",
-      description: "AI avatar performance-sync and video translation. Powers WizLumina™ character animation with frame-perfect expression and lip sync.",
-    },
-  ];
 
   return (
     <section className="relative bg-[#040404] py-28 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.22] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.18] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 reveal">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] mb-6">
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Powered by the best</span>
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Example outputs</span>
           </div>
           <h2 className="text-[clamp(2rem,5vw,3.25rem)] font-black tracking-tight text-white mb-4">
-            See what our AI engines can do
+            See what WIZ AI can create
           </h2>
           <p className="text-[--color-silver-dark]/40 text-lg max-w-2xl mx-auto">
-            WIZ AI combines the world's most powerful video generation models into one seamless platform.
+            Explore example outputs from the WIZ AI creative workflow — from cinematic music videos and animated scenes to AI presenter and lip-sync demos. These examples show the type of visual content creators can build with WIZ AI.
           </p>
         </div>
 
         {/* Video cards */}
         <div className="grid md:grid-cols-3 gap-6">
-          {videos.map((v) => (
-            <div key={v.id} className="group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] transition-all duration-300 reveal">
-              {/* Thumbnail / embed */}
+          {DEMO_VIDEOS.map((v) => (
+            <div key={v.key} className="group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] transition-all duration-300 reveal">
+              {/* Thumbnail / video */}
               <div className="relative aspect-video bg-black">
-                {activeVideo === v.id ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`}
-                    title={v.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full"
+                {activeVideo === v.key && v.videoUrl ? (
+                  <video
+                    src={v.videoUrl}
+                    poster={v.posterUrl}
+                    autoPlay
+                    controls
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
                   <button
-                    onClick={() => setActiveVideo(v.id)}
-                    className="absolute inset-0 w-full h-full group/play"
-                    aria-label={`Play ${v.title}`}
+                    onClick={() => v.videoUrl ? setActiveVideo(v.key) : undefined}
+                    className="absolute inset-0 w-full h-full group/play cursor-default"
+                    aria-label={v.videoUrl ? `Play ${v.title}` : `${v.title} — coming soon`}
+                    disabled={!v.videoUrl}
                   >
-                    {/* YouTube thumbnail */}
+                    {/* Poster image */}
                     <img
-                      src={`https://img.youtube.com/vi/${v.id}/maxresdefault.jpg`}
+                      src={v.posterUrl}
                       alt={v.title}
                       className="w-full h-full object-cover group-hover/play:scale-105 transition-transform duration-500"
                       loading="lazy"
                       width="1280"
                       height="720"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
-                      }}
                     />
                     {/* Dark overlay */}
-                    <div className="absolute inset-0 bg-black/15 group-hover/play:bg-black/5 transition-colors duration-300" />
-                    {/* Play button */}
+                    <div className="absolute inset-0 bg-black/25 group-hover/play:bg-black/15 transition-colors duration-300" />
+                    {/* Play / coming soon indicator */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover/play:scale-110 group-hover/play:bg-white/20 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                        <svg className="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
+                      {v.videoUrl ? (
+                        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover/play:scale-110 group-hover/play:bg-white/20 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                          <svg className="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        </div>
+                      ) : (
+                        <div className="px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/50 text-xs font-medium tracking-wide">
+                          Demo coming soon
+                        </div>
+                      )}
                     </div>
-                    {/* Engine badge */}
+                    {/* Badge */}
                     <div className="absolute top-3 left-3">
                       <span className="text-[10px] font-bold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full text-white" style={{ background: v.badgeColor + "33", border: `1px solid ${v.badgeColor}55` }}>
                         {v.badge}
@@ -2438,20 +2443,12 @@ function DemoVideoGallery() {
               </div>
               {/* Info */}
               <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs text-[--color-silver-dark]/40 font-medium">{v.engine}</span>
-                </div>
                 <h3 className="text-white font-semibold text-sm mb-2 leading-snug">{v.title}</h3>
                 <p className="text-[--color-silver-dark]/35 text-xs leading-relaxed">{v.description}</p>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Bottom note */}
-        <p className="text-center text-[--color-silver-dark]/25 text-xs mt-10">
-          WIZ AI is an independent platform. All engine trademarks belong to their respective owners.
-        </p>
       </div>
     </section>
   );
