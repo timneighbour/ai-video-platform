@@ -249,6 +249,47 @@
     }
     </script>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         GOOGLE ADS CONVERSION TAG — PLACEHOLDER
+         TODO: Replace GOOGLE_ADS_TAG_ID with your tag ID (format: AW-XXXXXXXXXX)
+         Found in: Google Ads → Goals → Conversions → Summary → Google tag
+         Conversion events (purchase, signup, checkout) are fired from
+         client/src/lib/analytics.ts — search for 'gtag_conversion' to find them.
+         ═══════════════════════════════════════════════════════════════ -->
+    <!-- PLACEHOLDER_GOOGLE_ADS_START
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GOOGLE_ADS_TAG_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GOOGLE_ADS_TAG_ID');
+    </script>
+    PLACEHOLDER_GOOGLE_ADS_END -->
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         META PIXEL — PLACEHOLDER
+         TODO: Replace META_PIXEL_ID with your 15-16 digit Pixel ID
+         Found in: Meta Business Manager → Events Manager → your Pixel → Settings
+         Conversion events (Purchase, CompleteRegistration, InitiateCheckout,
+         ViewContent) are fired from client/src/lib/analytics.ts.
+         ═══════════════════════════════════════════════════════════════ -->
+    <!-- PLACEHOLDER_META_PIXEL_START
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', 'META_PIXEL_ID');
+      fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=META_PIXEL_ID&ev=PageView&noscript=1" /></noscript>
+    PLACEHOLDER_META_PIXEL_END -->
+
     <!-- Google Analytics 4 + Microsoft Clarity: deferred until after page load to reduce TBT -->
     <script>
       // Queue GA calls immediately so no events are lost

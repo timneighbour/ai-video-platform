@@ -5453,3 +5453,14 @@
 - [x] Nav: Fix dropdown scroll/hover — invisible bridge strip + delayed close timer (120ms) so mouse can travel from trigger to panel
 - [x] Nav: Update nav order to: Home · Products ▾ · Technology ▾ · Pricing · Help
 - [x] Nav: Mobile drawer updated with Products (Create/Enhance/Grow) and Technology accordions
+
+## Paid Traffic Setup — Phase 1 (April 2026)
+- [x] Add route alias /music-video-ai → MusicVideosLanding
+- [x] Add route alias /ai-video-generator → TextToVideoCreator
+- [x] Build /ai-animation-maker landing page (AiAnimationMaker.tsx)
+- [x] Add Google Ads tag placeholder to index.html (PLACEHOLDER_GOOGLE_ADS_START)
+- [x] Add Meta Pixel placeholder to index.html (PLACEHOLDER_META_PIXEL_START)
+- [ ] Activate Google Ads tag — awaiting AW-XXXXXXXXXX ID from Tim
+- [ ] Activate Meta Pixel — awaiting 15-16 digit Pixel ID from Tim
+- [ ] Wire Google Ads conversion events (purchase, signup, checkout)
+- [ ] Wire Meta Pixel standard events (Purchase, CompleteRegistration, InitiateCheckout, ViewContent)

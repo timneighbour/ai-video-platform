@@ -52,6 +52,7 @@ const BlogAdmin = lazy(() => import("@/pages/BlogAdmin"));
 const LandingUK = lazy(() => import("@/pages/LandingUK"));
 const LandingApp = lazy(() => import("@/pages/LandingApp"));
 const LandingStudio = lazy(() => import("@/pages/LandingStudio"));
+const AiAnimationMaker = lazy(() => import("@/pages/AiAnimationMaker"));
 const RenderSuccess = lazy(() => import("@/pages/RenderSuccess"));
 const Discover = lazy(() => import("@/pages/Discover"));
 const Create = lazy(() => import("@/pages/Create"));
@@ -156,10 +157,13 @@ function Router() {
         <Route path={"/wiz-image"} component={WizImage} />
         <Route path={"/wiz-shorts"} component={WizShorts} />
         <Route path={"/music-video"} component={MusicVideosLanding} />
+        <Route path={"/music-video-ai"} component={MusicVideosLanding} />{/* SEO alias */}
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
         <Route path={"/render-history"} component={RenderHistory} />
         <Route path={"/kids-video"} component={KidsVideo} />
         <Route path={"/text-to-video"} component={TextToVideoCreator} />
+        <Route path={"/ai-video-generator"} component={TextToVideoCreator} />{/* SEO alias */}
+        <Route path={"/ai-animation-maker"} component={AiAnimationMaker} />
         <Route path={"/enhancement-studio"} component={EnhancementStudio} />
         <Route path={"/batch-regeneration"} component={BatchRegeneration} />
         <Route path={"/pricing"} component={Pricing} />
