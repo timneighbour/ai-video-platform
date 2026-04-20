@@ -19,6 +19,7 @@ import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 import AuthGate from "@/components/AuthGate";
 import { mp } from "@/lib/mixpanel";
+import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 // ── Asset constants ───────────────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
@@ -646,6 +647,41 @@ export default function AiAnimationMaker() {
           </button>
         </div>
       </section>
+
+      {/* ── Showcase ─────────────────────────────────────────────────────── */}
+      <ShowcaseVideoSection
+        title="See what WIZ AI animation looks like"
+        subtitle="Animation showcase"
+        description="Every animation created from a text prompt. No software, no timeline, no experience needed."
+        ctaLabel="Create Your First Animation"
+        ctaHref="/kids-video"
+        items={[
+          {
+            id: 1,
+            title: "Star Quest — Kids Channel Intro",
+            category: "Stylised 3D",
+            posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg",
+            videoUrl: null,
+            description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
+          },
+          {
+            id: 2,
+            title: "Storybook World — Illustrated Style",
+            category: "Storybook Animation",
+            posterUrl: `${CDN}/kids-style-storybook_4bc666a9.jpg`,
+            videoUrl: null,
+            description: "A timeless storybook-style animated scene. Soft watercolour palette, magical atmosphere, perfect for kids content.",
+          },
+          {
+            id: 3,
+            title: "Anime Adventure — Action Scene",
+            category: "Anime-Inspired",
+            posterUrl: `${CDN}/kids-style-anime_e5435cad.jpg`,
+            videoUrl: null,
+            description: "Expressive Japanese animation style with vivid detail. Generated from a single scene description.",
+          },
+        ]}
+      />
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-10 px-6">

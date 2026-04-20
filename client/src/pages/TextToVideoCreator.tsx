@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -803,6 +804,43 @@ export default function TextToVideoCreator() {
           </div>
         )}
       </div>
+
+      {/* Showcase — only shown on the input step so it doesn't distract during generation */}
+      {step === "input" && (
+        <ShowcaseVideoSection
+          title="See what WIZ AI can generate"
+          subtitle="AI video showcase"
+          description="Every video created from a text prompt. No footage, no editing, no crew."
+          ctaLabel="Start Creating"
+          ctaHref="/onboarding"
+          items={[
+            {
+              id: 1,
+              title: "Midnight City — Cinematic Style",
+              category: "Cinematic AI Video",
+              posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
+              videoUrl: null,
+              description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt.",
+            },
+            {
+              id: 2,
+              title: "Stage Performance — Music Video",
+              category: "Music Video",
+              posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
+              videoUrl: null,
+              description: "A full music video with synced visuals and cinematic effects. Created with WizVideo.",
+            },
+            {
+              id: 3,
+              title: "Star Quest — Kids Channel Intro",
+              category: "Animation",
+              posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg",
+              videoUrl: null,
+              description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description.",
+            },
+          ]}
+        />
+      )}
     </div>
   );
 }

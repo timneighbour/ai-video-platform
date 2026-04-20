@@ -30,6 +30,7 @@ import {
   Users, Star, Crown, Zap, Play, Headphones, Globe, Layers
 } from "@/lib/icons";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
+import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 // ── CDN assets ────────────────────────────────────────────────────────────────
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
@@ -180,8 +181,8 @@ const PLANS = [
   {
     id: "starter" as const,
     name: "Starter",
-    monthlyPrice: 29,
-    annualPrice: 290,
+    monthlyPrice: 19,
+    annualPrice: 190,
     bestFor: "First-time creators",
     tagline: "Start creating music videos today.",
     rendersPerMonth: 2,
@@ -210,9 +211,9 @@ const PLANS = [
   },
   {
     id: "creator" as const,
-    name: "Creator",
-    monthlyPrice: 79,
-    annualPrice: 790,
+    name: "Pro",
+    monthlyPrice: 49,
+    annualPrice: 490,
     bestFor: "Active content creators",
     tagline: "More videos, more scenes, more creative control.",
     rendersPerMonth: 6,
@@ -236,12 +237,12 @@ const PLANS = [
       { text: "No watermark", included: true },
       { text: "WizSound audio mastering", included: true },
       { text: "Character consistency", included: true },
-      { text: "Priority rendering", included: true },
+      { text: "Priority video builds", included: true },
     ],
   },
   {
     id: "pro" as const,
-    name: "Pro",
+    name: "Business",
     monthlyPrice: 149,
     annualPrice: 1490,
     bestFor: "Professional creators",
@@ -267,7 +268,7 @@ const PLANS = [
       { text: "No watermark", included: true },
       { text: "WizSound audio mastering", included: true },
       { text: "Character consistency", included: true },
-      { text: "Priority rendering", included: true },
+      { text: "Priority video builds", included: true },
     ],
   },
 ]
@@ -282,7 +283,7 @@ const BUNDLES = [
     label: "Starter Pack",
     popular: false,
     bestValue: false,
-    desc: "Top up when you need a few extra renders.",
+    desc: "Top up when you need a few extra Build Credits.",
     bgImage: SHOWCASE_3,
     accentColor: "rgba(100,140,200,0.15)",
     borderColor: "rgba(100,140,200,0.2)",
@@ -308,7 +309,7 @@ const BUNDLES = [
     label: "Studio Pack",
     popular: false,
     bestValue: true,
-    desc: "Best value per render. Ideal for high-volume production.",
+    desc: "Best value per Build Credit. Ideal for high-volume production.",
     bgImage: SHOWCASE_2,
     accentColor: "rgba(160,100,220,0.15)",
     borderColor: "rgba(160,100,220,0.25)",
@@ -321,9 +322,10 @@ const COMPARISON_GROUPS = [
     group: "Output",
     rows: [
       { label: "Videos per month", starter: "2", creator: "6", pro: "12" },
+      { label: "Build Credits / month", starter: "240", creator: "990", pro: "2,160" },
       { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", pro: "12 (≈96s)" },
       { label: "Max output quality", starter: "720p", creator: "4K 2160p", pro: "4K 2160p" },
-      { label: "Watermark on exports", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "No watermark", starter: true, creator: true, pro: true, isCheck: true },
     ],
   },
   {
@@ -332,15 +334,15 @@ const COMPARISON_GROUPS = [
       { label: "All 6 WIZ AI products", starter: true, creator: true, pro: true, isCheck: true },
       { label: "WizSound audio mastering", starter: true, creator: true, pro: true, isCheck: true },
       { label: "Character consistency", starter: false, creator: true, pro: true, isCheck: true },
-      { label: "Priority rendering", starter: false, creator: true, pro: true, isCheck: true },
+      { label: "Priority video builds", starter: false, creator: true, pro: true, isCheck: true },
     ],
   },
   {
     group: "Access",
     rows: [
-      { label: "Render bundles (top-ups)", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "Pay-per-render", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "Daily render limit", starter: "3/day", creator: "3/day", pro: "3/day" },
+      { label: "Build Credit top-ups", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Pay-per-video", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Daily video limit", starter: "3/day", creator: "3/day", pro: "3/day" },
     ],
   },
 ];
@@ -348,32 +350,32 @@ const COMPARISON_GROUPS = [
 // ── FAQ ───────────────────────────────────────────────────────────────────────
 const FAQS = [
   {
-    q: "What does 'Create free, pay to render' mean?",
-    a: "You can build your entire video — upload audio, generate scenes, edit your storyboard — completely free. You only pay when you're happy with the result and want to download the final rendered video. There is no time limit on the free creation tier.",
+    q: "What does 'Build free, pay when your video is ready' mean?",
+    a: "You can build your entire video — upload audio, generate scenes, edit your storyboard — completely free. You only pay when you're happy with the result and want to download the final video. There is no time limit on the free creation tier.",
   },
   {
     q: "What is the difference between Standard, HD, and 4K?",
-    a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Creator, Pro, and Studio plans.",
+    a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Pro and Business plans.",
   },
   {
-    q: "What happens if I use all my monthly renders?",
-    a: "Your subscription renders reset on your next billing date. In the meantime, you can top up instantly with a render bundle (6, 15, or 40 renders) or pay per-render at £2–£6 depending on quality. Bundles never expire and are used automatically once your subscription renders run out.",
+    q: "What happens if I use all my monthly Build Credits?",
+    a: "Your Build Credits reset on your next billing date. In the meantime, you can top up instantly with a credit bundle (6, 15, or 40 videos) or pay per-video at £2–£6 depending on quality. Bundles never expire and are used automatically once your monthly credits run out.",
   },
   {
-    q: "What are render bundles?",
-    a: "Render bundles are pre-purchased packs of render credits. Buy 6, 15, or 40 renders upfront and save compared to pay-per-render pricing. Bundles never expire and work alongside any subscription plan.",
+    q: "What are Build Credit bundles?",
+    a: "Build Credit bundles are pre-purchased packs of video credits. Buy 6, 15, or 40 videos upfront and save compared to pay-per-video pricing. Bundles never expire and work alongside any subscription plan.",
   },
   {
-    q: "Do subscription renders roll over?",
-    a: "Subscription renders reset each billing cycle and do not roll over. If you need more flexibility, render bundles are a better option as they never expire.",
+    q: "Do monthly Build Credits roll over?",
+    a: "Monthly Build Credits reset each billing cycle and do not roll over. If you need more flexibility, Build Credit bundles are a better option as they never expire.",
   },
   {
     q: "What is character consistency?",
-    a: "Character consistency uses AI to maintain the same character appearance across multiple scenes in your video. Available on Creator, Pro, and Studio plans.",
+    a: "Character consistency uses AI to maintain the same character appearance across multiple scenes in your video. Available on Pro and Business plans.",
   },
   {
-    q: "What is priority rendering?",
-    a: "Priority rendering moves your job to the front of the render queue. On Creator, Pro, and Studio plans, your videos process faster — typically within minutes.",
+    q: "What is priority video building?",
+    a: "Priority video builds move your job to the front of the queue. On Pro and Business plans, your videos process faster — typically within minutes.",
   },
   {
     q: "Is there a free trial?",
@@ -385,7 +387,7 @@ const FAQS = [
   },
   {
     q: "Does pricing cover all WIZ AI products?",
-    a: "Yes. Your subscription renders and render bundles work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each render or export consumes one credit regardless of the product used.",
+    a: "Yes. Your monthly Build Credits and credit bundles work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each video or export uses credits regardless of the product used.",
   },
 ];
 
@@ -427,7 +429,7 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
-  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free trial, Starter (£29/mo), Creator (£79/mo), and Pro (£149/mo) plans available. Pay only when you render." });
+  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£19/mo), Pro (£49/mo), and Business (£149/mo) plans available. Only pay when your video is ready." });
   const { isAuthenticated } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
@@ -535,7 +537,7 @@ export default function Pricing() {
           </div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">
             Create free.<br />
-            <span className="metallic-gold">Pay to render.</span>
+            <span className="metallic-gold">Pay when your video is ready.</span>
           </h1>
           <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">
             Build your entire video at no cost. Only pay when you're ready to download your finished creation.
@@ -567,7 +569,7 @@ export default function Pricing() {
           {[
             { step: "01", img: HIW_STEP1, title: "Create for free", desc: "Upload your audio, generate your storyboard, and build your video. No credit card required." },
             { step: "02", img: HIW_STEP3, title: "Preview & refine", desc: "Review your scenes, adjust the style, and perfect every detail before committing." },
-            { step: "03", img: HIW_STEP4, title: "Pay to render & download", desc: "Happy with the result? Choose your quality and download. Pay only for what you render." },
+            { step: "03", img: HIW_STEP4, title: "Your video is ready to download", desc: "Happy with the result? Choose your quality and download. You only pay when your video is ready." },
           ].map((item, i) => (
             <div key={item.step} className="relative rounded-2xl overflow-hidden border border-white/[0.07] group" style={{ animationDelay: `${i * 0.1}s` }}>
               {/* Background photo */}
@@ -595,8 +597,8 @@ export default function Pricing() {
       <section className="max-w-5xl mx-auto px-6 mb-24" id="render-pricing">
         <div className="text-center mb-12">
           <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Pay As You Go</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Pay-per-render pricing</h2>
-          <p className="text-sm text-white/40 max-w-md mx-auto">No subscription needed. One price per full video render. Choose your quality.</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Pay-per-video pricing</h2>
+          <p className="text-sm text-white/40 max-w-md mx-auto">No subscription needed. One price per full video. Choose your quality.</p>
         </div>
 
         {/* Quality tier cards */}
@@ -660,7 +662,7 @@ export default function Pricing() {
               <div className="flex-1 p-5 bg-[#0c0c0c]">
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-4xl font-extrabold text-white">&pound;{tier.price}</span>
-                  <span className="text-sm text-white/40">per render</span>
+                  <span className="text-sm text-white/40">per video</span>
                 </div>
                 <p className="text-xs text-white/40 mb-4">{tier.desc}</p>
                 <div className="space-y-1.5">
@@ -714,7 +716,7 @@ export default function Pricing() {
         <div className="text-center mb-12">
           <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Subscription Plans</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Monthly plans for regular creators</h2>
-          <p className="text-sm text-white/40 max-w-lg mx-auto mb-8">Renders included every month. Best value for consistent creators. Cancel anytime.</p>
+          <p className="text-sm text-white/40 max-w-lg mx-auto mb-8">Build Credits included every month. Best value for consistent creators. Cancel anytime.</p>
 
           {/* Billing toggle */}
           <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.07]">
@@ -822,7 +824,7 @@ export default function Pricing() {
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
                       <div className="text-2xl font-black text-white">{plan.rendersPerMonth}</div>
-                      <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">renders/mo</div>
+                      <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">credits/mo</div>
                     </div>
                     <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
                       <div className="text-[11px] font-bold text-white leading-tight">{plan.outputQuality}</div>
@@ -885,7 +887,7 @@ export default function Pricing() {
         <div className="rounded-2xl border border-[--color-gold]/[0.1] bg-gradient-to-br from-[--color-gold]/[0.03] to-transparent p-8">
           <div className="text-center mb-8">
             <h3 className="text-lg font-bold text-white mb-2">One subscription. Six powerful tools.</h3>
-            <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your renders work across every tool.</p>
+            <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your Build Credits work across every tool.</p>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
             {[
@@ -1036,7 +1038,7 @@ export default function Pricing() {
               name: "Marcus T.",
               role: "Music Producer",
               quote: "WIZ AI turned my track into a cinematic music video in under 10 minutes. The quality blew my mind.",
-              plan: "Creator Plan",
+              plan: "Pro Plan",
               stars: 5,
             },
             {
@@ -1059,8 +1061,8 @@ export default function Pricing() {
               avatar: AVATAR_DANIEL,
               name: "Daniel K.",
               role: "Animator",
-              quote: "WizAnimate is incredible for stylised animation. Character consistency on the Creator plan is a game-changer.",
-              plan: "Creator Plan",
+              quote: "WizAnimate is incredible for stylised animation. Character consistency on the Pro plan is a game-changer.",
+              plan: "Pro Plan",
               stars: 5,
             },
           ].map((t) => (
@@ -1145,7 +1147,7 @@ export default function Pricing() {
             <div className="col-span-1 p-4 flex items-center">
               <span className="text-xs font-bold text-white/40 uppercase tracking-wider">Feature</span>
             </div>
-            {["Starter", "Creator", "Pro"].map((name, i) => (
+            {["Starter", "Pro", "Business"].map((name, i) => (
               <div key={name} className={`p-4 text-center border-l border-white/[0.05] ${i === 1 ? "bg-[--color-gold]/[0.04]" : ""}`}>
                 <p className="text-xs font-bold text-white">{name}</p>
                 {i === 1 && <p className="text-[9px] text-[--color-gold] font-semibold mt-0.5">Most Popular</p>}
@@ -1236,6 +1238,20 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+
+      {/* ── 11b. SHOWCASE ── */}
+      <ShowcaseVideoSection
+        title="See what you can create"
+        subtitle="WIZ AI showcase"
+        description="Every video on every plan is built from a prompt. No footage, no editing, no experience needed."
+        ctaLabel="Start Creating Free"
+        ctaHref="/onboarding"
+        items={[
+          { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: SHOWCASE_1, videoUrl: null, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt." },
+          { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: SHOWCASE_2, videoUrl: null, description: "A full music video with synced visuals and cinematic effects. Created with WizVideo." },
+          { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: SHOWCASE_3, videoUrl: null, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description." },
+        ]}
+      />
 
       {/* ── 12. FOOTER ── */}
       <footer className="border-t border-white/[0.05] py-10 px-6">

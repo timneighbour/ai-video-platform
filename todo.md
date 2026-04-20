@@ -5464,3 +5464,39 @@
 - [ ] Activate Meta Pixel — awaiting 15-16 digit Pixel ID from Tim
 - [x] Wire Google Ads conversion events (purchaseCompleted, signUpCompleted, checkoutStarted, startCreatingClicked, pricingPageViewed) via gtagConversion() in mixpanel.ts
 - [ ] Wire Meta Pixel standard events (Purchase, CompleteRegistration, InitiateCheckout, ViewContent)
+- [x] Activate Google Ads tag AW-18107688120 in index.html
+- [x] Wire ads_conversion_SUBSCRIBE_PAID_1 label to checkoutStarted and purchaseCompleted
+- [x] Add gtagSendEvent delayed navigation helper to analytics.ts
+- [x] Wire gtagSendEvent to Stripe checkout navigation in Pricing.tsx
+
+## Track 1 — Consumer Platform Priority (Apr 21 2026)
+
+### Showcase Video Support
+- [ ] Add showcase_videos table to DB schema
+- [ ] Add admin tRPC procedures for showcase video CRUD
+- [ ] Build shared ShowcaseSection component (premium player, placeholder state, CTA)
+- [ ] Add ShowcaseSection to homepage
+- [ ] Add ShowcaseSection to /music-video-ai
+- [ ] Add ShowcaseSection to /ai-video-generator
+- [ ] Add ShowcaseSection to /ai-animation-maker
+- [ ] Add ShowcaseSection to /pricing
+
+### Pricing Clarity
+- [ ] Update plan prices: Starter £19/mo, Pro £49/mo, Business £149/mo
+- [ ] Replace "rendering" language with "Build Credits" / "Build your video" / "Your video is ready"
+- [ ] Update plan comparison table: Build Credits, scene allowance, tools, WizSound/WizLumina, quality, best-for
+- [ ] Remove any implication of unlimited video generation
+
+### Tracking Verification
+- [ ] Verify Google tag AW-18107688120 loads on all public pages
+- [ ] Verify purchaseCompleted fires only after confirmed Stripe success
+- [ ] Verify checkoutStarted fires on subscribe/checkout click
+- [ ] Verify signUpCompleted fires once after account creation
+- [ ] Verify startCreatingClicked fires on CTA clicks
+- [ ] Verify pricingPageViewed fires on pricing page load
+- [ ] Confirm no duplicate events firing
+
+### Campaign Readiness
+- [ ] Update campaign assets document for Performance Max asset coverage
+- [ ] Document 16:9, 9:16, 1:1 video asset requirements
+- [ ] Document image asset requirements (under 5MB, centre safe area)

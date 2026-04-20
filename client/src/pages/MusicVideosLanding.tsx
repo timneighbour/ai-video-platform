@@ -8,8 +8,37 @@ import AuthGate from "@/components/AuthGate";
 import { Music, Check, Play, Sparkles, Zap, Film, Wand2, ChevronRight } from "@/lib/icons";
 import { useLocation, Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
+import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+
+// Static fallback showcase items for music video page (replaced by DB items when available)
+const MUSIC_VIDEO_SHOWCASE = [
+  {
+    id: 1,
+    title: "Stage Performance — Music Video",
+    category: "Music Video",
+    posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
+    videoUrl: null,
+    description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created from an uploaded track.",
+  },
+  {
+    id: 2,
+    title: "Midnight City — Cinematic Style",
+    category: "Cinematic AI Video",
+    posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
+    videoUrl: null,
+    description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt.",
+  },
+  {
+    id: 3,
+    title: "WizPerformer — Performance Sync",
+    category: "WizPerformer",
+    posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png",
+    videoUrl: null,
+    description: "Not just lip-sync — full performance sync. Every gesture, expression, and movement matched to the music.",
+  },
+];
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
@@ -269,6 +298,16 @@ export default function MusicVideosLanding() {
           <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to render</p>
         </div>
       </section>
+
+      {/* Showcase */}
+      <ShowcaseVideoSection
+        title="See what WIZ AI music videos look like"
+        subtitle="Music video showcase"
+        description="Every video built from a text prompt and an uploaded track. No crew, no editing, no experience needed."
+        ctaLabel="Create Your Music Video"
+        ctaHref="/music-video/create"
+        items={MUSIC_VIDEO_SHOWCASE}
+      />
 
       {/* Footer */}
       <footer className="bg-[#0f0f0f] border-t border-white/8 py-10 px-6">
