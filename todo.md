@@ -5431,3 +5431,10 @@
 - [ ] Test audio-sync capability (LTX-Video 2.3)
 - [ ] Decide integration threshold: score 28+/40 = integrate as primary
 - [ ] Only add WizMotion to WIZ AI platform once quality and reliability proven
+
+## PageSpeed Performance Fixes
+- [ ] Fix LCP: preload intro poster image with fetchpriority=high
+- [ ] Fix render-blocking CSS: font-display swap, defer non-critical styles
+- [ ] Fix JS: React.lazy code-splitting for heavy pages
+- [ ] Fix images: add explicit width/height to all images in Home.tsx
+- [ ] Fix unused CSS: purge Tailwind more aggressively

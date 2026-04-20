@@ -172,6 +172,22 @@ export default defineConfig({
     sourcemap: false,
     // Target modern browsers to eliminate legacy JS transpilation (saves ~18 KiB per PageSpeed audit)
     target: ["es2020", "chrome80", "firefox80", "safari14"],
+    rollupOptions: {
+      output: {
+        // Manual chunk splitting — keeps initial bundle small for faster LCP/FCP
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react-dom") || id.includes("/react/")) return "vendor-react";
+            if (id.includes("framer-motion")) return "vendor-motion";
+            if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
+            if (id.includes("@stripe")) return "vendor-stripe";
+            if (id.includes("@radix-ui")) return "vendor-ui";
+            if (id.includes("@trpc") || id.includes("@tanstack")) return "vendor-trpc";
+            if (id.includes("wouter")) return "vendor-router";
+          }
+        },
+      },
+    },
   },
   server: {
     host: true,

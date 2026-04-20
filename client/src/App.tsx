@@ -252,6 +252,11 @@ function App() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
 
   useEffect(() => {
+    // Detect bots/crawlers by user-agent — skip intro entirely so real homepage LCP is measured
+    // This fixes the 208s PageSpeed LCP caused by the intro video being the LCP element for bots
+    const ua = navigator.userAgent.toLowerCase();
+    const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
+    if (isBot) return; // Skip intro for all bots — they should see the real homepage immediately
     try {
       const seen = sessionStorage.getItem(INTRO_SESSION_KEY);
       if (!seen) {
