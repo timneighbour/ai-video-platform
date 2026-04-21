@@ -23,7 +23,7 @@ import {
   Mic2, Upload, UploadCloud, Loader2, CheckCircle2, AlertCircle,
   Music2, Users, Layers, Zap, ChevronRight, RefreshCw,
   UserCircle2, Guitar, Drum, Piano, Radio, Volume2, Waves,
-  ArrowRight, Sparkles, Clock, Play,
+  ArrowRight, Sparkles, Clock, Play, Video, X,
 } from "@/lib/icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -62,6 +62,8 @@ interface Segment {
   text: string | null;
   confidence: string | null;
   lipSyncStatus: "pending" | "processing" | "done" | "error";
+  previewStatus: "idle" | "generating" | "ready" | "error";
+  previewVideoUrl: string | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -234,6 +236,182 @@ function StemCard({ stemKey, stemData }: { stemKey: string; stemData: { url: str
   );
 }
 
+// ─── SegmentPreviewPlayer ────────────────────────────────────────────────────
+// Per-segment free 5-second preview. Calls generatePreview mutation and polls
+// until the Atlas Cloud job is done, then shows an inline video player with
+// a "WIZ AI PREVIEW" watermark overlay and a full-render upgrade CTA.
+
+function SegmentPreviewPlayer({
+  segment,
+  speaker,
+  onPreviewReady,
+}: {
+  segment: Segment;
+  speaker: Speaker | undefined;
+  onPreviewReady: (segmentId: number, url: string) => void;
+}) {
+  const [localStatus, setLocalStatus] = useState<"idle" | "generating" | "ready" | "error">(
+    segment.previewStatus ?? "idle"
+  );
+  const [localUrl, setLocalUrl] = useState<string | null>(segment.previewVideoUrl ?? null);
+
+  const generatePreview = trpc.wizSync.generatePreview.useMutation({
+    onSuccess: (data) => {
+      setLocalStatus(data.status);
+      if (data.status === "ready" && data.previewVideoUrl) {
+        setLocalUrl(data.previewVideoUrl);
+        onPreviewReady(segment.id, data.previewVideoUrl);
+      }
+    },
+    onError: (err) => {
+      setLocalStatus("error");
+      toast.error("Preview failed", { description: err.message });
+    },
+  });
+
+  const pollQuery = trpc.wizSync.pollPreview.useQuery(
+    { segmentId: segment.id },
+    {
+      enabled: localStatus === "generating",
+      refetchInterval: localStatus === "generating" ? 3000 : false,
+    }
+  );
+
+  useEffect(() => {
+    if (!pollQuery.data) return;
+    const { status, previewVideoUrl } = pollQuery.data;
+    setLocalStatus(status);
+    if (status === "ready" && previewVideoUrl) {
+      setLocalUrl(previewVideoUrl);
+      onPreviewReady(segment.id, previewVideoUrl);
+    }
+  }, [pollQuery.data]);
+
+  const speakerName = speaker?.displayName ?? `Speaker ${speaker?.speakerLabel ?? "?"}`;
+
+  return (
+    <div className="mt-3 rounded-xl border border-[--color-gold]/20 bg-[--color-gold]/5 overflow-hidden">
+      {/* Header */}
+      <div className="px-4 py-2.5 flex items-center justify-between border-b border-[--color-gold]/10">
+        <div className="flex items-center gap-2">
+          <Video className="w-4 h-4 text-[--color-gold]" />
+          <span className="text-xs font-semibold text-[--color-gold]">5-Second Preview</span>
+          <span className="text-xs text-zinc-500">— Free, no credits</span>
+        </div>
+        {localStatus === "ready" && (
+          <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs">Ready</Badge>
+        )}
+        {localStatus === "generating" && (
+          <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30 text-xs">Generating…</Badge>
+        )}
+        {localStatus === "error" && (
+          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-xs">Error</Badge>
+        )}
+      </div>
+
+      <div className="p-4 space-y-3">
+        {/* Idle — show generate button */}
+        {localStatus === "idle" && (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Generate a free 5-second AI preview for <strong className="text-white">{speakerName}</strong> to see how lip-sync will look before committing Build Credits.
+            </p>
+            <Button
+              size="sm"
+              className="shrink-0 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:opacity-90 text-white font-semibold rounded-lg text-xs"
+              onClick={() => {
+                setLocalStatus("generating");
+                generatePreview.mutate({ segmentId: segment.id });
+              }}
+              disabled={generatePreview.isPending}
+            >
+              <Play className="w-3 h-3 mr-1.5" />
+              Preview (Free)
+            </Button>
+          </div>
+        )}
+
+        {/* Generating — spinner */}
+        {localStatus === "generating" && (
+          <div className="flex items-center gap-3 py-2">
+            <div className="relative shrink-0">
+              <div className="w-10 h-10 rounded-full border border-[--color-gold]/30 flex items-center justify-center">
+                <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin" />
+              </div>
+              <div className="absolute inset-0 rounded-full border border-[--color-gold]/20 animate-ping" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white">Generating your 5-second preview…</p>
+              <p className="text-xs text-zinc-500 mt-0.5">This takes 20–60 seconds. You can continue working.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Ready — inline video player with watermark */}
+        {localStatus === "ready" && localUrl && (
+          <div className="space-y-3">
+            <div className="relative rounded-lg overflow-hidden bg-black aspect-video">
+              <video
+                src={localUrl}
+                controls
+                autoPlay
+                loop
+                playsInline
+                className="w-full h-full object-contain"
+              />
+              {/* WIZ AI PREVIEW watermark */}
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="px-4 py-2 rounded-lg bg-black/40 backdrop-blur-sm border border-[--color-gold]/30">
+                  <span className="text-[--color-gold] font-black text-sm tracking-[0.25em] uppercase opacity-70">WIZ AI PREVIEW</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upgrade CTA */}
+            <div className="rounded-lg border border-[--color-gold]/20 bg-gradient-to-r from-[#b8892a]/10 to-[#4a3010]/5 p-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-white">Like what you see?</p>
+                <p className="text-xs text-zinc-400 mt-0.5">Generate the full lip-sync render — uses Build Credits from your plan.</p>
+              </div>
+              <Button
+                size="sm"
+                className="shrink-0 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:opacity-90 text-white font-semibold rounded-lg text-xs"
+                onClick={() => toast.info("Full lip-sync render coming soon!", { description: "WizPerformer™ is in active development. Your segments are saved and ready." })}
+              >
+                <Zap className="w-3 h-3 mr-1.5" />
+                Full Render
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Error state */}
+        {localStatus === "error" && (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <p className="text-xs text-red-400">Preview generation failed. Please try again.</p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0 border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-lg text-xs"
+              onClick={() => {
+                setLocalStatus("generating");
+                generatePreview.mutate({ segmentId: segment.id });
+              }}
+              disabled={generatePreview.isPending}
+            >
+              <RefreshCw className="w-3 h-3 mr-1.5" />
+              Retry
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function WizSyncPage() {
@@ -369,6 +547,16 @@ export default function WizSyncPage() {
     setPollingEnabled(false);
     // Fetch job data
     setJobData(null);
+  };
+
+  const handlePreviewReady = (segmentId: number, url: string) => {
+    if (!jobData) return;
+    setJobData({
+      ...jobData,
+      segments: jobData.segments.map((s) =>
+        s.id === segmentId ? { ...s, previewStatus: "ready" as const, previewVideoUrl: url } : s
+      ),
+    });
   };
 
   // Load job data when currentJobId changes (for history loads)
@@ -715,7 +903,7 @@ export default function WizSyncPage() {
                   </div>
                 )}
 
-                {/* Segments timeline */}
+                {/* Segments timeline with per-segment preview */}
                 {jobData.segments.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -724,22 +912,31 @@ export default function WizSyncPage() {
                       <Badge className="bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30 text-xs ml-1">
                         {jobData.segments.length} segments
                       </Badge>
+                      <span className="ml-auto text-xs text-zinc-500 font-normal">Click any segment to preview</span>
                     </h2>
                     <div className="rounded-2xl border border-white/8 bg-white/3 overflow-hidden">
-                      <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
+                      <div className="divide-y divide-white/5">
                         {jobData.segments.slice(0, 50).map((seg) => {
                           const speaker = jobData.speakers.find((s) => s.id === seg.wizSyncSpeakerId);
                           const speakerIdx = jobData.speakers.findIndex((s) => s.id === seg.wizSyncSpeakerId);
                           const colorClass = SPEAKER_COLORS[speakerIdx % SPEAKER_COLORS.length];
                           return (
-                            <div key={seg.id} className="px-5 py-3 flex items-start gap-3 hover:bg-white/2 transition-colors">
-                              <span className="text-xs font-mono text-zinc-600 shrink-0 pt-0.5">{formatMs(seg.startMs)}</span>
-                              <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${colorClass} shrink-0 mt-1.5`} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs text-zinc-500 mb-0.5">{speaker?.displayName ?? `Speaker ${speaker?.speakerLabel}`}</p>
-                                <p className="text-sm text-zinc-300 leading-relaxed">{seg.text ?? "(no transcript)"}</p>
+                            <div key={seg.id} className="px-5 py-3 hover:bg-white/2 transition-colors">
+                              <div className="flex items-start gap-3">
+                                <span className="text-xs font-mono text-zinc-600 shrink-0 pt-0.5">{formatMs(seg.startMs)}</span>
+                                <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${colorClass} shrink-0 mt-1.5`} />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-zinc-500 mb-0.5">{speaker?.displayName ?? `Speaker ${speaker?.speakerLabel}`}</p>
+                                  <p className="text-sm text-zinc-300 leading-relaxed">{seg.text ?? "(no transcript)"}</p>
+                                  {/* Per-segment preview player */}
+                                  <SegmentPreviewPlayer
+                                    segment={seg}
+                                    speaker={speaker}
+                                    onPreviewReady={handlePreviewReady}
+                                  />
+                                </div>
+                                <span className="text-xs text-zinc-700 shrink-0">{formatMs(seg.endMs)}</span>
                               </div>
-                              <span className="text-xs text-zinc-700 shrink-0">{formatMs(seg.endMs)}</span>
                             </div>
                           );
                         })}
@@ -753,25 +950,31 @@ export default function WizSyncPage() {
                   </div>
                 )}
 
-                {/* Lip sync CTA */}
-                <div className="rounded-2xl border border-white/8 bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/10 p-6 flex items-center justify-between flex-wrap gap-4">
-                  <div>
-                    <h3 className="font-semibold text-white flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-[--color-gold]" />
-                      Generate Lip Sync
-                    </h3>
-                    <p className="text-sm text-zinc-400 mt-1">
-                      Assign characters above, then generate AI lip-sync video for each speaker segment.
-                    </p>
+                {/* Full Lip Sync CTA */}
+                <div className="rounded-2xl border border-[--color-gold]/20 bg-gradient-to-br from-[#b8892a]/15 to-[#4a3010]/8 p-6">
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                      <h3 className="font-semibold text-white flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-[--color-gold]" />
+                        Generate Full Lip Sync
+                      </h3>
+                      <p className="text-sm text-zinc-400 mt-1 max-w-md">
+                        Happy with the previews? Generate a full-length AI lip-sync video for every segment. Uses Build Credits from your plan.
+                      </p>
+                    </div>
+                    <Button
+                      className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:opacity-90 text-white font-semibold rounded-xl"
+                      onClick={() => toast.info("Full lip-sync render coming soon!", { description: "WizPerformer™ is in active development. Your segments and previews are saved." })}
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      Full Lip Sync
+                      <Badge className="ml-2 bg-white/20 text-white text-xs">Soon</Badge>
+                    </Button>
                   </div>
-                  <Button
-                    className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold rounded-xl"
-                    onClick={() => toast.info("Lip sync generation coming soon!", { description: "WizPerformer™ is in progress. Characters and segments are saved and ready." })}
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Generate Lip Sync
-                    <Badge className="ml-2 bg-white/20 text-white text-xs">Soon</Badge>
-                  </Button>
+                  <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    Previews are free — Build Credits are only used for full renders
+                  </div>
                 </div>
               </>
             )}

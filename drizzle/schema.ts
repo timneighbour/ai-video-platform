@@ -698,6 +698,10 @@ export const wizSyncSegments = mysqlTable("wizSyncSegments", {
   hedraGenerationId: varchar("hedraGenerationId", { length: 255 }),
   lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }),
   lipSyncStatus: mysqlEnum("wizSyncLipStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(),
+  /** Free 5-second preview clip — generated before full lip-sync render, costs 0 credits */
+  previewVideoUrl: varchar("previewVideoUrl", { length: 1024 }),
+  previewStatus: mysqlEnum("wizSyncPreviewStatus", ["idle", "generating", "ready", "error"]).default("idle").notNull(),
+  previewAtlasJobId: varchar("previewAtlasJobId", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type WizSyncSegment = typeof wizSyncSegments.$inferSelect;

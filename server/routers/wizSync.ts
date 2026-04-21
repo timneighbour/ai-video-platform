@@ -269,4 +269,129 @@ export const wizSyncRouter = router({
       return await db.select().from(wizSyncJobs)
         .where(eq(wizSyncJobs.userId, ctx.user.id));
     }),
+
+  /**
+   * generatePreview — Start a free 5-second lip-sync preview for a segment.
+   * Costs 0 credits. Uses Atlas Cloud text-to-video with a lip-sync prompt
+   * derived from the segment transcript and speaker character assignment.
+   * Returns immediately with the Atlas job ID; poll with pollPreview.
+   */
+  generatePreview: protectedProcedure
+    .input(z.object({ segmentId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Load segment and verify ownership
+      const [segment] = await db.select().from(wizSyncSegments)
+        .where(eq(wizSyncSegments.id, input.segmentId));
+      if (!segment) throw new TRPCError({ code: "NOT_FOUND", message: "Segment not found" });
+
+      const [job] = await db.select().from(wizSyncJobs)
+        .where(and(eq(wizSyncJobs.id, segment.wizSyncJobId), eq(wizSyncJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "FORBIDDEN" });
+
+      // If preview already ready, return it
+      if (segment.previewStatus === "ready" && segment.previewVideoUrl) {
+        return { status: "ready" as const, previewVideoUrl: segment.previewVideoUrl };
+      }
+
+      // If already generating, return current status
+      if (segment.previewStatus === "generating") {
+        return { status: "generating" as const, previewVideoUrl: null };
+      }
+
+      // Load speaker for character context
+      const [speaker] = await db.select().from(wizSyncSpeakers)
+        .where(eq(wizSyncSpeakers.id, segment.wizSyncSpeakerId));
+
+      // Build a cinematic lip-sync prompt for the 5-second preview
+      const speakerName = speaker?.displayName ?? speaker?.speakerLabel ?? "a singer";
+      const gender = speaker?.inferredGender === "female" ? "woman" : "man";
+      const transcript = segment.text ? `"${segment.text.slice(0, 80)}"` : "performing a song";
+      const prompt = [
+        `Cinematic close-up of a ${gender} named ${speakerName} singing ${transcript}.`,
+        "Photorealistic, dramatic studio lighting, shallow depth of field.",
+        "Mouth moving in perfect sync with the lyrics. High detail facial animation.",
+        "Professional music video style. 5 seconds.",
+      ].join(" ");
+
+      // Submit to Atlas Cloud (5-second clip, 0 credits)
+      const { submitAtlasVideo } = await import("../ai-apis/atlascloud");
+      let atlasJobId: string;
+      try {
+        const atlasJob = await submitAtlasVideo(prompt, 5);
+        atlasJobId = atlasJob.predictionId;
+      } catch (err) {
+        await db.update(wizSyncSegments).set({ previewStatus: "error" })
+          .where(eq(wizSyncSegments.id, input.segmentId));
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Preview generation failed. Please try again.",
+        });
+      }
+
+      // Persist job ID and set status to generating
+      await db.update(wizSyncSegments).set({
+        previewStatus: "generating",
+        previewAtlasJobId: atlasJobId,
+      }).where(eq(wizSyncSegments.id, input.segmentId));
+
+      return { status: "generating" as const, previewVideoUrl: null };
+    }),
+
+  /**
+   * pollPreview — Poll the Atlas Cloud job for a segment preview.
+   * Returns the preview URL when ready, or current status.
+   */
+  pollPreview: protectedProcedure
+    .input(z.object({ segmentId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [segment] = await db.select().from(wizSyncSegments)
+        .where(eq(wizSyncSegments.id, input.segmentId));
+      if (!segment) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const [job] = await db.select().from(wizSyncJobs)
+        .where(and(eq(wizSyncJobs.id, segment.wizSyncJobId), eq(wizSyncJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "FORBIDDEN" });
+
+      // If already ready or errored, return current state
+      if (segment.previewStatus === "ready") {
+        return { status: "ready" as const, previewVideoUrl: segment.previewVideoUrl ?? null };
+      }
+      if (segment.previewStatus === "error") {
+        return { status: "error" as const, previewVideoUrl: null };
+      }
+      if (segment.previewStatus === "idle" || !segment.previewAtlasJobId) {
+        return { status: "idle" as const, previewVideoUrl: null };
+      }
+
+      // Poll Atlas Cloud
+      const { pollAtlasVideo } = await import("../ai-apis/atlascloud");
+      let result;
+      try {
+        result = await pollAtlasVideo(segment.previewAtlasJobId);
+      } catch {
+        return { status: "generating" as const, previewVideoUrl: null };
+      }
+
+      if (result.status === "completed" && result.videoUrl) {
+        await db.update(wizSyncSegments).set({
+          previewStatus: "ready",
+          previewVideoUrl: result.videoUrl,
+        }).where(eq(wizSyncSegments.id, input.segmentId));
+        return { status: "ready" as const, previewVideoUrl: result.videoUrl };
+      }
+
+      if (result.status === "failed") {
+        await db.update(wizSyncSegments).set({ previewStatus: "error" })
+          .where(eq(wizSyncSegments.id, input.segmentId));
+        return { status: "error" as const, previewVideoUrl: null };
+      }
+
+      return { status: "generating" as const, previewVideoUrl: null };
+    }),
 });

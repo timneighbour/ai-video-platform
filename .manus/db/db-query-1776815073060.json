@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `wizSyncSegments` ADD `previewVideoUrl` varchar(1024); ALTER TABLE `wizSyncSegments` ADD `wizSyncPreviewStatus` enum('idle','generating','ready','error') DEFAULT 'idle' NOT NULL; ALTER TABLE `wizSyncSegments` ADD `previewAtlasJobId` varchar(255);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute ALTER TABLE `wizSyncSegments` ADD `previewVideoUrl` varchar(1024); ALTER TABLE `wizSyncSegments` ADD `wizSyncPreviewStatus` enum('idle','generating','ready','error') DEFAULT 'idle' NOT NULL; ALTER TABLE `wizSyncSegments` ADD `previewAtlasJobId` varchar(255);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1022
+}

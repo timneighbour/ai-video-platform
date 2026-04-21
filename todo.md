@@ -5774,3 +5774,14 @@
 - [x] P2: Spend caps verified — schema has safe defaults (£2/job, £20/day, £100/month, £500 account), auto-create logic already correct, no fail-open exists
 - [x] P3: Remove AssemblyAI name from user-facing WizSync error — replaced with generic message
 - [x] P4: Fix Stripe plan ID mismatch — Pricing page third plan id changed from "pro" to "studio", handleSubscribe and comparison table updated
+
+## WizSync Lip-Sync Preview Feature - COMPLETED ✅
+- [x] Add previewVideoUrl, previewStatus (idle/generating/ready/error), previewAtlasJobId columns to wizSyncSegments schema
+- [x] Apply DB migration for 3 new preview columns
+- [x] Add generatePreview tRPC procedure — submits 5-second Atlas Cloud text-to-video job (0 credits)
+- [x] Add pollPreview tRPC procedure — polls Atlas Cloud and updates DB when complete
+- [x] Update Segment interface in WizSync.tsx to include previewStatus and previewVideoUrl
+- [x] Add SegmentPreviewPlayer sub-component — per-segment preview button, polling, video player with WIZ AI PREVIEW watermark
+- [x] Replace old "Generate Lip Sync (Coming Soon)" CTA with per-segment preview players
+- [x] Add "Generate Full Lip Sync" upgrade CTA below timeline with "Previews are free" note
+- [x] Write 8 vitest tests for generatePreview and pollPreview logic (all passing)
