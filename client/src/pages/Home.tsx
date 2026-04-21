@@ -2457,66 +2457,91 @@ function WizVidEngineSection() {
   );
 }
 
-// ── See the Difference (Unified Comparison) ────────────────────────────────────
-const STD_FEATURES = {
-  audio: ["Basic stereo output", "No audio processing", "Raw AI-generated sound"],
-  visual: ["Standard AI output", "No colour grading", "Basic resolution"],
-};
-const ENH_FEATURES = {
-  audio: ["Stereo widening + EQ mastering", "Noise reduction & clarity", "Broadcast-ready balance"],
-  visual: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
-};
-const CIN_FEATURES = {
-  audio: ["Full spatial mastering + sub-bass", "Dynamic range & immersive depth", "Studio-grade cinematic mix"],
-  visual: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
-};
+// ── See the Difference (Video Comparison) ────────────────────────────────────
+const TIER_VIDEOS = [
+  "/manus-storage/tier-standard-demo_9df28025.mp4",
+  "/manus-storage/tier-enhanced-demo_2d8ea9ec.mp4",
+  "/manus-storage/tier-cinematic-demo_dd2f9b04.mp4",
+];
+
+const TIER_DATA = [
+  {
+    id: 0, label: "Standard", brandLabel: "Standard",
+    tagline: "Raw AI output — basic audio and visuals, unprocessed.",
+    audioFeatures: ["Mono / basic stereo", "No audio processing", "Raw AI-generated sound"],
+    visualFeatures: ["Standard AI output", "No colour grading", "Basic resolution"],
+    accentColor: "rgba(120,120,130,0.6)", borderColor: "rgba(255,255,255,0.06)",
+    soundBadge: "Standard Audio", visualBadge: "Standard Video",
+  },
+  {
+    id: 1, label: "Enhanced", brandLabel: "WizEnhanced™",
+    tagline: "Polished audio and improved visuals — platform-ready quality.",
+    audioFeatures: ["Stereo widening + EQ mastering", "Noise reduction & clarity", "Broadcast-ready balance"],
+    visualFeatures: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
+    accentColor: "rgba(196,164,100,0.5)", borderColor: "rgba(196,164,100,0.15)",
+    soundBadge: "Enhanced Audio", visualBadge: "Enhanced Video",
+  },
+  {
+    id: 2, label: "Cinematic", brandLabel: "WizCinematic™",
+    tagline: "Full WizSound™ Spatial + WizLumina™ HDR — studio-grade cinematic quality.",
+    audioFeatures: ["Full spatial mastering + sub-bass", "Dynamic range & immersive depth", "Studio-grade cinematic mix"],
+    visualFeatures: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
+    accentColor: "rgba(212,175,55,0.7)", borderColor: "rgba(212,175,55,0.25)",
+    soundBadge: "WizSound™ Spatial", visualBadge: "WizLumina™ HDR",
+  },
+];
 
 function SeeTheDifference() {
-  const [activeTier, setActiveTier] = useState(2); // default: Cinematic
-  const tiers = [
-    {
-      id: 0, label: "Standard", brandLabel: "Standard",
-      tagline: "Basic output — functional, unprocessed.",
-      audioFeatures: STD_FEATURES.audio, visualFeatures: STD_FEATURES.visual,
-      audioClass: "saturate-50 brightness-75", visualClass: "saturate-50 brightness-75 contrast-90",
-      barWidth: "30%", barBg: "oklch(0.78 0.11 75 / 0.15)",
-      accentColor: "rgba(120,120,130,0.6)", borderColor: "rgba(255,255,255,0.06)",
-    },
-    {
-      id: 1, label: "Enhanced", brandLabel: "WizEnhanced™",
-      tagline: "Polished audio and visuals — ready for any platform.",
-      audioFeatures: ENH_FEATURES.audio, visualFeatures: ENH_FEATURES.visual,
-      audioClass: "", visualClass: "contrast-105 saturate-110",
-      barWidth: "65%", barBg: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.6), oklch(0.78 0.11 75 / 0.3))",
-      accentColor: "rgba(196,164,100,0.5)", borderColor: "rgba(196,164,100,0.15)",
-    },
-    {
-      id: 2, label: "Cinematic", brandLabel: "WizCinematic™",
-      tagline: "Full WizSound™ + WizLumina™ — studio-grade cinematic quality.",
-      audioFeatures: CIN_FEATURES.audio, visualFeatures: CIN_FEATURES.visual,
-      audioClass: "", visualClass: "contrast-115 saturate-120 brightness-105",
-      barWidth: "95%", barBg: "linear-gradient(90deg, oklch(0.78 0.11 75), oklch(0.85 0.15 75))",
-      accentColor: "rgba(212,175,55,0.7)", borderColor: "rgba(212,175,55,0.25)",
-    },
-  ];
-  const tier = tiers[activeTier];
+  const [activeTier, setActiveTier] = useState(2);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null]);
+
+  // When tier changes, play the active video and pause others
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === activeTier) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+  }, [activeTier]);
+
+  // Sync mute state across all videos
+  useEffect(() => {
+    videoRefs.current.forEach((v) => {
+      if (v) v.muted = isMuted;
+    });
+  }, [isMuted]);
+
+  const tier = TIER_DATA[activeTier];
+
   return (
     <section className="relative bg-[#040404] py-28 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-5xl mx-auto">
+        {/* Header */}
         <div className="text-center mb-14 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See the Difference</p>
+          <div className="inline-flex items-center gap-3 mb-5">
+            <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto opacity-80" loading="lazy" />
+            <span className="text-white/15 text-lg">+</span>
+            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain opacity-80" loading="lazy" />
+          </div>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See &amp; Hear the Difference</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             Standard. Enhanced. <span className="metallic-gold">Cinematic.</span>
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
-            The unified WizSound™ + WizLumina™ Cinematic Engine — three tiers of audio and visual quality, working together.
+            Switch between tiers to see and hear how WizSound™ and WizLumina™ transform your video.
           </p>
         </div>
+
         <div className="reveal">
           {/* Tier selector */}
-          <div className="flex items-center justify-center gap-3 mb-4">
-            {tiers.map((t) => (
+          <div className="flex items-center justify-center gap-3 mb-6">
+            {TIER_DATA.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setActiveTier(t.id)}
@@ -2534,87 +2559,125 @@ function SeeTheDifference() {
               </button>
             ))}
           </div>
-          {/* Active tier brand label + tagline */}
-          <div className="text-center mb-10">
+
+          {/* Brand label + tagline */}
+          <div className="text-center mb-8">
             <p className="text-lg font-bold text-white">{tier.brandLabel}</p>
             <p className="text-sm text-[--color-silver-dark]/40 mt-1">{tier.tagline}</p>
           </div>
 
-          {/* Comparison grid — Audio + Visual side by side */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            {/* WizSound — Audio card */}
-            <div className="rounded-2xl border bg-[#080808] p-7 flex flex-col gap-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
-              <div className="flex items-center gap-3">
-                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-8 w-auto opacity-90" loading="lazy" />
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.brandLabel}</span>
-                  <p className="text-[10px] text-white/30 mt-0.5">Audio Processing</p>
-                </div>
+          {/* Video player */}
+          <div className="relative rounded-2xl overflow-hidden border transition-all duration-500 mb-6" style={{ borderColor: tier.borderColor }}>
+            {/* Cinematic glow for top tier */}
+            {activeTier === 2 && (
+              <div className="absolute -inset-1 rounded-2xl pointer-events-none z-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.08), transparent 50%, rgba(212,175,55,0.04))" }} />
+            )}
+            <div className="relative z-10 aspect-video bg-black">
+              {/* All three videos stacked, only active one visible */}
+              {TIER_VIDEOS.map((src, i) => (
+                <video
+                  key={i}
+                  ref={(el) => { videoRefs.current[i] = el; }}
+                  src={src}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                    i === activeTier ? "opacity-100 z-10" : "opacity-0 z-0"
+                  }`}
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  autoPlay={i === 2}
+                />
+              ))}
+
+              {/* Sound toggle */}
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="absolute bottom-4 right-4 z-20 flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-black/60 backdrop-blur-sm text-white/70 hover:text-white hover:border-white/20 transition-all text-xs font-medium"
+              >
+                {isMuted ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <line x1="23" y1="9" x2="17" y2="15" />
+                      <line x1="17" y1="9" x2="23" y2="15" />
+                    </svg>
+                    Enable Sound
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    </svg>
+                    Sound On
+                  </>
+                )}
+              </button>
+
+              {/* Tier badge overlay */}
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm"
+                  style={{
+                    color: activeTier === 2 ? "var(--color-gold)" : activeTier === 1 ? "rgba(196,164,100,0.8)" : "rgba(255,255,255,0.5)",
+                    borderColor: activeTier === 2 ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.1)",
+                    background: "rgba(0,0,0,0.6)",
+                  }}
+                >{tier.brandLabel}</span>
               </div>
-              {/* Audio quality bar */}
-              <div className="flex items-center gap-3">
-                <WaveformSVG className="w-4 h-4 flex-shrink-0" color={String(tier.accentColor)} />
-                <div className="flex-1 h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ width: tier.barWidth, background: tier.barBg }}
-                  />
-                </div>
+
+              {/* Sound + Visual badges */}
+              <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5"
+                  style={{ background: "rgba(0,0,0,0.6)", color: String(tier.accentColor), borderColor: tier.borderColor, border: "1px solid" }}>
+                  <WaveformSVG className="w-3 h-3" color={String(tier.accentColor)} />
+                  {tier.soundBadge}
+                </span>
+                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5"
+                  style={{ background: "rgba(0,0,0,0.6)", color: String(tier.accentColor), borderColor: tier.borderColor, border: "1px solid" }}>
+                  <CheckSVG className="w-3 h-3" />
+                  {tier.visualBadge}
+                </span>
               </div>
-              {/* Feature list */}
-              <div className="space-y-2.5">
+            </div>
+          </div>
+
+          {/* Feature comparison — Audio + Visual side by side below video */}
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* WizSound features */}
+            <div className="rounded-xl border bg-[#080808]/80 p-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
+              <div className="flex items-center gap-2.5 mb-4">
+                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-6 w-auto opacity-80" loading="lazy" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Audio</span>
+              </div>
+              <div className="space-y-2">
                 {tier.audioFeatures.map((f) => (
-                  <div key={f} className="flex items-start gap-2.5">
-                    <CheckSVG className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: String(tier.accentColor) }} />
-                    <span className="text-sm text-white/60">{f}</span>
+                  <div key={f} className="flex items-start gap-2">
+                    <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: String(tier.accentColor) }} />
+                    <span className="text-xs text-white/50">{f}</span>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* WizLumina — Visual card */}
-            <div className="rounded-2xl border bg-[#080808] p-7 flex flex-col gap-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
-              <div className="flex items-center gap-3">
-                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-8 w-8 object-contain opacity-90" loading="lazy" />
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.brandLabel}</span>
-                  <p className="text-[10px] text-white/30 mt-0.5">Visual Processing</p>
-                </div>
+            {/* WizLumina features */}
+            <div className="rounded-xl border bg-[#080808]/80 p-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
+              <div className="flex items-center gap-2.5 mb-4">
+                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-6 w-6 object-contain opacity-80" loading="lazy" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Visual</span>
               </div>
-              {/* Visual preview */}
-              <div className="relative aspect-video rounded-xl overflow-hidden border border-[--color-gold]/[0.06]">
-                <img
-                  src={DEMO_POSTER}
-                  alt="Visual comparison"
-                  className={`w-full h-full object-cover transition-all duration-700 ${tier.visualClass}`}
-                  loading="lazy" width="1920" height="1080" />
-                {activeTier === 2 && (
-                  <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
-                )}
-                {/* Tier badge overlay */}
-                <div className="absolute top-3 right-3 z-10">
-                  <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm"
-                    style={{
-                      color: activeTier === 2 ? "var(--color-gold)" : activeTier === 1 ? "rgba(196,164,100,0.8)" : "rgba(255,255,255,0.5)",
-                      borderColor: activeTier === 2 ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.1)",
-                      background: "rgba(0,0,0,0.5)",
-                    }}
-                  >{tier.brandLabel}</span>
-                </div>
-              </div>
-              {/* Feature list */}
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {tier.visualFeatures.map((f) => (
-                  <div key={f} className="flex items-start gap-2.5">
-                    <CheckSVG className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: String(tier.accentColor) }} />
-                    <span className="text-sm text-white/60">{f}</span>
+                  <div key={f} className="flex items-start gap-2">
+                    <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: String(tier.accentColor) }} />
+                    <span className="text-xs text-white/50">{f}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* What's included summary row */}
+          {/* Cinematic Pack includes row */}
           {activeTier === 2 && (
             <div className="rounded-xl border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] px-6 py-4 mb-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
               <span className="text-[--color-gold] font-semibold">Cinematic Pack includes:</span>

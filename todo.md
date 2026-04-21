@@ -5718,3 +5718,12 @@
 - [x] Upgrade section visuals to premium look (gold waveform, RECOMMENDED badge, two-column layout)
 - [x] Fix Start Creating CTA to link to /dashboard, Find Out More to /technology/wizsound
 - [x] Generate three audio samples showing clear quality differentials (cinematic bass tones)
+
+## See the Difference — Video Demo Rebuild (April 2026)
+- [x] Replace static image cards with a video player showing combined audio+visual differences
+- [x] Generate three demo videos: Standard (flat audio, basic visuals), Enhanced (better audio+visuals), Cinematic (full WizSound spatial + WizLumina HDR)
+- [x] Video player switches between tiers when user clicks Standard/Enhanced/Cinematic buttons
+- [x] Each tier video demonstrates both sound quality AND visual quality together
+- [x] Ensure videos autoplay muted with sound toggle, loop continuously
+- [x] Keep "Upgrade to Cinematic Mode" CTA linking to /subscribe#cinematic
+- [x] Mobile responsive video player
