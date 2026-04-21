@@ -150,6 +150,10 @@ export function RenderPaywallModal({
     if (isCinematicMode) {
       trackEvent("CinematicPack_Purchased", { jobId, jobType, price: totalPrice });
     }
+    // Fire checkoutStarted before opening Stripe (only for paid renders)
+    if (!hasFreeRenders && !isAdmin) {
+      mp.checkoutStarted(`render_${selectedQuality.label}${isCinematicMode ? "_cinematic" : ""}`, totalPrice);
+    }
     setIsLoading(true);
     try {
       if (hasFreeRenders || isAdmin) {

@@ -5727,3 +5727,30 @@
 - [x] Ensure videos autoplay muted with sound toggle, loop continuously
 - [x] Keep "Upgrade to Cinematic Mode" CTA linking to /subscribe#cinematic
 - [x] Mobile responsive video player
+
+## Full Site CTA Audit & Remap (April 2026)
+- [x] Audit all 'Get Started' buttons/links → no generic 'Get Started' label found; equivalent CTAs use 'Start Creating' → /dashboard or /onboarding
+- [x] Audit all 'Pricing' nav links → /pricing confirmed correct
+- [x] Audit all 'Learn More' hero buttons → no generic 'Learn More' found; hero secondary CTAs use 'See Pricing' → /pricing or 'Find Out More' → product pages
+- [x] Audit all 'Start Creating' CTAs → correctly point to /dashboard (logged in) or /onboarding (new users)
+- [x] Audit all 'Dashboard' CTAs → correctly point to /dashboard
+- [x] Audit all 'View Pricing' CTAs → correctly point to /pricing
+- [x] Audit all 'Find Out More' CTAs → correctly point to relevant product/technology pages
+- [x] Audit all 'Upgrade' CTAs → correctly point to /subscribe or /subscribe#cinematic
+- [x] Verify every button on the live site points to its designated path — confirmed, no /signup or /features routes needed
+- [x] Produce a full change list report — delivered to user
+
+## Conversion Event Mapping & Tracking Audit (April 2026)
+- [x] Audit existing analytics/tracking events in codebase (mp.track, analytics calls)
+- [x] Verify signUpCompleted event fires after Manus OAuth login (not on /onboarding visit) — confirmed in App.tsx
+- [x] Verify /onboarding page heading says "Choose your creation type" not "Sign up" — confirmed
+- [x] Add checkoutStarted event to Subscribe.tsx handlePlanSelect (fires before Stripe opens)
+- [x] Add checkoutStarted event to Credits.tsx handleCheckout (fires before Stripe opens)
+- [x] Add checkoutStarted event to PostRenderCinematicPackModal handleUpgrade
+- [x] Add checkoutStarted event to RenderPaywallModal handleRender (paid renders only)
+- [x] Confirm purchaseCompleted fires on Dashboard ?success=true redirect — already implemented
+- [x] Confirm pricingPageViewed fires on Pricing.tsx mount — already implemented
+- [x] Confirm startCreatingClicked fires on all hero CTAs — already implemented
+- [x] Confirm no /signup or /features routes were created — verified in App.tsx
+- [x] Confirm /onboarding is labelled as creation-type selection not signup — confirmed
+- [x] Produce final conversion mapping report — delivered to user

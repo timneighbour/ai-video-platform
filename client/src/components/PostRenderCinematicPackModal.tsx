@@ -165,6 +165,7 @@ export default function PostRenderCinematicPackModal({
   }
 
   async function handleUpgrade() {
+    mp.checkoutStarted("Cinematic Pack", effectivePrice);
     mp.cinematicPackPurchased(effectivePrice, "post_render");
     trackEvent("CinematicPack_Purchased", {
       jobId,

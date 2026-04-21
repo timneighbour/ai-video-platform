@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { mp } from "@/lib/mixpanel";
 import {
   Zap,
   ArrowLeft,
@@ -127,6 +128,9 @@ export default function Credits() {
 
   const handleCheckout = (packId: PackId) => {
     setLoading(packId);
+    const allPacks = [...STANDARD_PACKS, ...CINEMATIC_PACKS] as readonly { id: string; name: string; price: number }[];
+    const pack = allPacks.find((p) => p.id === packId);
+    mp.checkoutStarted(pack?.name ?? packId, pack?.price);
     createCreditCheckout.mutate({ pack: packId, origin: window.location.origin });
   };
 

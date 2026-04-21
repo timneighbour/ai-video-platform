@@ -186,6 +186,9 @@ export default function Subscribe() {
       return;
     }
     if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
+    // Fire checkoutStarted before opening Stripe
+    const planPrice = PLANS.find((p) => p.id === planId)?.[billing === "annual" ? "annualTotal" : "monthlyPrice"];
+    mp.checkoutStarted(planName, typeof planPrice === "number" ? planPrice : undefined);
     setLoadingPlan(planId);
     createSubscriptionCheckout.mutate({
       plan: planId as "starter" | "basic" | "creator" | "pro" | "studio",
