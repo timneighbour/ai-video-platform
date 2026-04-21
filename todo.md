@@ -5754,3 +5754,17 @@
 - [x] Confirm no /signup or /features routes were created — verified in App.tsx
 - [x] Confirm /onboarding is labelled as creation-type selection not signup — confirmed
 - [x] Produce final conversion mapping report — delivered to user
+
+## A/B Test: Upgrade to Cinematic Mode CTA (April 2026)
+- [ ] Design 3 CTA variants: Control (current gold button), Variant B (urgency copy), Variant C (social proof copy)
+- [ ] Build deterministic bucketing utility (hash userId/anonymousId into stable variant assignment)
+- [ ] Build useExperiment React hook (reads assignment, tracks impression on mount, tracks click on CTA click)
+- [ ] Add experiment_assignments table to DB schema for persistent server-side storage
+- [ ] Add tRPC procedure: experiments.getAssignment (returns or creates assignment for current user)
+- [ ] Wire useExperiment into Home.tsx SeeTheDifference Cinematic CTA
+- [ ] Wire useExperiment into Subscribe.tsx Cinematic Pack CTA
+- [ ] Wire useExperiment into PostRenderCinematicPackModal Cinematic CTA
+- [ ] Track 'Experiment Impression' and 'Experiment CTA Clicked' events in Mixpanel with variant name
+- [ ] Write Vitest tests for the bucketing utility (determinism, even distribution)
+- [ ] Verify all three variants render correctly in browser
+- [ ] Document how to read results in Mixpanel (funnel: Impression → CTA Clicked → checkoutStarted → purchaseCompleted)

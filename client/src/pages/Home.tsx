@@ -13,6 +13,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
 import { useProjectResume } from "@/hooks/useProjectResume";
+import { useExperiment } from "@/hooks/useExperiment";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
 import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -2495,6 +2496,22 @@ function SeeTheDifference() {
   const [activeTier, setActiveTier] = useState(2);
   const [isMuted, setIsMuted] = useState(true);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null]);
+  const ctaSectionRef = useRef<HTMLDivElement>(null);
+
+  // A/B test for the Cinematic CTA
+  const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
+
+  // Track impression when the CTA section enters the viewport
+  useEffect(() => {
+    const el = ctaSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { trackCtaImpression(); observer.disconnect(); } },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [trackCtaImpression]);
 
   // When tier changes, play the active video and pause others
   useEffect(() => {
@@ -2692,12 +2709,41 @@ function SeeTheDifference() {
             </div>
           )}
 
-          {/* CTA */}
-          <div className="text-center">
-            <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm">
-              <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
-              Upgrade to Cinematic Mode
-            </a>
+          {/* CTA — A/B tested */}
+          <div className="text-center" ref={ctaSectionRef}>
+            {/* Control: original gold button */}
+            {ctaVariant === "control" && (
+              <a
+                href="/subscribe#cinematic"
+                className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm"
+                onClick={trackCtaClick}
+              >
+                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
+                Upgrade to Cinematic Mode
+              </a>
+            )}
+            {/* Variant B: urgency copy */}
+            {ctaVariant === "variant_b" && (
+              <a
+                href="/subscribe#cinematic"
+                className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm"
+                onClick={trackCtaClick}
+              >
+                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
+                Unlock Cinematic Quality — Limited Offer
+              </a>
+            )}
+            {/* Variant C: social proof copy */}
+            {ctaVariant === "variant_c" && (
+              <a
+                href="/subscribe#cinematic"
+                className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm"
+                onClick={trackCtaClick}
+              >
+                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
+                Join Creators Going Cinematic
+              </a>
+            )}
             <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every build upgrade</p>
           </div>
         </div>

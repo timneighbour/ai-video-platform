@@ -1061,3 +1061,19 @@ export const wizadoraSpendCaps = mysqlTable("wizadora_spend_caps", {
 });
 export type WizadoraSpendCap = typeof wizadoraSpendCaps.$inferSelect;
 export type InsertWizadoraSpendCap = typeof wizadoraSpendCaps.$inferInsert;
+
+/**
+ * A/B experiment assignments — stores which variant each user was assigned to.
+ * Keyed on (userId, experimentId) so one row per user per experiment.
+ * Anonymous users are stored with userId = NULL and identified by anonId.
+ */
+export const experimentAssignments = mysqlTable("experiment_assignments", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("userId"),                                                     // NULL for anonymous
+  anonId: varchar("anonId", { length: 64 }),                                // localStorage anon ID
+  experimentId: varchar("experimentId", { length: 64 }).notNull(),
+  variant: varchar("variant", { length: 32 }).notNull(),                    // control | variant_b | variant_c
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+export type ExperimentAssignment = typeof experimentAssignments.$inferSelect;
+export type InsertExperimentAssignment = typeof experimentAssignments.$inferInsert;
