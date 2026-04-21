@@ -167,7 +167,7 @@ export default function Credits() {
         <section>
           <div className="flex items-center gap-3 mb-8">
             <Film className="w-5 h-5 text-[--color-gold]" />
-            <h2 className="text-xl font-bold">Video Credits</h2>
+            <h2 className="text-xl font-bold">Build Credits</h2>
             <span className="text-xs text-zinc-500">30–90 Credits per video depending on length</span>
           </div>
 

@@ -183,7 +183,7 @@ const FEATURES = [
   {
     logo: WIZSOUND_LOGO,
     title: "WizSound™ Audio Mastering",
-    desc: "Every animation is paired with broadcast-quality audio mastering. Upload your own track or let WIZ AI enhance the audio.",
+    desc: "Every animation is paired with high-quality audio mastering. Upload your own track or let WIZ AI enhance the audio.",
   },
   {
     logo: WIZANIMATE_LOGO,

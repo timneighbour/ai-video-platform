@@ -7,7 +7,7 @@
  *   4. Per-video pricing — large visual tier cards
  *   5. Subscription plans — rich cinematic plan cards with bg imagery
  *   6. Product coverage strip — all 6 logos
- *   7. Extra Video Credit Packs — premium credit pack cards
+ *   7. Build Credit Packs — premium credit pack cards
  *   8. Social proof / testimonials
  *   9. Trust strip
  *  10. Comparison table — grouped, sticky header
@@ -66,7 +66,7 @@ const PLAN_BG_PRO = "/manus-storage/product-wizsound-hero_8219d2d2.jpg";
 const PLAN_BG_STUDIO = "/manus-storage/product-wizboost-hero_9c11e1cc.jpg";
 
 const PLANS = [
-  // 1 scene ≈ 8 seconds of video (Atlas Cloud Seedance 2.0 Fast, 720p)
+  // 1 scene ≈ 8 seconds of video (standard quality, 720p)
   {
     id: "starter" as const,
     name: "Starter",
@@ -162,17 +162,17 @@ const PLANS = [
   },
 ]
 
-// ── Extra Video Credit Packs ────────────────────────────────────────────────────────
+// ── Build Credit Packs ────────────────────────────────────────────────────────
 const BUNDLES = [
   {
     key: "quick_boost" as const,
     credits: 3,
     price: 12,
-    perCredit: "£4.00 per Video Credit",
+    perCredit: "£4.00 per Build Credit",
     label: "Quick Boost",
     popular: false,
     bestValue: false,
-    desc: "Perfect for one-off extras. 3 Video Credits — use them whenever you need a bit more.",
+    desc: "Perfect for one-off extras. 3 Build Credits — use them whenever you need a bit more.",
     bgImage: SHOWCASE_3,
     accentColor: "rgba(100,140,200,0.15)",
     borderColor: "rgba(100,140,200,0.2)",
@@ -181,11 +181,11 @@ const BUNDLES = [
     key: "creator_boost" as const,
     credits: 10,
     price: 35,
-    perCredit: "£3.50 per Video Credit",
+    perCredit: "£3.50 per Build Credit",
     label: "Creator Boost",
     popular: true,
     bestValue: false,
-    desc: "Best for busy creator weeks. 10 Video Credits for extra campaigns, collabs or content batches.",
+    desc: "Best for busy creator weeks. 10 Build Credits for extra campaigns, collabs or content batches.",
     bgImage: SHOWCASE_1,
     accentColor: "rgba(196,164,100,0.15)",
     borderColor: "rgba(196,164,100,0.4)",
@@ -194,11 +194,11 @@ const BUNDLES = [
     key: "studio_boost" as const,
     credits: 25,
     price: 89,
-    perCredit: "£3.56 per Video Credit",
+    perCredit: "£3.56 per Build Credit",
     label: "Studio Boost",
     popular: false,
     bestValue: false,
-    desc: "For campaigns and content batches. 25 Video Credits to power a full production run.",
+    desc: "For campaigns and content batches. 25 Build Credits to power a full production run.",
     bgImage: SHOWCASE_2,
     accentColor: "rgba(160,100,220,0.15)",
     borderColor: "rgba(160,100,220,0.25)",
@@ -207,11 +207,11 @@ const BUNDLES = [
     key: "pro_bulk_boost" as const,
     credits: 60,
     price: 199,
-    perCredit: "£3.32 per Video Credit",
+    perCredit: "£3.32 per Build Credit",
     label: "Pro Bulk Boost",
     popular: false,
     bestValue: true,
-    desc: "Best value for high-volume creators. 60 Video Credits — the most credits per pound.",
+    desc: "Best value for high-volume creators. 60 Build Credits — the most credits per pound.",
     bgImage: SHOWCASE_3,
     accentColor: "rgba(100,200,140,0.15)",
     borderColor: "rgba(100,200,140,0.25)",
@@ -224,7 +224,7 @@ const COMPARISON_GROUPS = [
     group: "Output",
     rows: [
       { label: "Videos per month", starter: "2", creator: "6", pro: "12" },
-      { label: "Video Credits / month", starter: "2", creator: "6", pro: "12" },
+      { label: "Build Credits / month", starter: "2", creator: "6", pro: "12" },
       { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", pro: "12 (≈96s)" },
       { label: "Max output quality", starter: "720p", creator: "4K 2160p", pro: "4K 2160p" },
       { label: "No watermark", starter: true, creator: true, pro: true, isCheck: true },
@@ -242,7 +242,7 @@ const COMPARISON_GROUPS = [
   {
     group: "Access",
     rows: [
-      { label: "Extra Video Credit Packs", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Build Credit Packs", starter: true, creator: true, pro: true, isCheck: true },
       { label: "Pay-per-video", starter: true, creator: true, pro: true, isCheck: true },
       { label: "Daily video limit", starter: "3/day", creator: "3/day", pro: "3/day" },
     ],
@@ -253,23 +253,23 @@ const COMPARISON_GROUPS = [
 const FAQS = [
   {
     q: "What does 'Create free, pay when your video is ready' mean?",
-    a: "You can create your entire video — upload audio, generate your storyboard, and refine every scene — completely free. A Video Credit is only used when you choose to generate and download the final video. Failed builds do not use credits. There is no time limit on the free creation tier.",
+    a: "You can create your entire video — upload audio, generate your storyboard, and refine every scene — completely free. A Build Credit is only used when you choose to generate and download the final video. Failed builds do not use credits. There is no time limit on the free creation tier.",
   },
   {
     q: "What is the difference between Standard, HD, and 4K?",
     a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Pro and Business plans.",
   },
   {
-    q: "What happens if I use all my monthly Video Credits?",
-    a: "Your Video Credits reset on your next billing date. In the meantime, you can top up instantly with an Extra Video Credit Pack (6, 15, or 40 credits) or pay per video at £2–£6 depending on quality. Extra Video Credit Packs never expire and are used automatically once your monthly credits run out.",
+    q: "What happens if I use all my monthly Build Credits?",
+    a: "Your Build Credits reset on your next billing date. In the meantime, you can top up instantly with an Extra Build Credit Pack (6, 15, or 40 credits) or pay per video at £2–£6 depending on quality. Build Credit Packs never expire and are used automatically once your monthly credits run out.",
   },
   {
-    q: "What are Extra Video Credit Packs?",
-    a: "Extra Video Credit Packs are pre-purchased packs of Video Credits. Buy 6, 15, or 40 credits upfront and save compared to pay-per-video pricing. Extra Video Credit Packs never expire and work alongside any subscription plan.",
+    q: "What are Build Credit Packs?",
+    a: "Build Credit Packs are pre-purchased packs of Build Credits. Buy 6, 15, or 40 credits upfront and save compared to pay-per-video pricing. Build Credit Packs never expire and work alongside any subscription plan.",
   },
   {
-    q: "Do monthly Video Credits roll over?",
-    a: "Monthly Video Credits reset each billing cycle and do not roll over. If you need more flexibility, an Extra Video Credit Pack is a better option as the credits never expire.",
+    q: "Do monthly Build Credits roll over?",
+    a: "Monthly Build Credits reset each billing cycle and do not roll over. If you need more flexibility, an Extra Build Credit Pack is a better option as the credits never expire.",
   },
   {
     q: "What is character consistency?",
@@ -289,7 +289,7 @@ const FAQS = [
   },
   {
     q: "Does pricing cover all WIZ AI products?",
-    a: "Yes. Your monthly Video Credits and Extra Video Credit Packs work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each final video download uses one Video Credit regardless of which product you used.",
+    a: "Yes. Your monthly Build Credits and Build Credit Packs work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each final video download uses one Build Credit regardless of which product you used.",
   },
 ];
 
@@ -388,7 +388,7 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
-  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£19/mo), Creator (£49/mo), and Studio (£149/mo) plans available. One Video Credit = one final downloadable video. Only pay when you're ready." });
+  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£19/mo), Creator (£49/mo), and Studio (£149/mo) plans available. One Build Credit = one final downloadable video. Only pay when you're ready." });
   const { isAuthenticated } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
@@ -563,7 +563,7 @@ export default function Pricing() {
         <div className="text-center mb-12">
           <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Subscription Plans</p>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Monthly plans for regular creators</h2>
-          <p className="text-sm text-white/60 max-w-lg mx-auto mb-8">Video Credits included every month. Best value for consistent creators. Cancel anytime.</p>
+          <p className="text-sm text-white/60 max-w-lg mx-auto mb-8">Build Credits included every month. Best value for consistent creators. Cancel anytime.</p>
 
           {/* Billing toggle */}
           <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.07]">
@@ -679,7 +679,7 @@ export default function Pricing() {
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
                       <div className="text-2xl font-black text-white">{plan.rendersPerMonth}</div>
-                      <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">Video Credits/mo</div>
+                      <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">Build Credits/mo</div>
                     </div>
                     <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
                       <div className="text-[11px] font-bold text-white leading-tight">{plan.outputQuality}</div>
@@ -861,10 +861,10 @@ export default function Pricing() {
       {/* ── 6. BUILD CREDIT PACKS ── */}
       <section className="max-w-5xl mx-auto px-6 mb-24" id="bundles">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">EXTRA VIDEO CREDIT PACKS</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Need more final videos?</h2>
-          <p className="text-sm text-white/40 max-w-lg mx-auto">Buy extra Video Credits whenever you need them. Extra Video Credit Packs work alongside any WIZ AI subscription and never expire. Use them when you want to produce additional final videos beyond your monthly allowance.</p>
-          <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Video Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">BUILD CREDIT PACKS</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Need more Build Credits?</h2>
+          <p className="text-sm text-white/40 max-w-lg mx-auto">Buy extra Build Credits whenever you need them. Build Credit Packs work alongside any WIZ AI subscription and never expire. Use them when you want to produce additional final videos beyond your monthly allowance.</p>
+          <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Build Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {BUNDLES.map((bundle) => (
@@ -894,12 +894,12 @@ export default function Pricing() {
               <div className="relative h-40 overflow-hidden">
                 <img src={bundle.bgImage} alt={bundle.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.05) 0%, rgba(4,4,4,0.55) 100%)' }} />
-                {/* Video Credit count display */}
+                {/* Build Credit count display */}
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <div className="flex items-end gap-2">
                     <span className="text-5xl font-black text-white leading-none">{bundle.credits}</span>
                     <div className="mb-1">
-                      <span className="text-sm text-white/60 font-semibold block">Video Credits</span>
+                      <span className="text-sm text-white/60 font-semibold block">Build Credits</span>
                       <span className="text-xs text-white/40">{bundle.perCredit}</span>
                     </div>
                   </div>
@@ -1075,7 +1075,7 @@ export default function Pricing() {
         <div className="rounded-2xl border border-[--color-gold]/[0.1] bg-gradient-to-br from-[--color-gold]/[0.03] to-transparent p-8">
           <div className="text-center mb-8">
             <h3 className="text-lg font-bold text-white mb-2">One subscription. Six powerful tools.</h3>
-            <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your Video Credits work across every tool.</p>
+            <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your Build Credits work across every tool.</p>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
             {[
@@ -1113,11 +1113,11 @@ export default function Pricing() {
               <Zap className="w-5 h-5" style={{ color: 'var(--color-gold)' }} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white mb-4">How Video Credits work</h3>
+              <h3 className="text-lg font-bold text-white mb-4">How Build Credits work</h3>
               <div className="space-y-3 text-sm text-white/50 leading-relaxed">
-                <p>One Video Credit creates one final downloadable video.</p>
-                <p>Create and preview your project for free first — refine your storyboard, adjust scenes, and perfect the result before committing. A Video Credit is only used when you are ready to generate and download the final video.</p>
-                <p>Failed builds do not use credits. Extra Video Credit Packs never expire and can be used alongside any active subscription.</p>
+                <p>One Build Credit creates one final downloadable video.</p>
+                <p>Create and preview your project for free first — refine your storyboard, adjust scenes, and perfect the result before committing. A Build Credit is only used when you are ready to generate and download the final video.</p>
+                <p>Failed builds do not use credits. Build Credit Packs never expire and can be used alongside any active subscription.</p>
               </div>
             </div>
           </div>

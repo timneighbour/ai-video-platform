@@ -1,9 +1,9 @@
 /*
- * WizAIIntro — DEPRECATED (Apr 2026)
+ * WizVidIntro — DEPRECATED (Apr 2026)
  * This component is no longer used. Use IntroScreen.tsx instead.
  * Kept for reference only. Do not import or render this component.
  *
- * Original: WizAIIntro — Premium MP4 Video Intro (Apr 2026)
+ * Original: WizVidIntro — Premium MP4 Video Intro (Apr 2026)
  *
  * Plays the provided WIZ AI intro video as a full-screen cinematic experience.
  * Clean implementation: no canvas overlays, no duplicate branding, no old layers.
@@ -31,7 +31,7 @@ interface WizVidIntroProps {
   onClose: () => void;
 }
 
-export default function WizAIIntro({ onClose }: WizVidIntroProps) {
+export default function WizVidIntro({ onClose }: WizVidIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isExitingRef = useRef(false);
 

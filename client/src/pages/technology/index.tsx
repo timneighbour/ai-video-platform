@@ -405,7 +405,7 @@ export function AIVideoEnginePage() {
       whatItIs="WIZ AI's AI Video Engine is the production layer of the platform. It takes the structured scene plan from the Scene Builder and generates fully built video output for each scene — applying motion, lighting, camera movement, and visual style to produce cinematic footage that matches the storyboard exactly."
       features={[
         { icon: <Film size={18} />, title: "Scene-to-Video Generation", desc: "Transforms each storyboard scene into a fully built video clip with motion and lighting." },
-        { icon: <Cpu size={18} />, title: "Multi-Model Rendering", desc: "Uses Kling AI, Runway ML, Seedance, and Grok Imagine for best-in-class output quality." },
+        { icon: <Cpu size={18} />, title: "Multi-Model Rendering", desc: "Powered by WizGenesis™ — intelligently selects the best AI model for each scene to deliver the highest quality output." },
         { icon: <Zap size={18} />, title: "Parallel Processing", desc: "Renders multiple scenes simultaneously to deliver the full video faster." },
         { icon: <Layers size={18} />, title: "Style Consistency", desc: "Applies the chosen visual style consistently across every scene in the video." },
         { icon: <Star size={18} />, title: "Camera Motion", desc: "Adds cinematic camera movements — pans, zooms, dolly shots — to each scene." },
@@ -419,7 +419,7 @@ export function AIVideoEnginePage() {
       ]}
       capabilities={[
         "Scene-by-scene video generation from storyboard",
-        "Multi-model rendering: Kling AI, Runway ML, Seedance, Grok Imagine",
+        "Multi-model rendering powered by WizGenesis™",
         "Parallel scene rendering for faster delivery",
         "Cinematic camera movements per scene",
         "Visual style consistency across all scenes",
@@ -447,7 +447,7 @@ export function AIMusicEnginePage() {
       badge="WIZ AI Technology"
       headline="AI Music Engine"
       subheadline="Original songs, beats, and soundtracks — generated from a single prompt. Royalty-free, full-length, and ready to publish."
-      whatItIs="WIZ AI's AI Music Engine generates original music from text descriptions. Whether you need a full song with lyrics and vocals, an instrumental beat, a cinematic score, or a short-form audio clip, the AI Music Engine produces broadcast-quality audio that is fully royalty-free and commercially licensed."
+      whatItIs="WIZ AI's AI Music Engine generates original music from text descriptions. Whether you need a full song with lyrics and vocals, an instrumental beat, a cinematic score, or a short-form audio clip, the AI Music Engine produces high-quality audio that is fully royalty-free and commercially licensed."
       features={[
         { icon: <Music size={18} />, title: "Full Song Generation", desc: "Generates complete songs with vocals, lyrics, melody, and arrangement from a text prompt." },
         { icon: <Cpu size={18} />, title: "Instrumental Mode", desc: "Creates instrumental tracks, beats, and soundtracks without vocals." },
@@ -491,7 +491,7 @@ export function WizSoundEnginePage() {
       ogDesc="WizSound Engine upgrades AI-generated audio to professional-grade quality with cinematic mastering and spatial enhancement."
       badge="WIZ AI Technology"
       headline="WizSound Engine"
-      subheadline="Raw AI audio transformed into broadcast-quality, spatially enhanced, cinema-grade sound — automatically."
+      subheadline="Raw AI audio transformed into high-quality, spatially enhanced, cinema-grade sound — automatically."
       whatItIs="The WizSound Engine is WIZ AI's proprietary audio mastering and enhancement layer. It takes raw AI-generated audio and applies a multi-stage processing chain — bass enhancement, stereo widening, spatial depth, dynamic compression, and cinematic reverb — to produce output that sounds like it was mastered in a professional studio."
       features={[
         { icon: <Music size={18} />, title: "Cinematic Mastering", desc: "Multi-stage mastering chain: EQ, compression, limiting, and loudness normalisation." },

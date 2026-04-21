@@ -2288,7 +2288,7 @@ function FeatureBlock() {
   );
 }
 
-// ── The WizVid Engine Ecosystem ──────────────────────────────────────────────
+// ── The WIZ AI Engine Ecosystem ──────────────────────────────────────────────
 function WizVidEngineSection() {
   const engines = [
     {
