@@ -130,7 +130,7 @@ const PLANS = [
     ],
   },
   {
-    id: "pro" as const,
+    id: "studio" as const,
     name: "Studio",
     monthlyPrice: 149,
     annualPrice: 1490,
@@ -223,28 +223,28 @@ const COMPARISON_GROUPS = [
   {
     group: "Output",
     rows: [
-      { label: "Videos per month", starter: "2", creator: "6", pro: "12" },
-      { label: "Build Credits / month", starter: "2", creator: "6", pro: "12" },
-      { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", pro: "12 (≈96s)" },
-      { label: "Max output quality", starter: "720p", creator: "4K 2160p", pro: "4K 2160p" },
-      { label: "No watermark", starter: true, creator: true, pro: true, isCheck: true },
+      { label: "Videos per month", starter: "2", creator: "6", studio: "12" },
+      { label: "Build Credits / month", starter: "2", creator: "6", studio: "12" },
+      { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", studio: "12 (≈96s)" },
+      { label: "Max output quality", starter: "720p", creator: "4K 2160p", studio: "4K 2160p" },
+      { label: "No watermark", starter: true, creator: true, studio: true, isCheck: true },
     ],
   },
   {
     group: "Features",
     rows: [
-      { label: "All 6 WIZ AI products", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "WizSound audio mastering", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "WizSync\u2122 character lock", starter: false, creator: true, pro: true, isCheck: true },
-      { label: "Priority video builds", starter: false, creator: true, pro: true, isCheck: true },
+      { label: "All 6 WIZ AI products", starter: true, creator: true, studio: true, isCheck: true },
+      { label: "WizSound audio mastering", starter: true, creator: true, studio: true, isCheck: true },
+      { label: "WizSync\u2122 character lock", starter: false, creator: true, studio: true, isCheck: true },
+      { label: "Priority video builds", starter: false, creator: true, studio: true, isCheck: true },
     ],
   },
   {
     group: "Access",
     rows: [
-      { label: "Build Credit Packs", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "Pay-per-video", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "Daily video limit", starter: "3/day", creator: "3/day", pro: "3/day" },
+      { label: "Build Credit Packs", starter: true, creator: true, studio: true, isCheck: true },
+      { label: "Pay-per-video", starter: true, creator: true, studio: true, isCheck: true },
+      { label: "Daily video limit", starter: "3/day", creator: "3/day", studio: "3/day" },
     ],
   },
 ];
@@ -414,7 +414,7 @@ export default function Pricing() {
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
   const createTopupCheckout = trpc.billing.createTopupCheckout.useMutation();
 
-  async function handleSubscribe(planId: "starter" | "creator" | "pro") {
+  async function handleSubscribe(planId: "starter" | "creator" | "studio") {
     mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), billingCycle);
     mp.checkoutStarted(planId);
     if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
@@ -821,7 +821,7 @@ export default function Pricing() {
                   <div className="col-span-1 px-6 py-4 flex items-center">
                     <span className="text-sm text-white/80 font-medium">{row.label}</span>
                   </div>
-                  {(["starter", "creator", "pro"] as const).map((planId, pi) => (
+                  {(["starter", "creator", "studio"] as const).map((planId, pi) => (
                     <div
                       key={planId}
                       className="px-4 py-4 flex items-center justify-center border-l"

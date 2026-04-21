@@ -2,10 +2,14 @@
  * WizSync™ — Voice to Character Assignment System
  *
  * Pipeline:
- *  1. analyseAudio   — Submit audio to AssemblyAI (speaker diarisation) + fal.ai Demucs (6-stem separation)
- *  2. pollAnalysis   — Poll both jobs; when complete, persist speakers + segments to DB
+ *  1. analyseAudio   — Submit audio for speaker diarisation
+ *  2. pollAnalysis   — Poll analysis; when complete, persist speakers + segments to DB
  *  3. assignCharacter — User maps a speaker to a character (manual override)
- *  4. getJob         — Return full job with speakers, segments, and stems
+ *  4. getJob         — Return full job with speakers and segments
+ *
+ * NOTE: Stem separation is temporarily unavailable. No fal.ai or third-party
+ * stem-separation calls are made. All provider calls must go through the
+ * WizAdora cost-control layer before stem separation can be re-enabled.
  */
 
 import { z } from "zod";
@@ -14,24 +18,23 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { wizSyncJobs, wizSyncSpeakers, wizSyncSegments } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { fal } from "@fal-ai/client";
 
-// ─── AssemblyAI helpers ───────────────────────────────────────────────────────
+// ─── Audio analysis helpers ───────────────────────────────────────────────────
 
-async function getAssemblyAIClient() {
+async function getAudioAnalysisClient() {
   const apiKey = process.env.ASSEMBLY_AI_API_KEY;
   if (!apiKey) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "AssemblyAI API key not configured. Please add ASSEMBLY_AI_API_KEY in Settings → Secrets.",
+      message: "Audio analysis service is not configured. Please contact support.",
     });
   }
   const { AssemblyAI } = await import("assemblyai");
   return new AssemblyAI({ apiKey });
 }
 
-async function submitAssemblyAIJob(audioUrl: string): Promise<string> {
-  const client = await getAssemblyAIClient();
+async function submitAudioAnalysisJob(audioUrl: string): Promise<string> {
+  const client = await getAudioAnalysisClient();
   const transcript = await client.transcripts.submit({
     audio_url: audioUrl,
     speaker_labels: true,
@@ -40,43 +43,9 @@ async function submitAssemblyAIJob(audioUrl: string): Promise<string> {
   return transcript.id;
 }
 
-async function pollAssemblyAIJob(transcriptId: string) {
-  const client = await getAssemblyAIClient();
+async function pollAudioAnalysisJob(transcriptId: string) {
+  const client = await getAudioAnalysisClient();
   return await client.transcripts.get(transcriptId);
-}
-
-// ─── Demucs (fal.ai) helpers ─────────────────────────────────────────────────
-
-function initFal() {
-  const apiKey = process.env.FAL_AI_API_KEY;
-  if (!apiKey) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "FAL_AI_API_KEY not configured." });
-  fal.config({ credentials: apiKey });
-}
-
-async function submitDemucsJob(audioUrl: string): Promise<string> {
-  initFal();
-  const { request_id } = await fal.queue.submit("fal-ai/demucs", {
-    input: {
-      audio_url: audioUrl,
-      model: "htdemucs_6s",
-    },
-  });
-  return request_id;
-}
-
-async function pollDemucsJob(requestId: string) {
-  initFal();
-  const status = await fal.queue.status("fal-ai/demucs", { requestId, logs: false });
-  if (status.status === "COMPLETED") {
-    const result = await fal.queue.result("fal-ai/demucs", { requestId }) as {
-      data: Record<string, { url: string } | undefined>;
-    };
-    return { status: "COMPLETED" as const, data: result.data };
-  }
-  if ((status.status as string) === "FAILED") {
-    return { status: "FAILED" as const, data: null };
-  }
-  return { status: "IN_PROGRESS" as const, data: null };
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────────
@@ -95,23 +64,17 @@ export const wizSyncRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
-      let assemblyAiTranscriptId: string | undefined;
-      let demucsRequestId: string | undefined;
+      let transcriptId: string | undefined;
       let errorMessage: string | undefined;
 
       try {
-        assemblyAiTranscriptId = await submitAssemblyAIJob(input.audioUrl);
+        transcriptId = await submitAudioAnalysisJob(input.audioUrl);
       } catch (e: unknown) {
-        errorMessage = e instanceof Error ? e.message : "AssemblyAI submission failed";
-        console.error("[WizSync] AssemblyAI error:", errorMessage);
-      }
-
-      try {
-        demucsRequestId = await submitDemucsJob(input.audioUrl);
-      } catch (e: unknown) {
-        const demucsErr = e instanceof Error ? e.message : "Demucs submission failed";
-        console.error("[WizSync] Demucs error:", demucsErr);
-        if (!errorMessage) errorMessage = demucsErr;
+        // Log internal details server-side only; never expose provider names to users
+        const internalMsg = e instanceof Error ? e.message : "Audio analysis submission failed";
+        console.error("[WizSync] Audio analysis error:", internalMsg);
+        // Surface a safe, generic message to the user
+        errorMessage = "Audio analysis service is not configured. Please contact support.";
       }
 
       const [job] = await db.insert(wizSyncJobs).values({
@@ -119,14 +82,14 @@ export const wizSyncRouter = router({
         audioUrl: input.audioUrl,
         audioName: input.audioName ?? "Audio Track",
         audioDuration: input.audioDuration ? input.audioDuration.toFixed(3) : undefined,
-        status: assemblyAiTranscriptId ? "analysing" : "error",
+        status: transcriptId ? "analysing" : "error",
         errorMessage,
-        assemblyAiTranscriptId,
-        demucsRequestId,
+        assemblyAiTranscriptId: transcriptId,
+        // demucsRequestId intentionally omitted — stem separation temporarily unavailable
         musicVideoJobId: input.musicVideoJobId,
       }).$returningId();
 
-      return { jobId: job.id, status: assemblyAiTranscriptId ? "analysing" : "error" };
+      return { jobId: job.id, status: transcriptId ? "analysing" : "error" };
     }),
 
   /** Step 2: Poll analysis status */
@@ -149,43 +112,36 @@ export const wizSyncRouter = router({
         return { job, speakers, segments };
       }
 
-      // Poll AssemblyAI
-      let assemblyDone = !job.assemblyAiTranscriptId;
+      // Poll audio analysis
+      let analysisDone = !job.assemblyAiTranscriptId;
       let utterancesData: Array<{ speaker: string; start: number; end: number; text: string; confidence: number }> = [];
       let speakerCount = 0;
 
       if (job.assemblyAiTranscriptId) {
         try {
-          const transcript = await pollAssemblyAIJob(job.assemblyAiTranscriptId);
+          const transcript = await pollAudioAnalysisJob(job.assemblyAiTranscriptId);
           if (transcript.status === "completed" && transcript.utterances) {
-            assemblyDone = true;
+            analysisDone = true;
             utterancesData = transcript.utterances as typeof utterancesData;
             const speakerSet = new Set(transcript.utterances.map((u: { speaker: string }) => u.speaker));
             speakerCount = speakerSet.size;
           } else if (transcript.status === "error") {
             await db.update(wizSyncJobs)
-              .set({ status: "error", errorMessage: transcript.error ?? "AssemblyAI transcription failed" })
+              .set({ status: "error", errorMessage: "Audio analysis failed. Please try again or contact support." })
               .where(eq(wizSyncJobs.id, job.id));
             return { job: { ...job, status: "error" as const }, speakers: [], segments: [] };
           }
         } catch (e) {
-          console.error("[WizSync] Poll AssemblyAI error:", e);
+          console.error("[WizSync] Poll audio analysis error:", e);
         }
       }
 
-      // Poll Demucs
-      let demucsData: Record<string, { url: string } | undefined> | null = null;
-      if (job.demucsRequestId) {
-        try {
-          const result = await pollDemucsJob(job.demucsRequestId);
-          if (result.status === "COMPLETED") demucsData = result.data;
-        } catch (e) {
-          console.error("[WizSync] Poll Demucs error:", e);
-        }
-      }
+      // Stem separation is temporarily unavailable — no fal.ai or third-party calls
+      // stems will be null until routed through the WizAdora cost-control layer
+      const stemsData = null;
 
-      // Persist speakers + segments when AssemblyAI is done
-      if (assemblyDone && utterancesData.length > 0) {
+      // Persist speakers + segments when analysis is done
+      if (analysisDone && utterancesData.length > 0) {
         const existingSpeakers = await db.select().from(wizSyncSpeakers)
           .where(eq(wizSyncSpeakers.wizSyncJobId, job.id));
 
@@ -225,12 +181,12 @@ export const wizSyncRouter = router({
           }
         }
 
-        // Mark job ready
+        // Mark job ready (stems null — stem separation unavailable)
         await db.update(wizSyncJobs).set({
           status: "ready",
           speakerCount,
           utterances: utterancesData,
-          stems: demucsData,
+          stems: stemsData,
         }).where(eq(wizSyncJobs.id, job.id));
 
         const speakers = await db.select().from(wizSyncSpeakers)
@@ -239,7 +195,7 @@ export const wizSyncRouter = router({
           .where(eq(wizSyncSegments.wizSyncJobId, job.id));
 
         return {
-          job: { ...job, status: "ready" as const, speakerCount, stems: demucsData },
+          job: { ...job, status: "ready" as const, speakerCount, stems: stemsData },
           speakers,
           segments,
         };

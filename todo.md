@@ -5768,3 +5768,9 @@
 - [ ] Write Vitest tests for the bucketing utility (determinism, even distribution)
 - [ ] Verify all three variants render correctly in browser
 - [ ] Document how to read results in Mixpanel (funnel: Impression → CTA Clicked → checkoutStarted → purchaseCompleted)
+
+## QA Fixes (Priority — must complete before ads/showcase/feature work)
+- [x] P1: Remove fal.ai from WizSync — disable stem separation, show "Advanced stem separation is temporarily unavailable." No silent fallback to any paid provider
+- [x] P2: Spend caps verified — schema has safe defaults (£2/job, £20/day, £100/month, £500 account), auto-create logic already correct, no fail-open exists
+- [x] P3: Remove AssemblyAI name from user-facing WizSync error — replaced with generic message
+- [x] P4: Fix Stripe plan ID mismatch — Pricing page third plan id changed from "pro" to "studio", handleSubscribe and comparison table updated
