@@ -10,14 +10,12 @@ interface NavLinkProps {
 }
 
 /**
- * NavLink — hardened CTA component.
+ * NavLink — reliable cross-browser navigation component.
  *
- * PRODUCTION RULES:
- * 1. onMouseDown → window.location.href fallback (fires before extensions interfere)
- * 2. cursor: pointer ALWAYS
- * 3. pointer-events: auto ALWAYS (overrides any parent pointer-events:none)
- * 4. z-index: 10 minimum on the element
- * 5. onClick uses wouter navigate for SPA experience
+ * Uses standard <a href> + onClick for navigation.
+ * The previous onMouseDown → window.location.href approach was cancelling
+ * navigation inside dropdowns on desktop Chrome/Safari because the window-level
+ * click listener was unmounting the dropdown before navigation completed.
  */
 export function NavLink({ href, children, className = "", onClick, style, ...rest }: NavLinkProps) {
   const [, navigate] = useLocation();
@@ -37,20 +35,15 @@ export function NavLink({ href, children, className = "", onClick, style, ...res
         ...style,
       }}
       {...rest}
-      onMouseDown={(e) => {
-        // – fires BEFORE extensions interfere — hardened fallback
-        if (isExternal || isHashLink) return; // let browser handle external/hash
-        if (onClick) onClick();
-        window.location.href = href;
-      }}
       onClick={(e) => {
-        if (isExternal) return; // let browser handle
+        if (isExternal) return; // let browser handle external links natively
         e.preventDefault();
         if (isHashLink) {
           // Handle hash navigation
           const hash = href.includes("#") ? href.split("#")[1] : href.slice(1);
           const el = document.getElementById(hash);
           if (el) el.scrollIntoView({ behavior: "smooth" });
+          if (onClick) onClick();
           return;
         }
         if (onClick) onClick();

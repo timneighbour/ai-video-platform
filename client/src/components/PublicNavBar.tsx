@@ -2,7 +2,7 @@
 // PublicNavBar — single source of truth for all public-facing page nav bars.
 // Import as: import PublicNavBar from "@/components/PublicNavBar";
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -178,12 +178,17 @@ function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close dropdowns on Escape or outside click
+  const navRef = useRef<HTMLElement>(null);
+  // Close dropdowns on Escape or outside click (ref-based so clicks inside nav don't close it)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") { setProductsOpen(false); setTechOpen(false); setWorkflowOpen(false); setMobileOpen(false); }
     };
-    const onClickOutside = () => { setProductsOpen(false); setTechOpen(false); setWorkflowOpen(false); };
+    const onClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setProductsOpen(false); setTechOpen(false); setWorkflowOpen(false);
+      }
+    };
     window.addEventListener("keydown", onKey);
     window.addEventListener("click", onClickOutside);
     return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("click", onClickOutside); };
@@ -192,6 +197,7 @@ function Nav() {
   return (
     <>
       <nav
+        ref={navRef}
         role="navigation"
         aria-label="Main navigation"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
