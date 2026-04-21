@@ -5709,3 +5709,12 @@
 - [x] Use correct tier branding: Standard, WizEnhanced (Enhanced), WizCinematic (Cinematic)
 - [x] Point "Upgrade to Cinematic Mode" CTA to /subscribe#cinematic
 - [x] Add routes for new Technology pages (wizgenesis, wizsound, wizlumina, wizboost, wizsync, wizscore, wizpilot) — all 7 pages load correctly
+
+## Hear the Difference Section Fix (April 2026)
+- [x] Replace out-of-tune piano audio with cinematic spatial bass tones for all three tiers
+- [x] Remove WizLumina references from this section (it's a sound comparison only)
+- [x] Add WizSound logo and branding to the section
+- [x] Rename tiers to Normal / Enhanced / WizSound (not Cinematic)
+- [x] Upgrade section visuals to premium look (gold waveform, RECOMMENDED badge, two-column layout)
+- [x] Fix Start Creating CTA to link to /dashboard, Find Out More to /technology/wizsound
+- [x] Generate three audio samples showing clear quality differentials (cinematic bass tones)
