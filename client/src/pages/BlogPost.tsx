@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, ArrowLeft, ArrowRight, User, Sparkles } from "@/lib/icons";
 import { Helmet } from "react-helmet-async";
+import PublicNavBar from "@/components/PublicNavBar";
 
 function formatDate(d: Date | string | null) {
   if (!d) return "";

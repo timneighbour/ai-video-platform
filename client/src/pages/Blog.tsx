@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Clock, ArrowRight, Sparkles, Rss } from "@/lib/icons";
+import PublicNavBar from "@/components/PublicNavBar";
 
 function formatDate(d: Date | string | null) {
   if (!d) return "";
