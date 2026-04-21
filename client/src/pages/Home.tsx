@@ -71,13 +71,28 @@ const WHO_IMAGES = [
 // ── Scroll reveal ─────────────────────────────────────────────────────────────
 function useReveal() {
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const observed = new WeakSet<Element>();
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) (e.target as HTMLElement).classList.add("visible"); }),
       { threshold: 0.12 }
     );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+
+    function observeAll() {
+      document.querySelectorAll<HTMLElement>(".reveal").forEach((el) => {
+        if (!observed.has(el)) {
+          observed.add(el);
+          io.observe(el);
+        }
+      });
+    }
+
+    observeAll();
+
+    // Watch for dynamically added .reveal elements (e.g. after async data loads)
+    const mo = new MutationObserver(() => observeAll());
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => { io.disconnect(); mo.disconnect(); };
   }, []);
 }
 

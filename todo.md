@@ -5691,3 +5691,6 @@
 - [x] Remove star ratings and implied review scores from all pages
 - [x] Remove AI-generated avatar images from testimonial sections
 - [x] Ensure no fake quotes remain anywhere on the site
+
+## Bug Fixes (April 2026)
+- [x] Fix black empty space in "See what's possible" section on Home page (reveal animation not triggering for async-loaded showcase cards — added MutationObserver to useReveal)
