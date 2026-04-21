@@ -36,6 +36,7 @@ const WIZBOOST_LOGO = `/manus-storage/wizboost-logo-new_93f2b48b.png`;
 const WIZCREATE_LOGO = `/manus-storage/wizcreate-logo-new_85a25756.png`;
 const WIZANIMATE_LOGO = `/manus-storage/wizanimate-logo-new_a84f9808.png`;
 const WIZSYNC_LOGO = `/manus-storage/wizsync-logo-new_9563f007.png`;
+const WIZGENESIS_LOGO = `/manus-storage/wizimage-logo-v1_83c86e5c.png`;
 
 // ── Products — categorised by purpose ────────────────────────────────────────
 const PRODUCTS_CREATE = [
@@ -105,18 +106,18 @@ const PRODUCTS_GROW = [
 ];
 
 // ── Technology — proprietary intelligence stack ───────────────────────────────
-const WIZ_TECHNOLOGY = [
-  { name: "Character Consistency", tagline: "Visual Identity Lock", desc: "Keeps characters visually consistent across every scene — same face, outfit, and proportions.", href: "/technology/character-consistency", logo: WIZCREATE_LOGO },
-  { name: "Scene Builder", tagline: "Storyboard Intelligence", desc: "Generates a complete scene-by-scene visual plan from your audio or text prompt.", href: "/technology/scene-builder", logo: WIZCREATE_LOGO },
-  { name: "Lip Sync", tagline: "Frame-Accurate Vocal Sync", desc: "Synchronises character mouth movements to vocals with frame-accurate precision.", href: "/technology/lip-sync", logo: WIZSYNC_LOGO },
-  { name: "AI Video Engine", tagline: "Scene-to-Video Building", desc: "Transforms storyboard scenes into fully built cinematic video output.", href: "/technology/ai-video-engine", logo: WIZANIMATE_LOGO },
-  { name: "AI Music Engine", tagline: "Original Music Generation", desc: "Generates original songs, beats, and soundtracks from a text prompt.", href: "/technology/ai-music-engine", logo: WIZSOUND_LOGO },
-  { name: "WizSound Engine", tagline: "Cinematic Audio Mastering", desc: "Upgrades AI-generated audio to professional-grade quality with cinematic mastering.", href: "/technology/wizsound-engine", logo: WIZSOUND_LOGO },
-  { name: "Prompt to Video", tagline: "Text-Driven Creation", desc: "Turn a text description into a complete AI-generated cinematic video.", href: "/technology/prompt-to-video", logo: WIZCREATE_LOGO },
-  { name: "Audio to Video", tagline: "Music Video Generation", desc: "Upload a track and receive a complete beat-synced music video.", href: "/technology/audio-to-video", logo: WIZANIMATE_LOGO },
-  { name: "Storyboard Preview", tagline: "Preview Before You Pay", desc: "See every scene of your video before committing to the final video build.", href: "/technology/storyboard-preview", logo: WIZCREATE_LOGO },
-  { name: "4K Building", tagline: "Cinema-Grade Export Quality", desc: "Export in Standard, HD, or 4K with WizLumina enhancement and WizBoost optimisation.", href: "/technology/4k-rendering", logo: WIZLUMINA_LOGO },
+const WIZ_TECHNOLOGY_CORE = [
+  { name: "WizGenesis", tagline: "Creative Intelligence", desc: "Creative planning, prompt expansion and storyboard intelligence.", href: "/technology/wizgenesis", logo: WIZGENESIS_LOGO },
+  { name: "WizSound", tagline: "Audio Engine", desc: "Audio enhancement, clarity, depth and cinematic mastering.", href: "/technology/wizsound", logo: WIZSOUND_LOGO },
+  { name: "WizLumina", tagline: "Visual Engine", desc: "Cinematic visual polish, colour, contrast and finishing.", href: "/technology/wizlumina", logo: WIZLUMINA_LOGO },
+  { name: "WizBoost", tagline: "Optimisation Engine", desc: "Optimisation for quality, speed and platform-ready delivery.", href: "/technology/wizboost", logo: WIZBOOST_LOGO },
 ];
+const WIZ_TECHNOLOGY_ADVANCED = [
+  { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
+  { name: "WizScore", tagline: "Quality Scoring", desc: "Quality checks and improvement scoring before final output.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
+  { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZCREATE_LOGO },
+];
+const WIZ_TECHNOLOGY = [...WIZ_TECHNOLOGY_CORE, ...WIZ_TECHNOLOGY_ADVANCED];
 
 // ── Dropdown wrapper with fade+slide animation ────────────────────────────────
 // Uses a transparent "bridge" strip between the trigger and the panel so the
@@ -375,27 +376,56 @@ function Nav() {
                     <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>7 Engines</span>
                   </div>
 
-                  {/* Engine grid */}
-                  <div className="p-3 grid grid-cols-2 gap-1">
-                    {WIZ_TECHNOLOGY.map((eng) => (
-                      <NavLink
-                        key={eng.name}
-                        href={eng.href}
-                        className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
-                        style={{ border: "1px solid transparent" }}
-                        onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
-                        onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
-                      >
-                        <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
-                          <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">{eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
-                          <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors">{eng.tagline}</p>
-                          <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
-                        </div>
-                      </NavLink>
-                    ))}
+                  {/* Core engines */}
+                  <div className="px-3 pt-3 pb-1">
+                    <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Technology</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      {WIZ_TECHNOLOGY_CORE.map((eng) => (
+                        <NavLink
+                          key={eng.name}
+                          href={eng.href}
+                          className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                          style={{ border: "1px solid transparent" }}
+                          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
+                          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                        >
+                          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
+                            <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">{eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+                            <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors">{eng.tagline}</p>
+                            <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
+                          </div>
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Advanced tools */}
+                  <div className="px-3 pt-2 pb-3">
+                    <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Advanced tools</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      {WIZ_TECHNOLOGY_ADVANCED.map((eng) => (
+                        <NavLink
+                          key={eng.name}
+                          href={eng.href}
+                          className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+                          style={{ border: "1px solid transparent" }}
+                          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
+                          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                        >
+                          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
+                            <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">{eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+                            <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors">{eng.tagline}</p>
+                            <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
+                          </div>
+                        </NavLink>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Footer */}

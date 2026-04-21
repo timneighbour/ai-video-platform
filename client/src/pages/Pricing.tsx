@@ -74,12 +74,12 @@ const PLANS = [
     annualPrice: 190,
     bestFor: "Best for first-time creators",
     tagline: "Start creating music videos today.",
-    rendersPerMonth: 2,
+    buildsPerMonth: 2,
     scenesPerVideo: 8,
     outputQuality: "720p",
     watermark: false,
-    priorityRendering: false,
-    characterConsistency: false,
+    priorityBuilds: false,
+    wizSyncLock: false,
     apiAccess: false,
     popular: false,
     badge: null as string | null,
@@ -95,7 +95,7 @@ const PLANS = [
       { text: "No watermark", included: true },
       { text: "WizSound audio mastering", included: true },
       { text: "HD & 4K quality", included: false },
-      { text: "Character consistency", included: false },
+      { text: "WizSync\u2122 character lock", included: false },
     ],
   },
   {
@@ -105,12 +105,12 @@ const PLANS = [
     annualPrice: 490,
     bestFor: "Best for active creators",
     tagline: "More videos, more scenes, more creative control.",
-    rendersPerMonth: 6,
+    buildsPerMonth: 6,
     scenesPerVideo: 11,
     outputQuality: "4K 2160p",
     watermark: false,
-    priorityRendering: true,
-    characterConsistency: true,
+    priorityBuilds: true,
+    wizSyncLock: true,
     apiAccess: false,
     popular: true,
     badge: "Most Popular",
@@ -125,7 +125,7 @@ const PLANS = [
       { text: "4K 2160p output", included: true },
       { text: "No watermark", included: true },
       { text: "WizSound audio mastering", included: true },
-      { text: "Character consistency", included: true },
+      { text: "WizSync\u2122 character lock", included: true },
       { text: "Priority video builds", included: true },
     ],
   },
@@ -136,12 +136,12 @@ const PLANS = [
     annualPrice: 1490,
     bestFor: "Best for brands, agencies and high-volume creators",
     tagline: "12 videos a month. Full cinematic control.",
-    rendersPerMonth: 12,
+    buildsPerMonth: 12,
     scenesPerVideo: 12,
     outputQuality: "4K 2160p",
     watermark: false,
-    priorityRendering: true,
-    characterConsistency: true,
+    priorityBuilds: true,
+    wizSyncLock: true,
     apiAccess: false,
     popular: false,
     badge: null as string | null,
@@ -156,7 +156,7 @@ const PLANS = [
       { text: "4K 2160p output", included: true },
       { text: "No watermark", included: true },
       { text: "WizSound audio mastering", included: true },
-      { text: "Character consistency", included: true },
+      { text: "WizSync\u2122 character lock", included: true },
       { text: "Priority video builds", included: true },
     ],
   },
@@ -235,7 +235,7 @@ const COMPARISON_GROUPS = [
     rows: [
       { label: "All 6 WIZ AI products", starter: true, creator: true, pro: true, isCheck: true },
       { label: "WizSound audio mastering", starter: true, creator: true, pro: true, isCheck: true },
-      { label: "Character consistency", starter: false, creator: true, pro: true, isCheck: true },
+      { label: "WizSync\u2122 character lock", starter: false, creator: true, pro: true, isCheck: true },
       { label: "Priority video builds", starter: false, creator: true, pro: true, isCheck: true },
     ],
   },
@@ -272,8 +272,8 @@ const FAQS = [
     a: "Monthly Build Credits reset each billing cycle and do not roll over. If you need more flexibility, an Extra Build Credit Pack is a better option as the credits never expire.",
   },
   {
-    q: "What is character consistency?",
-    a: "Character consistency uses AI to maintain the same character appearance across multiple scenes in your video. Available on Pro and Business plans.",
+    q: "What is WizSync\u2122 character lock?",
+    a: "WizSync\u2122 character lock uses AI to maintain the same character appearance across multiple scenes in your video. Available on Creator and Studio plans.",
   },
   {
     q: "What is priority video building?",
@@ -460,8 +460,8 @@ export default function Pricing() {
           border-radius: inherit;
         }
         .popular-glow { box-shadow: 0 0 60px rgba(196,164,100,0.18), 0 0 120px rgba(196,164,100,0.08), inset 0 1px 0 rgba(196,164,100,0.15); }
-        .render-tier-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .render-tier-card:hover { transform: translateY(-4px); }
+        .quality-tier-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .quality-tier-card:hover { transform: translateY(-4px); }
       `}</style>
 
       <PublicNavBar />
@@ -678,7 +678,7 @@ export default function Pricing() {
                   {/* Key stats */}
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
-                      <div className="text-2xl font-black text-white">{plan.rendersPerMonth}</div>
+                      <div className="text-2xl font-black text-white">{plan.buildsPerMonth}</div>
                       <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">Build Credits/mo</div>
                     </div>
                     <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
@@ -870,7 +870,7 @@ export default function Pricing() {
           {BUNDLES.map((bundle) => (
             <div
               key={bundle.key}
-              className="render-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
+              className="quality-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
               style={{
                 borderColor: bundle.borderColor,
                 boxShadow: bundle.popular ? `0 0 50px ${bundle.accentColor}` : 'none',
@@ -943,7 +943,7 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* ── 3. PER-RENDER PRICING ── */}
+      {/* ── 3. PAY-PER-VIDEO PRICING ── */}
       <section className="max-w-5xl mx-auto px-6 mb-24" id="pricing">
         <div className="text-center mb-12">
           <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Pay As You Go</p>
@@ -999,7 +999,7 @@ export default function Pricing() {
           ].map((tier) => (
             <div
               key={tier.label}
-              className="render-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
+              className="quality-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
               style={{ borderColor: tier.borderColor, boxShadow: tier.badge ? `0 0 40px ${tier.accentColor}` : 'none' }}
             >
               {tier.badge && (
@@ -1181,7 +1181,7 @@ export default function Pricing() {
             },
             {
               title: "For Storytellers",
-              desc: "Transform scripts into animated scenes with character consistency and cinematic visual styles.",
+              desc: "Transform scripts into animated scenes with consistent characters and cinematic visual styles.",
               icon: "\ud83d\udcd6",
               plan: "Creator Plan",
             },

@@ -59,7 +59,7 @@ const HOW_IT_WORKS = [
   {
     num: "04",
     title: "Baked into video",
-    desc: "The enhanced audio is seamlessly baked into the final video render by WizGenesis™ — no manual steps, no file juggling.",
+    desc: "The enhanced audio is seamlessly baked into the final video build by WizGenesis™ — no manual steps, no file juggling.",
     img: IMG.concertHall,
   },
 ];
@@ -123,7 +123,7 @@ const FAQS = [
   { q: "Does WizSound change the character of my music?", a: "No — WizSound enhances without replacing. The processing is designed to be transparent, preserving your track's original character while adding richness, width, and professional polish." },
   { q: "What loudness standard does WizSound target?", a: "WizSound Active targets −16 LUFS integrated with true-peak at −1 dBTP. WizSound Spatial targets −14 LUFS with true-peak at −0.1 dBTP — the standard used by Spotify, Apple Music, and YouTube." },
   { q: "Can I preview the difference before paying?", a: "Yes — use the audio demo player on this page to hear the same source track processed through each tier. The preview uses real WizSound-processed audio." },
-  { q: "Is WizSound applied automatically?", a: "Yes. Once you select your audio tier during the render setup, WizSound runs automatically as part of the WizGenesis render pipeline — no manual steps required." },
+  { q: "Is WizSound applied automatically?", a: "Yes. Once you select your audio tier during the build setup, WizSound runs automatically as part of the WizGenesis build pipeline — no manual steps required." },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -293,7 +293,7 @@ export default function WizSoundProductPage() {
           <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
               <h2 className="text-3xl font-extrabold text-white mb-6 leading-tight">
-                A 13-stage cinematic audio pipeline — built into every render
+                A 13-stage cinematic audio pipeline — built into every build
               </h2>
               <p className="text-white/50 text-base leading-relaxed mb-8">
                 WizSound™ is WIZ AI's proprietary audio enhancement engine. It applies multi-band compression, harmonic enhancement, spatial widening, and cinematic EQ curves to your audio track — transforming it from a standard recording into a rich, immersive cinematic experience.

@@ -118,7 +118,7 @@ const HOW_IT_WORKS = [
   },
   {
     step: "04",
-    title: "Render and download",
+    title: "Build and download",
     desc: "Export your finished animation in HD or 4K with WizSound™ audio mastering built in. Ready to publish.",
     img: "/manus-storage/hiw-step4-export_68c87f9e.jpg",
   },
@@ -153,7 +153,7 @@ const FAQS = [
   },
   {
     q: "How long does it take to create an animated video?",
-    a: "Storyboard generation takes seconds. Rendering a full animated video typically takes 3–8 minutes depending on length and quality setting.",
+    a: "Storyboard generation takes seconds. Building a full animated video typically takes 3–8 minutes depending on length and quality setting.",
   },
   {
     q: "Can I add my own audio or narration?",
@@ -435,7 +435,7 @@ export default function AiAnimationMaker() {
               From Idea to Animated Video in 4 Steps
             </h2>
             <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
-              No timeline. No keyframes. No rendering software. Just describe, preview, and export.
+              No timeline. No keyframes. No editing software. Just describe, preview, and export.
             </p>
           </div>
 

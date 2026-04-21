@@ -86,7 +86,7 @@ const PLANS = [
     outcomes: [
       "15 Build Credits per month",
       "Standard, HD & 4K quality",
-      "Character consistency",
+      "WizSync\u2122 character lock",
       "Priority build queue",
       "All 6 WIZ AI products",
       "Free storyboard generation",
@@ -108,7 +108,7 @@ const PLANS = [
     outcomes: [
       "25 Build Credits per month",
       "Standard, HD & 4K quality",
-      "Character consistency",
+      "WizSync\u2122 character lock",
       "Priority build queue",
       "All 6 WIZ AI products",
       "Free storyboard generation",
@@ -131,7 +131,7 @@ const PLANS = [
       "40 Build Credits per month",
       "Standard, HD & 4K quality",
       "Fastest build speed \u2014 top priority",
-      "Character consistency",
+      "WizSync\u2122 character lock",
       "Full API access for automation",
       "All 6 WIZ AI products",
       "No watermark on exports",
@@ -149,7 +149,7 @@ const COMPARISON_ROWS: { feature: string; free: string | boolean; starter: strin
   { feature: "Max quality",       free: "720p",      starter: "720p", basic: "1080p",creator: "4K",  pro: "4K",  studio: "4K"  },
   { feature: "Free storyboard",   free: true,        starter: true,   basic: true,   creator: true,  pro: true,  studio: true  },
   { feature: "WizSound discount", free: false,       starter: false,  basic: false,  creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "Character consistency", free: false, starter: false, basic: false, creator: true, pro: true, studio: true },
+  { feature: "WizSync\u2122 character lock", free: false, starter: false, basic: false, creator: true, pro: true, studio: true },
   { feature: "Build speed",   free: "Standard",  starter: "Standard", basic: "Standard", creator: "Priority", pro: "Priority", studio: "Fastest" },
   { feature: "API access",        free: false,       starter: false,  basic: false,  creator: false, pro: false, studio: true  },
 ];
@@ -330,7 +330,7 @@ export default function Subscribe() {
         </div>
       </section>
 
-      {/* ── 4. Pay-per-render ── */}
+      {/* ── 4. Pay-per-video ── */}
       <section className="py-16 border-t border-white/10 px-4">
         <div className="container max-w-4xl mx-auto">
           <div className="text-center mb-10">
@@ -350,7 +350,7 @@ export default function Subscribe() {
                 <h3 className="font-bold text-white text-sm mb-1">{item.label}</h3>
                 <p className="text-xs text-muted-foreground mb-3">{item.res}</p>
                 <p className="text-2xl font-extrabold text-white">{item.price}</p>
-                <p className="text-xs text-muted-foreground mt-1">Full Video Render</p>
+                <p className="text-xs text-muted-foreground mt-1">Full Video Build</p>
               </div>
             ))}
           </div>
@@ -370,8 +370,8 @@ export default function Subscribe() {
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               { tier: "Standard",           desc: "Original audio, no processing",                                                   price: "Free",      highlight: false, badge: null },
-              { tier: "WizSound Active",    desc: "Stereo widening + EQ boost",                                                      price: "£1/render", highlight: false, badge: null },
-              { tier: "WizSound Spatial",   desc: "Full spatial mix — immersive depth, dynamic range, cinema-grade stereo",        price: "£3/render", highlight: true,  badge: "Recommended" },
+              { tier: "WizSound Active",    desc: "Stereo widening + EQ boost",                                                      price: "£1/video", highlight: false, badge: null },
+              { tier: "WizSound Spatial",   desc: "Full spatial mix — immersive depth, dynamic range, cinema-grade stereo",        price: "£3/video", highlight: true,  badge: "Recommended" },
             ].map((item) => (
               <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-[#2a1f00]/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
                 {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
@@ -388,7 +388,7 @@ export default function Subscribe() {
         </div>
       </section>
 
-      {/* ── 6. Render bundles ── */}
+      {/* ── 6. Build Credit Packs ── */}
       <section className="py-16 border-t border-white/10 px-4">
         <div className="container max-w-3xl mx-auto">
           <div className="text-center mb-10">
@@ -396,25 +396,25 @@ export default function Subscribe() {
               <Package className="h-3.5 w-3.5" />Build Credit Packs
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Save with build credit packs</h2>
-            <p className="text-muted-foreground">Pre-purchase renders at a discount. Use them anytime — they never expire.</p>
+            <p className="text-muted-foreground">Pre-purchase build credits at a discount. Use them anytime — they never expire.</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { label: "Starter Bundle",  renders: 6,  price: "£10", perRender: "£1.67", saving: null,     highlight: false, badge: null },
-              { label: "Creator Bundle",  renders: 15, price: "£20", perRender: "£1.33", saving: "Save 33%", highlight: true,  badge: "Best Value" },
-              { label: "Studio Bundle",   renders: 40, price: "£50", perRender: "£1.25", saving: "Save 38%", highlight: false, badge: null },
+              { label: "Starter Bundle",  builds: 6,  price: "£10", perRender: "£1.67", saving: null,     highlight: false, badge: null },
+              { label: "Creator Bundle",  builds: 15, price: "£20", perRender: "£1.33", saving: "Save 33%", highlight: true,  badge: "Best Value" },
+              { label: "Studio Bundle",   builds: 40, price: "£50", perRender: "£1.25", saving: "Save 38%", highlight: false, badge: null },
             ].map((item) => (
               <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-[--color-gold]/40 bg-[--color-gold]/5 shadow-[0_0_24px_-6px_rgba(184,137,42,0.25)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
                 {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
                 <h3 className="font-bold text-white text-sm mb-1">{item.label}</h3>
-                <p className="text-xs text-muted-foreground mb-3">{item.renders} renders</p>
+                <p className="text-xs text-muted-foreground mb-3">{item.builds} builds</p>
                 <p className="text-2xl font-extrabold text-white mb-1">{item.price}</p>
-                <p className="text-xs text-muted-foreground">{item.perRender}/render</p>
+                <p className="text-xs text-muted-foreground">{item.perRender}/build</p>
                 {item.saving && <p className="text-xs text-[--color-gold] font-semibold mt-1">{item.saving}</p>}
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-muted-foreground mt-6">Bundles can be purchased from your dashboard at any time. Renders never expire.</p>
+          <p className="text-center text-xs text-muted-foreground mt-6">Bundles can be purchased from your dashboard at any time. Build credits never expire.</p>
         </div>
       </section>
 
@@ -455,7 +455,7 @@ export default function Subscribe() {
         <div className="container max-w-3xl mx-auto">
           <div className="grid gap-4 sm:grid-cols-3 text-center">
             {[
-              { q: "Do subscription renders roll over?",  a: "Subscription renders reset each billing cycle. Render bundles (bought separately) never expire." },
+              { q: "Do subscription build credits roll over?",  a: "Subscription build credits reset each billing cycle. Build Credit Packs (bought separately) never expire." },
               { q: "Can I switch plans?",                   a: "Yes, upgrade or downgrade anytime. Prorated instantly." },
               { q: "Is there a refund policy?",             a: "Yes, we offer a 7-day money-back guarantee on all plans." },        ].map(({ q, a }) => (
               <div key={q} className="rounded-xl border border-white/10 bg-white/5 p-4">

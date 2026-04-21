@@ -5694,3 +5694,11 @@
 
 ## Bug Fixes (April 2026)
 - [x] Fix black empty space in "See what's possible" section on Home page (reveal animation not triggering for async-loaded showcase cards — added MutationObserver to useReveal)
+
+## Navigation & Terminology Cleanup (April 2026)
+- [x] Replace Technology dropdown with agreed WIZ engine stack (WizGenesis, WizSound, WizLumina, WizBoost + Advanced: WizSync, WizScore, WizPilot)
+- [x] Remove old engine names from Technology dropdown (Character Consistency, Lip Sync, AI Music Engine, Prompt to Video, Scene Builder, AI Video Engine, Audio to Video, 4K Building)
+- [x] Audit Products dropdown for old engine names and fix
+- [x] Audit Pricing page for old engine names and render terminology
+- [x] Replace render/rendering/renders with build/create/export in public UI (nav, Pricing, Subscribe, Products, WizSound product page, AiAnimationMaker)
+- [x] Ensure WizAdora is not shown publicly (confirmed: only on /admin/wizadora route)

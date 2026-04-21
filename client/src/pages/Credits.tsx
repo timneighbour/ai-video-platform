@@ -72,7 +72,7 @@ const CINEMATIC_PACKS = [
     price: 12,
     credits: 200,
     scenes: 10,
-    description: "Apply premium rendering to 10 key scenes across your videos",
+    description: "Apply premium visual enhancement to 10 key scenes across your videos",
   },
   {
     id: "cinematic_25" as const,
@@ -80,7 +80,7 @@ const CINEMATIC_PACKS = [
     price: 25,
     credits: 500,
     scenes: 25,
-    description: "Apply premium rendering to 25 key scenes — perfect for series creators",
+    description: "Apply premium visual enhancement to 25 key scenes — perfect for series creators",
     popular: true,
   },
   {

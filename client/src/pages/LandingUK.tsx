@@ -168,7 +168,7 @@ export default function LandingUK() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[--color-gold] text-sm font-semibold uppercase tracking-widest mb-3">Why WIZ AI</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white">See it. Approve it. Then render it.</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white">See it. Approve it. Then build it.</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {FEATURES.map((f) => (
