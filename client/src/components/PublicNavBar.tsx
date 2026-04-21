@@ -130,7 +130,7 @@ function NavDropdown({ open, children, wide, align = "center" }: { open: boolean
       className={`absolute z-50 transition-all duration-200 origin-top ${
         open ? "opacity-100 scale-y-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-y-95 -translate-y-1 pointer-events-none"
       }`}
-      style={{ top: "calc(100% - 4px)", left: leftPos, transform: `translateX(${translateX})`, width: wide ? 720 : 620 }}
+      style={{ top: "calc(100% - 4px)", left: leftPos, transform: `translateX(${translateX})`, width: wide ? 720 : 620, visibility: open ? "visible" : "hidden" }}
     >
       {/* Invisible bridge — fills the gap between button and panel so mouse travel doesn't close the dropdown */}
       <div className="h-4 w-full" />
