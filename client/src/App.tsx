@@ -342,11 +342,12 @@ function App() {
           <NoIndexGuard />
           <Router />
           <GlobalMuteButton />
-          <CookieConsentBanner />
           {/* Intro shows once per session — sessionStorage flag prevents repeat */}
           {showIntro && (
             <IntroScreen onComplete={handleIntroClose} />
           )}
+          {/* Cookie banner must come after IntroScreen in the DOM so it renders on top */}
+          <CookieConsentBanner />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

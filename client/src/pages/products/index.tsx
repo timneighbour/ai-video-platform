@@ -344,7 +344,7 @@ const WIZSCRIPT: ProductPageProps = {
   tagline: "AI Script & Storyboard Engine",
   headline: "From plain text to a fully-structured video script",
   subheadline: "WizScript™ transforms your idea — a single sentence, a concept, a topic — into a scene-by-scene video script with dialogue, visual direction, and storyboard panels, ready for WizGenesis™ to render.",
-  logo: "/manus-storage/wizscript-logo-v1_df85b4ab.png",
+  logo: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizscript-logo-v1_df85b4ab.png",
   accentFrom: "from-violet-400",
   accentTo: "to-purple-600",
   accentGlow: "rgba(139,92,246,0.25)",
@@ -384,7 +384,7 @@ const WIZSCRIPT: ProductPageProps = {
     { icon: "star", title: "Character Voice Consistency", desc: "Maintains consistent character voices, dialogue styles, and personality traits across all scenes for a coherent, professional narrative." },
     { icon: "zap", title: "WizGenesis™ Integration", desc: "Scripts flow directly into WizGenesis™ for rendering — no manual export, no format conversion, no setup. One click from script to final video." },
   ],
-  heroImage: "/manus-storage/product-wizscript-hero_bb15d595.png",
+  heroImage: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizscript-hero_bb15d595.png",
   related: ALL_RELATED.filter(r => r.name !== "WizCreate™"),
 };
 

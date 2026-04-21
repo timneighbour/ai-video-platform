@@ -19,7 +19,7 @@ const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
 
 const VIDEO_SRC =
-  "/manus-storage/demo-video-only_404f1adb.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_404f1adb.mp4";
 
 // Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before" experience
 const AUDIO_STANDARD =

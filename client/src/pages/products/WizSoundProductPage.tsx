@@ -15,17 +15,17 @@ import {
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png";
 
 // Premium imagery CDN paths
 const IMG = {
-  heroConsole:   "/manus-storage/studio-console_91324aaa.jpg",
-  studioMic:     "/manus-storage/studio-mic_3d8c675d.jpg",
-  studioMicDark: "/manus-storage/studio-mic-dark_bd0b6598.jpg",
-  studioMoody:   "/manus-storage/studio-moody_02c867cc.jpg",
-  concertHall:   "/manus-storage/concert-hall_2b6b946b.jpg",
-  sphereConcert: "/manus-storage/sphere-concert_e0e5b1d0.jpg",
-  ambientMusic:  "/manus-storage/ambient-music_efff5905.webp",
+  heroConsole:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-console_91324aaa.jpg",
+  studioMic:     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-mic_3d8c675d.jpg",
+  studioMicDark: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-mic-dark_bd0b6598.jpg",
+  studioMoody:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-moody_02c867cc.jpg",
+  concertHall:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/concert-hall_2b6b946b.jpg",
+  sphereConcert: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/sphere-concert_e0e5b1d0.jpg",
+  ambientMusic:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/ambient-music_efff5905.webp",
 };
 
 const RELATED = [

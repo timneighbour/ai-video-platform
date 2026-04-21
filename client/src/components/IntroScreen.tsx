@@ -17,7 +17,7 @@ import { ChevronRight, Play } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
-  "/manus-storage/wizai-intro-wizsound-pure_8c53762c.mp4";
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-wizsound-pure_8c53762c.mp4";
 const POSTER_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-poster_760474dc.jpg";
 
@@ -230,9 +230,9 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         {/* Top row — empty */}
         <div />
 
-        {/* Bottom row — Skip + Enter */}
-        <div className="flex items-center justify-between pointer-events-auto">
-          {/* Skip Intro */}
+        {/* Bottom row — Skip left, Enter centred (above Crisp chat icon) */}
+        <div className="relative flex items-end pointer-events-auto">
+          {/* Skip Intro — bottom left */}
           <button
             onClick={dismiss}
             className="text-white/50 hover:text-white/90 transition-colors text-sm tracking-widest uppercase font-medium"
@@ -241,10 +241,10 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
             Skip Intro
           </button>
 
-          {/* Enter WIZ AI */}
+          {/* Enter WIZ AI — absolute centre, raised 1rem above the bottom edge */}
           <button
             onClick={dismiss}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#b8892a] to-[#8a6520] text-white font-semibold text-sm tracking-wide hover:from-[#c99a3a] hover:to-[#9a7530] transition-all shadow-lg shadow-[#b8892a]/30 btn-sheen"
+            className="absolute left-1/2 -translate-x-1/2 bottom-0 flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#b8892a] to-[#8a6520] text-white font-semibold text-sm tracking-wide hover:from-[#c99a3a] hover:to-[#9a7530] transition-all shadow-lg shadow-[#b8892a]/30 btn-sheen"
             aria-label="Enter WIZ AI"
           >
             Enter WIZ AI

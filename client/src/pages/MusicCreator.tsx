@@ -351,7 +351,7 @@ export default function MusicCreator() {
       <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden">
         {/* Background: studio image */}
         <img
-          src="/manus-storage/music-studio-bg_207e72b0.jpg"
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-studio-bg_207e72b0.jpg"
           alt="WizAudio Studio"
           className="absolute inset-0 w-full h-full object-cover object-center scale-105"
           style={{ filter: "brightness(0.38) saturate(1.2)" }}

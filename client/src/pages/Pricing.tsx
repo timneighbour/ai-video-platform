@@ -34,38 +34,38 @@ import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 // ── CDN assets ────────────────────────────────────────────────────────────────
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
-const PRICING_HERO_BG = "/manus-storage/pricing-hero-bg_7e23edd2.jpg";
-const HIW_STEP1 = "/manus-storage/hiw-step1-choose_1102ddee.jpg";
-const HIW_STEP2 = "/manus-storage/hiw-step2-storyboard_21e66052.jpg";
-const HIW_STEP3 = "/manus-storage/hiw-step3-preview_e536f5b1.jpg";
-const HIW_STEP4 = "/manus-storage/hiw-step4-export_68c87f9e.jpg";
-const SHOWCASE_1 = "/manus-storage/showcase-midnight-city_d2b326c1.jpg";
-const SHOWCASE_2 = "/manus-storage/showcase-stage-performance_3379ee75.jpg";
-const SHOWCASE_3 = "/manus-storage/showcase-star-quest_c9d5cd00.jpg";
-const CREATOR_MUSICIANS = "/manus-storage/creator-musicians_cc8c2a51.jpg";
-const CREATOR_CONTENT = "/manus-storage/creator-content-creators_ae0d5147.jpg";
-const CREATOR_YOUTUBERS = "/manus-storage/creator-youtubers-brands_088b54d8.jpg";
-const CREATOR_ANIMATORS = "/manus-storage/creator-animators_d6999585.jpg";
-const AVATAR_DANIEL = "/manus-storage/avatar-daniel_64a2beaf.jpg";
-const AVATAR_MARCUS = "/manus-storage/avatar-marcus_5c70b009.jpg";
-const AVATAR_PRIYA = "/manus-storage/avatar-priya_5975eaf5.jpg";
-const AVATAR_SOPHIE = "/manus-storage/avatar-sophie_7b87260f.jpg";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png";
+const PRICING_HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/pricing-hero-bg_7e23edd2.jpg";
+const HIW_STEP1 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step1-choose_1102ddee.jpg";
+const HIW_STEP2 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step2-storyboard_21e66052.jpg";
+const HIW_STEP3 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step3-preview_e536f5b1.jpg";
+const HIW_STEP4 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step4-export_68c87f9e.jpg";
+const SHOWCASE_1 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-midnight-city_d2b326c1.jpg";
+const SHOWCASE_2 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-stage-performance_3379ee75.jpg";
+const SHOWCASE_3 = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-star-quest_c9d5cd00.jpg";
+const CREATOR_MUSICIANS = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-musicians_cc8c2a51.jpg";
+const CREATOR_CONTENT = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-content-creators_ae0d5147.jpg";
+const CREATOR_YOUTUBERS = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-youtubers-brands_088b54d8.jpg";
+const CREATOR_ANIMATORS = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-animators_d6999585.jpg";
+const AVATAR_DANIEL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-daniel_64a2beaf.jpg";
+const AVATAR_MARCUS = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-marcus_5c70b009.jpg";
+const AVATAR_PRIYA = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-priya_5975eaf5.jpg";
+const AVATAR_SOPHIE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-sophie_7b87260f.jpg";
 
 // Product logos
-const LOGO_WIZAUDIO = "/manus-storage/wizaudio-logo-v1_f428aad0.png";
-const LOGO_WIZIMAGE = "/manus-storage/wizimage-logo-v1_83c86e5c.png";
-const LOGO_WIZVIDEO = "/manus-storage/wizvideo-logo-v1_9ec37e45.png";
-const LOGO_WIZSHORTS = "/manus-storage/wizshorts-logo-v1_533db978.png";
-const LOGO_WIZANIMATE = "/manus-storage/wizanimate-logo-v3_f7af07e9.png";
-const LOGO_WIZSCRIPT = "/manus-storage/wizscript-logo-v1_c6af5345.png";
+const LOGO_WIZAUDIO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizaudio-logo-v1_f428aad0.png";
+const LOGO_WIZIMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizimage-logo-v1_83c86e5c.png";
+const LOGO_WIZVIDEO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvideo-logo-v1_9ec37e45.png";
+const LOGO_WIZSHORTS = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizshorts-logo-v1_533db978.png";
+const LOGO_WIZANIMATE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v3_f7af07e9.png";
+const LOGO_WIZSCRIPT = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizscript-logo-v1_c6af5345.png";
 
 // Plan background images (reuse product hero images for plan card atmospheres)
-const PLAN_BG_STARTER = "/manus-storage/product-wizcreate-hero_6c3efa10.jpg";
-const PLAN_BG_BASIC = "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg";
-const PLAN_BG_CREATOR = "/manus-storage/product-wizlumina-hero_ed20683e.jpg";
-const PLAN_BG_PRO = "/manus-storage/product-wizsound-hero_8219d2d2.jpg";
-const PLAN_BG_STUDIO = "/manus-storage/product-wizboost-hero_9c11e1cc.jpg";
+const PLAN_BG_STARTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero_6c3efa10.jpg";
+const PLAN_BG_BASIC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizgenesis-hero_0a9aa16b.jpg";
+const PLAN_BG_CREATOR = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizlumina-hero_ed20683e.jpg";
+const PLAN_BG_PRO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero_8219d2d2.jpg";
+const PLAN_BG_STUDIO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizboost-hero_9c11e1cc.jpg";
 
 // ── Nav products ──────────────────────────────────────────────────────────────
 const NAV_PRODUCTS = [

@@ -84,7 +84,7 @@ const options = [
   },
 ];
 
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png";
 
 const Onboarding: React.FC = () => {
   useEffect(() => { mp.onboardingStarted(); }, []);

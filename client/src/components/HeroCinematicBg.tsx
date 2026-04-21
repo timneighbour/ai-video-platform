@@ -6,8 +6,8 @@ import { Pause, Play } from "@/lib/icons";
    Luxury upgrade: gold dust particles, metallic bloom, warm waveform.
 ────────────────────────────────────────────────────────────────────── */
 const ASSETS = {
-  // Served via /manus-storage/ to ensure video/mp4 Content-Type (CDN returns application/octet-stream)
-  videoMP4: "/manus-storage/hero-bg-v2_dc5fb17d.mp4",
+  // Served via https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/ to ensure video/mp4 Content-Type (CDN returns application/octet-stream)
+  videoMP4: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hero-bg-v2_dc5fb17d.mp4",
   poster:
     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp",
   staticBg:

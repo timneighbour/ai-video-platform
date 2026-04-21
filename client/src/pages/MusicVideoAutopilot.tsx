@@ -1611,7 +1611,7 @@ export default function MusicVideoAutopilot() {
               <span>Home</span>
             </NavLink>
             <NavLink href="/">
-              <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
             </NavLink>
             <NavLink href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />

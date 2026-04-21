@@ -5,7 +5,7 @@ import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
 import { Link } from "wouter";
 
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
 const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
