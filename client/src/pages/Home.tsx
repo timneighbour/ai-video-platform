@@ -153,7 +153,7 @@ const WIZ_TECHNOLOGY = [
   { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
   { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "Powers every creative decision inside WIZ AI — smarter, faster, more consistent.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
   { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
-  { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion for rhythm-locked output.", href: "/products/wizsync", logo: WIZSYNC_LOGO },
+  { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion for rhythm-locked output.", href: "/wizsync", logo: WIZSYNC_LOGO },
   { name: "WizSound", tagline: "Premium Audio Engine", desc: "Upgrades every track from raw AI to broadcast-quality Cinematic audio.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
   { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "Transforms raw AI footage into polished, colour-graded cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
   { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Accelerates render speed and sharpens final quality on every export.", href: "/products/wizboost", logo: WIZBOOST_LOGO },

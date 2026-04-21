@@ -139,6 +139,7 @@ function Router() {
         <Route path={"/products/wizcreate"} component={WizCreatePage} />
         <Route path={"/products/wizanimate"} component={WizAnimatePage} />
         <Route path={"/wiz-animate"} component={WizAnimatePage} />{/* alias */}
+        <Route path={"/products/wizsync"} component={WizSync} />{/* alias → /wizsync */}
         <Route path={"/products/wizsound"} component={WizSoundPage} />
         <Route path={"/products/wizlumina"} component={WizLuminaPage} />
         <Route path={"/products/wizgenesis"} component={WizGenesisPage} />

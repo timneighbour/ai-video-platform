@@ -195,8 +195,8 @@ const WIZLUMINA: ProductPageProps = {
   borderColour: "border-[--color-gold]/30",
   bgColour: "bg-[--color-gold]/15",
   badgeClass: "text-[--color-gold] bg-[--color-gold]/15 border-[--color-gold]/30",
-  ctaHref: "/enhancement-studio",
-  ctaLabel: "Enhance Your Video",
+  ctaHref: "/music-video/create",
+  ctaLabel: "Create Your Video",
   whatItDoes: "WizLumina™ is WIZ AI's visual post-processing engine. It analyses each frame of your AI-generated video and applies a cinematic enhancement pipeline — colour grading, HDR tone mapping, sharpening, and 4K upscaling — that transforms the output from flat AI imagery into rich, film-quality visuals.",
   capabilities: [
     "Cinematic colour grading with film LUT library",
@@ -297,8 +297,8 @@ const WIZBOOST: ProductPageProps = {
   borderColour: "border-orange-500/30",
   bgColour: "bg-orange-500/5",
   badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
-  ctaHref: "/dashboard",
-  ctaLabel: "Go to Dashboard",
+  ctaHref: "/music-video/create",
+  ctaLabel: "Boost Your Video",
   whatItDoes: "WizBoost™ is the distribution and growth layer of WIZ AI. After your video is rendered by WizGenesis™, WizBoost™ helps you reach your audience — connecting your content to the WIZ AI creator network, optimising it for platform algorithms, and tracking performance across channels.",
   capabilities: [
     "Multi-platform distribution (YouTube, Instagram, TikTok)",

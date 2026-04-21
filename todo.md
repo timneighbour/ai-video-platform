@@ -5530,27 +5530,39 @@
 - [ ] Footer links updated
 
 ## WizAdora Phase 1 — Internal API Foundation
-- [ ] DB schema: wizadora_api_keys table
-- [ ] DB schema: wizadora_jobs table (full job model)
-- [ ] DB schema: wizadora_provider_logs table
-- [ ] DB schema: wizadora_idempotency_keys table
-- [ ] DB schema: wizadora_webhook_logs table
-- [ ] DB schema: wizadora_spend_caps table
-- [ ] Run migration for all 6 WizAdora tables
-- [ ] WizAdora server module: API key auth (wiz_test_sk_ format)
-- [ ] WizAdora server module: idempotency key enforcement
-- [ ] WizAdora server module: credit reservation/charge/refund lifecycle
-- [ ] WizAdora server module: spend cap checks (per-job, daily, monthly, account)
-- [ ] WizAdora server module: Atlas-only routing, fal.ai/WaveSpeed explicitly blocked
-- [ ] WizAdora server module: content moderation hook
-- [ ] WizAdora server module: polling guard (cannot call submit)
-- [ ] REST endpoints: POST /api/v1/videos
-- [ ] REST endpoints: GET /api/v1/videos/:id
-- [ ] REST endpoints: GET /api/v1/videos
-- [ ] REST endpoints: DELETE /api/v1/videos/:id
-- [ ] REST endpoints: GET /api/v1/account
-- [ ] Webhook-ready architecture: HMAC-SHA256 signatures, replay protection, log table
-- [ ] Admin monitoring views: jobs, provider logs, spend caps, webhook logs
-- [ ] 15 safety tests (idempotency, credit gate, spend caps, polling guard, provider routing, moderation, webhook)
-- [ ] Confirm no public API portal launched
-- [ ] Confirm no paid provider call triggered
+- [x] DB schema: wizadora_api_keys table
+- [x] DB schema: wizadora_jobs table (full job model)
+- [x] DB schema: wizadora_provider_logs table
+- [x] DB schema: wizadora_idempotency_keys table
+- [x] DB schema: wizadora_webhook_logs table
+- [x] DB schema: wizadora_spend_caps table
+- [x] Run migration for all 6 WizAdora tables
+- [x] WizAdora server module: API key auth (wiz_test_sk_ format)
+- [x] WizAdora server module: idempotency key enforcement
+- [x] WizAdora server module: credit reservation/charge/refund lifecycle
+- [x] WizAdora server module: spend cap checks (per-job, daily, monthly, account)
+- [x] WizAdora server module: Atlas-only routing, fal.ai/WaveSpeed explicitly blocked
+- [x] WizAdora server module: content moderation hook
+- [x] WizAdora server module: polling guard (cannot call submit)
+- [x] REST endpoints: POST /api/v1/videos
+- [x] REST endpoints: GET /api/v1/videos/:id
+- [x] REST endpoints: GET /api/v1/videos
+- [x] REST endpoints: DELETE /api/v1/videos/:id
+- [x] REST endpoints: GET /api/v1/account
+- [x] Webhook-ready architecture: HMAC-SHA256 signatures, replay protection, log table
+- [x] Admin monitoring views: jobs, provider logs, spend caps, webhook logs
+- [x] 15 safety tests (idempotency, credit gate, spend caps, polling guard, provider routing, moderation, webhook)
+- [x] Confirm no public API portal launched
+- [x] Confirm no paid provider call triggered
+
+## Products & Technology Menu Routing Fixes
+- [ ] Fix Technology dropdown: WizSync href from /products/wizsync → /wizsync
+- [ ] Add /products/wizsync route alias in App.tsx pointing to WizSync page
+- [ ] Fix WizSound product page CTA: points to /music-creator — verify correct destination
+- [ ] Fix WizLumina product page CTA: /enhancement-studio → correct page
+- [ ] Fix WizBoost product page CTA: /dashboard → correct WizBoost destination
+- [ ] Fix WizGenesis product page CTA: /music-video/create → correct destination
+- [ ] Audit all related product links in WizSoundProductPage.tsx
+- [ ] Audit all related product links in ProductPageTemplate.tsx
+- [ ] Verify all 9 product pages load without 404
+- [ ] Add smart back navigation (window.history.back()) to all product pages (ProductPageTemplate + WizSoundProductPage + WizSync)
