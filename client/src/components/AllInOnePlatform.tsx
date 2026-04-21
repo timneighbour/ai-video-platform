@@ -261,7 +261,7 @@ export default function AllInOnePlatform() {
             Everything you need to create, build, and grow — in one platform
           </p>
           <NavLink
-            href="/create"
+            href="/onboarding"
             className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
           >
             Start Creating

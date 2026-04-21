@@ -90,7 +90,7 @@ export default function MusicVideosLanding() {
             {[
               { label: "Home", href: "/" },
               { label: "WizVideo", href: "/music-video/create" },
-              { label: "WizScript", href: "/wizpilot" },
+              { label: "WizScript", href: "/wiz-script" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (

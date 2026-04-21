@@ -294,7 +294,7 @@ const PRODUCTS: Product[] = [
     name: "WizAudio", label: "CREATE AUDIO",
     tagline: "AI music & audio production studio",
     desc: "Generate original tracks, soundscapes, and audio from text. Studio-quality sound in seconds.",
-    href: "/create", emblem: <WizAudioEmblem size={80} />, accent: "emerald",
+    href: "/music-creator", emblem: <WizAudioEmblem size={80} />, accent: "emerald",
     cardVisual: <img src={CARD_BG_AUDIO} alt="WizAudio AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZAUDIO_LOGO,
   },
