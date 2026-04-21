@@ -1,8 +1,9 @@
 /**
- * WIZ AI Product Pages — all 7 modules
+ * WIZ AI Product Pages — all 10 modules
  * Routes: /products/wizcreate, /products/wizanimate, /products/wizsound,
- *         /products/wizlumina, /products/wizgenesis, /products/wizboost
- * WizSync has its own dedicated page at /wizsync
+ *         /products/wizlumina, /products/wizgenesis, /products/wizboost,
+ *         /products/wizpilot, /products/wizsync-info, /products/wizscore
+ * WizSync tool: /wizsync  |  WizScore tool: /wizscore  |  WizPilot tool: /wizpilot
  */
 import ProductPageTemplate, { ProductPageProps } from "@/components/ProductPageTemplate";
 
@@ -21,7 +22,9 @@ const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA
 const ALL_RELATED = [
   { name: "WizCreate™", href: "/products/wizcreate", colour: "violet" },
   { name: "WizAnimate™", href: "/products/wizanimate", colour: "cyan" },
-  { name: "WizSync™", href: "/wizsync", colour: "purple" },
+  { name: "WizPilot™", href: "/products/wizpilot", colour: "fuchsia" },
+  { name: "WizSync™", href: "/products/wizsync-info", colour: "purple" },
+  { name: "WizScore™", href: "/products/wizscore", colour: "teal" },
   { name: "WizSound™", href: "/products/wizsound", colour: "emerald" },
   { name: "WizLumina™", href: "/products/wizlumina", colour: "amber" },
   { name: "WizGenesis™", href: "/products/wizgenesis", colour: "rose" },
@@ -385,6 +388,159 @@ const WIZSCRIPT: ProductPageProps = {
   related: ALL_RELATED.filter(r => r.name !== "WizCreate™"),
 };
 
+// ─── WizPilot ─────────────────────────────────────────────────────────────────
+const WIZPILOT: ProductPageProps = {
+  name: "WizPilot™",
+  role: "The Orchestrator",
+  tagline: "AI Workflow Automation Engine",
+  headline: "One prompt. A complete video. Fully automated.",
+  subheadline: "WizPilot™ is the intelligent automation layer of WIZ AI — it takes your idea and orchestrates every step of the creation pipeline automatically, from storyboard to final render, without a single manual handoff.",
+  logo: `${CDN}/wizcreate-logo-final_9f61f0de.png`,
+  accentFrom: "from-fuchsia-400",
+  accentTo: "to-pink-600",
+  accentGlow: "rgba(217,70,239,0.25)",
+  borderColour: "border-fuchsia-500/30",
+  bgColour: "bg-fuchsia-500/5",
+  badgeClass: "text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/25",
+  ctaHref: "/wizpilot",
+  ctaLabel: "Launch WizPilot™",
+  whatItDoes: "WizPilot™ is the automation intelligence of WIZ AI. You describe your vision — a track, a concept, a style — and WizPilot™ orchestrates the entire creation pipeline automatically. WizCreate™ builds the storyboard, WizAnimate™ generates the animation, WizSync™ locks the audio, WizSound™ enhances the mix, WizLumina™ grades the visuals, and WizGenesis™ renders the final output. No manual steps. No handoffs. One prompt to finished video.",
+  capabilities: [
+    "End-to-end automated video production from a single prompt",
+    "Intelligent pipeline orchestration across all WIZ AI modules",
+    "Free storyboard generation — credits only charged on final render",
+    "Unlimited storyboard regenerations before committing",
+    "Style selection: Cinematic, Anime, 3D, Documentary, Neon Noir, and more",
+    "Real-time progress tracking across every pipeline stage",
+  ],
+  howItWorks: [
+    { num: "01", icon: "wand", title: "Describe your vision", desc: "Type a prompt, upload a track, or describe your concept. WizPilot™ understands tone, genre, and intent from plain language." },
+    { num: "02", icon: "layout", title: "Free storyboard generated", desc: "WizCreate™ builds a complete scene-by-scene storyboard automatically — free, with unlimited regenerations until it's right." },
+    { num: "03", icon: "cpu", title: "Pipeline orchestrated", desc: "On approval, WizPilot™ triggers the full pipeline: animation, audio sync, enhancement, visual grading, and final render — all automated." },
+    { num: "04", icon: "download", title: "Finished video delivered", desc: "Your completed video is delivered in HD or 4K, ready to download, share, or publish — no editing required." },
+  ],
+  benefits: [
+    { title: "Zero manual handoffs", desc: "WizPilot™ orchestrates every module automatically — you never need to move files, adjust settings, or manage the pipeline yourself." },
+    { title: "Free storyboard, always", desc: "Every project starts with a free AI storyboard — see your video before you commit a single credit." },
+    { title: "Unlimited creative iterations", desc: "Regenerate your storyboard as many times as you need until the vision is exactly right — no cost until you render." },
+    { title: "10 visual styles", desc: "Choose from Cinematic, Anime, Stylised 3D, Documentary, Neon Noir, Epic Fantasy, Vintage, and more — applied consistently across every scene." },
+    { title: "Real-time progress", desc: "Track every stage of your video's creation in real time — from storyboard approval through to final render delivery." },
+    { title: "Beginner to professional", desc: "No video editing experience required. WizPilot™ handles every technical decision so you can focus entirely on your creative vision." },
+  ],
+  keyFeatures: [
+    { icon: "wand", title: "One-Prompt Video Creation", desc: "Describe your concept in plain language and WizPilot™ builds the entire video — storyboard, animation, audio, grading, and render — automatically." },
+    { icon: "cpu", title: "Full Pipeline Orchestration", desc: "Coordinates WizCreate™, WizAnimate™, WizSync™, WizSound™, WizLumina™, and WizGenesis™ in sequence — zero manual steps between modules." },
+    { icon: "sparkles", title: "Free Storyboard Every Time", desc: "Every project starts with a free AI-generated storyboard. Regenerate unlimited times before committing credits to the final render." },
+    { icon: "film", title: "10 Cinematic Visual Styles", desc: "From Hollywood Cinematic to Anime, Neon Noir to Epic Fantasy — WizPilot™ applies your chosen style consistently across every scene." },
+    { icon: "eye", title: "Real-Time Pipeline Tracking", desc: "Watch your video being built in real time — each pipeline stage updates live so you always know exactly where your creation is." },
+    { icon: "zap", title: "Credits Only on Render", desc: "Storyboard generation and all regenerations are completely free. Credits are only deducted when you approve and trigger the final render." },
+  ],
+  heroImage: HERO_IMGS.wizcreate,
+  related: ALL_RELATED.filter(r => r.name !== "WizPilot™"),
+};
+
+// ─── WizSync Product Info ──────────────────────────────────────────────────────
+const WIZSYNC_INFO: ProductPageProps = {
+  name: "WizSync™",
+  role: "The Conductor",
+  tagline: "Audio-Visual Synchronisation Engine",
+  headline: "Every beat locked. Every cut perfect.",
+  subheadline: "WizSync™ is the synchronisation intelligence of WIZ AI — it analyses your audio at a molecular level and locks every visual cut, character movement, and scene transition to the exact rhythm of your track.",
+  logo: `${CDN}/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png`,
+  accentFrom: "from-purple-400",
+  accentTo: "to-indigo-600",
+  accentGlow: "rgba(147,51,234,0.25)",
+  borderColour: "border-purple-500/30",
+  bgColour: "bg-purple-500/5",
+  badgeClass: "text-purple-300 bg-purple-500/10 border-purple-500/25",
+  ctaHref: "/wizsync",
+  ctaLabel: "Try WizSync™",
+  whatItDoes: "WizSync™ analyses your audio track at the waveform level — detecting beats, tempo changes, energy peaks, and speaker voices — then maps every visual element to the audio timeline with frame-perfect precision. The result is a video where every cut, every movement, and every transition feels intentional and musically driven.",
+  capabilities: [
+    "Beat-perfect audio-to-visual synchronisation",
+    "Speaker diarisation — identifies and separates individual voices",
+    "Character-to-voice assignment for multi-speaker tracks",
+    "Instrument stem separation for layered audio analysis",
+    "Automatic scene cut timing aligned to musical energy",
+    "Frame-accurate lip-sync preparation for character animation",
+  ],
+  howItWorks: [
+    { num: "01", icon: "upload", title: "Upload your audio", desc: "Upload any audio track — music, voiceover, or mixed audio. WizSync™ accepts all standard formats." },
+    { num: "02", icon: "cpu", title: "AI analyses the track", desc: "WizSync™ detects beats, tempo, energy peaks, and individual speaker voices across the entire track." },
+    { num: "03", icon: "music", title: "Characters assigned", desc: "Detected voices are automatically assigned to characters — with manual override available for full creative control." },
+    { num: "04", icon: "film", title: "Sync map generated", desc: "A precise audio-visual sync map is generated and passed to WizAnimate™ and WizGenesis™ for beat-locked rendering." },
+  ],
+  benefits: [
+    { title: "Frame-perfect synchronisation", desc: "Every visual cut and character movement is timed to the exact frame — not approximated, not averaged. Precisely locked." },
+    { title: "Multi-speaker support", desc: "WizSync™ identifies and separates individual voices in a track, assigning each to a specific character for accurate lip-sync animation." },
+    { title: "Automatic beat detection", desc: "No manual timeline editing required. WizSync™ maps your audio's rhythm automatically and applies it across every visual element." },
+    { title: "Stem separation", desc: "Separates your track into individual instrument and vocal stems, enabling precise per-element synchronisation for complex audio." },
+    { title: "Energy-aware scene cuts", desc: "Scene transitions are placed at energy peaks and musical moments — creating a video that feels emotionally in sync with the music." },
+    { title: "Pipeline integration", desc: "WizSync™ output flows directly into WizAnimate™ and WizGenesis™ — no manual export or timeline adjustment needed." },
+  ],
+  keyFeatures: [
+    { icon: "music", title: "Beat-Perfect Visual Locking", desc: "Analyses your track at the waveform level and locks every visual cut, movement, and transition to the exact beat — frame-accurate, every time." },
+    { icon: "cpu", title: "Speaker Diarisation", desc: "Identifies and separates individual voices in a mixed audio track, assigning each speaker to a specific character for precise lip-sync animation." },
+    { icon: "layers", title: "Instrument Stem Separation", desc: "Separates your audio into individual instrument and vocal stems, enabling per-element synchronisation for complex, layered tracks." },
+    { icon: "film", title: "Energy-Aware Scene Timing", desc: "Places scene cuts and transitions at musical energy peaks — so your video feels emotionally driven by the music, not just technically aligned." },
+    { icon: "settings", title: "Manual Override Controls", desc: "Review auto-assigned character-voice pairings and override any assignment with full manual control — precision without rigidity." },
+    { icon: "arrow-right-circle", title: "Pipeline-Ready Sync Map", desc: "Generates a complete audio-visual sync map that flows directly into WizAnimate™ and WizGenesis™ — no manual timeline work required." },
+  ],
+  heroImage: HERO_IMGS.wizsync,
+  related: ALL_RELATED.filter(r => r.name !== "WizSync™"),
+};
+
+// ─── WizScore ─────────────────────────────────────────────────────────────────
+const WIZSCORE_INFO: ProductPageProps = {
+  name: "WizScore™",
+  role: "The Composer",
+  tagline: "AI Video-to-Music Engine",
+  headline: "Your video. Its perfect soundtrack. Instantly.",
+  subheadline: "WizScore™ analyses your video's mood, pacing, and emotional arc — then composes an original, perfectly synchronised soundtrack that feels like it was written specifically for your footage.",
+  logo: `${CDN}/wizsound-logo-v5_76ab5163.png`,
+  accentFrom: "from-teal-400",
+  accentTo: "to-cyan-600",
+  accentGlow: "rgba(20,184,166,0.25)",
+  borderColour: "border-teal-500/30",
+  bgColour: "bg-teal-500/5",
+  badgeClass: "text-teal-300 bg-teal-500/10 border-teal-500/25",
+  ctaHref: "/wizscore",
+  ctaLabel: "Score Your Video",
+  whatItDoes: "WizScore™ reverses the traditional music video workflow. Instead of fitting visuals to music, WizScore™ analyses your existing video — its pacing, mood, energy, and emotional arc — and composes an original AI soundtrack that is perfectly synchronised to your footage. The result is a track that feels composed specifically for your video, not retrofitted to it.",
+  capabilities: [
+    "AI-composed original soundtracks from video analysis",
+    "Mood, pacing, and energy detection from video content",
+    "Genre selection: Cinematic, Electronic, Orchestral, Ambient, Hip-Hop, and more",
+    "Tempo and beat synchronisation to video pacing",
+    "Emotional arc mapping — music builds and resolves with your footage",
+    "Instant download of the generated soundtrack",
+  ],
+  howItWorks: [
+    { num: "01", icon: "upload", title: "Upload your video", desc: "Upload any video file. WizScore™ accepts all standard formats and analyses the content automatically." },
+    { num: "02", icon: "eye", title: "AI analyses mood & pacing", desc: "WizScore™ analyses your video's visual energy, pacing, emotional tone, and scene transitions to understand its musical needs." },
+    { num: "03", icon: "music", title: "Soundtrack composed", desc: "An original AI soundtrack is composed in your chosen genre — timed precisely to your video's pacing and emotional arc." },
+    { num: "04", icon: "download", title: "Download & publish", desc: "Preview the generated soundtrack, download the audio file, and add it to your video — ready to publish." },
+  ],
+  benefits: [
+    { title: "Original, royalty-free music", desc: "Every WizScore™ soundtrack is an original AI composition — not a library track. Fully royalty-free for commercial use." },
+    { title: "Emotionally intelligent scoring", desc: "WizScore™ maps the emotional arc of your footage and composes music that builds, resolves, and responds to your video's story." },
+    { title: "No music production skills needed", desc: "You don't need to know anything about music theory, tempo, or mixing. WizScore™ handles every creative and technical decision." },
+    { title: "Multiple genre options", desc: "Choose from Cinematic, Electronic, Orchestral, Ambient, Hip-Hop, Jazz, and more — or let WizScore™ select the best genre for your footage." },
+    { title: "Instant generation", desc: "Your soundtrack is generated in seconds — no waiting, no back-and-forth with a composer, no licensing negotiations." },
+    { title: "Perfect sync, always", desc: "The generated music is timed precisely to your video's pacing — scene cuts, energy peaks, and emotional moments are all musically marked." },
+  ],
+  keyFeatures: [
+    { icon: "eye", title: "Video Mood & Energy Analysis", desc: "Analyses your footage's visual energy, pacing, scene transitions, and emotional tone to understand exactly what kind of music it needs." },
+    { icon: "music", title: "Original AI Composition", desc: "Composes a fully original soundtrack — not a library track — that is written specifically for your video's emotional arc and pacing." },
+    { icon: "film", title: "Emotional Arc Mapping", desc: "Maps the emotional journey of your footage and composes music that builds, resolves, and responds to every key moment in your video." },
+    { icon: "star", title: "Multi-Genre Intelligence", desc: "Choose from Cinematic, Electronic, Orchestral, Ambient, Hip-Hop, Jazz, and more — or let WizScore™ select the perfect genre automatically." },
+    { icon: "zap", title: "Frame-Accurate Tempo Sync", desc: "The generated soundtrack is timed to your video's exact pacing — scene cuts and energy peaks are musically marked with precision." },
+    { icon: "download", title: "Instant Royalty-Free Download", desc: "Every generated soundtrack is fully royalty-free for commercial use — download and publish immediately, no licensing required." },
+  ],
+  heroImage: HERO_IMGS.wizsound,
+  related: ALL_RELATED.filter(r => r.name !== "WizScore™"),
+};
+
 // ─── Page exports ─────────────────────────────────────────────────────────────
 
 export function WizCreatePage() {
@@ -411,4 +567,16 @@ export function WizBoostPage() {
 
 export function WizScriptPage() {
   return <ProductPageTemplate {...WIZSCRIPT} />;
+}
+
+export function WizPilotPage() {
+  return <ProductPageTemplate {...WIZPILOT} />;
+}
+
+export function WizSyncInfoPage() {
+  return <ProductPageTemplate {...WIZSYNC_INFO} />;
+}
+
+export function WizScoreInfoPage() {
+  return <ProductPageTemplate {...WIZSCORE_INFO} />;
 }

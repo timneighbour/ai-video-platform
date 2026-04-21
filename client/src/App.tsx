@@ -67,6 +67,9 @@ const WizLuminaPage = lazy(() => import("@/pages/products").then(m => ({ default
 const WizGenesisPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizGenesisPage })));
 const WizBoostPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizBoostPage })));
 const WizScriptPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizScriptPage })));
+const WizPilotPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizPilotPage })));
+const WizSyncInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizSyncInfoPage })));
+const WizScoreInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizScoreInfoPage })));
 const WizAI = lazy(() => import("@/pages/WizAI"));
 const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
@@ -146,6 +149,9 @@ function Router() {
         <Route path={"/products/wizboost"} component={WizBoostPage} />
         <Route path={"/products/wizscript"} component={WizScriptPage} />
         <Route path={"/wiz-script"} component={WizScriptPage} />{/* alias */}
+        <Route path={"/products/wizpilot"} component={WizPilotPage} />
+        <Route path={"/products/wizsync-info"} component={WizSyncInfoPage} />
+        <Route path={"/products/wizscore"} component={WizScoreInfoPage} />
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
         <Route path={"/dashboard"} component={Dashboard} />
