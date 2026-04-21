@@ -3,7 +3,7 @@
  *
  * Flow:
  *  1. Upload audio track (or link from existing music video job)
- *  2. Click "Analyse" → AssemblyAI speaker diarisation + WizGenesis™ stem separation
+ *  2. Click "Analyse" → AI speaker diarisation + WizGenesis™ stem separation
  *  3. Review detected voices and instrument stems
  *  4. Assign characters to speakers (auto-assigned, manual override available)
  *  5. Generate lip-sync video per character segment (Hedra — coming soon)

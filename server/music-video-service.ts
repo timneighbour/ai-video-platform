@@ -608,19 +608,21 @@ export async function startSceneRender(
     try {
       return await startSceneRenderGrokImagine(sceneId, finalPrompt, duration, storyboardImageUrl ?? undefined, aspectRatio);
     } catch (grokErr) {
-      console.warn(`[MusicVideo] Scene ${sceneId} Grok Imagine failed, falling back to WaveSpeed:`, grokErr);
-      return startSceneRenderWaveSpeed(sceneId, finalPrompt, duration, modelAssignment, storyboardImageUrl ?? undefined, aspectRatio);
+      // No silent fallback — WaveSpeed is disabled for launch. Surface the error.
+      console.error(`[MusicVideo] Scene ${sceneId} Grok Imagine failed. No fallback active (safe launch mode).`, (grokErr as Error).message?.slice(0, 200));
+      throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
     }
   }
 
-  // Premium renderers (kling_standard, kling_pro, runway) — with single retry + Hypereal fallback
+  // Premium renderers (kling_standard, kling_pro, runway) — no silent fallback
   try {
     const taskId = await startSceneRenderKling(finalPrompt, duration, aspectRatio);
     console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}`);
     return taskId;
   } catch (err) {
-    console.warn(`[MusicVideo] Scene ${sceneId} Kling failed, falling back to Hypereal Seedance:`, err);
-    return startSceneRenderHypereal(sceneId, finalPrompt, duration, aspectRatio, jobId);
+    // No silent fallback to Hypereal — surface the error cleanly
+    console.error(`[MusicVideo] Scene ${sceneId} Kling failed. No fallback active (safe launch mode).`, (err as Error).message?.slice(0, 200));
+    throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
   }
 }
 
