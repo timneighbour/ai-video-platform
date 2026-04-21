@@ -53,7 +53,7 @@ const STEPS = [
     id: 4,
     iconImg: "/manus-storage/wizcreate-logo-new_85a25756.png",
     label: "Storyboard",
-    title: "Control every scene before rendering",
+    title: "Control every scene before building",
     desc: "Preview and refine your storyboard — adjust prompts, styles, and timing.",
     color: "amber",
     accent: "#f59e0b",
@@ -671,7 +671,7 @@ export default function PlatformFlow() {
           className={`text-center mt-14 transition-all duration-700 delay-300 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
         >
           <p className="text-white/30 text-sm mb-6 tracking-wide">
-            Everything you need to create, render, and grow — in one platform
+            Everything you need to create, build, and grow — in one platform
           </p>
           <NavLink
             href="/create"

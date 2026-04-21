@@ -547,7 +547,7 @@ export default function WizProductGrid() {
             <span>Explore All Tools</span>
             <ArrowRight className="w-4 h-4" />
           </a>
-          <p className="mt-4 text-white/25 text-xs">2 free renders on sign-up — no card required</p>
+          <p className="mt-4 text-white/25 text-xs">2 free Build Credits on sign-up — no card required</p>
         </div>
       </div>
 

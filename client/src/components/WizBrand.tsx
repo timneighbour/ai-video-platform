@@ -46,7 +46,7 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
     verb: "Building with",
     pastVerb: "Rendered with",
     processingLabel: "Building with WizRender™…",
-    tagline: "Cinematic video rendering",
+    tagline: "Cinematic video building",
     colour: "purple",
     glow: "0 0 12px rgba(168,85,247,0.45)",
     Icon: ({ className }) => <Film className={className} />,

@@ -1,8 +1,8 @@
 /**
  * BundlePromoBanner
  *
- * Shown when a user's render balance is low (0–2 renders remaining).
- * Promotes render bundles as the fastest way to top up.
+ * Shown when a user's render balance is low (0–2 Build Credits remaining).
+ * Promotes build credit packs as the fastest way to top up.
  * Non-intrusive: dismissible per-session.
  */
 import { useState } from "react";
@@ -75,7 +75,7 @@ export default function BundlePromoBanner({
       <div className="flex-1 min-w-0">
         {isZero ? (
           <span className="text-[--color-gold] font-medium">
-            You&apos;re out of renders.{" "}
+            You&apos;re out of Build Credits.{" "}
             <span className="text-white/70 font-normal">
               Buy a bundle to keep creating — no subscription needed.
             </span>
@@ -86,7 +86,7 @@ export default function BundlePromoBanner({
               {remaining} render{remaining !== 1 ? "s" : ""} left.
             </span>{" "}
             <span className="text-white/60">
-              Save up to 30% with a render bundle.
+              Save up to 30% with a build credit pack.
             </span>
           </span>
         )}

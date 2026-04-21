@@ -46,7 +46,7 @@ const CAPTION_TIMELINE: CaptionEntry[] = [
   { start: 4,   end: 8,   headline: "WizCreate™ — Turn any idea into a storyboard", sub: "Describe your concept. AI builds the full scene plan.", accent: "#c4a464" },
   { start: 8,   end: 12,  headline: "WizAnimate™ — Bring characters to life", sub: "Pixar-quality animation styles. No rigging. No keyframes.", accent: "#67e8f9" },
   { start: 12,  end: 16,  headline: "WizScript™ — Plain text to full video script", sub: "Scene-by-scene structure, dialogue, and visual direction — instantly.", accent: "#a78bfa" },
-  { start: 16,  end: 20,  headline: "WizGenesis™ — Cinematic rendering engine", sub: "4K output. Consistent characters. Every scene, every time.", accent: "#f9a8d4" },
+  { start: 16,  end: 20,  headline: "WizGenesis™ — Cinematic building engine", sub: "4K output. Consistent characters. Every scene, every time.", accent: "#f9a8d4" },
   { start: 20,  end: 24,  headline: "WizLumina™ — See the difference", sub: "AI colour grading and cinematic enhancement — before and after.", accent: "#fbbf24", isLumina: true },
   { start: 24,  end: 28,  headline: "WizSound™ — Hear the difference", sub: "Spatial audio mastering. Toggle Standard vs WizSound™ below.", accent: "#d4af37", isSoundUpsell: true },
   { start: 28,  end: 32,  headline: "WizBoost™ — Distribute to the world", sub: "YouTube, Instagram, TikTok — one click, all platforms.", accent: "#fb923c" },

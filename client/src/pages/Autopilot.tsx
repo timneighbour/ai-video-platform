@@ -61,7 +61,7 @@ const PROGRESS_STAGES = [
   { label: "WizCreate™ is building scene composition…", pct: 32 },
   { label: "WizRender™ is generating frames…", pct: 52 },
   { label: "WizRender™ is applying style & colour grading…", pct: 68 },
-  { label: "WizRender™ is rendering final video…", pct: 82 },
+  { label: "WizRender™ is building final video…", pct: 82 },
   { label: "Finalising & uploading…", pct: 94 },
 ];
 
@@ -394,7 +394,7 @@ export default function Autopilot() {
               if (step === "storyboard") {
                 setStep("input");
               } else if (step === "generating") {
-                toast.info("Video is rendering — you can check progress in Projects.");
+                toast.info("Video is building — you can check progress in Projects.");
               } else {
                 setLocation("/");
               }
@@ -460,7 +460,7 @@ export default function Autopilot() {
             <div className="text-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-1.5 text-xs sm:text-sm text-[--color-gold] mb-4">
                 <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
-                Storyboard generation is always free — pay only when you render
+                Storyboard generation is always free — pay only when you build your final video
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                 Describe Your Video
@@ -766,7 +766,7 @@ export default function Autopilot() {
               </Badge>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Your Storyboard</h1>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Edit scene text, add or remove scenes, and preview AI images before rendering.
+                Edit scene text, add or remove scenes, and preview AI images before building.
               </p>
             </div>
 
@@ -910,10 +910,10 @@ export default function Autopilot() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span className="font-semibold text-white">Ready to render?</span>
+                  <span className="font-semibold text-white">Ready to build?</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {duration}s · {aspectRatio}
+                  Final build costs <span className="text-white font-semibold">{creditCost} credits</span> for {duration}s · {aspectRatio}
                 </p>
                 <div className="mt-2">
                   <CreditBalance variant="inline" cost={creditCost} />
@@ -934,7 +934,7 @@ export default function Autopilot() {
                   className="gap-2 bg-gradient-to-r btn-primary border-0 flex-1"
                 >
                   <Play className="h-4 w-4" />
-                  Render Video — {creditCost} Credits
+                  Build Video — {creditCost} Credits
                 </Button>
               </div>
             </div>
@@ -942,7 +942,7 @@ export default function Autopilot() {
             <div className="flex items-start gap-2 rounded-xl border border-[--color-silver]/20 bg-[--color-silver]/5 p-4 text-sm text-[--color-silver]">
               <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>
-                <strong>WIZ AI advantage:</strong> Unlike other platforms that charge credits every time you regenerate, WIZ AI lets you refine your vision completely free. You only pay when you're ready to render.
+                <strong>WIZ AI advantage:</strong> Unlike other platforms that charge credits every time you regenerate, WIZ AI lets you refine your vision completely free. You only pay when you're ready to build.
               </span>
             </div>
           </div>

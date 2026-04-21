@@ -334,7 +334,7 @@ export default function WizSoundShowcase() {
             </span>
           </h2>
           <p className="text-white/50 text-base max-w-xl mx-auto">
-            Proprietary spatial audio engine built into every render. Cinema-grade immersive sound — select a tier to explore the pipeline.
+            Proprietary spatial audio engine built into every build. Cinema-grade immersive sound — select a tier to explore the pipeline.
           </p>
         </div>
 

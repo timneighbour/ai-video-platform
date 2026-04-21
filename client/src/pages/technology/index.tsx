@@ -318,14 +318,14 @@ export function SceneBuilderPage() {
         { icon: <Film size={18} />, title: "Visual Direction", desc: "Assigns camera angles, lighting, and visual style to each scene automatically." },
         { icon: <Layers size={18} />, title: "Multi-Scene Structure", desc: "Generates a complete narrative arc with scene transitions and pacing." },
         { icon: <RefreshCw size={18} />, title: "Scene Regeneration", desc: "Regenerate individual scenes without rebuilding the entire storyboard." },
-        { icon: <Eye size={18} />, title: "Preview Generation", desc: "Generates a visual preview image for each scene before rendering begins." },
+        { icon: <Eye size={18} />, title: "Preview Generation", desc: "Generates a visual preview image for each scene before building begins." },
         { icon: <Zap size={18} />, title: "Text-to-Scene Mode", desc: "No audio? Describe your concept in plain language and Scene Builder creates the full plan." },
       ]}
       howItWorks={[
         { num: "01", title: "Upload audio or describe your concept", desc: "Provide an audio track or a text description of the video you want to create." },
         { num: "02", title: "AI analyses content", desc: "Scene Builder analyses the mood, tempo, narrative arc, and visual potential of your input." },
         { num: "03", title: "Scene plan generated", desc: "A complete scene-by-scene storyboard is created with visual direction, timing, and style for each moment." },
-        { num: "04", title: "Review and refine", desc: "Review the scene plan, regenerate individual scenes, and proceed to rendering when ready." },
+        { num: "04", title: "Review and refine", desc: "Review the scene plan, regenerate individual scenes, and proceed to building when ready." },
       ]}
       capabilities={[
         "Audio-driven scene generation from BPM and mood",
@@ -370,7 +370,7 @@ export function LipSyncPage() {
         { num: "01", title: "Vocal track analysed", desc: "WIZ AI extracts the vocal track and analyses phonemes, syllables, and timing." },
         { num: "02", title: "Mouth movement generated", desc: "Frame-accurate mouth animations are generated to match every word and syllable." },
         { num: "03", title: "Emotion and expression applied", desc: "Facial expressions adapt to the emotional tone of the vocal performance." },
-        { num: "04", title: "Validation and output", desc: "Each synced frame is validated for natural movement before being included in the final render." },
+        { num: "04", title: "Validation and output", desc: "Each synced frame is validated for natural movement before being included in the final build." },
       ]}
       capabilities={[
         "Phoneme-level vocal analysis",
@@ -396,15 +396,15 @@ export function AIVideoEnginePage() {
       slug="ai-video-engine"
       title="AI Video Engine"
       metaTitle="AI Video Engine | WIZ AI"
-      metaDesc="WIZ AI's AI Video Engine transforms storyboards into cinematic video output. Scene generation, motion, lighting, and rendering — all powered by advanced AI."
+      metaDesc="WIZ AI's AI Video Engine transforms storyboards into cinematic video output. Scene generation, motion, lighting, and building — all powered by advanced AI."
       ogTitle="AI Video Engine | WIZ AI"
       ogDesc="The AI Video Engine that transforms storyboards into cinematic video output — scene generation, motion, and rendering all in one."
       badge="WIZ AI Technology"
       headline="AI Video Engine"
-      subheadline="The engine that transforms your storyboard into a fully rendered cinematic video — scene by scene, frame by frame."
-      whatItIs="WIZ AI's AI Video Engine is the production layer of the platform. It takes the structured scene plan from the Scene Builder and generates fully rendered video output for each scene — applying motion, lighting, camera movement, and visual style to produce cinematic footage that matches the storyboard exactly."
+      subheadline="The engine that transforms your storyboard into a fully built cinematic video — scene by scene, frame by frame."
+      whatItIs="WIZ AI's AI Video Engine is the production layer of the platform. It takes the structured scene plan from the Scene Builder and generates fully built video output for each scene — applying motion, lighting, camera movement, and visual style to produce cinematic footage that matches the storyboard exactly."
       features={[
-        { icon: <Film size={18} />, title: "Scene-to-Video Generation", desc: "Transforms each storyboard scene into a fully rendered video clip with motion and lighting." },
+        { icon: <Film size={18} />, title: "Scene-to-Video Generation", desc: "Transforms each storyboard scene into a fully built video clip with motion and lighting." },
         { icon: <Cpu size={18} />, title: "Multi-Model Rendering", desc: "Uses Kling AI, Runway ML, Seedance, and Grok Imagine for best-in-class output quality." },
         { icon: <Zap size={18} />, title: "Parallel Processing", desc: "Renders multiple scenes simultaneously to deliver the full video faster." },
         { icon: <Layers size={18} />, title: "Style Consistency", desc: "Applies the chosen visual style consistently across every scene in the video." },
@@ -486,9 +486,9 @@ export function WizSoundEnginePage() {
       slug="wizsound-engine"
       title="WizSound Engine"
       metaTitle="WizSound Engine | WIZ AI"
-      metaDesc="WizSound Engine upgrades AI-generated audio to broadcast quality. Bass enhancement, stereo widening, spatial depth, and cinematic mastering — automatically applied."
+      metaDesc="WizSound Engine upgrades AI-generated audio to professional-grade quality. Bass enhancement, stereo widening, spatial depth, and cinematic mastering — automatically applied."
       ogTitle="WizSound Engine | WIZ AI"
-      ogDesc="WizSound Engine upgrades AI-generated audio to broadcast quality with cinematic mastering and spatial enhancement."
+      ogDesc="WizSound Engine upgrades AI-generated audio to professional-grade quality with cinematic mastering and spatial enhancement."
       badge="WIZ AI Technology"
       headline="WizSound Engine"
       subheadline="Raw AI audio transformed into broadcast-quality, spatially enhanced, cinema-grade sound — automatically."
@@ -531,12 +531,12 @@ export function PromptToVideoPage() {
       slug="prompt-to-video"
       title="Prompt to Video"
       metaTitle="Prompt to Video Technology | WIZ AI"
-      metaDesc="Turn a text prompt into a complete AI-generated video with WIZ AI. Describe your concept, choose a style, and receive a fully rendered cinematic video."
+      metaDesc="Turn a text prompt into a complete AI-generated video with WIZ AI. Describe your concept, choose a style, and receive a fully built cinematic video."
       ogTitle="Prompt to Video Technology | WIZ AI"
       ogDesc="Turn a text prompt into a complete AI-generated cinematic video with WIZ AI's Prompt to Video technology."
       badge="WIZ AI Technology"
       headline="Prompt to Video Technology"
-      subheadline="Describe your concept in plain language. Receive a fully rendered cinematic video. No editing skills required."
+      subheadline="Describe your concept in plain language. Receive a fully built cinematic video. No editing skills required."
       whatItIs="Prompt to Video is WIZ AI's text-driven video creation workflow. You describe your video concept in plain language — the story, the style, the mood, the characters — and WIZ AI generates a complete cinematic video from your description. No audio upload required, no storyboarding experience needed."
       features={[
         { icon: <Cpu size={18} />, title: "Natural Language Input", desc: "Describe your video in plain language — no technical prompting knowledge required." },
@@ -544,7 +544,7 @@ export function PromptToVideoPage() {
         { icon: <Layers size={18} />, title: "Style Selection", desc: "Choose from Cinematic, Anime, 3D Animation, Documentary, and more." },
         { icon: <Zap size={18} />, title: "Prompt Enhancement", desc: "WizGenesis automatically enhances your prompt for better visual output." },
         { icon: <Star size={18} />, title: "Character Generation", desc: "Characters are generated from your description and kept consistent across scenes." },
-        { icon: <Eye size={18} />, title: "Preview Before Render", desc: "Review the storyboard and scene previews before committing to the full render." },
+        { icon: <Eye size={18} />, title: "Preview Before Render", desc: "Review the storyboard and scene previews before committing to the final video build." },
       ]}
       howItWorks={[
         { num: "01", title: "Write your prompt", desc: "Describe your video concept in plain language — story, characters, style, mood." },
@@ -558,7 +558,7 @@ export function PromptToVideoPage() {
         "Automatic prompt enhancement via WizGenesis",
         "Style selection: Cinematic, Anime, 3D, Documentary",
         "Character generation and consistency",
-        "Storyboard preview before rendering",
+        "Storyboard preview before building",
         "No audio upload required",
         "Full video output with audio generation option",
       ]}
@@ -621,26 +621,26 @@ export function StoryboardPreviewPage() {
       slug="storyboard-preview"
       title="Storyboard Preview"
       metaTitle="Storyboard Preview Technology | WIZ AI"
-      metaDesc="Preview your video before you pay with WIZ AI's Storyboard Preview. See every scene, review visual direction, and refine before committing to the full render."
+      metaDesc="Preview your video before you pay with WIZ AI's Storyboard Preview. See every scene, review visual direction, and refine before committing to the final video build."
       ogTitle="Storyboard Preview Technology | WIZ AI"
       ogDesc="Preview every scene of your video before you pay. Review, refine, and approve your storyboard with WIZ AI."
       badge="WIZ AI Technology"
       headline="Storyboard Preview Technology"
       subheadline="See your video before you commit. Review every scene, refine the visual direction, and approve the storyboard — all before the render begins."
-      whatItIs="WIZ AI's Storyboard Preview system generates a visual preview image for every scene in your video before the full render begins. You can review the visual direction, character placement, and scene composition, regenerate any scene you're not happy with, and approve the full storyboard before committing to a render."
+      whatItIs="WIZ AI's Storyboard Preview system generates a visual preview image for every scene in your video before the final video build begins. You can review the visual direction, character placement, and scene composition, regenerate any scene you're not happy with, and approve the full storyboard before committing to a build."
       features={[
-        { icon: <Eye size={18} />, title: "Scene Preview Images", desc: "A preview image is generated for every scene so you can see the visual direction before rendering." },
+        { icon: <Eye size={18} />, title: "Scene Preview Images", desc: "A preview image is generated for every scene so you can see the visual direction before building." },
         { icon: <RefreshCw size={18} />, title: "Scene Regeneration", desc: "Regenerate any individual scene without rebuilding the entire storyboard." },
         { icon: <Layers size={18} />, title: "Visual Direction Review", desc: "Review camera angles, character placement, lighting, and style for each scene." },
-        { icon: <CheckCircle size={18} />, title: "Approve Before Render", desc: "Approve the full storyboard before committing to the render — no surprises." },
-        { icon: <Star size={18} />, title: "Free Preview", desc: "Storyboard previews are always free — you only pay when you're happy and ready to render." },
+        { icon: <CheckCircle size={18} />, title: "Approve Before Render", desc: "Approve the full storyboard before committing to the build — no surprises." },
+        { icon: <Star size={18} />, title: "Free Preview", desc: "Storyboard previews are always free — you only pay when you're happy and ready to build." },
         { icon: <Cpu size={18} />, title: "Edit Scene Prompts", desc: "Edit the visual direction for any scene and regenerate the preview instantly." },
       ]}
       howItWorks={[
         { num: "01", title: "Storyboard generated", desc: "WIZ AI generates a complete scene plan from your audio or text input." },
         { num: "02", title: "Preview images created", desc: "A preview image is generated for each scene showing the visual direction." },
         { num: "03", title: "Review and refine", desc: "Review each scene preview, regenerate any scenes you want to change, and edit visual directions." },
-        { num: "04", title: "Approve and render", desc: "When you're happy with the storyboard, approve it and start the full render." },
+        { num: "04", title: "Approve and render", desc: "When you're happy with the storyboard, approve it and start the final video build." },
       ]}
       capabilities={[
         "Preview image generation for every scene",
@@ -648,8 +648,8 @@ export function StoryboardPreviewPage() {
         "Visual direction editing per scene",
         "Camera angle and lighting preview",
         "Character placement review",
-        "Free storyboard preview — pay only to render",
-        "Approve storyboard before committing to render",
+        "Free storyboard preview — pay only to build",
+        "Approve storyboard before committing to build",
         "Full storyboard save and resume",
       ]}
       ctaHref="/music-video/create"
@@ -664,25 +664,25 @@ export function FourKRenderingPage() {
   return (
     <TechnologyPageTemplate
       slug="4k-rendering"
-      title="4K Rendering"
-      metaTitle="4K Rendering & Export Quality | WIZ AI"
+      title="4K Building"
+      metaTitle="4K Building & Export Quality | WIZ AI"
       metaDesc="Export your WIZ AI video in Standard, HD, or 4K resolution. Cinema-grade output quality with WizLumina visual enhancement and WizBoost optimisation."
-      ogTitle="4K Rendering & Export Quality | WIZ AI"
+      ogTitle="4K Building & Export Quality | WIZ AI"
       ogDesc="Export in Standard, HD, or 4K with WIZ AI. Cinema-grade output with visual enhancement and quality optimisation."
       badge="WIZ AI Technology"
-      headline="4K Rendering & Export Quality"
+      headline="4K Building & Export Quality"
       subheadline="Cinema-grade output in Standard, HD, or 4K. Every render is visually enhanced and optimised before delivery."
       whatItIs="WIZ AI's rendering pipeline delivers your completed video in Standard (1080p), HD (1440p), or 4K (2160p) resolution. Every render passes through WizLumina for colour grading and visual enhancement, and WizBoost for output optimisation — ensuring the final video looks as good as possible at every resolution."
       features={[
         { icon: <Film size={18} />, title: "Three Resolution Tiers", desc: "Standard (1080p), HD (1440p), and 4K (2160p) export options." },
-        { icon: <Star size={18} />, title: "WizLumina Enhancement", desc: "Colour grading, contrast enhancement, and visual polish applied to every render." },
+        { icon: <Star size={18} />, title: "WizLumina Enhancement", desc: "Colour grading, contrast enhancement, and visual polish applied to every build." },
         { icon: <Zap size={18} />, title: "WizBoost Optimisation", desc: "Output optimisation for sharpness, clarity, and file size efficiency." },
         { icon: <BarChart3 size={18} />, title: "Parallel Rendering", desc: "Multiple scenes rendered simultaneously for faster delivery." },
-        { icon: <Download size={18} />, title: "Direct Download", desc: "Download your rendered video immediately upon completion." },
+        { icon: <Download size={18} />, title: "Direct Download", desc: "Download your built video immediately upon completion." },
         { icon: <Cpu size={18} />, title: "Format Options", desc: "MP4 output optimised for YouTube, Instagram, TikTok, and professional delivery." },
       ]}
       howItWorks={[
-        { num: "01", title: "Choose your resolution", desc: "Select Standard, HD, or 4K before starting the render." },
+        { num: "01", title: "Choose your resolution", desc: "Select Standard, HD, or 4K before starting the build." },
         { num: "02", title: "Scenes rendered in parallel", desc: "All scenes are rendered simultaneously using the AI Video Engine." },
         { num: "03", title: "WizLumina enhancement applied", desc: "Colour grading, contrast, and visual polish are applied to every scene." },
         { num: "04", title: "WizBoost optimisation", desc: "The assembled video is optimised for sharpness, clarity, and efficient file size." },
@@ -695,7 +695,7 @@ export function FourKRenderingPage() {
         "Parallel scene rendering for faster delivery",
         "MP4 output optimised for all major platforms",
         "Direct download upon render completion",
-        "Email notification when render is complete",
+        "Email notification when video is ready",
         "Render history and re-download from Projects page",
       ]}
       ctaHref="/pricing"

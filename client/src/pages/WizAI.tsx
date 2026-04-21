@@ -23,7 +23,7 @@ const PRODUCTS = [
   {
     name: "WizSound",
     tagline: "Immersive audio that adds depth and impact.",
-    description: "Spatial audio mastering — cinema-grade enhancement for every render.",
+    description: "Spatial audio mastering — cinema-grade enhancement for every build.",
     href: "/products/wizsound",
     gradient: "from-indigo-500 to-blue-600",
     icon: (
@@ -47,7 +47,7 @@ const PRODUCTS = [
   {
     name: "WizGenesis",
     tagline: "The intelligence engine that understands your vision.",
-    description: "Character consistency, scene accuracy, and prompt enhancement — the brain behind every render.",
+    description: "Character consistency, scene accuracy, and prompt enhancement — the brain behind every build.",
     href: "/products/wizgenesis",
     gradient: "from-amber-500 to-orange-600",
     icon: (

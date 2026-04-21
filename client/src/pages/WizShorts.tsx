@@ -154,7 +154,7 @@ export default function WizShorts() {
           clearInterval(pollIntervalRef.current!);
           setRenderStatus("failed");
           mp.buildFailed("WizShorts");
-          toast.error("Render failed. Please try again.");
+          toast.error("Build failed. Please try again.");
         }
       } catch (err) {
         // Polling errors are transient — keep trying
@@ -454,7 +454,7 @@ export default function WizShorts() {
                 {startRenderMutation.isPending ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Starting render...
+                    Starting build...
                   </>
                 ) : (
                   <>
@@ -578,7 +578,7 @@ export default function WizShorts() {
                   <AlertCircle className="w-8 h-8 text-red-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold mb-2">Render failed</h2>
+                  <h2 className="text-xl font-semibold mb-2">Build failed</h2>
                   <p className="text-white/50 text-sm">Something went wrong during video generation.</p>
                 </div>
                 <div className="flex gap-3 justify-center">

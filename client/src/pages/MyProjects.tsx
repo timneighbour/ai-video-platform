@@ -300,7 +300,7 @@ export default function MyProjects() {
               <section>
                 <SectionHeader title="Building Your Video" count={rendering.length} color="text-[--color-gold]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {rendering.map(job => (
+                  {rendering.map((job: any) => (
                     <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />
                   ))}
                 </div>

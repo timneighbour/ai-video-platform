@@ -137,7 +137,7 @@ function formatDuration(seconds: number): string {
   return s > 0 ? `${m}m ${s}s` : `${m}m`;
 }
 
-/** Small connector component that fetches the render job for a given source job and renders the upgrade panel. */
+/** Small connector component that fetches the build job for a given source job and renders the upgrade panel. */
 function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
   const renderJobQuery = trpc.render.getRenderJobForSource.useQuery(
     { sourceJobId: jobId, sourceJobType: "music_video" },
@@ -1093,7 +1093,7 @@ export default function MusicVideoAutopilot() {
         setStoryboardGenerating(false);
         setStep("storyboard");
         mp.storyboardGenerated(storyboard.scenes.length);
-        toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before rendering.` });
+        toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before building.` });
       }
     } catch (err: any) {
       toast.dismiss(UPLOAD_TOAST_ID);
@@ -1350,7 +1350,7 @@ export default function MusicVideoAutopilot() {
               mp.buildCompleted("WizVideo");
               // In-app success notification
               toast.success("Your video is ready!", {
-                description: "Your WIZ AI video has finished rendering. Check your email for a direct download link.",
+                description: "Your WIZ AI video has finished building. Check your email for a direct download link.",
                 duration: 8000,
                 action: {
                   label: "Watch Now",
@@ -1361,7 +1361,7 @@ export default function MusicVideoAutopilot() {
               try {
                 if ("Notification" in window && Notification.permission === "granted") {
                   new Notification("WIZ AI — Your video is ready!", {
-                    body: `"${title || "Your video"}" has finished rendering. Click to watch.`,
+                    body: `"${title || "Your video"}" has finished building. Click to watch.`,
                     icon: "/favicon.ico",
                     tag: "wizai-render-complete",
                   });
@@ -1416,7 +1416,7 @@ export default function MusicVideoAutopilot() {
         String(err?.message).includes("429") ||
         String(err?.message).toLowerCase().includes("rate limit");
 
-      const isConcurrentRender = err?.data?.code === "TOO_MANY_REQUESTS" && String(err?.message).toLowerCase().includes("already have a video rendering");
+      const isConcurrentRender = err?.data?.code === "TOO_MANY_REQUESTS" && String(err?.message).toLowerCase().includes("already have a video building");
       const isServiceUnavailable =
         err?.data?.code === "SERVICE_UNAVAILABLE" ||
         err?.data?.httpStatus === 503 ||
@@ -1425,7 +1425,7 @@ export default function MusicVideoAutopilot() {
 
       if (isConcurrentRender) {
         toast.error("Render already in progress", {
-          description: "You already have a video rendering. Please wait for it to complete before starting another.",
+          description: "You already have a video building. Please wait for it to complete before starting another.",
           duration: 8000,
         });
       } else if (isServiceUnavailable) {
@@ -2383,7 +2383,7 @@ export default function MusicVideoAutopilot() {
                     </div>
                   )}
                   <div className="border-t border-zinc-800 pt-3 text-xs text-zinc-500">
-                    Storyboard generation is always free. Pay only when you render &amp; download.
+                    Storyboard generation is always free. Pay only when you build your final video &amp; download.
                   </div>
                 </CardContent>
               </Card>
@@ -2393,10 +2393,10 @@ export default function MusicVideoAutopilot() {
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Download className="w-4 h-4 text-[--color-gold]" />
-                    <p className="text-[--color-gold] text-sm font-medium">Create free, pay to render</p>
+                    <p className="text-[--color-gold] text-sm font-medium">Create free, pay to build</p>
                   </div>
                   <p className="text-zinc-400 text-xs leading-relaxed">
-                    Building your storyboard is completely free. You only pay when you're ready to render and download your finished video.
+                    Building your storyboard is completely free. You only pay when you're ready to build and download your finished video.
                   </p>
                 </CardContent>
               </Card>
@@ -2484,14 +2484,14 @@ export default function MusicVideoAutopilot() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-white">Your Storyboard</h2>
-                <p className="text-zinc-400 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before rendering</p>
+                <p className="text-zinc-400 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before building</p>
               </div>
               <div className="flex items-center gap-3">
                 {/* Credit balance badge */}
                 <CreditBalance variant="badge" />
                 {/* Render status badge */}
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-medium">
-                  <Download className="w-3 h-3" /> Pay to render
+                  <Download className="w-3 h-3" /> Pay to build
                 </span>
                 {scenes.some(sc => sc.status === "pending") && (
                   <Button
@@ -2600,7 +2600,7 @@ export default function MusicVideoAutopilot() {
               <Sparkles className="w-4 h-4 text-[--color-gold] flex-shrink-0" />
               <p className="text-sm text-[--color-gold] flex-1">
                 <span className="font-semibold">These scenes will render in standard quality.</span>{" "}
-                After rendering, you can upgrade key scenes to cinematic quality for a professional finish.
+                After buildinging, you can upgrade key scenes to cinematic quality for a professional finish.
               </p>
             </div>
 
@@ -3431,7 +3431,7 @@ export default function MusicVideoAutopilot() {
                     <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
                       <X className="w-8 h-8 text-red-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Render Failed</h2>
+                    <h2 className="text-2xl font-bold text-white mb-2">Build Failed</h2>
                     <p className="text-zinc-400 mb-6">Some scenes could not be generated. Please try again.</p>
                     <Button
                       variant="outline"

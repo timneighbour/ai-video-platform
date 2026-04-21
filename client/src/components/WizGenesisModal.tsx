@@ -1,7 +1,7 @@
 /**
- * WizGenesis™ — Premium pre-render upgrade experience.
+ * WizGenesis™ — Premium pre-build upgrade experience.
  *
- * Shown when a user is about to render their video.
+ * Shown when a user is about to build their video.
  * Presents Cinematic Mode (WizSound™ + WizLumina™), quality selection,
  * live price, and a strong CTA to make the user feel ownership of their video.
  */
@@ -405,7 +405,7 @@ export function WizGenesisModal({
           </Button>
 
           <p className="text-center text-xs text-zinc-600">
-            Secure payment via Stripe · Instant download after render
+            Secure payment via Stripe · Instant download after building
           </p>
         </div>
       </DialogContent>

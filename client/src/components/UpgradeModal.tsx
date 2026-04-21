@@ -13,7 +13,7 @@ const TRIGGER_CONTENT = {
     icon: Rocket,
     headline: "You've hit your video limit",
     subline: "Unlock unlimited videos with Creator",
-    body: "You're on a roll! Upgrade to Creator for 15 renders/month, no watermarks, and faster rendering.",
+    body: "You're on a roll! Upgrade to Creator for 15 Build Credits/month, no watermarks, and faster building.",
   },
   download: {
     icon: Download,
@@ -25,7 +25,7 @@ const TRIGGER_CONTENT = {
     icon: PartyPopper,
     headline: "You're on a roll!",
     subline: "Unlock more with Creator",
-    body: "You've created multiple videos — you're clearly a creator! Upgrade to Creator for 15 renders/month and no watermark.",
+    body: "You've created multiple videos — you're clearly a creator! Upgrade to Creator for 15 Build Credits/month and no watermark.",
   },
   watermark: {
     icon: Sparkles,
@@ -36,7 +36,7 @@ const TRIGGER_CONTENT = {
 };
 
 const CREATOR_FEATURES = [
-  { icon: <Infinity className="w-4 h-4" />, text: "15 renders/month included" },
+  { icon: <Infinity className="w-4 h-4" />, text: "15 Build Credits/month included" },
   { icon: <Sparkles className="w-4 h-4" />, text: "No watermark on exports" },
   { icon: <Zap className="w-4 h-4" />, text: "Standard, HD & 4K quality" },
   { icon: <Sparkles className="w-4 h-4" />, text: "Character consistency" },

@@ -355,7 +355,7 @@ export default function WizImage() {
               {generateMutation.isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>WizImage is rendering…</span>
+                  <span>WizImage is building…</span>
                 </>
               ) : (
                 <>
@@ -378,7 +378,7 @@ export default function WizImage() {
               </p>
             ) : (
               <p className="text-[11px] text-center text-white/20">
-                Preview is free · Credits used only on final render
+                Preview is free · Credits used only on final build
               </p>
             )}
           </div>
@@ -411,7 +411,7 @@ export default function WizImage() {
                     </div>
                   </div>
                   <div className="text-center space-y-1">
-                    <p className="text-sm font-medium text-white/60">WizImage is rendering…</p>
+                    <p className="text-sm font-medium text-white/60">WizImage is building…</p>
                     <p className="text-xs text-white/25">Usually 5–15 seconds</p>
                   </div>
                   {/* Progress bar */}

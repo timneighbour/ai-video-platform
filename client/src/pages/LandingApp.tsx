@@ -157,7 +157,7 @@ export default function LandingApp() {
 
           {/* Subheadline */}
           <p className="text-white/65 text-xl max-w-xl mx-auto mb-6 leading-relaxed">
-            Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place.
+            Turn your idea or song into a complete video — storyboard, scenes, and final build — all in one place.
           </p>
 
           {/* Speed strip */}
@@ -175,7 +175,7 @@ export default function LandingApp() {
               Create Your First Video — Free
               <ArrowRight className="w-5 h-5" />
             </a>
-            <p className="text-xs text-white/30">No credit card · Free to create · Only pay when you render</p>
+            <p className="text-xs text-white/30">No credit card · Free to create · Only pay when you build your final video</p>
           </div>
 
           {/* Proof points */}
@@ -237,7 +237,7 @@ export default function LandingApp() {
           <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/30 p-8 text-center">
             <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">Not just clips. Full videos.</h2>
             <p className="text-white/55 text-lg max-w-xl mx-auto">
-              Most AI tools generate fragments. WIZ AI creates complete, ready-to-publish videos — with storyboard, scenes, audio, and final render all in one place.
+              Most AI tools generate fragments. WIZ AI creates complete, ready-to-publish videos — with storyboard, scenes, audio, and final build all in one place.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2 text-sm text-white/60">
@@ -273,7 +273,7 @@ export default function LandingApp() {
             <span className={BRAND.headline}>for free today</span>
           </h2>
           <p className="text-white/55 text-lg mb-8">
-            Only pay when you render. No credit card required.
+            Only pay when you build your final video. No credit card required.
           </p>
           <a href={CREATE_URL} className={`${BRAND.ctaPrimary} mx-auto`}>
             <Sparkles className="w-5 h-5" />

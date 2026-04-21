@@ -53,7 +53,7 @@ const STEPS = [
     iconImg: "/manus-storage/wizcreate-logo-new_85a25756.png",
     icon: Brain,
     title: "Build Your Storyboard",
-    desc: "Preview and refine every scene before rendering your full video",
+    desc: "Preview and refine every scene before building your full video",
     color: "amber",
     iconBg: "bg-[--color-gold]/15",
     iconColor: "text-[--color-gold]",
@@ -258,7 +258,7 @@ export default function AllInOnePlatform() {
           className={`text-center mt-16 transition-all duration-700 delay-500 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
         >
           <p className="text-white/40 text-sm font-medium mb-6 tracking-wide">
-            Everything you need to create, render, and grow — in one platform
+            Everything you need to create, build, and grow — in one platform
           </p>
           <NavLink
             href="/create"

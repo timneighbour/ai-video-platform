@@ -11,12 +11,12 @@ const BANNER_CONTENT = {
   limit: {
     icon: Rocket,
     text: "You've reached your video limit.",
-    cta: "Unlock more renders with Creator",
+    cta: "Unlock more Build Credits with Creator",
   },
   milestone: {
     icon: PartyPopper,
     text: "You're on a roll!",
-    cta: "Upgrade to Creator — 15 renders/month",
+    cta: "Upgrade to Creator — 15 Build Credits/month",
   },
   watermark: {
     icon: Sparkles,

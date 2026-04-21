@@ -1,7 +1,7 @@
 /**
  * HabitLoopPanel
  *
- * Shown after a render completes to encourage the user to create their next video.
+ * Shown after a build completes to encourage the user to create their next video.
  * Features:
  *   - "What's next?" heading with encouraging copy
  *   - 4 quick-start template cards (Music Video, Lyric Video, Faceless Content, Kids Story)

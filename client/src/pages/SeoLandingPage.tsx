@@ -189,11 +189,11 @@ export default function SeoLandingPage() {
       },
       {
         q: `Do I need any video editing skills to use ${page.keyword}?`,
-        a: "No. WIZ AI is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final render.",
+        a: "No. WIZ AI is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final build.",
       },
       {
         q: `Is ${page.keyword} free to try?`,
-        a: "Yes. WIZ AI is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
+        a: "Yes. WIZ AI is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to build and download your finished video.",
       },
     ];
 
@@ -281,11 +281,11 @@ export default function SeoLandingPage() {
     },
     {
       q: `Do I need any video editing skills to use ${page.keyword}?`,
-      a: "No. WIZ AI is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final render.",
+      a: "No. WIZ AI is fully automated. You upload your audio or describe your idea, and the AI handles everything from storyboard to final build.",
     },
     {
       q: `Is ${page.keyword} free to try?`,
-      a: "Yes. WIZ AI is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video.",
+      a: "Yes. WIZ AI is free to use — no credit card required. Storyboard generation is always free. You only pay when you're ready to build and download your finished video.",
     },
   ];
 
@@ -371,8 +371,8 @@ export default function SeoLandingPage() {
         {/* Mid CTA */}
         <div className="my-12 p-8 rounded-2xl bg-gradient-to-r from-[#9090a0]/30 to-[#4a3010]/30 border border-[--color-silver]/20 text-center">
           <h3 className="text-2xl font-bold mb-3">Ready to get started?</h3>
-          <p className="text-white/60 mb-2">Join thousands of creators already using WIZ AI</p>
-          <p className="text-white/40 text-sm mb-6">No credit card required · Free to create · Only pay to render</p>
+          <p className="text-white/60 mb-2">Join creators worldwide already using WIZ AI</p>
+          <p className="text-white/40 text-sm mb-6">No credit card required · Free to create · Only pay to build</p>
           <CTAButton text="Create Your First AI Video — Free" keyword={page.keyword} className="justify-center" />
         </div>
 
@@ -486,7 +486,7 @@ export default function SeoLandingPage() {
             No editing. No experience needed. Just upload your audio or idea and let WIZ AI do the rest.
           </p>
           <CTAButton text="Create Your First AI Video Now — Free" keyword={page.keyword} className="justify-center" />
-          <p className="text-white/30 text-sm mt-4">No credit card required • Free to create • Only pay to render</p>
+          <p className="text-white/30 text-sm mt-4">No credit card required • Free to create • Only pay to build</p>
         </div>
 
         {/* SEO paragraph */}

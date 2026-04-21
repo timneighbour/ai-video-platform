@@ -60,15 +60,15 @@ const STEPS = [
     details: [
       "Preview every scene image — no surprises",
       "Regenerate any scene you're not happy with",
-      "Approve the full storyboard before rendering",
+      "Approve the full storyboard before building",
     ],
     badge: "No credits needed", image: STEP_IMAGES.anime, stat: "0 credits", statLabel: "to preview",
   },
   {
     num: "04", color: "amber" as const,
     icon: <Download className="w-7 h-7" />,
-    title: "Full Render", headline: "Render your video in HD or 4K",
-    desc: "When you're happy with the storyboard, click Render. WIZ AI animates every scene, syncs audio, and delivers your complete video.",
+    title: "Final Build", headline: "Build your video in HD or 4K",
+    desc: "When you're happy with the storyboard, click Build. WIZ AI animates every scene, syncs audio, and delivers your complete video.",
     details: [
       "Choose HD (1080p) or 4K resolution",
       "WizSound™ audio enhancement included",
@@ -82,7 +82,7 @@ const STEPS = [
     title: "Share", headline: "Download, share, and grow",
     desc: "Download your video instantly. Share to YouTube, Instagram, TikTok, or publish to the WIZ AI platform to grow your audience with WizBoost.",
     details: [
-      "Download MP4 immediately after render",
+      "Download MP4 immediately after building",
       "Share directly to social platforms",
       "Publish to WIZ AI and grow with WizBoost",
     ],
@@ -91,7 +91,7 @@ const STEPS = [
 ];
 
 const RENDER_STAGES = [
-  { icon: <Clock className="w-5 h-5" />,        stage: "Queued",     desc: "Your job enters the render queue. Position is based on your plan tier.",           color: "rgba(255,255,255,0.4)" },
+  { icon: <Clock className="w-5 h-5" />,        stage: "Queued",     desc: "Your job enters the build queue. Position is based on your plan tier.",           color: "rgba(255,255,255,0.4)" },
   { icon: <Wand2 className="w-5 h-5" />,         stage: "Building",   desc: "AI animates each scene from your approved storyboard images.",                     color: "#c4a464" },
   { icon: <Film className="w-5 h-5" />,          stage: "Finalising", desc: "Scenes are assembled, audio is synced, and WizSound™/WizLumina™ are applied.",    color: "#c4a464" },
   { icon: <CheckCircle2 className="w-5 h-5" />,  stage: "Complete",   desc: "Your video is ready. Download instantly or share directly from WIZ AI.",           color: "#e8d5a0" },
@@ -181,7 +181,7 @@ function StepCard({ step, index }: { step: typeof STEPS[0]; index: number }) {
 }
 
 export default function HowItWorks() {
-  useSEO({ title: "How It Works — WIZ AI", path: "/how-it-works", description: "See how WIZ AI turns your audio into a full cinematic music video in minutes. Upload, preview, render, download." });
+  useSEO({ title: "How It Works — WIZ AI", path: "/how-it-works", description: "See how WIZ AI turns your audio into a full cinematic music video in minutes. Upload, preview, build, download." });
   const [activeStage, setActiveStage] = useState<number | null>(null);
 
   return (
@@ -261,8 +261,8 @@ export default function HowItWorks() {
           style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(196,164,100,0.05), transparent)" }} />
         <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
           <div className="text-center mb-14">
-            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#c4a464]/45 mb-3">After you click Render</p>
-            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">What happens during rendering?</h2>
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#c4a464]/45 mb-3">After you click Build</p>
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">What happens during the build process?</h2>
             <p className="text-white/38 text-lg max-w-xl mx-auto">Your video goes through four processing stages. You'll be notified when it's ready.</p>
           </div>
           <div className="relative">
@@ -312,7 +312,7 @@ export default function HowItWorks() {
             </div>
             <div>
               <p className="text-sm font-bold text-white/80 mb-1">Email notification</p>
-              <p className="text-sm text-white/42 leading-relaxed">We'll send you an email when your render is complete, so you don't need to stay on the page.</p>
+              <p className="text-sm text-white/42 leading-relaxed">We'll send you an email when your video is ready, so you don't need to stay on the page.</p>
             </div>
           </div>
         </div>
@@ -360,7 +360,7 @@ export default function HowItWorks() {
             }}>Build your audience.</span>
           </h2>
           <p className="text-white/42 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-            After rendering, WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
+            After buildinging, WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {[

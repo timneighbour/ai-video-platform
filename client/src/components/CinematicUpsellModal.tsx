@@ -1,7 +1,7 @@
 /**
  * CinematicUpsellModal
  *
- * Appears after a video finishes rendering. Lets the user select individual
+ * Appears after a video finishes building. Lets the user select individual
  * scenes to re-render with premium (WizBoost) quality.
  *
  * Cost: 20 Credits per scene (VIDEO_CREDIT_COSTS.perCinematicScene)

@@ -562,7 +562,7 @@ export default function RenderHistory() {
               <AlertDialogTitle className="text-lg font-semibold text-white">Delete Project</AlertDialogTitle>
             </div>
             <AlertDialogDescription className="text-zinc-400 text-sm leading-relaxed">
-              Are you sure you want to delete <span className="text-white font-medium">"{deleteTarget?.title || `Project #${deleteTarget?.jobId}`}"</span>? This will permanently remove the project and all associated scenes, renders, and files. This action cannot be undone.
+              Are you sure you want to delete <span className="text-white font-medium">"{deleteTarget?.title || `Project #${deleteTarget?.jobId}`}"</span>? This will permanently remove the project and all associated scenes, builds, and files. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-2">

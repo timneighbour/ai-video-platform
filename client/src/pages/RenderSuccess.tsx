@@ -1,5 +1,5 @@
 /**
- * RenderSuccess — shown after Stripe checkout for a render purchase.
+ * RenderSuccess — shown after Stripe checkout for a build purchase.
  * URL: /render/success?render_job_id=X&session_id=Y
  *
  * Flow:

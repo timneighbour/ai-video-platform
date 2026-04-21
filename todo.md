@@ -5673,3 +5673,21 @@
 - [x] Add structured data (JSON-LD) for rich search results on all key pages
 - [x] Review indexability — public pages accessible, auth pages excluded
 - [ ] Ensure proper heading structure (H1, H2, H3) on all pages
+
+## Public-Site Cleanup (April 2026)
+- [x] P1: Replace all render wording → build (Render→Build, Rendering→Building, Renders→Build Credits, etc.)
+- [ ] P2: Update pricing/bundle copy for Build Credit clarity and margin safety
+- [ ] P3: Standardise product naming (WizAudio™, WizImage™, WizVideo™, WizShorts™, WizAnimate™, WizScript™)
+- [ ] P4: Standardise engine naming (WizGenesis™, WizSound™, WizLumina™, WizBoost™)
+- [x] P5: Audit testimonials — remove placeholders or replace with real use cases
+- [x] P6: Tone down overclaims (thousands of creators, broadcast quality, etc.)
+- [ ] P7: Verify cookie/GDPR controls (banner, consent mode v2, blocking scripts)
+- [ ] P8: Verify paid traffic readiness (Google tag, conversion events, Meta Pixel placeholder)
+
+## Testimonial Removal (April 2026)
+- [x] Remove fictional testimonials from Home.tsx — replace with honest use-case cards
+- [x] Remove fictional testimonials from AiAnimationMaker.tsx
+- [x] Remove fictional testimonials from Pricing.tsxsx
+- [x] Remove star ratings and implied review scores from all pages
+- [x] Remove AI-generated avatar images from testimonial sections
+- [x] Ensure no fake quotes remain anywhere on the site

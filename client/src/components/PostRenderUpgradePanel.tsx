@@ -1,7 +1,7 @@
 /**
  * PostRenderUpgradePanel
  *
- * Shown after a render completes. Lets the user upgrade their existing render
+ * Shown after a build completes. Lets the user upgrade their existing render
  * to a higher quality tier (HD / 4K) or add WizSound™ Cinematic audio,
  * paying only the price difference from what they already paid.
  */

@@ -1,7 +1,7 @@
 /**
  * SubscriptionUpgradeNudge
  *
- * A subtle, behaviour-triggered banner shown to active pay-per-render users
+ * A subtle, behaviour-triggered banner shown to active pay-per-build users
  * who have not yet subscribed. Triggered when the backend detects 2+ paid
  * renders or 1+ bundle purchase without an active subscription.
  *
@@ -47,7 +47,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
   if (bundleCount >= 1 && paidRenderCount >= 2) {
     triggerLine = `You've purchased ${paidRenderCount} renders and ${bundleCount} bundle${bundleCount !== 1 ? "s" : ""}.`;
   } else if (bundleCount >= 1) {
-    triggerLine = `You've purchased ${bundleCount} render bundle${bundleCount !== 1 ? "s" : ""}.`;
+    triggerLine = `You've purchased ${bundleCount} build credit pack${bundleCount !== 1 ? "s" : ""}.`;
   } else {
     triggerLine = `You've completed ${paidRenderCount} pay-per-render purchases.`;
   }
@@ -55,7 +55,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
   const savingsLine =
     estimatedMonthlySavingPence > 0
       ? `Save up to £${(estimatedMonthlySavingPence / 100).toFixed(0)}/mo with the Creator plan.`
-      : `The Creator plan gives you 15 renders/mo for just £${recommendedPlanPrice}.`;
+      : `The Creator plan gives you 15 Build Credits/mo for just £${recommendedPlanPrice}.`;
 
   return (
     <div

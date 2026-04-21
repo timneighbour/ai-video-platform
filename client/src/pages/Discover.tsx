@@ -237,7 +237,7 @@ export default function Discover() {
             Create videos. Get discovered. Grow your audience.
           </p>
           <p className="text-white/40 max-w-xl mx-auto mb-8">
-            Real creators using WIZ AI to produce music videos, animations, kids content, and more. Get featured by creating your first video.
+            A space for creators using WIZ AI to share music videos, animations, kids content, and more. Get featured by creating your first video.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link href="/music-video/create">

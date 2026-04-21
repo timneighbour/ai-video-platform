@@ -164,7 +164,7 @@ export default function Blog() {
         <div className="border-t border-white/5 bg-gradient-to-b from-black to-[#1a1000]/20">
           <div className="max-w-2xl mx-auto px-4 py-16 text-center">
             <h2 className="text-2xl font-bold mb-3">Ready to create your first AI video?</h2>
-            <p className="text-white/50 mb-6">Free to create. Only pay when you render.</p>
+            <p className="text-white/50 mb-6">Free to create. Only pay when you build your final video.</p>
             <Link href="/music-video/create">
               <Button className="btn-primary btn-sheen btn-sheen text-white px-8 h-11">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />

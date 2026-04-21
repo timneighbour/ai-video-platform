@@ -1,7 +1,7 @@
 /**
  * PostRenderRetentionScreen — Celebration + next-action engine.
  *
- * Shown when a render completes. Goal: user should NOT leave after download.
+ * Shown when a build completes. Goal: user should NOT leave after download.
  * Shows celebration, video player, download CTA, "what next?" cards,
  * continue projects, and a retention message.
  */
@@ -231,8 +231,8 @@ export function PostRenderRetentionScreen({
               <Crown className="w-4 h-4 text-[--color-gold]" />
             </div>
             <div>
-              <p className="text-white text-sm font-semibold">Get more renders every month</p>
-              <p className="text-zinc-400 text-xs mt-0.5">Basic £19/mo · 5 renders · HD quality · no watermark</p>
+              <p className="text-white text-sm font-semibold">Get more Build Credits every month</p>
+              <p className="text-zinc-400 text-xs mt-0.5">Basic £19/mo · 5 Build Credits · HD quality · no watermark</p>
             </div>
           </div>
           <a

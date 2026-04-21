@@ -113,7 +113,7 @@ const HOW_IT_WORKS = [
   {
     step: "03",
     title: "Preview every scene",
-    desc: "WizCreate™ builds a full storyboard. Review, edit, and refine each scene before rendering a single frame.",
+    desc: "WizCreate™ builds a full storyboard. Review, edit, and refine each scene before building a single frame.",
     img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg",
   },
   {
@@ -124,24 +124,21 @@ const HOW_IT_WORKS = [
   },
 ];
 
-const TESTIMONIALS = [
+const ANIMATION_USE_CASES = [
   {
-    quote: "I made a full 90-second animated intro for my kids' YouTube channel in under an hour. The Stylised 3D quality is incredible.",
-    name: "Sophie R.",
-    role: "Kids Content Creator",
-    avatar: "/manus-storage/avatar-sophie_7b87260f.jpg",
+    title: "Kids Content",
+    desc: "Create animated intros, story episodes, and educational content in Stylised 3D or Storybook styles.",
+    icon: "\u2728",
   },
   {
-    quote: "The storybook style is exactly what I needed for my children's story series. WIZ AI nailed the illustrated look on the first try.",
-    name: "Marcus T.",
-    role: "Children's Author & Creator",
-    avatar: "/manus-storage/avatar-marcus_5c70b009.jpg",
+    title: "YouTube Animation",
+    desc: "Build animated shorts, channel intros, and visual stories without complex animation software.",
+    icon: "\ud83c\udfac",
   },
   {
-    quote: "I've tried every AI animation tool out there. WIZ AI is the only one that lets me preview every scene before I commit to rendering.",
-    name: "Priya K.",
-    role: "Animator & YouTuber",
-    avatar: "/manus-storage/avatar-priya_5975eaf5.jpg",
+    title: "Story Illustration",
+    desc: "Transform written stories into illustrated animated scenes with consistent characters and styles.",
+    icon: "\ud83d\udcd6",
   },
 ];
 
@@ -196,7 +193,7 @@ const FEATURES = [
   {
     logo: WIZCREATE_LOGO,
     title: "Scene-by-Scene Editing",
-    desc: "Review and edit every scene before rendering. Change prompts, swap styles, or regenerate individual scenes without starting over.",
+    desc: "Review and edit every scene before building. Change prompts, swap styles, or regenerate individual scenes without starting over.",
   },
   {
     logo: WIZSOUND_LOGO,
@@ -339,7 +336,7 @@ export default function AiAnimationMaker() {
               <span className="text-[--color-gold]">✓</span> HD &amp; 4K export
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="text-[--color-gold]">✓</span> Preview before you render
+              <span className="text-[--color-gold]">✓</span> Preview before you build
             </span>
           </div>
         </div>
@@ -497,48 +494,32 @@ export default function AiAnimationMaker() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── Social Proof ───────────────────────────────────────────────────── */}
+      </section>      {/* ── Use Cases ───────────────────────────────────────────────────────────── */}
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Creators Love WIZ AI
+              What you can animate with WIZ AI
             </h2>
+            <p className="text-[#a1a1aa] text-sm max-w-lg mx-auto">
+              Example use cases for the AI Animation Maker. Real customer stories will be added once creators begin publishing.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
+            {ANIMATION_USE_CASES.map((uc, i) => (
               <div
                 key={i}
-                className="p-6 rounded-2xl border border-white/[0.08] bg-[#0f0f0f]"
+                className="p-6 rounded-2xl border border-white/[0.08] bg-[#0f0f0f] hover:border-white/15 transition-all"
               >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, s) => (
-                    <span key={s} className="text-[--color-gold] text-sm">★</span>
-                  ))}
-                </div>
-                <p className="text-[#d4d4d8] text-sm leading-relaxed mb-5 italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <img
-                    src={t.avatar}
-                    alt={t.name}
-                    className="w-9 h-9 rounded-full object-cover border border-white/10"
-                    loading="lazy"
-                  />
-                  <div>
-                    <p className="text-white text-sm font-semibold">{t.name}</p>
-                    <p className="text-[#71717a] text-xs">{t.role}</p>
-                  </div>
-                </div>
+                <span className="text-3xl mb-4 block">{uc.icon}</span>
+                <h3 className="text-white font-bold text-lg mb-2">{uc.title}</h3>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed">{uc.desc}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── Pricing CTA ────────────────────────────────────────────────────── */}
+      </section>    {/* ── Pricing CTA ────────────────────────────────────────────────────── */}
       <section className="py-20 px-6 bg-[#0f0f0f]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -637,7 +618,7 @@ export default function AiAnimationMaker() {
             Your Animation Starts Here
           </h2>
           <p className="text-[#a1a1aa] text-lg mb-10">
-            Join thousands of creators making animated videos with WIZ AI. Start free — no credit card needed.
+            Join creators worldwide making animated videos with WIZ AI. Start free — no credit card needed.
           </p>
           <button
             onClick={() => handleCTA("final_cta")}

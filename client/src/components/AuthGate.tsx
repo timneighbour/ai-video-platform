@@ -22,7 +22,7 @@ const BENEFITS = [
   { icon: <Sparkles className="w-4 h-4 text-[--color-gold]" />, text: "Create videos completely free — no credit card needed" },
   { icon: <Video className="w-4 h-4 text-[--color-gold-dark]" />, text: "Full cinematic music videos in minutes" },
   { icon: <Music className="w-4 h-4 text-[--color-gold]" />, text: "AI music generation with lyric-aware scenes" },
-  { icon: <Star className="w-4 h-4 text-[--color-gold]" />, text: "Only pay when you're ready to render and download" },
+  { icon: <Star className="w-4 h-4 text-[--color-gold]" />, text: "Only pay when you're ready to build and download" },
   { icon: <Music className="w-4 h-4 text-[--color-gold-dark]" />, text: "Powered by WizSound — proprietary audio enhancement" },
 ];
 
@@ -86,7 +86,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
           </a>
 
           <p className="text-center text-[--color-silver-dark]/30 text-xs mt-4">
-            Free to create · Only pay to render · No card required
+            Free to create · Only pay to build · No card required
           </p>
         </div>
       </div>

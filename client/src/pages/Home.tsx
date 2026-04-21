@@ -153,13 +153,13 @@ const WIZ_TECHNOLOGY = [
   { name: "Character Consistency", tagline: "Visual Identity Lock", desc: "Keeps characters visually consistent across every scene — same face, outfit, and proportions.", href: "/technology/character-consistency", logo: WIZCREATE_LOGO },
   { name: "Scene Builder", tagline: "Storyboard Intelligence", desc: "Generates a complete scene-by-scene visual plan from your audio or text prompt.", href: "/technology/scene-builder", logo: WIZCREATE_LOGO },
   { name: "Lip Sync", tagline: "Frame-Accurate Vocal Sync", desc: "Synchronises character mouth movements to vocals with frame-accurate precision.", href: "/technology/lip-sync", logo: WIZSYNC_LOGO },
-  { name: "AI Video Engine", tagline: "Scene-to-Video Rendering", desc: "Transforms storyboard scenes into fully rendered cinematic video output.", href: "/technology/ai-video-engine", logo: WIZANIMATE_LOGO },
+  { name: "AI Video Engine", tagline: "Scene-to-Video Building", desc: "Transforms storyboard scenes into fully built cinematic video output.", href: "/technology/ai-video-engine", logo: WIZANIMATE_LOGO },
   { name: "AI Music Engine", tagline: "Original Music Generation", desc: "Generates original songs, beats, and soundtracks from a text prompt.", href: "/technology/ai-music-engine", logo: WIZSOUND_LOGO },
-  { name: "WizSound Engine", tagline: "Cinematic Audio Mastering", desc: "Upgrades AI-generated audio to broadcast quality with cinematic mastering.", href: "/technology/wizsound-engine", logo: WIZSOUND_LOGO },
+  { name: "WizSound Engine", tagline: "Cinematic Audio Mastering", desc: "Upgrades AI-generated audio to professional-grade quality with cinematic mastering.", href: "/technology/wizsound-engine", logo: WIZSOUND_LOGO },
   { name: "Prompt to Video", tagline: "Text-Driven Creation", desc: "Turn a text description into a complete AI-generated cinematic video.", href: "/technology/prompt-to-video", logo: WIZCREATE_LOGO },
   { name: "Audio to Video", tagline: "Music Video Generation", desc: "Upload a track and receive a complete beat-synced music video.", href: "/technology/audio-to-video", logo: WIZANIMATE_LOGO },
-  { name: "Storyboard Preview", tagline: "Preview Before You Pay", desc: "See every scene of your video before committing to the full render.", href: "/technology/storyboard-preview", logo: WIZCREATE_LOGO },
-  { name: "4K Rendering", tagline: "Cinema-Grade Export Quality", desc: "Export in Standard, HD, or 4K with WizLumina enhancement and WizBoost optimisation.", href: "/technology/4k-rendering", logo: WIZLUMINA_LOGO },
+  { name: "Storyboard Preview", tagline: "Preview Before You Pay", desc: "See every scene of your video before committing to the final video build.", href: "/technology/storyboard-preview", logo: WIZCREATE_LOGO },
+  { name: "4K Building", tagline: "Cinema-Grade Export Quality", desc: "Export in Standard, HD, or 4K with WizLumina enhancement and WizBoost optimisation.", href: "/technology/4k-rendering", logo: WIZLUMINA_LOGO },
 ];
 
 // ── Dropdown wrapper with fade+slide animation ────────────────────────────────
@@ -965,7 +965,7 @@ function Hero() {
               { icon: <img src={WIZCREATE_LOGO} alt="WizCreate" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "AI Video" },
               { icon: <WaveformSVG className="w-3.5 h-3.5" color="currentColor" />, label: "Studio Audio" },
               { icon: <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Cinematic Visuals" },
-              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Instant Rendering" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Instant Building" },
               { icon: <img src={WIZANIMATE_LOGO} alt="WizAnimate" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "8 Art Styles" },
               { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Free Storyboard" },
             ].map((item, i) => (
@@ -986,10 +986,7 @@ function Hero() {
                 ))}
               </div>
               <div>
-                <div className="flex items-center gap-0.5 mb-0.5">
-                  {[...Array(5)].map((_, i) => <span key={i} className="text-[--color-gold] text-[10px]">&#9733;</span>)}
-                </div>
-                <span className="text-[--color-silver-dark]/50 text-[11px] font-medium">Loved by creators worldwide</span>
+                <span className="text-[--color-silver-dark]/50 text-[11px] font-medium">AI-powered video creation</span>
               </div>
             </div>
             <div className="h-8 w-px bg-[--color-gold]/10 hidden sm:block" />
@@ -1036,7 +1033,7 @@ function WelcomeSection() {
           <div className="reveal">
             <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">See it in action</p>
             <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white leading-tight mb-6">
-              From idea to finished video.<br />In under five minutes.
+              From idea to finished video.<br />In minutes.
             </h2>
             <p className="text-[--color-silver-dark]/55 text-base leading-relaxed mb-8">
               Describe your idea. WIZ AI builds the storyboard, generates every scene, adds music, and delivers a complete video — ready to publish.
@@ -1145,7 +1142,7 @@ function WizEngines() {
       name: "WizBoost",
       tm: "™",
       tagline: "Output Optimisation Engine",
-      desc: "The output optimisation engine that accelerates render speed and sharpens final quality.",
+      desc: "The output optimisation engine that accelerates build speed and sharpens final quality.",
       benefit: "Every export is optimised for maximum quality on every platform.",
       logoUrl: WIZBOOST_LOGO,
       // Electric green — speed/performance
@@ -1396,8 +1393,8 @@ function HowItWorks() {
   const steps = [
     { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg", logo: WIZAI_LOGO },
     { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg", logo: WIZCREATE_LOGO },
-    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.", img: "/manus-storage/product-wizlumina-hero_ed20683e.jpg", logo: WIZLUMINA_LOGO },
-    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/product-wizboost-hero_9c11e1cc.jpg", logo: WIZSOUND_LOGO },
+    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to build. Edit, swap, or refine any scene you want.", img: "/manus-storage/product-wizlumina-hero_ed20683e.jpg", logo: WIZLUMINA_LOGO },
+    { num: "04", title: "Build and export", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/product-wizboost-hero_9c11e1cc.jpg", logo: WIZSOUND_LOGO },
   ];
 
   // Auto-advance steps every 2.5s when section is in view
@@ -1607,8 +1604,8 @@ function HowItWorks() {
 // ── Why WIZ AI ────────────────────────────────────────────────────────────────
 function WhyWizAI() {
   const reasons = [
-    { logo: WIZAI_LOGO, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Full render.", img: "/manus-storage/why-wiz-full-video_5f818c4d.png" },
-    { logo: WIZAI_LOGO, title: "Preview before you pay", desc: "See your entire video — every scene, every frame — before spending a single credit on rendering.", img: "/manus-storage/why-wiz-preview_a3e1de16.png" },
+    { logo: WIZAI_LOGO, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Final video build.", img: "/manus-storage/why-wiz-full-video_5f818c4d.png" },
+    { logo: WIZAI_LOGO, title: "Preview before you pay", desc: "See your entire video — every scene — before spending a single credit on building.", img: "/manus-storage/why-wiz-preview_a3e1de16.png" },
     { logo: WIZCREATE_LOGO, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically.", img: "/manus-storage/why-wiz-no-editing_37037a03.png" },
     { logo: WIZANIMATE_LOGO, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform.", img: "/manus-storage/why-wiz-formats_98888fe0.png" },
     { logo: WIZCREATE_LOGO, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.", img: "/manus-storage/why-wiz-faster_532c9bed.png" },
@@ -1968,32 +1965,36 @@ function WizLuminaDemo() {
   );
 }
 
-// ── Testimonials ─────────────────────────────────────────────────────────────
-function Testimonials() {
-  const quotes = [
+// ── Use Cases ────────────────────────────────────────────────────────────────
+function UseCases() {
+  const useCases = [
     {
-      text: "I made my first music video in 45 minutes. The quality blew my mind. My fans thought I hired a production team.",
-      name: "Marcus T.",
-      role: "Independent Musician",
-      avatar: "/manus-storage/avatar-marcus_5c70b009.jpg",
+      title: "For Musicians",
+      desc: "Turn songs, lyrics and creative ideas into cinematic music video concepts, scenes and final video builds.",
+      icon: "🎵",
+      color: "from-violet-500/20 to-violet-600/5",
+      borderColor: "border-violet-500/20",
     },
     {
-      text: "WIZ AI replaced a £3,000/month video editor for my YouTube channel. I now publish three times a week without breaking a sweat.",
-      name: "Priya S.",
-      role: "YouTube Creator — 180K subscribers",
-      avatar: "/manus-storage/avatar-priya_5975eaf5.jpg",
+      title: "For YouTubers",
+      desc: "Create visual stories, shorts, thumbnails and animation ideas without complex editing software.",
+      icon: "🎬",
+      color: "from-blue-500/20 to-blue-600/5",
+      borderColor: "border-blue-500/20",
     },
     {
-      text: "The character consistency is genuinely impressive. My animated series looks like a real studio production. Nothing else comes close.",
-      name: "Daniel K.",
-      role: "Animator & Storyteller",
-      avatar: "/manus-storage/avatar-daniel_64a2beaf.jpg",
+      title: "For Brands",
+      desc: "Produce campaign visuals, product videos and social content faster from one creative workspace.",
+      icon: "💼",
+      color: "from-amber-500/20 to-amber-600/5",
+      borderColor: "border-amber-500/20",
     },
     {
-      text: "I used WizScript to turn a blog post into a fully produced video in under 10 minutes. The ROI is extraordinary.",
-      name: "Sophie L.",
-      role: "Brand Content Director",
-      avatar: "/manus-storage/avatar-sophie_7b87260f.jpg",
+      title: "For Storytellers",
+      desc: "Transform prompts and scripts into animated scenes, cinematic visuals and platform-ready content.",
+      icon: "📖",
+      color: "from-emerald-500/20 to-emerald-600/5",
+      borderColor: "border-emerald-500/20",
     },
   ];
   return (
@@ -2001,39 +2002,20 @@ function Testimonials() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Creator proof</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Use cases</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
-            Real creators. Real results.
+            What creators can build with WIZ AI
           </h2>
-          <p className="text-[--color-silver-dark]/45 text-base mt-4 max-w-xl mx-auto">
-            From independent musicians to brand teams — WIZ AI is changing how professional content gets made.
+          <p className="text-[--color-silver-dark]/45 text-base mt-4 max-w-2xl mx-auto">
+            Explore example use cases for musicians, YouTubers, brands and storytellers. Real customer stories will be added once creators begin publishing with WIZ AI.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {quotes.map((q) => (
-            <div key={q.name} className="reveal glass-card p-6 flex flex-col gap-5 relative">
-              {/* Gold quote mark */}
-              <span className="absolute top-5 right-5 text-[--color-gold]/[0.12] text-5xl font-serif leading-none select-none">&ldquo;</span>
-              {/* Stars */}
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className="text-[--color-gold] text-sm">&#9733;</span>
-                ))}
-              </div>
-              {/* Quote */}
-              <p className="text-[--color-silver]/65 text-sm leading-relaxed flex-1">{q.text}</p>
-              {/* Attribution */}
-              <div className="flex items-center gap-3 pt-3 border-t border-[--color-gold]/[0.06]">
-                <img
-                  src={q.avatar}
-                  alt={q.name}
-                  className="w-9 h-9 rounded-full object-cover border border-[--color-gold]/[0.15] flex-shrink-0"
-                 loading="lazy" />
-                <div>
-                  <p className="text-white text-xs font-semibold">{q.name}</p>
-                  <p className="text-[--color-silver-dark]/40 text-[11px]">{q.role}</p>
-                </div>
-              </div>
+          {useCases.map((uc) => (
+            <div key={uc.title} className={`reveal rounded-2xl p-6 flex flex-col gap-4 border ${uc.borderColor} bg-gradient-to-b ${uc.color} backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-lg`}>
+              <span className="text-3xl">{uc.icon}</span>
+              <h3 className="text-white font-bold text-lg">{uc.title}</h3>
+              <p className="text-[--color-silver]/55 text-sm leading-relaxed flex-1">{uc.desc}</p>
             </div>
           ))}
         </div>
@@ -2232,7 +2214,7 @@ function FeatureBlock() {
     {
       logo: WIZSOUND_LOGO,
       title: "AI Music Generation",
-      desc: "Generate original songs, soundtracks, and audio from a text prompt. Choose genre, mood, tempo, and style — WizSound™ masters every track to broadcast quality.",
+      desc: "Generate original songs, soundtracks, and audio from a text prompt. Choose genre, mood, tempo, and style — WizSound™ masters every track to professional-grade quality.",
       cta: "Generate a Song",
       href: "/music-creator",
       badge: "WizSound™",
@@ -2252,7 +2234,7 @@ function FeatureBlock() {
     {
       logo: WIZAI_LOGO,
       title: "WizPilot Automation",
-      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, performance-sync, audio, render, and delivery. The complete AI music video pipeline in one click.",
+      desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, performance-sync, audio, build, and delivery. The complete AI music video pipeline in one click.",
       cta: "Try WizPilot",
       href: "/onboarding",
       badge: "WizPilot™",
@@ -2337,7 +2319,7 @@ function WizVidEngineSection() {
       name: "WizPilot",
       tm: "™",
       tagline: "Full Automation Engine",
-      desc: "Describe your idea once. WizPilot handles everything — storyboard, scenes, lip-sync, audio, render, and delivery.",
+      desc: "Describe your idea once. WizPilot handles everything — storyboard, scenes, lip-sync, audio, build, and delivery.",
       logoUrl: WIZSYNC_LOGO,
       href: "/products/wizpilot",
     },
@@ -2478,7 +2460,7 @@ function SeeTheDifference() {
               <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
               Upgrade to Cinematic Mode
             </a>
-            <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every render upgrade</p>
+            <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every build upgrade</p>
           </div>
         </div>
       </div>
@@ -2503,7 +2485,7 @@ function FinalCTA() {
           <span className="metallic-gold">starts here.</span>
         </h2>
         <p className="text-[--color-silver-dark]/50 text-lg mb-10 leading-relaxed">
-          Join thousands of creators producing professional audio, video, and animation with WIZ AI. Create free. Pay only when you render.
+          Join creators worldwide producing professional audio, video, and animation with WIZ AI. Create free. Pay only when you build your final video.
         </p>
         {/* Dual CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
@@ -2826,7 +2808,7 @@ export default function Home() {
         <WizSoundDemo />
         <WizLuminaDemo />
         <WhyWizAI />
-        <Testimonials />
+        <UseCases />
         <Showcase />
         <BuiltFor />
         <FeatureBlock />

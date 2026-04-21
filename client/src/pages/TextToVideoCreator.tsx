@@ -59,7 +59,7 @@ const PROGRESS_STAGES = [
   { label: "WizCreate™ is building scene composition…",      pct: 32 },
   { label: "WizRender™ is generating video frames…",         pct: 52 },
   { label: "WizRender™ is applying style & effects…",        pct: 68 },
-  { label: "WizRender™ is rendering final video…",           pct: 82 },
+  { label: "WizRender™ is building final video…",           pct: 82 },
   { label: "Finalising & uploading…",                        pct: 94 },
 ];
 
@@ -318,7 +318,7 @@ export default function TextToVideoCreator() {
   return (
     <div className="min-h-screen bg-background">
       {/* Auth Gate */}
-      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="render your video" />
+      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="build your video" />
       {/* Header */}
       <div className="border-b border-white/10">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -326,7 +326,7 @@ export default function TextToVideoCreator() {
             type="button"
             onClick={() => {
               if (step === "storyboard") setStep("input");
-              else if (step === "generating") toast.info("Video is rendering — check progress in Projects.");
+              else if (step === "generating") toast.info("Video is building — check progress in Projects.");
               else window.location.href = "/";
             }}
             className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-white hover:bg-white/10 transition-colors"
@@ -389,13 +389,13 @@ export default function TextToVideoCreator() {
             <div className="text-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 px-4 py-1.5 text-xs sm:text-sm text-[--color-gold] mb-4">
                 <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
-                See your full storyboard before you render — always free
+                See your full storyboard before you build — always free
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                 Text to Video
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Describe what you want to see. We'll generate a storyboard with AI preview images for you to review and edit before rendering.
+                Describe what you want to see. We'll generate a storyboard with AI preview images for you to review and edit before building.
               </p>
             </div>
 
@@ -522,7 +522,7 @@ export default function TextToVideoCreator() {
                 Generate Free Storyboard
               </Button>
               <p className="text-xs text-muted-foreground mt-3">
-                Free storyboard preview · Credits only charged on final render
+                Free storyboard preview · Credits only charged on final build
               </p>
             </div>
           </div>
@@ -652,10 +652,10 @@ export default function TextToVideoCreator() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="h-4 w-4 text-yellow-400" />
-                  <span className="font-semibold text-white">Ready to render?</span>
+                  <span className="font-semibold text-white">Ready to build?</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {duration}s · {styleObj?.label} · {aspectRatio}
+                  Final build costs <span className="text-white font-semibold">{creditCost} credits</span> for {duration}s · {styleObj?.label} · {aspectRatio}
                 </p>
                 <div className="mt-2">
                   <CreditBalance variant="inline" cost={creditCost} />
@@ -676,7 +676,7 @@ export default function TextToVideoCreator() {
                   className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 flex-1"
                 >
                   <Play className="h-4 w-4" />
-                  Render Video — {creditCost} Credits
+                  Build Video — {creditCost} Credits
                 </Button>
               </div>
             </div>

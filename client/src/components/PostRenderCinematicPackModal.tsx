@@ -305,19 +305,19 @@ export default function PostRenderCinematicPackModal({
                       side="top"
                       className="max-w-[240px] text-xs leading-relaxed bg-[#0a0800] border border-[--color-gold]/30 text-white/85 shadow-xl"
                     >
-                      The Cinematic Pack bundles 4K video rendering with our full WizSound™ Cinematic mastering pipeline and priority queue placement — all at a single price. Individually these would cost £9 (£6 + £3).
+                      The Cinematic Pack bundles 4K video building with our full WizSound™ Cinematic mastering pipeline and priority queue placement — all at a single price. Individually these would cost £9 (£6 + £3).
                     </TooltipContent>
                   </Tooltip>
                 </div>
                 <p className="text-xs text-[--color-gold]/70 mb-3">
-                  4K resolution · WizSound Cinematic audio · Priority rendering
+                  4K resolution · WizSound Cinematic audio · Priority build
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                   {[
                     "4K / 2160p video output",
                     "WizSound Cinematic mastering",
                     "Immersive spatial depth",
-                    "Priority rendering queue",
+                    "Priority build queue",
                     "Streaming loudness (−14 LUFS)",
                     "Save £2 vs individual",
                   ].map((f) => (

@@ -197,7 +197,7 @@ export default function BlogPost() {
           {/* Bottom CTA */}
           <div className="mt-14 p-6 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 text-center">
             <h3 className="text-lg font-bold text-white mb-2">Ready to create your first AI video?</h3>
-            <p className="text-white/50 text-sm mb-4">Free to create. Only pay when you render.</p>
+            <p className="text-white/50 text-sm mb-4">Free to create. Only pay when you build your final video.</p>
             <Link href="/music-video/create">
               <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />

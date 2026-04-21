@@ -629,7 +629,7 @@ export default function WizSoundSection() {
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/8 bg-white/[0.03]">
               <Sparkles className="w-4 h-4 text-[#b8892a] flex-shrink-0" />
               <p className="text-white/45 text-xs leading-relaxed">
-                <span className="text-white/70 font-medium">Standard Audio</span> is free with every render.{" "}
+                <span className="text-white/70 font-medium">Standard Audio</span> is free with every build.{" "}
                 <span className="text-[#d4aa48] font-medium">Enhanced</span> +£1 ·{" "}
                 <span className="text-[#d4aa48] font-medium">Cinematic Spatial</span> +£3
               </p>

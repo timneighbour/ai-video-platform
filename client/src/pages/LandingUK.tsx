@@ -24,7 +24,7 @@ const BRAND = {
 
 const FEATURES = [
   { icon: "", title: "Full music videos", desc: "Not clips — complete, ready-to-publish videos from a single prompt." },
-  { icon: "", title: "Storyboard preview", desc: "See every scene before you render. Edit any frame. Only pay when you're happy." },
+  { icon: "", title: "Storyboard preview", desc: "See every scene before you build. Edit any frame. Only pay when you're happy." },
   { icon: "", title: "WizSound™ audio", desc: "Proprietary cinematic audio enhancement — studio quality, built in." },
   { icon: "", title: "Under 5 minutes", desc: "From idea to finished video faster than making a cup of tea." },
 ];
@@ -118,7 +118,7 @@ export default function LandingUK() {
 
           {/* Subheadline */}
           <p className="text-white/65 max-w-2xl mx-auto mb-5 leading-relaxed text-lg">
-            Turn your idea or song into a complete video — storyboard, scenes, and final render — all in one place. No editing. No complicated tools.
+            Turn your idea or song into a complete video — storyboard, scenes, and final build — all in one place. No editing. No complicated tools.
           </p>
 
           {/* Speed strip */}
@@ -148,7 +148,7 @@ export default function LandingUK() {
 
           {/* Trust line */}
           <p className="text-sm text-white/35 font-medium">
-            Free to create · No credit card · Only pay when you render
+            Free to create · No credit card · Only pay when you build your final video
           </p>
 
           {/* Stats */}
@@ -206,26 +206,24 @@ export default function LandingUK() {
         </div>
       </section>
 
-      {/* ── Testimonial strip ── */}
+      {/* ── Use cases strip ── */}
       <section className="py-14 px-6 border-t border-white/6 bg-[#0a0a0f]">
         <div className="max-w-4xl mx-auto">
+          <p className="text-center text-white/40 text-xs uppercase tracking-widest font-semibold mb-6">What UK creators can build</p>
           <div className="flex flex-wrap justify-center gap-4">
             {[
-              { quote: "I made my first music video in 4 minutes. Genuinely shocked.", author: "UK musician" },
-              { quote: "The storyboard preview is a game-changer. You see it before you pay.", author: "YouTuber, London" },
-              { quote: "WizSound makes it sound like a proper studio production.", author: "Indie artist, Manchester" },
-            ].map((t) => (
-              <div key={t.author} className="flex-1 min-w-[260px] max-w-sm rounded-2xl border border-white/8 bg-white/3 p-5">
-                <div className="flex gap-0.5 mb-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 text-[--color-gold] fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-white/70 text-sm leading-relaxed mb-3">"{t.quote}"</p>
-                <p className="text-white/35 text-xs font-medium">— {t.author}</p>
+              { title: "Musicians", desc: "Turn songs into cinematic music video concepts and final builds.", icon: "\ud83c\udfb5" },
+              { title: "YouTubers", desc: "Create shorts, visual stories and thumbnails without editing software.", icon: "\ud83c\udfac" },
+              { title: "Brands", desc: "Produce campaign visuals and social content from one workspace.", icon: "\ud83d\udcbc" },
+            ].map((uc) => (
+              <div key={uc.title} className="flex-1 min-w-[260px] max-w-sm rounded-2xl border border-white/8 bg-white/3 p-5">
+                <span className="text-2xl mb-3 block">{uc.icon}</span>
+                <h3 className="text-white font-bold text-sm mb-2">{uc.title}</h3>
+                <p className="text-white/50 text-sm leading-relaxed">{uc.desc}</p>
               </div>
             ))}
           </div>
+          <p className="text-center text-white/25 text-xs mt-6">Real customer stories will be added once creators begin publishing with WIZ AI.</p>
         </div>
       </section>
 
@@ -241,14 +239,14 @@ export default function LandingUK() {
             <span className={BRAND.headline}>minutes away</span>
           </h2>
           <p className="text-white/55 text-lg mb-8">
-            Start creating for free. Only pay when you render.
+            Start creating for free. Only pay when you build your final video.
           </p>
           <a href={`${MAIN_APP}/music-video/create`} className={`${BRAND.ctaPrimary} mx-auto`}>
             <Sparkles className="w-5 h-5" />
             Create Your First Video
             <ArrowRight className="w-4 h-4" />
           </a>
-          <p className="text-xs text-white/25 mt-4">No credit card required · Free to create · Only pay when you render</p>
+          <p className="text-xs text-white/25 mt-4">No credit card required · Free to create · Only pay when you build your final video</p>
         </div>
       </section>
 

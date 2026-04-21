@@ -23,7 +23,7 @@ const PLANS = [
     annualSaving: 0,
     tagline: "Try WIZ AI with no commitment",
     outcomes: [
-      "2 free renders to try the platform",
+      "2 free Build Credits to try the platform",
       "Free storyboard generation",
       "Access to all AI tools",
       "Standard quality (720p)",
@@ -42,7 +42,7 @@ const PLANS = [
     annualSaving: 29,
     tagline: "Create up to 2 videos/month",
     outcomes: [
-      "2 renders per month",
+      "2 Build Credits per month",
       "Standard quality (720p)",
       "All 6 WIZ AI products",
       "Free storyboard generation",
@@ -63,12 +63,12 @@ const PLANS = [
     annualSaving: 38,
     tagline: "Create up to 5 videos/month in HD",
     outcomes: [
-      "5 renders per month",
+      "5 Build Credits per month",
       "HD quality (1080p)",
       "All 6 AI video styles",
       "Free storyboard generation",
       "WizVideo + WizScript + WizAudio included",
-      "Standard rendering speed",
+      "Standard build speed",
       "Email support",
     ],
     cta: "Start Creating",
@@ -84,10 +84,10 @@ const PLANS = [
     annualSaving: 70,
     tagline: "Create up to 15 videos/month",
     outcomes: [
-      "15 renders per month",
+      "15 Build Credits per month",
       "Standard, HD & 4K quality",
       "Character consistency",
-      "Priority rendering queue",
+      "Priority build queue",
       "All 6 WIZ AI products",
       "Free storyboard generation",
       "No watermark on exports",
@@ -106,10 +106,10 @@ const PLANS = [
     annualSaving: 118,
     tagline: "Create up to 25 videos/month in 4K",
     outcomes: [
-      "25 renders per month",
+      "25 Build Credits per month",
       "Standard, HD & 4K quality",
       "Character consistency",
-      "Priority rendering queue",
+      "Priority build queue",
       "All 6 WIZ AI products",
       "Free storyboard generation",
       "No watermark on exports",
@@ -128,9 +128,9 @@ const PLANS = [
     annualSaving: 198,
     tagline: "Create up to 40 videos/month",
     outcomes: [
-      "40 renders per month",
+      "40 Build Credits per month",
       "Standard, HD & 4K quality",
-      "Fastest rendering \u2014 top priority",
+      "Fastest build speed \u2014 top priority",
       "Character consistency",
       "Full API access for automation",
       "All 6 WIZ AI products",
@@ -145,7 +145,7 @@ const PLANS = [
 
 // ── Comparison table rows ────────────────────────────────────────────────────
 const COMPARISON_ROWS: { feature: string; free: string | boolean; starter: string | boolean; basic: string | boolean; creator: string | boolean; pro: string | boolean; studio: string | boolean }[] = [
-  { feature: "Renders/month",     free: "2 (trial)", starter: "2",    basic: "5",    creator: "15",  pro: "25",  studio: "40"  },
+  { feature: "Build Credits/month",     free: "2 (trial)", starter: "2",    basic: "5",    creator: "15",  pro: "25",  studio: "40"  },
   { feature: "Max quality",       free: "720p",      starter: "720p", basic: "1080p",creator: "4K",  pro: "4K",  studio: "4K"  },
   { feature: "Free storyboard",   free: true,        starter: true,   basic: true,   creator: true,  pro: true,  studio: true  },
   { feature: "WizSound discount", free: false,       starter: false,  basic: false,  creator: "20%", pro: "40%", studio: "60%" },
@@ -223,7 +223,7 @@ export default function Subscribe() {
         <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4 max-w-2xl mx-auto leading-tight">
           Create for free.<br />
           <span className="metallic-gold">
-            Only pay when you render.
+            Only pay when you build your final video.
           </span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -335,13 +335,13 @@ export default function Subscribe() {
         <div className="container max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Not ready for a plan? Pay as you go.</h2>
-            <p className="text-muted-foreground">Buy individual renders whenever you need them. No subscription required.</p>
+            <p className="text-muted-foreground">Buy individual Build Credits whenever you need them. No subscription required.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Standard Render", res: "720p", price: "£2", icon: "", highlight: false, badge: null },
-              { label: "HD Render",       res: "1080p", price: "£4", icon: "", highlight: false, badge: null },
-              { label: "4K Render",       res: "2160p", price: "£6", icon: "", highlight: false, badge: null },
+              { label: "Standard Build", res: "720p", price: "£2", icon: "", highlight: false, badge: null },
+              { label: "HD Build",       res: "1080p", price: "£4", icon: "", highlight: false, badge: null },
+              { label: "4K Build",       res: "2160p", price: "£6", icon: "", highlight: false, badge: null },
               { label: "Cinematic Pack",  res: "4K + WizSound™ + Priority", price: "£7", icon: "", highlight: true, badge: "Best Value" },
             ].map((item) => (
               <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-[--color-gold]/40 bg-[--color-gold]/5 shadow-[0_0_24px_-6px_rgba(184,137,42,0.3)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
@@ -393,9 +393,9 @@ export default function Subscribe() {
         <div className="container max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs text-white/70 font-medium mb-4">
-              <Package className="h-3.5 w-3.5" />Render Bundles
+              <Package className="h-3.5 w-3.5" />Build Credit Packs
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Save with render bundles</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Save with build credit packs</h2>
             <p className="text-muted-foreground">Pre-purchase renders at a discount. Use them anytime — they never expire.</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-4">

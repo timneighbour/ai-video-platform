@@ -9,7 +9,7 @@
  *  - 6 Premium Animation Style Cards with hover animations
  *  - Per-scene storyboard editing and regeneration
  *  - WizBrand premium UI elements
- *  - Full render flow with Stripe checkout
+ *  - Final video build flow with Stripe checkout
  */
 import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -225,7 +225,7 @@ const HOW_IT_WORKS = [
   {
     step: "4", emoji: "",
     title: "Unlock Your Video",
-    desc: "Render it into a full animated video with WizSound™ cinematic audio.",
+    desc: "Build it into a full animated video with WizSound™ cinematic audio.",
     color: "from-orange-500/20 to-[#4a3010]/10 border-orange-500/30",
   },
 ];
@@ -370,7 +370,7 @@ export default function KidsVideo() {
         setJobId(id);
         setStep("render");
         setRenderStatus("queued");
-        toast.success("Payment successful! Your video is being rendered ");
+        toast.success("Payment successful! Your video is being built ");
         window.history.replaceState({}, "", "/kids-video");
         startPollingRender(id);
       }
@@ -409,7 +409,7 @@ export default function KidsVideo() {
           toast.success("– Your kids animation is ready!");
         } else if (job.renderStatus === "failed") {
           clearInterval(pollRef.current!);
-          toast.error(job.errorMessage || "Render failed. Please contact support.");
+          toast.error(job.errorMessage || "Build failed. Please contact support.");
         }
       } catch {
         // network hiccup — keep polling
@@ -919,7 +919,7 @@ export default function KidsVideo() {
           <section className="py-16 sm:py-20 border-t border-white/5 bg-white/[0.02]">
             <div className="container mx-auto px-4 max-w-3xl text-center">
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Simple, Transparent Pricing</h2>
-              <p className="text-muted-foreground mb-10">The storyboard is always free. Credits are only used when you render your final video.</p>
+              <p className="text-muted-foreground mb-10">The storyboard is always free. Credits are only used when you build your final video.</p>
               <div className="grid sm:grid-cols-3 gap-4 mb-8">
                 {[
                   { duration: "10s video", credits: "100 credits", note: "Perfect for social" },
@@ -1679,10 +1679,10 @@ export default function KidsVideo() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Zap className="h-4 w-4 text-yellow-400" />
-                        <span className="font-semibold text-white">Ready to render? </span>
+                        <span className="font-semibold text-white">Ready to build? </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Final render costs <span className="text-white font-semibold">{creditCost} credits</span> for {videoLength} · {screenFormat} · {selectedStyle.label}
+                        Final build costs <span className="text-white font-semibold">{creditCost} credits</span> for {videoLength} · {screenFormat} · {selectedStyle.label}
                       </p>
                       <div className="mt-2">
                         <CreditBalance variant="inline" cost={creditCost} />
@@ -1706,7 +1706,7 @@ export default function KidsVideo() {
                         {isCheckingOut ? (
                           <><Loader2 className="h-4 w-4 animate-spin" /> Preparing checkout…</>
                         ) : (
-                          <><Play className="h-4 w-4" /> Render Video — {creditCost} Credits</>
+                          <><Play className="h-4 w-4" /> Build Video — {creditCost} Credits</>
                         )}
                       </Button>
                     </div>
@@ -1714,7 +1714,7 @@ export default function KidsVideo() {
 
                   <div className="flex items-start gap-2 rounded-xl border border-green-500/20 bg-green-500/5 p-4 text-sm text-green-300">
                     <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>All content is generated to be safe and appropriate for children. AI-generated previews are free — credits are only charged when you render the final video.</span>
+                    <span>All content is generated to be safe and appropriate for children. AI-generated previews are free — credits are only charged when you build the final video.</span>
                   </div>
                 </>
               )}
@@ -1812,7 +1812,7 @@ export default function KidsVideo() {
               {renderStatus === "failed" && (
                 <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6 text-center space-y-4">
                   <AlertCircle className="h-8 w-8 text-red-400 mx-auto" />
-                  <p className="text-sm text-muted-foreground">Something went wrong during rendering. Please contact support with your job ID: {jobId}</p>
+                  <p className="text-sm text-muted-foreground">Something went wrong during the build process. Please contact support with your job ID: {jobId}</p>
                   <Button
                     variant="outline"
                     onClick={() => setStep("storyboard")}

@@ -177,7 +177,7 @@ function PrimaryCTA({
     case "storyboard_ready":
       return (
         <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-[#b8892a]/30`}>
-          <Zap className="h-3.5 w-3.5" /> Render Now
+          <Zap className="h-3.5 w-3.5" /> Build Now
         </Button>
       );
     case "failed":

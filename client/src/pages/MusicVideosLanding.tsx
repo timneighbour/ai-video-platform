@@ -170,7 +170,7 @@ export default function MusicVideosLanding() {
                   <ChevronRight className="w-4 h-4 mr-1" />View pricing
                 </a>
               </div>
-              <p className="text-sm text-[#a1a1aa]">Free to create · No credit card · Only pay to render</p>
+              <p className="text-sm text-[#a1a1aa]">Free to create · No credit card · Only pay to build</p>
             </div>
 
             {/* Right: image grid */}
@@ -278,7 +278,7 @@ export default function MusicVideosLanding() {
             Upload your song. Get a full video.
           </h2>
           <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-            Storyboard generation is always free. You only pay when you're ready to render and download. From £2 per video.
+            Storyboard generation is always free. You only pay when you're ready to build and download. From £2 per video.
           </p>
           {isAuthenticated ? (
             <a
@@ -295,7 +295,7 @@ export default function MusicVideosLanding() {
               <Sparkles className="w-4 h-4 mr-2" />Start Creating
             </button>
           )}
-          <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to render</p>
+          <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to build</p>
         </div>
       </section>
 

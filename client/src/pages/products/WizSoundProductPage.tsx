@@ -110,12 +110,12 @@ const KEY_FEATURES = [
 ];
 
 const BENEFITS = [
-  { title: "Studio quality without a studio", desc: "WizSound delivers professional audio enhancement that would normally require a mastering engineer and thousands in equipment." },
+  { title: "Studio quality without a studio", desc: "WizSound delivers professional audio enhancement that would normally require a mastering engineer and significant investment in equipment." },
   { title: "Richer, fuller sound", desc: "Proprietary harmonic enhancement adds warmth and presence that makes your track feel alive — not just louder." },
   { title: "Cinematic spatial field", desc: "Stereo widening creates an immersive listening experience that draws viewers in and keeps them watching." },
   { title: "Broadcast-ready loudness", desc: "Automatic normalisation ensures your video meets YouTube, Spotify, and streaming platform standards every time." },
   { title: "Transparent processing", desc: "WizSound enhances without destroying — your original track's character is preserved and elevated, not replaced." },
-  { title: "Automatic in the pipeline", desc: "WizSound runs automatically as part of every WIZ AI render — no manual steps, no extra software needed." },
+  { title: "Automatic in the pipeline", desc: "WizSound runs automatically as part of every WIZ AI build — no manual steps, no extra software needed." },
 ];
 
 const FAQS = [
@@ -441,7 +441,7 @@ export default function WizSoundProductPage() {
             <div className="absolute inset-0 flex items-center px-10">
               <div className="max-w-lg">
                 <h3 className="text-xl font-bold text-white mb-3">Studio quality without a studio</h3>
-                <p className="text-white/50 text-sm leading-relaxed">WizSound delivers professional audio enhancement that would normally require a mastering engineer and thousands in equipment — automatically, for every render.</p>
+                <p className="text-white/50 text-sm leading-relaxed">WizSound delivers professional audio enhancement that would normally require a mastering engineer and significant investment in equipment — automatically, for every build.</p>
               </div>
             </div>
           </div>

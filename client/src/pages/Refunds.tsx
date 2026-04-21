@@ -3,7 +3,7 @@ import { useSEO } from "@/hooks/useSEO";
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 export default function Refunds() {
-  useSEO({ title: "Refund Policy — WIZ AI", path: "/refunds", description: "WIZ AI's refund policy. 7-day refund window for new subscriptions. Credits restored automatically for failed renders." });
+  useSEO({ title: "Refund Policy — WIZ AI", path: "/refunds", description: "WIZ AI's refund policy. 7-day refund window for new subscriptions. Credits restored automatically for failed builds." });
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white">
       <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
@@ -66,7 +66,7 @@ export default function Refunds() {
               <li>You changed your mind after using the Service extensively.</li>
               <li>Your account was suspended or terminated for violations of our <Link href="/terms" className="text-[--color-gold] hover:text-[--color-gold] underline">Terms of Service</Link>.</li>
               <li>The refund request is made after the 7-day window for subscriptions.</li>
-              <li>Credits were consumed for successfully rendered videos.</li>
+              <li>Credits were consumed for successfully built videos.</li>
             </ul>
           </section>
 

@@ -210,11 +210,11 @@ export function RenderPaywallModal({
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs font-mono tracking-wider uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
-                Ready to render
+                Ready to build
               </span>
             </div>
             <DialogTitle className="text-xl font-bold text-white">Make your video cinematic</DialogTitle>
-            <p className="text-sm text-white/50 mt-1">Choose your enhancement — only pay when you render.</p>
+            <p className="text-sm text-white/50 mt-1">Choose your enhancement — only pay when you build your final video.</p>
           </div>
 
           {/* Free render badge */}
@@ -424,7 +424,7 @@ export function RenderPaywallModal({
           </Button>
 
           <p className="text-center text-xs text-zinc-600">
-            Secure payment via Stripe · Instant download after render
+            Secure payment via Stripe · Instant download after building
           </p>
         </div>
       </DialogContent>

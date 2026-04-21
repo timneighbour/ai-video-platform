@@ -90,9 +90,9 @@ function WaveformBars({ count = 16 }: { count?: number }) {
 }
 
 const FEATURES = [
-  { icon: Film, title: "Professional-grade output", desc: "4K renders, advanced colour grading, and cinematic post-processing." },
+  { icon: Film, title: "Professional-grade output", desc: "4K builds, advanced colour grading, and cinematic post-processing." },
   { icon: Layers, title: "Multi-scene projects", desc: "Build full short films and series — not just single videos." },
-  { icon: Cpu, title: "Priority AI processing", desc: "Dedicated rendering queue for faster turnaround on complex projects." },
+  { icon: Cpu, title: "Priority AI processing", desc: "Dedicated build queue for faster turnaround on complex projects." },
   { icon: Volume2, title: "WizSound™ Pro", desc: "Full spatial audio mastering suite — the complete cinematic experience." },
 ];
 
@@ -262,7 +262,7 @@ export default function LandingStudio() {
             Start creating with WIZ AI today
           </h2>
           <p className="text-white/50 mb-6 text-sm">
-            The full AI video creation platform is live now. Free to create — only pay when you render.
+            The full AI video creation platform is live now. Free to create — only pay when you build your final video.
           </p>
           <a
             href={`${MAIN_APP}/music-video/create`}

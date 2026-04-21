@@ -19,9 +19,9 @@ const FAQS = [
     icon: <Zap className="w-4 h-4" />,
     questions: [
       { q: "How do I create my first video?", a: "Choose WizVideo for music videos or WizScript for any other video. Upload your audio or enter your idea, pick a visual style, then click Generate. Your video will be ready in minutes." },
-      { q: "Do I need any editing skills?", a: "No \u2014 WIZ AI is fully automated. The AI handles everything from storyboard creation to final rendering. You just provide the input and choose a style." },
+      { q: "Do I need any editing skills?", a: "No \u2014 WIZ AI is fully automated. The AI handles everything from storyboard creation to final building. You just provide the input and choose a style." },
       { q: "How long does it take to generate a video?", a: "Most videos are created within 2\u20135 minutes depending on length and complexity. You'll see a live progress bar while your video is being generated." },
-      { q: "Is there a free option?", a: "Yes. WIZ AI is completely free to use \u2014 no credit card required. Storyboard generation is always free. You only pay when you're ready to render and download your finished video." },
+      { q: "Is there a free option?", a: "Yes. WIZ AI is completely free to use \u2014 no credit card required. Storyboard generation is always free. You only pay when you're ready to build and download your finished video." },
     ],
   },
   {
@@ -59,7 +59,7 @@ const FAQS = [
       { q: "What is WizImage?", a: "WizImage generates high-resolution, cinematic-quality images from text prompts. Use it to create visual assets, concept art, scene stills, or promotional imagery — all in seconds." },
       { q: "What image styles are available?", a: "WizImage supports photorealistic, cinematic, anime, 3D render, oil painting, watercolour, concept art, and many more styles. You can also upload a reference image to guide the style." },
       { q: "Can I use WizImage to create characters for my videos?", a: "Yes. WizImage is the recommended way to create character reference images for WizVideo. Generate your character in WizImage, then upload the image as a character reference in WizVideo for consistent appearance across scenes." },
-      { q: "How many images can I generate?", a: "Each image generation consumes one render credit. You can generate multiple variations and download your favourites." },
+      { q: "How many images can I generate?", a: "Each image generation consumes one Build Credit. You can generate multiple variations and download your favourites." },
     ],
   },
   {
@@ -92,9 +92,9 @@ const FAQS = [
     category: "Billing & Credits",
     icon: <Zap className="w-4 h-4" />,
     questions: [
-      { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you render and download the final video. Choose your quality (Standard \u00A32 / HD \u00A34 / 4K \u00A36) and optionally add WizSound audio enhancement." },
+      { q: "How does the credit system work?", a: "Creating your video is always free. You only pay when you build your final video and download the final video. Choose your quality (Standard \u00A32 / HD \u00A34 / 4K \u00A36) and optionally add WizSound audio enhancement." },
       { q: "What is WizSound?", a: "WizSound is our proprietary audio enhancement engine. WizSound Enhanced (+\u00A31) adds stereo widening and frequency EQ for a polished, fuller sound. WizSound Cinematic (+\u00A33) applies our full mastering pipeline with immersive depth and dynamic range \u2014 recommended for music videos." },
-      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (\u00A39/month, 2 renders, 720p), Basic (\u00A319/month, 5 renders, 1080p HD), Creator (£35/month, 15 renders, HD + 4K), Pro (\u00A359/month, 25 renders, 4K priority), and Studio (\u00A399/month, 50 renders, 4K + API). Storyboard generation is always free on all plans." },
+      { q: "What plans are available?", a: "Free (trial credits, no card required), Starter (\u00A39/month, 2 Build Credits, 720p), Basic (\u00A319/month, 5 Build Credits, 1080p HD), Creator (£35/month, 15 Build Credits, HD + 4K), Pro (\u00A359/month, 25 Build Credits, 4K priority), and Studio (\u00A399/month, 50 Build Credits, 4K + API). Storyboard generation is always free on all plans." },
       { q: "Can I cancel my subscription?", a: "Yes, cancel at any time from your Account settings. Your subscription remains active until the end of the billing period." },
       { q: "What payment methods do you accept?", a: "Visa, Mastercard, Amex, Apple Pay, and Google Pay via Stripe." },
     ],
@@ -114,10 +114,10 @@ const FAQS = [
     icon: <Zap className="w-4 h-4" />,
     questions: [
       { q: "What are the WIZ Engines?", a: "The WIZ Engines are proprietary AI layers that automatically enhance every creation on the platform. They run in the background \u2014 you do not need to configure anything. Every export benefits from all four engines." },
-      { q: "What does WizGenesis\u2122 do?", a: "WizGenesis\u2122 is the core intelligence engine. It orchestrates the entire creative workflow \u2014 from storyboard generation to scene composition to final render. It is the brain that makes everything work together." },
+      { q: "What does WizGenesis\u2122 do?", a: "WizGenesis\u2122 is the core intelligence engine. It orchestrates the entire creative workflow \u2014 from storyboard generation to scene composition to final build. It is the brain that makes everything work together." },
       { q: "What does WizSound\u2122 do?", a: "WizSound\u2122 is the premium audio engine. It enhances every audio track with richer depth, spatial clarity, and cinematic presence. WizSound Active adds stereo widening and EQ. WizSound Spatial applies the full mastering pipeline with immersive depth and dynamic range." },
       { q: "What does WizLumina\u2122 do?", a: "WizLumina\u2122 is the visual enhancement engine. It applies cinematic colour grading, HDR tone mapping, and film-level polish to every frame. Your visuals go from raw AI output to cinema-ready quality automatically." },
-      { q: "What does WizBoost\u2122 do?", a: "WizBoost\u2122 is the output optimisation engine. It analyses your final render and applies intelligent upscaling, compression optimisation, and platform-specific formatting. Your content arrives publish-ready for YouTube, TikTok, Instagram, and beyond." },
+      { q: "What does WizBoost\u2122 do?", a: "WizBoost\u2122 is the output optimisation engine. It analyses your final build and applies intelligent upscaling, compression optimisation, and platform-specific formatting. Your content arrives publish-ready for YouTube, TikTok, Instagram, and beyond." },
     ],
   },
   {
@@ -125,7 +125,7 @@ const FAQS = [
     icon: <Zap className="w-4 h-4" />,
     questions: [
       { q: "What is WizCreate\u2122?", a: "WizCreate\u2122 is the AI storyboard and scene-building engine at the heart of WIZ AI. When you describe your idea, WizCreate\u2122 generates a full visual storyboard \u2014 scenes, characters, and direction \u2014 in seconds. It powers every product on the platform." },
-      { q: "Can I edit my storyboard before rendering?", a: "Yes. After WizCreate\u2122 generates your storyboard, you can review every scene, swap images, edit text, change styles, and reorder scenes before committing to render. You are always in control." },
+      { q: "Can I edit my storyboard before building?", a: "Yes. After WizCreate\u2122 generates your storyboard, you can review every scene, swap images, edit text, change styles, and reorder scenes before committing to build. You are always in control." },
       { q: "How many scenes can a storyboard have?", a: "Storyboards can have up to 30 scenes. For music videos, the number of scenes is determined by the number of lyric lines or sections in your audio." },
     ],
   },
@@ -157,7 +157,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 
 export default function Help() {
-  useSEO({ title: "Help & FAQ — WIZ AI", path: "/help", description: "Get answers to common questions about WIZ AI. Learn how to create videos, manage credits, troubleshoot renders, and more." });
+  useSEO({ title: "Help & FAQ — WIZ AI", path: "/help", description: "Get answers to common questions about WIZ AI. Learn how to create videos, manage credits, troubleshoot builds, and more." });
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 

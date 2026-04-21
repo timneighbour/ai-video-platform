@@ -1400,7 +1400,7 @@ export default function ComponentsShowcase() {
                   <div className="text-sm text-muted-foreground">
                     <p>
                       A ready-to-use chat interface component that integrates with the LLM system.
-                      Features markdown rendering, auto-scrolling, and loading states.
+                      Features markdown building, auto-scrolling, and loading states.
                     </p>
                     <p className="mt-2">
                       This is a demo with simulated responses. In a real app, you'd connect it to a tRPC mutation.

@@ -109,13 +109,13 @@ const WIZ_TECHNOLOGY = [
   { name: "Character Consistency", tagline: "Visual Identity Lock", desc: "Keeps characters visually consistent across every scene — same face, outfit, and proportions.", href: "/technology/character-consistency", logo: WIZCREATE_LOGO },
   { name: "Scene Builder", tagline: "Storyboard Intelligence", desc: "Generates a complete scene-by-scene visual plan from your audio or text prompt.", href: "/technology/scene-builder", logo: WIZCREATE_LOGO },
   { name: "Lip Sync", tagline: "Frame-Accurate Vocal Sync", desc: "Synchronises character mouth movements to vocals with frame-accurate precision.", href: "/technology/lip-sync", logo: WIZSYNC_LOGO },
-  { name: "AI Video Engine", tagline: "Scene-to-Video Rendering", desc: "Transforms storyboard scenes into fully rendered cinematic video output.", href: "/technology/ai-video-engine", logo: WIZANIMATE_LOGO },
+  { name: "AI Video Engine", tagline: "Scene-to-Video Building", desc: "Transforms storyboard scenes into fully built cinematic video output.", href: "/technology/ai-video-engine", logo: WIZANIMATE_LOGO },
   { name: "AI Music Engine", tagline: "Original Music Generation", desc: "Generates original songs, beats, and soundtracks from a text prompt.", href: "/technology/ai-music-engine", logo: WIZSOUND_LOGO },
-  { name: "WizSound Engine", tagline: "Cinematic Audio Mastering", desc: "Upgrades AI-generated audio to broadcast quality with cinematic mastering.", href: "/technology/wizsound-engine", logo: WIZSOUND_LOGO },
+  { name: "WizSound Engine", tagline: "Cinematic Audio Mastering", desc: "Upgrades AI-generated audio to professional-grade quality with cinematic mastering.", href: "/technology/wizsound-engine", logo: WIZSOUND_LOGO },
   { name: "Prompt to Video", tagline: "Text-Driven Creation", desc: "Turn a text description into a complete AI-generated cinematic video.", href: "/technology/prompt-to-video", logo: WIZCREATE_LOGO },
   { name: "Audio to Video", tagline: "Music Video Generation", desc: "Upload a track and receive a complete beat-synced music video.", href: "/technology/audio-to-video", logo: WIZANIMATE_LOGO },
-  { name: "Storyboard Preview", tagline: "Preview Before You Pay", desc: "See every scene of your video before committing to the full render.", href: "/technology/storyboard-preview", logo: WIZCREATE_LOGO },
-  { name: "4K Rendering", tagline: "Cinema-Grade Export Quality", desc: "Export in Standard, HD, or 4K with WizLumina enhancement and WizBoost optimisation.", href: "/technology/4k-rendering", logo: WIZLUMINA_LOGO },
+  { name: "Storyboard Preview", tagline: "Preview Before You Pay", desc: "See every scene of your video before committing to the final video build.", href: "/technology/storyboard-preview", logo: WIZCREATE_LOGO },
+  { name: "4K Building", tagline: "Cinema-Grade Export Quality", desc: "Export in Standard, HD, or 4K with WizLumina enhancement and WizBoost optimisation.", href: "/technology/4k-rendering", logo: WIZLUMINA_LOGO },
 ];
 
 // ── Dropdown wrapper with fade+slide animation ────────────────────────────────

@@ -25,7 +25,7 @@ interface GraphicEqualiserProps {
   /** Legacy: HTMLAudioElement ref — component creates its own AudioContext internally */
   audioRef?: React.RefObject<HTMLAudioElement | null>;
   isPlaying: boolean;
-  /** Number of bars to render (default 32) */
+  /** Number of bars to build (default 32) */
   barCount?: number;
   /** Height of the canvas in px (default 56) */
   height?: number;

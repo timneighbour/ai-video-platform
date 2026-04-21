@@ -48,10 +48,7 @@ const CREATOR_MUSICIANS = "/manus-storage/creator-musicians_cc8c2a51.jpg";
 const CREATOR_CONTENT = "/manus-storage/creator-content-creators_ae0d5147.jpg";
 const CREATOR_YOUTUBERS = "/manus-storage/creator-youtubers-brands_088b54d8.jpg";
 const CREATOR_ANIMATORS = "/manus-storage/creator-animators_d6999585.jpg";
-const AVATAR_DANIEL = "/manus-storage/avatar-daniel_64a2beaf.jpg";
-const AVATAR_MARCUS = "/manus-storage/avatar-marcus_5c70b009.jpg";
-const AVATAR_PRIYA = "/manus-storage/avatar-priya_5975eaf5.jpg";
-const AVATAR_SOPHIE = "/manus-storage/avatar-sophie_7b87260f.jpg";
+// Avatar constants removed — fictional testimonials replaced with honest use-case cards
 
 // Product logos
 const LOGO_WIZAUDIO = "/manus-storage/wizaudio-logo-v1_f428aad0.png";
@@ -256,7 +253,7 @@ const COMPARISON_GROUPS = [
 const FAQS = [
   {
     q: "What does 'Create free, pay when your video is ready' mean?",
-    a: "You can create your entire video — upload audio, generate your storyboard, and refine every scene — completely free. A Video Credit is only used when you choose to generate and download the final video. Failed renders do not use credits. There is no time limit on the free creation tier.",
+    a: "You can create your entire video — upload audio, generate your storyboard, and refine every scene — completely free. A Video Credit is only used when you choose to generate and download the final video. Failed builds do not use credits. There is no time limit on the free creation tier.",
   },
   {
     q: "What is the difference between Standard, HD, and 4K?",
@@ -1120,7 +1117,7 @@ export default function Pricing() {
               <div className="space-y-3 text-sm text-white/50 leading-relaxed">
                 <p>One Video Credit creates one final downloadable video.</p>
                 <p>Create and preview your project for free first — refine your storyboard, adjust scenes, and perfect the result before committing. A Video Credit is only used when you are ready to generate and download the final video.</p>
-                <p>Failed renders do not use credits. Extra Video Credit Packs never expire and can be used alongside any active subscription.</p>
+                <p>Failed builds do not use credits. Extra Video Credit Packs never expire and can be used alongside any active subscription.</p>
               </div>
             </div>
           </div>
@@ -1161,63 +1158,45 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Testimonials */}
+        {/* Use cases by plan */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              avatar: AVATAR_MARCUS,
-              name: "Marcus T.",
-              role: "Music Producer",
-              quote: "WIZ AI turned my track into a cinematic music video in under 10 minutes. The quality blew my mind.",
+              title: "For Musicians",
+              desc: "Turn songs and creative ideas into cinematic music video concepts, scenes and final builds.",
+              icon: "\ud83c\udfb5",
               plan: "Creator Plan",
-              stars: 5,
             },
             {
-              avatar: AVATAR_PRIYA,
-              name: "Priya S.",
-              role: "Content Creator",
-              quote: "I use WizShorts every week for my Reels. The pay-per-build model means I only pay when I'm happy.",
+              title: "For YouTubers",
+              desc: "Create shorts, visual stories and thumbnails. Pay-per-build means you only pay when you're happy.",
+              icon: "\ud83c\udfac",
               plan: "Starter Plan",
-              stars: 5,
             },
             {
-              avatar: AVATAR_SOPHIE,
-              name: "Sophie L.",
-              role: "Brand Director",
-              quote: "The Studio plan gives our team full API access. We've automated our entire video production pipeline.",
+              title: "For Brands",
+              desc: "Full API access to automate campaign visuals, product videos and social content at scale.",
+              icon: "\ud83d\udcbc",
               plan: "Studio Plan",
-              stars: 5,
             },
             {
-              avatar: AVATAR_DANIEL,
-              name: "Daniel K.",
-              role: "Animator",
-              quote: "WizAnimate is incredible for stylised animation. Character consistency on the Pro plan is a game-changer.",
+              title: "For Storytellers",
+              desc: "Transform scripts into animated scenes with character consistency and cinematic visual styles.",
+              icon: "\ud83d\udcd6",
               plan: "Creator Plan",
-              stars: 5,
             },
-          ].map((t) => (
-            <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a] flex flex-col gap-3">
-              {/* Stars */}
-              <div className="flex gap-0.5">
-                {Array.from({ length: t.stars }).map((_, i) => (
-                  <Star key={i} className="w-3 h-3 text-[--color-gold] fill-[--color-gold]" />
-                ))}
-              </div>
-              {/* Quote */}
-              <p className="text-xs text-white/55 leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
-              {/* Author */}
-              <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
-                <img src={t.avatar} alt={t.name} className="w-8 h-8 rounded-full object-cover border border-white/10" loading="lazy" />
-                <div>
-                  <p className="text-xs font-semibold text-white">{t.name}</p>
-                  <p className="text-[10px] text-white/35">{t.role}</p>
-                </div>
-                <span className="ml-auto text-[9px] font-bold text-[--color-gold]/60 bg-[--color-gold]/[0.06] border border-[--color-gold]/[0.12] px-2 py-0.5 rounded-full whitespace-nowrap">{t.plan}</span>
+          ].map((uc) => (
+            <div key={uc.title} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a] flex flex-col gap-3">
+              <span className="text-2xl">{uc.icon}</span>
+              <h3 className="text-sm font-bold text-white">{uc.title}</h3>
+              <p className="text-xs text-white/55 leading-relaxed flex-1">{uc.desc}</p>
+              <div className="pt-2 border-t border-white/[0.06]">
+                <span className="text-[9px] font-bold text-[--color-gold]/60 bg-[--color-gold]/[0.06] border border-[--color-gold]/[0.12] px-2 py-0.5 rounded-full whitespace-nowrap">Recommended: {uc.plan}</span>
               </div>
             </div>
           ))}
         </div>
+        <p className="text-center text-white/25 text-xs mt-6">Real customer stories will be added once creators begin publishing with WIZ AI.</p>
       </section>
 
       {/* ── 8. TRUST STRIP ── */}
