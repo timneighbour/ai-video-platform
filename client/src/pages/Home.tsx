@@ -301,7 +301,7 @@ function Nav() {
                       <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Create</p>
                       <div className="flex flex-col gap-0.5">
                         {PRODUCTS_CREATE.map((p) => (
-                          <a
+                          <NavLink
                             key={p.name}
                             href={p.href}
                             className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
@@ -316,7 +316,7 @@ function Nav() {
                               <p className="text-[12px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">{p.name}<sup className="text-[7px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
                               <p className="text-[10px] text-[--color-gold-dark]/45 leading-tight group-hover:text-[--color-gold-dark]/70 transition-colors truncate">{p.tagline}</p>
                             </div>
-                          </a>
+                          </NavLink>
                         ))}
                       </div>
                     </div>
@@ -329,7 +329,7 @@ function Nav() {
                       <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Enhance</p>
                       <div className="flex flex-col gap-0.5 mb-4">
                         {PRODUCTS_ENHANCE.map((p) => (
-                          <a
+                          <NavLink
                             key={p.name}
                             href={p.href}
                             className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
@@ -344,13 +344,13 @@ function Nav() {
                               <p className="text-[12px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">{p.name}<sup className="text-[7px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
                               <p className="text-[10px] text-[--color-gold-dark]/45 leading-tight group-hover:text-[--color-gold-dark]/70 transition-colors truncate">{p.tagline}</p>
                             </div>
-                          </a>
+                          </NavLink>
                         ))}
                       </div>
                       <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mb-2 px-1">Grow</p>
                       <div className="flex flex-col gap-0.5">
                         {PRODUCTS_GROW.map((p) => (
-                          <a
+                          <NavLink
                             key={p.name}
                             href={p.href}
                             className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
@@ -365,7 +365,7 @@ function Nav() {
                               <p className="text-[12px] font-bold text-white/85 group-hover:text-[--color-gold-light] transition-colors leading-tight">{p.name}<sup className="text-[7px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
                               <p className="text-[10px] text-[--color-gold-dark]/45 leading-tight group-hover:text-[--color-gold-dark]/70 transition-colors truncate">{p.tagline}</p>
                             </div>
-                          </a>
+                          </NavLink>
                         ))}
                       </div>
                     </div>
@@ -422,7 +422,7 @@ function Nav() {
                   {/* Engine grid */}
                   <div className="p-3 grid grid-cols-2 gap-1">
                     {WIZ_TECHNOLOGY.map((eng) => (
-                      <a
+                      <NavLink
                         key={eng.name}
                         href={eng.href}
                         className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
@@ -438,7 +438,7 @@ function Nav() {
                           <p className="text-[10.5px] font-semibold text-[--color-gold-dark]/50 mt-0.5 leading-tight group-hover:text-[--color-gold-dark]/75 transition-colors">{eng.tagline}</p>
                           <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
                         </div>
-                      </a>
+                      </NavLink>
                     ))}
                   </div>
 
@@ -720,7 +720,7 @@ function Nav() {
                   {/* Create */}
                   <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-3 mb-1.5 px-3">Create</p>
                   {PRODUCTS_CREATE.map((p) => (
-                    <a key={p.name} href={p.href} className="flex items-center gap-3.5 px-3 py-3 rounded-2xl mt-1 transition-all duration-200 group" style={{ border: `1px solid ${p.borderColor}` }}
+                    <NavLink key={p.name} href={p.href} className="flex items-center gap-3.5 px-3 py-3 rounded-2xl mt-1 transition-all duration-200 group" style={{ border: `1px solid ${p.borderColor}` }}
                       onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = p.bgGradient; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
@@ -730,12 +730,12 @@ function Nav() {
                         <p className="text-[11px] text-white/45 mt-0.5 truncate">{p.tagline}</p>
                       </div>
                       <ArrowSVG className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: p.glowColor }} />
-                    </a>
+                    </NavLink>
                   ))}
                   {/* Enhance */}
                   <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-4 mb-1.5 px-3">Enhance</p>
                   {PRODUCTS_ENHANCE.map((p) => (
-                    <a key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
+                    <NavLink key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
                       onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
@@ -747,12 +747,12 @@ function Nav() {
                         <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.tagline}</p>
                       </div>
                       <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
-                    </a>
+                    </NavLink>
                   ))}
                   {/* Grow */}
                   <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-4 mb-1.5 px-3">Grow</p>
                   {PRODUCTS_GROW.map((p) => (
-                    <a key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
+                    <NavLink key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
                       onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
@@ -764,7 +764,7 @@ function Nav() {
                         <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.tagline}</p>
                       </div>
                       <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
-                    </a>
+                    </NavLink>
                   ))}
                 </div>
               </div>
@@ -791,7 +791,7 @@ function Nav() {
               }`}>
                 <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
                   {WIZ_TECHNOLOGY.map((eng) => (
-                    <a key={eng.name} href={eng.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid transparent" }}
+                    <NavLink key={eng.name} href={eng.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid transparent" }}
                       onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
                       onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
@@ -803,7 +803,7 @@ function Nav() {
                         <p className="text-[11px] text-white/40 mt-0.5 truncate">{eng.tagline}</p>
                       </div>
                       <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
-                    </a>
+                    </NavLink>
                   ))}
                 </div>
               </div>
