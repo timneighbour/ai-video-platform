@@ -6,7 +6,7 @@
 import Stripe from "stripe";
 import { getDb } from "./db";
 import { eq } from "drizzle-orm";
-import { subscriptions, creditTransactions, credits } from "../drizzle/schema";
+import { subscriptions, creditTransactions, credits, topupPurchases } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits } from "./credit-service";
 import {
@@ -84,6 +84,89 @@ async function handleCheckoutSessionCompleted(session: any) {
       }).catch(() => {});
 
       return { success: true, type: "upsell", addons };
+    }
+
+    // Detect Video Credit top-up purchase (new system)
+    if (metadata.type === "video_credit_topup") {
+      const packKey = metadata.pack_key;
+      const packName = metadata.pack_name || packKey;
+      const creditsToAdd = parseInt(metadata.credits, 10) || 0;
+      const sessionId = session.id;
+
+      if (creditsToAdd <= 0 || !packKey) {
+        console.error("[Stripe Webhook] Invalid topup metadata:", metadata);
+        return { success: false, error: "Invalid topup metadata" };
+      }
+
+      // Idempotency check: skip if this session was already processed
+      const existing = await db.select().from(topupPurchases)
+        .where(eq(topupPurchases.stripeSessionId, sessionId)).limit(1);
+      if (existing.length > 0) {
+        console.log(`[Stripe Webhook] Topup already processed for session ${sessionId}, skipping`);
+        return { success: true, type: "video_credit_topup", duplicate: true };
+      }
+
+      // Record the purchase (idempotency row)
+      await db.insert(topupPurchases).values({
+        userId,
+        packKey,
+        packName,
+        creditsAdded: creditsToAdd,
+        amountPaid: session.amount_total ?? 0,
+        currency: session.currency ?? "gbp",
+        stripeSessionId: sessionId,
+        stripePaymentIntentId: session.payment_intent || null,
+        createdAt: new Date(),
+      });
+
+      // Add topup credits to the dedicated topupCredits bucket
+      const userCredits = await db.select().from(credits).where(eq(credits.userId, userId)).limit(1);
+      if (userCredits.length === 0) {
+        await db.insert(credits).values({
+          userId,
+          balance: creditsToAdd,
+          monthlyCredits: 0,
+          topupCredits: creditsToAdd,
+          totalEarned: creditsToAdd,
+          totalSpent: 0,
+        });
+      } else {
+        await db.update(credits).set({
+          balance: userCredits[0].balance + creditsToAdd,
+          topupCredits: userCredits[0].topupCredits + creditsToAdd,
+          totalEarned: userCredits[0].totalEarned + creditsToAdd,
+          updatedAt: new Date(),
+        }).where(eq(credits.userId, userId));
+      }
+
+      // Log transaction
+      await db.insert(creditTransactions).values({
+        userId,
+        amount: creditsToAdd,
+        type: "purchase",
+        description: `Video Credit top-up: ${packName} (${creditsToAdd} credits)`,
+        relatedTransactionId: sessionId,
+        createdAt: new Date(),
+      });
+
+      console.log(`[Stripe Webhook] Added ${creditsToAdd} Video Credits (topup) to user ${userId} (${packName})`);
+
+      // Notify owner
+      await notifyOwner({
+        title: "New Video Credit Top-Up",
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased ${packName}: ${creditsToAdd} Video Credits for \u00a3${(session.amount_total ?? 0) / 100}`,
+      }).catch(() => {});
+
+      // Email notification
+      await emailCreditPurchase({
+        name: metadata.customer_name || "Unknown",
+        email: metadata.customer_email || "",
+        credits: creditsToAdd,
+        amount: session.amount_total ?? 0,
+        packLabel: packName,
+      }).catch(() => {});
+
+      return { success: true, type: "video_credit_topup", creditsAdded: creditsToAdd };
     }
 
     // Detect credit purchase: billing router sends metadata.pack + metadata.credits

@@ -451,3 +451,68 @@ export function getPlanCostTargets(plan: SubscriptionPlan) {
 export function estimateRenderCreditCost(sceneCount: number): number {
   return sceneCount * CREDITS_PER_SCENE;
 }
+
+// ─── Video Credit Top-Up Packs ────────────────────────────────────────────────
+// One-time purchases for active subscribers who need extra Video Credits.
+// Credit consumption model: 720p = 1 credit, 1080p = 2 credits, 4K = 3 credits.
+// Credits are only consumed on successful final video export.
+export const TOPUP_PACKS = {
+  quick_boost: {
+    key: "quick_boost",
+    name: "Quick Boost",
+    credits: 3,
+    priceGbp: 12,
+    pricePence: 1200,
+    bestFor: "One-off extras",
+    cta: "Add 3 Credits",
+    popular: false,
+    stripePriceId: process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID || "",
+  },
+  creator_boost: {
+    key: "creator_boost",
+    name: "Creator Boost",
+    credits: 10,
+    priceGbp: 35,
+    pricePence: 3500,
+    bestFor: "Busy creator weeks",
+    cta: "Add 10 Credits",
+    popular: true,
+    stripePriceId: process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID || "",
+  },
+  studio_boost: {
+    key: "studio_boost",
+    name: "Studio Boost",
+    credits: 25,
+    priceGbp: 89,
+    pricePence: 8900,
+    bestFor: "Campaigns and content batches",
+    cta: "Add 25 Credits",
+    popular: false,
+    stripePriceId: process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID || "",
+  },
+  pro_bulk_boost: {
+    key: "pro_bulk_boost",
+    name: "Pro Bulk Boost",
+    credits: 60,
+    priceGbp: 199,
+    pricePence: 19900,
+    bestFor: "High-volume creators",
+    cta: "Add 60 Credits",
+    popular: false,
+    stripePriceId: process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID || "",
+  },
+} as const;
+
+export type TopupPackKey = keyof typeof TOPUP_PACKS;
+
+// Quality-based Video Credit consumption model
+export const VIDEO_CREDIT_COST_BY_QUALITY = {
+  "720p": 1,
+  "1080p": 2,
+  "4k": 3,
+} as const;
+export type VideoExportQuality = keyof typeof VIDEO_CREDIT_COST_BY_QUALITY;
+
+export function getAllTopupPacks() {
+  return Object.values(TOPUP_PACKS);
+}

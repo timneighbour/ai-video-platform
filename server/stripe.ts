@@ -4,7 +4,7 @@
  */
 
 import Stripe from "stripe";
-import { SUBSCRIPTION_PLANS, CREDIT_PACKS } from "./products";
+import { SUBSCRIPTION_PLANS, CREDIT_PACKS, TOPUP_PACKS, type TopupPackKey } from "./products";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
@@ -88,6 +88,48 @@ export async function createCreditCheckout(
     ],
     success_url: `${origin}/dashboard?credits=success`,
     cancel_url: `${origin}/credits?purchase=canceled`,
+    allow_promotion_codes: true,
+  });
+
+  return session.url;
+}
+
+/**
+ * Create a checkout session for a Video Credit top-up pack (one-time payment, subscribers only)
+ */
+export async function createTopupCheckout(
+  userId: number,
+  packKey: TopupPackKey,
+  customerEmail: string,
+  customerName: string | null,
+  origin: string
+) {
+  const pack = TOPUP_PACKS[packKey];
+  if (!pack.stripePriceId) {
+    throw new Error(`Top-up pack ${packKey} has no Stripe price ID configured`);
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    customer_email: customerEmail,
+    client_reference_id: userId.toString(),
+    metadata: {
+      user_id: userId.toString(),
+      customer_email: customerEmail,
+      customer_name: customerName || "",
+      type: "video_credit_topup",
+      pack_key: packKey,
+      pack_name: pack.name,
+      credits: pack.credits.toString(),
+    },
+    line_items: [
+      {
+        price: pack.stripePriceId,
+        quantity: 1,
+      },
+    ],
+    success_url: `${origin}/dashboard?topup=success&credits=${pack.credits}`,
+    cancel_url: `${origin}/pricing?topup=canceled`,
     allow_promotion_codes: true,
   });
 

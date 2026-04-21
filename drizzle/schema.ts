@@ -48,6 +48,9 @@ export const credits = mysqlTable("credits", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
   balance: int("balance").default(0).notNull(),
+  // Separate buckets: monthly credits (renew each cycle) and top-up credits (never expire while subscribed)
+  monthlyCredits: int("monthlyCredits").default(0).notNull(),
+  topupCredits: int("topupCredits").default(0).notNull(),
   totalEarned: int("totalEarned").default(0).notNull(),
   totalSpent: int("totalSpent").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -71,6 +74,22 @@ export const creditTransactions = mysqlTable("creditTransactions", {
 
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
 export type InsertCreditTransaction = typeof creditTransactions.$inferInsert;
+
+// Top-up purchases audit table — one row per successful Stripe checkout
+export const topupPurchases = mysqlTable("topupPurchases", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  packKey: varchar("packKey", { length: 64 }).notNull(),       // e.g. "quick_boost"
+  packName: varchar("packName", { length: 128 }).notNull(),    // e.g. "Quick Boost"
+  creditsAdded: int("creditsAdded").notNull(),                 // e.g. 3
+  amountPaid: int("amountPaid").notNull(),                     // in pence, e.g. 1200
+  currency: varchar("currency", { length: 8 }).default("gbp").notNull(),
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }).notNull().unique(), // idempotency key
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TopupPurchase = typeof topupPurchases.$inferSelect;
+export type InsertTopupPurchase = typeof topupPurchases.$inferInsert;
 
 // Projects table (generated videos/outputs)
 export const projects = mysqlTable("projects", {

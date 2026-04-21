@@ -5613,3 +5613,31 @@
 - [ ] Each page: H1, meta title, meta description, canonical, OG tags, hero, CTA
 - [ ] Luxury WizAI styling (black/gold/silver) on all new pages
 - [ ] Save checkpoint and deliver QA checklist
+
+## Video Credit Top-Up System
+- [ ] Profit-margin analysis: estimate cost per 720p, 1080p, 4K video
+- [ ] Recommend final top-up pack prices and credit consumption model
+- [ ] Create Stripe products/prices for approved top-up packs (one-time payments)
+- [ ] Update DB schema: add topup_credits column, topup_purchases table
+- [ ] Backend: createTopupCheckout procedure (subscriber-only)
+- [ ] Backend: webhook handler for topup payment success (idempotent)
+- [ ] Backend: getTopupHistory procedure
+- [ ] Backend: credit consumption logic (monthly credits first, then topup)
+- [ ] Backend: pause topup credits when subscription ends
+- [ ] Pricing page: add top-up section with subscriber gate
+- [ ] Dashboard: add top-up section with credit balance display and purchase history
+- [ ] QA: verify all 23 QA requirements from spec
+
+## Video Credit Top-Up System
+- [ ] Profit-margin analysis: estimate cost per 720p, 1080p, 4K video
+- [ ] Recommend final top-up pack prices and credit consumption model
+- [ ] Create Stripe products/prices for approved top-up packs (one-time payments)
+- [ ] Update DB schema: add topup_credits column, topup_purchases table
+- [ ] Backend: createTopupCheckout procedure (subscriber-only)
+- [ ] Backend: webhook handler for topup payment success (idempotent)
+- [ ] Backend: getTopupHistory procedure
+- [ ] Backend: credit consumption logic (monthly credits first, then topup)
+- [ ] Backend: pause topup credits when subscription ends
+- [ ] Pricing page: add top-up section with subscriber gate
+- [ ] Dashboard: add top-up section with credit balance display and purchase history
+- [ ] QA: verify all 23 QA requirements from spec

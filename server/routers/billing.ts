@@ -9,7 +9,9 @@ import { z } from "zod";
 import { getUserCredits, addCredits, getCreditHistory } from "../credit-service";
 import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
 import { generateVideo, checkVideoStatus, getUserProjects, deleteProject } from "../video-service";
-import { SUBSCRIPTION_PLANS } from "../products";
+import { SUBSCRIPTION_PLANS, TOPUP_PACKS, type TopupPackKey } from "../products";
+import { topupPurchases } from "../../drizzle/schema";
+import { eq as eqOp } from "drizzle-orm";
 // import { notifyOwner } from "../_core/notification";
 import Stripe from "stripe";
 
@@ -519,6 +521,72 @@ export const billingRouter = router({
       });
       return { url: session.url };
     }),
+
+  /**
+   * Get all available Video Credit top-up packs
+   */
+  getTopupPacks: protectedProcedure.query(async () => {
+    return Object.values(TOPUP_PACKS).map((p) => ({
+      key: p.key,
+      name: p.name,
+      credits: p.credits,
+      priceGbp: p.priceGbp,
+      bestFor: p.bestFor,
+      cta: p.cta,
+      popular: p.popular,
+    }));
+  }),
+
+  /**
+   * Create a Stripe checkout session for a Video Credit top-up pack
+   */
+  createTopupCheckout: protectedProcedure
+    .input(
+      z.object({
+        packKey: z.enum(["quick_boost", "creator_boost", "studio_boost", "pro_bulk_boost"]),
+        origin: z.string().url(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const pack = TOPUP_PACKS[input.packKey as TopupPackKey];
+      if (!pack.stripePriceId) {
+        throw new Error(`Top-up pack ${input.packKey} has no Stripe price ID configured`);
+      }
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        customer_email: ctx.user.email || undefined,
+        client_reference_id: ctx.user.id.toString(),
+        metadata: {
+          user_id: ctx.user.id.toString(),
+          customer_email: ctx.user.email || "",
+          customer_name: ctx.user.name || "",
+          type: "video_credit_topup",
+          pack_key: input.packKey,
+          pack_name: pack.name,
+          credits: pack.credits.toString(),
+        },
+        line_items: [{ price: pack.stripePriceId, quantity: 1 }],
+        success_url: `${input.origin}/dashboard?topup=success&credits=${pack.credits}`,
+        cancel_url: `${input.origin}/pricing?topup=canceled`,
+        allow_promotion_codes: true,
+      });
+      return { checkoutUrl: session.url };
+    }),
+
+  /**
+   * Get the user's top-up purchase history
+   */
+  getTopupHistory: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) return [];
+    const history = await db
+      .select()
+      .from(topupPurchases)
+      .where(eqOp(topupPurchases.userId, ctx.user.id))
+      .orderBy(topupPurchases.createdAt)
+      .limit(50);
+    return history;
+  }),
 });
 
 // ── Render Paywall Procedures ──────────────────────────────────────────────

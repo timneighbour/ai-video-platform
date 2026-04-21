@@ -277,43 +277,56 @@ const PLANS = [
 // ── Extra Video Credit Packs ────────────────────────────────────────────────────────
 const BUNDLES = [
   {
-    id: "6" as const,
-    renders: 6,
-    price: 10,
-    perRender: "£1.67 per Video Credit",
-    label: "Starter Pack",
+    key: "quick_boost" as const,
+    credits: 3,
+    price: 12,
+    perCredit: "£4.00 per Video Credit",
+    label: "Quick Boost",
     popular: false,
     bestValue: false,
-    desc: "Perfect when you need a few extra final video builds.",
+    desc: "Perfect for one-off extras. 3 Video Credits — use them whenever you need a bit more.",
     bgImage: SHOWCASE_3,
     accentColor: "rgba(100,140,200,0.15)",
     borderColor: "rgba(100,140,200,0.2)",
   },
   {
-    id: "15" as const,
-    renders: 15,
-    price: 20,
-    perRender: "£1.33 per Video Credit",
-    label: "Creator Pack",
+    key: "creator_boost" as const,
+    credits: 10,
+    price: 35,
+    perCredit: "£3.50 per Video Credit",
+    label: "Creator Boost",
     popular: true,
     bestValue: false,
-    desc: "Best for busy months, extra campaigns or multiple video ideas.",
+    desc: "Best for busy creator weeks. 10 Video Credits for extra campaigns, collabs or content batches.",
     bgImage: SHOWCASE_1,
     accentColor: "rgba(196,164,100,0.15)",
     borderColor: "rgba(196,164,100,0.4)",
   },
   {
-    id: "40" as const,
-    renders: 40,
-    price: 50,
-    perRender: "£1.25 per Video Credit",
-    label: "Studio Pack",
+    key: "studio_boost" as const,
+    credits: 25,
+    price: 89,
+    perCredit: "£3.56 per Video Credit",
+    label: "Studio Boost",
     popular: false,
-    bestValue: true,
-    desc: "Best value for high-volume creators, agencies and regular production.",
+    bestValue: false,
+    desc: "For campaigns and content batches. 25 Video Credits to power a full production run.",
     bgImage: SHOWCASE_2,
     accentColor: "rgba(160,100,220,0.15)",
     borderColor: "rgba(160,100,220,0.25)",
+  },
+  {
+    key: "pro_bulk_boost" as const,
+    credits: 60,
+    price: 199,
+    perCredit: "£3.32 per Video Credit",
+    label: "Pro Bulk Boost",
+    popular: false,
+    bestValue: true,
+    desc: "Best value for high-volume creators. 60 Video Credits — the most credits per pound.",
+    bgImage: SHOWCASE_3,
+    accentColor: "rgba(100,200,140,0.15)",
+    borderColor: "rgba(100,200,140,0.25)",
   },
 ];
 
@@ -510,7 +523,7 @@ export default function Pricing() {
   }, []);
 
   const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
-  const createBundleCheckout = trpc.render.createBundleCheckout.useMutation();
+  const createTopupCheckout = trpc.billing.createTopupCheckout.useMutation();
 
   async function handleSubscribe(planId: "starter" | "creator" | "pro") {
     mp.planSelected(planId.charAt(0).toUpperCase() + planId.slice(1), billingCycle);
@@ -526,13 +539,16 @@ export default function Pricing() {
     } finally { setLoadingPlan(null); }
   }
 
-  async function handleBundlePurchase(bundleId: "6" | "15" | "40") {
-    mp.checkoutStarted(`bundle_${bundleId}`);
+  async function handleTopupPurchase(packKey: "quick_boost" | "creator_boost" | "studio_boost" | "pro_bulk_boost") {
+    mp.checkoutStarted(`topup_${packKey}`);
     if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
-    setLoadingBundle(bundleId);
+    setLoadingBundle(packKey);
+    toast.info("Redirecting to checkout...", { description: "Opening Stripe in a new tab." });
     try {
-      const result = await createBundleCheckout.mutateAsync({ bundle: bundleId, origin: window.location.origin });
-      if (result.checkoutUrl) gtagSendEvent(result.checkoutUrl);
+      const result = await createTopupCheckout.mutateAsync({ packKey, origin: window.location.origin });
+      if (result.checkoutUrl) {
+        window.open(result.checkoutUrl, "_blank");
+      }
     } catch (err) {
       toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
     } finally { setLoadingBundle(null); }
@@ -961,10 +977,10 @@ export default function Pricing() {
           <p className="text-sm text-white/40 max-w-lg mx-auto">Buy extra Video Credits whenever you need them. Extra Video Credit Packs work alongside any WIZ AI subscription and never expire. Use them when you want to produce additional final videos beyond your monthly allowance.</p>
           <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Video Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {BUNDLES.map((bundle) => (
             <div
-              key={bundle.id}
+              key={bundle.key}
               className="render-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
               style={{
                 borderColor: bundle.borderColor,
@@ -992,10 +1008,10 @@ export default function Pricing() {
                 {/* Video Credit count display */}
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <div className="flex items-end gap-2">
-                    <span className="text-5xl font-black text-white leading-none">{bundle.renders}</span>
+                    <span className="text-5xl font-black text-white leading-none">{bundle.credits}</span>
                     <div className="mb-1">
                       <span className="text-sm text-white/60 font-semibold block">Video Credits</span>
-                      <span className="text-xs text-white/40">{bundle.perRender}</span>
+                      <span className="text-xs text-white/40">{bundle.perCredit}</span>
                     </div>
                   </div>
                 </div>
@@ -1012,15 +1028,15 @@ export default function Pricing() {
                 </div>
                 <p className="text-xs text-white/40 leading-relaxed mb-5 flex-1">{bundle.desc}</p>
                 <Button
-                  onClick={() => handleBundlePurchase(bundle.id)}
-                  disabled={loadingBundle === bundle.id}
+                  onClick={() => handleTopupPurchase(bundle.key)}
+                  disabled={loadingBundle === bundle.key}
                   className={`w-full rounded-xl font-bold text-sm h-10 ${
                     bundle.popular
                       ? "btn-primary"
                       : "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] hover:text-white border border-white/[0.08]"
                   }`}
                 >
-                  {loadingBundle === bundle.id ? (
+                  {loadingBundle === bundle.key ? (
                     <span className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
                       Loading...
