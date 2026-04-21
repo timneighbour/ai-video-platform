@@ -8,7 +8,7 @@ import {
 const STEPS = [
   {
     step: 1,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-audio-v2_7fd434c8.png",
+    iconImg: "/manus-storage/wizaudio-logo-v1_f428aad0.png",
     icon: Music2,
     title: "Create or Upload Audio",
     desc: "Create a song with AI or upload your own track",
@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     step: 2,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-video-v2_0f90d571.png",
+    iconImg: "/manus-storage/wizvideo-logo-v1_9ec37e45.png",
     icon: Film,
     title: "Generate Your Video",
     desc: "Turn your audio into a cinematic video or animation",
@@ -36,7 +36,7 @@ const STEPS = [
   },
   {
     step: 3,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-character-v2_9b47c6b6.png",
+    iconImg: "/manus-storage/wizanimate-logo-new_a84f9808.png",
     icon: User,
     title: "Lock Your Character",
     desc: "Upload a photo or generate your own AI character — locked across every scene",
@@ -50,7 +50,7 @@ const STEPS = [
   },
   {
     step: 4,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-storyboard-v2_3e59ab78.png",
+    iconImg: "/manus-storage/wizcreate-logo-new_85a25756.png",
     icon: Brain,
     title: "Build Your Storyboard",
     desc: "Preview and refine every scene before rendering your full video",
@@ -64,7 +64,7 @@ const STEPS = [
   },
   {
     step: 5,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-render-v2_39bae441.png",
+    iconImg: "/manus-storage/wizimage-logo-v1_83c86e5c.png",
     icon: Zap,
     title: "Full Video Render",
     desc: "Render your complete video only when you're happy",
@@ -78,7 +78,7 @@ const STEPS = [
   },
   {
     step: 6,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-notify-v2_a1f9d86c.png",
+    iconImg: "/manus-storage/wizscript-logo-v1_c6af5345.png",
     icon: Bell,
     title: "Get Notified",
     desc: "Get notified when your video is ready — by email or dashboard",
@@ -92,7 +92,7 @@ const STEPS = [
   },
   {
     step: 7,
-    iconImg: "https://wiz-ai.b-cdn.net/icon-wizboost-v2_24dfd2f9.png",
+    iconImg: "/manus-storage/wizboost-logo-new_93f2b48b.png",
     icon: Rocket,
     title: "Share & Grow",
     desc: "Share your creation, grow your audience, and promote your content",

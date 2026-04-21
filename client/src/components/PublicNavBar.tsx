@@ -28,14 +28,14 @@ const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?
 );
 
 // ── CDN & Logo constants ──────────────────────────────────────────────────────
-const CDN = "https://wiz-ai.b-cdn.net";
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ff33f09f.webp";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
-const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
-const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
-const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
-const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
-const WIZSYNC_LOGO = `${CDN}/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png`;
+const CDN = "/manus-storage";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f_72ea7f44.webp";
+const WIZSOUND_LOGO = `/manus-storage/wizsound-logo-new_c5cced65.png`;
+const WIZLUMINA_LOGO = `/manus-storage/wizlumina-logo-new_0709f3c5.png`;
+const WIZBOOST_LOGO = `/manus-storage/wizboost-logo-new_93f2b48b.png`;
+const WIZCREATE_LOGO = `/manus-storage/wizcreate-logo-new_85a25756.png`;
+const WIZANIMATE_LOGO = `/manus-storage/wizanimate-logo-new_a84f9808.png`;
+const WIZSYNC_LOGO = `/manus-storage/wizsync-logo-new_9563f007.png`;
 
 // ── Products — categorised by purpose ────────────────────────────────────────
 const PRODUCTS_CREATE = [
@@ -455,7 +455,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
+                        src="/manus-storage/product-wizcreate-hero_6c3efa10.jpg"
                         alt="WizCreate"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -479,7 +479,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
+                        src="/manus-storage/product-wizcreate-hero_6c3efa10.jpg"
                         alt="WizPilot"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -503,7 +503,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp"
+                        src="/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg"
                         alt="WizSync"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -527,7 +527,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://wiz-ai.b-cdn.net/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp"
+                        src="/manus-storage/product-wizsound-hero_8219d2d2.jpg"
                         alt="WizScore"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -786,10 +786,10 @@ function Nav() {
               }`}>
                 <div className="px-3 pb-3 flex flex-col gap-2">
                   {[
-                    { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp" },
-                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZSYNC_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
-                    { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
-                    { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp" },
+                    { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
+                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
+                    { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
+                    { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
                   ].map((tool) => (
                     <a
                       key={tool.name}

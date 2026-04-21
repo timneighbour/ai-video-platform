@@ -386,8 +386,8 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             <ArrowRight className="w-3 h-3" />
           </a>
           <a
-            href="https://wiz-ai.b-cdn.net/featured-on-wizvid-badge-f57zSZBxBYSqSdFWbYUVHA.png"
-            download="featured-on-wizai-badge.png"
+            href="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
+            download="wiz-ai-logo.png"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-[--color-gold] text-xs font-medium hover:text-[--color-gold] transition-colors"

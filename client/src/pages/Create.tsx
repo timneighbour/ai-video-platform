@@ -16,38 +16,38 @@ import {
   WizScriptEmblem,
 } from "@/components/WizProductEmblems";
 
-const CDN = "https://wiz-ai.b-cdn.net";
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
-const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
-const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
-const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
-const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
-const WIZSYNC_LOGO = `${CDN}/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png`;
+const CDN = "/manus-storage";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZPILOT_LOGO = `${CDN}/wizscript-logo-v1_c6af5345.png`;
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
+const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
+const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
+const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007.png`;
 
 const IMG = {
   musicVideo:   `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`,
-  cinematic:    `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp`,
-  cinematic2:   `${CDN}/style-cinematic-8EttbpJCG8aAwirxMzv25p.webp`,
-  anime:        `${CDN}/style-anime-bCLhyWeYo6mek5pWMnEUV7.webp`,
-  anime2:       `${CDN}/style-anime-76BJuATsMcjhGJHYLXERiU.webp`,
-  neonNoir:     `${CDN}/style-neon-noir-5FS7RgdStYibD2k7cDsLtT.webp`,
-  neonNoir2:    `${CDN}/style-neon-noir-XR46whfoD5cgi3ADa8iDDe.webp`,
-  epicFantasy:  `${CDN}/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp`,
-  documentary:  `${CDN}/style-documentary-nyjoHJnTHZU2hdjABnnjBm.webp`,
-  realistic:    `${CDN}/style-realistic-aoCsFQg7RrHiDwviHBmAKk.webp`,
-  abstract:     `${CDN}/style-abstract-E9NdxWuFeAHfGRiGpsbW9Y.webp`,
-  vintage:      `${CDN}/style-vintage-mkatVcuLLHQ5oBRYWdLWtp.webp`,
-  pixar:        `${CDN}/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV.webp`,
-  horror:       `${CDN}/style-horror-V8mWQPZYZySQZ5xPr9y3q4.webp`,
-  musicians:    `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`,
-  youtubers:    `${CDN}/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp`,
-  aiCreators:   `${CDN}/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp`,
-  kidsCreators: `${CDN}/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp`,
-  heroBg:       `${CDN}/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp`,
-  demoPoster:   `${CDN}/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp`,
-  neonStage:    `${CDN}/showcase-music-neon-stage-L43AthLEfiF5bt3wJUcHWB.webp`,
-  cyberpunk:    `${CDN}/showcase-music-cyberpunk-band-mEMS5T6znt5Fqj3DwimTcK.webp`,
+  cinematic:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-2-h73cYMBR7EECiKvo2X9uWr.webp",
+  cinematic2:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp",
+  anime:        "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-2-7pwqdmNNtVefi3S7eVvfmK.webp",
+  anime2:       "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-1-V8cGaKNXBvMPgNtyuk2xCr.webp",
+  neonNoir:     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-1-GDpPcEYGEwEHgfbURRVa2k.webp",
+  neonNoir2:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-2-YErB4W3WPjcqzZRDEQe8wU.webp",
+  epicFantasy:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-1-4xZQHj6htBWh5fPP25HQQf.webp",
+  documentary:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-2-JZWthvzPWVptr78ua34rZz.webp",
+  realistic:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-2-Xg8LGZv3hqv8kvqqApjVav.webp",
+  abstract:     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-1-ZjbMsSCt6wFuq7NBMAyxHR.webp",
+  vintage:      "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-2-NJ6jDetQEdsupChus3Npta.webp",
+  pixar:        "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-2-kCF7GThiy6baRGQLei9RKw.webp",
+  horror:       "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-horror-1-SiNk872QcoYBRoMFbonyfG.webp",
+  musicians:    `${CDN}/whos-it-for-musicians_45f54b69.png`,
+  youtubers:    `${CDN}/whos-it-for-youtubers_58ce347b.png`,
+  aiCreators:   `${CDN}/whos-it-for-ai-creators_722cf5c6.png`,
+  kidsCreators: `${CDN}/whos-it-for-kids_09e9420f.png`,
+  heroBg:       `${CDN}/concert-hall_2b6b946b.jpg`,
+  demoPoster:   `${CDN}/step3-ai-scene_a71432c5.png`,
+  neonStage:    `${CDN}/showcase-stage-performance_3379ee75.jpg`,
+  cyberpunk:    `${CDN}/showcase-midnight-city_caf4be96.jpg`,
 };
 
 interface Tool {

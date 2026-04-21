@@ -3,7 +3,7 @@ import { ArrowRight, ArrowLeft, Sparkles, Play, Film, Music, Wand2, Zap } from '
 import { mp } from '@/lib/mixpanel';
 import { analytics } from '@/lib/analytics';
 
-const CDN = 'https://wiz-ai.b-cdn.net';
+const CDN = '/manus-storage';
 
 const options = [
   {
@@ -14,8 +14,8 @@ const options = [
     isPopular: true,
     icon: Film,
     // Use cinematic style images as card backgrounds
-    bg: `${CDN}/style-cinematic-8EttbpJCG8aAwirxMzv25p.webp`,
-    bgAlt: `${CDN}/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp`,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-2-h73cYMBR7EECiKvo2X9uWr.webp",
     accentColor: '#b8892a',
     glowColor: 'rgba(184,137,42,0.35)',
     tag: 'Most Popular',
@@ -29,8 +29,8 @@ const options = [
     description: 'Auto-enhance your YouTube videos with AI editing, music, and professional polish.',
     isPopular: false,
     icon: Play,
-    bg: `${CDN}/style-documentary-GUdvUoXuDBve4gBc7mKpgx.webp`,
-    bgAlt: `${CDN}/style-realistic-2wim9Wp8GGSWcE5kbukVwX.webp`,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-1-27gSFotXB4DE92dN47HiDu.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-1-3PQ9beTsYUCXpz7YnqEHJd.webp",
     accentColor: '#ff4444',
     glowColor: 'rgba(255,68,68,0.25)',
     tag: 'For Creators',
@@ -44,8 +44,8 @@ const options = [
     description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
     isPopular: false,
     icon: Sparkles,
-    bg: `${CDN}/style-anime-76BJuATsMcjhGJHYLXERiU.webp`,
-    bgAlt: `${CDN}/style-pixar-GUBPsNDXp3m9kijU7REvzt.webp`,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-1-V8cGaKNXBvMPgNtyuk2xCr.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-1-63hx7LosqShdkEWUgxNme8.webp",
     accentColor: '#a855f7',
     glowColor: 'rgba(168,85,247,0.3)',
     tag: 'Animation',
@@ -59,8 +59,8 @@ const options = [
     description: 'Turn your ideas into cinematic videos with AI-powered visual storytelling.',
     isPopular: false,
     icon: Wand2,
-    bg: `${CDN}/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp`,
-    bgAlt: `${CDN}/style-neon-noir-5FS7RgdStYibD2k7cDsLtT.webp`,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-1-4xZQHj6htBWh5fPP25HQQf.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-1-GDpPcEYGEwEHgfbURRVa2k.webp",
     accentColor: '#06b6d4',
     glowColor: 'rgba(6,182,212,0.25)',
     tag: 'Text → Video',
@@ -74,8 +74,8 @@ const options = [
     description: 'Generate original, royalty-free music in any style — powered by WizAudio.',
     isPopular: false,
     icon: Music,
-    bg: `${CDN}/style-abstract-E9NdxWuFeAHfGRiGpsbW9Y.webp`,
-    bgAlt: `${CDN}/style-vintage-iCZFjq9buUWkDWVxu3J7Qy.webp`,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-1-ZjbMsSCt6wFuq7NBMAyxHR.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-1-NfTaSxo6s5jch2UiSEYkKJ.webp",
     accentColor: '#22c55e',
     glowColor: 'rgba(34,197,94,0.25)',
     tag: 'Audio AI',
@@ -84,7 +84,7 @@ const options = [
   },
 ];
 
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 const Onboarding: React.FC = () => {
   useEffect(() => { mp.onboardingStarted(); }, []);

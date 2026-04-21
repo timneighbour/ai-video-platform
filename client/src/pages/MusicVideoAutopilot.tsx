@@ -227,79 +227,79 @@ export default function MusicVideoAutopilot() {
       id: "cinematic",
       label: "Cinematic",
       desc: "Hollywood-quality realism",
-      image: "https://wiz-ai.b-cdn.net/style-cinematic-UvoChSsK7xZ9a7MR2bUHeq.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-2-h73cYMBR7EECiKvo2X9uWr.webp",
     },
     {
       id: "anime",
       label: "Anime",
       desc: "Japanese animation style",
-      image: "https://wiz-ai.b-cdn.net/style-anime-bCLhyWeYo6mek5pWMnEUV7.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-2-7pwqdmNNtVefi3S7eVvfmK.webp",
     },
     {
       id: "pixar3d",
       label: "Stylised 3D",
       desc: "Vibrant 3D animation",
-      image: "https://wiz-ai.b-cdn.net/style-pixar3d-eN2z5fKQJJTuTc3Ghd84dV.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-2-kCF7GThiy6baRGQLei9RKw.webp",
     },
     {
       id: "documentary",
       label: "Documentary",
       desc: "Authentic & raw footage",
-      image: "https://wiz-ai.b-cdn.net/style-documentary-nyjoHJnTHZU2hdjABnnjBm.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-2-JZWthvzPWVptr78ua34rZz.webp",
     },
     {
       id: "abstract",
       label: "Abstract",
       desc: "Artistic visual journey",
-      image: "https://wiz-ai.b-cdn.net/style-abstract-E9NdxWuFeAHfGRiGpsbW9Y.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-1-ZjbMsSCt6wFuq7NBMAyxHR.webp",
     },
     {
       id: "vintage",
       label: "Vintage",
       desc: "Retro film aesthetic",
-      image: "https://wiz-ai.b-cdn.net/style-vintage-iCZFjq9buUWkDWVxu3J7Qy.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-1-NfTaSxo6s5jch2UiSEYkKJ.webp",
     },
     {
       id: "neon_noir",
       label: "Neon Noir",
       desc: "Dark cyberpunk neon glow",
-      image: "https://wiz-ai.b-cdn.net/style-neon-noir-XR46whfoD5cgi3ADa8iDDe.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-2-YErB4W3WPjcqzZRDEQe8wU.webp",
     },
     {
       id: "disney",
       label: "Magical Animated",
       desc: "Enchanting hand-drawn animation",
-      image: "https://wiz-ai.b-cdn.net/style-disney-n4CZF3mgReCEjogjqRoDKz.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-2-Mi3B2Fz39WFbbr2M8pYwnq.webp",
     },
     {
       id: "epic_fantasy",
       label: "Epic Fantasy",
       desc: "Dramatic magical landscapes",
-      image: "https://wiz-ai.b-cdn.net/style-epic-fantasy-aaR23m63VQcBx6VzTSa7jJ.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-1-4xZQHj6htBWh5fPP25HQQf.webp",
     },
     {
       id: "realistic",
       label: "Realistic",
       desc: "True-to-life photorealism",
-      image: "https://wiz-ai.b-cdn.net/style-realistic-2wim9Wp8GGSWcE5kbukVwX.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-1-3PQ9beTsYUCXpz7YnqEHJd.webp",
     },
     {
       id: "horror",
       label: "Horror",
       desc: "Dark, eerie & atmospheric",
-      image: "https://wiz-ai.b-cdn.net/style-horror-gsFZakWZNY3wasPTthWDBJ.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-horror-2-6fSFhDegG4kyp5oYPwdAHa.webp",
     },
     {
       id: "storybook",
       label: "Storybook",
       desc: "Illustrated fairy-tale art",
-      image: "https://wiz-ai.b-cdn.net/style-storybook-2zTAFMYrywVXfecaMu9hUE.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-storybook-1-7ZWAAUFnvadJrrRgUYv4PR.webp",
     },
     {
       id: "cartoon",
       label: "Cartoon",
       desc: "Bold, colourful 2D animation",
-      image: "https://wiz-ai.b-cdn.net/style-cartoon-oAVVLbZ5UhTAB8EzzrjENd.webp",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cartoon-1-JjFqe6Kwcbt856gJNKbqce.webp",
     },
   ];
   const [isDragging, setIsDragging] = useState(false);
@@ -1611,7 +1611,7 @@ export default function MusicVideoAutopilot() {
               <span>Home</span>
             </NavLink>
             <NavLink href="/">
-              <img src="https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+              <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
             </NavLink>
             <NavLink href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />

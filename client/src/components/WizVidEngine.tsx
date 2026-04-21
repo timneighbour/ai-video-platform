@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import { ArrowRight, ChevronRight } from "@/lib/icons";
 
-const CDN = "https://wiz-ai.b-cdn.net";
+const CDN = "/manus-storage";
 
 interface PipelineStep {
   id: string;
@@ -45,7 +45,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(139,92,246,0.35)]",
     border: "border-[--color-gold]/30",
     bg: "bg-[--color-gold]/15",
-    icon: `${CDN}/wizcreate-logo-final_9f61f0de.png`,
+    icon: `${CDN}/wizcreate-logo-new_85a25756.png`,
     href: "/products/wizcreate",
   },
   {
@@ -57,7 +57,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(6,182,212,0.35)]",
     border: "border-cyan-500/40",
     bg: "bg-[--color-silver]/10",
-    icon: "https://wiz-ai.b-cdn.net/wizanimate-logo-v2_b363ca67.png",
+    icon: "/manus-storage/wizanimate-logo-new_a84f9808.png",
     href: "/products/wizanimate",
     isBranch: true,
     branchWith: "WizSync™",
@@ -70,7 +70,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(16,185,129,0.35)]",
     border: "border-[--color-silver]/40",
     bg: "bg-[--color-silver]/10",
-    icon: `${CDN}/wizsound-logo-v5_76ab5163.png`,
+    icon: `${CDN}/wizsound-logo-new_c5cced65.png`,
     href: "/products/wizsound",
   },
   {
@@ -81,7 +81,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(245,158,11,0.35)]",
     border: "border-[--color-gold]/30",
     bg: "bg-[--color-gold]/15",
-    icon: `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`,
+    icon: `${CDN}/wizlumina-logo-new_0709f3c5.png`,
     href: "/products/wizlumina",
   },
   {
@@ -92,7 +92,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(244,63,94,0.35)]",
     border: "border-rose-500/40",
     bg: "bg-[--color-silver]/10",
-    icon: `${CDN}/wizgenesis-logo-final-jzVZtHAidTTQv5WxPAdJcz.webp`,
+    icon: `${CDN}/wizimage-logo-v1_83c86e5c.png`,
     href: "/products/wizgenesis",
   },
   {
@@ -103,7 +103,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(249,115,22,0.35)]",
     border: "border-orange-500/40",
     bg: "bg-orange-500/8",
-    icon: `${CDN}/module-wizboost_ce93c033.png`,
+    icon: `${CDN}/wizboost-logo-new_93f2b48b.png`,
     href: "/products/wizboost",
   },
 ];

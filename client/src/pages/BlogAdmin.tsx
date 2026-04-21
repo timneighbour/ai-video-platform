@@ -137,7 +137,7 @@ export default function BlogAdmin() {
                 <Input
                   value={form.coverImage}
                   onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))}
-                  placeholder="https://cdn.example.com/cover.jpg"
+                  placeholder="https://cdn.example.com/studio-mic_3d8c675d.jpg"
                   className="bg-white/5 border-white/10 text-white placeholder:text-white/25"
                 />
               </div>

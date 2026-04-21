@@ -4,19 +4,19 @@ import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
   CheckCircle2, Clock, Bell, Share2, ArrowRight, Play, Zap, ChevronRight } from "@/lib/icons";
 import { Link } from "wouter";
 
-const CDN = "https://wiz-ai.b-cdn.net";
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
-const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
-const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
+const CDN = "/manus-storage";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
+const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
+const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b.png`;
 const STEP_IMAGES = {
   upload:   `${CDN}/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp`,
   styles:   `${CDN}/step2-style-collage-P6HWeTbd9g6UsLFLRWYJEi.webp`,
-  render:   `${CDN}/step3-ai-generated-scene-5QTx7hBMWwzLqpgwATS24U.webp`,
-  hero:     `${CDN}/whos-it-for-musicians-ezcSAGNTzuKKxG5kyRC8bK.webp`,
-  anime:    `${CDN}/whos-it-for-ai-creators-iNKM9VvLTuKBigHPwZC3HS.webp`,
-  youtuber: `${CDN}/whos-it-for-youtubers-hVpTL9NRQkqFJoeEzGZYpN.webp`,
-  kids:     `${CDN}/whos-it-for-kids-creators-V7CLZTheKBJ8dstLuLDWem.webp`,
+  render:   `${CDN}/step3-ai-scene_a71432c5.png`,
+  hero:     `${CDN}/whos-it-for-musicians_45f54b69.png`,
+  anime:    `${CDN}/whos-it-for-ai-creators_722cf5c6.png`,
+  youtuber: `${CDN}/whos-it-for-youtubers_58ce347b.png`,
+  kids:     `${CDN}/whos-it-for-kids_09e9420f.png`,
 };
 
 const STEP_COLORS = {

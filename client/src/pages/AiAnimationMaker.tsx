@@ -22,11 +22,11 @@ import { mp } from "@/lib/mixpanel";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 // ── Asset constants ───────────────────────────────────────────────────────────
-const CDN = "https://wiz-ai.b-cdn.net";
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ff33f09f.webp";
-const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
-const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
+const CDN = "/manus-storage";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp";
+const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 
 // Animation style showcase images (all existing CDN assets)
 const ANIMATION_STYLES = [
@@ -34,42 +34,42 @@ const ANIMATION_STYLES = [
     id: "pixar3d",
     label: "Stylised 3D",
     desc: "Vibrant, expressive 3D characters and worlds",
-    image: `${CDN}/kids-style-pixar3d_e61a549d.jpg`,
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-pixar3d-NTKiSeKEePTZ64eY2dVzqo.webp",
     tag: "Most popular",
   },
   {
     id: "storybook",
     label: "Storybook",
     desc: "Illustrated fairy-tale style — timeless and magical",
-    image: `${CDN}/kids-style-storybook_4bc666a9.jpg`,
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook-6Mx6JpiaevStuWQin5HEod.webp",
     tag: "Kids favourite",
   },
   {
     id: "disney",
     label: "Magical Cinematic",
     desc: "Enchanted, cinematic animation with sweeping visuals",
-    image: `${CDN}/kids-style-disney_9c9b6894.jpg`,
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-disney-Ps9izwb4mjU6QbawNJEZ9C.webp",
     tag: null,
   },
   {
     id: "anime",
     label: "Anime-Inspired",
     desc: "Expressive Japanese animation style with vivid detail",
-    image: `${CDN}/kids-style-anime_e5435cad.jpg`,
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-anime-iGDqmnXkbWropdM7MmSEPe.webp",
     tag: null,
   },
   {
     id: "cartoon",
     label: "Classic Cartoon",
     desc: "Colourful, fun, family-friendly classic animation",
-    image: `${CDN}/kids-style-cartoon_1ed8ac1b.jpg`,
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-cartoon-g3SpesBvzubV27y7fGnGuq.webp",
     tag: null,
   },
   {
     id: "claymation",
     label: "Clay Animation",
     desc: "Playful, tactile clay-style handcrafted look",
-    image: `${CDN}/kids-style-claymation_65d3102c.jpg`,
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation-ihKTHjJ2NDdPcS9ekpiaNN.webp",
     tag: null,
   },
 ];
@@ -102,25 +102,25 @@ const HOW_IT_WORKS = [
     step: "01",
     title: "Describe your animation",
     desc: "Tell WIZ AI what you want — characters, setting, mood, and story. Add a title, theme, or even a script.",
-    img: "https://wiz-ai.b-cdn.net/hiw-step1-choose_1102ddee.jpg",
+    img: "/manus-storage/hiw-step1-choose_1102ddee.jpg",
   },
   {
     step: "02",
     title: "Choose your animation style",
     desc: "Pick from Stylised 3D, Storybook, Anime, Classic Cartoon, Magical Cinematic, or Clay Animation.",
-    img: "https://wiz-ai.b-cdn.net/hiw-step2-storyboard_21e66052.jpg",
+    img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg",
   },
   {
     step: "03",
     title: "Preview every scene",
     desc: "WizCreate™ builds a full storyboard. Review, edit, and refine each scene before rendering a single frame.",
-    img: "https://wiz-ai.b-cdn.net/hiw-step3-preview_e536f5b1.jpg",
+    img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg",
   },
   {
     step: "04",
     title: "Render and download",
     desc: "Export your finished animation in HD or 4K with WizSound™ audio mastering built in. Ready to publish.",
-    img: "https://wiz-ai.b-cdn.net/hiw-step4-export_68c87f9e.jpg",
+    img: "/manus-storage/hiw-step4-export_68c87f9e.jpg",
   },
 ];
 
@@ -129,19 +129,19 @@ const TESTIMONIALS = [
     quote: "I made a full 90-second animated intro for my kids' YouTube channel in under an hour. The Stylised 3D quality is incredible.",
     name: "Sophie R.",
     role: "Kids Content Creator",
-    avatar: "https://wiz-ai.b-cdn.net/avatar-sophie_7b87260f.jpg",
+    avatar: "/manus-storage/avatar-sophie_7b87260f.jpg",
   },
   {
     quote: "The storybook style is exactly what I needed for my children's story series. WIZ AI nailed the illustrated look on the first try.",
     name: "Marcus T.",
     role: "Children's Author & Creator",
-    avatar: "https://wiz-ai.b-cdn.net/avatar-marcus_5c70b009.jpg",
+    avatar: "/manus-storage/avatar-marcus_5c70b009.jpg",
   },
   {
     quote: "I've tried every AI animation tool out there. WIZ AI is the only one that lets me preview every scene before I commit to rendering.",
     name: "Priya K.",
     role: "Animator & YouTuber",
-    avatar: "https://wiz-ai.b-cdn.net/avatar-priya_5975eaf5.jpg",
+    avatar: "/manus-storage/avatar-priya_5975eaf5.jpg",
   },
 ];
 
@@ -660,7 +660,7 @@ export default function AiAnimationMaker() {
             id: 1,
             title: "Star Quest — Kids Channel Intro",
             category: "Stylised 3D",
-            posterUrl: "https://wiz-ai.b-cdn.net/showcase-star-quest_c73c29bd.jpg",
+            posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg",
             videoUrl: null,
             description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
           },
@@ -668,7 +668,7 @@ export default function AiAnimationMaker() {
             id: 2,
             title: "Storybook World — Illustrated Style",
             category: "Storybook Animation",
-            posterUrl: `${CDN}/kids-style-storybook_4bc666a9.jpg`,
+            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook-6Mx6JpiaevStuWQin5HEod.webp",
             videoUrl: null,
             description: "A timeless storybook-style animated scene. Soft watercolour palette, magical atmosphere, perfect for kids content.",
           },
@@ -676,7 +676,7 @@ export default function AiAnimationMaker() {
             id: 3,
             title: "Anime Adventure — Action Scene",
             category: "Anime-Inspired",
-            posterUrl: `${CDN}/kids-style-anime_e5435cad.jpg`,
+            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-anime-iGDqmnXkbWropdM7MmSEPe.webp",
             videoUrl: null,
             description: "Expressive Japanese animation style with vivid detail. Generated from a single scene description.",
           },

@@ -5641,3 +5641,16 @@
 - [ ] Pricing page: add top-up section with subscriber gate
 - [ ] Dashboard: add top-up section with credit balance display and purchase history
 - [ ] QA: verify all 23 QA requirements from spec
+
+## Broken Image/Asset Fix (April 2026)
+- [x] Audit all /manus-storage/ references across codebase (found 39 broken out of ~100)
+- [x] Generate replacement images: 6 kids-style images (pixar3d, storybook, disney, anime, cartoon, claymation)
+- [x] Generate replacement images: 5 how-wizvid step images
+- [x] Generate replacement images: 26 art style images (cinematic, anime, cartoon, disney, documentary, abstract, epic-fantasy, horror, neon-noir, pixar, realistic, storybook, vintage - 2 variants each)
+- [x] Upload all replacement images to CDN via manus-upload-file --webdev
+- [x] Replace all 39 broken /manus-storage/ references with new CDN URLs
+- [x] Fix ${CDN}/filename template literal references in AiAnimationMaker.tsx, Create.tsx, Onboarding.tsx
+- [x] Replace broken audio references with working alternatives (wizsound mp3 files)
+- [x] Verify zero broken /manus-storage/ references remain (all 83 remaining refs return 200)
+- [x] Verify new CloudFront CDN URLs are accessible (all return 200)
+- [x] Build passes successfully with no TypeScript errors

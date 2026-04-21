@@ -1079,11 +1079,11 @@ export const renderRouter = router({
   getWizSoundPreviews: publicProcedure.query(() => {
     return {
       // Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before"
-      standard: "https://wiz-ai.b-cdn.net/wizsound-demo-standard-subwoofer_df98cac4.mp3",
+      standard: "/manus-storage/wizsound-demo-standard-subwoofer_df98cac4.mp3",
       // Enhanced: same source track, light FFmpeg DSP — -16 LUFS, 3-band EQ, gentle compression
-      enhanced: "https://wiz-ai.b-cdn.net/wizsound-demo-enhanced-mid-subwoofer_3cb0b73b.mp3",
+      enhanced: "/manus-storage/wizsound-demo-enhanced-mid-subwoofer_3cb0b73b.mp3",
       // Cinematic: same source track, full FFmpeg DSP — -14 LUFS, 5-band EQ, pro mastering, stereo widening
-      cinematic: "https://wiz-ai.b-cdn.net/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3",
+      cinematic: "/manus-storage/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3",
     };
   }),
 

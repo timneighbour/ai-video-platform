@@ -10,7 +10,7 @@ import { useLocation, Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
-const CDN = "https://wiz-ai.b-cdn.net";
+const CDN = "/manus-storage";
 
 // Static fallback showcase items for music video page (replaced by DB items when available)
 const MUSIC_VIDEO_SHOWCASE = [
@@ -18,7 +18,7 @@ const MUSIC_VIDEO_SHOWCASE = [
     id: 1,
     title: "Stage Performance — Music Video",
     category: "Music Video",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-stage-performance_b1d68ebf.jpg",
+    posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
     videoUrl: null,
     description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created from an uploaded track.",
   },
@@ -26,7 +26,7 @@ const MUSIC_VIDEO_SHOWCASE = [
     id: 2,
     title: "Midnight City — Cinematic Style",
     category: "Cinematic AI Video",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-midnight-city_caf4be96.jpg",
+    posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
     videoUrl: null,
     description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt.",
   },
@@ -34,12 +34,12 @@ const MUSIC_VIDEO_SHOWCASE = [
     id: 3,
     title: "WizPerformer — Performance Sync",
     category: "WizPerformer",
-    posterUrl: "https://wiz-ai.b-cdn.net/demo-animation-still_2cfcbcb8.png",
+    posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png",
     videoUrl: null,
     description: "Not just lip-sync — full performance sync. Every gesture, expression, and movement matched to the music.",
   },
 ];
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
   { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Animated Character" },

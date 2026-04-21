@@ -74,7 +74,7 @@ export interface ProductPageProps {
   related: RelatedProduct[];
 }
 
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 export default function ProductPageTemplate(props: ProductPageProps) {
   const {

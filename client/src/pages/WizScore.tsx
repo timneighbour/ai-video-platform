@@ -14,8 +14,8 @@ import {
   Download, Play, Pause, Film, Sparkles, ChevronRight
 } from "@/lib/icons";
 
-const CDN = "https://wiz-ai.b-cdn.net";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-final_7a3e9f2d.png`;
+const CDN = "/manus-storage";
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 
 type Step = "idle" | "uploading" | "analyzing" | "generating" | "complete" | "error";
 

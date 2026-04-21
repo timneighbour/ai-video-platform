@@ -20,37 +20,37 @@ const SEEDED_ITEMS = [
     category: "Kids YouTube",
     title: "Magic Learning Fun",
     description: "Pixar-style animated kids channel video generated in under 3 minutes",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-kids-youtube-JZeYyg2U7P84XvWb4zDav4.webp",
+    posterUrl: "/manus-storage/showcase-kids-youtube-JZeYyg2U7P84XvWb4zDav4.webp",
   },
   {
     category: "Music Video",
     title: "Neon Stage",
     description: "Cinematic concert-style music video with AI-generated visuals synced to the beat",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-music-video-h6GbuZT6QJ2p7SXy9sJCrc.webp",
+    posterUrl: "/manus-storage/showcase-music-video-h6GbuZT6QJ2p7SXy9sJCrc.webp",
   },
   {
     category: "Story Animation",
     title: "The Enchanted Forest",
     description: "Studio Ghibli-inspired story animation created from a single text prompt",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-story-animation-D4qD4c6U2g54maC4tqUcgY.webp",
+    posterUrl: "/manus-storage/showcase-story-animation-D4qD4c6U2g54maC4tqUcgY.webp",
   },
   {
     category: "Faceless Content",
     title: "Top 10 Mind-Blowing Facts",
     description: "Faceless YouTube channel video with AI narration and dynamic visuals — no face, no camera",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-faceless-fet4i5aLXyyhZfgAa9mGfi.webp",
+    posterUrl: "/manus-storage/showcase-faceless-fet4i5aLXyyhZfgAa9mGfi.webp",
   },
   {
     category: "Social Short",
     title: "POV: AI Video",
     description: "Vertical short-form content optimised for TikTok, Reels, and YouTube Shorts",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-social-short-VXyvybnJJM3KcwpTyVE3xx.webp",
+    posterUrl: "/manus-storage/showcase-social-short-VXyvybnJJM3KcwpTyVE3xx.webp",
   },
   {
     category: "Cinematic AI Video",
     title: "Neon City Chronicles",
     description: "Hollywood-quality cinematic video with photorealistic AI scenes and dramatic lighting",
-    posterUrl: "https://wiz-ai.b-cdn.net/showcase-cinematic-daSCvihyi22yG8KooskxqC.webp",
+    posterUrl: "/manus-storage/showcase-cinematic-daSCvihyi22yG8KooskxqC.webp",
   },
 ];
 

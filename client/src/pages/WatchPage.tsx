@@ -25,7 +25,7 @@ export default function WatchPage() {
       "@type": "VideoObject",
       name: video.title,
       description: `AI-generated music video${video.genre ? ` — ${video.genre}` : ""}${video.mood ? `, ${video.mood} mood` : ""}. Created with WIZ AI.`,
-      thumbnailUrl: video.thumbnailUrl ?? "https://wiz-ai.io/og-image.jpg",
+      thumbnailUrl: video.thumbnailUrl ?? "https://wiz-ai.io/studio-mic_3d8c675d.jpg",
       uploadDate: video.createdAt ? new Date(video.createdAt).toISOString() : new Date().toISOString(),
       duration: video.audioDuration ? `PT${Math.floor(video.audioDuration / 60)}M${video.audioDuration % 60}S` : undefined,
       contentUrl: video.finalVideoUrl ?? undefined,
@@ -35,7 +35,7 @@ export default function WatchPage() {
         name: "WIZ AI",
         logo: {
           "@type": "ImageObject",
-          url: "https://wiz-ai.io/logo.png",
+          url: "https://wiz-ai.io/og-image.jpg",
         },
       },
     });

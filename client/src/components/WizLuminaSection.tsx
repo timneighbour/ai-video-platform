@@ -8,8 +8,8 @@ import { mp } from "@/lib/mixpanel";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Eye, Sparkles, Film, Palette, Sun, Layers, GripVertical } from "@/lib/icons";
 
-const WIZLUMINA_LOGO = "https://wiz-ai.b-cdn.net/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
-const DEMO_VIDEO = "https://wiz-ai.b-cdn.net/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
+const WIZLUMINA_LOGO = "/manus-storage/wizlumina-logo-new_0709f3c5.png";
+const DEMO_VIDEO = "/manus-storage/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
 
 type VisualMode = "standard" | "enhanced" | "cinematic";
 

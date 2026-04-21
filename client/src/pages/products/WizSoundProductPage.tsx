@@ -13,19 +13,19 @@ import {
   ArrowRight, ChevronRight, Sparkles, Check, ChevronDown,
 } from "@/lib/icons";
 
-const CDN = "https://wiz-ai.b-cdn.net";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
+const CDN = "/manus-storage";
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 
 // Premium imagery CDN paths
 const IMG = {
-  heroConsole:   "https://wiz-ai.b-cdn.net/studio-console_91324aaa.jpg",
-  studioMic:     "https://wiz-ai.b-cdn.net/studio-mic_3d8c675d.jpg",
-  studioMicDark: "https://wiz-ai.b-cdn.net/studio-mic-dark_bd0b6598.jpg",
-  studioMoody:   "https://wiz-ai.b-cdn.net/studio-moody_02c867cc.jpg",
-  concertHall:   "https://wiz-ai.b-cdn.net/concert-hall_2b6b946b.jpg",
-  sphereConcert: "https://wiz-ai.b-cdn.net/sphere-concert_e0e5b1d0.jpg",
-  ambientMusic:  "https://wiz-ai.b-cdn.net/ambient-music_efff5905.webp",
+  heroConsole:   "/manus-storage/studio-console_91324aaa.jpg",
+  studioMic:     "/manus-storage/studio-mic_3d8c675d.jpg",
+  studioMicDark: "/manus-storage/studio-mic-dark_bd0b6598.jpg",
+  studioMoody:   "/manus-storage/studio-moody_02c867cc.jpg",
+  concertHall:   "/manus-storage/concert-hall_2b6b946b.jpg",
+  sphereConcert: "/manus-storage/sphere-concert_e0e5b1d0.jpg",
+  ambientMusic:  "/manus-storage/ambient-music_efff5905.webp",
 };
 
 const RELATED = [

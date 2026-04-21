@@ -255,14 +255,14 @@ export default function Discover() {
           <div className="mt-8 flex flex-col items-center gap-3">
             <p className="text-white/30 text-xs uppercase tracking-widest">Get your creator badge</p>
             <a
-              href="https://wiz-ai.b-cdn.net/featured-on-wizvid-badge-f57zSZBxBYSqSdFWbYUVHA.png"
-              download="featured-on-wizai-badge.png"
+              href="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
+              download="wiz-ai-logo.png"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-3 px-4 py-2 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 hover:bg-[--color-gold]/15 hover:border-[--color-gold]/30 transition-all"
             >
               <img
-                src="https://wiz-ai.b-cdn.net/featured-on-wizvid-badge-WXFCgjGNQGdfmakysCuF7t.webp"
+                src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png"
                 alt="Featured on WIZ AI badge"
                 className="w-12 h-12 object-contain"
               />

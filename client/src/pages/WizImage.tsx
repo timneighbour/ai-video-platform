@@ -168,7 +168,7 @@ export default function WizImage() {
     generateMutation.mutate({ prompt: prompt.trim(), style: selectedStyle, aspectRatio });
   };
 
-  const handleDownload = (url: string, filename = "wiz-image.png") => {
+  const handleDownload = (url: string, filename = "wizai-logo-premium-transparent_ac3f550b.png") => {
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;

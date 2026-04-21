@@ -5,13 +5,13 @@ import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ── */
 const VIDEO_SRC =
-  "https://wiz-ai.b-cdn.net/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
+  "/manus-storage/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
 // Normal: flat, dry, unprocessed reference — -16 LUFS
 const AUDIO_NORMAL =
-  "https://wiz-ai.b-cdn.net/wizsound_standard_v3_d01b2cbd.mp3";
+  "/manus-storage/wizsound-normal_83a5954c.mp3";
 // Enhanced: EQ boost (bass +5dB, highs +4dB), light compression, stereo widening — -11 LUFS
 const AUDIO_ENHANCED =
-  "https://wiz-ai.b-cdn.net/wizsound_cinematic_v3_6bb39005.mp3";
+  "/manus-storage/wizsound-cinematic_b322d347.mp3";
 
 type AudioMode = "normal" | "enhanced" | "cinematic";
 

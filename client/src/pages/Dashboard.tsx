@@ -26,14 +26,14 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
-const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
-const DASH_BG_MUSIC_VIDEO = "https://wiz-ai.b-cdn.net/dash-card-music-video_894d27ae.jpg";
-const DASH_BG_MUSIC = "https://wiz-ai.b-cdn.net/card-wizaudio-v2_ba9bb3e1.jpg";
-const DASH_BG_KIDS = "https://wiz-ai.b-cdn.net/dash-card-animation_9f04fd06.jpg";
-const DASH_BG_YOUTUBE = "https://wiz-ai.b-cdn.net/dash-card-youtube_cec93053.jpg";
-const DASH_CINEMATIC_BANNER = "https://wiz-ai.b-cdn.net/dash-cinematic-banner_10dc07fe.jpg";
-const DASH_EMPTY_STATE = "https://wiz-ai.b-cdn.net/dash-empty-state_4cc61677.jpg";
-const WIZLUMINA_ORB = "https://wiz-ai.b-cdn.net/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const DASH_BG_MUSIC_VIDEO = "/manus-storage/dash-card-music-video_894d27ae.jpg";
+const DASH_BG_MUSIC = "/manus-storage/card-wizaudio-v2_ba9bb3e1.jpg";
+const DASH_BG_KIDS = "/manus-storage/dash-card-animation_9f04fd06.jpg";
+const DASH_BG_YOUTUBE = "/manus-storage/dash-card-youtube_cec93053.jpg";
+const DASH_CINEMATIC_BANNER = "/manus-storage/dash-cinematic-banner_10dc07fe.jpg";
+const DASH_EMPTY_STATE = "/manus-storage/dash-empty-state_4cc61677.jpg";
+const WIZLUMINA_ORB = "/manus-storage/wizlumina-logo-new_0709f3c5.png";
 
 // ── Create Action Cards ──────────────────────────────────────────────────────
 const CREATE_ACTIONS = [

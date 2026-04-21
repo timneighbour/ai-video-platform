@@ -6,12 +6,12 @@ import { Pause, Play } from "@/lib/icons";
    Luxury upgrade: gold dust particles, metallic bloom, warm waveform.
 ────────────────────────────────────────────────────────────────────── */
 const ASSETS = {
-  // Served via https://wiz-ai.b-cdn.net/ to ensure video/mp4 Content-Type (CDN returns application/octet-stream)
-  videoMP4: "https://wiz-ai.b-cdn.net/hero-bg-v2_dc5fb17d.mp4",
+  // Served via /manus-storage/ proxy
+  videoMP4: "/manus-storage/hero-bg-v2_dc5fb17d.mp4",
   poster:
-    "https://wiz-ai.b-cdn.net/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp",
+    "/manus-storage/concert-hall_2b6b946b.jpg",
   staticBg:
-    "https://wiz-ai.b-cdn.net/wizvid-hero-bg-4k-GUBZqG8hsPmj5uDf256WGz.webp",
+    "/manus-storage/concert-hall_2b6b946b.jpg",
 };
 
 const LS_KEY = "wizai_motion_paused";

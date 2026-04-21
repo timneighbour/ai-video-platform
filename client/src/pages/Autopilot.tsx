@@ -25,17 +25,17 @@ import AuthGate from "@/components/AuthGate";
 const YT_RED = "#FF0000";
 
 const VIDEO_STYLES = [
-  { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism", image: "https://wiz-ai.b-cdn.net/style-cinematic-8EttbpJCG8aAwirxMzv25p.webp" },
-  { id: "anime", label: "Anime", desc: "Japanese animation style", image: "https://wiz-ai.b-cdn.net/style-anime-76BJuATsMcjhGJHYLXERiU.webp" },
-  { id: "pixar", label: "Stylised 3D", desc: "Vibrant 3D animation", image: "https://wiz-ai.b-cdn.net/style-pixar-GUBPsNDXp3m9kijU7REvzt.webp" },
-  { id: "documentary", label: "Documentary", desc: "Authentic & raw footage", image: "https://wiz-ai.b-cdn.net/style-documentary-GUdvUoXuDBve4gBc7mKpgx.webp" },
-  { id: "abstract", label: "Abstract", desc: "Artistic visual journey", image: "https://wiz-ai.b-cdn.net/style-abstract-WkAJQNtpbvfE2E9GnzkjxJ.webp" },
-  { id: "vintage", label: "Vintage", desc: "Retro film aesthetic", image: "https://wiz-ai.b-cdn.net/style-vintage-mkatVcuLLHQ5oBRYWdLWtp.webp" },
-  { id: "neon_noir", label: "Neon Noir", desc: "Dark cyberpunk neon glow", image: "https://wiz-ai.b-cdn.net/style-neon-noir-5FS7RgdStYibD2k7cDsLtT.webp" },
-  { id: "disney", label: "Disney", desc: "Magical Disney animation", image: "https://wiz-ai.b-cdn.net/style-disney-BXphR76pPK3kZHkhrNoegX.webp" },
-  { id: "epic_fantasy", label: "Epic Fantasy", desc: "Dramatic magical landscapes", image: "https://wiz-ai.b-cdn.net/style-epic-fantasy-drtG5fAopz4o94Uw3Nwycx.webp" },
-  { id: "realistic", label: "Realistic", desc: "True-to-life photorealism", image: "https://wiz-ai.b-cdn.net/style-realistic-aoCsFQg7RrHiDwviHBmAKk.webp" },
-  { id: "horror", label: "Horror", desc: "Dark, eerie & atmospheric", image: "https://wiz-ai.b-cdn.net/style-horror-V8mWQPZYZySQZ5xPr9y3q4.webp" },
+  { id: "cinematic", label: "Cinematic", desc: "Hollywood-quality realism", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp" },
+  { id: "anime", label: "Anime", desc: "Japanese animation style", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-1-V8cGaKNXBvMPgNtyuk2xCr.webp" },
+  { id: "pixar", label: "Stylised 3D", desc: "Vibrant 3D animation", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-pixar-1-63hx7LosqShdkEWUgxNme8.webp" },
+  { id: "documentary", label: "Documentary", desc: "Authentic & raw footage", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-1-27gSFotXB4DE92dN47HiDu.webp" },
+  { id: "abstract", label: "Abstract", desc: "Artistic visual journey", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-2-WyT8jPLyFBhfgxtbBwkvUy.webp" },
+  { id: "vintage", label: "Vintage", desc: "Retro film aesthetic", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-vintage-2-NJ6jDetQEdsupChus3Npta.webp" },
+  { id: "neon_noir", label: "Neon Noir", desc: "Dark cyberpunk neon glow", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-1-GDpPcEYGEwEHgfbURRVa2k.webp" },
+  { id: "disney", label: "Disney", desc: "Magical Disney animation", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-disney-1-6yqZHZYNgMr4yD3vZEFnJS.webp" },
+  { id: "epic_fantasy", label: "Epic Fantasy", desc: "Dramatic magical landscapes", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-epic-fantasy-2-KL5YAPEZG5DuMGKfganeji.webp" },
+  { id: "realistic", label: "Realistic", desc: "True-to-life photorealism", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-2-Xg8LGZv3hqv8kvqqApjVav.webp" },
+  { id: "horror", label: "Horror", desc: "Dark, eerie & atmospheric", image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-horror-1-SiNk872QcoYBRoMFbonyfG.webp" },
 ];
 
 const DURATIONS = [

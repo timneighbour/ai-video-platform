@@ -31,7 +31,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-const WIZANIMATE_LOGO = "https://wiz-ai.b-cdn.net/wizanimate-logo-v2_e4d3081b.png";
+const WIZANIMATE_LOGO = "/manus-storage/wizanimate-logo-new_a84f9808.png";
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -202,14 +202,14 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <img
-                    src="https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png" loading="eager" decoding="async"
+                    src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" loading="eager" decoding="async"
                     alt="WIZ AI"
                     className="h-[7.3rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
                   />
                 </div>
               ) : (
                 <img
-                  src="https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png" loading="eager" decoding="async"
+                  src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" loading="eager" decoding="async"
                   alt="WIZ AI"
                   className="h-[1.7rem] w-[1.7rem] object-contain rounded"
                 />
