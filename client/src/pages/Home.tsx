@@ -103,7 +103,7 @@ const PRODUCTS_CREATE = [
     name: "WizVideo",
     tagline: "AI Music Video Generator",
     icon: <WizVideoEmblem size={32} />,
-    href: "/products/wizcreate",
+    href: "/music-video",
     glowColor: "oklch(0.70 0.18 260)",
     bgGradient: "linear-gradient(135deg, oklch(0.22 0.08 260 / 0.9) 0%, oklch(0.16 0.06 260 / 0.95) 100%)",
     borderColor: "oklch(0.70 0.18 260 / 0.35)",
@@ -633,7 +633,7 @@ function Nav() {
                   {/* Footer */}
                   <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
                     <p className="text-[10px] text-white/20 font-medium">Automate your entire creative pipeline</p>
-                    <a href="/wizpilot" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
+                    <a href="/products/wizpilot" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">
                       Launch WizPilot <ArrowSVG className="w-3 h-3" />
                     </a>
                   </div>
@@ -2260,7 +2260,7 @@ function BuiltFor() {
   const audiences = [
     { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "/manus-storage/creator-musicians-rockband_bb86fbf0.jpg" },
     { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", logo: WIZANIMATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/products/wizanimate", logo: WIZANIMATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
     { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizboost-hero_9c11e1cc.jpg" },
   ];
   return (

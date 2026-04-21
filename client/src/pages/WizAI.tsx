@@ -33,10 +33,10 @@ const PRODUCTS = [
     ),
   },
   {
-    name: "WizScript",
+    name: "WizPilot",
     tagline: "Automation for the creative workflow.",
-    description: "AI-guided creation — describe your vision and let WizScript build it.",
-    href: "/wizpilot",
+    description: "AI-guided creation — describe your vision and let WizPilot orchestrate the full pipeline.",
+    href: "/products/wizpilot",
     gradient: "from-fuchsia-500 to-pink-600",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8" stroke="currentColor" strokeWidth={1.5}>
@@ -128,9 +128,9 @@ export default function WizAI() {
           <div className="flex items-center gap-8">
             <Link href="/" className="text-sm text-white/60 hover:text-white transition-colors">WIZ AI</Link>
             <Link href="/products/wizsound" className="text-sm text-white/60 hover:text-white transition-colors">WizSound</Link>
-            <Link href="/wizpilot" className="text-sm text-white/60 hover:text-white transition-colors">WizScript</Link>
+            <Link href="/products/wizpilot" className="text-sm text-white/60 hover:text-white transition-colors">WizPilot</Link>
             <Link href="/pricing" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/create" className="text-sm font-medium px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors">
+            <Link href="/onboarding" className="text-sm font-medium px-4 py-2 rounded-full bg-white text-black hover:bg-white/90 transition-colors">
               Start Creating
             </Link>
           </div>
@@ -154,7 +154,7 @@ export default function WizAI() {
             <a href="#products" className="px-8 py-3.5 rounded-full bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors">
               Explore Products
             </a>
-            <Link href="/create" className="px-8 py-3.5 rounded-full border border-white/15 text-white/80 font-medium text-sm hover:bg-white/5 transition-colors">
+            <Link href="/onboarding" className="px-8 py-3.5 rounded-full border border-white/15 text-white/80 font-medium text-sm hover:bg-white/5 transition-colors">
               Start Creating
             </Link>
           </div>
@@ -254,7 +254,7 @@ export default function WizAI() {
           <h2 className="text-4xl sm:text-5xl font-bold mb-10">
             Ready to create?
           </h2>
-          <Link href="/create" className="inline-flex px-10 py-4 rounded-full bg-white text-black font-semibold hover:bg-white/90 transition-colors">
+          <Link href="/onboarding" className="inline-flex px-10 py-4 rounded-full bg-white text-black font-semibold hover:bg-white/90 transition-colors">
             Start Creating
           </Link>
         </FadeSection>
@@ -273,7 +273,7 @@ export default function WizAI() {
           <div className="flex items-center gap-6 text-sm text-white/40">
             <Link href="/" className="hover:text-white transition-colors">WIZ AI</Link>
             <Link href="/products/wizsound" className="hover:text-white transition-colors">WizSound</Link>
-            <Link href="/wizpilot" className="hover:text-white transition-colors">WizScript</Link>
+            <Link href="/products/wizpilot" className="hover:text-white transition-colors">WizPilot</Link>
             <Link href="/products/wizgenesis" className="hover:text-white transition-colors">WizGenesis</Link>
           </div>
           <p className="text-xs text-white/20">© 2026 WIZ AI. All rights reserved.</p>

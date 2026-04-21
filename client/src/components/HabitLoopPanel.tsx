@@ -43,7 +43,7 @@ const TEMPLATES: Template[] = [
     icon: <Eye className="w-4 h-4" />,
     title: "Faceless Content",
     description: "AI visuals for YouTube & social — no camera needed",
-    href: "/wizpilot",
+    href: "/products/wizpilot",
     gradient: "from-[--color-gold]/10 to-[#1a1a1a]",
   },
   {
@@ -51,7 +51,7 @@ const TEMPLATES: Template[] = [
     icon: <BookOpen className="w-4 h-4" />,
     title: "Kids Animation",
     description: "Colourful animated videos for young audiences",
-    href: "/kids-video",
+    href: "/products/wizanimate",
     gradient: "from-[#b8892a]/20 to-orange-600/10",
   },
 ];

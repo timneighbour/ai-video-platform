@@ -18,7 +18,7 @@ const STEPS = [
     pill: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
     dot: "bg-[--color-gold]",
     animType: "waveform",
-    ctaLink: "https://www.wiz-ai.io/music-creator",
+    ctaLink: "/music-creator",
     ctaLabel: "Start with Audio",
   },
   {

@@ -96,7 +96,7 @@ const WIZANIMATE: ProductPageProps = {
   borderColour: "border-cyan-500/30",
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-cyan-500/25",
-  ctaHref: "/wizsync",
+  ctaHref: "/wiz-animate",
   ctaLabel: "Animate Your Video",
   whatItDoes: "WizAnimate™ is the performance engine of WIZ AI. It takes the storyboard from WizCreate™ and generates character animation that is precisely matched to the audio — every movement, gesture, and expression timed to the beat, mood, and energy of the track.",
   capabilities: [
@@ -351,7 +351,7 @@ const WIZSCRIPT: ProductPageProps = {
   borderColour: "border-violet-500/30",
   bgColour: "bg-violet-500/5",
   badgeClass: "text-violet-300 bg-violet-500/10 border-violet-500/25",
-  ctaHref: "/text-to-video",
+  ctaHref: "/wiz-script",
   ctaLabel: "Write Your First Script",
   whatItDoes: "WizScript™ is the creative intelligence layer of WIZ AI. It takes your raw idea — a sentence, a topic, or a mood — and structures it into a complete, production-ready video script. Each scene is defined with visual direction, dialogue, and timing, giving WizGenesis™ everything it needs to build your video automatically.",
   capabilities: [

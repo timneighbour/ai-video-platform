@@ -40,7 +40,7 @@ const menuItems = [
   { icon: Sparkles, label: "WizImage", path: "/wiz-image" },
   { icon: Video, label: "WizVideo", path: "/music-video/create" },
   { icon: Zap, label: "WizShorts", path: "/wiz-shorts" },
-  { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate", path: "/kids-video" },
+  { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate", path: "/products/wizanimate" },
   { icon: Wand2, label: "WizScript", path: "/text-to-video" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: FolderOpen, label: "Projects", path: "/projects" },

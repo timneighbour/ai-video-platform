@@ -91,7 +91,7 @@ const TOOLS: Tool[] = [
     badgeStyle: "blue",
     tagline: "Describe your idea in plain text and let AI build the full video script and storyboard.",
     description: "WizScript converts a plain-text idea into a fully structured video script and storyboard. Define your concept, and WIZ AI generates the scenes, dialogue, and visual direction automatically.",
-    href: "/autopilot",
+    href: "/wizpilot",
     logo: WIZCREATE_LOGO,
     emblem: <WizScriptEmblem size={40} />,
     bg: IMG.cinematic,

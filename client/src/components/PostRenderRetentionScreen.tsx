@@ -46,7 +46,7 @@ const NEXT_ACTIONS = [
     title: "Generate a new song",
     subtitle: "AI-composed original music",
     icon: Music,
-    href: "/music-video/create",
+    href: "/music-creator",
     gradient: "from-[#4a4a5a] to-[#2e2e36]",
   },
   {
@@ -54,7 +54,7 @@ const NEXT_ACTIONS = [
     title: "Kids animation",
     subtitle: "Fun animated story for children",
     icon: Baby,
-    href: "/kids-video",
+    href: "/products/wizanimate",
     gradient: "from-[#9090a0] to-[#2e2e36]",
   },
   {

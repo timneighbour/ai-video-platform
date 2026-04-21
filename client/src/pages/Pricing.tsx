@@ -1081,9 +1081,9 @@ export default function Pricing() {
             {[
               { logo: LOGO_WIZAUDIO, name: "WizAudio", label: "AI Music", href: "/music-creator", color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
               { logo: LOGO_WIZIMAGE, name: "WizImage", label: "AI Images", href: "/wiz-image", color: "rgba(196,164,100,0.15)", border: "rgba(196,164,100,0.3)" },
-              { logo: LOGO_WIZVIDEO, name: "WizVideo", label: "Music Videos", href: "/music-video/create", color: "rgba(60,120,220,0.15)", border: "rgba(60,120,220,0.25)" },
+              { logo: LOGO_WIZVIDEO, name: "WizVideo", label: "Music Videos", href: "/music-video", color: "rgba(60,120,220,0.15)", border: "rgba(60,120,220,0.25)" },
               { logo: LOGO_WIZSHORTS, name: "WizShorts", label: "Short Videos", href: "/wiz-shorts", color: "rgba(220,100,40,0.15)", border: "rgba(220,100,40,0.25)" },
-              { logo: LOGO_WIZANIMATE, name: "WizAnimate", label: "Animation", href: "/kids-video", color: "rgba(200,60,180,0.15)", border: "rgba(200,60,180,0.25)" },
+              { logo: LOGO_WIZANIMATE, name: "WizAnimate", label: "Animation", href: "/products/wizanimate", color: "rgba(200,60,180,0.15)", border: "rgba(200,60,180,0.25)" },
               { logo: LOGO_WIZSCRIPT, name: "WizScript", label: "Text-to-Video", href: "/text-to-video", color: "rgba(0,200,220,0.15)", border: "rgba(0,200,220,0.25)" },
             ].map((product) => (
               <a

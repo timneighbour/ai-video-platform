@@ -232,17 +232,8 @@ function TechnologyPageTemplate({
 
 // ─── All Technology Pages ─────────────────────────────────────────────────────
 
+// Only the 7 public WIZ engines are shown in related links — legacy pages kept for SEO but excluded from nav
 const ALL_TECH = [
-  "/technology/character-consistency",
-  "/technology/scene-builder",
-  "/technology/lip-sync",
-  "/technology/ai-video-engine",
-  "/technology/ai-music-engine",
-  "/technology/wizsound-engine",
-  "/technology/prompt-to-video",
-  "/technology/audio-to-video",
-  "/technology/storyboard-preview",
-  "/technology/4k-rendering",
   "/technology/wizgenesis",
   "/technology/wizsound",
   "/technology/wizlumina",
@@ -254,7 +245,16 @@ const ALL_TECH = [
 
 const RELATED_TECH_ALL = ALL_TECH.map((href) => ({
   href,
-  label: href.replace("/technology/", "").split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+  // Use proper WIZ brand names for the 7 engines
+  label: {
+    "/technology/wizgenesis": "WizGenesis™",
+    "/technology/wizsound": "WizSound™",
+    "/technology/wizlumina": "WizLumina™",
+    "/technology/wizboost": "WizBoost™",
+    "/technology/wizsync": "WizSync™",
+    "/technology/wizscore": "WizScore™",
+    "/technology/wizpilot": "WizPilot™",
+  }[href] ?? href.replace("/technology/", "").split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
 }));
 
 function relatedExcluding(slug: string) {
@@ -526,7 +526,7 @@ export function WizSoundEnginePage() {
       ]}
       ctaHref="/music-creator"
       ctaLabel="Enhance Your Audio"
-      relatedTech={relatedExcluding("wizsound-engine")}
+      relatedTech={relatedExcluding("wizsound")}
     />
   );
 }

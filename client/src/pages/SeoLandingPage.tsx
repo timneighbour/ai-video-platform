@@ -305,7 +305,7 @@ export default function SeoLandingPage() {
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-white/60">
             <Link href="/music-video" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizVideo</Link>
-            <Link href="/autopilot" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizScript</Link>
+            <Link href="/wizpilot" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizScript</Link>
             <Link href="/pricing" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">Pricing</Link>
           </div>
           <Link href="/music-video">
@@ -515,7 +515,7 @@ export default function SeoLandingPage() {
           <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm text-white/40">
             <Link href="/" className="hover:text-white/70 transition-colors">Home</Link>
             <Link href="/music-video" className="hover:text-white/70 transition-colors">WizVideo</Link>
-            <Link href="/autopilot" className="hover:text-white/70 transition-colors">WizScript</Link>
+            <Link href="/wizpilot" className="hover:text-white/70 transition-colors">WizScript</Link>
             <Link href="/pricing" className="hover:text-white/70 transition-colors">Pricing</Link>
           </div>
         </div>

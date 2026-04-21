@@ -217,9 +217,9 @@ export default function Help() {
         {/* Quick links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
           {[
-            { icon: <Music className="w-4 h-4" />, label: "Music Videos", href: "/music-video/create" },
-            { icon: <Video className="w-4 h-4" />, label: "AI Video", href: "/wizpilot" },
-            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/kids-video" },
+            { icon: <Music className="w-4 h-4" />, label: "Music Videos", href: "/music-video" },
+            { icon: <Video className="w-4 h-4" />, label: "AI Video", href: "/products/wizpilot" },
+            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/products/wizanimate" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
               <div className="p-4 rounded-xl bg-[#0a0a0a] border border-[--color-gold]/[0.1] hover:border-[--color-gold]/[0.3] hover:bg-[--color-gold]/[0.04] transition-all cursor-pointer text-center group">

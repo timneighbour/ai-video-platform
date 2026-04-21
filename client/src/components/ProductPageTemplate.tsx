@@ -105,7 +105,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           </div>
           <div className="flex items-center gap-3">
             <NavLink href="/" className="nav-link">Home</NavLink>
-            <NavLink href="/create" className="nav-link">All Tools</NavLink>
+            <NavLink href="/onboarding" className="nav-link">Get Started</NavLink>
           </div>
         </div>
       </nav>
