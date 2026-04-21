@@ -721,8 +721,8 @@ function Nav() {
                   <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-3 mb-1.5 px-3">Create</p>
                   {PRODUCTS_CREATE.map((p) => (
                     <NavLink key={p.name} href={p.href} className="flex items-center gap-3.5 px-3 py-3 rounded-2xl mt-1 transition-all duration-200 group" style={{ border: `1px solid ${p.borderColor}` }}
-                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = p.bgGradient; }}
-                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onTouchStart={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = p.bgGradient; }}
+                      onTouchEnd={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
                       <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl" style={{ background: p.bgGradient, border: `1px solid ${p.borderColor}` }}>{p.icon}</div>
                       <div className="min-w-0 flex-1">
@@ -736,8 +736,8 @@ function Nav() {
                   <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-4 mb-1.5 px-3">Enhance</p>
                   {PRODUCTS_ENHANCE.map((p) => (
                     <NavLink key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
-                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
-                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onTouchStart={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
                       <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
                         <img src={p.logo} alt={p.name} className="w-7 h-7 object-contain" loading="lazy" />
@@ -753,8 +753,8 @@ function Nav() {
                   <p className="text-[9px] font-black tracking-[0.28em] uppercase text-[--color-gold-dark]/40 mt-4 mb-1.5 px-3">Grow</p>
                   {PRODUCTS_GROW.map((p) => (
                     <NavLink key={p.name} href={p.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}
-                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
-                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onTouchStart={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
                       <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
                         <img src={p.logo} alt={p.name} className="w-7 h-7 object-contain" loading="lazy" />
@@ -792,8 +792,8 @@ function Nav() {
                 <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
                   {WIZ_TECHNOLOGY.map((eng) => (
                     <NavLink key={eng.name} href={eng.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid transparent" }}
-                      onTouchStart={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
-                      onTouchEnd={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      onTouchStart={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+                      onTouchEnd={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                       onClick={() => setMobileOpen(false)}>
                       <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>
                         <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
