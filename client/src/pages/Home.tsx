@@ -306,8 +306,8 @@ function Nav() {
                             href={p.href}
                             className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
                             style={{ border: "1px solid transparent" }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
+                            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
                           >
                             <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden" style={{ background: p.bgGradient, border: `1px solid ${p.borderColor}` }}>
                               <span className="opacity-85 group-hover:opacity-100 transition-opacity">{p.icon}</span>
@@ -334,8 +334,8 @@ function Nav() {
                             href={p.href}
                             className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
                             style={{ border: "1px solid transparent" }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
+                            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
                           >
                             <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
                               <img src={p.logo} alt={p.name} className="w-5 h-5 object-contain" loading="lazy" />
@@ -355,8 +355,8 @@ function Nav() {
                             href={p.href}
                             className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
                             style={{ border: "1px solid transparent" }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.13)"; }}
+                            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
                           >
                             <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.14)" }}>
                               <img src={p.logo} alt={p.name} className="w-5 h-5 object-contain" loading="lazy" />
@@ -427,8 +427,8 @@ function Nav() {
                         href={eng.href}
                         className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
                         style={{ border: "1px solid transparent" }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+                        onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
+                        onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
                       >
                         <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
                           <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
@@ -495,8 +495,8 @@ function Nav() {
                       href="/products/wizcreate"
                       className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
                       style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+                      onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+                      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
                         src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
@@ -519,8 +519,8 @@ function Nav() {
                       href="/products/wizpilot"
                       className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
                       style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+                      onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+                      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
                         src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
@@ -543,8 +543,8 @@ function Nav() {
                       href="/products/wizsync-info"
                       className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
                       style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+                      onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+                      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
                         src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp"
@@ -567,8 +567,8 @@ function Nav() {
                       href="/products/wizscore"
                       className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
                       style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+                      onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+                      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
                         src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp"
