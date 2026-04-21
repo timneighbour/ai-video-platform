@@ -145,7 +145,7 @@ export default function SeoLandingPage() {
 
   const canonicalUrl = `https://wiz-ai.io/seo/${slug}`;
   const ogImage =
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-og-image_placeholder.png";
+    "https://wiz-ai.b-cdn.net/wizvid-og-image_placeholder.png";
 
   const injectSchemas = useCallback(() => {
     if (!page) return;
@@ -217,7 +217,7 @@ export default function SeoLandingPage() {
         name: "WIZ AI",
         logo: {
           "@type": "ImageObject",
-          url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png",
+          url: "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png",
         },
       },
     });
@@ -294,7 +294,7 @@ export default function SeoLandingPage() {
           <Link href="/">
             <div className="flex items-center cursor-pointer">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png"
+                src="https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png"
                 alt="WIZ AI"
                 className="h-[7.3rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
               />
@@ -399,7 +399,7 @@ export default function SeoLandingPage() {
           <div className="p-8 rounded-2xl bg-gradient-to-br from-[#b8892a]/40 to-[#2e2e36]/20 border border-[--color-gold]/30">
             <div className="flex items-center gap-3 mb-4">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png"
+                src="https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png"
                 alt="WIZ AI"
                 className="w-10 h-10 rounded-xl object-cover"
               />

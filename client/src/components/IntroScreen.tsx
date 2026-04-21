@@ -17,9 +17,9 @@ import { ChevronRight, Play } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-wizsound-pure_8c53762c.mp4";
+  "https://wiz-ai.b-cdn.net/wizai-intro-wizsound-pure_8c53762c.mp4";
 const POSTER_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-poster_760474dc.jpg";
+  "https://wiz-ai.b-cdn.net/wizai-intro-poster_760474dc.jpg";
 
 // iOS Safari needs significantly more time to buffer — use 12 s
 const LOAD_TIMEOUT_MS = 12000;

@@ -16,19 +16,19 @@ import {
 } from "./WizProductEmblems";
 
 // Permanent WebP CDN URLs — no signed expiry, cacheable for 1 year by Bunny CDN
-const WIZAUDIO_LOGO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizaudio-logo-v1_1a1caef4.webp`;
-const WIZIMAGE_LOGO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizimage-logo-v1_21577b6d.webp`;
-const WIZVIDEO_LOGO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvideo-logo-v1_a28ad483.webp`;
-const WIZSHORTS_LOGO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizshorts-logo-v1_fa835a18.webp`;
-const WIZANIMATE_LOGO_V3 = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v3_e21a763d.webp`;
-const WIZSCRIPT_LOGO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizscript-logo-v1_de427063.webp`;
+const WIZAUDIO_LOGO = `https://wiz-ai.b-cdn.net/wizaudio-logo-v1_1a1caef4.webp`;
+const WIZIMAGE_LOGO = `https://wiz-ai.b-cdn.net/wizimage-logo-v1_21577b6d.webp`;
+const WIZVIDEO_LOGO = `https://wiz-ai.b-cdn.net/wizvideo-logo-v1_a28ad483.webp`;
+const WIZSHORTS_LOGO = `https://wiz-ai.b-cdn.net/wizshorts-logo-v1_fa835a18.webp`;
+const WIZANIMATE_LOGO_V3 = `https://wiz-ai.b-cdn.net/wizanimate-logo-v3_e21a763d.webp`;
+const WIZSCRIPT_LOGO = `https://wiz-ai.b-cdn.net/wizscript-logo-v1_de427063.webp`;
 
-const CARD_BG_AUDIO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/card-wizaudio-v2_19498b78.webp`;
-const CARD_BG_IMAGE = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/create-card-image_3b89c617.webp`;
-const CARD_BG_VIDEO = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/card-music-video-v2_ecc2ca2a.webp`;
-const CARD_BG_SHORTS = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/card-youtube-creator-v2_d096d31d.webp`;
-const CARD_BG_ANIMATE = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/card-wizanimate-v2_639d350e.webp`;
-const CARD_BG_SCRIPT = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/card-text-to-video-v2_4ff464b4.webp`;
+const CARD_BG_AUDIO = `https://wiz-ai.b-cdn.net/card-wizaudio-v2_19498b78.webp`;
+const CARD_BG_IMAGE = `https://wiz-ai.b-cdn.net/create-card-image_3b89c617.webp`;
+const CARD_BG_VIDEO = `https://wiz-ai.b-cdn.net/card-music-video-v2_ecc2ca2a.webp`;
+const CARD_BG_SHORTS = `https://wiz-ai.b-cdn.net/card-youtube-creator-v2_d096d31d.webp`;
+const CARD_BG_ANIMATE = `https://wiz-ai.b-cdn.net/card-wizanimate-v2_639d350e.webp`;
+const CARD_BG_SCRIPT = `https://wiz-ai.b-cdn.net/card-text-to-video-v2_4ff464b4.webp`;
 
 type AccentKey = "emerald" | "amber" | "violet" | "cyan" | "rose" | "orange";
 

@@ -16,7 +16,7 @@ import {
 } from "@/lib/icons";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 
-const WIZSOUND_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/wizsound-logo-v5_76ab5163.png";
+const WIZSOUND_LOGO = "https://wiz-ai.b-cdn.net/wizsound-logo-v5_76ab5163.png";
 
 /**
  * Proxy external audio CDN URLs through our server to avoid CORS issues.
@@ -25,7 +25,7 @@ const WIZSOUND_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/
 function resolveAudioUrl(url: string): string {
   if (!url) return url;
   // Already proxied or hosted on our CDN — serve directly
-  if (url.includes("d2xsxph8kpxj0f.cloudfront.net") || url.startsWith("/")) return url;
+  if (url.includes("b-cdn.net") || url.startsWith("/")) return url;
   // External audio CDN URLs need proxying for browser playback
   if (url.includes("suno.ai") || url.includes("audiopipe") || url.includes("aiquickdraw.com")) {
     return `/api/audio/proxy?url=${encodeURIComponent(url)}`;

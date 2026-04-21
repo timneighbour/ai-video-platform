@@ -8,16 +8,16 @@
 import ProductPageTemplate, { ProductPageProps } from "@/components/ProductPageTemplate";
 
 const HERO_IMGS = {
-  wizcreate:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp",
-  wizanimate: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp",
-  wizsound:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp",
-  wizlumina:  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizlumina-hero-kHJx4qngFnx5nokUsLwRYb.webp",
-  wizgenesis: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizgenesis-hero-2m3zQM9m3ofJdcMKk2ytLD.webp",
-  wizboost:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizboost-hero-9jAjBQAVS3hYY2DDCWTta7.webp",
-  wizsync:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp",
+  wizcreate:  "https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp",
+  wizanimate: "https://wiz-ai.b-cdn.net/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp",
+  wizsound:   "https://wiz-ai.b-cdn.net/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp",
+  wizlumina:  "https://wiz-ai.b-cdn.net/product-wizlumina-hero-kHJx4qngFnx5nokUsLwRYb.webp",
+  wizgenesis: "https://wiz-ai.b-cdn.net/product-wizgenesis-hero-2m3zQM9m3ofJdcMKk2ytLD.webp",
+  wizboost:   "https://wiz-ai.b-cdn.net/product-wizboost-hero-9jAjBQAVS3hYY2DDCWTta7.webp",
+  wizsync:    "https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp",
 };
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const CDN = "https://wiz-ai.b-cdn.net";
 
 const ALL_RELATED = [
   { name: "WizCreate™", href: "/products/wizcreate", colour: "violet" },
@@ -89,7 +89,7 @@ const WIZANIMATE: ProductPageProps = {
   tagline: "Character Animation Engine",
   headline: "Characters that move, feel, and perform",
   subheadline: "WizAnimate™ takes your storyboard and breathes life into every character — generating fluid, beat-matched animation that looks like it was directed by a professional.",
-  logo: `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_e4d3081b.png`,
+  logo: `https://wiz-ai.b-cdn.net/wizanimate-logo-v2_e4d3081b.png`,
   accentFrom: "from-[#9090a0]",
   accentTo: "to-blue-300",
   accentGlow: "rgba(6,182,212,0.25)",
@@ -344,7 +344,7 @@ const WIZSCRIPT: ProductPageProps = {
   tagline: "AI Script & Storyboard Engine",
   headline: "From plain text to a fully-structured video script",
   subheadline: "WizScript™ transforms your idea — a single sentence, a concept, a topic — into a scene-by-scene video script with dialogue, visual direction, and storyboard panels, ready for WizGenesis™ to render.",
-  logo: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizscript-logo-v1_df85b4ab.png",
+  logo: "https://wiz-ai.b-cdn.net/wizscript-logo-v1_df85b4ab.png",
   accentFrom: "from-violet-400",
   accentTo: "to-purple-600",
   accentGlow: "rgba(139,92,246,0.25)",
@@ -384,7 +384,7 @@ const WIZSCRIPT: ProductPageProps = {
     { icon: "star", title: "Character Voice Consistency", desc: "Maintains consistent character voices, dialogue styles, and personality traits across all scenes for a coherent, professional narrative." },
     { icon: "zap", title: "WizGenesis™ Integration", desc: "Scripts flow directly into WizGenesis™ for rendering — no manual export, no format conversion, no setup. One click from script to final video." },
   ],
-  heroImage: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizscript-hero_bb15d595.png",
+  heroImage: "https://wiz-ai.b-cdn.net/product-wizscript-hero_bb15d595.png",
   related: ALL_RELATED.filter(r => r.name !== "WizCreate™"),
 };
 

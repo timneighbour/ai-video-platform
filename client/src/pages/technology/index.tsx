@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { ArrowRight, CheckCircle, Zap, Cpu, Film, Music, Layers, Eye, Mic, Star, Shield, BarChart3, RefreshCw, Upload, Download, Play } from "lucide-react";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const CDN = "https://wiz-ai.b-cdn.net";
 const WIZAI_LOGO = `${CDN}/wizai-logo-v3-transparent-Bm4Lzm7VmYNxWHbPZEJzNg.png`;
 
 // ─── Shared Technology Page Template ─────────────────────────────────────────

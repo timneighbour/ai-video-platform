@@ -16,18 +16,18 @@ import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ──────────────────────────────────────────────────────── */
 const POSTER_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
+  "https://wiz-ai.b-cdn.net/wizvid-demo-poster-4k-anXRaxizHsSLrb8pmCTu5A.webp";
 
 const VIDEO_SRC =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/demo-video-only_404f1adb.mp4";
+  "https://wiz-ai.b-cdn.net/demo-video-only_404f1adb.mp4";
 
 // Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before" experience
 const AUDIO_STANDARD =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-standard-subwoofer_df98cac4.mp3";
+  "https://wiz-ai.b-cdn.net/wizsound-demo-standard-subwoofer_df98cac4.mp3";
 
 // WizSound Cinematic: same source track, FFmpeg DSP processed — EQ boosted, compressed, +6 LUFS louder — the "wow" moment
 const AUDIO_WIZSOUND =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3";
+  "https://wiz-ai.b-cdn.net/wizsound-demo-enhanced-subwoofer_eec1eb9c.mp3";
 
 /* ── Premium caption timeline ────────────────────────────────────────── */
 // Each entry: [startSec, endSec, headline, subtext?, accentColour?, isLuminaUpsell?]

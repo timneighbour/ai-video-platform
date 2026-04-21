@@ -8,9 +8,9 @@ import { describe, it, expect } from "vitest";
 
 // The CDN URLs are static constants — test them directly without spinning up a tRPC server
 const WIZSOUND_PREVIEW_URLS = {
-  standard: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-standard_955bb422.mp3",
-  enhanced: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-enhanced_fe580439.mp3",
-  cinematic: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/preview-cinematic_281fea93.mp3",
+  standard: "https://wiz-ai.b-cdn.net/preview-standard_955bb422.mp3",
+  enhanced: "https://wiz-ai.b-cdn.net/preview-enhanced_fe580439.mp3",
+  cinematic: "https://wiz-ai.b-cdn.net/preview-cinematic_281fea93.mp3",
 };
 
 describe("WizSound™ preview URLs", () => {

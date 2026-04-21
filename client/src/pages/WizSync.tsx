@@ -418,7 +418,7 @@ export default function WizSyncPage() {
             <BackButton fallback="/create" label="Back" />
             <div className="flex items-center gap-3">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png"
+                src="https://wiz-ai.b-cdn.net/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png"
                 alt="WizSync™"
                 className="h-8 w-auto object-contain"
               />
@@ -442,7 +442,7 @@ export default function WizSyncPage() {
           </div>
           <div className="flex justify-center mb-2">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png"
+              src="https://wiz-ai.b-cdn.net/wizsync-logo-v1-DCKqEogpbduD58LkFMnAts.png"
               alt="WizSync™"
               className="h-16 w-auto object-contain drop-shadow-[0_0_24px_rgba(139,92,246,0.6)]"
             />

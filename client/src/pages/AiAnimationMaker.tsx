@@ -22,8 +22,8 @@ import { mp } from "@/lib/mixpanel";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 // ── Asset constants ───────────────────────────────────────────────────────────
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ff33f09f.webp";
+const CDN = "https://wiz-ai.b-cdn.net";
+const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ff33f09f.webp";
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-v2_e4d3081b.png`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-final_9f61f0de.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
@@ -102,25 +102,25 @@ const HOW_IT_WORKS = [
     step: "01",
     title: "Describe your animation",
     desc: "Tell WIZ AI what you want — characters, setting, mood, and story. Add a title, theme, or even a script.",
-    img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step1-choose_1102ddee.jpg",
+    img: "https://wiz-ai.b-cdn.net/hiw-step1-choose_1102ddee.jpg",
   },
   {
     step: "02",
     title: "Choose your animation style",
     desc: "Pick from Stylised 3D, Storybook, Anime, Classic Cartoon, Magical Cinematic, or Clay Animation.",
-    img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step2-storyboard_21e66052.jpg",
+    img: "https://wiz-ai.b-cdn.net/hiw-step2-storyboard_21e66052.jpg",
   },
   {
     step: "03",
     title: "Preview every scene",
     desc: "WizCreate™ builds a full storyboard. Review, edit, and refine each scene before rendering a single frame.",
-    img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step3-preview_e536f5b1.jpg",
+    img: "https://wiz-ai.b-cdn.net/hiw-step3-preview_e536f5b1.jpg",
   },
   {
     step: "04",
     title: "Render and download",
     desc: "Export your finished animation in HD or 4K with WizSound™ audio mastering built in. Ready to publish.",
-    img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/hiw-step4-export_68c87f9e.jpg",
+    img: "https://wiz-ai.b-cdn.net/hiw-step4-export_68c87f9e.jpg",
   },
 ];
 
@@ -129,19 +129,19 @@ const TESTIMONIALS = [
     quote: "I made a full 90-second animated intro for my kids' YouTube channel in under an hour. The Stylised 3D quality is incredible.",
     name: "Sophie R.",
     role: "Kids Content Creator",
-    avatar: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-sophie_7b87260f.jpg",
+    avatar: "https://wiz-ai.b-cdn.net/avatar-sophie_7b87260f.jpg",
   },
   {
     quote: "The storybook style is exactly what I needed for my children's story series. WIZ AI nailed the illustrated look on the first try.",
     name: "Marcus T.",
     role: "Children's Author & Creator",
-    avatar: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-marcus_5c70b009.jpg",
+    avatar: "https://wiz-ai.b-cdn.net/avatar-marcus_5c70b009.jpg",
   },
   {
     quote: "I've tried every AI animation tool out there. WIZ AI is the only one that lets me preview every scene before I commit to rendering.",
     name: "Priya K.",
     role: "Animator & YouTuber",
-    avatar: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/avatar-priya_5975eaf5.jpg",
+    avatar: "https://wiz-ai.b-cdn.net/avatar-priya_5975eaf5.jpg",
   },
 ];
 
@@ -660,7 +660,7 @@ export default function AiAnimationMaker() {
             id: 1,
             title: "Star Quest — Kids Channel Intro",
             category: "Stylised 3D",
-            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-star-quest_c73c29bd.jpg",
+            posterUrl: "https://wiz-ai.b-cdn.net/showcase-star-quest_c73c29bd.jpg",
             videoUrl: null,
             description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
           },

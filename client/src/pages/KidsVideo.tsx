@@ -50,7 +50,7 @@ const KIDS_STYLES = [
     bg: "bg-[--color-gold]/10",
     selectedBg: "bg-[--color-gold]/15",
     example: "Vibrant · Colourful · Expressive",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-pixar3d_e61a549d.jpg",
+    image: "https://wiz-ai.b-cdn.net/kids-style-pixar3d_e61a549d.jpg",
   },
   {
     id: "disney",
@@ -62,7 +62,7 @@ const KIDS_STYLES = [
     bg: "bg-[--color-gold]/15",
     selectedBg: "bg-[--color-gold]/15",
     example: "Enchanted · Magical · Cinematic",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-disney_9c9b6894.jpg",
+    image: "https://wiz-ai.b-cdn.net/kids-style-disney_9c9b6894.jpg",
   },
   {
     id: "anime",
@@ -74,7 +74,7 @@ const KIDS_STYLES = [
     bg: "bg-[--color-silver]/10",
     selectedBg: "bg-[--color-silver]/10",
     example: "Expressive · Detailed · Vibrant",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-anime_e5435cad.jpg",
+    image: "https://wiz-ai.b-cdn.net/kids-style-anime_e5435cad.jpg",
   },
   {
     id: "cartoon",
@@ -86,7 +86,7 @@ const KIDS_STYLES = [
     bg: "bg-orange-950/40",
     selectedBg: "bg-orange-600/20",
     example: "Colourful · Fun · Family-friendly",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-cartoon_1ed8ac1b.jpg",
+    image: "https://wiz-ai.b-cdn.net/kids-style-cartoon_1ed8ac1b.jpg",
   },
   {
     id: "storybook",
@@ -98,7 +98,7 @@ const KIDS_STYLES = [
     bg: "bg-[--color-silver]/10",
     selectedBg: "bg-[--color-silver]/15",
     example: "Illustrated · Whimsical · Timeless",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook_4bc666a9.jpg",
+    image: "https://wiz-ai.b-cdn.net/kids-style-storybook_4bc666a9.jpg",
   },
   {
     id: "claymation",
@@ -110,7 +110,7 @@ const KIDS_STYLES = [
     bg: "bg-[--color-gold]/15",
     selectedBg: "bg-[--color-gold]/15",
     example: "Tactile · Playful · Handcrafted",
-    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-claymation_65d3102c.jpg",
+    image: "https://wiz-ai.b-cdn.net/kids-style-claymation_65d3102c.jpg",
   },
   {
     id: "ghibli",

@@ -16,8 +16,8 @@ import {
   WizScriptEmblem,
 } from "@/components/WizProductEmblems";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ac3f550b.png";
+const CDN = "https://wiz-ai.b-cdn.net";
+const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZPILOT_LOGO = `${CDN}/wizpilot-logo-final_22d02597.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;

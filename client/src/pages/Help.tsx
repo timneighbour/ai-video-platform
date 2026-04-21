@@ -11,7 +11,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import PublicNavBar from "@/components/PublicNavBar";
 
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ff33f09f.webp";
+const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ff33f09f.webp";
 
 const FAQS = [
   {
@@ -183,7 +183,7 @@ export default function Help() {
       {/* Premium hero background */}
       <div className="relative">
         <div className="absolute inset-0 h-72 pointer-events-none overflow-hidden">
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/help-hero-bg_a1455798.jpg" alt="" className="w-full h-full object-cover opacity-[0.18]" />
+          <img src="https://wiz-ai.b-cdn.net/help-hero-bg_a1455798.jpg" alt="" className="w-full h-full object-cover opacity-[0.18]" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.2) 0%, rgba(4,4,4,0.8) 70%, #040404 100%)' }} />
         </div>
 
@@ -295,7 +295,7 @@ export default function Help() {
         {/* Contact support */}
         <div className="mt-16">
           <div className="relative rounded-2xl overflow-hidden border border-[--color-gold]/[0.15] p-8 mb-6">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/help-hero-bg_a1455798.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08]" />
+            <img src="https://wiz-ai.b-cdn.net/help-hero-bg_a1455798.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.08]" />
             <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/10 via-transparent to-transparent pointer-events-none" />
             <div className="relative text-center mb-6">
               <h2 className="text-xl font-bold text-white mb-1">Still need help?</h2>

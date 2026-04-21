@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import { ArrowRight, ChevronRight } from "@/lib/icons";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const CDN = "https://wiz-ai.b-cdn.net";
 
 interface PipelineStep {
   id: string;
@@ -57,7 +57,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(6,182,212,0.35)]",
     border: "border-cyan-500/40",
     bg: "bg-[--color-silver]/10",
-    icon: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-logo-v2_b363ca67.png",
+    icon: "https://wiz-ai.b-cdn.net/wizanimate-logo-v2_b363ca67.png",
     href: "/products/wizanimate",
     isBranch: true,
     branchWith: "WizSync™",

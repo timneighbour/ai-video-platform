@@ -8,7 +8,7 @@ import {
 const STEPS = [
   {
     step: 1,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-audio-v2_7fd434c8.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-audio-v2_7fd434c8.png",
     icon: Music2,
     title: "Create or Upload Audio",
     desc: "Create a song with AI or upload your own track",
@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     step: 2,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-video-v2_0f90d571.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-video-v2_0f90d571.png",
     icon: Film,
     title: "Generate Your Video",
     desc: "Turn your audio into a cinematic video or animation",
@@ -36,7 +36,7 @@ const STEPS = [
   },
   {
     step: 3,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-character-v2_9b47c6b6.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-character-v2_9b47c6b6.png",
     icon: User,
     title: "Lock Your Character",
     desc: "Upload a photo or generate your own AI character — locked across every scene",
@@ -50,7 +50,7 @@ const STEPS = [
   },
   {
     step: 4,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-storyboard-v2_3e59ab78.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-storyboard-v2_3e59ab78.png",
     icon: Brain,
     title: "Build Your Storyboard",
     desc: "Preview and refine every scene before rendering your full video",
@@ -64,7 +64,7 @@ const STEPS = [
   },
   {
     step: 5,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-render-v2_39bae441.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-render-v2_39bae441.png",
     icon: Zap,
     title: "Full Video Render",
     desc: "Render your complete video only when you're happy",
@@ -78,7 +78,7 @@ const STEPS = [
   },
   {
     step: 6,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-notify-v2_a1f9d86c.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-notify-v2_a1f9d86c.png",
     icon: Bell,
     title: "Get Notified",
     desc: "Get notified when your video is ready — by email or dashboard",
@@ -92,7 +92,7 @@ const STEPS = [
   },
   {
     step: 7,
-    iconImg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/icon-wizboost-v2_24dfd2f9.png",
+    iconImg: "https://wiz-ai.b-cdn.net/icon-wizboost-v2_24dfd2f9.png",
     icon: Rocket,
     title: "Share & Grow",
     desc: "Share your creation, grow your audience, and promote your content",

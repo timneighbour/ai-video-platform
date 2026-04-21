@@ -386,7 +386,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             <ArrowRight className="w-3 h-3" />
           </a>
           <a
-            href="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/featured-on-wizvid-badge-f57zSZBxBYSqSdFWbYUVHA.png"
+            href="https://wiz-ai.b-cdn.net/featured-on-wizvid-badge-f57zSZBxBYSqSdFWbYUVHA.png"
             download="featured-on-wizai-badge.png"
             target="_blank"
             rel="noopener noreferrer"

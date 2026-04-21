@@ -23,7 +23,7 @@ import { Volume2, VolumeX, X, ChevronRight } from "@/lib/icons";
 
 // DEPRECATED — old video asset. Active intro uses IntroScreen.tsx with wizai-intro-wizsound-pure_8c53762c.mp4
 const INTRO_VIDEO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-intro-old_bff923cf.mp4"; // Re-uploaded with video/mp4 MIME type
+  "https://wiz-ai.b-cdn.net/wizai-intro-old_bff923cf.mp4"; // Re-uploaded with video/mp4 MIME type
 
 export const INTRO_SEEN_KEY = "wizai_intro_v3";
 

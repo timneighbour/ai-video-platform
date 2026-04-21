@@ -28,8 +28,8 @@ const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?
 );
 
 // ── CDN & Logo constants ──────────────────────────────────────────────────────
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const WIZAI_LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizai-logo-premium-transparent_ff33f09f.webp";
+const CDN = "https://wiz-ai.b-cdn.net";
+const WIZAI_LOGO = "https://wiz-ai.b-cdn.net/wizai-logo-premium-transparent_ff33f09f.webp";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-v5_76ab5163.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-final-RNomEkxpATo5cgx6gBQPGN.webp`;
 const WIZBOOST_LOGO = `${CDN}/module-wizboost_ce93c033.png`;
@@ -455,7 +455,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
+                        src="https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
                         alt="WizCreate"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -479,7 +479,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
+                        src="https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp"
                         alt="WizPilot"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -503,7 +503,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp"
+                        src="https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp"
                         alt="WizSync"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -527,7 +527,7 @@ function Nav() {
                       onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
                     >
                       <img
-                        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp"
+                        src="https://wiz-ai.b-cdn.net/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp"
                         alt="WizScore"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
@@ -786,10 +786,10 @@ function Nav() {
               }`}>
                 <div className="px-3 pb-3 flex flex-col gap-2">
                   {[
-                    { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp" },
-                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZSYNC_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
-                    { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
-                    { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp" },
+                    { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp" },
+                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZSYNC_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
+                    { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
+                    { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "https://wiz-ai.b-cdn.net/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp" },
                   ].map((tool) => (
                     <a
                       key={tool.name}
