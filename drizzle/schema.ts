@@ -898,3 +898,147 @@ export const dataRequests = mysqlTable("dataRequests", {
 });
 export type DataRequest = typeof dataRequests.$inferSelect;
 export type InsertDataRequest = typeof dataRequests.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WizAdora™ — Internal API Foundation (Phase 1)
+// Private internal API layer. Not publicly exposed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Internal API keys for WizAdora.
+ * Only wiz_test_sk_ keys for now. wiz_live_sk_ reserved for future production.
+ * No public user-generated keys yet — admin-only.
+ */
+export const wizadoraApiKeys = mysqlTable("wizadora_api_keys", {
+  id: int("id").primaryKey().autoincrement(),
+  keyHash: varchar("key_hash", { length: 64 }).notNull().unique(),
+  keyPrefix: varchar("key_prefix", { length: 20 }).notNull(),
+  label: varchar("label", { length: 100 }).notNull(),
+  ownerId: int("owner_id").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  lastUsedAt: timestamp("last_used_at"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+});
+export type WizadoraApiKey = typeof wizadoraApiKeys.$inferSelect;
+export type InsertWizadoraApiKey = typeof wizadoraApiKeys.$inferInsert;
+
+/**
+ * WizAdora job model — full lifecycle.
+ * queued → processing → completed | failed | cancelled
+ */
+export const wizadoraJobs = mysqlTable("wizadora_jobs", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: int("user_id").notNull(),
+  apiKeyId: int("api_key_id"),
+  prompt: text("prompt").notNull(),
+  negativePrompt: text("negative_prompt"),
+  duration: int("duration").notNull().default(5),
+  resolution: varchar("resolution", { length: 20 }).notNull().default("720p"),
+  aspectRatio: varchar("aspect_ratio", { length: 10 }).notNull().default("16:9"),
+  style: varchar("style", { length: 50 }).notNull().default("cinematic"),
+  motionIntensity: varchar("motion_intensity", { length: 20 }).default("medium"),
+  provider: varchar("provider", { length: 50 }).notNull().default("atlas_cloud"),
+  providerJobId: varchar("provider_job_id", { length: 200 }),
+  idempotencyKey: varchar("idempotency_key", { length: 200 }).unique(),
+  status: mysqlEnum("wizadora_job_status", ["queued", "processing", "completed", "failed", "cancelled"]).notNull().default("queued"),
+  progress: int("progress").notNull().default(0),
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 4 }),
+  actualCost: decimal("actual_cost", { precision: 10, scale: 4 }),
+  creditsReserved: int("credits_reserved").notNull().default(0),
+  creditsCharged: int("credits_charged").notNull().default(0),
+  outputVideoUrl: text("output_video_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  errorCode: varchar("error_code", { length: 50 }),
+  errorMessage: text("error_message"),
+  moderationBlocked: boolean("moderation_blocked").notNull().default(false),
+  moderationReason: varchar("moderation_reason", { length: 200 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  failedAt: timestamp("failed_at"),
+  cancelledAt: timestamp("cancelled_at"),
+});
+export type WizadoraJob = typeof wizadoraJobs.$inferSelect;
+export type InsertWizadoraJob = typeof wizadoraJobs.$inferInsert;
+
+/**
+ * Provider submission log — every Atlas Cloud call logged here, never deleted.
+ */
+export const wizadoraProviderLogs = mysqlTable("wizadora_provider_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  jobId: varchar("job_id", { length: 36 }).notNull(),
+  provider: varchar("provider", { length: 50 }).notNull(),
+  providerJobId: varchar("provider_job_id", { length: 200 }),
+  requestPayloadHash: varchar("request_payload_hash", { length: 64 }),
+  idempotencyKey: varchar("idempotency_key", { length: 200 }),
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 4 }),
+  actualCost: decimal("actual_cost", { precision: 10, scale: 4 }),
+  status: mysqlEnum("wizadora_provider_status", ["submitted", "completed", "failed", "cancelled"]).notNull().default("submitted"),
+  errorCode: varchar("error_code", { length: 50 }),
+  errorMessage: text("error_message"),
+  submittedAt: timestamp("submitted_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+  failedAt: timestamp("failed_at"),
+});
+export type WizadoraProviderLog = typeof wizadoraProviderLogs.$inferSelect;
+export type InsertWizadoraProviderLog = typeof wizadoraProviderLogs.$inferInsert;
+
+/**
+ * Idempotency key store — prevents duplicate jobs from same client key.
+ */
+export const wizadoraIdempotencyKeys = mysqlTable("wizadora_idempotency_keys", {
+  id: int("id").primaryKey().autoincrement(),
+  idempotencyKey: varchar("idempotency_key", { length: 200 }).notNull().unique(),
+  userId: int("user_id").notNull(),
+  jobId: varchar("job_id", { length: 36 }).notNull(),
+  requestHash: varchar("request_hash", { length: 64 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+export type WizadoraIdempotencyKey = typeof wizadoraIdempotencyKeys.$inferSelect;
+export type InsertWizadoraIdempotencyKey = typeof wizadoraIdempotencyKeys.$inferInsert;
+
+/**
+ * Webhook delivery log — HMAC-SHA256 signed, replay protection.
+ */
+export const wizadoraWebhookLogs = mysqlTable("wizadora_webhook_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  jobId: varchar("job_id", { length: 36 }).notNull(),
+  eventType: varchar("event_type", { length: 50 }).notNull(),
+  endpointUrl: text("endpoint_url"),
+  payloadHash: varchar("payload_hash", { length: 64 }),
+  signature: varchar("signature", { length: 128 }),
+  deliveryStatus: mysqlEnum("wizadora_webhook_status", ["pending", "delivered", "failed", "skipped"]).notNull().default("pending"),
+  attemptCount: int("attempt_count").notNull().default(0),
+  lastAttemptAt: timestamp("last_attempt_at"),
+  nextRetryAt: timestamp("next_retry_at"),
+  responseCode: int("response_code"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  deliveredAt: timestamp("delivered_at"),
+});
+export type WizadoraWebhookLog = typeof wizadoraWebhookLogs.$inferSelect;
+export type InsertWizadoraWebhookLog = typeof wizadoraWebhookLogs.$inferInsert;
+
+/**
+ * Spend cap configuration per user — checked before every provider submission.
+ */
+export const wizadoraSpendCaps = mysqlTable("wizadora_spend_caps", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("user_id").notNull().unique(),
+  perJobCapGbp: decimal("per_job_cap_gbp", { precision: 10, scale: 4 }).notNull().default("2.00"),
+  dailyCapGbp: decimal("daily_cap_gbp", { precision: 10, scale: 4 }).notNull().default("20.00"),
+  monthlyCapGbp: decimal("monthly_cap_gbp", { precision: 10, scale: 4 }).notNull().default("100.00"),
+  accountCapGbp: decimal("account_cap_gbp", { precision: 10, scale: 4 }).notNull().default("500.00"),
+  dailySpentGbp: decimal("daily_spent_gbp", { precision: 10, scale: 4 }).notNull().default("0.00"),
+  monthlySpentGbp: decimal("monthly_spent_gbp", { precision: 10, scale: 4 }).notNull().default("0.00"),
+  totalSpentGbp: decimal("total_spent_gbp", { precision: 10, scale: 4 }).notNull().default("0.00"),
+  dailyResetAt: timestamp("daily_reset_at"),
+  monthlyResetAt: timestamp("monthly_reset_at"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+});
+export type WizadoraSpendCap = typeof wizadoraSpendCaps.$inferSelect;
+export type InsertWizadoraSpendCap = typeof wizadoraSpendCaps.$inferInsert;

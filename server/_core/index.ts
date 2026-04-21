@@ -15,6 +15,7 @@ import { getDb } from "../db";
 import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { handleStripeWebhook } from "../webhooks";
+import { wizadoraRouter } from "../wizadora/router";
 import Stripe from "stripe";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -263,6 +264,9 @@ async function startServer() {
   app.use("/api/trpc/lipSync.create", aiGenerationLimiter);
   app.use("/api/trpc/enhancement.enhance", aiGenerationLimiter);
   app.use("/api/trpc/textToVideo.generate", aiGenerationLimiter);
+  // ── WizAdora internal API (admin-only, not publicly linked) ──────────────────
+  app.use("/api/wizadora/v1", wizadoraRouter);
+
   app.use(
     "/api/trpc",
     createExpressMiddleware({

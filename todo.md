@@ -5528,3 +5528,29 @@
 - [ ] Acceptable Use Policy expansion
 - [ ] User data controls in Account page
 - [ ] Footer links updated
+
+## WizAdora Phase 1 — Internal API Foundation
+- [ ] DB schema: wizadora_api_keys table
+- [ ] DB schema: wizadora_jobs table (full job model)
+- [ ] DB schema: wizadora_provider_logs table
+- [ ] DB schema: wizadora_idempotency_keys table
+- [ ] DB schema: wizadora_webhook_logs table
+- [ ] DB schema: wizadora_spend_caps table
+- [ ] Run migration for all 6 WizAdora tables
+- [ ] WizAdora server module: API key auth (wiz_test_sk_ format)
+- [ ] WizAdora server module: idempotency key enforcement
+- [ ] WizAdora server module: credit reservation/charge/refund lifecycle
+- [ ] WizAdora server module: spend cap checks (per-job, daily, monthly, account)
+- [ ] WizAdora server module: Atlas-only routing, fal.ai/WaveSpeed explicitly blocked
+- [ ] WizAdora server module: content moderation hook
+- [ ] WizAdora server module: polling guard (cannot call submit)
+- [ ] REST endpoints: POST /api/v1/videos
+- [ ] REST endpoints: GET /api/v1/videos/:id
+- [ ] REST endpoints: GET /api/v1/videos
+- [ ] REST endpoints: DELETE /api/v1/videos/:id
+- [ ] REST endpoints: GET /api/v1/account
+- [ ] Webhook-ready architecture: HMAC-SHA256 signatures, replay protection, log table
+- [ ] Admin monitoring views: jobs, provider logs, spend caps, webhook logs
+- [ ] 15 safety tests (idempotency, credit gate, spend caps, polling guard, provider routing, moderation, webhook)
+- [ ] Confirm no public API portal launched
+- [ ] Confirm no paid provider call triggered
