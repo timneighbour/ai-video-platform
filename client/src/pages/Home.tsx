@@ -87,7 +87,7 @@ const PRODUCTS_CREATE = [
     name: "WizVideo",
     tagline: "AI Music Video Generator",
     icon: <WizVideoEmblem size={32} />,
-    href: "/music-video/create",
+    href: "/products/wizcreate",
     glowColor: "oklch(0.70 0.18 260)",
     bgGradient: "linear-gradient(135deg, oklch(0.22 0.08 260 / 0.9) 0%, oklch(0.16 0.06 260 / 0.95) 100%)",
     borderColor: "oklch(0.70 0.18 260 / 0.35)",
@@ -96,7 +96,7 @@ const PRODUCTS_CREATE = [
     name: "WizAnimate",
     tagline: "AI Character Animation",
     icon: <WizAnimateEmblem size={32} />,
-    href: "/kids-video",
+    href: "/products/wizanimate",
     glowColor: "oklch(0.68 0.18 330)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
     borderColor: "oklch(0.68 0.18 330 / 0.35)",
@@ -105,7 +105,7 @@ const PRODUCTS_CREATE = [
     name: "WizScript",
     tagline: "AI Script & Storyboard Builder",
     icon: <WizScriptEmblem size={32} />,
-    href: "/text-to-video",
+    href: "/products/wizscript",
     glowColor: "oklch(0.75 0.16 200)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 200 / 0.9) 0%, oklch(0.17 0.06 200 / 0.95) 100%)",
     borderColor: "oklch(0.75 0.16 200 / 0.35)",
@@ -123,7 +123,7 @@ const PRODUCTS_CREATE = [
     name: "WizAudio",
     tagline: "AI Music & Audio Studio",
     icon: <WizAudioEmblem size={32} />,
-    href: "/music-creator",
+    href: "/products/wizsound",
     glowColor: "oklch(0.72 0.18 160)",
     bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
     borderColor: "oklch(0.72 0.18 160 / 0.35)",
@@ -132,7 +132,7 @@ const PRODUCTS_CREATE = [
     name: "WizShorts",
     tagline: "AI Short-Form Video Creator",
     icon: <WizShortsEmblem size={32} />,
-    href: "/wiz-shorts",
+    href: "/products/wizcreate",
     glowColor: "oklch(0.72 0.18 30)",
     bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
     borderColor: "oklch(0.72 0.18 30 / 0.35)",
@@ -153,7 +153,7 @@ const WIZ_TECHNOLOGY = [
   { name: "WizCreate", tagline: "AI Creation Engine", desc: "Transforms audio or text into a complete cinematic storyboard in seconds.", href: "/products/wizcreate", logo: WIZCREATE_LOGO },
   { name: "WizGenesis", tagline: "Core Intelligence Engine", desc: "Powers every creative decision inside WIZ AI — smarter, faster, more consistent.", href: "/products/wizgenesis", logo: WIZGENESIS_LOGO },
   { name: "WizAnimate", tagline: "Animation Engine", desc: "Cinematic 3D animation and stylised motion from a single prompt.", href: "/products/wizanimate", logo: WIZANIMATE_LOGO },
-  { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion for rhythm-locked output.", href: "/wizsync", logo: WIZSYNC_LOGO },
+  { name: "WizSync", tagline: "Synchronisation Engine", desc: "Perfectly aligns audio beats, visual cuts, and motion for rhythm-locked output.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO },
   { name: "WizSound", tagline: "Premium Audio Engine", desc: "Upgrades every track from raw AI to broadcast-quality Cinematic audio.", href: "/products/wizsound", logo: WIZSOUND_LOGO },
   { name: "WizLumina", tagline: "Visual Enhancement Engine", desc: "Transforms raw AI footage into polished, colour-graded cinematic output.", href: "/products/wizlumina", logo: WIZLUMINA_LOGO },
   { name: "WizBoost", tagline: "Output Optimisation Engine", desc: "Accelerates render speed and sharpens final quality on every export.", href: "/products/wizboost", logo: WIZBOOST_LOGO },
@@ -828,7 +828,7 @@ function Nav() {
                 <div className="px-3 pb-3 flex flex-col gap-2">
                   {[
                     { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp" },
-                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp" },
+                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZSYNC_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
                     { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsync-hero-YwcwvzsusYLm4CNrVmHC3s.webp" },
                     { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp" },
                   ].map((tool) => (
@@ -1391,10 +1391,10 @@ function HowItWorks() {
   const sectionRef = useRef<HTMLElement>(null);
 
   const steps = [
-    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/hiw-step1-choose_1102ddee.jpg", logo: WIZAI_LOGO },
-    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "/manus-storage/hiw-step2-storyboard_21e66052.jpg", logo: WIZCREATE_LOGO },
-    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.", img: "/manus-storage/hiw-step3-preview_e536f5b1.jpg", logo: WIZLUMINA_LOGO },
-    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/hiw-step4-export_68c87f9e.jpg", logo: WIZSOUND_LOGO },
+    { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp", logo: WIZAI_LOGO },
+    { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizcreate-hero-3886Y4hos6FXf9QcMxAdar.webp", logo: WIZCREATE_LOGO },
+    { num: "03", title: "Preview every scene", desc: "Review your full video before committing to render. Edit, swap, or refine any scene you want.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizlumina-hero-kHJx4qngFnx5nokUsLwRYb.webp", logo: WIZLUMINA_LOGO },
+    { num: "04", title: "Render and publish", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizboost-hero-9jAjBQAVS3hYY2DDCWTta7.webp", logo: WIZSOUND_LOGO },
   ];
 
   // Auto-advance steps every 2.5s when section is in view
@@ -2145,10 +2145,10 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
   const items = dbItems && dbItems.length > 0 ? dbItems : [
-    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
-    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg", videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png", videoUrl: null, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
-    { id: 4, title: "Warrior — AI Image Generation", category: "WizImage", posterUrl: "/manus-storage/demo-ai-image_6fb67221.png", videoUrl: null, description: "A single-prompt AI image — cinematic lighting, detailed environment, photorealistic quality. Generated in under 10 seconds with WizImage." },
+    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp", videoUrl: "", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
+    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp", videoUrl: "", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
+    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${CDN}/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp`, videoUrl: null, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 4, title: "Warrior — AI Image Generation", category: "WizImage", posterUrl: `${CDN}/product-wizgenesis-hero-2m3zQM9m3ofJdcMKk2ytLD.webp`, videoUrl: null, description: "A single-prompt AI image — cinematic lighting, detailed environment, photorealistic quality. Generated in under 10 seconds with WizImage." },
   ];
 
   return (
@@ -2179,10 +2179,10 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "/manus-storage/creator-musicians_32538502.jpg" },
-    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "/manus-storage/creator-content-creators_231af096.jpg" },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", logo: WIZANIMATE_LOGO, img: "/manus-storage/creator-animators_afc533eb.jpg" },
-    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "/manus-storage/creator-youtubers-brands_24a3de4e.jpg" },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "/manus-storage/creator-musicians-rockband_bb86fbf0.jpg" },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizgenesis-hero-2m3zQM9m3ofJdcMKk2ytLD.webp" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/kids-video", logo: WIZANIMATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp" },
+    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizboost-hero-9jAjBQAVS3hYY2DDCWTta7.webp" },
   ];
   return (
     <section id="built-for" className="relative bg-[#030303] py-28 px-6">
@@ -2335,8 +2335,8 @@ function WizVidEngineSection() {
       tm: "™",
       tagline: "Full Automation Engine",
       desc: "Describe your idea once. WizPilot handles everything — storyboard, scenes, lip-sync, audio, render, and delivery.",
-      logoUrl: WIZCREATE_LOGO,
-      href: "/onboarding",
+      logoUrl: WIZSYNC_LOGO,
+      href: "/products/wizpilot",
     },
   ];
   return (
@@ -2539,7 +2539,7 @@ const DEMO_VIDEOS = [
     badge: "WizVideo",
     badgeColor: "#7C3AED",
     description: "A short example of how WIZ AI can turn a creative idea into cinematic video scenes.",
-    posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp",
     videoUrl: null as string | null,
   },
   {
@@ -2548,7 +2548,7 @@ const DEMO_VIDEOS = [
     badge: "WizCreate",
     badgeColor: "oklch(0.72 0.14 70)",
     description: "Example cinematic scene generation for music videos, animation and visual storytelling.",
-    posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
+    posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/product-wizsound-hero-nqudcxf2DXztCjAqs9CN5a.webp",
     videoUrl: null as string | null,
   },
   {
@@ -2557,7 +2557,7 @@ const DEMO_VIDEOS = [
     badge: "WizPerformer",
     badgeColor: "#0EA5E9",
     description: "Example presenter, expression and lip-sync technology for future WIZ AI performer workflows.",
-    posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png",
+    posterUrl: `${CDN}/product-wizanimate-hero-aoAznKqACQKPT3t6FW5Nzj.webp`,
     videoUrl: null as string | null,
   },
 ];
