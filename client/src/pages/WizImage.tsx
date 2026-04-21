@@ -6,6 +6,7 @@ import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Sparkles, Download, Trash2, ImageIcon, Wand2, Loader2,
   Shuffle, ChevronRight, Star,
@@ -121,6 +122,8 @@ const EXAMPLE_PROMPTS = [
 ];
 
 export default function WizImage() {
+
+  useSEO({ title: "AI Image Generator — WIZ AI", path: "/wiz-image", description: "Generate stunning AI images from text prompts. Cinematic, artistic, and photorealistic styles. Powered by WIZ AI's advanced generation engine." });
   const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
   const [selectedStyle, setSelectedStyle] = useState<string>("cinematic");

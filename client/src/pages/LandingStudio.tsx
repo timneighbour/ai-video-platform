@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, Volume2, Film, Layers, Cpu, Mail, ArrowRight, CheckCircle2 } from "@/lib/icons";
+import { useSEO } from "@/hooks/useSEO";
 
 const MAIN_APP = "https://wiz-ai.io";
 
@@ -96,6 +97,8 @@ const FEATURES = [
 ];
 
 export default function LandingStudio() {
+
+  useSEO({ title: "WIZ AI Studio — Professional AI Video Production", path: "/studio", description: "Professional-grade AI video production studio. Create cinematic music videos, animations, and visual content with WizGenesis™, WizLumina™, and WizSound™." });
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [glowPhase, setGlowPhase] = useState(0);

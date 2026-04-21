@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Sparkles, Play, Download, ChevronRight, ChevronLeft,
   Loader2, Film, Zap, Clock, CheckCircle2, AlertCircle,
@@ -61,6 +62,8 @@ const EXAMPLE_TOPICS = [
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function WizShorts() {
+
+  useSEO({ title: "AI Shorts Creator — WIZ AI", path: "/wiz-shorts", description: "Create viral AI short-form videos for TikTok, YouTube Shorts, and Instagram Reels. Generate eye-catching vertical content in seconds." });
   const { user } = useAuth();
   const [step, setStep] = useState<WizStep>("setup");
   const [jobId, setJobId] = useState<number | null>(null);

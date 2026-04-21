@@ -20,6 +20,7 @@ import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { WizBrandBadge } from "@/components/WizBrand";
 import AuthGate from "@/components/AuthGate";
+import { useSEO } from "@/hooks/useSEO";
 
 // YouTube brand colour
 const YT_RED = "#FF0000";
@@ -114,6 +115,8 @@ function YouTubeLogo({ size = 20 }: { size?: number }) {
 }
 
 export default function Autopilot() {
+
+  useSEO({ title: "WizPilot™ — AI Video Autopilot — WIZ AI", path: "/wizpilot", description: "Let AI handle everything. WizPilot™ takes your prompt and automatically generates a complete video with scenes, transitions, music, and effects." });
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();

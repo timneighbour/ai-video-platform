@@ -39,6 +39,7 @@ import CreditBalance from "@/components/CreditBalance";
 import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Music,
   Upload,
@@ -159,6 +160,8 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
 }
 
 export default function MusicVideoAutopilot() {
+
+  useSEO({ title: "Create AI Music Video — WIZ AI", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
   const { user, isAuthenticated } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");

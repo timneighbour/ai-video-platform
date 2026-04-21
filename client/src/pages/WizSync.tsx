@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Mic2, Upload, UploadCloud, Loader2, CheckCircle2, AlertCircle,
   Music2, Users, Layers, Zap, ChevronRight, RefreshCw,
@@ -236,6 +237,8 @@ function StemCard({ stemKey, stemData }: { stemKey: string; stemData: { url: str
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function WizSyncPage() {
+
+  useSEO({ title: "WizSync™ — AI Voice to Character Assignment — WIZ AI", path: "/wizsync", description: "Automatically assign voices to characters in your AI video. WizSync™ analyses your audio and maps each voice to the right character for perfect lip-sync." });
   const { user, loading: authLoading } = useAuth();
 
   // ── Upload state ──────────────────────────────────────────────────────────

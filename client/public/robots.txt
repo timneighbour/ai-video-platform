@@ -1,25 +1,28 @@
+# WIZ AI — robots.txt
+# Primary domain: wiz-ai.io | Secondary: wizvid.ai
+
 User-agent: *
 Allow: /
 
+# Block authenticated/private pages only
 Disallow: /dashboard
 Disallow: /account
 Disallow: /projects
 Disallow: /credits
-Disallow: /tools/
-Disallow: /music-video/create
-Disallow: /wizpilot
-Disallow: /autopilot
 Disallow: /render-history
 Disallow: /batch-regeneration
-Disallow: /enhancement-studio
-Disallow: /wizscore
-Disallow: /wizsync
-Disallow: /music-creator
-Disallow: /wiz-image
-Disallow: /wiz-shorts
-Disallow: /text-to-video
 Disallow: /onboarding
-Disallow: /subscribe
-Disallow: /kids-video
+Disallow: /render/success
+Disallow: /admin
+Disallow: /admin/
+Disallow: /blog/admin
+Disallow: /api/
+
+# All public product, technology, tool, and content pages are ALLOWED
+# Previously blocked pages now unblocked for Google indexing:
+# /tools/, /music-video/create, /wizpilot, /autopilot,
+# /enhancement-studio, /wizscore, /wizsync, /music-creator,
+# /wiz-image, /wiz-shorts, /text-to-video, /subscribe, /kids-video
 
 Sitemap: https://wiz-ai.io/sitemap.xml
+Sitemap: https://www.wizvid.ai/sitemap.xml

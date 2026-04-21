@@ -9,6 +9,7 @@ import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useSEO } from "@/hooks/useSEO";
 import {
   Upload, Music2, Wand2, CheckCircle2, AlertCircle,
   Download, Play, Pause, Film, Sparkles, ChevronRight
@@ -30,6 +31,8 @@ interface Analysis {
 }
 
 export default function WizScore() {
+
+  useSEO({ title: "WizScore™ — AI Video-to-Music Generator — WIZ AI", path: "/wizscore", description: "Upload a video and let AI generate a perfectly synced soundtrack. WizScore™ analyses mood, pacing, and energy to create music that fits every frame." });
   const { isAuthenticated } = useAuth();
   const [step, setStep] = useState<Step>("idle");
   const [progress, setProgress] = useState(0);

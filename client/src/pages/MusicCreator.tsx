@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
 import { Upload, UploadCloud } from "@/lib/icons";
+import { useSEO } from "@/hooks/useSEO";
 
 // ── Preset data ──────────────────────────────────────────────────────────────
 
@@ -163,6 +164,8 @@ function AudioPlayer({ audioUrl, title, imageUrl }: { audioUrl: string; title: s
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function MusicCreator() {
+
+  useSEO({ title: "AI Music Creator — Generate Songs with AI — WIZ AI", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
   const { user, loading: authLoading } = useAuth();
 
   // Form state

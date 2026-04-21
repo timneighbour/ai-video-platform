@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Upload, CheckCircle2, Loader2, Download } from "@/lib/icons";
 import BackButton from "@/components/BackButton";
+import { useSEO } from "@/hooks/useSEO";
 
 type Step = "upload" | "style" | "generate" | "processing" | "complete";
 
@@ -32,6 +33,8 @@ const STATUS_MESSAGES: Record<string, string> = {
 };
 
 export default function EnhancementStudio() {
+
+  useSEO({ title: "AI Video Enhancement Studio — WIZ AI", path: "/enhancement-studio", description: "Enhance any video with AI. Upscale resolution, improve lighting, add cinematic colour grading with WizLumina™, and master audio with WizSound™." });
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 

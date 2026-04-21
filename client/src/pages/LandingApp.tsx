@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, Play, Zap, CheckCircle2, ArrowRight, Volume2, Star, Clock } from "@/lib/icons";
+import { useSEO } from "@/hooks/useSEO";
 
 const MAIN_APP = "https://wiz-ai.io";
 const CREATE_URL = `${MAIN_APP}/music-video/create`;
@@ -64,6 +65,8 @@ function WaveformBars({ count = 12, color = "#a855f7" }: { count?: number; color
 }
 
 export default function LandingApp() {
+
+  useSEO({ title: "WIZ AI — Create AI Videos in Minutes", path: "/app", description: "Turn any idea into a stunning AI video. Music videos, animations, shorts, and cinematic content — all from a single prompt. Start free today." });
   const [styleIdx, setStyleIdx] = useState(0);
   const [countdown, setCountdown] = useState(180); // 3-minute urgency timer
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);

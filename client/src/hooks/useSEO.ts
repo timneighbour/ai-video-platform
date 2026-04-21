@@ -21,7 +21,7 @@ import { useEffect } from "react";
 
 const BASE_URL = "https://wiz-ai.io";
 const DEFAULT_IMAGE =
-  "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+  "https://wiz-ai.io/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const DEFAULT_DESCRIPTION =
   "WIZ AI is the premium AI creative platform. Generate videos, music, images, and animation from a single prompt. No editing experience needed.";
 
@@ -84,13 +84,15 @@ export function useSEO({
     setMetaTag("og:title", title, true);
     setMetaTag("og:description", description, true);
     setMetaTag("og:url", canonicalUrl, true);
-    setMetaTag("og:image", image, true);
+    // Ensure OG image is always an absolute URL for social crawlers
+    const absoluteImage = image.startsWith("http") ? image : `${BASE_URL}${image}`;
+    setMetaTag("og:image", absoluteImage, true);
     setMetaTag("og:site_name", "WIZ AI", true);
 
     // Twitter Card
     setMetaTag("twitter:url", canonicalUrl);
     setMetaTag("twitter:title", title);
     setMetaTag("twitter:description", description);
-    setMetaTag("twitter:image", image);
+    setMetaTag("twitter:image", absoluteImage);
   }, [title, path, description, image, type]);
 }

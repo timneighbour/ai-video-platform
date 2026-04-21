@@ -4,8 +4,11 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Music, Clock, ArrowLeft, Sparkles } from "@/lib/icons";
+import { useSEO } from "@/hooks/useSEO";
 
 export default function WatchPage() {
+
+  useSEO({ title: "Watch — WIZ AI", path: "/watch", description: "Watch AI-generated videos created with WIZ AI. Cinematic music videos, animations, and visual content powered by WizGenesis™ and WizLumina™." });
   const { slug } = useParams<{ slug: string }>();
   const videoRef = useRef<HTMLVideoElement>(null);
 

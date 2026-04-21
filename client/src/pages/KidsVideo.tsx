@@ -36,6 +36,7 @@ import AuthGate from "@/components/AuthGate";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { mp } from "@/lib/mixpanel";
 import { WizBrandBadge } from "@/components/WizBrand";
+import { useSEO } from "@/hooks/useSEO";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -293,6 +294,8 @@ function buildCharacterDescription(char: KidsCharacter): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function KidsVideo() {
+
+  useSEO({ title: "AI Kids Video & Animation Creator — WIZ AI", path: "/kids-video", description: "Create safe, fun AI-animated videos for kids. Nursery rhymes, cartoons, and educational content in Pixar, Disney, and storybook styles. No editing skills needed." });
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();

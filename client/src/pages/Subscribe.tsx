@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useSEO } from "@/hooks/useSEO";
 
 // ── Plan data ────────────────────────────────────────────────────────────────
 const PLANS = [
@@ -155,6 +156,8 @@ const COMPARISON_ROWS: { feature: string; free: string | boolean; starter: strin
 
 // ── Component ────────────────────────────────────────────────────────────────
 export default function Subscribe() {
+
+  useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter, Creator, and Pro tiers with full access to AI video, music, image, and animation tools. Start with a free trial." });
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");

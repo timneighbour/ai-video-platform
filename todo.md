@@ -5654,3 +5654,22 @@
 - [x] Verify zero broken /manus-storage/ references remain (all 83 remaining refs return 200)
 - [x] Verify new CloudFront CDN URLs are accessible (all return 200)
 - [x] Build passes successfully with no TypeScript errors
+
+## WizAdora Quality Comparison Tool
+- [ ] DB schema: add `comparison_runs` and `comparison_results` tables
+- [ ] Backend: `comparison.runComparison` tRPC procedure (parallel multi-provider generation)
+- [ ] Backend: `comparison.getResults` tRPC procedure (poll all job statuses)
+- [ ] Backend: `comparison.listComparisons` tRPC procedure (history)
+- [ ] Frontend: `/admin/compare` page with prompt input + provider checkboxes
+- [ ] Frontend: side-by-side video player grid showing all provider outputs
+- [ ] Frontend: quality rating system (1-5 stars per provider)
+- [ ] Frontend: generation time + cost metrics per provider
+- [ ] Route: add `/admin/compare` to App.tsx (admin-only)
+
+## SEO Fixes — Google Coverage Report (April 2026)
+- [x] Fix robots.txt — unblock blocked page, ensure all public pages crawlable
+- [x] Create/update sitemap.xml with all public pages
+- [x] Add SEO meta tags to all pages (title, description, Open Graph, Twitter cards)
+- [x] Add structured data (JSON-LD) for rich search results on all key pages
+- [x] Review indexability — public pages accessible, auth pages excluded
+- [ ] Ensure proper heading structure (H1, H2, H3) on all pages

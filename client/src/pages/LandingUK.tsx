@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from "react";
 import { Sparkles, Play, Zap, CheckCircle2, Star, Volume2, ArrowRight } from "@/lib/icons";
+import { useSEO } from "@/hooks/useSEO";
 
 const MAIN_APP = "https://wiz-ai.io";
 
@@ -37,6 +38,8 @@ const STATS = [
 ];
 
 export default function LandingUK() {
+
+  useSEO({ title: "WIZ AI — UK's Leading AI Video Creator", path: "/uk", description: "Create stunning AI videos, music videos, and animations. Made in the UK. WIZ AI combines cutting-edge AI with cinematic production quality." });
   const [demoPlaying, setDemoPlaying] = useState(false);
   const [styleIdx, setStyleIdx] = useState(0);
 

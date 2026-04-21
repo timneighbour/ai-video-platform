@@ -20,6 +20,7 @@ import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
+import { useSEO } from "@/hooks/useSEO";
 
 const VIDEO_STYLES = [
   { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&q=80" },
@@ -110,6 +111,8 @@ function generateStoryboard(prompt: string, style: string): StoryboardScene[] {
 }
 
 export default function TextToVideoCreator() {
+
+  useSEO({ title: "AI Text to Video Generator — WIZ AI", path: "/text-to-video", description: "Turn any text prompt into a cinematic AI video. Describe your vision and WIZ AI generates stunning visuals with WizGenesis™ prompt enhancement and WizLumina™ grading." });
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();
