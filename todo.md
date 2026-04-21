@@ -5583,3 +5583,33 @@
 - [ ] Centre subscription plan cards (3-card grid centred on page)
 - [ ] Fix all section headers to be clearly visible (bright, high contrast)
 - [ ] Audit full page for readability and layout issues
+
+## URGENT: Products & Technology Dropdown Navigation Fix (Apr 21 2026)
+- [ ] Audit all dropdown arrays in Home.tsx, Pricing.tsx, Help.tsx — map current hrefs vs required routes
+- [ ] Create /products/wizvid page (AI video creation)
+- [ ] Create /products/wizbeat page (AI music/beat/lyric creation)
+- [ ] Create /products/wizsound page (audio mastering/spatial sound) — may already exist
+- [ ] Create /products/wizpilot page (guided workflow/autopilot assistant)
+- [ ] Create /products/kids-video-creator page (kids animation)
+- [ ] Create /products/music-video-creator page (AI music video generation)
+- [ ] Create /products/animated-story-creator page (AI animated stories)
+- [x] Create /technology/character-consistency page
+- [x] Create /technology/scene-builder page
+- [x] Create /technology/lip-sync page
+- [x] Create /technology/ai-video-engine page
+- [x] Create /technology/ai-music-engine page
+- [x] Create /technology/wizsound-engine page
+- [x] Create /technology/prompt-to-video page
+- [x] Create /technology/audio-to-video page
+- [x] Create /technology/storyboard-preview page
+- [x] Create /technology/4k-rendering page
+- [x] Register all new routes in App.tsx
+- [x] Fix Products dropdown hrefs in Home.tsx (desktop + mobile) — WizShorts now /products/wizshorts
+- [x] Fix Technology dropdown hrefs in Home.tsx (desktop + mobile) — all 10 /technology/* routes
+- [ ] Fix Products dropdown hrefs in Pricing.tsx (desktop + mobile)
+- [ ] Fix Products dropdown hrefs in Help.tsx (desktop + mobile)
+- [ ] Verify no item points to #, /#, or wrong page
+- [ ] Verify no two different items point to the same page
+- [ ] Each page: H1, meta title, meta description, canonical, OG tags, hero, CTA
+- [ ] Luxury WizAI styling (black/gold/silver) on all new pages
+- [ ] Save checkpoint and deliver QA checklist

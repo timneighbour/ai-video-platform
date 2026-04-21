@@ -580,3 +580,58 @@ export function WizSyncInfoPage() {
 export function WizScoreInfoPage() {
   return <ProductPageTemplate {...WIZSCORE_INFO} />;
 }
+
+// ─── WizShorts ────────────────────────────────────────────────────────────────
+const WIZSHORTS: ProductPageProps = {
+  name: "WizShorts™",
+  role: "The Short-Form Creator",
+  tagline: "AI Short-Form Video Creator",
+  headline: "Create viral short-form videos with AI",
+  subheadline: "WizShorts™ generates polished 9:16 short-form videos for YouTube Shorts, Instagram Reels, and TikTok — from a topic or script, in minutes.",
+  logo: `${CDN}/wizcreate-logo-final_9f61f0de.png`,
+  accentFrom: "from-orange-400",
+  accentTo: "to-red-500",
+  accentGlow: "rgba(249,115,22,0.25)",
+  borderColour: "border-orange-500/30",
+  bgColour: "bg-orange-500/5",
+  badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
+  ctaHref: "/wiz-shorts",
+  ctaLabel: "Create a Short",
+  whatItDoes: "WizShorts™ is WIZ AI's short-form video creation engine. It takes a topic, script, or concept and generates a complete 9:16 vertical video — with AI-generated scenes, optional music, and polished transitions — ready to publish on YouTube Shorts, Instagram Reels, or TikTok.",
+  capabilities: [
+    "9:16 vertical video output for Shorts, Reels, and TikTok",
+    "Topic or script-driven scene generation",
+    "3–6 AI-generated scenes per video",
+    "Optional music track integration",
+    "Cinematic transitions and motion",
+    "Direct download as MP4",
+  ],
+  howItWorks: [
+    { num: "01", icon: "edit", title: "Enter your topic or script", desc: "Describe your video topic or paste a script. WizShorts™ structures it into scenes automatically." },
+    { num: "02", icon: "cpu", title: "AI generates scenes", desc: "Each scene is generated as a 5–10 second video clip using WIZ AI's video engine." },
+    { num: "03", icon: "music", title: "Music added (optional)", desc: "Add an AI-generated music track or upload your own audio to accompany the video." },
+    { num: "04", icon: "download", title: "Download and publish", desc: "Your completed short-form video is assembled and ready to download and publish." },
+  ],
+  benefits: [
+    { title: "Built for short-form platforms", desc: "9:16 vertical output is optimised for YouTube Shorts, Instagram Reels, and TikTok from the start." },
+    { title: "No editing skills required", desc: "WizShorts™ handles scene generation, transitions, and assembly — you just provide the concept." },
+    { title: "Fast production", desc: "A complete short-form video is ready in minutes — not hours." },
+    { title: "Multiple scenes per video", desc: "Generate 3–6 scenes per video for a polished, varied visual narrative." },
+    { title: "Music integration", desc: "Add an AI-generated music track or your own audio to complete the production." },
+    { title: "Direct download", desc: "Download your video as an MP4 file ready for immediate publishing." },
+  ],
+  keyFeatures: [
+    { icon: "film", title: "9:16 Vertical Video Output", desc: "Every WizShorts™ video is generated in 9:16 vertical format — optimised for YouTube Shorts, Instagram Reels, and TikTok." },
+    { icon: "cpu", title: "AI Scene Generation", desc: "Each scene is generated using WIZ AI's video engine — cinematic quality, short-form pacing." },
+    { icon: "music", title: "Music Track Integration", desc: "Add an AI-generated music track or upload your own audio to accompany the video." },
+    { icon: "edit", title: "Topic or Script Input", desc: "Describe a topic or paste a script — WizShorts™ structures it into a complete scene plan automatically." },
+    { icon: "zap", title: "Fast Assembly", desc: "All scenes are assembled with transitions and optional music in a single pass — no manual editing required." },
+    { icon: "download", title: "MP4 Download", desc: "Download your completed short-form video as an MP4 file ready for immediate publishing." },
+  ],
+  heroImage: HERO_IMGS.wizcreate,
+  related: ALL_RELATED.filter(r => r.name !== "WizShorts™"),
+};
+
+export function WizShortsPage() {
+  return <ProductPageTemplate {...WIZSHORTS} />;
+}

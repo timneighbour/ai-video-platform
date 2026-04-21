@@ -70,6 +70,18 @@ const WizScriptPage = lazy(() => import("@/pages/products").then(m => ({ default
 const WizPilotPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizPilotPage })));
 const WizSyncInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizSyncInfoPage })));
 const WizScoreInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizScoreInfoPage })));
+const WizShortsProductPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizShortsPage })));
+// Technology pages
+const TechCharacterConsistency = lazy(() => import("@/pages/technology").then(m => ({ default: m.CharacterConsistencyPage })));
+const TechSceneBuilder = lazy(() => import("@/pages/technology").then(m => ({ default: m.SceneBuilderPage })));
+const TechLipSync = lazy(() => import("@/pages/technology").then(m => ({ default: m.LipSyncPage })));
+const TechAIVideoEngine = lazy(() => import("@/pages/technology").then(m => ({ default: m.AIVideoEnginePage })));
+const TechAIMusicEngine = lazy(() => import("@/pages/technology").then(m => ({ default: m.AIMusicEnginePage })));
+const TechWizSoundEngine = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizSoundEnginePage })));
+const TechPromptToVideo = lazy(() => import("@/pages/technology").then(m => ({ default: m.PromptToVideoPage })));
+const TechAudioToVideo = lazy(() => import("@/pages/technology").then(m => ({ default: m.AudioToVideoPage })));
+const TechStoryboardPreview = lazy(() => import("@/pages/technology").then(m => ({ default: m.StoryboardPreviewPage })));
+const TechFourKRendering = lazy(() => import("@/pages/technology").then(m => ({ default: m.FourKRenderingPage })));
 const WizAI = lazy(() => import("@/pages/WizAI"));
 const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
@@ -152,6 +164,18 @@ function Router() {
         <Route path={"/products/wizpilot"} component={WizPilotPage} />
         <Route path={"/products/wizsync-info"} component={WizSyncInfoPage} />
         <Route path={"/products/wizscore"} component={WizScoreInfoPage} />
+        <Route path={"/products/wizshorts"} component={WizShortsProductPage} />
+        {/* Technology pages */}
+        <Route path={"/technology/character-consistency"} component={TechCharacterConsistency} />
+        <Route path={"/technology/scene-builder"} component={TechSceneBuilder} />
+        <Route path={"/technology/lip-sync"} component={TechLipSync} />
+        <Route path={"/technology/ai-video-engine"} component={TechAIVideoEngine} />
+        <Route path={"/technology/ai-music-engine"} component={TechAIMusicEngine} />
+        <Route path={"/technology/wizsound-engine"} component={TechWizSoundEngine} />
+        <Route path={"/technology/prompt-to-video"} component={TechPromptToVideo} />
+        <Route path={"/technology/audio-to-video"} component={TechAudioToVideo} />
+        <Route path={"/technology/storyboard-preview"} component={TechStoryboardPreview} />
+        <Route path={"/technology/4k-rendering"} component={TechFourKRendering} />
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
         <Route path={"/dashboard"} component={Dashboard} />
