@@ -5566,3 +5566,14 @@
 - [ ] Audit all related product links in ProductPageTemplate.tsx
 - [ ] Verify all 9 product pages load without 404
 - [ ] Add smart back navigation (window.history.back()) to all product pages (ProductPageTemplate + WizSoundProductPage + WizSync)
+
+## Dynamic Currency Converter — COMPLETED ✅
+- [x] Server-side tRPC procedure: currency.getExchangeRates (GBP base, 30 currencies, 1h cache)
+- [x] Server-side tRPC procedure: currency.detectCurrency (IP geolocation via ipapi.co)
+- [x] Client-side useCurrency hook with localStorage persistence
+- [x] CurrencySelector component (flag + code + dropdown, 30 currencies with flags)
+- [x] Integrate formatPrice() into all price points on Pricing page (pay-per-video, plans, bundles)
+- [x] Currency selector shown in plans section and pay-per-video section
+- [x] Approx. disclaimer shown when non-GBP selected
+- [x] Auto-detect user currency from IP on first visit
+- [x] Fallback hardcoded rates if API unavailable

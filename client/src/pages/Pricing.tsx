@@ -15,7 +15,8 @@
  *  12. Bottom CTA
  *  13. Footer
  */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
 import { gtagSendEvent } from "@/lib/analytics";
@@ -408,19 +409,75 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+// ── Currency Selector ────────────────────────────────────────────────────────
+function CurrencySelector({ currency, setCurrency, currencies, isLoading }: {
+  currency: string;
+  setCurrency: (code: string) => void;
+  currencies: Array<{ code: string; symbol: string; name: string; flag: string }>;
+  isLoading: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = currencies.find(c => c.code === currency) ?? currencies[0];
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        onClick={() => setOpen(v => !v)}
+        disabled={isLoading}
+        className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.04] border border-[--color-gold]/[0.15] hover:border-[--color-gold]/[0.35] hover:bg-white/[0.07] transition-all duration-200 text-sm font-semibold text-white/80 hover:text-white"
+        aria-label="Select currency"
+      >
+        <span className="text-base leading-none">{current?.flag}</span>
+        <span className="text-xs font-bold tracking-wide">{currency}</span>
+        <ChevronDown className={`w-3 h-3 text-white/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 max-h-72 overflow-y-auto rounded-2xl bg-[#0c0c0c]/98 backdrop-blur-2xl border border-[--color-gold]/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-50 py-1.5">
+          {currencies.map(c => (
+            <button
+              key={c.code}
+              onClick={() => { setCurrency(c.code); setOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3.5 py-2 text-left hover:bg-[--color-gold]/[0.06] transition-colors ${
+                c.code === currency ? "bg-[--color-gold]/[0.08]" : ""
+              }`}
+            >
+              <span className="text-base leading-none w-6 text-center">{c.flag}</span>
+              <div className="flex-1 min-w-0">
+                <span className="text-xs font-bold text-white/90">{c.code}</span>
+                <span className="text-[10px] text-white/35 ml-1.5 truncate">{c.name}</span>
+              </div>
+              <span className="text-xs text-white/40 font-medium">{c.symbol}</span>
+              {c.code === currency && <Check className="w-3 h-3 text-[--color-gold] flex-shrink-0" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Comparison cell helper ────────────────────────────────────────────────────
 function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boolean }) {
   if (isCheck) {
     return value ? (
       <div className="flex justify-center">
         <div className="w-6 h-6 rounded-full bg-[--color-gold]/[0.18] border border-[--color-gold]/50 flex items-center justify-center">
-          <Check className="w-3.5 h-3.5 text-[--color-gold]" strokeWidth={2.5} />
+          <Check className="w-3.5 h-3.5 text-[--color-gold]" />
         </div>
       </div>
     ) : (
       <div className="flex justify-center">
         <div className="w-5 h-5 rounded-full bg-white/[0.03] flex items-center justify-center">
-          <X className="w-2.5 h-2.5 text-white/15" strokeWidth={1.5} />
+          <X className="w-2.5 h-2.5 text-white/15" />
         </div>
       </div>
     );
@@ -436,6 +493,9 @@ export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [highlightedPlan, setHighlightedPlan] = useState<string | null>(null);
   const plansRef = useRef<HTMLDivElement>(null);
+
+  // Currency conversion
+  const { currency, setCurrency, currencies, currentMeta, formatPrice, isLoading: currencyLoading } = useCurrency();
 
   useEffect(() => {
     mp.pricingPageViewed();
@@ -600,6 +660,14 @@ export default function Pricing() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Pay-per-video pricing</h2>
           <p className="text-sm text-white/40 max-w-md mx-auto">No subscription needed. One price per final video. Choose your quality.</p>
           <p className="text-xs text-[--color-gold]/50 mt-2 font-medium">Pay only when you are ready to export your final video.</p>
+          {/* Currency selector */}
+          <div className="flex items-center justify-center gap-3 mt-5">
+            <span className="text-[11px] text-white/30 font-medium">Prices in</span>
+            <CurrencySelector currency={currency} setCurrency={setCurrency} currencies={currencies} isLoading={currencyLoading} />
+            {currency !== "GBP" && (
+              <span className="text-[10px] text-white/20 italic">Approximate. Billed in GBP.</span>
+            )}
+          </div>
         </div>
 
         {/* Quality tier cards */}
@@ -662,7 +730,7 @@ export default function Pricing() {
               {/* Price + features */}
               <div className="flex-1 p-5 bg-[#0c0c0c]">
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-extrabold text-white">&pound;{tier.price}</span>
+                  <span className="text-4xl font-extrabold text-white" style={{ animation: "priceFadeIn 220ms ease-out" }}>{formatPrice(tier.price)}</span>
                   <span className="text-sm text-white/40">per video</span>
                 </div>
                 <p className="text-xs text-white/40 mb-4">{tier.desc}</p>
@@ -746,6 +814,14 @@ export default function Pricing() {
           {billingCycle === "annual" && (
             <p className="text-xs text-[--color-gold]/70 mt-3 font-medium">Billed as one annual payment — save 20% vs monthly</p>
           )}
+          {/* Currency selector */}
+          <div className="flex items-center justify-center gap-2.5 mt-5">
+            <span className="text-[11px] text-white/30 font-medium">Show prices in</span>
+            <CurrencySelector currency={currency} setCurrency={setCurrency} currencies={currencies} isLoading={currencyLoading} />
+            {currency !== "GBP" && (
+              <span className="text-[10px] text-white/20 italic">Approx. Billed in GBP.</span>
+            )}
+          </div>
         </div>
 
         {/* Plan cards */}
@@ -803,19 +879,19 @@ export default function Pricing() {
                     {billingCycle === "monthly" ? (
                       <>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-4xl font-extrabold text-white">&pound;{plan.monthlyPrice}</span>
+                          <span className="text-4xl font-extrabold text-white">{formatPrice(plan.monthlyPrice)}</span>
                           <span className="text-xs text-white/35">/mo</span>
                         </div>
-                        <p className="text-[10px] text-white/25 mt-0.5">billed monthly</p>
+                        <p className="text-[10px] text-white/25 mt-0.5">billed monthly{currency !== "GBP" ? " · approx." : ""}</p>
                       </>
                     ) : (
                       <>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-4xl font-extrabold text-white">&pound;{plan.annualPrice}</span>
+                          <span className="text-4xl font-extrabold text-white">{formatPrice(plan.annualPrice)}</span>
                           <span className="text-xs text-white/35">/yr</span>
                         </div>
                         <p className="text-[11px] mt-0.5 font-semibold" style={{ color: plan.accentColor }}>
-                          &pound;{Math.round(plan.annualPrice / 12)}/mo · Save 20%
+                          {formatPrice(Math.round(plan.annualPrice / 12))}/mo · Save 20%
                         </p>
                       </>
                     )}
@@ -992,7 +1068,7 @@ export default function Pricing() {
                   <span className="text-sm font-bold text-white">{bundle.label}</span>
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-extrabold text-white">&pound;{bundle.price}</span>
+                  <span className="text-3xl font-extrabold text-white">{formatPrice(bundle.price)}</span>
                 </div>
                 <p className="text-xs text-white/40 leading-relaxed mb-5 flex-1">{bundle.desc}</p>
                 <Button
@@ -1011,7 +1087,7 @@ export default function Pricing() {
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-1.5">
-                      Buy {bundle.label} — £{bundle.price}
+                      Buy {bundle.label} — {formatPrice(bundle.price)}
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   )}
