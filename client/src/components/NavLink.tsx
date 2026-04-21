@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { useLocation } from "wouter";
 
 interface NavLinkProps {
   href: string;
@@ -12,14 +11,14 @@ interface NavLinkProps {
 /**
  * NavLink — reliable cross-browser navigation component.
  *
- * Uses standard <a href> + onClick for navigation.
- * The previous onMouseDown → window.location.href approach was cancelling
- * navigation inside dropdowns on desktop Chrome/Safari because the window-level
- * click listener was unmounting the dropdown before navigation completed.
+ * Uses native <a href> navigation for all internal links.
+ * This bypasses React.lazy() dynamic import failures on desktop Chrome/Safari
+ * that occur when wouter's navigate() tries to load a lazy-loaded page chunk.
+ *
+ * External links (http/mailto) are handled natively by the browser.
+ * Hash links use smooth scroll.
  */
 export function NavLink({ href, children, className = "", onClick, style, ...rest }: NavLinkProps) {
-  const [, navigate] = useLocation();
-
   const isExternal = href.startsWith("http") || href.startsWith("mailto:");
   const isHashLink = href.startsWith("#") || (href.includes("#") && !href.startsWith("/"));
 
@@ -37,17 +36,21 @@ export function NavLink({ href, children, className = "", onClick, style, ...res
       {...rest}
       onClick={(e) => {
         if (isExternal) return; // let browser handle external links natively
-        e.preventDefault();
+
         if (isHashLink) {
-          // Handle hash navigation
+          e.preventDefault();
           const hash = href.includes("#") ? href.split("#")[1] : href.slice(1);
           const el = document.getElementById(hash);
           if (el) el.scrollIntoView({ behavior: "smooth" });
           if (onClick) onClick();
           return;
         }
+
+        // For all internal page links: let native <a href> handle navigation.
+        // This is the most reliable cross-browser approach and avoids
+        // React.lazy() chunk loading failures on desktop Chrome/Safari.
         if (onClick) onClick();
-        navigate(href);
+        // Do NOT call e.preventDefault() — allow the browser to follow the href.
       }}
     >
       {children}
