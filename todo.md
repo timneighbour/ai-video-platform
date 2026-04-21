@@ -5577,3 +5577,9 @@
 - [x] Approx. disclaimer shown when non-GBP selected
 - [x] Auto-detect user currency from IP on first visit
 - [x] Fallback hardcoded rates if API unavailable
+
+## Pricing Page Layout Fixes
+- [ ] Reorder sections: 3 Steps → Monthly Plans → Extra Credit Packs → Pay As You Go
+- [ ] Centre subscription plan cards (3-card grid centred on page)
+- [ ] Fix all section headers to be clearly visible (bright, high contrast)
+- [ ] Audit full page for readability and layout issues

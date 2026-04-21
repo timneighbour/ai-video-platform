@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import {
   Check, X, ChevronDown, ChevronUp, Sparkles, Download, Music2, Film, Package,
   Wand2, ArrowRight, Image, FileText, Menu, Shield, CreditCard, RefreshCcw,
-  Users, Star, Crown, Zap, Play, Headphones, Globe, Layers
+  Users, Star, Crown, Zap, Play, Headphones, Globe
 } from "@/lib/icons";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
@@ -43,6 +43,9 @@ const HIW_STEP4 = "/manus-storage/hiw-step4-export_68c87f9e.jpg";
 const SHOWCASE_1 = "/manus-storage/showcase-midnight-city_d2b326c1.jpg";
 const SHOWCASE_2 = "/manus-storage/showcase-stage-performance_3379ee75.jpg";
 const SHOWCASE_3 = "/manus-storage/showcase-star-quest_c9d5cd00.jpg";
+const PLAN_BG_STARTER = "/manus-storage/creator-content-creators_ae0d5147.jpg";
+const PLAN_BG_CREATOR = "/manus-storage/showcase-midnight-city_d2b326c1.jpg";
+const PLAN_BG_STUDIO = "/manus-storage/showcase-stage-performance_3379ee75.jpg";
 const CREATOR_MUSICIANS = "/manus-storage/creator-musicians_cc8c2a51.jpg";
 const CREATOR_CONTENT = "/manus-storage/creator-content-creators_ae0d5147.jpg";
 const CREATOR_YOUTUBERS = "/manus-storage/creator-youtubers-brands_088b54d8.jpg";
@@ -622,8 +625,8 @@ export default function Pricing() {
       {/* ── 2. HOW IT WORKS ── */}
       <section className="max-w-6xl mx-auto px-6 mb-24">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">How It Works</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">Three steps to your finished video</h2>
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">How It Works</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white">Three steps to your finished video</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {[
@@ -653,139 +656,12 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* ── 3. PER-RENDER PRICING ── */}
-      <section className="max-w-5xl mx-auto px-6 mb-24" id="pricing">
-        <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Pay As You Go</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Pay-per-video pricing</h2>
-          <p className="text-sm text-white/40 max-w-md mx-auto">No subscription needed. One price per final video. Choose your quality.</p>
-          <p className="text-xs text-[--color-gold]/50 mt-2 font-medium">Pay only when you are ready to export your final video.</p>
-          {/* Currency selector */}
-          <div className="flex items-center justify-center gap-3 mt-5">
-            <span className="text-[11px] text-white/30 font-medium">Prices in</span>
-            <CurrencySelector currency={currency} setCurrency={setCurrency} currencies={currencies} isLoading={currencyLoading} />
-            {currency !== "GBP" && (
-              <span className="text-[10px] text-white/20 italic">Approximate. Billed in GBP.</span>
-            )}
-          </div>
-        </div>
-
-        {/* Quality tier cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-          {[
-            {
-              label: "Standard",
-              resolution: "720p",
-              price: 2,
-              desc: "Great for social media & previews",
-              badge: null,
-              img: SHOWCASE_3,
-              features: ["YouTube Shorts", "Instagram Stories", "TikTok", "Twitter/X"],
-              accentColor: "rgba(100,140,200,0.2)",
-              borderColor: "rgba(100,140,200,0.2)",
-            },
-            {
-              label: "HD",
-              resolution: "1080p",
-              price: 4,
-              desc: "Perfect for YouTube & streaming",
-              badge: "MOST POPULAR",
-              img: SHOWCASE_1,
-              features: ["YouTube", "Instagram Reels", "Vimeo", "Facebook Video"],
-              accentColor: "rgba(196,164,100,0.15)",
-              borderColor: "rgba(196,164,100,0.45)",
-            },
-            {
-              label: "4K",
-              resolution: "2160p",
-              price: 6,
-              desc: "Cinema-grade quality",
-              badge: null,
-              img: SHOWCASE_2,
-              features: ["Cinema & broadcast", "Professional portfolio", "Premium streaming", "Large-screen display"],
-              accentColor: "rgba(160,100,220,0.15)",
-              borderColor: "rgba(160,100,220,0.25)",
-            },
-          ].map((tier) => (
-            <div
-              key={tier.label}
-              className="render-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
-              style={{ borderColor: tier.borderColor, boxShadow: tier.badge ? `0 0 40px ${tier.accentColor}` : 'none' }}
-            >
-              {tier.badge && (
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
-                  {tier.badge}
-                </div>
-              )}
-              {/* Background image */}
-              <div className="relative h-36 overflow-hidden">
-                <img src={tier.img} alt={tier.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.6) 100%)` }} />
-                {/* Resolution badge */}
-                <div className="absolute bottom-3 left-4 flex items-end gap-2">
-                  <span className="text-4xl font-black text-white leading-none">{tier.label}</span>
-                  <span className="text-sm text-white/50 mb-1">{tier.resolution}</span>
-                </div>
-              </div>
-              {/* Price + features */}
-              <div className="flex-1 p-5 bg-[#0c0c0c]">
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-extrabold text-white" style={{ animation: "priceFadeIn 220ms ease-out" }}>{formatPrice(tier.price)}</span>
-                  <span className="text-sm text-white/40">per video</span>
-                </div>
-                <p className="text-xs text-white/40 mb-4">{tier.desc}</p>
-                <div className="space-y-1.5">
-                  {tier.features.map((f) => (
-                    <div key={f} className="flex items-center gap-2 text-xs text-white/50">
-                      <Check className="w-3 h-3 text-[--color-gold]/60 flex-shrink-0" />
-                      {f}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* WizSound Audio Add-on — premium player + tier cards */}
-        <div className="space-y-6">
-          {/* Section header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-logo-v5_76ab5163.png"
-                alt="WizSound™"
-                className="h-10 w-auto object-contain"
-                style={{ filter: "drop-shadow(0 0 12px rgba(16,185,129,0.3))" }}
-                loading="lazy"
-              />
-              <div>
-                <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                  <h3 className="text-base font-bold text-white">WizSound™ Audio Mastering</h3>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold tracking-wider">OPTIONAL ADD-ON</span>
-                </div>
-                <p className="text-xs text-white/40">Spatial audio mastering — cinema-grade immersive sound. Press play to hear the difference.</p>
-              </div>
-            </div>
-            <a
-              href="/products/wizsound"
-              className="flex-shrink-0 flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
-            >
-              Learn more about WizSound™
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-            </a>
-          </div>
-          {/* Live demo player */}
-          <WizSoundDemoPlayer />
-        </div>
-      </section>
-
       {/* ── 4. SUBSCRIPTION PLANS ── */}
       <section className="max-w-7xl mx-auto px-6 mb-20" id="plans">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Subscription Plans</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Monthly plans for regular creators</h2>
-          <p className="text-sm text-white/40 max-w-lg mx-auto mb-8">Video Credits included every month. Best value for consistent creators. Cancel anytime.</p>
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Subscription Plans</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Monthly plans for regular creators</h2>
+          <p className="text-sm text-white/60 max-w-lg mx-auto mb-8">Video Credits included every month. Best value for consistent creators. Cancel anytime.</p>
 
           {/* Billing toggle */}
           <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.07]">
@@ -825,7 +701,7 @@ export default function Pricing() {
         </div>
 
         {/* Plan cards */}
-        <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        <div ref={plansRef} className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {PLANS.map((plan) => {
             const isHighlighted = highlightedPlan === plan.id;
             const isPopular = plan.popular;
@@ -959,56 +835,123 @@ export default function Pricing() {
         <p className="text-center text-xs text-white/30 mt-6">No hidden fees. Cancel anytime. Full control before checkout.</p>
       </section>
 
-      {/* ── 5. PRODUCT COVERAGE STRIP ── */}
-      <section className="max-w-5xl mx-auto px-6 mb-24">
-        <div className="rounded-2xl border border-[--color-gold]/[0.1] bg-gradient-to-br from-[--color-gold]/[0.03] to-transparent p-8">
-          <div className="text-center mb-8">
-            <h3 className="text-lg font-bold text-white mb-2">One subscription. Six powerful tools.</h3>
-            <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your Video Credits work across every tool.</p>
-          </div>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-            {[
-              { logo: LOGO_WIZAUDIO, name: "WizAudio", label: "AI Music", href: "/music-creator", color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
-              { logo: LOGO_WIZIMAGE, name: "WizImage", label: "AI Images", href: "/wiz-image", color: "rgba(196,164,100,0.15)", border: "rgba(196,164,100,0.3)" },
-              { logo: LOGO_WIZVIDEO, name: "WizVideo", label: "Music Videos", href: "/music-video/create", color: "rgba(60,120,220,0.15)", border: "rgba(60,120,220,0.25)" },
-              { logo: LOGO_WIZSHORTS, name: "WizShorts", label: "Short Videos", href: "/wiz-shorts", color: "rgba(220,100,40,0.15)", border: "rgba(220,100,40,0.25)" },
-              { logo: LOGO_WIZANIMATE, name: "WizAnimate", label: "Animation", href: "/kids-video", color: "rgba(200,60,180,0.15)", border: "rgba(200,60,180,0.25)" },
-              { logo: LOGO_WIZSCRIPT, name: "WizScript", label: "Text-to-Video", href: "/text-to-video", color: "rgba(0,200,220,0.15)", border: "rgba(0,200,220,0.25)" },
-            ].map((product) => (
-              <a
-                key={product.name}
-                href={product.href}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 hover:scale-105 group"
-                style={{ background: product.color, borderColor: product.border }}
-              >
-                <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center">
-                  <img src={product.logo} alt={product.name} className="w-full h-full object-contain" loading="lazy" />
-                </div>
-                <div className="text-center">
-                  <p className="text-[11px] font-bold text-white group-hover:text-[--color-gold] transition-colors">{product.name}</p>
-                  <p className="text-[9px] text-white/40 mt-0.5">{product.label}</p>
-                </div>
-              </a>
-            ))}
-          </div>
+      {/* ── 9. COMPARISON TABLE ── */}
+      <section className="max-w-6xl mx-auto px-6 mb-24" id="compare">
+        <div className="text-center mb-14">
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Compare Plans</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">Full feature comparison</h2>
+          <p className="text-sm text-white/50 max-w-md mx-auto">Everything you need to choose the right plan</p>
         </div>
-      </section>
 
-      {/* ── 5b. HOW BUILD CREDITS WORK ── */}
-      <section className="max-w-3xl mx-auto px-6 mb-16">
-        <div className="rounded-2xl border border-[--color-gold]/[0.12] bg-gradient-to-br from-[--color-gold]/[0.04] to-transparent p-8">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(196,164,100,0.12)', border: '1px solid rgba(196,164,100,0.25)' }}>
-              <Zap className="w-5 h-5" style={{ color: 'var(--color-gold)' }} />
+        {/* Premium comparison table */}
+        <div className="relative rounded-3xl overflow-hidden" style={{ border: "1px solid rgba(196,164,100,0.18)", boxShadow: "0 0 80px rgba(196,164,100,0.06), 0 2px 40px rgba(0,0,0,0.6)" }}>
+          {/* Subtle radial glow behind Creator column */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 62% 0%, rgba(196,164,100,0.07) 0%, transparent 55%)" }} />
+
+          {/* Column headers with plan background imagery */}
+          <div className="relative grid grid-cols-4 border-b" style={{ borderColor: "rgba(196,164,100,0.12)", background: "rgba(6,6,6,0.98)" }}>
+            {/* Feature label column */}
+            <div className="col-span-1 p-6 flex items-end">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/25">Feature</span>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-white mb-4">How Video Credits work</h3>
-              <div className="space-y-3 text-sm text-white/50 leading-relaxed">
-                <p>One Video Credit creates one final downloadable video.</p>
-                <p>Create and preview your project for free first — refine your storyboard, adjust scenes, and perfect the result before committing. A Video Credit is only used when you are ready to generate and download the final video.</p>
-                <p>Failed renders do not use credits. Extra Video Credit Packs never expire and can be used alongside any active subscription.</p>
+
+            {/* Starter */}
+            <div className="relative p-5 text-center border-l overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+              <div className="absolute inset-0 pointer-events-none">
+                <img src={PLAN_BG_STARTER} alt="" className="w-full h-full object-cover opacity-[0.08]" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(6,6,6,0.3) 0%, rgba(6,6,6,0.92) 100%)" }} />
+              </div>
+              <div className="relative z-10">
+                <p className="text-base font-black text-white mb-0.5">Starter</p>
+                <p className="text-[10px] text-white/40 font-medium">£19 / mo</p>
               </div>
             </div>
+
+            {/* Creator — highlighted */}
+            <div className="relative p-5 text-center border-l overflow-hidden" style={{ borderColor: "rgba(196,164,100,0.25)", background: "linear-gradient(to bottom, rgba(196,164,100,0.12) 0%, rgba(196,164,100,0.04) 100%)" }}>
+              {/* Top gold line */}
+              <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg, transparent, rgba(196,164,100,0.9), transparent)" }} />
+              <div className="absolute inset-0 pointer-events-none">
+                <img src={PLAN_BG_CREATOR} alt="" className="w-full h-full object-cover opacity-[0.12]" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(6,6,6,0.2) 0%, rgba(6,6,6,0.88) 100%)" }} />
+              </div>
+              <div className="relative z-10">
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full mb-2" style={{ background: "rgba(196,164,100,0.15)", border: "1px solid rgba(196,164,100,0.3)" }}>
+                  <Star className="w-2.5 h-2.5 text-[--color-gold] fill-current" />
+                  <span className="text-[9px] font-black text-[--color-gold] tracking-wider">MOST POPULAR</span>
+                </div>
+                <p className="text-base font-black text-[--color-gold] mb-0.5">Creator</p>
+                <p className="text-[10px] text-[--color-gold]/60 font-medium">£49 / mo</p>
+              </div>
+            </div>
+
+            {/* Studio */}
+            <div className="relative p-5 text-center border-l overflow-hidden" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+              <div className="absolute inset-0 pointer-events-none">
+                <img src={PLAN_BG_STUDIO} alt="" className="w-full h-full object-cover opacity-[0.09]" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(6,6,6,0.3) 0%, rgba(6,6,6,0.92) 100%)" }} />
+              </div>
+              <div className="relative z-10">
+                <p className="text-base font-black text-white mb-0.5">Studio</p>
+                <p className="text-[10px] text-white/40 font-medium">£149 / mo</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature rows */}
+          {COMPARISON_GROUPS.map((group, gi) => (
+            <div key={group.group}>
+              {/* Group header — full-width gold divider with label */}
+              <div className="relative flex items-center gap-4 px-6 py-3" style={{ background: "rgba(196,164,100,0.04)", borderTop: gi > 0 ? "1px solid rgba(196,164,100,0.1)" : "none", borderBottom: "1px solid rgba(196,164,100,0.08)" }}>
+                <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(196,164,100,0.5), transparent)" }} />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[--color-gold] whitespace-nowrap">{group.group}</span>
+                <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, rgba(196,164,100,0.5))" }} />
+              </div>
+
+              {group.rows.map((row, ri) => (
+                <div
+                  key={row.label}
+                  className={`grid grid-cols-4 transition-colors hover:bg-white/[0.025] ${
+                    !(gi === COMPARISON_GROUPS.length - 1 && ri === group.rows.length - 1) ? "border-b" : ""
+                  }`}
+                  style={{ borderColor: "rgba(255,255,255,0.05)" }}
+                >
+                  <div className="col-span-1 px-6 py-4 flex items-center">
+                    <span className="text-sm text-white/80 font-medium">{row.label}</span>
+                  </div>
+                  {(["starter", "creator", "pro"] as const).map((planId, pi) => (
+                    <div
+                      key={planId}
+                      className="px-4 py-4 flex items-center justify-center border-l"
+                      style={{
+                        borderColor: pi === 1 ? "rgba(196,164,100,0.15)" : "rgba(255,255,255,0.05)",
+                        background: pi === 1 ? "rgba(196,164,100,0.03)" : "transparent",
+                      }}
+                    >
+                      <CompCell value={(row as Record<string, string | boolean>)[planId]} isCheck={row.isCheck} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+
+          {/* Bottom CTA row */}
+          <div className="grid grid-cols-4 border-t" style={{ borderColor: "rgba(196,164,100,0.12)", background: "rgba(6,6,6,0.98)" }}>
+            <div className="col-span-1 px-6 py-5 flex items-center">
+              <span className="text-xs text-white/30 font-medium">Ready to start?</span>
+            </div>
+            {[
+              { label: "Start Creating", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
+              { label: "Choose Creator", style: "btn-primary shadow-[0_4px_20px_rgba(196,164,100,0.3)]" },
+              { label: "Upgrade to Studio", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
+            ].map((btn, i) => (
+              <div key={btn.label} className="px-4 py-5 flex items-center justify-center border-l" style={{ borderColor: i === 1 ? "rgba(196,164,100,0.15)" : "rgba(255,255,255,0.05)", background: i === 1 ? "rgba(196,164,100,0.04)" : "transparent" }}>
+                <a href="#plans" className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap ${btn.style}`}>
+                  {btn.label}
+                </a>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1016,7 +959,7 @@ export default function Pricing() {
       {/* ── 6. BUILD CREDIT PACKS ── */}
       <section className="max-w-5xl mx-auto px-6 mb-24" id="bundles">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">EXTRA VIDEO CREDIT PACKS</p>
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">EXTRA VIDEO CREDIT PACKS</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Need more final videos?</h2>
           <p className="text-sm text-white/40 max-w-lg mx-auto">Buy extra Video Credits whenever you need them. Extra Video Credit Packs work alongside any WIZ AI subscription and never expire. Use them when you want to produce additional final videos beyond your monthly allowance.</p>
           <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Video Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
@@ -1095,6 +1038,187 @@ export default function Pricing() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── 3. PER-RENDER PRICING ── */}
+      <section className="max-w-5xl mx-auto px-6 mb-24" id="pricing">
+        <div className="text-center mb-12">
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Pay As You Go</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Pay-per-video pricing</h2>
+          <p className="text-sm text-white/40 max-w-md mx-auto">No subscription needed. One price per final video. Choose your quality.</p>
+          <p className="text-xs text-[--color-gold]/50 mt-2 font-medium">Pay only when you are ready to export your final video.</p>
+          {/* Currency selector */}
+          <div className="flex items-center justify-center gap-3 mt-5">
+            <span className="text-[11px] text-white/30 font-medium">Prices in</span>
+            <CurrencySelector currency={currency} setCurrency={setCurrency} currencies={currencies} isLoading={currencyLoading} />
+            {currency !== "GBP" && (
+              <span className="text-[10px] text-white/20 italic">Approximate. Billed in GBP.</span>
+            )}
+          </div>
+        </div>
+
+        {/* Quality tier cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+          {[
+            {
+              label: "Standard",
+              resolution: "720p",
+              price: 2,
+              desc: "Great for social media & previews",
+              badge: null,
+              img: SHOWCASE_3,
+              features: ["YouTube Shorts", "Instagram Stories", "TikTok", "Twitter/X"],
+              accentColor: "rgba(100,140,200,0.2)",
+              borderColor: "rgba(100,140,200,0.2)",
+            },
+            {
+              label: "HD",
+              resolution: "1080p",
+              price: 4,
+              desc: "Perfect for YouTube & streaming",
+              badge: "MOST POPULAR",
+              img: SHOWCASE_1,
+              features: ["YouTube", "Instagram Reels", "Vimeo", "Facebook Video"],
+              accentColor: "rgba(196,164,100,0.15)",
+              borderColor: "rgba(196,164,100,0.45)",
+            },
+            {
+              label: "4K",
+              resolution: "2160p",
+              price: 6,
+              desc: "Cinema-grade quality",
+              badge: null,
+              img: SHOWCASE_2,
+              features: ["Cinema & broadcast", "Professional portfolio", "Premium streaming", "Large-screen display"],
+              accentColor: "rgba(160,100,220,0.15)",
+              borderColor: "rgba(160,100,220,0.25)",
+            },
+          ].map((tier) => (
+            <div
+              key={tier.label}
+              className="render-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
+              style={{ borderColor: tier.borderColor, boxShadow: tier.badge ? `0 0 40px ${tier.accentColor}` : 'none' }}
+            >
+              {tier.badge && (
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
+                  {tier.badge}
+                </div>
+              )}
+              {/* Background image */}
+              <div className="relative h-36 overflow-hidden">
+                <img src={tier.img} alt={tier.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.6) 100%)` }} />
+                {/* Resolution badge */}
+                <div className="absolute bottom-3 left-4 flex items-end gap-2">
+                  <span className="text-4xl font-black text-white leading-none">{tier.label}</span>
+                  <span className="text-sm text-white/50 mb-1">{tier.resolution}</span>
+                </div>
+              </div>
+              {/* Price + features */}
+              <div className="flex-1 p-5 bg-[#0c0c0c]">
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-extrabold text-white" style={{ animation: "priceFadeIn 220ms ease-out" }}>{formatPrice(tier.price)}</span>
+                  <span className="text-sm text-white/40">per video</span>
+                </div>
+                <p className="text-xs text-white/40 mb-4">{tier.desc}</p>
+                <div className="space-y-1.5">
+                  {tier.features.map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-xs text-white/50">
+                      <Check className="w-3 h-3 text-[--color-gold]/60 flex-shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* WizSound Audio Add-on — premium player + tier cards */}
+        <div className="space-y-6">
+          {/* Section header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <img
+                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-logo-v5_76ab5163.png"
+                alt="WizSound™"
+                className="h-10 w-auto object-contain"
+                style={{ filter: "drop-shadow(0 0 12px rgba(16,185,129,0.3))" }}
+                loading="lazy"
+              />
+              <div>
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  <h3 className="text-base font-bold text-white">WizSound™ Audio Mastering</h3>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold tracking-wider">OPTIONAL ADD-ON</span>
+                </div>
+                <p className="text-xs text-white/40">Spatial audio mastering — cinema-grade immersive sound. Press play to hear the difference.</p>
+              </div>
+            </div>
+            <a
+              href="/products/wizsound"
+              className="flex-shrink-0 flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              Learn more about WizSound™
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+          {/* Live demo player */}
+          <WizSoundDemoPlayer />
+        </div>
+      </section>
+
+      {/* ── 5. PRODUCT COVERAGE STRIP ── */}
+      <section className="max-w-5xl mx-auto px-6 mb-24">
+        <div className="rounded-2xl border border-[--color-gold]/[0.1] bg-gradient-to-br from-[--color-gold]/[0.03] to-transparent p-8">
+          <div className="text-center mb-8">
+            <h3 className="text-lg font-bold text-white mb-2">One subscription. Six powerful tools.</h3>
+            <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your Video Credits work across every tool.</p>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+            {[
+              { logo: LOGO_WIZAUDIO, name: "WizAudio", label: "AI Music", href: "/music-creator", color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
+              { logo: LOGO_WIZIMAGE, name: "WizImage", label: "AI Images", href: "/wiz-image", color: "rgba(196,164,100,0.15)", border: "rgba(196,164,100,0.3)" },
+              { logo: LOGO_WIZVIDEO, name: "WizVideo", label: "Music Videos", href: "/music-video/create", color: "rgba(60,120,220,0.15)", border: "rgba(60,120,220,0.25)" },
+              { logo: LOGO_WIZSHORTS, name: "WizShorts", label: "Short Videos", href: "/wiz-shorts", color: "rgba(220,100,40,0.15)", border: "rgba(220,100,40,0.25)" },
+              { logo: LOGO_WIZANIMATE, name: "WizAnimate", label: "Animation", href: "/kids-video", color: "rgba(200,60,180,0.15)", border: "rgba(200,60,180,0.25)" },
+              { logo: LOGO_WIZSCRIPT, name: "WizScript", label: "Text-to-Video", href: "/text-to-video", color: "rgba(0,200,220,0.15)", border: "rgba(0,200,220,0.25)" },
+            ].map((product) => (
+              <a
+                key={product.name}
+                href={product.href}
+                className="flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-300 hover:scale-105 group"
+                style={{ background: product.color, borderColor: product.border }}
+              >
+                <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center">
+                  <img src={product.logo} alt={product.name} className="w-full h-full object-contain" loading="lazy" />
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] font-bold text-white group-hover:text-[--color-gold] transition-colors">{product.name}</p>
+                  <p className="text-[9px] text-white/40 mt-0.5">{product.label}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5b. HOW BUILD CREDITS WORK ── */}
+      <section className="max-w-3xl mx-auto px-6 mb-16">
+        <div className="rounded-2xl border border-[--color-gold]/[0.12] bg-gradient-to-br from-[--color-gold]/[0.04] to-transparent p-8">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(196,164,100,0.12)', border: '1px solid rgba(196,164,100,0.25)' }}>
+              <Zap className="w-5 h-5" style={{ color: 'var(--color-gold)' }} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white mb-4">How Video Credits work</h3>
+              <div className="space-y-3 text-sm text-white/50 leading-relaxed">
+                <p>One Video Credit creates one final downloadable video.</p>
+                <p>Create and preview your project for free first — refine your storyboard, adjust scenes, and perfect the result before committing. A Video Credit is only used when you are ready to generate and download the final video.</p>
+                <p>Failed renders do not use credits. Extra Video Credit Packs never expire and can be used alongside any active subscription.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1235,64 +1359,11 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* ── 9. COMPARISON TABLE ── */}
-      <section className="max-w-6xl mx-auto px-6 mb-24" id="compare">
-        <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Compare Plans</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Full feature comparison</h2>
-          <p className="text-sm text-white/40">Everything you need to choose the right plan</p>
-        </div>
-
-        <div className="rounded-2xl border border-white/[0.12] overflow-hidden">
-          {/* Table header */}
-          <div className="grid grid-cols-4 bg-[#0a0a0a] border-b border-white/[0.07]">
-            <div className="col-span-1 p-4 flex items-center">
-              <span className="text-xs font-bold text-white/40 uppercase tracking-wider">Feature</span>
-            </div>
-            {["Starter", "Creator", "Studio"].map((name, i) => (
-              <div key={name} className={`p-4 text-center border-l border-white/[0.07] ${i === 1 ? "bg-gradient-to-b from-[--color-gold]/[0.08] to-[--color-gold]/[0.03]" : ""}`}>
-                <p className={`text-xs font-bold ${i === 1 ? "text-[--color-gold]" : "text-white"}`}>{name}</p>
-                {i === 1 && <p className="text-[9px] text-[--color-gold]/80 font-semibold mt-0.5 tracking-wide">★ Most Popular</p>}
-              </div>
-            ))}
-          </div>
-
-          {COMPARISON_GROUPS.map((group, gi) => (
-            <div key={group.group}>
-              {/* Group header */}
-              <div className="grid grid-cols-4 bg-[#080808] border-b border-white/[0.07]">
-                <div className="col-span-6 px-4 py-2.5 flex items-center gap-2">
-                  <Layers className="w-3 h-3 text-[--color-gold]/50" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[--color-gold]/50">{group.group}</span>
-                </div>
-              </div>
-              {group.rows.map((row, ri) => (
-                <div
-                  key={row.label}
-                  className={`grid grid-cols-4 border-b border-white/[0.07] last:border-0 transition-colors hover:bg-white/[0.02] ${
-                    gi === COMPARISON_GROUPS.length - 1 && ri === group.rows.length - 1 ? "border-0" : ""
-                  }`}
-                >
-                  <div className="col-span-1 px-4 py-3.5 flex items-center">
-                    <span className="text-xs text-white/75">{row.label}</span>
-                  </div>
-                  {(["starter", "creator", "pro"] as const).map((planId, pi) => (
-                    <div key={planId} className={`px-2 py-3.5 flex items-center justify-center border-l border-white/[0.06] ${pi === 1 ? "bg-[--color-gold]/[0.03]" : ""}`}>
-                      <CompCell value={(row as Record<string, string | boolean>)[planId]} isCheck={row.isCheck} />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── 10. FAQ ── */}
       <section className="max-w-3xl mx-auto px-6 mb-24">
         <div className="text-center mb-12">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">FAQ</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Frequently asked questions</h2>
+          <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">FAQ</p>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Frequently asked questions</h2>
           <p className="text-sm text-white/40">Everything you need to know about pricing and plans</p>
         </div>
         <div className="rounded-2xl border border-white/[0.07] bg-[#0a0a0a] px-6 divide-y divide-white/[0.05]">
