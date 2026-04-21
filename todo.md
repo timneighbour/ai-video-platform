@@ -5702,3 +5702,10 @@
 - [x] Audit Pricing page for old engine names and render terminology
 - [x] Replace render/rendering/renders with build/create/export in public UI (nav, Pricing, Subscribe, Products, WizSound product page, AiAnimationMaker)
 - [x] Ensure WizAdora is not shown publicly (confirmed: only on /admin/wizadora route)
+
+## See the Difference Section Fix (April 2026)
+- [x] Fix Standard/Enhanced/Cinematic tabs — rebuilt as toggle buttons with proper tier content
+- [x] Show proper WizSound + WizLumina differential content for each tier (audio + visual cards with feature lists)
+- [x] Use correct tier branding: Standard, WizEnhanced (Enhanced), WizCinematic (Cinematic)
+- [x] Point "Upgrade to Cinematic Mode" CTA to /subscribe#cinematic
+- [x] Add routes for new Technology pages (wizgenesis, wizsound, wizlumina, wizboost, wizsync, wizscore, wizpilot) — all 7 pages load correctly

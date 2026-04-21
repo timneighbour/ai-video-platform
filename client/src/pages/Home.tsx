@@ -2407,12 +2407,46 @@ function WizVidEngineSection() {
 }
 
 // ── See the Difference (Unified Comparison) ────────────────────────────────────
+const STD_FEATURES = {
+  audio: ["Basic stereo output", "No audio processing", "Raw AI-generated sound"],
+  visual: ["Standard AI output", "No colour grading", "Basic resolution"],
+};
+const ENH_FEATURES = {
+  audio: ["Stereo widening + EQ mastering", "Noise reduction & clarity", "Broadcast-ready balance"],
+  visual: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
+};
+const CIN_FEATURES = {
+  audio: ["Full spatial mastering + sub-bass", "Dynamic range & immersive depth", "Studio-grade cinematic mix"],
+  visual: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
+};
+
 function SeeTheDifference() {
-  const [activeTier, setActiveTier] = useState(1); // default: Cinematic
+  const [activeTier, setActiveTier] = useState(2); // default: Cinematic
   const tiers = [
-    { id: 0, label: "Standard", audioDesc: "Flat stereo mix, no mastering", visualDesc: "Raw AI output, no grading", audioClass: "saturate-50 brightness-75", visualClass: "saturate-50 brightness-75 contrast-90" },
-    { id: 1, label: "Enhanced", audioDesc: "Stereo widening + EQ mastering", visualDesc: "Colour correction + sharpening", audioClass: "", visualClass: "contrast-105 saturate-110" },
-    { id: 2, label: "Cinematic", audioDesc: "Full spatial mastering + sub-bass", visualDesc: "HDR grading + film-level polish", audioClass: "", visualClass: "contrast-115 saturate-120 brightness-105" },
+    {
+      id: 0, label: "Standard", brandLabel: "Standard",
+      tagline: "Basic output — functional, unprocessed.",
+      audioFeatures: STD_FEATURES.audio, visualFeatures: STD_FEATURES.visual,
+      audioClass: "saturate-50 brightness-75", visualClass: "saturate-50 brightness-75 contrast-90",
+      barWidth: "30%", barBg: "oklch(0.78 0.11 75 / 0.15)",
+      accentColor: "rgba(120,120,130,0.6)", borderColor: "rgba(255,255,255,0.06)",
+    },
+    {
+      id: 1, label: "Enhanced", brandLabel: "WizEnhanced™",
+      tagline: "Polished audio and visuals — ready for any platform.",
+      audioFeatures: ENH_FEATURES.audio, visualFeatures: ENH_FEATURES.visual,
+      audioClass: "", visualClass: "contrast-105 saturate-110",
+      barWidth: "65%", barBg: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.6), oklch(0.78 0.11 75 / 0.3))",
+      accentColor: "rgba(196,164,100,0.5)", borderColor: "rgba(196,164,100,0.15)",
+    },
+    {
+      id: 2, label: "Cinematic", brandLabel: "WizCinematic™",
+      tagline: "Full WizSound™ + WizLumina™ — studio-grade cinematic quality.",
+      audioFeatures: CIN_FEATURES.audio, visualFeatures: CIN_FEATURES.visual,
+      audioClass: "", visualClass: "contrast-115 saturate-120 brightness-105",
+      barWidth: "95%", barBg: "linear-gradient(90deg, oklch(0.78 0.11 75), oklch(0.85 0.15 75))",
+      accentColor: "rgba(212,175,55,0.7)", borderColor: "rgba(212,175,55,0.25)",
+    },
   ];
   const tier = tiers[activeTier];
   return (
@@ -2430,7 +2464,7 @@ function SeeTheDifference() {
         </div>
         <div className="reveal">
           {/* Tier selector */}
-          <div className="flex items-center justify-center gap-3 mb-10">
+          <div className="flex items-center justify-center gap-3 mb-4">
             {tiers.map((t) => (
               <button
                 key={t.id}
@@ -2449,40 +2483,54 @@ function SeeTheDifference() {
               </button>
             ))}
           </div>
-          {/* Comparison grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Audio */}
-            <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#080808] p-8 flex flex-col gap-4">
-              <div className="flex items-center gap-3 mb-2">
-                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto opacity-80"  loading="lazy" />
-                <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.label}</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex-1 h-12 rounded-xl bg-[--color-gold]/[0.04] border border-[--color-gold]/[0.08] flex items-center px-4 gap-2">
-                  <WaveformSVG className="w-4 h-4" color="oklch(0.78 0.11 75 / 0.5)" />
-                  <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: activeTier === 0 ? "40%" : activeTier === 1 ? "70%" : "95%",
-                        background: activeTier === 2
-                          ? "linear-gradient(90deg, oklch(0.78 0.11 75), oklch(0.85 0.15 75))"
-                          : activeTier === 1
-                            ? "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.7), oklch(0.78 0.11 75 / 0.4))"
-                            : "oklch(0.78 0.11 75 / 0.2)",
-                      }}
-                    />
-                  </div>
+          {/* Active tier brand label + tagline */}
+          <div className="text-center mb-10">
+            <p className="text-lg font-bold text-white">{tier.brandLabel}</p>
+            <p className="text-sm text-[--color-silver-dark]/40 mt-1">{tier.tagline}</p>
+          </div>
+
+          {/* Comparison grid — Audio + Visual side by side */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            {/* WizSound — Audio card */}
+            <div className="rounded-2xl border bg-[#080808] p-7 flex flex-col gap-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
+              <div className="flex items-center gap-3">
+                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-8 w-auto opacity-90" loading="lazy" />
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.brandLabel}</span>
+                  <p className="text-[10px] text-white/30 mt-0.5">Audio Processing</p>
                 </div>
               </div>
-              <p className="text-[--color-silver-dark]/50 text-sm">{tier.audioDesc}</p>
-            </div>
-            {/* Visual */}
-            <div className="rounded-2xl border border-[--color-gold]/[0.08] bg-[#080808] p-8 flex flex-col gap-4">
-              <div className="flex items-center gap-3 mb-2">
-                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain opacity-80"  loading="lazy" />
-                <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.label}</span>
+              {/* Audio quality bar */}
+              <div className="flex items-center gap-3">
+                <WaveformSVG className="w-4 h-4 flex-shrink-0" color={String(tier.accentColor)} />
+                <div className="flex-1 h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: tier.barWidth, background: tier.barBg }}
+                  />
+                </div>
               </div>
+              {/* Feature list */}
+              <div className="space-y-2.5">
+                {tier.audioFeatures.map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <CheckSVG className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: String(tier.accentColor) }} />
+                    <span className="text-sm text-white/60">{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* WizLumina — Visual card */}
+            <div className="rounded-2xl border bg-[#080808] p-7 flex flex-col gap-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
+              <div className="flex items-center gap-3">
+                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-8 w-8 object-contain opacity-90" loading="lazy" />
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[--color-gold-dark]">{tier.brandLabel}</span>
+                  <p className="text-[10px] text-white/30 mt-0.5">Visual Processing</p>
+                </div>
+              </div>
+              {/* Visual preview */}
               <div className="relative aspect-video rounded-xl overflow-hidden border border-[--color-gold]/[0.06]">
                 <img
                   src={DEMO_POSTER}
@@ -2492,13 +2540,47 @@ function SeeTheDifference() {
                 {activeTier === 2 && (
                   <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
                 )}
+                {/* Tier badge overlay */}
+                <div className="absolute top-3 right-3 z-10">
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm"
+                    style={{
+                      color: activeTier === 2 ? "var(--color-gold)" : activeTier === 1 ? "rgba(196,164,100,0.8)" : "rgba(255,255,255,0.5)",
+                      borderColor: activeTier === 2 ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.1)",
+                      background: "rgba(0,0,0,0.5)",
+                    }}
+                  >{tier.brandLabel}</span>
+                </div>
               </div>
-              <p className="text-[--color-silver-dark]/50 text-sm">{tier.visualDesc}</p>
+              {/* Feature list */}
+              <div className="space-y-2.5">
+                {tier.visualFeatures.map((f) => (
+                  <div key={f} className="flex items-start gap-2.5">
+                    <CheckSVG className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: String(tier.accentColor) }} />
+                    <span className="text-sm text-white/60">{f}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+
+          {/* What's included summary row */}
+          {activeTier === 2 && (
+            <div className="rounded-xl border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] px-6 py-4 mb-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
+              <span className="text-[--color-gold] font-semibold">Cinematic Pack includes:</span>
+              <span className="text-white/50">4K Resolution</span>
+              <span className="text-white/20">+</span>
+              <span className="text-white/50">WizSound™ Spatial</span>
+              <span className="text-white/20">+</span>
+              <span className="text-white/50">WizLumina™ HDR</span>
+              <span className="text-white/20">+</span>
+              <span className="text-white/50">Priority Build</span>
+              <span className="text-[--color-gold] font-bold ml-2">£7 per video</span>
+            </div>
+          )}
+
           {/* CTA */}
           <div className="text-center">
-            <a href="/pricing" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm">
+            <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm">
               <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
               Upgrade to Cinematic Mode
             </a>

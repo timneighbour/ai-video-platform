@@ -82,6 +82,13 @@ const TechPromptToVideo = lazy(() => import("@/pages/technology").then(m => ({ d
 const TechAudioToVideo = lazy(() => import("@/pages/technology").then(m => ({ default: m.AudioToVideoPage })));
 const TechStoryboardPreview = lazy(() => import("@/pages/technology").then(m => ({ default: m.StoryboardPreviewPage })));
 const TechFourKRendering = lazy(() => import("@/pages/technology").then(m => ({ default: m.FourKRenderingPage })));
+const TechWizGenesis = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizGenesisPage })));
+const TechWizSound = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizSoundPage })));
+const TechWizLumina = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizLuminaPage })));
+const TechWizBoost = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizBoostPage })));
+const TechWizSync = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizSyncPage })));
+const TechWizScore = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizScorePage })));
+const TechWizPilot = lazy(() => import("@/pages/technology").then(m => ({ default: m.WizPilotPage })));
 const WizAI = lazy(() => import("@/pages/WizAI"));
 const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
@@ -176,6 +183,13 @@ function Router() {
         <Route path={"/technology/audio-to-video"} component={TechAudioToVideo} />
         <Route path={"/technology/storyboard-preview"} component={TechStoryboardPreview} />
         <Route path={"/technology/4k-rendering"} component={TechFourKRendering} />
+        <Route path={"/technology/wizgenesis"} component={TechWizGenesis} />
+        <Route path={"/technology/wizsound"} component={TechWizSound} />
+        <Route path={"/technology/wizlumina"} component={TechWizLumina} />
+        <Route path={"/technology/wizboost"} component={TechWizBoost} />
+        <Route path={"/technology/wizsync"} component={TechWizSync} />
+        <Route path={"/technology/wizscore"} component={TechWizScore} />
+        <Route path={"/technology/wizpilot"} component={TechWizPilot} />
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
         <Route path={"/dashboard"} component={Dashboard} />

@@ -243,6 +243,13 @@ const ALL_TECH = [
   "/technology/audio-to-video",
   "/technology/storyboard-preview",
   "/technology/4k-rendering",
+  "/technology/wizgenesis",
+  "/technology/wizsound",
+  "/technology/wizlumina",
+  "/technology/wizboost",
+  "/technology/wizsync",
+  "/technology/wizscore",
+  "/technology/wizpilot",
 ];
 
 const RELATED_TECH_ALL = ALL_TECH.map((href) => ({
@@ -699,8 +706,323 @@ export function FourKRenderingPage() {
         "Render history and re-download from Projects page",
       ]}
       ctaHref="/pricing"
-      ctaLabel="View Render Plans"
+      ctaLabel="View Build Plans"
       relatedTech={relatedExcluding("4k-rendering")}
+    />
+  );
+}
+
+// ─── 11. WizGenesis ──────────────────────────────────────────────────────────
+export function WizGenesisPage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizgenesis"
+      title="WizGenesis™"
+      metaTitle="WizGenesis™ — Creative Intelligence | WIZ AI"
+      metaDesc="WizGenesis™ powers the creative planning behind every WIZ AI video — prompt expansion, storyboard intelligence, and scene direction."
+      ogTitle="WizGenesis™ — Creative Intelligence | WIZ AI"
+      ogDesc="Creative planning, prompt expansion and storyboard intelligence."
+      badge="WIZ AI Core Engine"
+      headline="WizGenesis™"
+      subheadline="Creative planning, prompt expansion and storyboard intelligence. The engine that turns a single idea into a full cinematic vision."
+      whatItIs="WizGenesis™ is WIZ AI's creative intelligence engine. It takes your initial prompt — a song, a script, or a simple idea — and expands it into a full creative plan: scene descriptions, visual direction, camera angles, mood, pacing, and character placement. It is the starting point of every video built on WIZ AI."
+      features={[
+        { icon: <Zap size={18} />, title: "Prompt Expansion", desc: "Transforms a short prompt into detailed scene-by-scene creative direction." },
+        { icon: <Layers size={18} />, title: "Storyboard Intelligence", desc: "Generates a complete storyboard with visual direction, mood, and pacing." },
+        { icon: <Film size={18} />, title: "Scene Planning", desc: "Assigns camera angles, lighting, colour palette, and character placement per scene." },
+        { icon: <Star size={18} />, title: "Style Matching", desc: "Adapts creative direction to your chosen visual style — Cinematic, Anime, 3D, or Documentary." },
+        { icon: <Cpu size={18} />, title: "Character Anchoring", desc: "Locks character descriptions and injects them into every scene for consistency." },
+        { icon: <Eye size={18} />, title: "Mood & Pacing", desc: "Analyses audio or text to set emotional tone and visual rhythm across the video." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Input your idea", desc: "Upload a song, paste lyrics, or write a prompt describing your video concept." },
+        { num: "02", title: "WizGenesis expands your vision", desc: "The engine analyses your input and generates a full creative plan with scene descriptions, visual direction, and pacing." },
+        { num: "03", title: "Review and refine", desc: "Preview the storyboard, edit any scene, swap visuals, or adjust the creative direction." },
+        { num: "04", title: "Ready for production", desc: "The finalised storyboard is passed to the WIZ AI build pipeline for scene generation and assembly." },
+      ]}
+      capabilities={[
+        "Single-prompt to full storyboard generation",
+        "Scene-level creative direction and camera planning",
+        "Audio-aware pacing and mood analysis",
+        "Character description anchoring across all scenes",
+        "Style-adaptive creative planning",
+        "Editable storyboard with scene-level control",
+        "Multi-format input: audio, lyrics, text, or script",
+        "Seamless handoff to WIZ AI build pipeline",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizgenesis")}
+    />
+  );
+}
+
+// ─── 12. WizSound ────────────────────────────────────────────────────────────
+export function WizSoundPage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizsound"
+      title="WizSound™"
+      metaTitle="WizSound™ — Audio Enhancement Engine | WIZ AI"
+      metaDesc="WizSound™ delivers audio enhancement, clarity, depth and cinematic mastering for every WIZ AI video."
+      ogTitle="WizSound™ — Audio Enhancement Engine | WIZ AI"
+      ogDesc="Audio enhancement, clarity, depth and cinematic mastering."
+      badge="WIZ AI Core Engine"
+      headline="WizSound™"
+      subheadline="Audio enhancement, clarity, depth and cinematic mastering. Three tiers of audio quality — from standard to studio-grade."
+      whatItIs="WizSound™ is WIZ AI's proprietary audio enhancement engine. It processes the audio track of every video through three quality tiers: Standard (raw output), WizEnhanced (stereo widening, EQ mastering, noise reduction), and WizCinematic (full spatial mastering, sub-bass, dynamic range, and immersive depth). The result is broadcast-ready or cinema-grade audio on every video."
+      features={[
+        { icon: <Music size={18} />, title: "Three Audio Tiers", desc: "Standard, WizEnhanced, and WizCinematic — choose the level of audio processing." },
+        { icon: <Zap size={18} />, title: "Stereo Widening", desc: "Expands the stereo field for a richer, more immersive listening experience." },
+        { icon: <Star size={18} />, title: "EQ Mastering", desc: "Dynamic equalisation for balanced, broadcast-ready audio." },
+        { icon: <Mic size={18} />, title: "Spatial Mastering", desc: "Full spatial audio processing with sub-bass, depth, and cinematic presence." },
+        { icon: <Shield size={18} />, title: "Noise Reduction", desc: "AI-powered noise reduction for cleaner, clearer audio output." },
+        { icon: <BarChart3 size={18} />, title: "Dynamic Range", desc: "Optimised dynamic range for consistent volume and impact across all scenes." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Audio analysed", desc: "WizSound analyses the audio track for frequency balance, noise, and dynamic range." },
+        { num: "02", title: "Processing tier applied", desc: "Based on your chosen tier, WizSound applies stereo widening, EQ, noise reduction, or full spatial mastering." },
+        { num: "03", title: "Mastering pass", desc: "A final mastering pass ensures consistent volume, clarity, and depth across the entire track." },
+        { num: "04", title: "Audio delivered", desc: "The enhanced audio is assembled with the video for final delivery." },
+      ]}
+      capabilities={[
+        "Standard, WizEnhanced, and WizCinematic audio tiers",
+        "Stereo widening and spatial depth processing",
+        "Dynamic EQ mastering for broadcast-ready balance",
+        "AI noise reduction and clarity enhancement",
+        "Sub-bass and cinematic presence (WizCinematic tier)",
+        "Consistent volume and dynamic range across all scenes",
+        "Works with uploaded audio, AI-generated music, and voiceover",
+        "Seamless integration with WizLumina for unified cinematic output",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizsound")}
+    />
+  );
+}
+
+// ─── 13. WizLumina ───────────────────────────────────────────────────────────
+export function WizLuminaPage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizlumina"
+      title="WizLumina™"
+      metaTitle="WizLumina™ — Visual Enhancement Engine | WIZ AI"
+      metaDesc="WizLumina™ delivers cinematic visual polish, colour grading, contrast enhancement and finishing for every WIZ AI video."
+      ogTitle="WizLumina™ — Visual Enhancement Engine | WIZ AI"
+      ogDesc="Cinematic visual polish, colour, contrast and finishing."
+      badge="WIZ AI Core Engine"
+      headline="WizLumina™"
+      subheadline="Cinematic visual polish, colour, contrast and finishing. Every frame enhanced automatically."
+      whatItIs="WizLumina™ is WIZ AI's visual enhancement engine. It applies cinematic colour grading, HDR enhancement, contrast optimisation, and frame-level sharpening to every scene. Working alongside WizSound™, it forms the unified Cinematic Engine that transforms raw AI output into polished, film-quality visuals."
+      features={[
+        { icon: <Eye size={18} />, title: "Cinematic Colour Grading", desc: "Professional colour science applied to every frame for a cinematic look." },
+        { icon: <Star size={18} />, title: "HDR Enhancement", desc: "High dynamic range processing for richer highlights and deeper shadows." },
+        { icon: <Zap size={18} />, title: "Contrast Optimisation", desc: "Intelligent contrast adjustment for visual depth and clarity." },
+        { icon: <Film size={18} />, title: "Frame Sharpening", desc: "Per-frame sharpening for crisp, detailed output at every resolution." },
+        { icon: <Layers size={18} />, title: "Visual Consistency", desc: "Ensures colour and lighting consistency across all scenes in the video." },
+        { icon: <BarChart3 size={18} />, title: "4K Finishing", desc: "Optimised for 4K output with cinema-grade visual polish." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Scenes analysed", desc: "WizLumina analyses each scene for colour balance, contrast, and visual quality." },
+        { num: "02", title: "Colour grading applied", desc: "Cinematic colour science is applied to match the video's mood and style." },
+        { num: "03", title: "Enhancement pass", desc: "HDR processing, contrast optimisation, and frame sharpening are applied." },
+        { num: "04", title: "Consistency check", desc: "Visual consistency is verified across all scenes before final assembly." },
+      ]}
+      capabilities={[
+        "Cinematic colour grading on every frame",
+        "HDR enhancement for richer visual depth",
+        "Intelligent contrast and brightness optimisation",
+        "Per-frame sharpening and detail enhancement",
+        "Cross-scene colour and lighting consistency",
+        "4K-optimised visual finishing",
+        "Works with all visual styles: Cinematic, Anime, 3D, Documentary",
+        "Unified with WizSound™ for complete cinematic output",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizlumina")}
+    />
+  );
+}
+
+// ─── 14. WizBoost ────────────────────────────────────────────────────────────
+export function WizBoostPage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizboost"
+      title="WizBoost™"
+      metaTitle="WizBoost™ — Optimisation Engine | WIZ AI"
+      metaDesc="WizBoost™ optimises every WIZ AI video for quality, speed and platform-ready delivery."
+      ogTitle="WizBoost™ — Optimisation Engine | WIZ AI"
+      ogDesc="Optimisation for quality, speed and platform-ready delivery."
+      badge="WIZ AI Core Engine"
+      headline="WizBoost™"
+      subheadline="Optimisation for quality, speed and platform-ready delivery. Every video is compressed, sharpened, and formatted for its destination."
+      whatItIs="WizBoost™ is WIZ AI's output optimisation engine. It takes the assembled video and optimises it for file size, sharpness, and platform compatibility. Whether you are publishing to YouTube, Instagram, TikTok, or downloading for professional use, WizBoost ensures the final file is as small as possible without sacrificing visual quality."
+      features={[
+        { icon: <Zap size={18} />, title: "Smart Compression", desc: "Reduces file size while preserving visual quality and detail." },
+        { icon: <Upload size={18} />, title: "Platform Optimisation", desc: "Output formatted for YouTube, Instagram, TikTok, and professional delivery." },
+        { icon: <Star size={18} />, title: "Sharpness Preservation", desc: "Maintains edge detail and clarity through the compression process." },
+        { icon: <Cpu size={18} />, title: "Parallel Processing", desc: "Multiple scenes optimised simultaneously for faster delivery." },
+        { icon: <Download size={18} />, title: "Direct Download", desc: "Optimised video ready for immediate download and publishing." },
+        { icon: <BarChart3 size={18} />, title: "Quality Metrics", desc: "Internal quality scoring ensures every output meets WIZ AI standards." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Video assembled", desc: "All scenes are assembled into a single video with audio and visual enhancements applied." },
+        { num: "02", title: "Compression applied", desc: "WizBoost applies smart compression to reduce file size without quality loss." },
+        { num: "03", title: "Platform formatting", desc: "The video is formatted for the target platform's resolution, aspect ratio, and codec requirements." },
+        { num: "04", title: "Ready for download", desc: "The optimised video is delivered as an MP4 file ready for publishing." },
+      ]}
+      capabilities={[
+        "Smart compression with quality preservation",
+        "Platform-specific output formatting",
+        "Sharpness and detail preservation",
+        "Parallel scene optimisation",
+        "MP4 output for all major platforms",
+        "Direct download upon completion",
+        "Internal quality scoring before delivery",
+        "Works with Standard, HD, and 4K resolutions",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizboost")}
+    />
+  );
+}
+
+// ─── 15. WizSync ─────────────────────────────────────────────────────────────
+export function WizSyncPage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizsync"
+      title="WizSync™"
+      metaTitle="WizSync™ — Sync & Alignment Tools | WIZ AI"
+      metaDesc="WizSync™ provides lip-sync, timing and performer alignment tools for WIZ AI videos."
+      ogTitle="WizSync™ — Sync & Alignment Tools | WIZ AI"
+      ogDesc="Lip-sync, timing and performer alignment tools."
+      badge="WIZ AI Advanced Tool"
+      headline="WizSync™"
+      subheadline="Lip-sync, timing and performer alignment tools. Precise synchronisation between audio and visual elements."
+      whatItIs="WizSync™ is WIZ AI's synchronisation engine. It aligns lip movements to dialogue or vocals, synchronises visual transitions to audio beats, and ensures performer timing matches the audio track. It is essential for music videos, dialogue-driven content, and any video where audio-visual alignment matters."
+      features={[
+        { icon: <Mic size={18} />, title: "Lip-Sync Alignment", desc: "Matches lip movements to vocals or dialogue with frame-level precision." },
+        { icon: <Music size={18} />, title: "Beat Synchronisation", desc: "Aligns visual transitions and scene cuts to audio beats and rhythm." },
+        { icon: <Film size={18} />, title: "Performer Timing", desc: "Ensures performer movements and gestures match the audio track." },
+        { icon: <RefreshCw size={18} />, title: "Re-Sync", desc: "Re-align any scene without rebuilding the entire video." },
+        { icon: <Eye size={18} />, title: "Preview Sync", desc: "Preview synchronisation before committing to the final build." },
+        { icon: <Zap size={18} />, title: "Multi-Track Support", desc: "Handles multiple audio tracks and performers in the same video." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Audio analysed", desc: "WizSync analyses the audio track for vocals, beats, and timing markers." },
+        { num: "02", title: "Visual alignment", desc: "Lip movements, transitions, and performer timing are aligned to the audio." },
+        { num: "03", title: "Preview and adjust", desc: "Preview the synchronisation and make adjustments before the final build." },
+        { num: "04", title: "Sync locked", desc: "The synchronisation is locked and passed to the build pipeline." },
+      ]}
+      capabilities={[
+        "Frame-level lip-sync alignment",
+        "Beat-synchronised visual transitions",
+        "Performer timing and gesture alignment",
+        "Scene-level re-sync without full rebuild",
+        "Multi-track and multi-performer support",
+        "Preview synchronisation before build",
+        "Works with music, dialogue, and voiceover",
+        "Seamless integration with WizSound™ audio processing",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizsync")}
+    />
+  );
+}
+
+// ─── 16. WizScore ────────────────────────────────────────────────────────────
+export function WizScorePage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizscore"
+      title="WizScore™"
+      metaTitle="WizScore™ — Quality Scoring | WIZ AI"
+      metaDesc="WizScore™ runs quality checks and improvement scoring before final output on every WIZ AI video."
+      ogTitle="WizScore™ — Quality Scoring | WIZ AI"
+      ogDesc="Quality checks and improvement scoring before final output."
+      badge="WIZ AI Advanced Tool"
+      headline="WizScore™"
+      subheadline="Quality checks and improvement scoring before final output. Every video is scored and validated before delivery."
+      whatItIs="WizScore™ is WIZ AI's quality assurance engine. Before any video is delivered, WizScore runs a series of automated checks: visual consistency, audio quality, colour accuracy, scene transitions, and overall production quality. Each video receives a quality score, and any issues are flagged for automatic correction or manual review."
+      features={[
+        { icon: <BarChart3 size={18} />, title: "Quality Scoring", desc: "Every video receives an automated quality score before delivery." },
+        { icon: <Eye size={18} />, title: "Visual Consistency Check", desc: "Validates colour, lighting, and character consistency across all scenes." },
+        { icon: <Music size={18} />, title: "Audio Quality Check", desc: "Verifies audio clarity, balance, and mastering quality." },
+        { icon: <Shield size={18} />, title: "Auto-Correction", desc: "Automatically corrects minor issues flagged during the quality check." },
+        { icon: <Star size={18} />, title: "Scene Transition Review", desc: "Checks scene transitions for smoothness and visual coherence." },
+        { icon: <CheckCircle size={18} />, title: "Delivery Gate", desc: "Videos must pass the quality gate before being marked as ready for download." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Video assembled", desc: "The video is assembled with all audio and visual enhancements applied." },
+        { num: "02", title: "Quality checks run", desc: "WizScore runs automated checks on visual consistency, audio quality, and transitions." },
+        { num: "03", title: "Score assigned", desc: "The video receives a quality score and any issues are flagged." },
+        { num: "04", title: "Corrections applied", desc: "Minor issues are auto-corrected; major issues are flagged for review." },
+      ]}
+      capabilities={[
+        "Automated quality scoring on every video",
+        "Visual consistency validation across scenes",
+        "Audio quality and mastering verification",
+        "Scene transition smoothness checking",
+        "Automatic correction of minor issues",
+        "Quality gate before delivery",
+        "Detailed quality report available in Projects",
+        "Continuous improvement from production data",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizscore")}
+    />
+  );
+}
+
+// ─── 17. WizPilot ────────────────────────────────────────────────────────────
+export function WizPilotPage() {
+  return (
+    <TechnologyPageTemplate
+      slug="wizpilot"
+      title="WizPilot™"
+      metaTitle="WizPilot™ — Guided Automation | WIZ AI"
+      metaDesc="WizPilot™ provides guided automation from idea to storyboard to final video build on WIZ AI."
+      ogTitle="WizPilot™ — Guided Automation | WIZ AI"
+      ogDesc="Guided automation from idea to storyboard to final video build."
+      badge="WIZ AI Advanced Tool"
+      headline="WizPilot™"
+      subheadline="Guided automation from idea to storyboard to final video build. One prompt, full pipeline, zero manual steps."
+      whatItIs="WizPilot™ is WIZ AI's end-to-end automation engine. It takes a single prompt and runs the entire production pipeline automatically: creative planning (WizGenesis), storyboard generation, scene production, audio enhancement (WizSound), visual polish (WizLumina), quality scoring (WizScore), and final delivery (WizBoost). It is the fastest way to go from idea to finished video."
+      features={[
+        { icon: <Zap size={18} />, title: "One-Prompt Production", desc: "Enter a single prompt and WizPilot handles the entire pipeline." },
+        { icon: <Layers size={18} />, title: "Full Pipeline Automation", desc: "Automates creative planning, scene generation, audio, visual, and delivery." },
+        { icon: <Star size={18} />, title: "Smart Defaults", desc: "Chooses optimal settings for style, pacing, audio tier, and resolution." },
+        { icon: <Eye size={18} />, title: "Progress Tracking", desc: "Real-time progress updates as each stage of the pipeline completes." },
+        { icon: <Shield size={18} />, title: "Quality Assured", desc: "WizScore quality checks are applied automatically before delivery." },
+        { icon: <Download size={18} />, title: "Auto-Delivery", desc: "The finished video is delivered automatically when the pipeline completes." },
+      ]}
+      howItWorks={[
+        { num: "01", title: "Enter your prompt", desc: "Describe your video idea in a single prompt — a song, a script, or a concept." },
+        { num: "02", title: "WizPilot takes over", desc: "The engine runs WizGenesis for creative planning, generates scenes, and applies all enhancements." },
+        { num: "03", title: "Quality checked", desc: "WizScore validates the output and flags any issues for automatic correction." },
+        { num: "04", title: "Video delivered", desc: "Your finished video is ready for download — no manual steps required." },
+      ]}
+      capabilities={[
+        "Single-prompt to finished video automation",
+        "Full pipeline: planning, generation, audio, visual, delivery",
+        "Smart default selection for all settings",
+        "Real-time progress tracking",
+        "WizScore quality assurance included",
+        "Automatic delivery upon completion",
+        "Works with all input types: audio, text, script",
+        "Override any setting before or during the build",
+      ]}
+      ctaHref="/onboarding"
+      ctaLabel="Start Creating"
+      relatedTech={relatedExcluding("wizpilot")}
     />
   );
 }
