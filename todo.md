@@ -5785,3 +5785,20 @@
 - [x] Replace old "Generate Lip Sync (Coming Soon)" CTA with per-segment preview players
 - [x] Add "Generate Full Lip Sync" upgrade CTA below timeline with "Previews are free" note
 - [x] Write 8 vitest tests for generatePreview and pollPreview logic (all passing)
+
+## SeeTheDifference Section Rebuild - COMPLETED ✅
+- [x] Generate 3 distinct music tracks (Standard: flat/mono, Enhanced: stereo-widened, Cinematic: full orchestral) via AI
+- [x] Generate 3 distinct sound effect tracks (Standard: basic ambient, Enhanced: spatial ambient, Cinematic: 3D spatial SFX) via AI
+- [x] Upload all 6 audio tracks to CDN
+- [x] Add musicSrc, sfxSrc, musicLabel, sfxLabel, glowRgb fields to TIER_DATA
+- [x] Add Music / Sound Effects toggle to switch between audio types per tier
+- [x] Add full audio player controls: play/pause button, scrubber/progress bar, volume slider, mute button, time display
+- [x] Add play button overlay on video with "Press play to hear the X tier" instruction
+- [x] Replace Sound On/Off toggle with full volume control (slider + mute icon)
+- [x] Add WizSound + WizLumina logos with text labels to section header
+- [x] Add WizSound/WizLumina logos to feature cards below video
+- [x] Update tier badges to use WizSound/WizLumina logos instead of generic icons
+- [x] Add "Best" badge to Cinematic tier selector button
+- [x] Add ambient glow that shifts colour with active tier
+- [x] Update accentColor values for clearer visual distinction between tiers
+- [x] TypeScript: 0 errors
