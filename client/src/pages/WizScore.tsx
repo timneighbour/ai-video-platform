@@ -16,7 +16,6 @@ import {
 } from "@/lib/icons";
 
 const CDN = "/manus-storage";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 
 type Step = "idle" | "uploading" | "analyzing" | "generating" | "complete" | "error";
 
@@ -31,7 +30,6 @@ interface Analysis {
 }
 
 export default function WizScore() {
-
   useSEO({ title: "WizScore™ — AI Video-to-Music Generator — WIZ AI", path: "/wizscore", description: "Upload a video and let AI generate a perfectly synced soundtrack. WizScore™ analyses mood, pacing, and energy to create music that fits every frame." });
   const { isAuthenticated } = useAuth();
   const [step, setStep] = useState<Step>("idle");
@@ -84,7 +82,6 @@ export default function WizScore() {
     setErrorMsg(null);
 
     try {
-      // 1. Upload video to S3 via the existing upload endpoint
       const formData = new FormData();
       formData.append("file", videoFile);
       const uploadRes = await fetch("/api/video/upload", { method: "POST", body: formData });
@@ -92,19 +89,16 @@ export default function WizScore() {
       const { key, url } = await uploadRes.json();
       setProgress(20);
 
-      // 2. Create the WizScore job
       const { id } = await createJob.mutateAsync({ videoKey: key, videoUrl: url });
       setJobId(id);
       setStep("analyzing");
       setProgress(30);
 
-      // 3. Analyse the video
       const analysisResult = await analyzeJob.mutateAsync({ jobId: id });
       setAnalysis(analysisResult.analysis as Analysis);
       setProgress(55);
       setStep("generating");
 
-      // 4. Generate the score
       const { sunoTaskId: taskId } = await generateScore.mutateAsync({
         jobId: id,
         sunoPrompt: analysisResult.sunoPrompt,
@@ -115,7 +109,6 @@ export default function WizScore() {
       setSunoTaskId(taskId);
       setProgress(65);
 
-      // 5. Poll suno task status
       let attempts = 0;
       pollRef.current = setInterval(async () => {
         attempts++;
@@ -133,7 +126,7 @@ export default function WizScore() {
               setAudioUrl(firstTrack.audioUrl);
               setStep("complete");
               setProgress(100);
-              toast.success("– WizScore complete!", { description: "Your synced soundtrack is ready." });
+              toast.success("WizScore complete!", { description: "Your synced soundtrack is ready." });
             } else {
               throw new Error("No audio track returned");
             }
@@ -205,231 +198,226 @@ export default function WizScore() {
         </div>
       </div>
 
-      {/* Studio atmosphere hero */}
+      {/* Studio atmosphere background */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="/manus-storage/music-studio-bg_207e72b0.jpg"
+            src={`${CDN}/music-studio-bg_207e72b0.jpg`}
             alt=""
-            className="w-full h-full object-cover object-center opacity-[0.18]"
+            className="w-full h-full object-cover object-center opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/60 via-[#06050a]/40 to-[#06050a] pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#06050a]/50 via-transparent to-[#06050a]/50 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/70 via-[#06050a]/50 to-[#06050a]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#06050a]/60 via-transparent to-[#06050a]/60" />
         </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-5 py-16">
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-4 py-1.5 mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
-            <span className="text-[--color-gold] text-xs font-semibold tracking-wide uppercase">AI Video-to-Music</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
-            WizScore<span className="text-[--color-gold]">™</span>
-          </h1>
-          <p className="text-xl text-white/60 max-w-xl mx-auto leading-relaxed">
-            Upload any video. AI analyses the mood, pacing, and energy — then generates a perfectly synced original soundtrack.
-          </p>
-        </div>
-
-        {/* Main card */}
-        <div className="studio-card rounded-3xl overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-0">
-            {/* Left: Upload */}
-            <div className="p-8 border-r border-white/[0.06]">
-              <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                <Film className="w-5 h-5 text-[--color-gold]" /> Upload Video
-              </h2>
-
-              {!videoFile ? (
-                <div
-                  className="border-2 border-dashed border-white/[0.12] rounded-2xl p-10 text-center cursor-pointer hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15[0.03] transition-all duration-200"
-                  onDrop={handleDrop}
-                  onDragOver={(e) => e.preventDefault()}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                  <p className="text-white/50 text-sm mb-1">Drag & drop your video here</p>
-                  <p className="text-white/25 text-xs">MP4, MOV, WebM — max 100MB</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <video
-                    src={videoPreviewUrl!}
-                    className="w-full rounded-xl aspect-video object-cover bg-black"
-                    controls
-                    muted
-                    playsInline
-                  />
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white/80 text-sm font-medium truncate max-w-[200px]">{videoFile.name}</p>
-                      <p className="text-white/35 text-xs">{(videoFile.size / 1024 / 1024).toFixed(1)} MB</p>
-                    </div>
-                    <button
-                      className="text-white/30 hover:text-white/60 text-xs underline transition-colors"
-                      onClick={() => { setVideoFile(null); setVideoPreviewUrl(null); setStep("idle"); }}
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-              )}
+        <div className="relative z-10 max-w-5xl mx-auto px-5 py-16">
+          {/* Hero */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-4 py-1.5 mb-6">
+              <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
+              <span className="text-[--color-gold] text-xs font-semibold tracking-wide uppercase">AI Video-to-Music</span>
             </div>
+            <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              WizScore<span className="text-[--color-gold]">™</span>
+            </h1>
+            <p className="text-xl text-white/60 max-w-xl mx-auto leading-relaxed">
+              Upload any video. AI analyses the mood, pacing, and energy — then generates a perfectly synced original soundtrack.
+            </p>
+          </div>
 
-            {/* Right: Status + Result */}
-            <div className="p-8">
-              <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                <Music2 className="w-5 h-5 text-[--color-silver]" /> Your Soundtrack
-              </h2>
+          {/* Main card */}
+          <div className="studio-card rounded-3xl overflow-hidden">
+            <div className="grid md:grid-cols-2 gap-0">
+              {/* Left: Upload */}
+              <div className="p-8 border-r border-white/[0.06]">
+                <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                  <Film className="w-5 h-5 text-[--color-gold]" /> Upload Video
+                </h2>
 
-              {step === "idle" && (
-                <div className="flex flex-col items-center justify-center h-48 text-center">
-                  <Wand2 className="w-10 h-10 text-white/15 mb-3" />
-                  <p className="text-white/35 text-sm">Upload a video to get started</p>
-                </div>
-              )}
-
-              {(step === "uploading" || step === "analyzing" || step === "generating") && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
-                      <div className="w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
-                    </div>
-                    <p className="text-white/70 text-sm font-medium">{STEP_LABELS[step]}</p>
+                {!videoFile ? (
+                  <div
+                    className="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center cursor-pointer hover:border-[--color-gold]/30 hover:bg-[--color-gold]/5 transition-all duration-200"
+                    onDrop={handleDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-10 h-10 text-white/20 mx-auto mb-3" />
+                    <p className="text-white/50 text-sm mb-1">Drag &amp; drop your video here</p>
+                    <p className="text-white/25 text-xs">MP4, MOV, WebM — max 100MB</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                    />
                   </div>
-                  <Progress value={progress} className="h-1.5 bg-white/[0.06]" />
-                  <p className="text-white/30 text-xs">{progress}% complete</p>
-
-                  {/* Step indicators */}
-                  <div className="space-y-2.5 mt-4">
-                    {[
-                      { label: "Upload video", done: progress >= 20 },
-                      { label: "AI video analysis", done: progress >= 55 },
-                      { label: "Compose soundtrack", done: progress >= 100 },
-                    ].map(({ label, done }) => (
-                      <div key={label} className="flex items-center gap-2.5">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done ? "bg-[--color-silver]/10" : "bg-white/[0.05]"}`}>
-                          {done && <CheckCircle2 className="w-3 h-3 text-[--color-silver]" />}
-                        </div>
-                        <span className={`text-xs ${done ? "text-white/60" : "text-white/25"}`}>{label}</span>
+                ) : (
+                  <div className="space-y-4">
+                    <video
+                      src={videoPreviewUrl!}
+                      className="w-full rounded-xl aspect-video object-cover bg-black"
+                      controls
+                      muted
+                      playsInline
+                    />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white/80 text-sm font-medium truncate max-w-[200px]">{videoFile.name}</p>
+                        <p className="text-white/35 text-xs">{(videoFile.size / 1024 / 1024).toFixed(1)} MB</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {step === "complete" && analysis && audioUrl && (
-                <div className="space-y-5">
-                  {/* Analysis summary */}
-                  <div className="studio-panel rounded-2xl p-4 space-y-2">
-                    <p className="text-white/40 text-[11px] font-semibold uppercase tracking-widest mb-3">AI Analysis</p>
-                    {[
-                      { label: "Mood", value: analysis.mood },
-                      { label: "Energy", value: analysis.energy },
-                      { label: "Genre", value: analysis.genre },
-                      { label: "Duration", value: `${analysis.videoDurationSeconds}s` },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="flex justify-between items-center">
-                        <span className="text-white/35 text-xs">{label}</span>
-                        <span className="text-white/75 text-xs font-medium capitalize">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Audio player */}
-                  <div className="bg-gradient-to-r from-[#b8892a]/10 to-[#2e2e36]/10 border border-[--color-gold]/30 rounded-2xl p-4">
-                    <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
-                    <div className="flex items-center gap-3">
                       <button
-                        onClick={togglePlay}
-                        className="w-10 h-10 rounded-full bg-[--color-gold] hover:bg-[--color-gold]/20 flex items-center justify-center transition-colors flex-shrink-0"
+                        className="text-white/30 hover:text-white/60 text-xs underline transition-colors"
+                        onClick={() => { setVideoFile(null); setVideoPreviewUrl(null); setStep("idle"); }}
                       >
-                        {isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
+                        Change
                       </button>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white/80 text-sm font-semibold truncate">WizScore Soundtrack</p>
-                        <p className="text-white/35 text-xs capitalize">{analysis.genre} · {analysis.mood}</p>
-                      </div>
-                      <a
-                        href={audioUrl}
-                        download="wizscore-soundtrack.mp3"
-                        className="w-9 h-9 rounded-xl bg-white/[0.06] hover:bg-white/[0.10] flex items-center justify-center transition-colors"
-                      >
-                        <Download className="w-4 h-4 text-white/60" />
-                      </a>
                     </div>
                   </div>
+                )}
+              </div>
 
-                  <Button
-                    className="w-full bg-white/[0.06] hover:bg-white/[0.10] text-white/70 rounded-xl text-sm"
-                    onClick={() => { setStep("idle"); setVideoFile(null); setVideoPreviewUrl(null); setAnalysis(null); setAudioUrl(null); }}
-                  >
-                    Score another video
-                  </Button>
-                </div>
-              )}
+              {/* Right: Status + Result */}
+              <div className="p-8">
+                <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                  <Music2 className="w-5 h-5 text-[--color-silver]" /> Your Soundtrack
+                </h2>
 
-              {step === "error" && (
-                <div className="flex flex-col items-center justify-center h-48 text-center space-y-3">
-                  <AlertCircle className="w-10 h-10 text-red-400" />
-                  <p className="text-white/60 text-sm">{errorMsg ?? "Something went wrong"}</p>
-                  <Button
-                    variant="outline"
-                    className="text-sm rounded-xl border-white/10"
-                    onClick={() => setStep("idle")}
-                  >
-                    Try again
-                  </Button>
-                </div>
-              )}
+                {step === "idle" && (
+                  <div className="flex flex-col items-center justify-center h-48 text-center">
+                    <Wand2 className="w-10 h-10 text-white/15 mb-3" />
+                    <p className="text-white/35 text-sm">Upload a video to get started</p>
+                  </div>
+                )}
+
+                {(step === "uploading" || step === "analyzing" || step === "generating") && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
+                        <div className="w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
+                      </div>
+                      <p className="text-white/70 text-sm font-medium">{STEP_LABELS[step]}</p>
+                    </div>
+                    <Progress value={progress} className="h-1.5 bg-white/5" />
+                    <p className="text-white/30 text-xs">{progress}% complete</p>
+                    <div className="space-y-2.5 mt-4">
+                      {[
+                        { label: "Upload video", done: progress >= 20 },
+                        { label: "AI video analysis", done: progress >= 55 },
+                        { label: "Compose soundtrack", done: progress >= 100 },
+                      ].map(({ label, done }) => (
+                        <div key={label} className="flex items-center gap-2.5">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done ? "bg-[--color-silver]/10" : "bg-white/5"}`}>
+                            {done && <CheckCircle2 className="w-3 h-3 text-[--color-silver]" />}
+                          </div>
+                          <span className={`text-xs ${done ? "text-white/60" : "text-white/25"}`}>{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {step === "complete" && analysis && audioUrl && (
+                  <div className="space-y-5">
+                    <div className="studio-panel rounded-2xl p-4 space-y-2">
+                      <p className="text-white/40 text-[11px] font-semibold uppercase tracking-widest mb-3">AI Analysis</p>
+                      {[
+                        { label: "Mood", value: analysis.mood },
+                        { label: "Energy", value: analysis.energy },
+                        { label: "Genre", value: analysis.genre },
+                        { label: "Duration", value: `${analysis.videoDurationSeconds}s` },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex justify-between items-center">
+                          <span className="text-white/35 text-xs">{label}</span>
+                          <span className="text-white/75 text-xs font-medium capitalize">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="bg-gradient-to-r from-[#b8892a]/10 to-[#2e2e36]/10 border border-[--color-gold]/30 rounded-2xl p-4">
+                      <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={togglePlay}
+                          className="w-10 h-10 rounded-full bg-[--color-gold] hover:bg-[--color-gold]/80 flex items-center justify-center transition-colors flex-shrink-0"
+                        >
+                          {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white/80 text-sm font-semibold truncate">WizScore Soundtrack</p>
+                          <p className="text-white/35 text-xs capitalize">{analysis.genre} · {analysis.mood}</p>
+                        </div>
+                        <a
+                          href={audioUrl}
+                          download="wizscore-soundtrack.mp3"
+                          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                        >
+                          <Download className="w-4 h-4 text-white/60" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <Button
+                      className="w-full bg-white/5 hover:bg-white/10 text-white/70 rounded-xl text-sm"
+                      onClick={() => { setStep("idle"); setVideoFile(null); setVideoPreviewUrl(null); setAnalysis(null); setAudioUrl(null); }}
+                    >
+                      Score another video
+                    </Button>
+                  </div>
+                )}
+
+                {step === "error" && (
+                  <div className="flex flex-col items-center justify-center h-48 text-center space-y-3">
+                    <AlertCircle className="w-10 h-10 text-red-400" />
+                    <p className="text-white/60 text-sm">{errorMsg ?? "Something went wrong"}</p>
+                    <Button
+                      variant="outline"
+                      className="text-sm rounded-xl border-white/10"
+                      onClick={() => setStep("idle")}
+                    >
+                      Try again
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Footer CTA */}
+            {step === "idle" && videoFile && (
+              <div className="border-t border-white/5 p-6 flex items-center justify-between">
+                <div>
+                  <p className="text-white/60 text-sm font-medium">Ready to score</p>
+                  <p className="text-white/30 text-xs">AI will analyse your video and generate a synced soundtrack</p>
+                </div>
+                <Button
+                  className="btn-primary btn-sheen px-8 py-3 rounded-xl text-sm font-bold"
+                  onClick={startGeneration}
+                  disabled={step !== "idle"}
+                >
+                  <Wand2 className="w-4 h-4 mr-2" /> Generate WizScore
+                </Button>
+              </div>
+            )}
           </div>
 
-          {/* Footer CTA */}
-          {step === "idle" && videoFile && (
-            <div className="border-t border-white/[0.06] p-6 flex items-center justify-between">
-              <div>
-                <p className="text-white/60 text-sm font-medium">Ready to score</p>
-                <p className="text-white/30 text-xs">AI will analyse your video and generate a synced soundtrack</p>
+          {/* How it works */}
+          <div className="mt-16 grid md:grid-cols-3 gap-6">
+            {[
+              { icon: Film, title: "Upload Your Video", desc: "Drop any video — short film, music video, reel, or YouTube clip. Up to 100MB.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
+              { icon: Wand2, title: "AI Analyses the Scene", desc: "WizScore reads the mood, pacing, energy, and duration — frame by frame.", colour: "text-[--color-silver]", bg: "bg-[--color-silver]/10" },
+              { icon: Music2, title: "Synced Soundtrack", desc: "An original instrumental track is composed and trimmed to end exactly on your final frame.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
+            ].map(({ icon: Icon, title, desc, colour, bg }) => (
+              <div key={title} className="studio-card rounded-2xl p-6">
+                <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-4`}>
+                  <Icon className={`w-5 h-5 ${colour}`} />
+                </div>
+                <h3 className="text-white/85 font-bold text-base mb-2">{title}</h3>
+                <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
               </div>
-              <Button
-                className="btn-primary btn-sheen px-8 py-3 rounded-xl text-sm font-bold"
-                onClick={startGeneration}
-                disabled={step !== "idle"}
-              >
-                <Wand2 className="w-4 h-4 mr-2" /> Generate WizScore
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* How it works */}
-        <div className="mt-16 grid md:grid-cols-3 gap-6">
-          {[
-            { icon: Film, title: "Upload Your Video", desc: "Drop any video — short film, music video, reel, or YouTube clip. Up to 100MB.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
-            { icon: Wand2, title: "AI Analyses the Scene", desc: "WizScore reads the mood, pacing, energy, and duration — frame by frame.", colour: "text-[--color-silver]", bg: "bg-[--color-silver]/10" },
-            { icon: Music2, title: "Synced Soundtrack", desc: "An original instrumental track is composed and trimmed to end exactly on your final frame.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
-          ].map(({ icon: Icon, title, desc, colour, bg }) => (
-            <div key={title} className="studio-card rounded-2xl p-6">
-              <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-4`}>
-                <Icon className={`w-5 h-5 ${colour}`} />
-              </div>
-              <h3 className="text-white/85 font-bold text-base mb-2">{title}</h3>
-              <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-      </div>{/* end studio atmosphere hero */}
     </div>
   );
 }
-// Wed Apr 22 12:29:29 EDT 2026
