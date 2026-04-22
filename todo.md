@@ -5833,3 +5833,22 @@
 - [x] Fix WizShorts logo (was using WizCreate logo — now WizShorts)
 - [x] Update WizSoundProductPage nav to solid gold CTA button
 - [x] TypeScript: 0 errors
+
+## EMERGENCY QA — Live Site Fix Pass
+- [ ] PART 1: Fix SeeTheDifference demo — no sound issue
+- [ ] PART 1: Unified single-video player with one play button, one progress bar, three mode buttons
+- [ ] PART 1: Mode switching preserves timestamp and keeps audio playing
+- [ ] PART 1: Reduce CSS filter intensity — Enhanced max +5% contrast/saturation, Cinematic max +10% contrast
+- [ ] PART 1: Fix audio context resume on user gesture for iOS/Safari
+- [ ] PART 1: Update demo text/labels per spec
+- [ ] PART 2: iOS mobile missing images/videos/logos audit and fix
+- [ ] PART 2: Add eager loading for above-the-fold hero/logo assets
+- [ ] PART 2: Add poster images for videos
+- [ ] PART 2: Fix any broken CDN asset paths
+- [ ] PART 3: Remove all emojis used as icons site-wide
+- [ ] PART 3: Remove old WizVid references
+- [ ] PART 3: Remove provider names (fal.ai, WaveSpeed, Atlas, etc.)
+- [ ] PART 3: Remove fake testimonial sections
+- [ ] PART 3: Replace placeholder icons with premium visuals
+- [ ] PART 3: Consistent premium WIZ AI design across all product pages
+- [ ] PART 4: Full QA report — desktop and mobile viewport testing

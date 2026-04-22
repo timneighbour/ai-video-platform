@@ -2464,101 +2464,42 @@ function WizVidEngineSection() {
 }
 
 // ── See the Difference (Video + Audio Comparison) ────────────────────────────
-const TIER_VIDEOS = [
-  "/manus-storage/tier-standard-demo_9df28025.mp4",
-  "/manus-storage/tier-enhanced-demo_2d8ea9ec.mp4",
-  "/manus-storage/tier-cinematic-demo_dd2f9b04.mp4",
-];
+// ── Tier data for the unified comparison player ────────────────────────────
+const DEMO_VIDEO = "/manus-storage/tier-standard-demo_9df28025.mp4";
 
 const TIER_DATA = [
   {
-    id: 0, label: "Original", brandLabel: "Original",
-    tagline: "Raw AI output — unprocessed audio and visuals, exactly as generated.",
-    audioFeatures: ["Flat, dry, unprocessed piano", "Mono — no stereo width or reverb", "Raw AI output, no mastering"],
-    visualFeatures: ["Standard AI output", "No colour grading", "Basic resolution"],
+    id: 0, label: "Standard",
+    desc: "Original source quality",
+    audioSrc: "/manus-storage/tier-original-music_c98457af.mp3",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
-    soundBadge: "Original Audio", visualBadge: "Original Video",
-    musicSrc: "/manus-storage/tier-original-music_c98457af.mp3",
-    sfxSrc: "/manus-storage/tier-original-sfx_d6956b19.mp3",
-    musicLabel: "Dry piano — no processing", sfxLabel: "Flat wind — close-mic, mono",
     glowRgb: "160,160,170",
   },
   {
-    id: 1, label: "Enhanced", brandLabel: "WizSound™ Enhanced",
-    tagline: "Same source — now stereo-widened, EQ-balanced, and broadcast-ready.",
-    audioFeatures: ["Stereo widening + natural reverb", "EQ mastered — broadcast-ready balance", "Light strings added for warmth"],
-    visualFeatures: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
+    id: 1, label: "Enhanced",
+    desc: "Sharper visuals and richer sound",
+    audioSrc: "/manus-storage/tier-enhanced-music_e437e316.mp3",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
-    soundBadge: "WizSound™ Enhanced", visualBadge: "WizLumina™ Enhanced",
-    musicSrc: "/manus-storage/tier-enhanced-music_e437e316.mp3",
-    sfxSrc: "/manus-storage/tier-enhanced-sfx_d22b0b96.mp3",
-    musicLabel: "Stereo piano + light strings", sfxLabel: "Wide stereo wind + eagle call",
     glowRgb: "196,164,100",
   },
   {
-    id: 2, label: "Cinematic", brandLabel: "WizSound™ Cinematic",
-    tagline: "Same source — elevated to full spatial orchestral production with sub-bass and immersive depth.",
-    audioFeatures: ["Full orchestra — strings, horns, choir", "Deep sub-bass + spatial 3D mastering", "Studio-grade cinematic mix"],
-    visualFeatures: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
+    id: 2, label: "Cinematic",
+    desc: "Premium grade, depth and atmosphere",
+    audioSrc: "/manus-storage/tier-cinematic-music_28e1a8fb.mp3",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
-    soundBadge: "WizSound™ Spatial", visualBadge: "WizLumina™ HDR",
-    musicSrc: "/manus-storage/tier-cinematic-music_28e1a8fb.mp3",
-    sfxSrc: "/manus-storage/tier-cinematic-sfx_0251a4fd.mp3",
-    musicLabel: "Full orchestra — spatial 3D", sfxLabel: "3D spatial — thunder, eagle, wind",
     glowRgb: "212,175,55",
   },
 ];
 
-// ── Web Audio API processing graph per mode ──────────────────────────────────
-interface AudioGraph {
-  ctx: AudioContext;
-  source: MediaElementAudioSourceNode;
-  gainNode: GainNode;
-  bass: BiquadFilterNode;
-  mid: BiquadFilterNode;
-  high: BiquadFilterNode;
-  compressor: DynamicsCompressorNode;
-  masterGain: GainNode;
-}
-
-function buildAudioGraph(video: HTMLVideoElement): AudioGraph {
-  const ctx = new AudioContext();
-  const source = ctx.createMediaElementSource(video);
-  const bass = ctx.createBiquadFilter();
-  const mid = ctx.createBiquadFilter();
-  const high = ctx.createBiquadFilter();
-  const compressor = ctx.createDynamicsCompressor();
-  const gainNode = ctx.createGain();
-  const masterGain = ctx.createGain();
-  bass.type = "lowshelf"; bass.frequency.value = 120;
-  mid.type = "peaking"; mid.frequency.value = 2500; mid.Q.value = 1;
-  high.type = "highshelf"; high.frequency.value = 8000;
-  source.connect(bass).connect(mid).connect(high).connect(compressor).connect(gainNode).connect(masterGain).connect(ctx.destination);
-  return { ctx, source, gainNode, bass, mid, high, compressor, masterGain };
-}
-
-function applyAudioMode(graph: AudioGraph, mode: number, volume: number, muted: boolean) {
-  const { bass, mid, high, compressor, masterGain } = graph;
-  if (mode === 0) {
-    // Standard — flat, no processing
-    bass.gain.value = 0; mid.gain.value = 0; high.gain.value = 0;
-    compressor.threshold.value = -50; compressor.ratio.value = 1;
-    masterGain.gain.value = muted ? 0 : volume;
-  } else if (mode === 1) {
-    // Enhanced — subtle EQ + light compression
-    bass.gain.value = 3; mid.gain.value = 2; high.gain.value = 2;
-    compressor.threshold.value = -24; compressor.ratio.value = 3;
-    masterGain.gain.value = muted ? 0 : volume * 1.1;
-  } else {
-    // Cinematic — deep bass, wide, rich mastering
-    bass.gain.value = 8; mid.gain.value = 3; high.gain.value = 4;
-    compressor.threshold.value = -18; compressor.ratio.value = 6;
-    masterGain.gain.value = muted ? 0 : volume * 1.2;
-  }
-}
+// Subtle CSS filters — restrained per spec
+const VIDEO_FILTERS = [
+  "none",                                                         // Standard: raw source
+  "contrast(1.05) saturate(1.05) brightness(1.02)",                // Enhanced: subtle lift
+  "contrast(1.08) saturate(1.06) brightness(1.01) sepia(0.03)",    // Cinematic: warm, premium
+];
 
 function SeeTheDifference() {
-  const [activeTier, setActiveTier] = useState(0); // start on Standard
+  const [activeTier, setActiveTier] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.8);
@@ -2567,11 +2508,10 @@ function SeeTheDifference() {
   const [currentTime, setCurrentTime] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioGraphRef = useRef<AudioGraph | null>(null);
+  const audioRefs = useRef<(HTMLAudioElement | null)[]>([null, null, null]);
   const rafRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
 
-  // A/B test for the Cinematic CTA
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
 
   useEffect(() => {
@@ -2586,30 +2526,6 @@ function SeeTheDifference() {
   }, [trackCtaImpression]);
 
   const tier = TIER_DATA[activeTier];
-
-  // CSS visual filter per mode
-  const VIDEO_FILTERS = [
-    "none",                                                                                           // Standard: raw
-    "contrast(1.12) saturate(1.25) brightness(1.04)",                                                 // Enhanced: richer colour
-    "contrast(1.22) saturate(1.4) brightness(1.02) sepia(0.08) drop-shadow(0 0 8px rgba(255,180,60,0.12))", // Cinematic: warm grade
-  ];
-
-  // Initialise Web Audio graph on first play
-  const initAudio = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || audioGraphRef.current) return;
-    try {
-      audioGraphRef.current = buildAudioGraph(video);
-      applyAudioMode(audioGraphRef.current, activeTier, volume, isMuted);
-    } catch {/* browser may block */ }
-  }, [activeTier, volume, isMuted]);
-
-  // Re-apply audio processing whenever mode/volume/mute changes
-  useEffect(() => {
-    if (audioGraphRef.current) {
-      applyAudioMode(audioGraphRef.current, activeTier, volume, isMuted);
-    }
-  }, [activeTier, volume, isMuted]);
 
   // RAF-based progress tracking
   const tickProgress = useCallback(() => {
@@ -2627,36 +2543,78 @@ function SeeTheDifference() {
   }, []);
 
   // Cleanup on unmount
-  useEffect(() => () => { stopRaf(); audioGraphRef.current?.ctx.close(); }, [stopRaf]);
+  useEffect(() => () => { stopRaf(); }, [stopRaf]);
+
+  // Sync volume to active audio element
+  useEffect(() => {
+    audioRefs.current.forEach((a, i) => {
+      if (!a) return;
+      a.volume = (i === activeTier && !isMuted) ? volume : 0;
+      // Mute inactive audio elements entirely
+      a.muted = i !== activeTier;
+    });
+  }, [activeTier, volume, isMuted]);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
     if (isPlaying) {
       v.pause();
+      audioRefs.current.forEach(a => a?.pause());
       stopRaf();
       setIsPlaying(false);
     } else {
-      initAudio();
-      if (audioGraphRef.current) audioGraphRef.current.ctx.resume().catch(() => {});
-      v.play().then(() => { rafRef.current = requestAnimationFrame(tickProgress); setIsPlaying(true); setHasStarted(true); }).catch(() => {});
+      // Sync all audio to video time
+      const t = v.currentTime;
+      audioRefs.current.forEach((a, i) => {
+        if (!a) return;
+        a.currentTime = t;
+        a.volume = (i === activeTier && !isMuted) ? volume : 0;
+        a.muted = i !== activeTier;
+      });
+      v.play().then(() => {
+        audioRefs.current.forEach(a => a?.play().catch(() => {}));
+        rafRef.current = requestAnimationFrame(tickProgress);
+        setIsPlaying(true);
+        setHasStarted(true);
+      }).catch(() => {});
     }
-  }, [isPlaying, initAudio, tickProgress, stopRaf]);
+  }, [isPlaying, activeTier, volume, isMuted, tickProgress, stopRaf]);
 
-  // Mode switch: preserve timestamp, keep playing state
+  // Mode switch: preserve timestamp, keep playing state, no restart
   const handleTierSwitch = useCallback((id: number) => {
+    if (id === activeTier) return;
+    const v = videoRef.current;
+    const t = v?.currentTime ?? 0;
+    const wasPlaying = isPlaying;
+
+    // Mute old, unmute new
+    audioRefs.current.forEach((a, i) => {
+      if (!a) return;
+      a.currentTime = t;
+      if (i === id) {
+        a.muted = false;
+        a.volume = isMuted ? 0 : volume;
+        if (wasPlaying) a.play().catch(() => {});
+      } else {
+        a.muted = true;
+        a.volume = 0;
+      }
+    });
+
     setActiveTier(id);
-    // audio processing updated via useEffect above
-  }, []);
+  }, [activeTier, isPlaying, volume, isMuted]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const v = videoRef.current;
     if (!v) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    v.currentTime = pct * (v.duration || 0);
+    const newTime = pct * (v.duration || 0);
+    v.currentTime = newTime;
+    audioRefs.current.forEach(a => { if (a) a.currentTime = newTime; });
     setProgress(pct * 100);
-    setCurrentTime(v.currentTime);
+    setCurrentTime(newTime);
   }, []);
 
   const handleVideoLoaded = useCallback(() => {
@@ -2666,6 +2624,7 @@ function SeeTheDifference() {
 
   const handleVideoEnded = useCallback(() => {
     stopRaf();
+    audioRefs.current.forEach(a => a?.pause());
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
@@ -2681,16 +2640,26 @@ function SeeTheDifference() {
     <section className="relative bg-[#040404] py-28 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
 
-      {/* Ambient glow that shifts with tier */}
+      {/* Ambient glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full transition-all duration-700"
           style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
       </div>
 
+      {/* Hidden audio elements — one per tier */}
+      {TIER_DATA.map((t, i) => (
+        <audio
+          key={t.id}
+          ref={(el) => { audioRefs.current[i] = el; }}
+          src={t.audioSrc}
+          preload="auto"
+          loop
+        />
+      ))}
+
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14 reveal">
-          {/* WizSound + WizLumina logos */}
           <div className="inline-flex items-center gap-4 mb-6 px-6 py-3 rounded-full border border-white/[0.06] bg-white/[0.02]">
             <div className="flex items-center gap-2">
               <img src={WIZSOUND_LOGO} alt="WizSound" className="h-8 w-auto" loading="lazy" />
@@ -2739,13 +2708,13 @@ function SeeTheDifference() {
             </div>
           </div>
 
-          {/* Brand label + tagline */}
+          {/* Tier label + description */}
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-2 mb-1">
               {activeTier > 0 && <img src={WIZSOUND_LOGO} alt="" className="h-5 w-auto opacity-70" loading="lazy" />}
-              <p className="text-base font-bold text-white">{tier.brandLabel}</p>
+              <p className="text-base font-bold text-white">{tier.label}</p>
             </div>
-            <p className="text-sm text-[--color-silver-dark]/40">{tier.tagline}</p>
+            <p className="text-sm text-[--color-silver-dark]/40">{tier.desc}</p>
           </div>
 
           {/* Single unified video player */}
@@ -2756,13 +2725,13 @@ function SeeTheDifference() {
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              {/* Single video — CSS filter changes per tier */}
               <video
                 ref={videoRef}
-                src={TIER_VIDEOS[0]}
+                src={DEMO_VIDEO}
                 className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
                 style={{ filter: VIDEO_FILTERS[activeTier] }}
                 playsInline
+                muted
                 preload="auto"
                 onLoadedMetadata={handleVideoLoaded}
                 onEnded={handleVideoEnded}
@@ -2776,7 +2745,7 @@ function SeeTheDifference() {
                     borderColor: `rgba(${tier.glowRgb},0.3)`,
                     background: "rgba(0,0,0,0.65)",
                   }}
-                >{tier.brandLabel}</span>
+                >{tier.label}</span>
               </div>
 
               {/* Audio + Visual badges top-right */}
@@ -2784,12 +2753,12 @@ function SeeTheDifference() {
                 <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
                   style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
                   <img src={WIZSOUND_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
-                  {tier.soundBadge}
+                  {activeTier === 0 ? "Standard Audio" : activeTier === 1 ? "Enhanced Audio" : "Spatial Audio"}
                 </span>
                 <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
                   style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
                   <img src={WIZLUMINA_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
-                  {tier.visualBadge}
+                  {activeTier === 0 ? "Standard Video" : activeTier === 1 ? "Enhanced Video" : "HDR Video"}
                 </span>
               </div>
 
@@ -2891,7 +2860,7 @@ function SeeTheDifference() {
 
           {/* Feature comparison — Audio + Visual side by side below video */}
           <div className="grid md:grid-cols-2 gap-4 mb-6">
-            {/* WizSound features */}
+            {/* WizSound card */}
             <div className="rounded-xl border bg-[#080808]/80 p-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
               <div className="flex items-center gap-2.5 mb-4">
                 <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto" loading="lazy" />
@@ -2901,7 +2870,12 @@ function SeeTheDifference() {
                 </div>
               </div>
               <div className="space-y-2.5">
-                {tier.audioFeatures.map((f) => (
+                {(activeTier === 0
+                  ? ["Flat, dry, unprocessed audio", "Mono — no stereo width", "Raw AI output"]
+                  : activeTier === 1
+                    ? ["Stereo widening + natural reverb", "EQ mastered — broadcast-ready", "Light strings added for warmth"]
+                    : ["Full orchestra — strings, horns, choir", "Deep sub-bass + spatial 3D mastering", "Studio-grade cinematic mix"]
+                ).map((f) => (
                   <div key={f} className="flex items-start gap-2">
                     <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: tier.accentColor }} />
                     <span className="text-xs text-white/55">{f}</span>
@@ -2909,7 +2883,7 @@ function SeeTheDifference() {
                 ))}
               </div>
             </div>
-            {/* WizLumina features */}
+            {/* WizLumina card */}
             <div className="rounded-xl border bg-[#080808]/80 p-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
               <div className="flex items-center gap-2.5 mb-4">
                 <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain" loading="lazy" />
@@ -2919,7 +2893,12 @@ function SeeTheDifference() {
                 </div>
               </div>
               <div className="space-y-2.5">
-                {tier.visualFeatures.map((f) => (
+                {(activeTier === 0
+                  ? ["Standard AI output", "No colour grading", "Basic resolution"]
+                  : activeTier === 1
+                    ? ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"]
+                    : ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"]
+                ).map((f) => (
                   <div key={f} className="flex items-start gap-2">
                     <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: tier.accentColor }} />
                     <span className="text-xs text-white/55">{f}</span>
