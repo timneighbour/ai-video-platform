@@ -9,12 +9,16 @@ import ProductPageTemplate, { ProductPageProps } from "@/components/ProductPageT
 
 const HERO_IMGS = {
   wizcreate:  "/manus-storage/product-wizcreate-hero_6c3efa10.jpg",
-  wizanimate: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg",
+  wizanimate: "/manus-storage/hero-wizanimate_75dad3b8.jpg",
   wizsound:   "/manus-storage/product-wizsound-hero_8219d2d2.jpg",
   wizlumina:  "/manus-storage/product-wizlumina-hero_ed20683e.jpg",
-  wizgenesis: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg",
-  wizboost:   "/manus-storage/product-wizboost-hero_9c11e1cc.jpg",
-  wizsync:    "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg",
+  wizgenesis: "/manus-storage/hero-wizgenesis_839aa2e8.jpg",
+  wizboost:   "/manus-storage/hero-wizboost_44024555.jpg",
+  wizsync:    "/manus-storage/hero-wizsync_6e1c3369.jpg",
+  wizscore:   "/manus-storage/hero-wizscore_d4786473.jpg",
+  wizscript:  "/manus-storage/hero-wizscript_d5f3a63d.jpg",
+  wizpilot:   "/manus-storage/hero-wizpilot_0e6b01dd.jpg",
+  wizshorts:  "/manus-storage/hero-wizshorts_83e4e17d.jpg",
 };
 
 const CDN = "/manus-storage";
@@ -384,7 +388,7 @@ const WIZSCRIPT: ProductPageProps = {
     { icon: "star", title: "Character Voice Consistency", desc: "Maintains consistent character voices, dialogue styles, and personality traits across all scenes for a coherent, professional narrative." },
     { icon: "zap", title: "WizGenesis™ Integration", desc: "Scripts flow directly into WizGenesis™ for building — no manual export, no format conversion, no setup. One click from script to final video." },
   ],
-  heroImage: "/manus-storage/product-wizscript-hero_bb15d595.png",
+  heroImage: HERO_IMGS.wizscript,
   related: ALL_RELATED.filter(r => r.name !== "WizCreate™"),
 };
 
@@ -395,7 +399,7 @@ const WIZPILOT: ProductPageProps = {
   tagline: "AI Workflow Automation Engine",
   headline: "One prompt. A complete video. Fully automated.",
   subheadline: "WizPilot™ is the intelligent automation layer of WIZ AI — it takes your idea and orchestrates every step of the creation pipeline automatically, from storyboard to final build, without a single manual handoff.",
-  logo: `${CDN}/wizcreate-logo-new_85a25756.png`,
+  logo: `${CDN}/wizimage-logo-v1_83c86e5c.png`,
   accentFrom: "from-fuchsia-400",
   accentTo: "to-pink-600",
   accentGlow: "rgba(217,70,239,0.25)",
@@ -435,7 +439,7 @@ const WIZPILOT: ProductPageProps = {
     { icon: "eye", title: "Real-Time Pipeline Tracking", desc: "Watch your video being built in real time — each pipeline stage updates live so you always know exactly where your creation is." },
     { icon: "zap", title: "Credits Only on Build", desc: "Storyboard generation and all regenerations are completely free. Credits are only deducted when you approve and trigger the final build." },
   ],
-  heroImage: HERO_IMGS.wizcreate,
+  heroImage: HERO_IMGS.wizpilot,
   related: ALL_RELATED.filter(r => r.name !== "WizPilot™"),
 };
 
@@ -497,7 +501,7 @@ const WIZSCORE_INFO: ProductPageProps = {
   tagline: "AI Video-to-Music Engine",
   headline: "Your video. Its perfect soundtrack. Instantly.",
   subheadline: "WizScore™ analyses your video's mood, pacing, and emotional arc — then composes an original, perfectly synchronised soundtrack that feels like it was written specifically for your footage.",
-  logo: `${CDN}/wizsound-logo-new_c5cced65.png`,
+  logo: `${CDN}/wizaudio-logo-v1_f428aad0.png`,
   accentFrom: "from-teal-400",
   accentTo: "to-cyan-600",
   accentGlow: "rgba(20,184,166,0.25)",
@@ -537,7 +541,7 @@ const WIZSCORE_INFO: ProductPageProps = {
     { icon: "zap", title: "Frame-Accurate Tempo Sync", desc: "The generated soundtrack is timed to your video's exact pacing — scene cuts and energy peaks are musically marked with precision." },
     { icon: "download", title: "Instant Royalty-Free Download", desc: "Every generated soundtrack is fully royalty-free for commercial use — download and publish immediately, no licensing required." },
   ],
-  heroImage: HERO_IMGS.wizsound,
+  heroImage: HERO_IMGS.wizscore,
   related: ALL_RELATED.filter(r => r.name !== "WizScore™"),
 };
 
@@ -588,7 +592,7 @@ const WIZSHORTS: ProductPageProps = {
   tagline: "AI Short-Form Video Creator",
   headline: "Create viral short-form videos with AI",
   subheadline: "WizShorts™ generates polished 9:16 short-form videos for YouTube Shorts, Instagram Reels, and TikTok — from a topic or script, in minutes.",
-  logo: `${CDN}/wizcreate-logo-new_85a25756.png`,
+  logo: `${CDN}/wizshorts-logo-v1_533db978.png`,
   accentFrom: "from-orange-400",
   accentTo: "to-red-500",
   accentGlow: "rgba(249,115,22,0.25)",
@@ -628,7 +632,7 @@ const WIZSHORTS: ProductPageProps = {
     { icon: "zap", title: "Fast Assembly", desc: "All scenes are assembled with transitions and optional music in a single pass — no manual editing required." },
     { icon: "download", title: "MP4 Download", desc: "Download your completed short-form video as an MP4 file ready for immediate publishing." },
   ],
-  heroImage: HERO_IMGS.wizcreate,
+  heroImage: HERO_IMGS.wizshorts,
   related: ALL_RELATED.filter(r => r.name !== "WizShorts™"),
 };
 

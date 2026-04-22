@@ -5813,3 +5813,23 @@
 - [x] Update Standard tier soundBadge to "Original Audio", visualBadge to "Original Video"
 - [x] Update Standard tier tagline and audioFeatures to reference "original" output
 - [x] TypeScript: 0 errors
+
+## Product Pages — Premium Enhancement (All 11 pages) - COMPLETED ✅
+- [x] Rebuild ProductPageTemplate with full-bleed hero image band (70vh min height)
+- [x] Add solid gold CTA button in sticky nav (unmissable, gold bg + black text)
+- [x] Add mid-page CTA band with hero image background and gold CTA
+- [x] Image-backed step cards in "How It Works" section (image header + text below)
+- [x] Product logo + tagline in nav with glow drop-shadow effect
+- [x] Logo + name badge in "What It Does" section header
+- [x] Generate premium hero images for WizAnimate (3D animation studio), WizScript (writer's desk), WizPilot (control room), WizSync (face+waveform), WizScore (grand piano hall), WizShorts (vertical phone), WizBoost (4K split), WizGenesis (cosmic light beam)
+- [x] Upload all 8 new hero images to /manus-storage CDN
+- [x] Update HERO_IMGS in products/index.tsx with correct /manus-storage CDN paths
+- [x] Fix WizScript heroImage (was using WizCreate's image)
+- [x] Fix WizPilot heroImage (was using WizCreate's image)
+- [x] Fix WizShorts heroImage (was using WizCreate's image)
+- [x] Fix WizScore heroImage (was using WizSound's image)
+- [x] Fix WizPilot logo (was using WizCreate logo — now WizImage)
+- [x] Fix WizScore logo (was using WizSound logo — now WizAudio)
+- [x] Fix WizShorts logo (was using WizCreate logo — now WizShorts)
+- [x] Update WizSoundProductPage nav to solid gold CTA button
+- [x] TypeScript: 0 errors

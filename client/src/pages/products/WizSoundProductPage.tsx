@@ -159,9 +159,15 @@ export default function WizSoundProductPage() {
               <span className="px-2.5 py-1 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[10px] font-bold tracking-[0.15em] uppercase text-[--color-gold-dark]">Cinematic Audio Engine</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <NavLink href="/" className="nav-link">Home</NavLink>
-            <NavLink href="/create" className="nav-link">All Tools</NavLink>
+          <div className="flex items-center gap-2">
+            <NavLink href="/" className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-[--color-silver-dark]/60 hover:text-[--color-silver] transition-colors">Home</NavLink>
+            <NavLink
+              href="/music-creator"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-[--color-gold] text-black hover:bg-[--color-gold-light] transition-all shadow-[0_0_20px_rgba(196,164,100,0.25)]"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Create Music Now
+            </NavLink>
           </div>
         </div>
       </nav>
