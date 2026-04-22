@@ -74,25 +74,46 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#040404]">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center text-white">
-              Sign in to continue
-            </h1>
-            <p className="text-sm text-[--color-silver-dark]/50 text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
+      <div className="relative flex items-center justify-center min-h-screen studio-bg overflow-hidden">
+        {/* Studio atmosphere background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <img
+            src="/manus-storage/music-studio-bg_207e72b0.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-[0.12]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/70 via-[#06050a]/50 to-[#06050a]/90" />
+          {/* Amber ceiling lamp glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#b8892a]/8 blur-[120px] rounded-full" />
+        </div>
+        {/* Sign-in card */}
+        <div className="relative z-10 flex flex-col items-center gap-8 p-10 max-w-md w-full mx-4">
+          <div className="studio-card rounded-2xl p-8 w-full flex flex-col items-center gap-6 border border-[rgba(184,137,42,0.2)] shadow-[0_0_60px_rgba(184,137,42,0.06)]">
+            {/* WIZ AI logo mark */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-[rgba(184,137,42,0.12)] border border-[rgba(184,137,42,0.25)] flex items-center justify-center">
+                <span className="text-2xl font-bold text-[--color-gold]">W</span>
+              </div>
+              <div className="text-center">
+                <p className="text-xs tracking-[0.2em] uppercase text-[--color-gold]/60 mb-1">WIZ AI Studio</p>
+                <h1 className="text-xl font-semibold tracking-tight text-white">
+                  Sign in to continue
+                </h1>
+              </div>
+            </div>
+            <p className="text-sm text-white/40 text-center max-w-xs leading-relaxed">
+              Access your creative studio. Sign in to start generating AI videos, music, and more.
             </p>
+            <Button
+              onClick={() => {
+                window.location.href = getLoginUrl();
+              }}
+              size="lg"
+              className="btn-primary btn-sheen w-full shadow-lg hover:shadow-xl transition-all"
+            >
+              Sign in to WIZ AI
+            </Button>
           </div>
-          <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
-            size="lg"
-            className="btn-primary btn-sheen btn-sheen w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            Sign in
-          </Button>
         </div>
       </div>
     );
