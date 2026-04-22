@@ -177,11 +177,17 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <NavLink
               href={ctaHref}
-              className="inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl font-black text-sm bg-[--color-gold] text-black hover:bg-[--color-gold-light] transition-all shadow-[0_0_40px_rgba(196,164,100,0.40),0_4px_20px_rgba(0,0,0,0.5)] hover:shadow-[0_0_60px_rgba(196,164,100,0.55)] hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-3 px-12 py-5 rounded-full font-black text-base transition-all hover:scale-[1.03] active:scale-[0.97]"
+              style={{
+                background: "linear-gradient(135deg, #c4a464 0%, #d4b878 40%, #c9a84c 70%, #b8943a 100%)",
+                color: "#1a1200",
+                boxShadow: "0 0 40px rgba(196,164,100,0.45), 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
+                border: "1.5px solid rgba(212,184,120,0.6)",
+              }}
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-5 h-5" style={{ color: "#1a1200" }} />
               {ctaLabel}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-5 h-5" style={{ color: "#1a1200" }} />
             </NavLink>
             <NavLink
               href="/"
@@ -400,11 +406,17 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <p className="text-[--color-silver-dark]/55 mb-8 text-base">Start creating cinematic AI content today — no experience required.</p>
           <NavLink
             href={ctaHref}
-            className="inline-flex items-center gap-2.5 px-12 py-4 rounded-2xl font-black text-sm bg-[--color-gold] text-black hover:bg-[--color-gold-light] transition-all shadow-[0_0_40px_rgba(196,164,100,0.35)] hover:shadow-[0_0_60px_rgba(196,164,100,0.50)] hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-3 px-14 py-5 rounded-full font-black text-base transition-all hover:scale-[1.03] active:scale-[0.97]"
+            style={{
+              background: "linear-gradient(135deg, #c4a464 0%, #d4b878 40%, #c9a84c 70%, #b8943a 100%)",
+              color: "#1a1200",
+              boxShadow: "0 0 50px rgba(196,164,100,0.50), 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
+              border: "1.5px solid rgba(212,184,120,0.6)",
+            }}
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-5 h-5" style={{ color: "#1a1200" }} />
             {ctaLabel}
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-5 h-5" style={{ color: "#1a1200" }} />
           </NavLink>
         </div>
       </section>
