@@ -1,7 +1,7 @@
 /**
  * WIZ AI Email Notifications — Resend
  *
- * Sends transactional emails to the WIZ AI owner (timneighbour@wiz-ai.io)
+ * Sends transactional emails to the WIZ AI owner (tim@wiz-ai.io)
  * for key business events: new signups, subscriptions, credit purchases,
  * failed payments, and render completions.
  *
@@ -15,8 +15,8 @@
 import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const OWNER_EMAIL = "timneighbour@wiz-ai.io";
-const FROM_EMAIL = "WIZ AI Notifications <notifications@wiz-ai.io>";
+const OWNER_EMAIL = "tim@wiz-ai.io";
+const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
 
 let resend: Resend | null = null;
 

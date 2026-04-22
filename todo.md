@@ -5906,3 +5906,11 @@
 - [ ] Upgrade WizShorts (/wiz-shorts) — full studio environment
 - [ ] Upgrade TextToVideo (/text-to-video) — full studio environment
 - [ ] TypeScript check and checkpoint after studio upgrades
+
+## Email Routing Update (Apr 2026)
+- [x] Update OWNER_EMAIL in email.ts from timneighbour@wiz-ai.io to tim@wiz-ai.io
+- [x] Update FROM_EMAIL to use verified wizvid.ai sending domain (notifications@wizvid.ai)
+- [x] Set RESEND_API_KEY environment variable
+- [x] Confirm support@wiz-ai.io already in website footer and schema.org metadata
+- [x] Send test email to tim@wiz-ai.io to verify Resend delivery
+- [x] Update all comment references from timneighbour@wizvid.ai to tim@wiz-ai.io in webhooks.ts and oauth.ts

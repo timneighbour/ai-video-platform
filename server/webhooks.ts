@@ -215,7 +215,7 @@ async function handleCheckoutSessionCompleted(session: any) {
         title: "New Credit Purchase",
         content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased ${creditsToAdd} credits for £${(session.amount_total ?? 0) / 100}`,
       }).catch(() => {}); // non-fatal
-      // Email notification to timneighbour@wizvid.ai
+      // Email notification to tim@wiz-ai.io
       await emailCreditPurchase({
         name: metadata.customer_name || "Unknown",
         email: metadata.customer_email || "",
@@ -277,7 +277,7 @@ async function handleCheckoutSessionCompleted(session: any) {
         title: "New Subscription",
         content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan (£${(session.amount_total ?? 0) / 100}/month)`,
       }).catch(() => {}); // non-fatal
-      // Email notification to timneighbour@wizvid.ai
+      // Email notification to tim@wiz-ai.io
       await emailNewSubscription({
         name: metadata.customer_name || "Unknown",
         email: metadata.customer_email || "",

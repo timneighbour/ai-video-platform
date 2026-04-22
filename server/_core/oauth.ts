@@ -76,7 +76,7 @@ export function registerOAuthRoutes(app: Express) {
             title: "New WIZ AI Sign-Up",
             content: `New user signed up: ${userInfo.name || "Unknown"} (${userInfo.email || "no email"}) — ${FREE_TRIAL_CREDITS} trial credits granted.`,
           }).catch(() => {}); // Non-blocking
-          // Email notification to timneighbour@wizvid.ai
+          // Email notification to tim@wiz-ai.io
           await emailNewSignup({
             name: userInfo.name || "Unknown",
             email: userInfo.email || "",
