@@ -2263,10 +2263,10 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "/manus-storage/creator-musicians-rockband_bb86fbf0.jpg" },
-    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/products/wizanimate", logo: WIZANIMATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
-    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizboost-hero_9c11e1cc.jpg" },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-musicians-premium-8GZ9NuzqqusE8rZ27Tqrxm.webp" },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-content-premium-oEFftXPsMcVs8xZA9z88QR.webp" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/products/wizanimate", logo: WIZANIMATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-animator-premium-MLeuwBsaHxd9cindqxiXUp.webp" },
+    { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-youtuber-premium-gqHtiaHLuP258LeYjwzB7S.webp" },
   ];
   return (
     <section id="built-for" className="relative bg-[#030303] py-28 px-6">
@@ -2472,15 +2472,15 @@ const TIER_VIDEOS = [
 
 const TIER_DATA = [
   {
-    id: 0, label: "Standard", brandLabel: "Standard",
-    tagline: "Raw AI output — basic audio and visuals, unprocessed.",
-    audioFeatures: ["Mono / basic stereo", "No audio processing", "Raw AI-generated sound"],
+    id: 0, label: "Original", brandLabel: "Original",
+    tagline: "Raw AI output — original audio and visuals, unprocessed.",
+    audioFeatures: ["Original AI-generated audio", "Mono / basic stereo, no processing", "Unmastered, unenhanced output"],
     visualFeatures: ["Standard AI output", "No colour grading", "Basic resolution"],
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
-    soundBadge: "Standard Audio", visualBadge: "Standard Video",
+    soundBadge: "Original Audio", visualBadge: "Original Video",
     musicSrc: "/manus-storage/demo-music-standard_4aa8c300.mp3",
     sfxSrc: "/manus-storage/demo-sfx-standard_f841feb2.mp3",
-    musicLabel: "Flat, unprocessed", sfxLabel: "Basic ambient",
+    musicLabel: "Original, unprocessed", sfxLabel: "Original ambient",
     glowRgb: "160,160,170",
   },
   {
