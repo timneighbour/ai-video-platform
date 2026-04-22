@@ -118,7 +118,7 @@ const WIZANIMATE: ProductPageProps = {
   borderColour: "border-cyan-500/30",
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-cyan-500/25",
-  ctaHref: "/wiz-animate",
+  ctaHref: "/ai-animation-maker",
   ctaLabel: "Animate Your Video",
   whatItDoes: "WizAnimate™ is the performance engine of WIZ AI. It takes the storyboard from WizCreate™ and generates character animation that is precisely matched to the audio — every movement, gesture, and expression timed to the beat, mood, and energy of the track.",
   capabilities: [
