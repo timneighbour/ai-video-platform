@@ -1451,7 +1451,13 @@ export default function MusicVideoAutopilot() {
   const isGeneratingStoryboard = storyboardGenerating && !(step === "storyboard" && scenes.length > 0);
 
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Music Video Production Set ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-music-video-set_8e723b8b.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-stage" />
       {/* Auth Gate */}
       <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your music video" />
       {/* ===== STORYBOARD GENERATION PROGRESS OVERLAY ===== */}
@@ -2448,7 +2454,7 @@ export default function MusicVideoAutopilot() {
                 </div>
               )}
               <Button
-                className="w-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold py-3"
+                className="w-full btn-primary btn-sheen py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
                 disabled={
                   createJob.isPending || generateStoryboardMutation.isPending || isUploading || !title || !themePrompt ||

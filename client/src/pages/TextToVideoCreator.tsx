@@ -316,7 +316,13 @@ export default function TextToVideoCreator() {
   const styleObj = VIDEO_STYLES.find((s) => s.id === style);
 
   return (
-    <div className="min-h-screen studio-bg">
+    <div className="min-h-screen studio-bg" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Hollywood LED Volume Stage ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-hollywood-studio_1da3e15e.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-cinematic" />
       {/* Auth Gate */}
       <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="build your video" />
       {/* Header */}
@@ -516,7 +522,7 @@ export default function TextToVideoCreator() {
                 size="lg"
                 onClick={handleGenerateStoryboard}
                 disabled={prompt.length < 10}
-                className="gap-2 btn-sheen bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                className="gap-2 btn-primary btn-sheen border-0 w-full sm:w-auto px-10 py-6 text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Wand2 className="h-5 w-5" />
                 Generate Free Storyboard

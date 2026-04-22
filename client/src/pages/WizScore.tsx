@@ -188,7 +188,13 @@ export default function WizScore() {
   }
 
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: World-Class Orchestral Scoring Stage ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-scoring-stage_737b2e3f.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-gold" />
       {/* Header */}
       <div className="studio-header sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-5 py-4 flex items-center gap-3">
@@ -198,18 +204,8 @@ export default function WizScore() {
         </div>
       </div>
 
-      {/* Studio atmosphere background */}
+      {/* Hero section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <img
-            src={`${CDN}/music-studio-bg_207e72b0.jpg`}
-            alt=""
-            className="w-full h-full object-cover object-center opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/70 via-[#06050a]/50 to-[#06050a]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#06050a]/60 via-transparent to-[#06050a]/60" />
-        </div>
-
         <div className="relative z-10 max-w-5xl mx-auto px-5 py-16">
           {/* Hero */}
           <div className="text-center mb-12">

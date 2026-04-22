@@ -181,8 +181,16 @@ export default function WizImage() {
 
   const activeStyle = STYLES.find((s) => s.id === selectedStyle) ?? STYLES[1];
 
+  const ENV_VFX = "/manus-storage/env-digital-art-lab_becef6ed.jpg";
+
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment ── */}
+      <div className="env-bg">
+        <img src={ENV_VFX} alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-electric" />
       {/* ── Studio Header ───────────────────────────────────────────────────────────────────────── */}
       <div className="studio-header sticky top-0 z-40 overflow-hidden">
         {/* Ambient glow behind header */}
@@ -344,16 +352,12 @@ export default function WizImage() {
             <button
               onClick={handleGenerate}
               disabled={generateMutation.isPending || !prompt.trim()}
-              className={`w-full h-14 rounded-2xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-2.5 relative overflow-hidden ${
+              className={`w-full h-14 rounded-2xl font-semibold text-base flex items-center justify-center gap-2.5 relative overflow-hidden btn-primary btn-sheen ${
                 generateMutation.isPending || !prompt.trim()
-                  ? "bg-white/[0.05] border border-white/10 text-white/30 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#c9a84c] via-[#b8892a] to-[#8a5e1a] text-white shadow-[0_4px_24px_rgba(184,137,42,0.35)] hover:shadow-[0_4px_32px_rgba(184,137,42,0.5)] hover:scale-[1.01] active:scale-[0.99]"
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
               }`}
             >
-              {/* Shimmer effect */}
-              {!generateMutation.isPending && prompt.trim() && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite] pointer-events-none" />
-              )}
               {generateMutation.isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />

@@ -383,12 +383,13 @@ export default function Autopilot() {
   const stepIndex = { input: 0, storyboard: 1, generating: 2, done: 2 }[step];
 
   return (
-    <div className="min-h-screen studio-bg text-white">
-      {/* Studio atmosphere background image */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <img src="/manus-storage/music-studio-bg_207e72b0.jpg" alt="" className="w-full h-full object-cover object-center opacity-[0.07]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/80 via-[#06050a]/60 to-[#06050a]/90" />
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Live Broadcast TV Control Room ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-broadcast-studio_5a824d1f.jpg" alt="" />
+        <div className="env-bg-overlay" />
       </div>
+      <div className="env-ambient env-tint-blue" />
       {/* Header */}
       <div className="relative z-10 studio-header">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -750,7 +751,7 @@ export default function Autopilot() {
                 size="lg"
                 onClick={handleGenerateStoryboard}
                 disabled={prompt.length < 10}
-                className="gap-2 bg-gradient-to-r btn-primary border-0 w-full sm:w-auto px-10 py-6 text-base font-semibold"
+                className="gap-2 btn-primary btn-sheen border-0 w-full sm:w-auto px-10 py-6 text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Sparkles className="h-5 w-5" />
                 Generate Storyboard — Free

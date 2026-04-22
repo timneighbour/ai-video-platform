@@ -349,15 +349,21 @@ export default function MusicCreator() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Air Studios Recording Studio ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-recording-studio_90a4b01f.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-amber" />
       {/* Cinematic Hero Banner */}
       <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden">
-        {/* Background: studio image */}
+        {/* Background: studio image — layered on top of full-page env */}
         <img
-          src="/manus-storage/music-studio-bg_207e72b0.jpg"
+          src="/manus-storage/env-recording-studio_90a4b01f.jpg"
           alt="WizAudio Studio"
           className="absolute inset-0 w-full h-full object-cover object-center scale-105"
-          style={{ filter: "brightness(0.38) saturate(1.2)" }}
+          style={{ filter: "brightness(0.45) saturate(1.3)" }}
         />
         {/* Layered gradients for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
@@ -848,7 +854,7 @@ export default function MusicCreator() {
                 <div className="text-center">
                   <p className="text-[#a1a1aa] text-sm mb-3">Sign in to generate music</p>
                   <Button
-                    className="w-full bg-white text-black hover:bg-white/90 font-semibold rounded-xl h-auto py-3"
+                    className="w-full btn-primary btn-sheen rounded-xl h-auto py-3 text-base"
                     asChild
                   >
                     <a href={getLoginUrl()}>
@@ -860,7 +866,7 @@ export default function MusicCreator() {
                 <Button
                   onClick={handleGenerate}
                   disabled={!canGenerate || (isCustomMode && !lyrics.trim())}
-                  className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl h-auto py-3 transition-all shadow-lg hover:shadow-[#b8892a]/20"
+                  className="w-full btn-primary btn-sheen disabled:opacity-50 disabled:cursor-not-allowed rounded-xl h-auto py-3 text-base"
                 >
                   {isGenerating ? (
                     <>

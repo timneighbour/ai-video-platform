@@ -1222,3 +1222,190 @@ select {
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.04);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   VR ENVIRONMENT SYSTEM — Full-bleed immersive page backgrounds
+   Each app page gets its own professional production environment
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Fixed full-bleed environment background — sits behind everything */
+.env-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.env-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.42;
+  transform: scale(1.04);
+  filter: saturate(1.2) contrast(1.05);
+  animation: env-slow-breathe 20s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Depth overlay — vignette + colour grade on top of the image */
+.env-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 90% at 50% 50%, transparent 25%, rgba(0,0,0,0.72) 100%),
+    linear-gradient(to bottom, rgba(6,5,10,0.55) 0%, transparent 28%),
+    linear-gradient(to top, rgba(6,5,10,0.78) 0%, transparent 42%);
+}
+
+/* Slow breathing animation — subtle scale gives VR depth feel */
+@keyframes env-slow-breathe {
+  0%, 100% { transform: scale(1.04); opacity: 0.42; }
+  50%       { transform: scale(1.08); opacity: 0.52; }
+}
+
+/* Ambient glow pulse */
+@keyframes env-glow-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1.0; }
+}
+
+/* Environment ambient light layers — fixed, behind content */
+.env-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Tint: warm amber — recording studio */
+.env-tint-amber {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(184,137,42,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 0% 50%, rgba(160,110,30,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 60% at 100% 50%, rgba(160,110,30,0.12) 0%, transparent 50%);
+  animation: env-glow-pulse 8s ease-in-out infinite;
+}
+
+/* Tint: cinematic orange — Hollywood / film set */
+.env-tint-cinematic {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(200,100,30,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 0% 60%, rgba(180,80,20,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 50% at 100% 40%, rgba(160,60,10,0.10) 0%, transparent 50%);
+  animation: env-glow-pulse 10s ease-in-out infinite;
+}
+
+/* Tint: cool blue — broadcast control room */
+.env-tint-blue {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(30,80,200,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 100% 40%, rgba(20,60,180,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 30% 50% at 0% 60%, rgba(10,40,140,0.10) 0%, transparent 50%);
+  animation: env-glow-pulse 9s ease-in-out infinite;
+}
+
+/* Tint: electric blue-purple — VFX lab */
+.env-tint-electric {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(80,40,200,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 100% 50%, rgba(60,20,180,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 60% at 0% 40%, rgba(100,50,220,0.10) 0%, transparent 50%);
+  animation: env-glow-pulse 7s ease-in-out infinite;
+}
+
+/* Tint: purple-amber — music video set */
+.env-tint-stage {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(120,60,180,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 0% 50%, rgba(184,137,42,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 60% at 100% 60%, rgba(100,40,160,0.12) 0%, transparent 50%);
+  animation: env-glow-pulse 11s ease-in-out infinite;
+}
+
+/* Tint: amber + monitor blue — post-production suite */
+.env-tint-post {
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 30%, rgba(184,137,42,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 100% 50%, rgba(30,80,160,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 30% 50% at 0% 60%, rgba(184,137,42,0.10) 0%, transparent 50%);
+  animation: env-glow-pulse 12s ease-in-out infinite;
+}
+
+/* Tint: warm gold — orchestral scoring stage */
+.env-tint-gold {
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 0%, rgba(200,160,60,0.24) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, rgba(160,120,40,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 0% 40%, rgba(180,140,50,0.12) 0%, transparent 50%);
+  animation: env-glow-pulse 14s ease-in-out infinite;
+}
+
+/* Flickering monitor light effect */
+@keyframes env-monitor-flicker {
+  0%, 94%, 100% { opacity: 1; }
+  95%            { opacity: 0.82; }
+  96%            { opacity: 1; }
+  97%            { opacity: 0.88; }
+  98%            { opacity: 1; }
+}
+
+.env-flicker {
+  animation: env-monitor-flicker 9s ease-in-out infinite;
+}
+
+/* Content layer — must sit above env-bg (z-index: 0) */
+.env-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Premium gold button — extra visible, strong glow */
+.btn-gold-xl {
+  background: linear-gradient(135deg, #d4a843 0%, #b8892a 40%, #c9a84c 70%, #e0c060 100%);
+  color: #1a1000;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(212,168,67,0.55);
+  box-shadow:
+    0 0 20px rgba(184,137,42,0.45),
+    0 0 40px rgba(184,137,42,0.22),
+    inset 0 1px 0 rgba(255,220,100,0.35),
+    0 4px 16px rgba(0,0,0,0.45);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.btn-gold-xl:hover {
+  background: linear-gradient(135deg, #e0b850 0%, #c9a84c 40%, #d4b860 70%, #f0d070 100%);
+  box-shadow:
+    0 0 30px rgba(184,137,42,0.65),
+    0 0 60px rgba(184,137,42,0.32),
+    inset 0 1px 0 rgba(255,230,120,0.45),
+    0 6px 24px rgba(0,0,0,0.55);
+  transform: translateY(-1px);
+  color: #0f0800;
+}
+
+/* Secondary outline button — visible on dark VR backgrounds */
+.btn-outline-gold {
+  background: rgba(184,137,42,0.08);
+  color: #c9a84c;
+  font-weight: 600;
+  border: 1px solid rgba(184,137,42,0.40);
+  box-shadow:
+    0 0 12px rgba(184,137,42,0.12),
+    inset 0 0 0 1px rgba(184,137,42,0.06);
+  transition: all 0.2s ease;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(184,137,42,0.16);
+  border-color: rgba(184,137,42,0.65);
+  box-shadow:
+    0 0 20px rgba(184,137,42,0.28),
+    inset 0 0 0 1px rgba(184,137,42,0.12);
+  color: #e0c060;
+}

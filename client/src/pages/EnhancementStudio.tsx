@@ -167,12 +167,13 @@ export default function EnhancementStudio() {
   const currentStepIndex = PROCESSING_STEPS.indexOf(jobStatus as typeof PROCESSING_STEPS[number]);
 
   return (
-    <div className="min-h-screen studio-bg text-white">
-      {/* Ambient glow */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[500px] h-[300px] bg-[#b8892a]/05 blur-[120px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[200px] bg-[#4a3010]/10 blur-[100px] rounded-full" />
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: DaVinci Resolve Colour Grading Suite ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-post-production_03973686.jpg" alt="" />
+        <div className="env-bg-overlay" />
       </div>
+      <div className="env-ambient env-tint-post" />
 
       {/* Header */}
       <div className="studio-header sticky top-0 z-20">

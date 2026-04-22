@@ -601,7 +601,13 @@ export default function WizSyncPage() {
   const stems = isReady ? (jobData?.job.stems as Record<string, { url: string } | undefined> | null) : null;
 
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Professional Post-Production Suite ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-post-production_03973686.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-amber" />
       {/* ── Nav ── */}
       <nav className="studio-header sticky top-0 z-50 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -724,7 +730,7 @@ export default function WizSyncPage() {
 
                 {/* Analyse button */}
                 <Button
-                  className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold rounded-xl h-11 disabled:opacity-50"
+                  className="w-full btn-primary btn-sheen rounded-xl h-11 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!uploadedAudioUrl || isAnalysing || analyseAudioMutation.isPending}
                   onClick={handleAnalyse}
                 >

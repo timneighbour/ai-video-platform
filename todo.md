@@ -5938,3 +5938,27 @@
 - [ ] Upgrade KidsVideo to Air Studios feel
 - [ ] Upgrade Autopilot/WizPilot to Air Studios feel
 - [ ] Verify all CTA links from product marketing pages route correctly
+
+- [ ] Audit all CTA links across product app pages — fix broken/wrong routes
+- [ ] Upgrade all button visibility to premium gold level (btn-primary btn-sheen) throughout app pages
+- [ ] Ensure secondary/outline buttons have visible borders and legible text on dark backgrounds
+
+## VR-Immersive Environment Upgrade — Apr 22 2026
+- [x] Generate 7 AI cinematic environment backgrounds (recording studio, Hollywood LED volume, broadcast control room, VFX lab, music video set, post-production suite, orchestral scoring stage)
+- [x] Upload all 7 environment images to CDN
+- [x] Apply full-bleed VR env-bg system to MusicCreator (Air Studios recording studio)
+- [x] Apply full-bleed VR env-bg system to TextToVideoCreator (Hollywood LED volume stage)
+- [x] Apply full-bleed VR env-bg system to Autopilot/WizPilot (broadcast TV control room)
+- [x] Apply full-bleed VR env-bg system to MusicVideoAutopilot (music video set)
+- [x] Apply full-bleed VR env-bg system to WizScore (orchestral scoring stage)
+- [x] Apply full-bleed VR env-bg system to WizSync (post-production/DaVinci suite)
+- [x] Apply full-bleed VR env-bg system to WizImage (ILM/VFX digital art lab)
+- [x] Apply full-bleed VR env-bg system to EnhancementStudio (DaVinci colour grading suite)
+- [x] Add env-slow-breathe animation (subtle scale breathing for VR depth)
+- [x] Add per-environment ambient tint layers (amber, cinematic, blue, electric, stage, post, gold)
+- [x] Upgrade Generate Song button in MusicCreator to btn-primary btn-sheen
+- [x] Upgrade Generate Storyboard button in TextToVideoCreator to btn-primary btn-sheen
+- [x] Upgrade Generate Storyboard button in Autopilot to btn-primary btn-sheen
+- [x] Upgrade Generate Free Storyboard button in MusicVideoAutopilot to btn-primary btn-sheen
+- [x] Upgrade Generate Image button in WizImage to btn-primary btn-sheen
+- [x] Upgrade Analyse Audio button in WizSync to btn-primary btn-sheen
