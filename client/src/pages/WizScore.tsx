@@ -179,7 +179,7 @@ export default function WizScore() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#060608] flex items-center justify-center px-4">
+      <div className="min-h-screen studio-bg flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6">
             <Music2 className="w-8 h-8 text-[--color-gold]" />
@@ -195,9 +195,9 @@ export default function WizScore() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060608] text-white">
+    <div className="min-h-screen studio-bg text-white">
       {/* Header */}
-      <div className="border-b border-white/[0.06] bg-[#0a0a0c]/80 backdrop-blur-xl sticky top-0 z-20">
+      <div className="studio-header sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-5 py-4 flex items-center gap-3">
           <a href="/" className="text-white/40 hover:text-white/70 transition-colors text-sm">WIZ AI</a>
           <ChevronRight className="w-3.5 h-3.5 text-white/20" />
@@ -221,7 +221,7 @@ export default function WizScore() {
         </div>
 
         {/* Main card */}
-        <div className="bg-white/[0.03] border border-white/[0.07] rounded-3xl overflow-hidden">
+        <div className="studio-card rounded-3xl overflow-hidden">
           <div className="grid md:grid-cols-2 gap-0">
             {/* Left: Upload */}
             <div className="p-8 border-r border-white/[0.06]">
@@ -317,7 +317,7 @@ export default function WizScore() {
               {step === "complete" && analysis && audioUrl && (
                 <div className="space-y-5">
                   {/* Analysis summary */}
-                  <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-2">
+                  <div className="studio-panel rounded-2xl p-4 space-y-2">
                     <p className="text-white/40 text-[11px] font-semibold uppercase tracking-widest mb-3">AI Analysis</p>
                     {[
                       { label: "Mood", value: analysis.mood },
@@ -406,7 +406,7 @@ export default function WizScore() {
             { icon: Wand2, title: "AI Analyses the Scene", desc: "WizScore reads the mood, pacing, energy, and duration — frame by frame.", colour: "text-[--color-silver]", bg: "bg-[--color-silver]/10" },
             { icon: Music2, title: "Synced Soundtrack", desc: "An original instrumental track is composed and trimmed to end exactly on your final frame.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
           ].map(({ icon: Icon, title, desc, colour, bg }) => (
-            <div key={title} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
+            <div key={title} className="studio-card rounded-2xl p-6">
               <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-4`}>
                 <Icon className={`w-5 h-5 ${colour}`} />
               </div>

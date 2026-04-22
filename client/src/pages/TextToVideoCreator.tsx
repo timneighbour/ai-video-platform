@@ -316,11 +316,11 @@ export default function TextToVideoCreator() {
   const styleObj = VIDEO_STYLES.find((s) => s.id === style);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen studio-bg">
       {/* Auth Gate */}
       <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="build your video" />
       {/* Header */}
-      <div className="border-b border-white/10">
+      <div className="studio-header sticky top-0 z-20">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <button
             type="button"
@@ -353,7 +353,7 @@ export default function TextToVideoCreator() {
       </div>
 
       {/* Progress Steps */}
-      <div className="border-b border-white/10 bg-white/5">
+      <div className="border-b border-[--color-gold]/10 bg-[#0a0a0c]/60 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-1 sm:gap-2 py-3 overflow-x-auto scrollbar-none">
             {[
@@ -400,7 +400,7 @@ export default function TextToVideoCreator() {
             </div>
 
             {/* Prompt */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+            <div className="studio-card p-4 sm:p-6">
               <label className="block text-sm font-medium text-white mb-2">
                 Your Prompt <span className="text-muted-foreground">(min. 10 characters)</span>
               </label>
@@ -408,7 +408,7 @@ export default function TextToVideoCreator() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="A lone astronaut walking across a red Martian landscape at sunset, cinematic slow motion…"
-                className="w-full h-28 sm:h-36 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-[--color-gold]/50 text-sm"
+                className="studio-input w-full h-28 sm:h-36 rounded-xl px-4 py-3 text-white placeholder:text-white/30 resize-none focus:outline-none text-sm"
               />
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-muted-foreground">{prompt.length} / 2000</span>
@@ -481,7 +481,7 @@ export default function TextToVideoCreator() {
                       className={`rounded-xl border p-2.5 text-center transition-all ${
                         duration === d.id
                           ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
-                          : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
+                          : "border-white/[0.08] bg-white/[0.03] text-white/50 hover:border-white/20 hover:text-white"
                       }`}
                     >
                       <div className="font-bold text-xs sm:text-sm">{d.label}</div>
@@ -500,7 +500,7 @@ export default function TextToVideoCreator() {
                       className={`flex-1 rounded-xl border p-3 text-center transition-all ${
                         aspectRatio === r.id
                           ? "border-[--color-gold] bg-[--color-gold]/15 text-white"
-                          : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
+                          : "border-white/[0.08] bg-white/[0.03] text-white/50 hover:border-white/20 hover:text-white"
                       }`}
                     >
                       <div className="font-bold text-xs">{r.id}</div>
@@ -547,8 +547,8 @@ export default function TextToVideoCreator() {
 
             <div className="space-y-4">
               {storyboard.map((scene, i) => (
-                <div key={scene.id} className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <div key={scene.id} className="studio-card overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-[--color-gold] bg-[--color-gold]/15 rounded-full px-2 py-0.5">
                         Scene {i + 1}
@@ -616,7 +616,7 @@ export default function TextToVideoCreator() {
                     <Textarea
                       value={scene.description}
                       onChange={(e) => updateScene(scene.id, "description", e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 min-h-[60px]"
+                      className="studio-input w-full rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none min-h-[60px]"
                       placeholder="Describe what happens in this scene…"
                     />
                   </div>
@@ -625,7 +625,7 @@ export default function TextToVideoCreator() {
                     <Textarea
                       value={scene.visualNotes}
                       onChange={(e) => updateScene(scene.id, "visualNotes", e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-muted-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 min-h-[48px]"
+                      className="studio-input w-full rounded-lg px-3 py-2 text-xs text-white/50 placeholder:text-white/20 resize-none focus:outline-none min-h-[48px]"
                       placeholder="Camera angle, lighting, mood, colours…"
                     />
                   </div>
@@ -648,7 +648,7 @@ export default function TextToVideoCreator() {
               dismissible
             />
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-4">
+            <div className="studio-card p-4 sm:p-6 space-y-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="h-4 w-4 text-yellow-400" />

@@ -5924,3 +5924,17 @@
 - [x] Add iOS-specific apple-touch-icon and splash screen meta tags
 - [x] Add PWA install prompt banner for mobile users
 - [x] Test installability on iOS Safari and Android Chrome
+
+## Air Studios Premium Upgrade — All Product App Pages
+- [ ] Create shared AirStudioShell component (warm amber/dark studio theme, sticky nav, back button)
+- [ ] Upgrade TextToVideoCreator to Air Studios feel (remove bg-background)
+- [ ] Upgrade EnhancementStudio to Air Studios feel (remove purple gradient)
+- [ ] Upgrade WizScore to Air Studios feel
+- [ ] Upgrade WizSync to Air Studios feel
+- [ ] Upgrade WizShorts to Air Studios feel (polish existing studio-bg)
+- [ ] Upgrade WizImage to Air Studios feel (polish existing studio-bg)
+- [ ] Upgrade AiAnimationMaker to Air Studios feel (polish existing studio-bg)
+- [ ] Upgrade MusicCreator to Air Studios feel (polish existing studio-bg)
+- [ ] Upgrade KidsVideo to Air Studios feel
+- [ ] Upgrade Autopilot/WizPilot to Air Studios feel
+- [ ] Verify all CTA links from product marketing pages route correctly

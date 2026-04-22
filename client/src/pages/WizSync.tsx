@@ -176,7 +176,7 @@ function SpeakerCard({
       {/* Actions */}
       <div className="px-4 pb-4 flex items-center gap-2">
         <select
-          className="flex-1 bg-zinc-800 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white"
+          className="studio-input flex-1 rounded-lg px-3 py-1.5 text-sm text-white"
           value={speaker.inferredGender}
           onChange={(e) => onAssign(speaker.id, e.target.value as "male" | "female" | "unknown", speaker.displayName ?? `Speaker ${speaker.speakerLabel}`)}
         >
@@ -574,7 +574,7 @@ export default function WizSyncPage() {
   // ── Auth guard ────────────────────────────────────────────────────────────
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen studio-bg flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-[--color-gold] animate-spin" />
       </div>
     );
@@ -582,7 +582,7 @@ export default function WizSyncPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-6 px-4">
+      <div className="min-h-screen studio-bg flex flex-col items-center justify-center gap-6 px-4">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
           <Mic2 className="w-8 h-8 text-white" />
         </div>
@@ -601,9 +601,9 @@ export default function WizSyncPage() {
   const stems = isReady ? (jobData?.job.stems as Record<string, { url: string } | undefined> | null) : null;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen studio-bg text-white">
       {/* ── Nav ── */}
-      <nav className="sticky top-0 z-50 border-b border-white/6 bg-[#0f0f0f]/90 backdrop-blur-xl px-6 py-4">
+      <nav className="studio-header sticky top-0 z-50 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/create" label="Back" />
@@ -650,7 +650,7 @@ export default function WizSyncPage() {
               { icon: <Zap className="w-3.5 h-3.5" />, label: "Character assignment" },
               { icon: <Mic2 className="w-3.5 h-3.5" />, label: "Lip-sync ready" },
             ].map((f) => (
-              <span key={f.label} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-300">
+              <span key={f.label} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[--color-gold]/[0.06] border border-[--color-gold]/20 text-white/60">
                 {f.icon}{f.label}
               </span>
             ))}
@@ -1042,7 +1042,7 @@ export default function WizSyncPage() {
               { icon: <RefreshCw className="w-5 h-5 text-[--color-gold]" />, title: "Segment-Level Regeneration", desc: "Unhappy with a specific character's sync? Regenerate individual segments without affecting the rest of the timeline." },
               { icon: <ArrowRight className="w-5 h-5 text-[--color-gold]" />, title: "Full Pipeline Integration", desc: "WizSync output flows directly into WizGenesis for final assembly — voice assignments, stem data, and lip sync are all passed automatically." },
             ].map((feat) => (
-              <div key={feat.title} className="group p-5 rounded-2xl border border-[--color-gold]/[0.06] bg-[#0a0a0a] hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.03] transition-all duration-300">
+              <div key={feat.title} className="group p-5 rounded-2xl border border-[--color-gold]/[0.06] bg-white/[0.02] hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.03] transition-all duration-300">
                 <div className="w-10 h-10 rounded-xl bg-[--color-gold]/[0.08] border border-[--color-gold]/[0.12] flex items-center justify-center mb-4 group-hover:bg-[--color-gold]/[0.14] transition-colors">
                   {feat.icon}
                 </div>
