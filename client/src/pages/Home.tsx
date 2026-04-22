@@ -2509,20 +2509,66 @@ const TIER_DATA = [
   },
 ];
 
-type AudioMode = "music" | "sfx";
+// ── Web Audio API processing graph per mode ──────────────────────────────────
+interface AudioGraph {
+  ctx: AudioContext;
+  source: MediaElementAudioSourceNode;
+  gainNode: GainNode;
+  bass: BiquadFilterNode;
+  mid: BiquadFilterNode;
+  high: BiquadFilterNode;
+  compressor: DynamicsCompressorNode;
+  masterGain: GainNode;
+}
+
+function buildAudioGraph(video: HTMLVideoElement): AudioGraph {
+  const ctx = new AudioContext();
+  const source = ctx.createMediaElementSource(video);
+  const bass = ctx.createBiquadFilter();
+  const mid = ctx.createBiquadFilter();
+  const high = ctx.createBiquadFilter();
+  const compressor = ctx.createDynamicsCompressor();
+  const gainNode = ctx.createGain();
+  const masterGain = ctx.createGain();
+  bass.type = "lowshelf"; bass.frequency.value = 120;
+  mid.type = "peaking"; mid.frequency.value = 2500; mid.Q.value = 1;
+  high.type = "highshelf"; high.frequency.value = 8000;
+  source.connect(bass).connect(mid).connect(high).connect(compressor).connect(gainNode).connect(masterGain).connect(ctx.destination);
+  return { ctx, source, gainNode, bass, mid, high, compressor, masterGain };
+}
+
+function applyAudioMode(graph: AudioGraph, mode: number, volume: number, muted: boolean) {
+  const { bass, mid, high, compressor, masterGain } = graph;
+  if (mode === 0) {
+    // Standard — flat, no processing
+    bass.gain.value = 0; mid.gain.value = 0; high.gain.value = 0;
+    compressor.threshold.value = -50; compressor.ratio.value = 1;
+    masterGain.gain.value = muted ? 0 : volume;
+  } else if (mode === 1) {
+    // Enhanced — subtle EQ + light compression
+    bass.gain.value = 3; mid.gain.value = 2; high.gain.value = 2;
+    compressor.threshold.value = -24; compressor.ratio.value = 3;
+    masterGain.gain.value = muted ? 0 : volume * 1.1;
+  } else {
+    // Cinematic — deep bass, wide, rich mastering
+    bass.gain.value = 8; mid.gain.value = 3; high.gain.value = 4;
+    compressor.threshold.value = -18; compressor.ratio.value = 6;
+    masterGain.gain.value = muted ? 0 : volume * 1.2;
+  }
+}
 
 function SeeTheDifference() {
-  const [activeTier, setActiveTier] = useState(2);
-  const [audioMode, setAudioMode] = useState<AudioMode>("music");
+  const [activeTier, setActiveTier] = useState(0); // start on Standard
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.8);
-  const [progress, setProgress] = useState(0); // 0-100
+  const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioGraphRef = useRef<AudioGraph | null>(null);
+  const rafRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
 
   // A/B test for the Cinematic CTA
@@ -2540,87 +2586,90 @@ function SeeTheDifference() {
   }, [trackCtaImpression]);
 
   const tier = TIER_DATA[activeTier];
-  const audioSrc = audioMode === "music" ? tier.musicSrc : tier.sfxSrc;
 
-  // When tier or audioMode changes: reset audio
+  // CSS visual filter per mode
+  const VIDEO_FILTERS = [
+    "none",                                                                                           // Standard: raw
+    "contrast(1.12) saturate(1.25) brightness(1.04)",                                                 // Enhanced: richer colour
+    "contrast(1.22) saturate(1.4) brightness(1.02) sepia(0.08) drop-shadow(0 0 8px rgba(255,180,60,0.12))", // Cinematic: warm grade
+  ];
+
+  // Initialise Web Audio graph on first play
+  const initAudio = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || audioGraphRef.current) return;
+    try {
+      audioGraphRef.current = buildAudioGraph(video);
+      applyAudioMode(audioGraphRef.current, activeTier, volume, isMuted);
+    } catch {/* browser may block */ }
+  }, [activeTier, volume, isMuted]);
+
+  // Re-apply audio processing whenever mode/volume/mute changes
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.pause();
-    audio.src = audioSrc;
-    audio.load();
-    audio.volume = isMuted ? 0 : volume;
-    setProgress(0);
-    setCurrentTime(0);
-    setDuration(0);
-    setIsPlaying(false);
-  }, [activeTier, audioMode]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (audioGraphRef.current) {
+      applyAudioMode(audioGraphRef.current, activeTier, volume, isMuted);
+    }
+  }, [activeTier, volume, isMuted]);
 
-  // Volume / mute sync
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
-
-  // Play/pause the active video (always muted — audio handled separately)
-  useEffect(() => {
-    videoRefs.current.forEach((v, i) => {
-      if (!v) return;
-      if (i === activeTier) { v.currentTime = 0; v.play().catch(() => {}); }
-      else { v.pause(); }
-    });
-  }, [activeTier]);
-
-  const startProgressTracking = useCallback(() => {
-    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-    progressIntervalRef.current = setInterval(() => {
-      const audio = audioRef.current;
-      if (!audio || !audio.duration) return;
-      setCurrentTime(audio.currentTime);
-      setProgress((audio.currentTime / audio.duration) * 100);
-    }, 200);
+  // RAF-based progress tracking
+  const tickProgress = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.duration) {
+      setCurrentTime(v.currentTime);
+      setProgress((v.currentTime / v.duration) * 100);
+    }
+    rafRef.current = requestAnimationFrame(tickProgress);
   }, []);
 
-  const stopProgressTracking = useCallback(() => {
-    if (progressIntervalRef.current) { clearInterval(progressIntervalRef.current); progressIntervalRef.current = null; }
+  const stopRaf = useCallback(() => {
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
   }, []);
+
+  // Cleanup on unmount
+  useEffect(() => () => { stopRaf(); audioGraphRef.current?.ctx.close(); }, [stopRaf]);
 
   const togglePlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const v = videoRef.current;
+    if (!v) return;
     if (isPlaying) {
-      audio.pause();
-      stopProgressTracking();
+      v.pause();
+      stopRaf();
       setIsPlaying(false);
     } else {
-      audio.play().then(() => { startProgressTracking(); setIsPlaying(true); }).catch(() => {});
+      initAudio();
+      if (audioGraphRef.current) audioGraphRef.current.ctx.resume().catch(() => {});
+      v.play().then(() => { rafRef.current = requestAnimationFrame(tickProgress); setIsPlaying(true); setHasStarted(true); }).catch(() => {});
     }
-  }, [isPlaying, startProgressTracking, stopProgressTracking]);
+  }, [isPlaying, initAudio, tickProgress, stopRaf]);
 
-  const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    audio.currentTime = pct * (audio.duration || 0);
-    setProgress(pct * 100);
-    setCurrentTime(audio.currentTime);
+  // Mode switch: preserve timestamp, keep playing state
+  const handleTierSwitch = useCallback((id: number) => {
+    setActiveTier(id);
+    // audio processing updated via useEffect above
   }, []);
 
-  const handleAudioEnded = useCallback(() => {
-    stopProgressTracking();
+  const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const v = videoRef.current;
+    if (!v) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    v.currentTime = pct * (v.duration || 0);
+    setProgress(pct * 100);
+    setCurrentTime(v.currentTime);
+  }, []);
+
+  const handleVideoLoaded = useCallback(() => {
+    const v = videoRef.current;
+    if (v) setDuration(v.duration || 0);
+  }, []);
+
+  const handleVideoEnded = useCallback(() => {
+    stopRaf();
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
-  }, [stopProgressTracking]);
-
-  const handleAudioLoaded = useCallback(() => {
-    if (audioRef.current) setDuration(audioRef.current.duration || 0);
-  }, []);
-
-  const handleTierSwitch = (id: number) => {
-    setActiveTier(id);
-    stopProgressTracking();
-  };
+  }, [stopRaf]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -2653,12 +2702,12 @@ function SeeTheDifference() {
               <span className="text-xs font-bold text-white/50">WizLumina™</span>
             </div>
           </div>
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See &amp; Hear the Difference</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See the WIZ Difference</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
-            Original. Enhanced. <span className="metallic-gold">Cinematic.</span>
+            Standard. Enhanced. <span className="metallic-gold">Cinematic.</span>
           </h2>
-          <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
-            The same audio source — transformed at each tier. Switch between <strong className="text-white/60">Original</strong>, <strong className="text-white/60">Enhanced</strong>, and <strong className="text-white/60">Cinematic</strong> to hear and see the difference. Toggle between <strong className="text-white/60">Music</strong> and <strong className="text-white/60">Sound Effects</strong> to test both audio types.
+          <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto">
+            Play one scene and switch between <strong className="text-white/70">Standard</strong>, <strong className="text-white/70">Enhanced</strong>, and <strong className="text-white/70">Cinematic</strong> to hear and see how WIZ AI elevates the same source into a more polished final result.
           </p>
         </div>
 
@@ -2699,33 +2748,29 @@ function SeeTheDifference() {
             <p className="text-sm text-[--color-silver-dark]/40">{tier.tagline}</p>
           </div>
 
-          {/* Video player */}
-          <div className="relative rounded-2xl overflow-hidden border transition-all duration-500 mb-3"
-            style={{ borderColor: tier.borderColor, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.06)` }}>
+          {/* Single unified video player */}
+          <div className="relative rounded-2xl overflow-hidden border transition-all duration-700 mb-3"
+            style={{ borderColor: tier.borderColor, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.08)` }}>
             {activeTier === 2 && (
               <div className="absolute -inset-px rounded-2xl pointer-events-none z-0"
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              {TIER_VIDEOS.map((src, i) => (
-                <video
-                  key={i}
-                  ref={(el) => { videoRefs.current[i] = el; }}
-                  src={src}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                    i === activeTier ? "opacity-100 z-10" : "opacity-0 z-0"
-                  }`}
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  autoPlay={i === 2}
-                />
-              ))}
+              {/* Single video — CSS filter changes per tier */}
+              <video
+                ref={videoRef}
+                src={TIER_VIDEOS[0]}
+                className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
+                style={{ filter: VIDEO_FILTERS[activeTier] }}
+                playsInline
+                preload="auto"
+                onLoadedMetadata={handleVideoLoaded}
+                onEnded={handleVideoEnded}
+              />
 
               {/* Tier badge top-left */}
               <div className="absolute top-4 left-4 z-20">
-                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm"
+                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm transition-all duration-500"
                   style={{
                     color: activeTier === 2 ? "var(--color-gold)" : activeTier === 1 ? "rgba(196,164,100,0.9)" : "rgba(200,200,210,0.7)",
                     borderColor: `rgba(${tier.glowRgb},0.3)`,
@@ -2736,75 +2781,38 @@ function SeeTheDifference() {
 
               {/* Audio + Visual badges top-right */}
               <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5">
-                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5"
+                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
                   style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
                   <img src={WIZSOUND_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
                   {tier.soundBadge}
                 </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5"
+                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
                   style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
                   <img src={WIZLUMINA_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
                   {tier.visualBadge}
                 </span>
               </div>
 
-              {/* Instruction overlay — shown when audio not playing */}
-              {!isPlaying && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                  <div className="flex flex-col items-center gap-2 px-5 py-3 rounded-2xl bg-black/50 backdrop-blur-sm border border-white/10">
+              {/* Play overlay — shown before first play */}
+              {!hasStarted && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-black/60 backdrop-blur-sm border border-white/10">
                     <button
-                      className="w-14 h-14 rounded-full flex items-center justify-center border-2 transition-all duration-300 pointer-events-auto"
-                      style={{ borderColor: tier.accentColor, background: `rgba(${tier.glowRgb},0.15)`, boxShadow: `0 0 30px rgba(${tier.glowRgb},0.2)` }}
+                      className="w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 hover:scale-105"
+                      style={{ borderColor: tier.accentColor, background: `rgba(${tier.glowRgb},0.2)`, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.3)` }}
                       onClick={togglePlay}
                     >
-                      <PlaySVG className="w-6 h-6 text-white" />
+                      <PlaySVG className="w-7 h-7 text-white" />
                     </button>
-                    <span className="text-xs text-white/60 font-medium">Press play to hear the {tier.label} tier</span>
+                    <span className="text-xs text-white/70 font-semibold tracking-wide">Press play — then switch tiers to hear &amp; see the difference</span>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Audio player controls bar */}
+          {/* Player controls bar */}
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm p-5 mb-6">
-            {/* Hidden audio element */}
-            <audio
-              ref={audioRef}
-              src={audioSrc}
-              preload="metadata"
-              onEnded={handleAudioEnded}
-              onLoadedMetadata={handleAudioLoaded}
-            />
-
-            {/* Audio mode toggle */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                <button
-                  onClick={() => setAudioMode("music")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-                    audioMode === "music"
-                      ? "bg-white/[0.08] text-white"
-                      : "text-white/30 hover:text-white/50"
-                  }`}
-                >
-                  🎵 Cinematic Music
-                </button>
-                <button
-                  onClick={() => setAudioMode("sfx")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
-                    audioMode === "sfx"
-                      ? "bg-white/[0.08] text-white"
-                      : "text-white/30 hover:text-white/50"
-                  }`}
-                >
-                  🏔️ Atmospheric SFX
-                </button>
-              </div>
-              <span className="text-[10px] text-white/30 font-medium">
-                {audioMode === "music" ? tier.musicLabel : tier.sfxLabel}
-              </span>
-            </div>
 
             {/* Scrubber */}
             <div
