@@ -150,24 +150,25 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      {/* ── Poster shown while video loads ───────────────────────────────── */}
-      {!videoReady && (
-        <img
-          src={POSTER_URL}
-          alt=""
-          className="absolute inset-0 w-full h-full"
-          style={{
-            objectFit: videoObjectFit,
-            objectPosition: "center center",
-          }}
-        />
-      )}
+      {/* ── Poster shown while video loads — fades out once video is ready ── */}
+      <img
+        src={POSTER_URL}
+        alt=""
+        className="absolute inset-0 w-full h-full"
+        style={{
+          objectFit: videoObjectFit,
+          objectPosition: "center center",
+          opacity: videoReady ? 0 : 1,
+          transition: "opacity 0.4s ease",
+          pointerEvents: "none",
+        }}
+      />
 
       {/* ── Video ─────────────────────────────────────────────────────────── */}
       <video
         ref={videoRef}
         src={VIDEO_URL}
-        poster={POSTER_URL}
+        poster=""
         muted
         playsInline
         // iOS-specific attributes for reliable autoplay
@@ -227,28 +228,40 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           paddingRight: "max(env(safe-area-inset-right), 1.5rem)",
         }}
       >
-        {/* Top row — empty */}
-        <div />
-
-        {/* Bottom row — Skip left, Enter centred (above Crisp chat icon) */}
-        <div className="relative flex items-end pointer-events-auto">
-          {/* Skip Intro — bottom left */}
+        {/* Top row — Skip Intro top-right */}
+        <div className="flex justify-end pointer-events-auto">
           <button
             onClick={dismiss}
-            className="text-white/50 hover:text-white/90 transition-colors text-sm tracking-widest uppercase font-medium"
+            className="text-white/40 hover:text-white/80 transition-colors text-xs tracking-[0.2em] uppercase font-medium"
             aria-label="Skip intro"
           >
             Skip Intro
           </button>
+        </div>
 
-          {/* Enter WIZ AI — absolute centre, raised 1rem above the bottom edge */}
+        {/* Bottom row — Enter WIZ AI perfectly centred */}
+        <div className="flex justify-center pointer-events-auto pb-4">
           <button
             onClick={dismiss}
-            className="absolute left-1/2 -translate-x-1/2 bottom-0 flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#b8892a] to-[#8a6520] text-white font-semibold text-sm tracking-wide hover:from-[#c99a3a] hover:to-[#9a7530] transition-all shadow-lg shadow-[#b8892a]/30 btn-sheen"
             aria-label="Enter WIZ AI"
+            style={{
+              background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 45%, #c4a464 100%)",
+              backgroundSize: "200% 100%",
+              boxShadow: "0 0 32px rgba(196,164,100,0.45), 0 0 8px rgba(196,164,100,0.25), inset 0 1px 0 rgba(255,255,255,0.25)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              letterSpacing: "0.12em",
+            }}
+            className="group relative flex items-center gap-3 px-10 py-4 rounded-full text-[#0a0a14] font-bold text-sm uppercase tracking-widest transition-all duration-300 hover:scale-105 hover:shadow-[0_0_48px_rgba(196,164,100,0.65)]"
           >
-            Enter WIZ AI
-            <ChevronRight className="w-4 h-4" />
+            {/* Inner shimmer line */}
+            <span
+              className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{
+                background: "linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+              }}
+            />
+            <span className="relative">Enter WIZ AI</span>
+            <ChevronRight className="relative w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
         </div>
       </div>
