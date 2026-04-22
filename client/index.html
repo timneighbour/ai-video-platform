@@ -333,9 +333,7 @@
     <!-- LCP critical path: preload hero poster image (the actual LCP element) with high priority -->
     <link rel="preload" as="image" fetchpriority="high" type="image/webp"
       href="/manus-storage/concert-hall_2b6b946b.jpg" />
-    <!-- Preload intro poster so it paints immediately when IntroScreen mounts -->
-    <link rel="preload" as="image" fetchpriority="high" type="image/jpeg"
-      href="/manus-storage/studio-moody_02c867cc.jpg" />
+    <!-- Intro poster preload removed — IntroScreen now shows a pure black screen while buffering to avoid image flash -->
     <!-- Preload nav logo -->
     <link rel="preload" as="image" href="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" fetchpriority="high" type="image/png" />
     <!-- Google Fonts: Sora (headings) + Open Sans (body) — font-display=swap prevents render-blocking -->

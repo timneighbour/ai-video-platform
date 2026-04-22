@@ -18,8 +18,7 @@ import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
   "/manus-storage/wizai-intro-wizsound-pure_8c53762c.mp4";
-const POSTER_URL =
-  "/manus-storage/studio-moody_02c867cc.jpg";
+// No poster — we show a pure black screen while the video buffers to avoid any image flash on iOS Safari
 
 // iOS Safari needs significantly more time to buffer — use 12 s
 const LOAD_TIMEOUT_MS = 12000;
@@ -150,25 +149,15 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      {/* ── Poster shown while video loads — fades out once video is ready ── */}
-      <img
-        src={POSTER_URL}
-        alt=""
-        className="absolute inset-0 w-full h-full"
-        style={{
-          objectFit: videoObjectFit,
-          objectPosition: "center center",
-          opacity: videoReady ? 0 : 1,
-          transition: "opacity 0.4s ease",
-          pointerEvents: "none",
-        }}
-      />
+      {/* ── Black screen while video buffers — no poster image to avoid iOS flash ── */}
+      {!videoReady && (
+        <div className="absolute inset-0 bg-black" />
+      )}
 
       {/* ── Video ─────────────────────────────────────────────────────────── */}
       <video
         ref={videoRef}
         src={VIDEO_URL}
-        poster=""
         muted
         playsInline
         // iOS-specific attributes for reliable autoplay
