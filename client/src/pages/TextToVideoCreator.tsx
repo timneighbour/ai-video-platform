@@ -340,7 +340,7 @@ export default function TextToVideoCreator() {
               <Wand2 className="h-4 w-4 text-white" />
             </div>
             <div>
-              <span className="font-bold text-white text-sm">Text to Video</span>
+              <span className="font-bold text-white text-sm">WizScript™</span>
               <span className="hidden sm:inline text-white/40 text-xs ml-1.5">· WIZ AI</span>
             </div>
             <Badge className="bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30 text-xs hidden sm:inline-flex">
@@ -392,7 +392,7 @@ export default function TextToVideoCreator() {
                 See your full storyboard before you build — always free
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                Text to Video
+                WizScript™ — Text to Video
               </h1>
               <p className="text-muted-foreground text-sm sm:text-base">
                 Describe what you want to see. We'll generate a storyboard with AI preview images for you to review and edit before building.
