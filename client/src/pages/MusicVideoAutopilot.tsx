@@ -1719,10 +1719,10 @@ export default function MusicVideoAutopilot() {
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {([
-                      { value: "solo_artist" as const, label: "Solo Artist", icon: "🎤", desc: "One main performer" },
-                      { value: "band" as const, label: "Band", icon: "🎸", desc: "Multiple performers" },
-                      { value: "animated_characters" as const, label: "Animated Group", icon: "🎬", desc: "Stylised 3D / anime" },
-                      { value: "solo_animated" as const, label: "Solo Animated", icon: "✨", desc: "Single animated character" },
+                      { value: "solo_artist" as const, label: "Solo Artist", icon: "♪", desc: "One main performer" },
+                      { value: "band" as const, label: "Band", icon: "♫", desc: "Multiple performers" },
+                      { value: "animated_characters" as const, label: "Animated Group", icon: "▶", desc: "Stylised 3D / anime" },
+                      { value: "solo_animated" as const, label: "Solo Animated", icon: "✦", desc: "Single animated character" },
                     ] as const).map(({ value, label, icon, desc }) => (
                       <button
                         key={value}
@@ -2188,7 +2188,7 @@ export default function MusicVideoAutopilot() {
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <span className="text-xl">🌍</span>
+                    <span className="text-xl text-[--color-gold]">&#9679;</span>
                     Locations & Scene Settings
                     <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional</Badge>
                   </CardTitle>
@@ -2208,19 +2208,19 @@ export default function MusicVideoAutopilot() {
                   <div className="flex flex-wrap gap-2">
                     {[
                       "Concert Venue",
-                      "🏜️ Desert",
-                      "🌆 City Rooftop",
-                      "🌲 Forest",
-                      "🌊 Beach at Sunset",
-                      "🌃 Neon Club",
-                      "🏔️ Mountain Peak",
-                      "🚂 Moving Train",
-                      "🎠 Abandoned Fairground",
-                      "🏙️ Urban Streets",
-                      "🌌 Space / Galaxy",
-                      "🏰 Medieval Castle",
+                      "Desert",
+                      "City Rooftop",
+                      "Forest",
+                      "Beach at Sunset",
+                      "Neon Club",
+                      "Mountain Peak",
+                      "Moving Train",
+                      "Abandoned Fairground",
+                      "Urban Streets",
+                      "Space / Galaxy",
+                      "Medieval Castle",
                     ].map((loc) => {
-                      const label = loc.split(" ").slice(1).join(" ");
+                      const label = loc;
                       const isSelected = sceneSetting.toLowerCase().includes(label.toLowerCase());
                       return (
                         <button
@@ -2281,7 +2281,7 @@ export default function MusicVideoAutopilot() {
                             <X className="w-3.5 h-3.5 text-white" />
                           </button>
                           <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-xs text-zinc-300 px-1.5 py-0.5 text-center">
-                            {asset.type === "image" ? "📷 Image" : "🎬 Video"}
+                            {asset.type === "image" ? "Image" : "Video"}
                           </div>
                         </div>
                       ))}

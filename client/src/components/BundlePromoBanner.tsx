@@ -83,7 +83,7 @@ export default function BundlePromoBanner({
         ) : (
           <span className="text-white/80">
             <span className="font-medium">
-              {remaining} render{remaining !== 1 ? "s" : ""} left.
+              {remaining} build{remaining !== 1 ? "s" : ""} left.
             </span>{" "}
             <span className="text-white/60">
               Save up to 30% with a build credit pack.

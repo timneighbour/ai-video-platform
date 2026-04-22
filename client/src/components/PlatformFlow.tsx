@@ -66,9 +66,9 @@ const STEPS = [
   {
     id: 5,
     iconImg: "/manus-storage/wizimage-logo-v1_83c86e5c.png",
-    label: "Render",
-    title: "Render your full video",
-    desc: "Only render when you're happy. Choose quality, resolution, and style.",
+    label: "Build",
+    title: "Build your full video",
+    desc: "Only build when you're happy. Choose quality, resolution, and style.",
     color: "emerald",
     accent: "#10b981",
     bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
@@ -325,9 +325,9 @@ function NotificationAnim({ active }: { active: boolean }) {
 function BoostAnim({ active }: { active: boolean }) {
   const platforms = [
     { icon: "▶", color: "bg-red-500/20 border-red-500/30 text-red-400", delay: 0 },
-    { icon: "📸", color: "bg-[--color-silver]/10 border-[--color-silver]/30 text-[--color-silver]", delay: 80 },
+    { icon: "IG", color: "bg-[--color-silver]/10 border-[--color-silver]/30 text-[--color-silver]", delay: 80 },
     { icon: "♪", color: "bg-[--color-silver]/10 border-rose-500/30 text-[--color-silver]", delay: 160 },
-    { icon: "🐦", color: "bg-sky-500/20 border-sky-500/30 text-sky-400", delay: 240 },
+    { icon: "X", color: "bg-sky-500/20 border-sky-500/30 text-sky-400", delay: 240 },
   ];
   return (
     <div className="h-20 flex flex-col items-center justify-center gap-2">

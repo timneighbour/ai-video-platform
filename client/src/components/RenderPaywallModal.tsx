@@ -141,7 +141,7 @@ export function RenderPaywallModal({
   const totalPrice = selectedQuality.price + enhanceAddOn;
 
   const isCinematicMode = enhanceTier === "cinematic";
-  const ctaLabel = isCinematicMode ? "Render My Cinematic Video" : "Render My Video";
+  const ctaLabel = isCinematicMode ? "Build My Cinematic Video" : "Build My Video";
 
   // Map enhance tier to audioTier expected by backend
   const backendAudioTier = enhanceTier === "enhance" ? "enhanced" : enhanceTier;
@@ -164,7 +164,7 @@ export function RenderPaywallModal({
           audioTier: backendAudioTier as "standard" | "enhanced" | "cinematic",
         });
         if (result.used) {
-          toast.success("Render started!", { description: `Your ${selectedQuality.label} render is processing.` });
+          toast.success("Build started!", { description: `Your ${selectedQuality.label} build is processing.` });
           onClose();
           return;
         }
@@ -225,7 +225,7 @@ export function RenderPaywallModal({
           {!renderStatus.isLoading && (hasFreeRenders || isAdmin) && (
             <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[--color-silver]/10 border border-[--color-silver]/25 text-[--color-silver] text-xs font-medium">
               <Check className="w-3.5 h-3.5" />
-              {isAdmin ? "Admin — unlimited renders" : `${renderStatus.data?.total} free render${(renderStatus.data?.total ?? 0) !== 1 ? "s" : ""} available`}
+              {isAdmin ? "Admin — unlimited builds" : `${renderStatus.data?.total} free build${(renderStatus.data?.total ?? 0) !== 1 ? "s" : ""} available`}
             </div>
           )}
         </div>

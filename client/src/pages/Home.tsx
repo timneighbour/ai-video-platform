@@ -2070,28 +2070,28 @@ function UseCases() {
     {
       title: "For Musicians",
       desc: "Turn songs, lyrics and creative ideas into cinematic music video concepts, scenes and final video builds.",
-      icon: "🎵",
+      icon: "music",
       color: "from-violet-500/20 to-violet-600/5",
       borderColor: "border-violet-500/20",
     },
     {
       title: "For YouTubers",
       desc: "Create visual stories, shorts, thumbnails and animation ideas without complex editing software.",
-      icon: "🎬",
+      icon: "film",
       color: "from-blue-500/20 to-blue-600/5",
       borderColor: "border-blue-500/20",
     },
     {
       title: "For Brands",
       desc: "Produce campaign visuals, product videos and social content faster from one creative workspace.",
-      icon: "💼",
+      icon: "brand",
       color: "from-amber-500/20 to-amber-600/5",
       borderColor: "border-amber-500/20",
     },
     {
       title: "For Storytellers",
       desc: "Transform prompts and scripts into animated scenes, cinematic visuals and platform-ready content.",
-      icon: "📖",
+      icon: "story",
       color: "from-emerald-500/20 to-emerald-600/5",
       borderColor: "border-emerald-500/20",
     },
@@ -2112,7 +2112,12 @@ function UseCases() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {useCases.map((uc) => (
             <div key={uc.title} className={`reveal rounded-2xl p-6 flex flex-col gap-4 border ${uc.borderColor} bg-gradient-to-b ${uc.color} backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-lg`}>
-              <span className="text-3xl">{uc.icon}</span>
+              <span className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                {uc.icon === "music" && <WaveformSVG className="w-5 h-5 text-violet-400" />}
+                {uc.icon === "film" && <PlaySVG className="w-5 h-5 text-blue-400" />}
+                {uc.icon === "brand" && <StarSVG className="w-5 h-5 text-amber-400" />}
+                {uc.icon === "story" && <ArrowSVG className="w-5 h-5 text-emerald-400" />}
+              </span>
               <h3 className="text-white font-bold text-lg">{uc.title}</h3>
               <p className="text-[--color-silver]/55 text-sm leading-relaxed flex-1">{uc.desc}</p>
             </div>

@@ -59,7 +59,7 @@ interface CinematicUpsellModalProps {
 const COST_PER_SCENE = VIDEO_CREDIT_COSTS.perCinematicScene; // 20
 
 const QUALITY_BULLETS = [
-  "Rendered with WizBoost™ (premium model)",
+  "Built with WizBoost™ (premium model)",
   "Cinematic motion & depth",
   "Higher detail & sharpness",
   "Smoother scene transitions",

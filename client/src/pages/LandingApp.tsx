@@ -23,25 +23,25 @@ const BRAND = {
 };
 
 const PROOF_POINTS = [
-  { icon: "", text: "Full cinematic videos — not clips" },
-  { icon: "", text: "From idea to video in under 5 minutes" },
-  { icon: "️", text: "Preview every scene before you pay" },
-  { icon: "", text: "WizSound™ cinematic audio built in" },
+  { icon: "✓", text: "Full cinematic videos — not clips" },
+  { icon: "✓", text: "From idea to video in under 5 minutes" },
+  { icon: "✓", text: "Preview every scene before you pay" },
+  { icon: "✓", text: "WizSound™ cinematic audio built in" },
 ];
 
 const STYLES = [
-  { label: "Music Videos", emoji: "" },
-  { label: "Cinematic Films", emoji: "" },
-  { label: "Stylised 3D", emoji: "" },
-  { label: "Anime", emoji: "⚔️" },
-  { label: "Epic Fantasy", emoji: "🐉" },
+  { label: "Music Videos", emoji: "♪" },
+  { label: "Cinematic Films", emoji: "▶" },
+  { label: "Stylised 3D", emoji: "✦" },
+  { label: "Anime", emoji: "★" },
+  { label: "Epic Fantasy", emoji: "✶" },
 ];
 
 const STEPS = [
   { n: "01", title: "Describe your idea", desc: "Type your prompt — mood, style, story. The more vivid, the better." },
   { n: "02", title: "AI builds storyboard", desc: "Instant scene-by-scene storyboard. Preview and edit any frame." },
   { n: "03", title: "Preview every scene", desc: "See your full video before committing. Only pay when you love it." },
-  { n: "04", title: "Render final video", desc: "Full cinematic video with WizSound™ audio. Ready to publish." },
+  { n: "04", title: "Build final video", desc: "Full cinematic video with WizSound™ audio. Ready to publish." },
 ];
 
 // Animated waveform bars

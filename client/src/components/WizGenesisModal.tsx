@@ -142,7 +142,7 @@ export function WizGenesisModal({
   const totalPrice = selectedQuality.price + enhanceAddOn;
 
   const isCinematicMode = enhanceTier === "cinematic";
-  const ctaLabel = isCinematicMode ? "Render My Cinematic Video" : "Render My Video";
+  const ctaLabel = isCinematicMode ? "Build My Cinematic Video" : "Build My Video";
 
   async function handleRender() {
     trackEvent("WizGenesis_RenderClicked", { jobId, jobType, quality, enhanceTier, totalPrice });
@@ -159,7 +159,7 @@ export function WizGenesisModal({
           audioTier: audioTier as "standard" | "enhanced" | "cinematic",
         });
         if (result.used) {
-          toast.success("Render started!", { description: `Your ${selectedQuality.label} render is processing.` });
+          toast.success("Build started!", { description: `Your ${selectedQuality.label} build is processing.` });
           onClose();
           // CRITICAL: trigger the actual scene render pipeline
           onRenderConfirmed?.();

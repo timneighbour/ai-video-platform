@@ -275,7 +275,7 @@ const CREATION_STEPS: { key: Step; label: string }[] = [
   { key: "story_input", label: "1. Story" },
   { key: "characters",  label: "2. Characters" },
   { key: "storyboard",  label: "3. Storyboard" },
-  { key: "render",      label: "4. Render" },
+  { key: "render",      label: "4. Build" },
 ];
 
 function stepIndex(step: Step): number {
@@ -1727,7 +1727,7 @@ export default function KidsVideo() {
               <div className="text-center">
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
                   {renderStatus === "completed" ? "– Your Animation is Ready!" :
-                   renderStatus === "failed" ? "Render Failed" :
+                   renderStatus === "failed" ? "Build Failed" :
                    "– Building Your Animation…"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
@@ -1750,7 +1750,7 @@ export default function KidsVideo() {
                   <div className="space-y-2 text-left max-w-xs mx-auto">
                     {[
                       { label: "Payment confirmed", done: true },
-                      { label: "Render job queued", done: (renderStatus as string) === "processing" || (renderStatus as string) === "completed" },
+                      { label: "Build job queued", done: (renderStatus as string) === "processing" || (renderStatus as string) === "completed" },
                       { label: "Generating animation frames", done: (renderStatus as string) === "completed" },
                       { label: "Compositing final video", done: (renderStatus as string) === "completed" },
                     ].map((s, i) => (

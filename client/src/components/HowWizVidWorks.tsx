@@ -38,8 +38,8 @@ const STEPS = [
   },
   {
     number: "05",
-    title: "Render Your Cinematic Video",
-    description: "Hit render and receive your finished video in 720p, 1080p, or 4K — ready to share on YouTube, Instagram, TikTok, or anywhere you create.",
+    title: "Build Your Cinematic Video",
+    description: "Hit build and receive your finished video in 720p, 1080p, or 4K — ready to share on YouTube, Instagram, TikTok, or anywhere you create.",
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/how-wizvid-step5-9zCJ9YbfANojsLBMGkWz4e.webp",
     accent: "from-[#9090a0] to-[#4a3010]",
     glow: "rgba(16,185,129,0.3)",

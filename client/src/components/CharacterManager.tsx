@@ -507,11 +507,11 @@ export function CharacterManager({
                 </div>
                 {char.bodyBuild !== "average" && (
                   <p className="text-zinc-600 text-[10px] mt-1">
-                    {char.bodyBuild === "slim" && "AI will render a slim, narrow-framed figure."}
-                    {char.bodyBuild === "lean" && "AI will render a lean, toned figure."}
-                    {char.bodyBuild === "athletic" && "AI will render a fit, athletic figure."}
-                    {char.bodyBuild === "stocky" && "AI will render a broad, heavier-set figure."}
-                    {char.bodyBuild === "muscular" && "AI will render a very muscular, large-framed figure."}
+                    {char.bodyBuild === "slim" && "AI will create a slim, narrow-framed figure."}
+                    {char.bodyBuild === "lean" && "AI will create a lean, toned figure."}
+                    {char.bodyBuild === "athletic" && "AI will create a fit, athletic figure."}
+                    {char.bodyBuild === "stocky" && "AI will create a broad, heavier-set figure."}
+                    {char.bodyBuild === "muscular" && "AI will create a very muscular, large-framed figure."}
                   </p>
                 )}
               </div>

@@ -24,12 +24,12 @@ const STYLES = [
 ];
 
 const STATUS_MESSAGES: Record<string, string> = {
-  analyzing: "🔍 Analysing video...",
-  generating: "– Generating music...",
-  editing: "✂️ Editing video...",
-  rendering: "– Building Your Video...",
-  completed: "– Complete!",
-  failed: "❌ Failed",
+  analyzing: "Analysing video...",
+  generating: "Generating music...",
+  editing: "Editing video...",
+  rendering: "Building your video...",
+  completed: "Complete!",
+  failed: "Build failed",
 };
 
 export default function EnhancementStudio() {

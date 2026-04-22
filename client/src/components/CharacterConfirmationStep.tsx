@@ -445,7 +445,7 @@ export default function CharacterConfirmationStep({
                         <p className="text-zinc-600 text-xs max-w-[200px]">
                           {characterLockMode
                             ? `Click "Create Full-Body Portrait" to generate the AI version of ${char.name} — face, hair, and outfit`
-                            : `Click "Generate Preview" to see how the AI will render ${char.name}`}
+                            : `Click "Generate Preview" to see how the AI will create ${char.name}`}
                         </p>
                       </>
                     ) : (
