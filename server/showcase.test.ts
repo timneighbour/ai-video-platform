@@ -72,9 +72,11 @@ describe("Showcase items", () => {
     }
   });
 
-  it("each item should have a valid CDN posterUrl", () => {
+  it("each item should have a valid /manus-storage/ posterUrl", () => {
     for (const item of SEEDED_ITEMS) {
-      expect(item.posterUrl).toMatch(/^https:\/\/d2xsxph8kpxj0f\.cloudfront\.net\//);
+      // Platform uses /manus-storage/ relative paths served via signed CloudFront redirect
+      expect(item.posterUrl).toMatch(/^\/manus-storage\//);
+      expect(item.posterUrl).toMatch(/\.(webp|jpg|jpeg|png)$/);
     }
   });
 

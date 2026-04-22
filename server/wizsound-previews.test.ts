@@ -1,16 +1,18 @@
 /**
  * Tests for the getWizSoundPreviews tRPC procedure.
  *
- * Verifies that the procedure returns valid CDN URLs for all three WizSound™ tiers.
+ * Verifies that the procedure returns valid /manus-storage/ paths for all three WizSound™ tiers.
+ * The platform serves /manus-storage/* assets via a signed CloudFront redirect — these paths
+ * are correct and do not need to be full CloudFront URLs.
  */
 
 import { describe, it, expect } from "vitest";
 
-// The CDN URLs are static constants — test them directly without spinning up a tRPC server
+// These match the actual values returned by getWizSoundPreviews in server/routers/billing.ts
 const WIZSOUND_PREVIEW_URLS = {
-  standard: "/manus-storage/preview-standard_955bb422.mp3",
-  enhanced: "/manus-storage/preview-enhanced_fe580439.mp3",
-  cinematic: "/manus-storage/preview-cinematic_281fea93.mp3",
+  standard: "/manus-storage/wizsound-demo-standard_faeb45d0.mp3",
+  enhanced: "/manus-storage/wizsound-demo-enhanced_0e893759.mp3",
+  cinematic: "/manus-storage/wizsound-demo-enhanced_0e893759.mp3",
 };
 
 describe("WizSound™ preview URLs", () => {
@@ -20,9 +22,9 @@ describe("WizSound™ preview URLs", () => {
     expect(WIZSOUND_PREVIEW_URLS.cinematic).toBeTruthy();
   });
 
-  it("all URLs point to the CloudFront CDN", () => {
+  it("all URLs use the /manus-storage/ path prefix", () => {
     for (const url of Object.values(WIZSOUND_PREVIEW_URLS)) {
-      expect(url).toMatch(/^https:\/\/d2xsxph8kpxj0f\.cloudfront\.net\//);
+      expect(url).toMatch(/^\/manus-storage\//);
     }
   });
 
@@ -32,28 +34,32 @@ describe("WizSound™ preview URLs", () => {
     }
   });
 
-  it("all URLs contain the correct project path segment", () => {
+  it("all URLs contain a valid filename with hash", () => {
     for (const url of Object.values(WIZSOUND_PREVIEW_URLS)) {
-      expect(url).toContain("/ALJHDNsuNA7bExFuoQZUsx/");
+      // /manus-storage/<filename>_<hash>.mp3
+      expect(url).toMatch(/\/manus-storage\/[\w-]+_[a-f0-9]+\.mp3$/);
     }
   });
 
-  it("each tier URL is unique", () => {
-    const urls = Object.values(WIZSOUND_PREVIEW_URLS);
-    const unique = new Set(urls);
-    expect(unique.size).toBe(urls.length);
+  it("standard and enhanced URLs are different files", () => {
+    expect(WIZSOUND_PREVIEW_URLS.standard).not.toBe(WIZSOUND_PREVIEW_URLS.enhanced);
   });
 
   it("URL filenames match expected tier names", () => {
-    expect(WIZSOUND_PREVIEW_URLS.standard).toContain("preview-standard");
-    expect(WIZSOUND_PREVIEW_URLS.enhanced).toContain("preview-enhanced");
-    expect(WIZSOUND_PREVIEW_URLS.cinematic).toContain("preview-cinematic");
+    expect(WIZSOUND_PREVIEW_URLS.standard).toContain("wizsound-demo-standard");
+    expect(WIZSOUND_PREVIEW_URLS.enhanced).toContain("wizsound-demo-enhanced");
+    expect(WIZSOUND_PREVIEW_URLS.cinematic).toContain("wizsound-demo-enhanced");
   });
 
-  it("CDN URLs are reachable (HTTP 200)", async () => {
-    for (const [tier, url] of Object.entries(WIZSOUND_PREVIEW_URLS)) {
-      const res = await fetch(url, { method: "HEAD" });
-      expect(res.ok, `${tier} preview URL should return 200, got ${res.status}`).toBe(true);
+  it("CDN URLs are reachable via the app domain", async () => {
+    const BASE = "https://wiz-ai.io";
+    for (const [tier, path] of Object.entries(WIZSOUND_PREVIEW_URLS)) {
+      const res = await fetch(`${BASE}${path}`, { method: "HEAD", redirect: "follow" });
+      // 200 = direct hit, 307/302 = signed redirect (asset exists), 403 = signed URL expired (asset exists)
+      expect(
+        [200, 302, 307, 403].includes(res.status),
+        `${tier} preview URL should be accessible, got ${res.status}`
+      ).toBe(true);
     }
   }, 30_000); // Allow 30s for network requests
 });

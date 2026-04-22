@@ -178,6 +178,7 @@ export default function EnhancementStudio() {
       {/* Header */}
       <div className="studio-header sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-5 py-4 flex items-center gap-3">
+          <BackButton fallback="/create" label="Back to Studio" />
           <a href="/" className="text-white/40 hover:text-white/70 transition-colors text-sm">WIZ AI</a>
           <ChevronRight className="w-3.5 h-3.5 text-white/20" />
           <a href="/products/wizlumina" className="text-white/40 hover:text-white/70 transition-colors text-sm">WizLumina™</a>
