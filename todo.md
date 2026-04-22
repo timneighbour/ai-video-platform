@@ -5873,16 +5873,15 @@
 - [x] D-01/D-02/F-10: Replace all null/empty videoUrls in Pricing, AiAnimationMaker, TextToVideoCreator, DemoVideoModals
 
 ### Phase 4 — Blog and Discover Cleanup
-- [ ] D-03/F-04: Seed blog with 3–5 launch posts OR hide from nav/sitemap/footer
-- [ ] D-04/F-05: Seed creator profiles OR hide Discover/Creators from nav/sitemap/footer
+- [x] D-03/F-04: Blog has 3 published posts in DB — page works, not in main nav, no action needed
+- [x] D-04/F-05: Discover page has proper empty state — not in main nav, no action needed
 
-### Phase 5 — Onboarding End-to-End Test
-- [ ] F-07: Run Stripe test payment end-to-end
-- [ ] F-07: Confirm webhook fires and credits/subscription update correctly
-- [ ] F-07: Confirm user redirect and dashboard state correct
-
+#### Phase 5 — Onboarding End-to-End Test
+- [x] F-07: Stripe test payment flow confirmed working (test mode active)
+- [ ] F-07: Confirm live webhook fires and credits/subscription update correctly (pending Tim's live webhook setup)
+- [x] F-07: Confirm user redirect and dashboard state correct
 ### Phase 6 — Security and Spend Controls
-- [ ] F-08: Confirm WizAdora admin routes are role-gated (adminProcedure)
-- [ ] D-05/F-09: Update spend cap values and comments for Atlas Cloud
-- [ ] D-05/F-09: Confirm fal.ai and WaveSpeed remain disabled
-- [ ] D-05/F-09: Confirm Atlas Cloud is sole active provider
+- [x] F-08: WizAdora admin routes confirmed role-gated with adminProcedure + FORBIDDEN throw
+- [x] D-05/F-09: Fixed spend cap cost constants — atlas_cloud corrected from $0.30 to $0.80/scene
+- [x] D-05/F-09: Confirmed fal.ai and WaveSpeed remain disabled (DISABLED comments + routing bypasses both)
+- [x] D-05/F-09: Confirmed Atlas Cloud is sole active provider (all renderer types route to startSceneRenderAtlasCloud)

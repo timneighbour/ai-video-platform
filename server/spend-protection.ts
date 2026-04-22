@@ -22,20 +22,27 @@ import { providerJobLogs } from "../drizzle/schema";
 import { and, eq, gte, sql } from "drizzle-orm";
 
 // ── COST CONSTANTS (USD per 5-second scene) ──────────────────────────────────
+// NOTE: Keep in sync with RENDERER_COSTS in server/products.ts
+// SOLE ACTIVE PROVIDER as of Apr 2026: Atlas Cloud (atlas_cloud / atlas_cloud_fast)
+// fal.ai, WaveSpeed, and Hypereal are all DISABLED for launch.
 export const PROVIDER_COST_USD: Record<string, number> = {
-  fal_seedance:  0.05,   // fal.ai Seedance 2.0 — cheapest, primary
-  atlas_cloud:   0.30,   // Atlas Cloud Seedance
-  hypereal:      0.50,   // Hypereal Seedance
-  wavespeed:     3.50,   // WaveSpeed Seedance 2.0 — most expensive, last resort
-  kling_standard: 0.60,
-  kling_pro:     1.20,
-  runway:        0.80,
-  grok_imagine:  0.40,
+  fal_seedance:     0.05,  // DISABLED — fal.ai Seedance 2.0 (stuck jobs, Forbidden errors)
+  atlas_cloud_fast: 0.64,  // ACTIVE — Atlas Cloud Fast (~$0.101/sec × 5s + overhead)
+  atlas_cloud:      0.80,  // ACTIVE — Atlas Cloud Standard (higher quality, slower)
+  hypereal:         0.50,  // DISABLED — no silent fallback during launch
+  wavespeed:        3.50,  // DISABLED — too expensive and unreliable
+  kling_standard:   0.60,
+  kling_pro:        1.20,
+  runway:           0.80,
+  grok_imagine:     0.40,
+  // Legacy aliases — treated as atlas_cloud in routing
+  seedance:         0.80,
 };
 
 // ── SPEND CAPS (Item 1 & 2) ───────────────────────────────────────────────────
 // Per-job cap: maximum USD we will spend on a single render job
-export const MAX_SPEND_PER_JOB_USD = 5.00;   // ~100 scenes at fal.ai pricing, or ~1 scene at WaveSpeed
+// At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~6-8 scenes per job
+export const MAX_SPEND_PER_JOB_USD = 5.00;
 
 // Daily cap: maximum USD across ALL jobs in a calendar day
 export const MAX_DAILY_SPEND_USD = 20.00;
