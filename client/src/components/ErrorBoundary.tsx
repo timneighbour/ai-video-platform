@@ -1,5 +1,3 @@
-import { cn } from "@/lib/utils";
-import { AlertTriangle, RotateCcw } from "@/lib/icons";
 import { Component, ReactNode } from "react";
 
 interface Props {
@@ -24,30 +22,16 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
-            <AlertTriangle className="w-12 h-12 text-destructive mb-6 flex-shrink-0" />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
-            </div>
-
-            <button
-              onClick={() => window.location.reload()}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
-              )}
-            >
-              <RotateCcw className="w-4 h-4" />
-              Reload Page
-            </button>
-          </div>
+        <div style={{ minHeight: "100vh", background: "#080810", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", fontFamily: "system-ui, sans-serif", color: "#ffffff", textAlign: "center" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>✦</div>
+          <h2 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>WIZ AI</h2>
+          <p style={{ color: "#aaaaaa", marginBottom: "2rem", maxWidth: "320px", fontSize: "0.95rem" }}>Something went wrong. Please refresh to continue.</p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ background: "linear-gradient(135deg, #c4a464, #d4b878, #c9a84c)", color: "#1a1200", border: "none", borderRadius: "9999px", padding: "0.75rem 2rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}
+          >
+            Refresh Page
+          </button>
         </div>
       );
     }
