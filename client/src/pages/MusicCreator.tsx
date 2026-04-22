@@ -23,6 +23,7 @@ import GraphicEqualiser from "@/components/GraphicEqualiser";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
 import { Upload, UploadCloud } from "@/lib/icons";
 import { useSEO } from "@/hooks/useSEO";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 
 // ── Preset data ──────────────────────────────────────────────────────────────
 
@@ -556,10 +557,16 @@ export default function MusicCreator() {
 
             {/* Prompt */}
             <div className="p-6 rounded-2xl studio-card">
-              <label className="block text-sm font-semibold text-white mb-3">
-                <Wand2 className="w-4 h-4 inline mr-2 text-[--color-gold]" />
-                Describe your song
-              </label>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-white">
+                  <Wand2 className="w-4 h-4 inline mr-2 text-[--color-gold]" />
+                  Describe your song
+                </label>
+                <VoicePromptButton
+                  toolContext="AI music and song creation"
+                  onPromptReady={(refined) => setPrompt(refined)}
+                />
+              </div>
               <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -775,8 +782,19 @@ export default function MusicCreator() {
 
           {/* Right: Generate + Results */}
           <div className="space-y-6">
-            {/* Generate card */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#b8892a]/20 to-[#1a1a1a] border border-[--color-gold]/30 sticky top-24">
+            {/* Generate card — Recording Booth Console */}
+            <div className="studio-card overflow-hidden sticky top-24">
+              {/* Console header */}
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[--color-gold]/10 bg-black/40">
+                <div className="flex items-center gap-2.5">
+                  <span className={`studio-led ${isGenerating ? 'studio-led-red' : prompt.trim() ? 'studio-led-green' : 'studio-led-off'}`} />
+                  <span className="studio-label tracking-widest">{isGenerating ? 'ON AIR — RECORDING' : 'RECORDING BOOTH'}</span>
+                </div>
+                <div className="studio-waveform" style={{opacity: isGenerating ? 1 : 0.2}}>
+                  {Array.from({length: 8}).map((_, j) => <span key={j} />)}
+                </div>
+              </div>
+              <div className="p-5">
               <h2 className="text-lg font-bold text-white mb-1">Ready to generate</h2>
 
               {/* Generation Engine Selector */}
@@ -1002,7 +1020,8 @@ export default function MusicCreator() {
                   {error}
                 </div>
               )}
-            </div>
+              </div>{/* close p-5 */}
+            </div>{/* close studio-card */}
 
         {/* Upload mode panel */}
         {mode === "upload" && (

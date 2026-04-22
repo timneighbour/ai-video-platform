@@ -87,6 +87,7 @@ import {
   Image as ImageIcon,
   Users,
 } from "@/lib/icons";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
@@ -2111,7 +2112,29 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Theme & Vision */}
-              <Card className="studio-card border-0">
+              <Card className="studio-card border-0 overflow-hidden">
+                {/* Director's Suite terminal header */}
+                <div className="flex items-center justify-between px-5 py-2.5 border-b border-[--color-gold]/10 bg-black/40">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`studio-led ${themePrompt.trim().length > 10 ? 'studio-led-green' : 'studio-led-off'}`} />
+                    <span className="studio-label tracking-widest">DIRECTOR'S BRIEF</span>
+                    <span className={`text-[10px] font-mono ${themePrompt.trim().length > 10 ? 'text-green-400' : 'text-white/20'}`}>
+                      {themePrompt.trim().length > 10 ? '\u25cf VISION LOCKED' : '\u25cb AWAITING BRIEF'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <VoicePromptButton
+                      toolContext="music video creation and visual storytelling"
+                      onPromptReady={(refined) => setThemePrompt(refined)}
+                    />
+                    <EnhancePromptButton
+                      prompt={themePrompt}
+                      genre={genre}
+                      mood={mood}
+                      onEnhanced={(text) => setThemePrompt(text)}
+                    />
+                  </div>
+                </div>
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-[--color-silver]" />
@@ -2120,20 +2143,12 @@ export default function MusicVideoAutopilot() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <Label className="text-white/70">Theme & Concept *</Label>
-                      <EnhancePromptButton
-                        prompt={themePrompt}
-                        genre={genre}
-                        mood={mood}
-                        onEnhanced={(text) => setThemePrompt(text)}
-                      />
-                    </div>
+                    <Label className="text-xs font-mono text-white/40 uppercase tracking-widest block mb-2">Theme & Concept *</Label>
                     <Textarea
                       value={themePrompt}
                       onChange={(e) => setThemePrompt(e.target.value)}
                       placeholder="Describe the visual story you want. E.g. 'A lone astronaut drifting through a neon galaxy, searching for home. Dark and cinematic with purple and blue tones. Emotional and introspective.'"
-                      className="mt-1 bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/40 min-h-[120px]"
+                      className="mt-1 bg-black/30 border-[rgba(184,137,42,0.15)] text-white placeholder:text-white/25 min-h-[120px] font-mono text-sm"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">

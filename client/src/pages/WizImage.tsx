@@ -11,6 +11,7 @@ import {
   Sparkles, Download, Trash2, ImageIcon, Wand2, Loader2,
   Shuffle, ChevronRight, Star,
 } from "@/lib/icons";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 
 // ─── Style definitions with Unsplash preview images ──────────────────────────
 const STYLES = [
@@ -237,21 +238,33 @@ export default function WizImage() {
         {/* ── Left Panel — Controls ─────────────────────────────────────────── */}
         <div className="space-y-5">
 
-          {/* Prompt area */}
+          {/* Prompt area — VFX Lab Terminal */}
           <div className="rounded-2xl overflow-hidden studio-panel">
-            <div className="px-4 pt-4 pb-3">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-                  Describe your image
-                </label>
+            {/* Terminal header */}
+            <div className="flex items-center justify-between px-4 py-2 border-b border-[--color-gold]/10 bg-black/30">
+              <div className="flex items-center gap-2">
+                <span className={`studio-led ${prompt.length > 5 ? 'studio-led-green' : 'studio-led-off'}`} />
+                <span className="studio-label tracking-widest">VISION TERMINAL</span>
+                <span className={`text-[10px] font-mono ${prompt.length > 5 ? 'text-green-400' : 'text-white/20'}`}>
+                  {prompt.length > 5 ? '● READY' : '○ AWAITING'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <VoicePromptButton
+                  toolContext="AI image generation"
+                  onPromptReady={(refined) => setPrompt(refined)}
+                />
                 <button
                   onClick={() => setPrompt(EXAMPLE_PROMPTS[Math.floor(Math.random() * EXAMPLE_PROMPTS.length)])}
-                  className="flex items-center gap-1 text-[11px] text-[#c9a84c] hover:text-[#e0b85a] transition-colors"
+                  className="flex items-center gap-1 text-[10px] font-mono text-[#c9a84c]/70 hover:text-[#c9a84c] transition-colors"
                 >
                   <Shuffle className="w-3 h-3" />
-                  Try example
+                  LOAD EXAMPLE
                 </button>
               </div>
+            </div>
+            <div className="px-4 pt-3 pb-3">
+              <label className="text-xs font-semibold text-white/30 uppercase tracking-widest block mb-2">Describe your image</label>
               <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}

@@ -5962,3 +5962,30 @@
 - [x] Upgrade Generate Free Storyboard button in MusicVideoAutopilot to btn-primary btn-sheen
 - [x] Upgrade Generate Image button in WizImage to btn-primary btn-sheen
 - [x] Upgrade Analyse Audio button in WizSync to btn-primary btn-sheen
+
+## Studio UX Experience Overhaul — "Feel Like You're In The Studio"
+
+- [ ] Build studio-terminal CSS system — input glows, LED indicators, tactile button press, cinematic section transitions
+- [ ] WizScript: Director's Console — script terminal textarea, storyboard monitor panels, production pipeline stage labels
+- [ ] WizAudio: Recording Booth — console-style tag selectors, RECORD-style generate button, waveform animation while generating
+- [ ] MusicVideoAutopilot: Director's Chair — clapperboard slate cards, production stage flow
+- [ ] WizImage: VFX Workstation — render terminal feel, frame-by-frame generation progress
+- [ ] WizPilot: Broadcast Suite — switcher-style controls, on-air indicators
+- [ ] WizScore: Scoring Stage — conductor's podium feel, orchestral section selectors
+- [ ] WizSync: Post-Production Suite — timeline-style controls, sync indicators
+- [ ] EnhancementStudio: Colour Suite — grading panel feel, before/after monitor display
+- [ ] Universal: studio-language status messages (COMPOSING..., RENDERING SCENE 3/8, TRACK LOCKED)
+- [ ] Universal: tactile button press feedback (scale-down + shadow on active)
+- [ ] Universal: input field screen-glow effect on focus
+- [ ] Universal: cinematic section wipe transitions between steps
+
+## Voice-to-Prompt Feature
+
+- [ ] Build server-side voiceToPrompt tRPC procedure — accepts audio file URL, transcribes with Whisper, refines with GPT-4 into optimised generation prompt
+- [ ] Build VoicePromptButton React component — mic icon, recording state (pulsing red ON AIR indicator), upload to S3, call procedure, drop refined prompt into textarea
+- [ ] Add VoicePromptButton to WizScript prompt field
+- [ ] Add VoicePromptButton to WizAudio describe-your-song field
+- [ ] Add VoicePromptButton to WizImage prompt field
+- [ ] Add VoicePromptButton to WizPilot prompt field
+- [ ] Add VoicePromptButton to MusicVideoAutopilot prompt field
+- [ ] Write vitest for voiceToPrompt procedure

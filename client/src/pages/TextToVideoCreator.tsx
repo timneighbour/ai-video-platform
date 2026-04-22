@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
@@ -405,34 +406,47 @@ export default function TextToVideoCreator() {
               </p>
             </div>
 
-            {/* Prompt */}
-            <div className="studio-card p-4 sm:p-6">
-              <label className="block text-sm font-medium text-white mb-2">
-                Your Prompt <span className="text-muted-foreground">(min. 10 characters)</span>
-              </label>
-              <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="A lone astronaut walking across a red Martian landscape at sunset, cinematic slow motion…"
-                className="studio-input w-full h-28 sm:h-36 rounded-xl px-4 py-3 text-white placeholder:text-white/30 resize-none focus:outline-none text-sm"
-              />
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-muted-foreground">{prompt.length} / 2000</span>
-                {prompt.length >= 10 && (
-                  <span className="text-xs text-[--color-silver] flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" /> Ready
+            {/* Prompt — Script Terminal */}
+            <div className="studio-card overflow-hidden">
+              {/* Terminal header bar */}
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[--color-gold]/10 bg-black/30">
+                <div className="flex items-center gap-2.5">
+                  <span className={`studio-led ${prompt.length >= 10 ? 'studio-led-green' : 'studio-led-off'}`} />
+                  <span className="studio-label tracking-widest">SCRIPT TERMINAL</span>
+                  <span className={`text-[10px] font-mono ${prompt.length >= 10 ? 'text-green-400' : 'text-white/20'}`}>
+                    {prompt.length >= 10 ? '● READY' : '○ AWAITING INPUT'}
                   </span>
-                )}
+                </div>
+                <VoicePromptButton
+                  toolContext="text-to-video generation"
+                  onPromptReady={(refined) => setPrompt(refined)}
+                />
+              </div>
+              <div className="p-4 sm:p-5">
+                <Textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="A lone astronaut walking across a red Martian landscape at sunset, cinematic slow motion…"
+                  className="studio-input w-full h-28 sm:h-36 rounded-xl px-4 py-3 text-white placeholder:text-white/30 resize-none focus:outline-none text-sm font-mono"
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs font-mono text-muted-foreground">{prompt.length} / 2000 chars</span>
+                  {prompt.length >= 10 && (
+                    <span className="text-xs text-green-400 flex items-center gap-1 font-mono">
+                      <CheckCircle2 className="h-3 w-3" /> SCRIPT READY
+                    </span>
+                  )}
+                </div>
               </div>
               {/* Example prompts */}
-              <div className="mt-3">
-                <p className="text-xs text-muted-foreground mb-2">– Example prompts:</p>
+              <div className="px-4 sm:px-5 pb-4">
+                <p className="text-[10px] font-mono text-white/30 mb-2 uppercase tracking-widest">▶ Quick load:</p>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLE_PROMPTS.slice(0, 3).map((ex, i) => (
                     <button
                       key={i}
                       onClick={() => setPrompt(ex)}
-                      className="text-xs rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 px-3 py-1 text-[--color-gold] hover:bg-[--color-gold]/15 transition text-left"
+                      className="text-xs font-mono rounded border border-[--color-gold]/20 bg-[--color-gold]/8 px-3 py-1 text-[--color-gold]/70 hover:text-[--color-gold] hover:border-[--color-gold]/40 hover:bg-[--color-gold]/15 transition text-left"
                     >
                       {ex.slice(0, 50)}…
                     </button>
@@ -538,9 +552,13 @@ export default function TextToVideoCreator() {
         {step === "storyboard" && (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Your Storyboard</h2>
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/10 px-4 py-1.5 text-xs font-mono text-[--color-gold] mb-3">
+                <span className="studio-led studio-led-gold" />
+                PRE-PRODUCTION → STORYBOARD REVIEW
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Director's Storyboard</h2>
               <p className="text-sm text-muted-foreground">
-                Review your AI-generated storyboard. Edit scenes, regenerate previews, then render when you're satisfied.
+                Review each scene on your monitor. Edit descriptions, regenerate previews, then lock your cut and render.
               </p>
             </div>
 
@@ -554,18 +572,21 @@ export default function TextToVideoCreator() {
             <div className="space-y-4">
               {storyboard.map((scene, i) => (
                 <div key={scene.id} className="studio-card overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[--color-gold] bg-[--color-gold]/15 rounded-full px-2 py-0.5">
-                        Scene {i + 1}
-                      </span>
+                  {/* Clapperboard-style scene header */}
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-black/40">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 bg-[--color-gold]/10 border border-[--color-gold]/25 rounded px-2 py-0.5">
+                        <span className="text-[10px] font-mono font-bold text-[--color-gold]/70 uppercase tracking-widest">SCN</span>
+                        <span className="text-sm font-bold text-[--color-gold] font-mono">{String(i + 1).padStart(2, '0')}</span>
+                      </div>
                       <input
                         value={scene.title}
                         onChange={(e) => updateScene(scene.id, "title", e.target.value)}
                         className="bg-transparent text-sm font-semibold text-white border-none outline-none focus:ring-1 focus:ring-[--color-gold]/50 rounded px-1"
                       />
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`studio-led ${scene.previewImageUrl ? 'studio-led-green' : scene.previewLoading ? 'studio-led-gold' : 'studio-led-off'}`} />
                       <button
                         onClick={() => generatePreviewForScene(scene.id)}
                         title="Regenerate AI preview"
@@ -590,29 +611,37 @@ export default function TextToVideoCreator() {
                     </div>
                   </div>
 
+                  {/* Studio monitor preview */}
                   {scene.previewLoading && (
-                    <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 aspect-video flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="h-6 w-6 text-[--color-gold] animate-spin" />
-                      <span className="text-xs text-[--color-gold]">Generating AI preview…</span>
+                    <div className="mx-4 mt-4 studio-screen aspect-video flex flex-col items-center justify-center gap-2">
+                      <div className="studio-waveform">
+                        {Array.from({length: 8}).map((_, j) => <span key={j} />)}
+                      </div>
+                      <span className="text-[10px] font-mono text-[--color-gold]/70 uppercase tracking-widest mt-1">RENDERING PREVIEW…</span>
                     </div>
                   )}
                   {!scene.previewLoading && scene.previewImageUrl && (
-                    <div className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl overflow-hidden aspect-video">
+                    <div className="mx-4 mt-4 studio-screen aspect-video">
                       <img
                         src={scene.previewImageUrl}
                         alt={scene.title}
                         className="w-full h-full object-cover"
                       />
+                      {/* Monitor status bar */}
+                      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-2 py-1 bg-black/60 backdrop-blur-sm">
+                        <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest">PREVIEW • {style.toUpperCase()}</span>
+                        <span className="studio-led studio-led-green" style={{width:'6px',height:'6px'}} />
+                      </div>
                     </div>
                   )}
                   {!scene.previewLoading && !scene.previewImageUrl && (
                     <button
                       onClick={() => generatePreviewForScene(scene.id)}
-                      className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-xl border border-dashed border-[--color-gold]/30 bg-[--color-gold]/15 aspect-video flex flex-col items-center justify-center gap-2 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition group"
+                      className="mx-4 mt-4 studio-screen aspect-video flex flex-col items-center justify-center gap-2 hover:border-[--color-gold]/30 transition group w-[calc(100%-2rem)]"
                     >
-                      <ImageIcon className="h-6 w-6 text-muted-foreground/40 group-hover:text-[--color-gold] transition" />
-                      <span className="text-xs text-muted-foreground/60 group-hover:text-[--color-gold] transition">
-                        Click to generate AI preview image
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/30 group-hover:text-[--color-gold] transition" />
+                      <span className="text-[10px] font-mono text-white/30 group-hover:text-[--color-gold] transition uppercase tracking-widest">
+                        ▶ GENERATE PREVIEW
                       </span>
                     </button>
                   )}

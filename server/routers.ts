@@ -22,6 +22,7 @@ import { analyticsRouter } from "./routers/analytics";
 import { privacyRouter } from "./routers/privacy";
 import { wizadoraAdminRouter } from "./routers/wizadora";
 import { currencyRouter } from "./routers/currency";
+import { voiceRouter } from "./routers/voice";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -46,6 +47,7 @@ export const appRouter = router({
   privacy: privacyRouter,
   wizadora: wizadoraAdminRouter,
   currency: currencyRouter,
+  voice: voiceRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

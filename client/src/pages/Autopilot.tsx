@@ -21,6 +21,7 @@ import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { WizBrandBadge } from "@/components/WizBrand";
 import AuthGate from "@/components/AuthGate";
 import { useSEO } from "@/hooks/useSEO";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 
 // YouTube brand colour
 const YT_RED = "#FF0000";
@@ -476,24 +477,40 @@ export default function Autopilot() {
               </p>
             </div>
 
-            {/* Prompt Input */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-              <label className="block text-sm font-medium text-white mb-2">
-                Video Prompt <span className="text-muted-foreground">(min. 10 characters)</span>
-              </label>
-              <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="A futuristic city at sunset with flying cars weaving between neon-lit skyscrapers, cinematic drone shot…"
-                className="w-full h-28 sm:h-32 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-[--color-gold]/50 text-sm"
-              />
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-muted-foreground">{prompt.length} / 1000</span>
-                {prompt.length >= 10 && (
-                  <span className="text-xs text-[--color-silver] flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" /> Ready
+            {/* Prompt Input — Broadcast Studio Terminal */}
+            <div className="studio-card overflow-hidden">
+              {/* Terminal header bar */}
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[--color-gold]/10 bg-black/40">
+                <div className="flex items-center gap-2.5">
+                  <span className={`studio-led ${prompt.length >= 10 ? 'studio-led-green' : 'studio-led-off'}`} />
+                  <span className="studio-label tracking-widest">PRODUCTION BRIEF</span>
+                  <span className={`text-[10px] font-mono ${prompt.length >= 10 ? 'text-green-400' : 'text-white/20'}`}>
+                    {prompt.length >= 10 ? '\u25cf LOCKED' : '\u25cb STANDBY'}
                   </span>
-                )}
+                </div>
+                <VoicePromptButton
+                  toolContext="video automation and storyboarding"
+                  onPromptReady={(refined) => setPrompt(refined)}
+                />
+              </div>
+              <div className="p-4 sm:p-5">
+                <label className="block text-xs font-mono text-white/40 uppercase tracking-widest mb-2">
+                  Video Prompt <span className="text-white/20">(min. 10 characters)</span>
+                </label>
+                <Textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="A futuristic city at sunset with flying cars weaving between neon-lit skyscrapers, cinematic drone shot…"
+                  className="w-full h-28 sm:h-32 rounded-xl border border-white/8 bg-black/30 px-4 py-3 text-white placeholder:text-white/20 resize-none focus:outline-none focus:ring-1 focus:ring-[--color-gold]/50 text-sm font-mono"
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs font-mono text-white/20">{prompt.length} / 1000</span>
+                  {prompt.length >= 10 && (
+                    <span className="text-xs font-mono text-green-400 flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" /> BRIEF LOCKED
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
