@@ -170,7 +170,7 @@ function Router() {
         <Route path={"/products/wizgenesis"} component={WizGenesisPage} />
         <Route path={"/products/wizboost"} component={WizBoostPage} />
         <Route path={"/products/wizscript"} component={WizScriptPage} />
-        <Route path={"/wiz-script"} component={WizScriptPage} />{/* alias */}
+        <Route path={"/wiz-script"} component={TextToVideoCreator} />{/* alias → app */}
         <Route path={"/products/wizpilot"} component={WizPilotPage} />
         <Route path={"/products/wizsync-info"} component={WizSyncInfoPage} />
         <Route path={"/products/wizscore"} component={WizScoreInfoPage} />
@@ -200,7 +200,7 @@ function Router() {
         <Route path={"/dashboard"} component={Dashboard} />
         <Route path={"/projects"} component={Projects} />
         <Route path={"/account"} component={Account} />
-        <Route path={"/tools/text-to-video"} component={TextToVideo} />
+        <Route path={"/tools/text-to-video"} component={TextToVideoCreator} />{/* → TextToVideoCreator app */}
         <Route path={"/tools/lip-sync"} component={LipSync} />
         <Route path={"/tools/video-to-video"} component={VideoToVideo} />
         <Route path={"/tools/voiceover"} component={Voiceover} />
