@@ -2473,38 +2473,38 @@ const TIER_VIDEOS = [
 const TIER_DATA = [
   {
     id: 0, label: "Original", brandLabel: "Original",
-    tagline: "Raw AI output — original audio and visuals, unprocessed.",
-    audioFeatures: ["Original AI-generated audio", "Mono / basic stereo, no processing", "Unmastered, unenhanced output"],
+    tagline: "Raw AI output — unprocessed audio and visuals, exactly as generated.",
+    audioFeatures: ["Flat, dry, unprocessed piano", "Mono — no stereo width or reverb", "Raw AI output, no mastering"],
     visualFeatures: ["Standard AI output", "No colour grading", "Basic resolution"],
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     soundBadge: "Original Audio", visualBadge: "Original Video",
-    musicSrc: "/manus-storage/demo-music-standard_4aa8c300.mp3",
-    sfxSrc: "/manus-storage/demo-sfx-standard_f841feb2.mp3",
-    musicLabel: "Original, unprocessed", sfxLabel: "Original ambient",
+    musicSrc: "/manus-storage/tier-original-music_c98457af.mp3",
+    sfxSrc: "/manus-storage/tier-original-sfx_d6956b19.mp3",
+    musicLabel: "Dry piano — no processing", sfxLabel: "Flat wind — close-mic, mono",
     glowRgb: "160,160,170",
   },
   {
     id: 1, label: "Enhanced", brandLabel: "WizSound™ Enhanced",
-    tagline: "Polished audio and improved visuals — broadcast-ready quality.",
-    audioFeatures: ["Stereo widening + EQ mastering", "Noise reduction & clarity", "Broadcast-ready balance"],
+    tagline: "Same source — now stereo-widened, EQ-balanced, and broadcast-ready.",
+    audioFeatures: ["Stereo widening + natural reverb", "EQ mastered — broadcast-ready balance", "Light strings added for warmth"],
     visualFeatures: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     soundBadge: "WizSound™ Enhanced", visualBadge: "WizLumina™ Enhanced",
-    musicSrc: "/manus-storage/demo-music-enhanced_eaa42c9a.mp3",
-    sfxSrc: "/manus-storage/demo-sfx-enhanced_6da6a9fc.mp3",
-    musicLabel: "Stereo widened", sfxLabel: "Spatial ambient",
+    musicSrc: "/manus-storage/tier-enhanced-music_e437e316.mp3",
+    sfxSrc: "/manus-storage/tier-enhanced-sfx_d22b0b96.mp3",
+    musicLabel: "Stereo piano + light strings", sfxLabel: "Wide stereo wind + eagle call",
     glowRgb: "196,164,100",
   },
   {
     id: 2, label: "Cinematic", brandLabel: "WizSound™ Cinematic",
-    tagline: "Full WizSound™ Spatial + WizLumina™ HDR — studio-grade cinematic quality.",
-    audioFeatures: ["Full spatial mastering + sub-bass", "Dynamic range & immersive depth", "Studio-grade cinematic mix"],
+    tagline: "Same source — elevated to full spatial orchestral production with sub-bass and immersive depth.",
+    audioFeatures: ["Full orchestra — strings, horns, choir", "Deep sub-bass + spatial 3D mastering", "Studio-grade cinematic mix"],
     visualFeatures: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     soundBadge: "WizSound™ Spatial", visualBadge: "WizLumina™ HDR",
-    musicSrc: "/manus-storage/demo-music-cinematic_f962c4c1.mp3",
-    sfxSrc: "/manus-storage/demo-sfx-cinematic_e64ee56e.mp3",
-    musicLabel: "Cinematic orchestra", sfxLabel: "3D spatial SFX",
+    musicSrc: "/manus-storage/tier-cinematic-music_28e1a8fb.mp3",
+    sfxSrc: "/manus-storage/tier-cinematic-sfx_0251a4fd.mp3",
+    musicLabel: "Full orchestra — spatial 3D", sfxLabel: "3D spatial — thunder, eagle, wind",
     glowRgb: "212,175,55",
   },
 ];
@@ -2655,10 +2655,10 @@ function SeeTheDifference() {
           </div>
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See &amp; Hear the Difference</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
-            Standard. Enhanced. <span className="metallic-gold">Cinematic.</span>
+            Original. Enhanced. <span className="metallic-gold">Cinematic.</span>
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
-            Switch tiers to see and hear the transformation. Toggle between <strong className="text-white/60">Music</strong> and <strong className="text-white/60">Sound Effects</strong> to test both.
+            The same audio source — transformed at each tier. Switch between <strong className="text-white/60">Original</strong>, <strong className="text-white/60">Enhanced</strong>, and <strong className="text-white/60">Cinematic</strong> to hear and see the difference. Toggle between <strong className="text-white/60">Music</strong> and <strong className="text-white/60">Sound Effects</strong> to test both audio types.
           </p>
         </div>
 
@@ -2788,7 +2788,7 @@ function SeeTheDifference() {
                       : "text-white/30 hover:text-white/50"
                   }`}
                 >
-                  🎵 Music
+                  🎵 Cinematic Music
                 </button>
                 <button
                   onClick={() => setAudioMode("sfx")}
@@ -2798,7 +2798,7 @@ function SeeTheDifference() {
                       : "text-white/30 hover:text-white/50"
                   }`}
                 >
-                  🔊 Sound Effects
+                  🏔️ Atmospheric SFX
                 </button>
               </div>
               <span className="text-[10px] text-white/30 font-medium">
