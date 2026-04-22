@@ -71,6 +71,7 @@ const WizPilotPage = lazy(() => import("@/pages/products").then(m => ({ default:
 const WizSyncInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizSyncInfoPage })));
 const WizScoreInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizScoreInfoPage })));
 const WizShortsProductPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizShortsPage })));
+const WizPerformerPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizPerformerPage })));
 // Technology pages
 const TechCharacterConsistency = lazy(() => import("@/pages/technology").then(m => ({ default: m.CharacterConsistencyPage })));
 const TechSceneBuilder = lazy(() => import("@/pages/technology").then(m => ({ default: m.SceneBuilderPage })));
@@ -172,6 +173,8 @@ function Router() {
         <Route path={"/products/wizsync-info"} component={WizSyncInfoPage} />
         <Route path={"/products/wizscore"} component={WizScoreInfoPage} />
         <Route path={"/products/wizshorts"} component={WizShortsProductPage} />
+        <Route path={"/products/wizperformer"} component={WizPerformerPage} />
+        <Route path={"/products/wizimage"} component={() => { window.location.replace("/wiz-image"); return null; }} />{/* redirect to correct route */}
         {/* Technology pages */}
         <Route path={"/technology/character-consistency"} component={TechCharacterConsistency} />
         <Route path={"/technology/scene-builder"} component={TechSceneBuilder} />

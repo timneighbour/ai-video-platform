@@ -639,3 +639,58 @@ const WIZSHORTS: ProductPageProps = {
 export function WizShortsPage() {
   return <ProductPageTemplate {...WIZSHORTS} />;
 }
+
+// ─── WizPerformer ─────────────────────────────────────────────────────────────
+const WIZPERFORMER: ProductPageProps = {
+  name: "WizPerformer™",
+  role: "The Face",
+  tagline: "AI Face-Consistent Performer Engine",
+  headline: "Your face. Your character. Every scene.",
+  subheadline: "WizPerformer™ uses a single reference photo to generate a consistent AI performer that appears across every scene of your video — with the same face, style, and presence throughout.",
+  logo: `/manus-storage/wizsync-logo-new_9563f007.png`,
+  accentFrom: "from-purple-400",
+  accentTo: "to-fuchsia-400",
+  accentGlow: "rgba(168,85,247,0.25)",
+  borderColour: "border-purple-500/30",
+  bgColour: "bg-purple-500/5",
+  badgeClass: "text-purple-300 bg-purple-500/10 border-purple-500/25",
+  ctaHref: "/music-video/create",
+  ctaLabel: "Create Your Video",
+  whatItDoes: "WizPerformer™ is WIZ AI's face-consistent character engine. Upload a single reference photo and WizPerformer™ generates a fully animated AI performer that maintains the same face, expression, and identity across every scene — no drift, no inconsistency, no manual work.",
+  capabilities: [
+    "Face-consistent character generation from a single photo",
+    "Consistent appearance across all scenes in a video",
+    "Works with all WIZ AI video styles (Cinematic, Anime, 3D)",
+    "Privacy-first — photos processed only for your project",
+    "Integrates with WizCreate™ storyboard and WizAnimate™",
+    "Optional — full WIZ AI pipeline works without a face photo",
+  ],
+  howItWorks: [
+    { num: "01", icon: "upload", title: "Upload your reference photo", desc: "Upload a clear front-facing photo. WizPerformer™ extracts your facial identity for use across your video." },
+    { num: "02", icon: "cpu", title: "AI builds your performer", desc: "WizPerformer™ creates a consistent AI character based on your photo — styled to match your chosen visual theme." },
+    { num: "03", icon: "film", title: "Performer appears in every scene", desc: "Your AI performer is placed into each scene of your video with the same face, proportions, and identity throughout." },
+    { num: "04", icon: "check-circle", title: "Download your video", desc: "Export your completed video with your consistent AI performer featured in every scene." },
+  ],
+  benefits: [
+    { title: "True face consistency", desc: "The same face appears in every scene — no drift, no variation, no uncanny valley inconsistency." },
+    { title: "One photo is all you need", desc: "A single clear reference photo is enough to generate a consistent performer across an entire video." },
+    { title: "Works with every style", desc: "Cinematic, Anime, 3D Animation — WizPerformer™ adapts your face to any visual style." },
+    { title: "Privacy by design", desc: "Your photo is used only for your project. It is never shared, sold, or used for advertising." },
+    { title: "Fully optional", desc: "WizPerformer™ is an optional layer — you can create complete videos without uploading any face photo." },
+    { title: "No editing required", desc: "WizPerformer™ handles all the character placement and consistency — you just upload and create." },
+  ],
+  keyFeatures: [
+    { icon: "user", title: "Single-Photo Face Capture", desc: "One reference photo is all WizPerformer™ needs to generate a consistent AI performer across your entire video." },
+    { icon: "layers", title: "Cross-Scene Identity Lock", desc: "Your performer's face, proportions, and style are locked across every scene — no manual correction needed." },
+    { icon: "palette", title: "Multi-Style Adaptation", desc: "WizPerformer™ adapts your face to Cinematic, Anime, 3D Animation, and other visual styles automatically." },
+    { icon: "shield", title: "Privacy-First Processing", desc: "Photos are processed exclusively for your project and are never shared, sold, or used outside WIZ AI." },
+    { icon: "link", title: "Full Pipeline Integration", desc: "WizPerformer™ feeds directly into WizCreate™, WizAnimate™, and WizSync™ for a seamless end-to-end workflow." },
+    { icon: "toggle-right", title: "Fully Optional Module", desc: "WizPerformer™ is an opt-in layer — the full WIZ AI pipeline works without it if you prefer faceless content." },
+  ],
+  heroImage: `/manus-storage/hero-wizsync_6e1c3369.jpg`,
+  related: ALL_RELATED.filter(r => r.name !== "WizSync™"),
+};
+
+export function WizPerformerPage() {
+  return <ProductPageTemplate {...WIZPERFORMER} />;
+}

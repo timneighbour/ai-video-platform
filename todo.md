@@ -5885,3 +5885,7 @@
 - [x] D-05/F-09: Fixed spend cap cost constants — atlas_cloud corrected from $0.30 to $0.80/scene
 - [x] D-05/F-09: Confirmed fal.ai and WaveSpeed remain disabled (DISABLED comments + routing bypasses both)
 - [x] D-05/F-09: Confirmed Atlas Cloud is sole active provider (all renderer types route to startSceneRenderAtlasCloud)
+
+## Routing Fixes (Post-Publish)
+- [x] Fix /products/wizimage — add redirect to /wiz-image
+- [x] Fix /products/wizperformer — create premium WizPerformer product page (Option A)
