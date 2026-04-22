@@ -1,0 +1,56 @@
+{
+  "name": "WIZ AI — AI Video Studio",
+  "short_name": "WIZ AI",
+  "description": "Create stunning AI music videos, animations, shorts and images in minutes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080810",
+  "theme_color": "#080810",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-GB",
+  "categories": ["entertainment", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/manus-storage/pwa-icon-192_21bad29f.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/manus-storage/pwa-icon-512_0c8111cf.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/manus-storage/pwa-icon-512-maskable_8dad2b38.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create Music Video",
+      "short_name": "Music Video",
+      "description": "Create an AI music video",
+      "url": "/music-video/create",
+      "icons": [{ "src": "/manus-storage/pwa-icon-192_21bad29f.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "WizShorts",
+      "short_name": "Shorts",
+      "description": "Create AI short videos",
+      "url": "/wiz-shorts",
+      "icons": [{ "src": "/manus-storage/pwa-icon-192_21bad29f.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "WizImage",
+      "short_name": "Images",
+      "description": "Generate AI images",
+      "url": "/wiz-image",
+      "icons": [{ "src": "/manus-storage/pwa-icon-192_21bad29f.png", "sizes": "192x192" }]
+    }
+  ]
+}

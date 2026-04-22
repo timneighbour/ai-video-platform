@@ -5914,3 +5914,13 @@
 - [x] Confirm support@wiz-ai.io already in website footer and schema.org metadata
 - [x] Send test email to tim@wiz-ai.io to verify Resend delivery
 - [x] Update all comment references from timneighbour@wizvid.ai to tim@wiz-ai.io in webhooks.ts and oauth.ts
+
+## PWA (Progressive Web App) Support
+- [x] Generate PWA app icons (192x192, 512x512, maskable) with WIZ AI branding
+- [x] Generate Apple touch icon (180x180) for iOS home screen
+- [x] Create web app manifest (manifest.json) with name, icons, theme, display mode
+- [x] Create service worker for offline support and caching
+- [x] Wire manifest and meta tags into index.html
+- [x] Add iOS-specific apple-touch-icon and splash screen meta tags
+- [x] Add PWA install prompt banner for mobile users
+- [x] Test installability on iOS Safari and Android Chrome

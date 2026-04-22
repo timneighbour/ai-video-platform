@@ -11,6 +11,7 @@ import { trpc } from "./lib/trpc";
 import { wizAnalytics } from "./lib/wizAnalytics";
 import GlobalMuteButton from "./components/GlobalMuteButton";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import IntroScreen from "./components/IntroScreen";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
@@ -367,6 +368,7 @@ function App() {
           )}
           {/* Cookie banner must come after IntroScreen in the DOM so it renders on top */}
           <CookieConsentBanner />
+          <PWAInstallBanner />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
