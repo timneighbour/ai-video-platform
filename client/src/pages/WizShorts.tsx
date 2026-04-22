@@ -185,12 +185,12 @@ export default function WizShorts() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen studio-bg text-white">
       {/* Header */}
-      <div className="border-b border-white/10 bg-[#0d0d14]">
-        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div className="studio-header sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#b8892a] to-orange-600 shadow-lg shadow-orange-500/20">
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#b8892a]/30 to-[#1a1a20] border border-[#b8892a]/20 shadow-[0_0_12px_rgba(184,137,42,0.15)]">
               <svg viewBox="0 0 40 40" className="w-8 h-8" fill="none">
                 <rect x="4" y="10" width="24" height="20" rx="3" stroke="white" strokeWidth="2" fill="none"/>
                 <path d="M28 16l8-4v16l-8-4V16z" fill="white"/>
@@ -200,11 +200,20 @@ export default function WizShorts() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">WizShorts™</h1>
-              <p className="text-xs text-white/50">AI Short-Form Video Creator · WIZ AI</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-bold tracking-tight">WizShorts™</h1>
+                <div className="studio-led studio-led-gold" style={{width:6,height:6}} />
+              </div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="studio-led studio-led-green" style={{width:5,height:5}} />
+                <span className="studio-label">Shorts Studio · Online</span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="hidden md:block studio-waveform">
+              <span /><span /><span /><span /><span /><span />
+            </div>
             <Badge variant="outline" className="border-[--color-silver]/50 text-[--color-silver] text-xs hidden sm:flex">
               YouTube Shorts · TikTok · Reels
             </Badge>

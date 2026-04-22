@@ -1451,7 +1451,7 @@ export default function MusicVideoAutopilot() {
   const isGeneratingStoryboard = storyboardGenerating && !(step === "storyboard" && scenes.length > 0);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen studio-bg text-white">
       {/* Auth Gate */}
       <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your music video" />
       {/* ===== STORYBOARD GENERATION PROGRESS OVERLAY ===== */}
@@ -1604,33 +1604,47 @@ export default function MusicVideoAutopilot() {
           onBack={() => setShowLyricsIntelligence(false)}
         />
       )}
-      {/* Header */}
-      <div className="border-b border-zinc-800 bg-zinc-950">
-        <div className="max-w-5xl mx-auto px-4 py-6">
+      {/* Header — Studio Console */}
+      <div className="studio-header sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-4 py-3">
           {/* Top nav row: Home + Dashboard links */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <NavLink href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
-              <span>Home</span>
+              <span className="hidden sm:inline">Home</span>
             </NavLink>
             <NavLink href="/">
-              <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+              <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
             </NavLink>
             <NavLink href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />
-              <span>Dashboard</span>
+              <span className="hidden sm:inline">Dashboard</span>
             </NavLink>
           </div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#2e2e36] flex items-center justify-center">
-              <Music className="w-5 h-5 text-white" />
+          {/* Studio identity bar */}
+          <div className="flex items-center gap-4 mb-3">
+            {/* Studio LED + icon */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#b8892a]/30 to-[#1a1a20] flex items-center justify-center border border-[#b8892a]/20 shadow-[0_0_12px_rgba(184,137,42,0.15)]">
+                <Music className="w-5 h-5 text-[#b8892a]" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="studio-led studio-led-gold" />
+                  <span className="studio-label">Music Video Studio</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="studio-led studio-led-green" />
+                  <span className="studio-label text-[10px] text-zinc-600">Systems Online</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.05em" }}>
+            {/* Title + waveform */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}>
                   WIZVIDEO AUTOPILOT
                 </h1>
-                {/* YouTube-optimised badge */}
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF0000]/15 border border-[#FF0000]/30 text-[#FF4444] select-none">
                   <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#FF4444]" aria-hidden="true">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -1638,7 +1652,11 @@ export default function MusicVideoAutopilot() {
                   YouTube Ready
                 </span>
               </div>
-              <p className="text-zinc-400 text-sm">Upload your song. Describe your vision. We'll create the video.</p>
+              <p className="text-zinc-500 text-xs mt-0.5">Upload your song. Describe your vision. We'll create the video.</p>
+            </div>
+            {/* Ambient waveform visualizer */}
+            <div className="hidden md:block studio-waveform shrink-0">
+              <span /><span /><span /><span /><span /><span /><span /><span />
             </div>
           </div>
 
@@ -1701,14 +1719,14 @@ export default function MusicVideoAutopilot() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-6">
 
         {/* ===== STEP 1: UPLOAD ===== */}
         {step === "upload" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div className="lg:col-span-2 space-y-6">
               {/* ── Artist Type Selection ── */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base text-white flex items-center gap-2">
                     <Users className="w-4 h-4 text-[--color-gold]" />
@@ -1754,7 +1772,7 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Audio Source: Upload or Generate with AI */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <div className="flex rounded-lg border border-zinc-700 p-1 gap-1">
@@ -2087,7 +2105,7 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Theme & Vision */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-[--color-silver]" />
@@ -2185,7 +2203,7 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Locations / Scene Setting */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <span className="text-xl text-[--color-gold]">&#9679;</span>
@@ -2248,7 +2266,7 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Visual Reference Assets — optional photos/videos for storyboard context */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <ImageIcon className="w-5 h-5 text-[--color-gold]" />
@@ -2317,7 +2335,7 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* Characters — dual mode: Photo Upload or AI Generated */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <User className="w-5 h-5 text-[--color-gold]" />
@@ -2343,7 +2361,7 @@ export default function MusicVideoAutopilot() {
 
             {/* Summary sidebar */}
             <div className="space-y-4">
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="studio-card border-0">
                 <CardHeader>
                   <CardTitle className="text-white text-base">Video Summary</CardTitle>
                 </CardHeader>
@@ -2549,7 +2567,7 @@ export default function MusicVideoAutopilot() {
             </div>
 
             {/* Export Format Selection */}
-            <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-4">
+            <div className="mb-4 rounded-xl studio-panel px-4 py-4">
               <div className="flex items-center gap-2 mb-3">
                 <Monitor className="w-4 h-4 text-[--color-silver]" />
                 <span className="text-sm font-semibold text-white">Export Format</span>

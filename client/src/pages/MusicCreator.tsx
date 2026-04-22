@@ -349,7 +349,7 @@ export default function MusicCreator() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen studio-bg text-white">
       {/* Cinematic Hero Banner */}
       <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden">
         {/* Background: studio image */}
@@ -428,7 +428,7 @@ export default function MusicCreator() {
           {/* Left: Form */}
           <div className="space-y-6">
             {/* Duration Picker — custom mm:ss input with quick-select shortcuts */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <div className="flex items-center justify-between mb-4">
                 <label className="text-sm font-semibold text-white flex items-center gap-2">
                   <Clock className="w-4 h-4 text-[--color-gold]" />
@@ -549,7 +549,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Prompt */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <label className="block text-sm font-semibold text-white mb-3">
                 <Wand2 className="w-4 h-4 inline mr-2 text-[--color-gold]" />
                 Describe your song
@@ -578,7 +578,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Genre */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <label className="block text-sm font-semibold text-white mb-3">
                 Genre <span className="text-[#a1a1aa] font-normal">(pick up to 3)</span>
               </label>
@@ -601,7 +601,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Mood */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <label className="block text-sm font-semibold text-white mb-3">Mood</label>
               <div className="flex flex-wrap gap-2">
                 {MOODS.map((m) => (
@@ -621,7 +621,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Vocal style */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <label className="block text-sm font-semibold text-white mb-3">
                 <Volume2 className="w-4 h-4 inline mr-2 text-[--color-gold]" />
                 Vocal style
@@ -644,7 +644,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Lyrics editor */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-semibold text-white flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[--color-silver]" />
@@ -738,7 +738,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Advanced: title + model */}
-            <div className="p-6 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-6 rounded-2xl studio-card">
               <p className="text-sm font-semibold text-white mb-4">Advanced options</p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -1000,7 +1000,7 @@ export default function MusicCreator() {
 
         {/* Upload mode panel */}
         {mode === "upload" && (
-          <div className="p-6 rounded-2xl bg-[#171717] border border-white/6 space-y-4">
+          <div className="p-6 rounded-2xl studio-card space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <UploadCloud className="w-5 h-5 text-[--color-gold]" />
               <h3 className="text-sm font-semibold text-white">Upload Your Track</h3>
@@ -1119,7 +1119,7 @@ export default function MusicCreator() {
             )}
 
             {/* Prompt examples */}
-            <div className="p-5 rounded-2xl bg-[#171717] border border-white/6">
+            <div className="p-5 rounded-2xl studio-card">
               <p className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Example prompts</p>
               <div className="space-y-2">
                 {PROMPT_EXAMPLES.map((ex) => (

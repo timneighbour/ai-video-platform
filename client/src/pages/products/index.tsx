@@ -694,3 +694,117 @@ const WIZPERFORMER: ProductPageProps = {
 export function WizPerformerPage() {
   return <ProductPageTemplate {...WIZPERFORMER} />;
 }
+
+// ─── WizImage ─────────────────────────────────────────────────────────────────
+const WIZIMAGE: ProductPageProps = {
+  name: "WizImage™",
+  role: "The Canvas",
+  tagline: "AI Image Generation Engine",
+  headline: "Describe it. Generate it. Own it.",
+  subheadline: "WizImage™ turns any text prompt into a stunning, high-resolution AI image in seconds — across cinematic, anime, 3D, abstract, and more visual styles.",
+  logo: `${CDN}/wizimage-logo-v1_83c86e5c.png`,
+  accentFrom: "from-amber-400",
+  accentTo: "to-yellow-300",
+  accentGlow: "rgba(196,164,100,0.30)",
+  borderColour: "border-amber-500/30",
+  bgColour: "bg-amber-500/5",
+  badgeClass: "text-amber-300 bg-amber-500/10 border-amber-500/25",
+  ctaHref: "/wiz-image",
+  ctaLabel: "Generate an Image",
+  whatItDoes: "WizImage™ is WIZ AI's image generation engine. Type any description and WizImage™ produces a high-resolution, publication-ready image in your chosen style — from photorealistic cinematic frames to anime illustrations, 3D renders, and abstract art. Every image is yours to download and use.",
+  capabilities: [
+    "Text-to-image generation in seconds",
+    "Multiple visual styles: Cinematic, Anime, 3D, Abstract, Illustration",
+    "High-resolution output — publication and print ready",
+    "Full gallery of your generated images",
+    "Download and own every image you create",
+    "2 free credits on sign-up — no card required",
+  ],
+  howItWorks: [
+    { num: "01", icon: "file-text", title: "Describe your image", desc: "Type a description of what you want to see. Be as specific or as open as you like — WizImage™ handles the rest." },
+    { num: "02", icon: "palette", title: "Choose your style", desc: "Select from Cinematic, Anime, 3D Animation, Abstract, Illustration, and more visual styles." },
+    { num: "03", icon: "cpu", title: "AI generates your image", desc: "WizImage™ processes your prompt and style choice, generating a high-resolution image in seconds." },
+    { num: "04", icon: "download", title: "Download and own it", desc: "Your image is saved to your gallery. Download it at any time — full resolution, no watermark." },
+  ],
+  benefits: [
+    { title: "Instant results", desc: "From prompt to finished image in seconds — no waiting, no rendering queue, no experience needed." },
+    { title: "Multiple visual styles", desc: "Cinematic, Anime, 3D, Abstract, Illustration — choose the style that fits your project." },
+    { title: "High-resolution output", desc: "Every image is generated at high resolution, ready for social media, print, or use inside your videos." },
+    { title: "Your gallery, always available", desc: "Every image you generate is saved to your personal gallery — accessible any time, from any device." },
+    { title: "2 free credits on sign-up", desc: "Start generating immediately with 2 free credits — no credit card required to try WizImage™." },
+    { title: "Use inside your videos", desc: "WizImage™ outputs integrate directly with the WIZ AI video pipeline — use your images as scene visuals." },
+  ],
+  keyFeatures: [
+    { icon: "wand", title: "Text-to-Image Engine", desc: "Type any description and WizImage™ generates a high-resolution image in seconds — no design skills needed.", image: `${CDN}/style-cinematic-1_5b43a687.jpg` },
+    { icon: "layers", title: "Multi-Style Generation", desc: "Cinematic, Anime, 3D, Abstract, Illustration — switch styles instantly without rewriting your prompt.", image: `${CDN}/style-anime-1_f617a500.jpg` },
+    { icon: "download", title: "Full-Resolution Download", desc: "Every image downloads at full resolution with no watermark — ready for social, print, or video use.", image: `${CDN}/style-3d_2a0c1bee.png` },
+    { icon: "eye", title: "Personal Gallery", desc: "All your generated images are saved to your gallery — browse, re-download, or use them in your videos any time.", image: `${CDN}/style-abstract-1_e905ccff.jpg` },
+    { icon: "link", title: "Video Pipeline Integration", desc: "WizImage™ outputs connect directly to WizCreate™ and WizAnimate™ — use your images as scene visuals.", image: `${CDN}/creator-content-premium_367d5bb6.jpg` },
+    { icon: "zap", title: "2 Free Credits on Sign-Up", desc: "Every new account gets 2 free WizImage™ credits — start generating immediately, no card required.", image: `${CDN}/creator-animator-premium_261e8715.jpg` },
+  ],
+  heroImage: `${CDN}/showcase-music-video_678b0f1d.jpg`,
+  related: ALL_RELATED,
+};
+export function WizImageProductPage() { return <ProductPageTemplate {...WIZIMAGE} />;
+}
+
+// ─── WizVideo (Music Video Landing) ──────────────────────────────────────────
+const WIZVIDEO: ProductPageProps = {
+  name: "WizVideo™",
+  role: "The Director",
+  tagline: "AI Music Video Creation Engine",
+  headline: "Upload your song. Get a full music video.",
+  subheadline: "WizVideo™ transforms any audio track into a complete, scene-by-scene cinematic music video — with AI-generated visuals, lyric sync, style consistency, and a full render in minutes.",
+  logo: `${CDN}/wizvideo-logo-v1_9ec37e45.png`,
+  accentFrom: "from-blue-400",
+  accentTo: "to-indigo-400",
+  accentGlow: "rgba(99,102,241,0.25)",
+  borderColour: "border-blue-500/30",
+  bgColour: "bg-blue-500/5",
+  badgeClass: "text-blue-300 bg-blue-500/10 border-blue-500/25",
+  ctaHref: "/music-video/create",
+  ctaLabel: "Create Your Music Video",
+  whatItDoes: "WizVideo™ is WIZ AI's end-to-end music video creation engine. Upload your track — or create music with WizScore™ — and WizVideo™ generates a full scene-by-scene storyboard, animates every scene with AI visuals, syncs cuts to your beats and lyrics, and renders a complete music video ready to publish. No editing skills. No crew. No studio.",
+  capabilities: [
+    "Upload any audio track or create music with WizScore™",
+    "AI storyboard generation — full scene plan from your track",
+    "Preview every scene before you commit to rendering",
+    "Style-consistent visuals across every scene",
+    "Optional face-consistent performer with WizPerformer™",
+    "Full render in minutes — 1080p, no watermark",
+  ],
+  howItWorks: [
+    { num: "01", icon: "upload", title: "Upload your track", desc: "Upload your audio file or create a new track with WizScore™. WizVideo™ analyses the tempo, lyrics, and mood automatically." },
+    { num: "02", icon: "layout", title: "AI generates your storyboard", desc: "WizCreate™ builds a full scene-by-scene visual plan from your track — every scene timed to your music. Always free to generate." },
+    { num: "03", icon: "eye", title: "Preview and customise", desc: "Review every scene before rendering. Adjust styles, swap visuals, add a face-consistent performer, or accept the AI plan as-is." },
+    { num: "04", icon: "film", title: "Render your music video", desc: "WizVideo™ animates every scene, syncs cuts to your beats, and renders a complete 1080p music video — ready to download and publish." },
+  ],
+  benefits: [
+    { title: "Storyboard is always free", desc: "Generate a full scene plan for any track at no cost. You only pay when you are ready to render and download." },
+    { title: "Preview before you pay", desc: "See every scene before committing to a render — no surprises, no wasted credits." },
+    { title: "Style consistency across scenes", desc: "Every scene in your video shares the same visual style, colour palette, and character identity — no jarring cuts." },
+    { title: "Lyric and beat sync", desc: "WizSync™ locks every visual cut to your beats and lyric moments — the video feels made for your track." },
+    { title: "No editing experience needed", desc: "WizVideo™ handles storyboarding, animation, sync, and rendering — you just describe your vision and upload your track." },
+    { title: "From £2 per video", desc: "Render a complete music video from as little as £2. No subscription required to get started." },
+  ],
+  keyFeatures: [
+    { icon: "music", title: "Audio Track Upload", desc: "Upload any MP3, WAV, or AAC track. WizVideo™ analyses tempo, mood, and lyrics to build your storyboard automatically." },
+    { icon: "layout", title: "AI Storyboard Engine", desc: "WizCreate™ generates a full scene-by-scene visual plan from your track — timed, structured, and ready to preview." },
+    { icon: "eye", title: "Scene Preview", desc: "Review every scene before rendering. Adjust styles, swap visuals, or accept the AI plan — full creative control." },
+    { icon: "zap", title: "Beat and Lyric Sync", desc: "WizSync™ locks every cut to your beats and lyric moments — the video feels purpose-built for your track." },
+    { icon: "film", title: "Full 1080p Render", desc: "WizVideo™ renders a complete, watermark-free 1080p music video — ready to download and publish anywhere." },
+    { icon: "user", title: "Face-Consistent Performer", desc: "Add WizPerformer™ to feature a consistent AI performer — your face, your character — across every scene." },
+  ],
+  heroImage: `${CDN}/showcase-music-video_678b0f1d.jpg`,
+  related: [
+    { name: "WizCreate™", href: "/products/wizcreate", colour: "violet" },
+    { name: "WizSync™", href: "/products/wizsync-info", colour: "purple" },
+    { name: "WizScore™", href: "/products/wizscore", colour: "teal" },
+    { name: "WizPerformer™", href: "/products/wizperformer", colour: "fuchsia" },
+    { name: "WizSound™", href: "/products/wizsound", colour: "emerald" },
+    { name: "WizLumina™", href: "/products/wizlumina", colour: "amber" },
+  ],
+};
+export function WizVideoLandingPage() {
+  return <ProductPageTemplate {...WIZVIDEO} />;
+}

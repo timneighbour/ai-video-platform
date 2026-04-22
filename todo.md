@@ -5897,3 +5897,12 @@
 - [x] Add WizPerformer to desktop Products dropdown (PublicNavBar.tsx)
 - [x] Add WizPerformer to mobile Products dropdown (PublicNavBar.tsx)
 - [ ] Fix WizScore logo — currently using WizSound logo (pending Tim providing wizscore-logo file)
+
+## Studio Environment Upgrade (User Request: "feel like a real studio")
+- [ ] Audit all active app pages for studio-feel gaps
+- [ ] Upgrade MusicVideoAutopilot (/music-video/create) — full studio environment
+- [ ] Upgrade WizImage (/wiz-image) — full studio environment
+- [ ] Upgrade MusicCreator (/music-creator) — full studio environment
+- [ ] Upgrade WizShorts (/wiz-shorts) — full studio environment
+- [ ] Upgrade TextToVideo (/text-to-video) — full studio environment
+- [ ] TypeScript check and checkpoint after studio upgrades

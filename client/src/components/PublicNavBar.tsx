@@ -71,7 +71,7 @@ const PRODUCTS_CREATE = [
     name: "WizImage",
     tagline: "AI Image & Artwork Creator",
     icon: <WizImageEmblem size={32} />,
-    href: "/wiz-image",
+    href: "/products/wizimage",
     glowColor: "oklch(0.78 0.11 75)",
     bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
     borderColor: "oklch(0.78 0.11 75 / 0.35)",

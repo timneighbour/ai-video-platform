@@ -472,9 +472,9 @@ export default function Create() {
   const remainingTools = TOOLS.slice(1);
 
   return (
-    <div className="min-h-screen bg-[#060606] text-white">
+    <div className="min-h-screen studio-bg text-white">
       {/* NAV */}
-      <nav className="sticky top-0 z-50 bg-[#060606]/95 backdrop-blur-xl border-b border-white/6">
+      <nav className="studio-header sticky top-0 z-50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Home" />
