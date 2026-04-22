@@ -53,7 +53,7 @@ const CDN = "/manus-storage";
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
-const WIZGENESIS_LOGO = `${CDN}/wizimage-logo-v1_83c86e5c.png`;
+const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-new_9814b3d1.png`;
 const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b.png`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
@@ -174,7 +174,7 @@ const WIZ_TECHNOLOGY_CORE = [
 const WIZ_TECHNOLOGY_ADVANCED = [
   { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
   { name: "WizScore", tagline: "Quality Scoring", desc: "Quality checks and improvement scoring before final output.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
-  { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZCREATE_LOGO },
+  { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
 const WIZ_TECHNOLOGY = [...WIZ_TECHNOLOGY_CORE, ...WIZ_TECHNOLOGY_ADVANCED];
 
@@ -879,7 +879,7 @@ function Nav() {
                 <div className="px-3 pb-3 flex flex-col gap-2">
                   {[
                     { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
-                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
+                    { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZGENESIS_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
                     { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
                     { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
                   ].map((tool) => (

@@ -17,7 +17,7 @@ import {
 } from "@/lib/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const WIZGENESIS_LOGO = "/manus-storage/wizimage-logo-v1_83c86e5c.png";
+const WIZGENESIS_LOGO = "/manus-storage/wizgenesis-logo-new_9814b3d1.png";
 
 type Quality = "standard" | "hd" | "4k";
 type EnhanceTier = "standard" | "enhance" | "cinematic";

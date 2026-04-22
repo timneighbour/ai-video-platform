@@ -5889,3 +5889,11 @@
 ## Routing Fixes (Post-Publish)
 - [x] Fix /products/wizimage — add redirect to /wiz-image
 - [x] Fix /products/wizperformer — create premium WizPerformer product page (Option A)
+
+## Logo & Navigation Fixes (Post-Publish)
+- [x] Fix WizGenesis logo — was showing WizImage camera emblem across 7 files
+- [x] Fix WizPilot logo — was showing WizImage camera emblem, now uses WizGenesis logo
+- [x] Fix WizPerformer logo — was showing WizSync logo, now uses WizAnimate logo
+- [x] Add WizPerformer to desktop Products dropdown (PublicNavBar.tsx)
+- [x] Add WizPerformer to mobile Products dropdown (PublicNavBar.tsx)
+- [ ] Fix WizScore logo — currently using WizSound logo (pending Tim providing wizscore-logo file)

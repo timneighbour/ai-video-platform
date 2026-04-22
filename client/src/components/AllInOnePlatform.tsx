@@ -64,7 +64,7 @@ const STEPS = [
   },
   {
     step: 5,
-    iconImg: "/manus-storage/wizimage-logo-v1_83c86e5c.png",
+    iconImg: "/manus-storage/wizgenesis-logo-new_9814b3d1.png",
     icon: Zap,
     title: "Full Video Build",
     desc: "Build your complete video only when you're happy",

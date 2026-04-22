@@ -92,7 +92,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(244,63,94,0.35)]",
     border: "border-rose-500/40",
     bg: "bg-[--color-silver]/10",
-    icon: `${CDN}/wizimage-logo-v1_83c86e5c.png`,
+    icon: `${CDN}/wizgenesis-logo-new_9814b3d1.png`,
     href: "/products/wizgenesis",
   },
   {
