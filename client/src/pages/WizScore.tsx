@@ -205,7 +205,19 @@ export default function WizScore() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-5 py-12">
+      {/* Studio atmosphere hero */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/manus-storage/music-studio-bg_207e72b0.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-[0.18]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/60 via-[#06050a]/40 to-[#06050a] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#06050a]/50 via-transparent to-[#06050a]/50 pointer-events-none" />
+        </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-5 py-16">
         {/* Hero */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-4 py-1.5 mb-6">
@@ -215,7 +227,7 @@ export default function WizScore() {
           <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
             WizScore<span className="text-[--color-gold]">™</span>
           </h1>
-          <p className="text-xl text-white/50 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xl text-white/60 max-w-xl mx-auto leading-relaxed">
             Upload any video. AI analyses the mood, pacing, and energy — then generates a perfectly synced original soundtrack.
           </p>
         </div>
@@ -416,6 +428,7 @@ export default function WizScore() {
           ))}
         </div>
       </div>
+      </div>{/* end studio atmosphere hero */}
     </div>
   );
 }

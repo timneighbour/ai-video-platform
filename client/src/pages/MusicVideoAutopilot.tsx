@@ -1465,8 +1465,8 @@ export default function MusicVideoAutopilot() {
               <WizBrandBadge layer="create" size="md" animated />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Creating Your Storyboard</h2>
-            <p className="text-zinc-400 text-sm mb-8">WizCreate™ is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
-            <div className="w-full bg-zinc-800 rounded-full h-2 mb-8 overflow-hidden">
+            <p className="text-white/50 text-sm mb-8">WizCreate™ is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
+            <div className="w-full bg-[rgba(24,20,16,0.9)] rounded-full h-2 mb-8 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] rounded-full transition-all duration-[3000ms] ease-out"
                 style={{ width: `${Math.min(95, 10 + storyboardStep * 18)}%` }}
@@ -1486,7 +1486,7 @@ export default function MusicVideoAutopilot() {
                   <div key={i} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border ${
                     isDone ? "bg-[--color-silver]/5 border-[--color-silver]/20" :
                     isActive ? "bg-[--color-gold]/15 border-[--color-gold]/30" :
-                    "bg-zinc-900/50 border-zinc-800/50"
+                    "bg-[rgba(12,10,8,0.7)] border-[rgba(184,137,42,0.08)]"
                   }`}>
                     {isDone ? (
                       <CheckCircle2 className="w-4 h-4 text-[--color-silver] shrink-0" />
@@ -1496,7 +1496,7 @@ export default function MusicVideoAutopilot() {
                       <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
                     )}
                     <span className={`text-sm font-medium ${
-                      isDone ? "text-[--color-silver]" : isActive ? "text-[--color-gold]" : "text-zinc-500"
+                      isDone ? "text-[--color-silver]" : isActive ? "text-[--color-gold]" : "text-white/40"
                     }`}>{s.label}</span>
                   </div>
                 );
@@ -1609,14 +1609,14 @@ export default function MusicVideoAutopilot() {
         <div className="max-w-5xl mx-auto px-4 py-3">
           {/* Top nav row: Home + Dashboard links */}
           <div className="flex items-center justify-between mb-3">
-            <NavLink href="/" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+            <NavLink href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Home</span>
             </NavLink>
             <NavLink href="/">
               <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
             </NavLink>
-            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-zinc-400 hover:text-white transition-colors text-sm">
+            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm">
               <LayoutDashboard className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
             </NavLink>
@@ -1635,7 +1635,7 @@ export default function MusicVideoAutopilot() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="studio-led studio-led-green" />
-                  <span className="studio-label text-[10px] text-zinc-600">Systems Online</span>
+                  <span className="studio-label text-[10px] text-white/30">Systems Online</span>
                 </div>
               </div>
             </div>
@@ -1652,7 +1652,7 @@ export default function MusicVideoAutopilot() {
                   YouTube Ready
                 </span>
               </div>
-              <p className="text-zinc-500 text-xs mt-0.5">Upload your song. Describe your vision. We'll create the video.</p>
+              <p className="text-white/40 text-xs mt-0.5">Upload your song. Describe your vision. We'll create the video.</p>
             </div>
             {/* Ambient waveform visualizer */}
             <div className="hidden md:block studio-waveform shrink-0">
@@ -1696,10 +1696,10 @@ export default function MusicVideoAutopilot() {
                           isActive
                             ? "bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30"
                             : isCompleted
-                            ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white cursor-pointer"
+                            ? "bg-[rgba(40,32,24,0.9)] text-white/70 hover:bg-zinc-600 hover:text-white cursor-pointer"
                             : isAccessible
-                            ? "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white cursor-pointer"
-                            : "bg-zinc-900 text-zinc-600 cursor-not-allowed opacity-50"
+                            ? "bg-[rgba(24,20,16,0.9)] text-white/50 hover:bg-[rgba(40,32,24,0.9)] hover:text-white cursor-pointer"
+                            : "bg-[rgba(10,8,6,0.95)] text-white/30 cursor-not-allowed opacity-50"
                         }`}
                       >
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
@@ -1709,7 +1709,7 @@ export default function MusicVideoAutopilot() {
                         </span>
                         <span className="capitalize hidden sm:inline">{STEP_LABELS[s]}</span>
                       </button>
-                      {i < 3 && <ChevronRight className="w-4 h-4 text-zinc-600" />}
+                      {i < 3 && <ChevronRight className="w-4 h-4 text-white/30" />}
                     </div>
                   );
                 })}
@@ -1732,7 +1732,7 @@ export default function MusicVideoAutopilot() {
                     <Users className="w-4 h-4 text-[--color-gold]" />
                     Who's in your video?
                   </CardTitle>
-                  <p className="text-xs text-zinc-500 mt-1">Choose your artist type to optimise character generation and lip sync</p>
+                  <p className="text-xs text-white/40 mt-1">Choose your artist type to optimise character generation and lip sync</p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1754,13 +1754,13 @@ export default function MusicVideoAutopilot() {
                         className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all text-center ${
                           artistType === value
                             ? "border-[--color-gold]/60 bg-[--color-gold]/10 ring-1 ring-[--color-gold]/30"
-                            : "border-zinc-700 bg-zinc-800/50 hover:border-zinc-500 hover:bg-zinc-800"
+                            : "border-[rgba(184,137,42,0.12)] bg-[rgba(20,16,12,0.6)] hover:border-zinc-500 hover:bg-[rgba(24,20,16,0.9)]"
                         }`}
                       >
                         <span className="text-2xl">{icon}</span>
                         <div>
                           <p className={`text-xs font-semibold ${artistType === value ? "text-[--color-gold]" : "text-white"}`}>{label}</p>
-                          <p className="text-[10px] text-zinc-500 mt-0.5">{desc}</p>
+                          <p className="text-[10px] text-white/40 mt-0.5">{desc}</p>
                         </div>
                         {artistType === value && (
                           <Check className="w-3.5 h-3.5 text-[--color-gold]" />
@@ -1775,13 +1775,13 @@ export default function MusicVideoAutopilot() {
               <Card className="studio-card border-0">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex rounded-lg border border-zinc-700 p-1 gap-1">
+                    <div className="flex rounded-lg border border-[rgba(184,137,42,0.12)] p-1 gap-1">
                       <button
                         onClick={() => setAudioSourceTab("upload")}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                           audioSourceTab === "upload"
                             ? "bg-[--color-gold] text-black"
-                            : "text-zinc-400 hover:text-white"
+                            : "text-white/50 hover:text-white"
                         }`}
                       >
                         <Upload className="w-3.5 h-3.5" />
@@ -1792,7 +1792,7 @@ export default function MusicVideoAutopilot() {
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                           audioSourceTab === "generate"
                             ? "bg-[--color-gold] text-black"
-                            : "text-zinc-400 hover:text-white"
+                            : "text-white/50 hover:text-white"
                         }`}
                       >
                         <Sparkles className="w-3.5 h-3.5" />
@@ -1800,7 +1800,7 @@ export default function MusicVideoAutopilot() {
                       </button>
                     </div>
                     {audioSourceTab === "generate" && (
-                      <span className="text-xs text-zinc-500 ml-auto">Powered by WizSound™ AI</span>
+                      <span className="text-xs text-white/40 ml-auto">Powered by WizSound™ AI</span>
                     )}
                   </div>
                 </CardHeader>
@@ -1809,23 +1809,23 @@ export default function MusicVideoAutopilot() {
                   {audioSourceTab === "generate" && (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label className="text-zinc-300">Describe your song</Label>
+                        <Label className="text-white/70">Describe your song</Label>
                         <Textarea
                           placeholder="e.g. Upbeat hip-hop track about chasing dreams, energetic beat, motivational lyrics"
                           value={sunoPrompt}
                           onChange={(e) => setSunoPrompt(e.target.value)}
-                          className="bg-zinc-800 border-zinc-700 text-white resize-none h-20"
+                          className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white resize-none h-20"
                           maxLength={400}
                         />
-                        <p className="text-zinc-600 text-xs text-right">{sunoPrompt.length}/400</p>
+                        <p className="text-white/30 text-xs text-right">{sunoPrompt.length}/400</p>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-zinc-300">Music style / genre <span className="text-zinc-500">(optional)</span></Label>
+                        <Label className="text-white/70">Music style / genre <span className="text-white/40">(optional)</span></Label>
                         <Input
                           placeholder="e.g. trap, lo-fi, cinematic orchestral, pop punk"
                           value={sunoStyle}
                           onChange={(e) => setSunoStyle(e.target.value)}
-                          className="bg-zinc-800 border-zinc-700 text-white"
+                          className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white"
                           maxLength={200}
                         />
                       </div>
@@ -1841,15 +1841,15 @@ export default function MusicVideoAutopilot() {
                         )}
                       </Button>
                       {sunoGenerating && (
-                        <div className="rounded-xl border border-zinc-700 bg-zinc-800/50 p-4 text-center">
+                        <div className="rounded-xl border border-[rgba(184,137,42,0.12)] bg-[rgba(20,16,12,0.6)] p-4 text-center">
                           <Loader2 className="w-8 h-8 text-[--color-gold] mx-auto mb-2 animate-spin" />
-                          <p className="text-zinc-300 text-sm font-medium">Composing your song...</p>
-                          <p className="text-zinc-500 text-xs mt-1">Usually takes 30–60 seconds</p>
+                          <p className="text-white/70 text-sm font-medium">Composing your song...</p>
+                          <p className="text-white/40 text-xs mt-1">Usually takes 30–60 seconds</p>
                         </div>
                       )}
                       {sunoTracks.length > 0 && (
                         <div className="space-y-3">
-                          <Label className="text-zinc-300">Choose a track</Label>
+                          <Label className="text-white/70">Choose a track</Label>
                           {sunoTracks.map((track, idx) => (
                             <div
                               key={idx}
@@ -1857,7 +1857,7 @@ export default function MusicVideoAutopilot() {
                               className={`rounded-xl border p-3 cursor-pointer transition-all ${
                                 selectedSunoTrack === idx
                                   ? "border-[--color-gold] bg-[--color-gold]/10"
-                                  : "border-zinc-700 hover:border-zinc-500"
+                                  : "border-[rgba(184,137,42,0.12)] hover:border-zinc-500"
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -1866,7 +1866,7 @@ export default function MusicVideoAutopilot() {
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <p className="text-white text-sm font-medium truncate">{track.title || `Track ${idx + 1}`}</p>
-                                  {track.duration && <p className="text-zinc-500 text-xs">{formatDuration(Math.round(track.duration))}</p>}
+                                  {track.duration && <p className="text-white/40 text-xs">{formatDuration(Math.round(track.duration))}</p>}
                                 </div>
                                 {selectedSunoTrack === idx && <Check className="w-4 h-4 text-[--color-gold] shrink-0" />}
                               </div>
@@ -1898,7 +1898,7 @@ export default function MusicVideoAutopilot() {
                     className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                       isDragging ? "border-[--color-gold] bg-[--color-gold]/15" :
                       audioFile ? "border-[--color-gold] bg-[--color-gold]/10" :
-                      "border-zinc-700 hover:border-zinc-500"
+                      "border-[rgba(184,137,42,0.12)] hover:border-zinc-500"
                     }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -1919,13 +1919,13 @@ export default function MusicVideoAutopilot() {
                             <Loader2 className="w-10 h-10 text-[--color-gold] mx-auto mb-2 animate-spin" />
                             <p className="text-[--color-gold] font-medium">Uploading & Processing...</p>
                             <Progress value={uploadProgress} className="h-2" />
-                            <p className="text-zinc-400 text-sm text-center">{uploadProgress}% complete</p>
+                            <p className="text-white/50 text-sm text-center">{uploadProgress}% complete</p>
                           </div>
                         ) : (
                           <div>
                             <Check className="w-10 h-10 text-[--color-gold] mx-auto mb-2" />
                             <p className="text-[--color-gold] font-medium">{audioFile.name}</p>
-                            <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-[--color-gold] font-medium" : "text-zinc-400"}`}>
+                            <p className={`text-sm mt-1 ${audioExceedsLimit ? "text-[--color-gold] font-medium" : "text-white/50"}`}>
                               Duration: {formatDuration(audioDuration)}
                               {audioExceedsLimit && ` — exceeds your ${formatDuration(maxVideoSeconds)} plan limit`}
                             </p>
@@ -1937,16 +1937,16 @@ export default function MusicVideoAutopilot() {
                                 subtitle={`${formatDuration(audioDuration)} · ${(audioFile.size / 1024 / 1024).toFixed(1)} MB`}
                                 barCount={32}
                               />
-                              <p className="text-zinc-500 text-xs mt-2 text-center">Click outside to change file</p>
+                              <p className="text-white/40 text-xs mt-2 text-center">Click outside to change file</p>
                             </div>
                           </div>
                         )}
                       </div>
                     ) : (
                       <div>
-                        <Music className="w-10 h-10 text-zinc-500 mx-auto mb-2" />
-                        <p className="text-zinc-300 font-medium">Drop your song here</p>
-                        <p className="text-zinc-500 text-sm mt-1">MP3, WAV, M4A · Max 100MB · Max 6 minutes</p>
+                        <Music className="w-10 h-10 text-white/40 mx-auto mb-2" />
+                        <p className="text-white/70 font-medium">Drop your song here</p>
+                        <p className="text-white/40 text-sm mt-1">MP3, WAV, M4A · Max 100MB · Max 6 minutes</p>
                       </div>
                     )}
                   </div>
@@ -1976,21 +1976,21 @@ export default function MusicVideoAutopilot() {
                   )}
 
                   <div>
-                    <Label className="text-zinc-300">Song Title *</Label>
+                    <Label className="text-white/70">Song Title *</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. Midnight Dreams"
-                      className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                      className="mt-1 bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/40"
                     />
                   </div>
 
                   {/* Lyrics / Transcription Panel — shows as soon as audio is selected */}
                   {transcriptionStatus !== "idle" && (
-                    <div className="rounded-xl border border-zinc-700 overflow-hidden">
+                    <div className="rounded-xl border border-[rgba(184,137,42,0.12)] overflow-hidden">
                       <button
                         type="button"
-                        className="w-full flex items-center justify-between px-4 py-3 bg-zinc-800 hover:bg-zinc-750 transition-colors"
+                        className="w-full flex items-center justify-between px-4 py-3 bg-[rgba(24,20,16,0.9)] hover:bg-[rgba(28,24,20,0.9)] transition-colors"
                         onClick={() => setLyricsExpanded(!lyricsExpanded)}
                       >
                         <div className="flex items-center gap-2">
@@ -2012,22 +2012,22 @@ export default function MusicVideoAutopilot() {
                               Service busy
                             </Badge>
                           ) : (
-                            <Badge className="bg-zinc-700 text-zinc-400 text-xs">Not available</Badge>
+                            <Badge className="bg-[rgba(40,32,24,0.9)] text-white/50 text-xs">Not available</Badge>
                           )}
                         </div>
                         {lyricsExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-zinc-400" />
+                          <ChevronUp className="w-4 h-4 text-white/50" />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-zinc-400" />
+                          <ChevronDown className="w-4 h-4 text-white/50" />
                         )}
                       </button>
                       {lyricsExpanded && (
-                        <div className="px-4 py-3 bg-zinc-900/50">
+                        <div className="px-4 py-3 bg-[rgba(12,10,8,0.7)]">
                           {transcriptionStatus === "done" && transcriptionText ? (
                             <div className="space-y-2">
                               {!isEditingLyrics ? (
                                 <div className="space-y-2">
-                                  <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap font-mono bg-zinc-800/50 p-3 rounded">
+                                  <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap font-mono bg-[rgba(20,16,12,0.6)] p-3 rounded">
                                     {transcriptionText}
                                   </p>
                                   <div className="flex gap-2">
@@ -2055,7 +2055,7 @@ export default function MusicVideoAutopilot() {
                                   <Textarea
                                     value={transcriptionText}
                                     onChange={(e) => setTranscriptionText(e.target.value)}
-                                    className="bg-zinc-800 border-zinc-700 text-white text-sm min-h-[100px]"
+                                    className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white text-sm min-h-[100px]"
                                   />
                                   <div className="flex gap-2">
                                     <Button
@@ -2080,7 +2080,7 @@ export default function MusicVideoAutopilot() {
                               )}
                             </div>
                           ) : transcriptionStatus === "transcribing" ? (
-                            <div className="flex items-center gap-2 text-zinc-400 text-sm py-2">
+                            <div className="flex items-center gap-2 text-white/50 text-sm py-2">
                               <Loader2 className="w-4 h-4 animate-spin text-[--color-gold]" />
                               <span>AI is transcribing your song's lyrics... This takes 30–60 seconds.</span>
                             </div>
@@ -2089,11 +2089,11 @@ export default function MusicVideoAutopilot() {
                               <AlertCircle className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
                               <div>
                                 <p className="text-orange-300 font-medium">AI service temporarily busy</p>
-                                <p className="text-zinc-400 mt-0.5">Lyrics could not be transcribed right now. You can still generate a storyboard from your theme description. Try again in a few minutes.</p>
+                                <p className="text-white/50 mt-0.5">Lyrics could not be transcribed right now. You can still generate a storyboard from your theme description. Try again in a few minutes.</p>
                               </div>
                             </div>
                           ) : (
-                            <p className="text-zinc-500 text-sm py-2">
+                            <p className="text-white/40 text-sm py-2">
                               Could not transcribe lyrics. The storyboard will be generated from your theme description instead.
                             </p>
                           )}
@@ -2115,7 +2115,7 @@ export default function MusicVideoAutopilot() {
                 <CardContent className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <Label className="text-zinc-300">Theme & Concept *</Label>
+                      <Label className="text-white/70">Theme & Concept *</Label>
                       <EnhancePromptButton
                         prompt={themePrompt}
                         genre={genre}
@@ -2127,33 +2127,33 @@ export default function MusicVideoAutopilot() {
                       value={themePrompt}
                       onChange={(e) => setThemePrompt(e.target.value)}
                       placeholder="Describe the visual story you want. E.g. 'A lone astronaut drifting through a neon galaxy, searching for home. Dark and cinematic with purple and blue tones. Emotional and introspective.'"
-                      className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 min-h-[120px]"
+                      className="mt-1 bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/40 min-h-[120px]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-zinc-300">Genre</Label>
+                      <Label className="text-white/70">Genre</Label>
                       <Input
                         value={genre}
                         onChange={(e) => setGenre(e.target.value)}
                         placeholder="e.g. Indie Rock, EDM, R&B"
-                        className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                        className="mt-1 bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/40"
                       />
                     </div>
                     <div>
-                      <Label className="text-zinc-300">Mood</Label>
+                      <Label className="text-white/70">Mood</Label>
                       <Input
                         value={mood}
                         onChange={(e) => setMood(e.target.value)}
                         placeholder="e.g. Dark, Euphoric, Melancholic"
-                        className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                        className="mt-1 bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/40"
                       />
                     </div>
                   </div>
 
                   {/* Video Style Picker */}
                   <div>
-                    <Label className="text-zinc-300 mb-3 block">Video Style</Label>
+                    <Label className="text-white/70 mb-3 block">Video Style</Label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {VIDEO_STYLES.map((style) => (
                         <button
@@ -2188,12 +2188,12 @@ export default function MusicVideoAutopilot() {
                           </div>
                           {/* Label */}
                           <div className={`px-3 py-2 ${
-                            selectedStyle === style.id ? "bg-[--color-gold]/15" : "bg-zinc-800"
+                            selectedStyle === style.id ? "bg-[--color-gold]/15" : "bg-[rgba(24,20,16,0.9)]"
                           }`}>
                             <p className={`text-sm font-semibold ${
                               selectedStyle === style.id ? "text-[--color-gold]" : "text-white"
                             }`}>{style.label}</p>
-                            <p className="text-xs text-zinc-400">{style.desc}</p>
+                            <p className="text-xs text-white/50">{style.desc}</p>
                           </div>
                         </button>
                       ))}
@@ -2208,9 +2208,9 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <span className="text-xl text-[--color-gold]">&#9679;</span>
                     Locations & Scene Settings
-                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional</Badge>
+                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional</Badge>
                   </CardTitle>
-                  <p className="text-zinc-500 text-xs mt-1">
+                  <p className="text-white/40 text-xs mt-1">
                     Describe where your video takes place. The AI will use these as the primary visual environments across scenes.
                   </p>
                 </CardHeader>
@@ -2219,7 +2219,7 @@ export default function MusicVideoAutopilot() {
                     value={sceneSetting}
                     onChange={(e) => setSceneSetting(e.target.value)}
                     placeholder={`Describe the locations and environments for your video.\n\nExamples:\n• Concert venue with dramatic stage lighting\n• Desert at golden hour, sand dunes\n• Rooftop at night with city skyline\n• Neon-lit underground club\n• Forest clearing with dappled sunlight\n• Multiple: concert stage, backstage corridor, crowd shots`}
-                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-600 min-h-[110px] text-sm resize-none"
+                    className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/30 min-h-[110px] text-sm resize-none"
                     rows={5}
                   />
                   {/* Quick-pick location chips */}
@@ -2254,7 +2254,7 @@ export default function MusicVideoAutopilot() {
                           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                             isSelected
                               ? "bg-[--color-gold]/15 border-[--color-gold] text-[--color-gold]"
-                              : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+                              : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white/50 hover:border-zinc-500 hover:text-zinc-200"
                           }`}
                         >
                           {loc}
@@ -2271,9 +2271,9 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <ImageIcon className="w-5 h-5 text-[--color-gold]" />
                     Visual References
-                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional · Up to 3</Badge>
+                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional · Up to 3</Badge>
                   </CardTitle>
-                  <p className="text-zinc-500 text-xs mt-1">
+                  <p className="text-white/40 text-xs mt-1">
                     Upload photos or short video clips to guide the AI's visual style. These are used as inspiration for colour palette, mood, and aesthetic — not as source footage.
                   </p>
                 </CardHeader>
@@ -2282,13 +2282,13 @@ export default function MusicVideoAutopilot() {
                   {contextAssets.length > 0 && (
                     <div className="grid grid-cols-3 gap-2">
                       {contextAssets.map((asset, i) => (
-                        <div key={i} className="relative group rounded-lg overflow-hidden border border-zinc-700 aspect-video bg-zinc-800">
+                        <div key={i} className="relative group rounded-lg overflow-hidden border border-[rgba(184,137,42,0.12)] aspect-video bg-[rgba(24,20,16,0.9)]">
                           {asset.type === "image" ? (
                             <img src={asset.url} alt={`Reference ${i + 1}`} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Film className="w-8 h-8 text-zinc-400" />
-                              <span className="text-xs text-zinc-400 ml-1">Video</span>
+                              <Film className="w-8 h-8 text-white/50" />
+                              <span className="text-xs text-white/50 ml-1">Video</span>
                             </div>
                           )}
                           <button
@@ -2298,7 +2298,7 @@ export default function MusicVideoAutopilot() {
                           >
                             <X className="w-3.5 h-3.5 text-white" />
                           </button>
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-xs text-zinc-300 px-1.5 py-0.5 text-center">
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-xs text-white/70 px-1.5 py-0.5 text-center">
                             {asset.type === "image" ? "Image" : "Video"}
                           </div>
                         </div>
@@ -2307,7 +2307,7 @@ export default function MusicVideoAutopilot() {
                   )}
                   {/* Upload button */}
                   {contextAssets.length < 3 && (
-                    <label className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-zinc-700 rounded-lg py-4 cursor-pointer transition-colors hover:border-zinc-500 hover:bg-zinc-800/50 ${
+                    <label className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-[rgba(184,137,42,0.12)] rounded-lg py-4 cursor-pointer transition-colors hover:border-zinc-500 hover:bg-[rgba(20,16,12,0.6)] ${
                       contextAssetUploading ? "opacity-50 pointer-events-none" : ""
                     }`}>
                       <input
@@ -2322,14 +2322,14 @@ export default function MusicVideoAutopilot() {
                         disabled={contextAssetUploading || !jobId}
                       />
                       {contextAssetUploading ? (
-                        <><Loader2 className="w-4 h-4 animate-spin text-zinc-400" /><span className="text-zinc-400 text-sm">Uploading…</span></>
+                        <><Loader2 className="w-4 h-4 animate-spin text-white/50" /><span className="text-white/50 text-sm">Uploading…</span></>
                       ) : (
-                        <><Upload className="w-4 h-4 text-zinc-400" /><span className="text-zinc-400 text-sm">{contextAssets.length === 0 ? "Upload a photo or video clip" : `Add another (${contextAssets.length}/3)`}</span></>
+                        <><Upload className="w-4 h-4 text-white/50" /><span className="text-white/50 text-sm">{contextAssets.length === 0 ? "Upload a photo or video clip" : `Add another (${contextAssets.length}/3)`}</span></>
                       )}
                     </label>
                   )}
                   {!jobId && (
-                    <p className="text-xs text-zinc-600 text-center">Upload your audio first to enable visual references</p>
+                    <p className="text-xs text-white/30 text-center">Upload your audio first to enable visual references</p>
                   )}
                 </CardContent>
               </Card>
@@ -2340,9 +2340,9 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <User className="w-5 h-5 text-[--color-gold]" />
                     Characters
-                    <Badge variant="outline" className="border-zinc-600 text-zinc-400 text-xs ml-1">Optional · Up to 4</Badge>
+                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional · Up to 4</Badge>
                   </CardTitle>
-                  <p className="text-zinc-500 text-xs mt-1">
+                  <p className="text-white/40 text-xs mt-1">
                     Upload photos of real people or describe AI-generated characters. Each will appear consistently across all scenes.
                   </p>
                 </CardHeader>
@@ -2367,28 +2367,28 @@ export default function MusicVideoAutopilot() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-zinc-400 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Duration</span>
+                    <span className="text-white/50 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Duration</span>
                     <span className="text-white">{audioDuration > 0 ? formatDuration(audioDuration) : "—"}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-zinc-400 flex items-center gap-1.5"><Film className="w-4 h-4" /> Scenes</span>
+                    <span className="text-white/50 flex items-center gap-1.5"><Film className="w-4 h-4" /> Scenes</span>
                     <span className="text-white">{sceneCount > 0 ? sceneCount : "—"}</span>
                   </div>
                   {/* Credit cost breakdown */}
                   {audioDuration > 0 && (
-                    <div className="border-t border-zinc-800 pt-3 space-y-2">
-                      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Credit Breakdown</p>
+                    <div className="border-t border-[rgba(184,137,42,0.10)] pt-3 space-y-2">
+                      <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">Credit Breakdown</p>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-zinc-400 flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> Standard video</span>
+                        <span className="text-white/50 flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> Standard video</span>
                         <span className="text-white">{creditBreakdown.base} Credits</span>
                       </div>
                       {hasLipSync && (
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-zinc-400 flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> Lip sync</span>
+                          <span className="text-white/50 flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> Lip sync</span>
                           <span className="text-[--color-silver]">+{creditBreakdown.lipSync} Credits</span>
                         </div>
                       )}
-                      <div className="flex items-center justify-between text-sm border-t border-zinc-800 pt-2 mt-1">
+                      <div className="flex items-center justify-between text-sm border-t border-[rgba(184,137,42,0.10)] pt-2 mt-1">
                         <span className="text-zinc-200 font-semibold">Total</span>
                         <span className="text-[--color-gold] font-bold">{creditBreakdown.total} Credits</span>
                       </div>
@@ -2396,11 +2396,11 @@ export default function MusicVideoAutopilot() {
                   )}
                   {characters.length > 0 && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-zinc-400 flex items-center gap-1.5"><User className="w-4 h-4" /> Characters</span>
+                      <span className="text-white/50 flex items-center gap-1.5"><User className="w-4 h-4" /> Characters</span>
                       <span className="text-[--color-gold]">{characters.length} added</span>
                     </div>
                   )}
-                  <div className="border-t border-zinc-800 pt-3 text-xs text-zinc-500">
+                  <div className="border-t border-[rgba(184,137,42,0.10)] pt-3 text-xs text-white/40">
                     Storyboard generation is always free. Pay only when you build your final video &amp; download.
                   </div>
                 </CardContent>
@@ -2413,7 +2413,7 @@ export default function MusicVideoAutopilot() {
                     <Download className="w-4 h-4 text-[--color-gold]" />
                     <p className="text-[--color-gold] text-sm font-medium">Create free, pay to build</p>
                   </div>
-                  <p className="text-zinc-400 text-xs leading-relaxed">
+                  <p className="text-white/50 text-xs leading-relaxed">
                     Building your storyboard is completely free. You only pay when you're ready to build and download your finished video.
                   </p>
                 </CardContent>
@@ -2421,7 +2421,7 @@ export default function MusicVideoAutopilot() {
               <Card className="bg-gradient-to-br from-[#b8892a]/40 to-[#2e2e36]/40 border-[--color-gold]/30">
                 <CardContent className="pt-4 pb-4">
                   <p className="text-[--color-gold] text-sm font-medium mb-1">How it works</p>
-                  <ol className="text-zinc-400 text-xs space-y-1.5 list-decimal list-inside">
+                  <ol className="text-white/50 text-xs space-y-1.5 list-decimal list-inside">
                     <li>Upload your song & describe your vision</li>
                     <li>AI transcribes lyrics & generates a free storyboard</li>
                     <li>Review & edit any scene prompts</li>
@@ -2502,7 +2502,7 @@ export default function MusicVideoAutopilot() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-white">Your Storyboard</h2>
-                <p className="text-zinc-400 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before building</p>
+                <p className="text-white/50 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before building</p>
               </div>
               <div className="flex items-center gap-3">
                 {/* Credit balance badge */}
@@ -2525,7 +2525,7 @@ export default function MusicVideoAutopilot() {
                 )}
                 <Button
                   variant="outline"
-                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
+                  className="border-[rgba(184,137,42,0.12)] text-white/70 hover:bg-[rgba(24,20,16,0.9)] bg-transparent"
                   onClick={() => {
                     // Storyboard is already auto-saved in DB (status: storyboard_ready).
                     // Navigate to MyProjects so user can return later.
@@ -2541,7 +2541,7 @@ export default function MusicVideoAutopilot() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent"
+                  className="border-[rgba(184,137,42,0.12)] text-white/70 hover:bg-[rgba(24,20,16,0.9)] bg-transparent"
                   onClick={handleRegenerateStoryboard}
                   disabled={generateStoryboardMutation.isPending}
                 >
@@ -2571,7 +2571,7 @@ export default function MusicVideoAutopilot() {
               <div className="flex items-center gap-2 mb-3">
                 <Monitor className="w-4 h-4 text-[--color-silver]" />
                 <span className="text-sm font-semibold text-white">Export Format</span>
-                <span className="text-xs text-zinc-500 ml-1">Choose your target platform</span>
+                <span className="text-xs text-white/40 ml-1">Choose your target platform</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {([
@@ -2585,7 +2585,7 @@ export default function MusicVideoAutopilot() {
                     className={`relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${
                       exportFormat === fmt.value
                         ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                        : "border-zinc-700 bg-zinc-800/40 hover:border-zinc-600 hover:bg-zinc-800/70"
+                        : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600 hover:bg-[rgba(24,20,16,0.9)]/70"
                     }`}
                   >
                     {/* Aspect ratio visual */}
@@ -2601,7 +2601,7 @@ export default function MusicVideoAutopilot() {
                     </div>
                     <div className="text-center">
                       <div className={`text-xs font-bold ${exportFormat === fmt.value ? "text-[--color-gold]" : "text-white"}`}>{fmt.label}</div>
-                      <div className="text-[10px] text-zinc-500 mt-0.5">{fmt.sub}</div>
+                      <div className="text-[10px] text-white/40 mt-0.5">{fmt.sub}</div>
                     </div>
                     {exportFormat === fmt.value && (
                       <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center">
@@ -2623,21 +2623,21 @@ export default function MusicVideoAutopilot() {
             </div>
 
             {/* Global Lip Sync Control */}
-            <div className="mb-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-[rgba(184,137,42,0.10)] bg-[rgba(10,8,6,0.95)]/60 px-4 py-3">
               <div className="flex items-center gap-3">
                 <Mic className="w-4 h-4 text-[--color-silver]" />
                 <div>
                   <p className="text-sm font-medium text-white">Lip Sync — All Scenes</p>
-                  <p className="text-xs text-zinc-500">Control when characters sing or stay cinematic</p>
+                  <p className="text-xs text-white/40">Control when characters sing or stay cinematic</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Button
                   size="sm"
                   variant="outline"
-                  className={`text-xs border-zinc-700 bg-transparent ${
-                    globalLipSync === false ? "border-zinc-500 text-zinc-300" : "text-zinc-500"
-                  } hover:bg-zinc-800`}
+                  className={`text-xs border-[rgba(184,137,42,0.12)] bg-transparent ${
+                    globalLipSync === false ? "border-zinc-500 text-white/70" : "text-white/40"
+                  } hover:bg-[rgba(24,20,16,0.9)]`}
                   onClick={() => handleGlobalLipSyncToggle(false)}
                   disabled={updateAllScenesLipSyncMutation.isPending}
                 >
@@ -2646,9 +2646,9 @@ export default function MusicVideoAutopilot() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className={`text-xs border-zinc-700 bg-transparent ${
-                    globalLipSync === true ? "border-[--color-gold] text-[--color-gold]" : "text-zinc-500"
-                  } hover:bg-zinc-800`}
+                  className={`text-xs border-[rgba(184,137,42,0.12)] bg-transparent ${
+                    globalLipSync === true ? "border-[--color-gold] text-[--color-gold]" : "text-white/40"
+                  } hover:bg-[rgba(24,20,16,0.9)]`}
                   onClick={() => handleGlobalLipSyncToggle(true)}
                   disabled={updateAllScenesLipSyncMutation.isPending}
                 >
@@ -2663,19 +2663,19 @@ export default function MusicVideoAutopilot() {
             </div>
 
             {/* Caption / Lyric Sync Toggle */}
-            <div className="mb-4 flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-[rgba(184,137,42,0.10)] bg-[rgba(10,8,6,0.95)]/60 px-4 py-3">
               <div className="flex items-center gap-3">
                 <Captions className="w-4 h-4 text-[--color-silver]" />
                 <div>
                   <p className="text-sm font-medium text-white">Lyric Captions</p>
-                  <p className="text-xs text-zinc-500">Burn synced lyrics onto the final video</p>
+                  <p className="text-xs text-white/40">Burn synced lyrics onto the final video</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIncludeCaptions(!includeCaptions)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                  includeCaptions ? "bg-[--color-gold]" : "bg-zinc-700"
+                  includeCaptions ? "bg-[--color-gold]" : "bg-[rgba(40,32,24,0.9)]"
                 }`}
                 aria-checked={includeCaptions}
                 role="switch"
@@ -2690,11 +2690,11 @@ export default function MusicVideoAutopilot() {
 
             {/* Character Reference Panel */}
             {jobCharacters.some(c => c.isLocked) && (
-              <div className="mb-4 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-4">
+              <div className="mb-4 rounded-xl border border-[rgba(184,137,42,0.10)] bg-[rgba(10,8,6,0.95)]/60 px-4 py-4">
                 <div className="flex items-center gap-2 mb-3">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                   <span className="text-sm font-semibold text-white">Characters in this video</span>
-                  <span className="text-xs text-zinc-500 ml-1">Locked appearances enforced in every scene</span>
+                  <span className="text-xs text-white/40 ml-1">Locked appearances enforced in every scene</span>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {jobCharacters.filter(c => c.isLocked).map((char) => {
@@ -2740,7 +2740,7 @@ export default function MusicVideoAutopilot() {
                                   setEditingRoleCharId(null);
                                 }
                               }}
-                              className="text-[10px] bg-zinc-800 border border-zinc-600 rounded px-2 py-0.5 text-white w-28 focus:outline-none focus:border-emerald-500"
+                              className="text-[10px] bg-[rgba(24,20,16,0.9)] border border-zinc-600 rounded px-2 py-0.5 text-white w-28 focus:outline-none focus:border-emerald-500"
                               placeholder="e.g. Lead Singer"
                             />
                             <button
@@ -2754,7 +2754,7 @@ export default function MusicVideoAutopilot() {
                             >
                               <Check className="w-3 h-3" />
                             </button>
-                            <button onClick={() => setEditingRoleCharId(null)} className="text-zinc-500 hover:text-zinc-300 text-[10px] px-1">
+                            <button onClick={() => setEditingRoleCharId(null)} className="text-white/40 hover:text-white/70 text-[10px] px-1">
                               <X className="w-3 h-3" />
                             </button>
                           </div>
@@ -2768,13 +2768,13 @@ export default function MusicVideoAutopilot() {
                             <span className="text-[10px] text-[--color-gold]/70 group-hover/role:text-[--color-gold] transition-colors">
                               {char.lockedRole ?? char.role ?? "Performer"}
                             </span>
-                            <Pencil className="w-2.5 h-2.5 text-zinc-600 group-hover/role:text-zinc-400 transition-colors ml-0.5" />
+                            <Pencil className="w-2.5 h-2.5 text-white/30 group-hover/role:text-white/50 transition-colors ml-0.5" />
                           </button>
                         )}
                         {/* Show a truncated snippet of the locked description as a visual cue */}
                         {char.lockedDescription && (
                           <p
-                            className="text-[10px] text-zinc-500 truncate max-w-[200px] mt-1"
+                            className="text-[10px] text-white/40 truncate max-w-[200px] mt-1"
                             title={char.lockedDescription}
                           >
                             {char.lockedDescription.slice(0, 70)}{char.lockedDescription.length > 70 ? "…" : ""}
@@ -2799,7 +2799,7 @@ export default function MusicVideoAutopilot() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 text-xs shrink-0 gap-1"
+                  className="text-white/50 hover:text-white hover:bg-[rgba(24,20,16,0.9)] text-xs shrink-0 gap-1"
                   onClick={handleUnlockStyle}
                   disabled={unlockStyleMutation.isPending}
                 >
@@ -2816,9 +2816,9 @@ export default function MusicVideoAutopilot() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
-                  <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-600 transition-colors overflow-hidden">
+                  <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
                   {/* Scene preview image */}
-                  <div className="relative w-full aspect-video bg-zinc-800">
+                  <div className="relative w-full aspect-video bg-[rgba(24,20,16,0.9)]">
                     {scene.previewImageUrl ? (
                       <img
                         src={scene.previewImageUrl}
@@ -2845,19 +2845,19 @@ export default function MusicVideoAutopilot() {
                         {scene.previewImageLoading ? (
                           <div className="flex flex-col items-center gap-2 px-3 text-center">
                             <Loader2 className="w-6 h-6 text-[--color-gold] animate-spin" />
-                            <span className="text-zinc-400 text-xs font-medium">
+                            <span className="text-white/50 text-xs font-medium">
                               {editingSceneId === scene.id ? "AI is regenerating your scene..." : "Generating preview..."}
                             </span>
                             {editingSceneId !== scene.id && scene.previewImageLoading && (
-                              <span className="text-zinc-600 text-[10px] leading-tight">
+                              <span className="text-white/30 text-[10px] leading-tight">
                                 Edit the description below to change this scene
                               </span>
                             )}
                           </div>
                         ) : (
                           <div className="flex flex-col items-center gap-2">
-                            <Film className="w-6 h-6 text-zinc-600" />
-                            <span className="text-zinc-600 text-xs">No preview</span>
+                            <Film className="w-6 h-6 text-white/30" />
+                            <span className="text-white/30 text-xs">No preview</span>
                           </div>
                         )}
                       </div>
@@ -2867,7 +2867,7 @@ export default function MusicVideoAutopilot() {
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 rounded-t-lg pointer-events-none">
                         <Loader2 className="w-7 h-7 text-[--color-gold] animate-spin" />
                         <span className="text-white text-xs font-medium">AI regenerating scene...</span>
-                        <span className="text-zinc-400 text-[10px]">Applying your description</span>
+                        <span className="text-white/50 text-[10px]">Applying your description</span>
                       </div>
                     )}
                     {/* Scene number overlay */}
@@ -2921,7 +2921,7 @@ export default function MusicVideoAutopilot() {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {scene.visualStyle && (
-                          <Badge variant="outline" className="border-zinc-700 text-zinc-400 text-xs">
+                          <Badge variant="outline" className="border-[rgba(184,137,42,0.12)] text-white/50 text-xs">
                             {scene.visualStyle}
                           </Badge>
                         )}
@@ -2931,7 +2931,7 @@ export default function MusicVideoAutopilot() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          className="text-white/30 hover:text-white/70 hover:bg-[rgba(24,20,16,0.9)] h-7 w-7 p-0 shrink-0"
                           onClick={() => handleReorderScene(scene.id, "up")}
                           disabled={scene.sceneIndex === 0 || reorderSceneMutation.isPending}
                           title="Move scene up"
@@ -2941,7 +2941,7 @@ export default function MusicVideoAutopilot() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          className="text-white/30 hover:text-white/70 hover:bg-[rgba(24,20,16,0.9)] h-7 w-7 p-0 shrink-0"
                           onClick={() => handleReorderScene(scene.id, "down")}
                           disabled={scene.sceneIndex === scenes.length - 1 || reorderSceneMutation.isPending}
                           title="Move scene down"
@@ -2951,7 +2951,7 @@ export default function MusicVideoAutopilot() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-zinc-500 hover:text-[--color-gold] hover:bg-zinc-800 h-7 w-7 p-0 shrink-0"
+                          className="text-white/40 hover:text-[--color-gold] hover:bg-[rgba(24,20,16,0.9)] h-7 w-7 p-0 shrink-0"
                           onClick={() => handleRegenerateScene(scene.id)}
                           disabled={scene.regenerating || regenerateSceneMutation.isPending}
                           title="Regenerate this scene"
@@ -2965,7 +2965,7 @@ export default function MusicVideoAutopilot() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-zinc-600 hover:text-red-400 hover:bg-red-950/30 h-7 w-7 p-0 shrink-0"
+                          className="text-white/30 hover:text-red-400 hover:bg-red-950/30 h-7 w-7 p-0 shrink-0"
                           onClick={() => handleDeleteScene(scene.id)}
                           disabled={deleteSceneMutation.isPending || scenes.length <= 1}
                           title="Delete this scene"
@@ -2980,8 +2980,8 @@ export default function MusicVideoAutopilot() {
                     {/* Always-visible scene description editor */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-1.5 mb-1">
-                        <Pencil className="w-3 h-3 text-zinc-500" />
-                        <span className="text-zinc-500 text-xs font-medium">Scene description</span>
+                        <Pencil className="w-3 h-3 text-white/40" />
+                        <span className="text-white/40 text-xs font-medium">Scene description</span>
                       </div>
                       <Textarea
                         value={editingSceneId === scene.id ? editPrompt : scene.prompt}
@@ -2998,7 +2998,7 @@ export default function MusicVideoAutopilot() {
                           }
                         }}
                         placeholder="Describe this scene — mood, lighting, setting, character actions..."
-                        className="bg-zinc-800/60 border-zinc-700 text-white text-xs min-h-[80px] placeholder:text-zinc-600 resize-none focus:border-[--color-gold] transition-colors"
+                        className="bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-white text-xs min-h-[80px] placeholder:text-white/30 resize-none focus:border-[--color-gold] transition-colors"
                         rows={3}
                       />
                       {editingSceneId === scene.id && editPrompt !== scene.prompt && (
@@ -3016,7 +3016,7 @@ export default function MusicVideoAutopilot() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 text-xs h-7"
+                            className="border-[rgba(184,137,42,0.12)] text-white/50 hover:bg-[rgba(24,20,16,0.9)] text-xs h-7"
                             onClick={() => { setEditingSceneId(null); setEditPrompt(""); }}
                           >
                             <X className="w-3 h-3 mr-1" /> Cancel
@@ -3027,7 +3027,7 @@ export default function MusicVideoAutopilot() {
 
                     {/* @Character tags + per-scene character selector */}
                     {jobCharacters.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-zinc-800/60">
+                      <div className="mt-2 pt-2 border-t border-[rgba(184,137,42,0.10)]/60">
                         <div className="flex flex-wrap items-center gap-1.5">
                           {/* Assigned character tags */}
                           {(scene.characterAssignments ?? []).map((name) => {
@@ -3074,14 +3074,14 @@ export default function MusicVideoAutopilot() {
                             <button
                               type="button"
                               onClick={() => setCharacterSelectorSceneId(characterSelectorSceneId === scene.id ? null : scene.id)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-500 border border-zinc-700 hover:border-zinc-500 hover:text-zinc-300 transition-colors"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(24,20,16,0.9)] text-white/40 border border-[rgba(184,137,42,0.12)] hover:border-zinc-500 hover:text-white/70 transition-colors"
                             >
                               <User className="w-2.5 h-2.5" />
                               {(scene.characterAssignments ?? []).length === 0 ? "Add character" : "+"}
                             </button>
                             {/* Dropdown */}
                             {characterSelectorSceneId === scene.id && (
-                              <div className="absolute left-0 top-7 z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl min-w-[160px] py-1">
+                              <div className="absolute left-0 top-7 z-50 bg-[rgba(10,8,6,0.95)] border border-[rgba(184,137,42,0.12)] rounded-lg shadow-xl min-w-[160px] py-1">
                                 {jobCharacters.map((char: any) => {
                                   const isAssigned = (scene.characterAssignments ?? []).includes(char.name);
                                   return (
@@ -3092,19 +3092,19 @@ export default function MusicVideoAutopilot() {
                                       className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition-colors ${
                                         isAssigned
                                           ? "text-[--color-gold] bg-[--color-gold]/15 hover:bg-[--color-gold]/15"
-                                          : "text-zinc-300 hover:bg-zinc-800"
+                                          : "text-white/70 hover:bg-[rgba(24,20,16,0.9)]"
                                       }`}
                                     >
-                                      {isAssigned ? <CheckCircle2 className="w-3 h-3 text-[--color-gold]" /> : <User className="w-3 h-3 text-zinc-500" />}
+                                      {isAssigned ? <CheckCircle2 className="w-3 h-3 text-[--color-gold]" /> : <User className="w-3 h-3 text-white/40" />}
                                       @{char.name}
-                                      {char.role && <span className="text-zinc-600 ml-auto">{char.role}</span>}
+                                      {char.role && <span className="text-white/30 ml-auto">{char.role}</span>}
                                     </button>
                                   );
                                 })}
                                 <button
                                   type="button"
                                   onClick={() => setCharacterSelectorSceneId(null)}
-                                  className="w-full text-left px-3 py-2 text-xs text-zinc-600 hover:bg-zinc-800 border-t border-zinc-800 mt-1"
+                                  className="w-full text-left px-3 py-2 text-xs text-white/30 hover:bg-[rgba(24,20,16,0.9)] border-t border-[rgba(184,137,42,0.10)] mt-1"
                                 >
                                   Close
                                 </button>
@@ -3116,19 +3116,19 @@ export default function MusicVideoAutopilot() {
                     )}
 
                     {/* Lip Sync toggle + style selector */}
-                    <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2.5">
+                    <div className="mt-3 pt-3 border-t border-[rgba(184,137,42,0.10)] space-y-2.5">
                       {/* Toggle row */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-[--color-silver]" : "text-zinc-600"}`} />
-                          <span className={`text-xs font-medium ${scene.lipSync ? "text-[--color-silver]" : "text-zinc-500"}`}>
+                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-[--color-silver]" : "text-white/30"}`} />
+                          <span className={`text-xs font-medium ${scene.lipSync ? "text-[--color-silver]" : "text-white/40"}`}>
                             Lip Sync
                           </span>
                           <Badge
                             className={`text-xs px-1.5 py-0 ${
                               scene.lipSync
                                 ? "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20"
-                                : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                                : "bg-[rgba(24,20,16,0.9)] text-white/40 border-[rgba(184,137,42,0.12)]"
                             }`}
                           >
                             {scene.lipSync ? "ON" : "OFF"}
@@ -3144,7 +3144,7 @@ export default function MusicVideoAutopilot() {
                       {/* Style selector — only shown when lip sync is ON */}
                       {scene.lipSync && (
                           <div className="space-y-1">
-                            <p className="text-[10px] text-zinc-500 uppercase tracking-wide font-medium">Style</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-wide font-medium">Style</p>
                             <ToggleGroup
                               type="single"
                               value={scene.lipSyncStyle}
@@ -3168,7 +3168,7 @@ export default function MusicVideoAutopilot() {
                                       className={`text-[10px] px-2 py-0.5 h-6 rounded-full border transition-all ${
                                         scene.lipSyncStyle === value
                                           ? "bg-[--color-silver]/10 border-[--color-silver]/40 text-[--color-silver] font-semibold"
-                                          : "bg-zinc-800/60 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-300"
+                                          : "bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-white/50 hover:border-zinc-500 hover:text-white/70"
                                       }`}
                                     >
                                       {label}
@@ -3193,7 +3193,7 @@ export default function MusicVideoAutopilot() {
                     onClick={() => handleAddScene(scene.sceneIndex)}
                     disabled={addSceneMutation.isPending}
                     title="Insert a new scene after this one"
-                    className="group flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-zinc-600 hover:text-[--color-gold] hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition-all disabled:opacity-40"
+                    className="group flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-white/30 hover:text-[--color-gold] hover:bg-[rgba(24,20,16,0.9)] border border-transparent hover:border-[rgba(184,137,42,0.12)] transition-all disabled:opacity-40"
                   >
                     {addSceneMutation.isPending ? (
                       <Loader2 className="w-3 h-3 animate-spin" />
@@ -3222,7 +3222,7 @@ export default function MusicVideoAutopilot() {
         {/* ===== STEP 3: RENDER ===== */}
         {step === "render" && (
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)]">
               <CardContent className="pt-8 pb-8">
                 {renderStatus === "completed" && finalVideoUrl ? (
                   <PostRenderRetentionScreen
@@ -3247,7 +3247,7 @@ export default function MusicVideoAutopilot() {
                     </div>
 
                     <h2 className="text-3xl font-bold text-white mb-2">Your story just came to life</h2>
-                    <p className="text-zinc-400 mb-3 text-lg">All {totalScenes} scenes rendered and assembled with your audio track.</p>
+                    <p className="text-white/50 mb-3 text-lg">All {totalScenes} scenes rendered and assembled with your audio track.</p>
                     <div className="flex items-center justify-center gap-2 mb-6 flex-wrap">
                       <WizBrandPostBadge layer="render" />
                       <WizBrandPostBadge layer="sound" />
@@ -3305,7 +3305,7 @@ export default function MusicVideoAutopilot() {
                       </Button>
                       <Button
                         variant="outline"
-                        className="border-zinc-700/50 text-zinc-400 bg-transparent hover:bg-zinc-800 px-4 h-12 text-sm"
+                        className="border-[rgba(184,137,42,0.12)]/50 text-white/50 bg-transparent hover:bg-[rgba(24,20,16,0.9)] px-4 h-12 text-sm"
                         title="Copy direct video link"
                         onClick={() => {
                           if (!finalVideoUrl) return;
@@ -3328,14 +3328,14 @@ export default function MusicVideoAutopilot() {
                     {/* Upsell panel — multi-select with Stripe checkout */}
                     <div className="rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 to-zinc-900 p-6">
                       <h3 className="text-lg font-semibold text-[--color-gold] mb-1">Want to upgrade it?</h3>
-                      <p className="text-sm text-zinc-400 mb-4">Select add-ons and checkout — or download as-is</p>
+                      <p className="text-sm text-white/50 mb-4">Select add-ons and checkout — or download as-is</p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                         {/* Cinematic Scenes */}
                         <button
                           className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
                             upsellAddons.cinematicScenes
                               ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/30"
-                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-[--color-gold]/30"
+                              : "border-[rgba(184,137,42,0.12)]/50 bg-[rgba(20,16,12,0.6)] hover:bg-[rgba(24,20,16,0.9)] hover:border-[--color-gold]/30"
                           }`}
                           onClick={() => setUpsellAddons(prev => ({ ...prev, cinematicScenes: !prev.cinematicScenes }))}
                         >
@@ -3346,7 +3346,7 @@ export default function MusicVideoAutopilot() {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-white">Cinematic Scenes</p>
-                            <p className="text-xs text-zinc-500">+\u00a35</p>
+                            <p className="text-xs text-white/40">+\u00a35</p>
                           </div>
                           {upsellAddons.cinematicScenes && <Check className="w-4 h-4 text-[--color-gold]" />}
                         </button>
@@ -3355,7 +3355,7 @@ export default function MusicVideoAutopilot() {
                           className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
                             upsellAddons.upgrade4K
                               ? "border-[--color-gold]/30 bg-[--color-gold]/15 ring-1 ring-amber-500/30"
-                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-[--color-gold]/30"
+                              : "border-[rgba(184,137,42,0.12)]/50 bg-[rgba(20,16,12,0.6)] hover:bg-[rgba(24,20,16,0.9)] hover:border-[--color-gold]/30"
                           }`}
                           onClick={() => setUpsellAddons(prev => ({ ...prev, upgrade4K: !prev.upgrade4K }))}
                         >
@@ -3366,7 +3366,7 @@ export default function MusicVideoAutopilot() {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-white">Upgrade to 4K</p>
-                            <p className="text-xs text-zinc-500">+\u00a33</p>
+                            <p className="text-xs text-white/40">+\u00a33</p>
                           </div>
                           {upsellAddons.upgrade4K && <Check className="w-4 h-4 text-[--color-gold]" />}
                         </button>
@@ -3375,7 +3375,7 @@ export default function MusicVideoAutopilot() {
                           className={`flex items-center gap-3 rounded-lg border p-3 transition-all text-left group ${
                             upsellAddons.removeWatermark
                               ? "border-[--color-silver]/60 bg-[--color-silver]/10 ring-1 ring-emerald-500/30"
-                              : "border-zinc-700/50 bg-zinc-800/50 hover:bg-zinc-800 hover:border-[--color-silver]/40/30"
+                              : "border-[rgba(184,137,42,0.12)]/50 bg-[rgba(20,16,12,0.6)] hover:bg-[rgba(24,20,16,0.9)] hover:border-[--color-silver]/40/30"
                           }`}
                           onClick={() => setUpsellAddons(prev => ({ ...prev, removeWatermark: !prev.removeWatermark }))}
                         >
@@ -3386,25 +3386,25 @@ export default function MusicVideoAutopilot() {
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-white">Remove Watermark</p>
-                            <p className="text-xs text-zinc-500">+\u00a32</p>
+                            <p className="text-xs text-white/40">+\u00a32</p>
                           </div>
                           {upsellAddons.removeWatermark && <Check className="w-4 h-4 text-[--color-silver]" />}
                         </button>
                       </div>
                       {/* Total + Checkout / Download as-is */}
                       <div className="flex items-center justify-between">
-                        <div className="text-sm text-zinc-400">
+                        <div className="text-sm text-white/50">
                           {upsellTotal > 0 ? (
                             <span>Total: <span className="text-[--color-gold] font-semibold">\u00a3{upsellTotal}</span></span>
                           ) : (
-                            <span className="text-zinc-500">Select add-ons above</span>
+                            <span className="text-white/40">Select add-ons above</span>
                           )}
                         </div>
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800 text-xs"
+                            className="border-[rgba(184,137,42,0.12)] text-white/50 bg-transparent hover:bg-[rgba(24,20,16,0.9)] text-xs"
                             onClick={async () => {
                               if (!finalVideoUrl) return;
                               try {
@@ -3450,10 +3450,10 @@ export default function MusicVideoAutopilot() {
                       <X className="w-8 h-8 text-red-400" />
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-2">Build Failed</h2>
-                    <p className="text-zinc-400 mb-6">Some scenes could not be generated. Please try again.</p>
+                    <p className="text-white/50 mb-6">Some scenes could not be generated. Please try again.</p>
                     <Button
                       variant="outline"
-                      className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
+                      className="border-[rgba(184,137,42,0.12)] text-white/70 bg-transparent hover:bg-[rgba(24,20,16,0.9)]"
                       onClick={() => setStep("storyboard")}
                     >
                       Back to Storyboard
@@ -3485,19 +3485,19 @@ export default function MusicVideoAutopilot() {
                                   <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${
                                     isDone    ? "bg-[--color-gold] text-white" :
                                     isCurrent ? "bg-[--color-gold]/15 text-[--color-gold] ring-2 ring-[--color-gold] ring-offset-2 ring-offset-zinc-900 animate-pulse" :
-                                                "bg-zinc-800 text-zinc-600"
+                                                "bg-[rgba(24,20,16,0.9)] text-white/30"
                                   }`}>
                                     {isDone ? <Check className="w-4 h-4" /> : stage.icon}
                                   </div>
                                   <span className={`text-xs font-medium whitespace-nowrap ${
                                     isDone    ? "text-[--color-gold]" :
                                     isCurrent ? "text-white" :
-                                                "text-zinc-600"
+                                                "text-white/30"
                                   }`}>{stage.label}</span>
                                 </div>
                                 {i < stages.length - 1 && (
                                   <div className={`flex-1 h-0.5 mx-2 mb-5 transition-all duration-700 ${
-                                    i < currentIdx ? "bg-[--color-gold]" : "bg-zinc-800"
+                                    i < currentIdx ? "bg-[--color-gold]" : "bg-[rgba(24,20,16,0.9)]"
                                   }`} />
                                 )}
                               </div>
@@ -3526,7 +3526,7 @@ export default function MusicVideoAutopilot() {
                           : renderStatus === "assembling" ? "Building your animation..."
                           : "Generating your scenes..."}
                       </h2>
-                      <p className="text-zinc-400 text-sm mb-3">
+                      <p className="text-white/50 text-sm mb-3">
                         {renderStatus === "wizsound"
                           ? "WizSound™ is applying cinematic audio mastering to your final video..."
                           : renderStatus === "assembling"
@@ -3535,11 +3535,11 @@ export default function MusicVideoAutopilot() {
                       </p>
                       {/* Quality & audio tier badges */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.12)] text-white/70 text-xs">
                           <Zap className="w-3 h-3 text-[--color-gold]" />
                           {totalScenes} scenes
                         </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.12)] text-white/70 text-xs">
                           <Clock className="w-3 h-3 text-[--color-gold]" />
                           {liveElapsed < 60
                             ? `${liveElapsed}s elapsed`
@@ -3584,7 +3584,7 @@ export default function MusicVideoAutopilot() {
                         return (
                           <>
                             <div className="flex justify-between items-center text-sm mb-2">
-                              <span className="text-zinc-300 font-medium">
+                              <span className="text-white/70 font-medium">
                                 {renderStatus === "wizsound" ? "Applying WizSound™ mastering"
                                   : renderStatus === "assembling" ? "Assembling final video"
                                   : `${completedScenes} / ${totalScenes} scenes`}
@@ -3592,13 +3592,13 @@ export default function MusicVideoAutopilot() {
                                   <span className="ml-2 text-red-400 text-xs">({failedScenes} failed)</span>
                                 )}
                               </span>
-                              <div className="flex items-center gap-3 text-zinc-500 text-xs">
+                              <div className="flex items-center gap-3 text-white/40 text-xs">
                                 {etaText && <span className="text-[--color-gold]">{etaText}</span>}
                                 <span>{elapsedMin}:{String(elapsedSec).padStart(2, "0")} elapsed</span>
-                                <span className="text-zinc-300 font-semibold">{pct}%</span>
+                                <span className="text-white/70 font-semibold">{pct}%</span>
                               </div>
                             </div>
-                            <div className="relative h-3 bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="relative h-3 bg-[rgba(24,20,16,0.9)] rounded-full overflow-hidden">
                               <div
                                 className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
                                 style={{
@@ -3623,7 +3623,7 @@ export default function MusicVideoAutopilot() {
                             </div>
                             {/* Estimated file size */}
                             {totalScenes > 0 && (
-                              <p className="text-zinc-600 text-xs mt-1.5 text-right">
+                              <p className="text-white/30 text-xs mt-1.5 text-right">
                                 Est. file size: ~{Math.round(totalScenes * 4.5)}MB
                               </p>
                             )}
@@ -3640,7 +3640,7 @@ export default function MusicVideoAutopilot() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-white mb-1">Your render is in progress</p>
-                          <p className="text-xs text-zinc-400 leading-relaxed">
+                          <p className="text-xs text-white/50 leading-relaxed">
                             You can safely leave this page or close the tab. We'll send you a browser notification and email when your video is ready.
                             {" "}Your progress is saved automatically.
                           </p>
@@ -3652,7 +3652,7 @@ export default function MusicVideoAutopilot() {
                     {totalScenes > 0 && (
                       <div className="mb-5">
                         <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Scene Status</p>
+                          <p className="text-xs text-white/40 font-medium uppercase tracking-wide">Scene Status</p>
                           {failedScenes > 0 && jobId && (
                             <Button
                               size="sm"
@@ -3689,7 +3689,7 @@ export default function MusicVideoAutopilot() {
                                 scene.status === "completed"  ? "bg-[--color-gold] text-white" :
                                 scene.status === "generating" ? "bg-[--color-gold]/15 text-[--color-gold] ring-1 ring-[--color-gold] animate-pulse" :
                                 scene.status === "failed"     ? "bg-red-500/20 text-red-400 ring-1 ring-red-500" :
-                                                                "bg-zinc-800 text-zinc-600"
+                                                                "bg-[rgba(24,20,16,0.9)] text-white/30"
                               }`}
                             >
                               {scene.status === "completed"  ? <Check className="w-3 h-3" /> :
@@ -3701,8 +3701,8 @@ export default function MusicVideoAutopilot() {
                         </div>
 
                         {/* Legend */}
-                        <div className="flex gap-4 text-xs text-zinc-600 mb-3">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-zinc-800 inline-block" /> Queued</span>
+                        <div className="flex gap-4 text-xs text-white/30 mb-3">
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[rgba(24,20,16,0.9)] inline-block" /> Queued</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold]/15 ring-1 ring-[--color-gold] inline-block" /> Generating</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold] inline-block" /> Done</span>
                           {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/20 ring-1 ring-red-500 inline-block" /> Failed</span>}
@@ -3740,7 +3740,7 @@ export default function MusicVideoAutopilot() {
                                       {/* Error info */}
                                       <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium text-red-300 mb-0.5">Scene {scene.index + 1} failed</p>
-                                        <p className="text-xs text-zinc-400 leading-relaxed break-words">{friendlyErr}</p>
+                                        <p className="text-xs text-white/50 leading-relaxed break-words">{friendlyErr}</p>
                                       </div>
 
                                       {/* Action buttons */}
@@ -3750,7 +3750,7 @@ export default function MusicVideoAutopilot() {
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-7 px-2 text-xs border-zinc-600 text-zinc-300 bg-transparent hover:bg-zinc-800"
+                                            className="h-7 px-2 text-xs border-zinc-600 text-white/70 bg-transparent hover:bg-[rgba(24,20,16,0.9)]"
                                             onClick={() => {
                                               setEditingFailedSceneId(scene.id);
                                               setEditFailedPrompt(scene.prompt ?? "");
@@ -3798,41 +3798,41 @@ export default function MusicVideoAutopilot() {
 
                                     {/* Inline edit form — shown when Edit is clicked */}
                                     {isEditing && (
-                                      <div className="border-t border-red-500/20 bg-zinc-900/60 p-3 space-y-3">
-                                        <p className="text-xs text-zinc-400 font-medium">Edit scene before retrying</p>
+                                      <div className="border-t border-red-500/20 bg-[rgba(10,8,6,0.95)]/60 p-3 space-y-3">
+                                        <p className="text-xs text-white/50 font-medium">Edit scene before retrying</p>
 
                                         {/* Visual prompt */}
                                         <div>
                                           <div className="flex items-center justify-between mb-1">
-                                            <Label className="text-xs text-zinc-400">Visual Prompt</Label>
+                                            <Label className="text-xs text-white/50">Visual Prompt</Label>
                                             <span className={`text-xs ${
                                               editFailedPrompt.length > 1800 ? "text-red-400" :
-                                              editFailedPrompt.length > 1400 ? "text-yellow-400" : "text-zinc-600"
+                                              editFailedPrompt.length > 1400 ? "text-yellow-400" : "text-white/30"
                                             }`}>{editFailedPrompt.length}/2000</span>
                                           </div>
                                           <Textarea
                                             value={editFailedPrompt}
                                             onChange={(e) => setEditFailedPrompt(e.target.value)}
                                             placeholder="Describe the visual scene..."
-                                            className="text-xs min-h-[80px] bg-zinc-800/60 border-zinc-700 text-zinc-200 resize-none"
+                                            className="text-xs min-h-[80px] bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-zinc-200 resize-none"
                                             maxLength={2000}
                                           />
-                                          <p className="text-xs text-zinc-600 mt-1">Tip: shorter, clearer prompts often render more reliably.</p>
+                                          <p className="text-xs text-white/30 mt-1">Tip: shorter, clearer prompts often render more reliably.</p>
                                         </div>
 
                                         {/* Lyrics (optional) */}
                                         <div>
                                           <div className="flex items-center justify-between mb-1">
-                                            <Label className="text-xs text-zinc-400">Lyrics <span className="text-zinc-600">(optional)</span></Label>
+                                            <Label className="text-xs text-white/50">Lyrics <span className="text-white/30">(optional)</span></Label>
                                             <span className={`text-xs ${
-                                              editFailedLyrics.length > 900 ? "text-red-400" : "text-zinc-600"
+                                              editFailedLyrics.length > 900 ? "text-red-400" : "text-white/30"
                                             }`}>{editFailedLyrics.length}/1000</span>
                                           </div>
                                           <Textarea
                                             value={editFailedLyrics}
                                             onChange={(e) => setEditFailedLyrics(e.target.value)}
                                             placeholder="Lyrics for this scene window (leave blank to keep current)"
-                                            className="text-xs min-h-[50px] bg-zinc-800/60 border-zinc-700 text-zinc-200 resize-none"
+                                            className="text-xs min-h-[50px] bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-zinc-200 resize-none"
                                             maxLength={1000}
                                           />
                                         </div>
@@ -3842,7 +3842,7 @@ export default function MusicVideoAutopilot() {
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-7 px-3 text-xs border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800"
+                                            className="h-7 px-3 text-xs border-[rgba(184,137,42,0.12)] text-white/50 bg-transparent hover:bg-[rgba(24,20,16,0.9)]"
                                             onClick={() => setEditingFailedSceneId(null)}
                                           >
                                             Cancel
@@ -3903,7 +3903,7 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
 
-                    <p className="text-zinc-600 text-xs text-center">
+                    <p className="text-white/30 text-xs text-center">
                       Each scene takes 1–3 minutes. You can leave this page — rendering continues in the background.
                     </p>
                   </div>

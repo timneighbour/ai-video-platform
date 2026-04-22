@@ -383,9 +383,14 @@ export default function Autopilot() {
   const stepIndex = { input: 0, storyboard: 1, generating: 2, done: 2 }[step];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen studio-bg text-white">
+      {/* Studio atmosphere background image */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <img src="/manus-storage/music-studio-bg_207e72b0.jpg" alt="" className="w-full h-full object-cover object-center opacity-[0.07]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/80 via-[#06050a]/60 to-[#06050a]/90" />
+      </div>
       {/* Header */}
-      <div className="border-b border-white/10">
+      <div className="relative z-10 studio-header">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Button
             variant="ghost"
@@ -423,7 +428,7 @@ export default function Autopilot() {
       </div>
 
       {/* Progress Steps */}
-      <div className="border-b border-white/10 bg-white/5">
+      <div className="relative z-10 border-b border-[rgba(184,137,42,0.15)] bg-[rgba(10,8,6,0.6)] backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-1 sm:gap-2 py-3 overflow-x-auto scrollbar-none">
             {[
@@ -452,7 +457,7 @@ export default function Autopilot() {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-6 sm:py-10 max-w-3xl">
+      <div className="relative z-10 container mx-auto px-4 py-6 sm:py-10 max-w-3xl">
 
         {/* ── STEP 1: INPUT ── */}
         {step === "input" && (
