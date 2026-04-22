@@ -41,9 +41,13 @@ const HIW_STEP1 = "/manus-storage/hiw-step1-choose_1102ddee.jpg";
 const HIW_STEP2 = "/manus-storage/hiw-step2-storyboard_21e66052.jpg";
 const HIW_STEP3 = "/manus-storage/hiw-step3-preview_e536f5b1.jpg";
 const HIW_STEP4 = "/manus-storage/hiw-step4-export_68c87f9e.jpg";
-const SHOWCASE_1 = "/manus-storage/showcase-midnight-city_d2b326c1.jpg";
-const SHOWCASE_2 = "/manus-storage/showcase-stage-performance_3379ee75.jpg";
-const SHOWCASE_3 = "/manus-storage/showcase-star-quest_c9d5cd00.jpg";
+const _SC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const SHOWCASE_1 = `${_SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`;
+const SHOWCASE_2 = `${_SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`;
+const SHOWCASE_3 = `${_SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`;
+const SHOWCASE_1_VIDEO = `${_SC}/showcase-cinematic_13667434.mp4`;
+const SHOWCASE_2_VIDEO = `${_SC}/showcase-music-video_19324f13.mp4`;
+const SHOWCASE_3_VIDEO = `${_SC}/showcase-kids_d49d86f8.mp4`;
 const CREATOR_MUSICIANS = "/manus-storage/creator-musicians_cc8c2a51.jpg";
 const CREATOR_CONTENT = "/manus-storage/creator-content-creators_ae0d5147.jpg";
 const CREATOR_YOUTUBERS = "/manus-storage/creator-youtubers-brands_088b54d8.jpg";
@@ -1304,9 +1308,9 @@ export default function Pricing() {
         ctaLabel="Start Creating Free"
         ctaHref="/onboarding"
         items={[
-          { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: SHOWCASE_1, videoUrl: null, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt." },
-          { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: SHOWCASE_2, videoUrl: null, description: "A full music video with synced visuals and cinematic effects. Created with WizVideo." },
-          { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: SHOWCASE_3, videoUrl: null, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description." },
+          { id: 30001, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: SHOWCASE_1, videoUrl: SHOWCASE_1_VIDEO, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt." },
+          { id: 30002, title: "Stage Performance — Music Video Style", category: "Music Video", posterUrl: SHOWCASE_2, videoUrl: SHOWCASE_2_VIDEO, description: "A full music video with synced visuals and cinematic effects. Created with WizVideo." },
+          { id: 30003, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: SHOWCASE_3, videoUrl: SHOWCASE_3_VIDEO, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description." },
         ]}
       />
 

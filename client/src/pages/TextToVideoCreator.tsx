@@ -818,27 +818,27 @@ export default function TextToVideoCreator() {
           ctaHref="/onboarding"
           items={[
             {
-              id: 1,
+              id: 30001,
               title: "Midnight City — Cinematic Style",
               category: "Cinematic AI Video",
-              posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
-              videoUrl: null,
+              posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp",
+              videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-cinematic_13667434.mp4",
               description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt.",
             },
             {
-              id: 2,
-              title: "Stage Performance — Music Video",
+              id: 30002,
+              title: "Stage Performance — Music Video Style",
               category: "Music Video",
-              posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
-              videoUrl: null,
+              posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp",
+              videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-video_19324f13.mp4",
               description: "A full music video with synced visuals and cinematic effects. Created with WizVideo.",
             },
             {
-              id: 3,
+              id: 30003,
               title: "Star Quest — Kids Channel Intro",
               category: "Animation",
-              posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg",
-              videoUrl: null,
+              posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp",
+              videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids_d49d86f8.mp4",
               description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description.",
             },
           ]}

@@ -2233,11 +2233,12 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
 
 function Showcase() {
   const { data: dbItems } = trpc.showcase.list.useQuery();
+  const SC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
   const items = dbItems && dbItems.length > 0 ? dbItems : [
-    { id: 1, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg", videoUrl: "", description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
-    { id: 2, title: "Stage Performance — Music Video", category: "Music Video", posterUrl: "/manus-storage/product-wizsound-hero_8219d2d2.jpg", videoUrl: "", description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
-    { id: 3, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${CDN}/product-wizcreate-hero_6c3efa10.jpg`, videoUrl: null, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
-    { id: 4, title: "Warrior — AI Image Generation", category: "WizImage", posterUrl: `${CDN}/product-wizgenesis-hero_0a9aa16b.jpg`, videoUrl: null, description: "A single-prompt AI image — cinematic lighting, detailed environment, photorealistic quality. Generated in under 10 seconds with WizImage." },
+    { id: 30001, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`, videoUrl: `${SC}/showcase-cinematic_13667434.mp4`, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
+    { id: 30002, title: "Stage Performance — Music Video Style", category: "Music Video", posterUrl: `${SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`, videoUrl: `${SC}/showcase-music-video_19324f13.mp4`, description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
+    { id: 30003, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`, videoUrl: `${SC}/showcase-kids_d49d86f8.mp4`, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
+    { id: 30004, title: "Cherry Blossom — Anime Style", category: "Anime", posterUrl: `${SC}/showcase-anime-gdkPWj4zZ3wPdwmswMeaY9.webp`, videoUrl: `${SC}/showcase-anime_36099b49.mp4`, description: "Fluid anime-style visuals with cherry blossom transitions. Generated entirely from a mood and colour palette prompt." },
   ];
 
   return (
@@ -3020,33 +3021,34 @@ function FinalCTA() {
 }
 
 // ── Demo Video Gallery ──────────────────────────────────────────────────────────
+const _SC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const DEMO_VIDEOS = [
   {
     key: "music-video",
-    title: "Cinematic Music Video Demo",
+    title: "Stage Performance — Music Video Style",
     badge: "WizVideo",
     badgeColor: "#7C3AED",
-    description: "A short example of how WIZ AI can turn a creative idea into cinematic video scenes.",
-    posterUrl: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg",
-    videoUrl: null as string | null,
+    description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track.",
+    posterUrl: `${_SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`,
+    videoUrl: `${_SC}/showcase-music-video_19324f13.mp4` as string | null,
   },
   {
     key: "scene",
-    title: "AI Scene Creation Demo",
+    title: "Midnight City — Cinematic Style",
     badge: "WizCreate",
     badgeColor: "oklch(0.72 0.14 70)",
-    description: "Example cinematic scene generation for music videos, animation and visual storytelling.",
-    posterUrl: "/manus-storage/product-wizsound-hero_8219d2d2.jpg",
-    videoUrl: null as string | null,
+    description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes.",
+    posterUrl: `${_SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`,
+    videoUrl: `${_SC}/showcase-cinematic_13667434.mp4` as string | null,
   },
   {
-    key: "performance",
-    title: "AI Performance Demo",
-    badge: "WizPerformer",
+    key: "kids",
+    title: "Star Quest — Kids Channel Intro",
+    badge: "WizAnimate",
     badgeColor: "#0EA5E9",
-    description: "Example presenter, expression and lip-sync technology for future WIZ AI performer workflows.",
-    posterUrl: `${CDN}/product-wizcreate-hero_6c3efa10.jpg`,
-    videoUrl: null as string | null,
+    description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
+    posterUrl: `${_SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`,
+    videoUrl: `${_SC}/showcase-kids_d49d86f8.mp4` as string | null,
   },
 ];
 

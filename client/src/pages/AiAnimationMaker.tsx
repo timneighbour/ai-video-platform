@@ -652,28 +652,28 @@ export default function AiAnimationMaker() {
         ctaHref="/products/wizanimate"
         items={[
           {
-            id: 1,
+            id: 30003,
             title: "Star Quest — Kids Channel Intro",
             category: "Stylised 3D",
-            posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg",
-            videoUrl: null,
+            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp",
+            videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-kids_d49d86f8.mp4",
             description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
           },
           {
-            id: 2,
-            title: "Storybook World — Illustrated Style",
+            id: 30005,
+            title: "The Enchanted Forest — Story Animation",
             category: "Storybook Animation",
-            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-storybook-6Mx6JpiaevStuWQin5HEod.webp",
-            videoUrl: null,
-            description: "A timeless storybook-style animated scene. Soft watercolour palette, magical atmosphere, perfect for kids content.",
+            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-story-USepA6hkPxe97oTtpWXhtt.webp",
+            videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-story_ffc51308.mp4",
+            description: "A magical forest story with cinematic lighting and character animation. Generated from a narrative prompt.",
           },
           {
-            id: 3,
-            title: "Anime Adventure — Action Scene",
+            id: 30004,
+            title: "Cherry Blossom — Anime Style",
             category: "Anime-Inspired",
-            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/kids-style-anime-iGDqmnXkbWropdM7MmSEPe.webp",
-            videoUrl: null,
-            description: "Expressive Japanese animation style with vivid detail. Generated from a single scene description.",
+            posterUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-anime-gdkPWj4zZ3wPdwmswMeaY9.webp",
+            videoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-anime_36099b49.mp4",
+            description: "Fluid anime-style visuals with cherry blossom transitions. Generated entirely from a mood and colour palette prompt.",
           },
         ]}
       />

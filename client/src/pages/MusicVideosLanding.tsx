@@ -12,31 +12,32 @@ import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 
 const CDN = "/manus-storage";
 
+const _SC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 // Static fallback showcase items for music video page (replaced by DB items when available)
 const MUSIC_VIDEO_SHOWCASE = [
   {
-    id: 1,
-    title: "Stage Performance — Music Video",
+    id: 30002,
+    title: "Stage Performance — Music Video Style",
     category: "Music Video",
-    posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
-    videoUrl: null,
+    posterUrl: `${_SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`,
+    videoUrl: `${_SC}/showcase-music-video_19324f13.mp4`,
     description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created from an uploaded track.",
   },
   {
-    id: 2,
+    id: 30001,
     title: "Midnight City — Cinematic Style",
     category: "Cinematic AI Video",
-    posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
-    videoUrl: null,
+    posterUrl: `${_SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`,
+    videoUrl: `${_SC}/showcase-cinematic_13667434.mp4`,
     description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt.",
   },
   {
-    id: 3,
-    title: "WizPerformer — Performance Sync",
-    category: "WizPerformer",
-    posterUrl: "/manus-storage/demo-animation-still_2cfcbcb8.png",
-    videoUrl: null,
-    description: "Not just lip-sync — full performance sync. Every gesture, expression, and movement matched to the music.",
+    id: 30003,
+    title: "Star Quest — Kids Channel Intro",
+    category: "Animation",
+    posterUrl: `${_SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`,
+    videoUrl: `${_SC}/showcase-kids_d49d86f8.mp4`,
+    description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
   },
 ];
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";

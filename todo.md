@@ -5852,3 +5852,37 @@
 - [x] PART 3: Replace placeholder icons with premium visuals
 - [x] PART 3: Consistent premium WIZ AI design across all product pages
 - [x] PART 4: Full QA report — desktop and mobile viewport testing
+
+## Post-Publish Critical Fixes (Phase 1–6)
+
+### Phase 1 — Stripe Webhook
+- [ ] D-06: Guide Tim through registering live webhook on Stripe Dashboard
+- [ ] D-06: Confirm STRIPE_WEBHOOK_SECRET is set in production environment
+- [ ] D-06: Verify test webhook event received and verified
+
+### Phase 2 — Database Migrations
+- [x] F-01: Audit all missing tables (schema vs live DB)
+- [x] F-01: Generate consolidated migration SQL for all missing tables
+- [x] F-01: Apply migrations via webdev_execute_sql (enhancementJobs + experiment_assignments)
+- [x] F-01: Verify all tables exist and no existing data was lost
+- [x] F-01: Confirm tRPC routes no longer fail for showcase/blog/creator/providerJobLogs
+### Phase 3 — Showcase Content
+- [x] D-01/D-02/F-10: Replace homepage showcase cards with real CDN video URLs (4 items)
+- [x] D-01/D-02/F-10: Replace showcase page fallback with 6 distinct items with real video URLs
+- [x] D-01/D-02/F-10: Replace music video landing page placeholder content
+- [x] D-01/D-02/F-10: Replace all null/empty videoUrls in Pricing, AiAnimationMaker, TextToVideoCreator, DemoVideoModals
+
+### Phase 4 — Blog and Discover Cleanup
+- [ ] D-03/F-04: Seed blog with 3–5 launch posts OR hide from nav/sitemap/footer
+- [ ] D-04/F-05: Seed creator profiles OR hide Discover/Creators from nav/sitemap/footer
+
+### Phase 5 — Onboarding End-to-End Test
+- [ ] F-07: Run Stripe test payment end-to-end
+- [ ] F-07: Confirm webhook fires and credits/subscription update correctly
+- [ ] F-07: Confirm user redirect and dashboard state correct
+
+### Phase 6 — Security and Spend Controls
+- [ ] F-08: Confirm WizAdora admin routes are role-gated (adminProcedure)
+- [ ] D-05/F-09: Update spend cap values and comments for Atlas Cloud
+- [ ] D-05/F-09: Confirm fal.ai and WaveSpeed remain disabled
+- [ ] D-05/F-09: Confirm Atlas Cloud is sole active provider

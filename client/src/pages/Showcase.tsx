@@ -13,30 +13,55 @@ interface ShowcaseItem {
   videoUrl?: string | null;
 }
 
+const _SC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
 const FALLBACK_ITEMS: ShowcaseItem[] = [
   {
-    id: 1,
+    id: 30001,
     title: "Midnight City — Cinematic Style",
     category: "Cinematic AI Video",
-    posterUrl: "/manus-storage/showcase-midnight-city_caf4be96.jpg",
-    videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4",
+    posterUrl: `${_SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`,
+    videoUrl: `${_SC}/showcase-cinematic_13667434.mp4`,
     description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes.",
   },
   {
-    id: 2,
-    title: "Stage Performance — Music Video",
+    id: 30002,
+    title: "Stage Performance — Music Video Style",
     category: "Music Video",
-    posterUrl: "/manus-storage/showcase-stage-performance_b1d68ebf.jpg",
-    videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4",
+    posterUrl: `${_SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`,
+    videoUrl: `${_SC}/showcase-music-video_19324f13.mp4`,
     description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track.",
   },
   {
-    id: 3,
+    id: 30003,
     title: "Star Quest — Kids Channel Intro",
     category: "Animation",
-    posterUrl: "/manus-storage/showcase-star-quest_c73c29bd.jpg",
-    videoUrl: "/manus-storage/demo-video-only_404f1adb.mp4",
+    posterUrl: `${_SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`,
+    videoUrl: `${_SC}/showcase-kids_d49d86f8.mp4`,
     description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
+  },
+  {
+    id: 30004,
+    title: "Cherry Blossom — Anime Style",
+    category: "Anime",
+    posterUrl: `${_SC}/showcase-anime-gdkPWj4zZ3wPdwmswMeaY9.webp`,
+    videoUrl: `${_SC}/showcase-anime_36099b49.mp4`,
+    description: "Fluid anime-style visuals with cherry blossom transitions. Generated entirely from a mood and colour palette prompt.",
+  },
+  {
+    id: 30005,
+    title: "The Enchanted Forest — Story Animation",
+    category: "Story Animation",
+    posterUrl: `${_SC}/showcase-story-USepA6hkPxe97oTtpWXhtt.webp`,
+    videoUrl: `${_SC}/showcase-story_ffc51308.mp4`,
+    description: "A magical forest story with cinematic lighting and character animation. Generated from a narrative prompt.",
+  },
+  {
+    id: 30006,
+    title: "Ancient Ruins — Documentary Style",
+    category: "Faceless Content",
+    posterUrl: `${_SC}/showcase-faceless-czjqMEgbKbB2YQHLyDgQBB.webp`,
+    videoUrl: `${_SC}/showcase-faceless_9566b108.mp4`,
+    description: "A documentary-style faceless video exploring ancient ruins. No presenter needed — just a topic and a style.",
   },
 ];
 
