@@ -21,13 +21,13 @@ const POSTER_URL =
 const VIDEO_SRC =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-video_19324f13.mp4";
 
-// Standard: same source track, normalized at -20 LUFS — flat, dry, quiet — the "before" experience
+// Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
-  "/manus-storage/wizsound-normal_83a5954c.mp3";
+  "/manus-storage/wizsound-demo-standard_faeb45d0.mp3";
 
-// WizSound Cinematic: same source track, FFmpeg DSP processed — EQ boosted, compressed, +6 LUFS louder — the "wow" moment
+// WizSound Enhanced: same source track, FFmpeg DSP processed — EQ boosted, stereo widened, compressed, loud — the "wow" moment
 const AUDIO_WIZSOUND =
-  "/manus-storage/wizsound-enhanced_63baf559.mp3";
+  "/manus-storage/wizsound-demo-enhanced_0e893759.mp3";
 
 /* ── Premium caption timeline ────────────────────────────────────────── */
 // Each entry: [startSec, endSec, headline, subtext?, accentColour?, isLuminaUpsell?]
