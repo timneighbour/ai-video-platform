@@ -3,7 +3,7 @@
  * Provides offline support and caching for PWA functionality.
  */
 
-const CACHE_NAME = "wizai-v1";
+const CACHE_NAME = "wizai-v3";
 
 // Core shell assets to cache on install
 const SHELL_ASSETS = [
@@ -41,6 +41,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   if (url.pathname.startsWith("/api/")) return;
   if (url.pathname.startsWith("/manus-storage/")) return;
+  // Never cache Vite dev server chunks — they change on every restart
+  if (url.pathname.includes("/.vite/deps/") || url.pathname.includes("/@fs/") || url.pathname.includes("/@vite/") || url.pathname.includes("/@id/")) return;
 
   // For navigation requests (HTML pages) — network first, fallback to cache
   if (event.request.mode === "navigate") {
