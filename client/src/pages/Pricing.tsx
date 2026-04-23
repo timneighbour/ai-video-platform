@@ -663,7 +663,7 @@ export default function Pricing() {
               </div>
               <div className="relative z-10">
                 <p className="text-base font-black text-white mb-0.5">Starter</p>
-                <p className="text-[10px] text-white/40 font-medium">£19 / mo</p>
+                <p className="text-[10px] text-white/40 font-medium">£{PLANS.find(p => p.id === "starter")?.monthlyPrice ?? 19} / mo</p>
               </div>
             </div>
 
@@ -681,7 +681,7 @@ export default function Pricing() {
                   <span className="text-[9px] font-black text-[--color-gold] tracking-wider">MOST POPULAR</span>
                 </div>
                 <p className="text-base font-black text-[--color-gold] mb-0.5">Creator</p>
-                <p className="text-[10px] text-[--color-gold]/60 font-medium">£49 / mo</p>
+                <p className="text-[10px] text-[--color-gold]/60 font-medium">£{PLANS.find(p => p.id === "creator")?.monthlyPrice ?? 49} / mo</p>
               </div>
             </div>
 
@@ -693,7 +693,7 @@ export default function Pricing() {
               </div>
               <div className="relative z-10">
                 <p className="text-base font-black text-white mb-0.5">Studio</p>
-                <p className="text-[10px] text-white/40 font-medium">£149 / mo</p>
+                <p className="text-[10px] text-white/40 font-medium">£{PLANS.find(p => p.id === "studio")?.monthlyPrice ?? 99} / mo</p>
               </div>
             </div>
           </div>
@@ -977,7 +977,7 @@ export default function Pricing() {
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
             {[
-              { logo: LOGO_WIZAUDIO, name: "WizAudio", label: "AI Music", href: WIZAUDIO_STUDIO_PAGE, color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
+              { logo: LOGO_WIZAUDIO, name: "WizSound™", label: "AI Music", href: WIZAUDIO_STUDIO_PAGE, color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
               { logo: LOGO_WIZIMAGE, name: "WizImage", label: "AI Images", href: WIZIMAGE_STUDIO_PAGE, color: "rgba(196,164,100,0.15)", border: "rgba(196,164,100,0.3)" },
               { logo: LOGO_WIZVIDEO, name: "WizVideo", label: "Music Videos", href: "/music-video", color: "rgba(60,120,220,0.15)", border: "rgba(60,120,220,0.25)" },
               { logo: LOGO_WIZSHORTS, name: "WizShorts", label: "Short Videos", href: WIZSHORTS_STUDIO_PAGE, color: "rgba(220,100,40,0.15)", border: "rgba(220,100,40,0.25)" },

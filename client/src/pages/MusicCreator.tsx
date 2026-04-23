@@ -4,6 +4,7 @@
  * Matches mockup-v4-wizaudio.html exactly.
  */
 import { useState, useRef, useEffect } from "react";
+import { WIZSOUND_TIERS } from "@/lib/pricing";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -442,7 +443,7 @@ export default function MusicCreator() {
                 {([
                   { value: "score" as GenerationMode, icon: "🔊", label: "Sound FX",       desc: "Cinematic effects & ambience" },
                   { value: "song"  as GenerationMode, icon: "🎧", label: "Precision Audio", desc: "Full production, any length" },
-                  { value: "suno"  as GenerationMode, icon: "🎵", label: "WizAudio",        desc: "2 creative track variations with lyrics" },
+                  { value: "suno"  as GenerationMode, icon: "🎵", label: "WizSound™",       desc: "2 creative track variations with lyrics" },
                 ]).map((e, i, arr) => (
                   <button
                     key={e.value}
@@ -785,7 +786,7 @@ export default function MusicCreator() {
                       {t.toUpperCase()}
                     </div>
                     <div className={`text-[8px] mt-0.5 ${t === "original" ? "text-[#555]" : t === "cinematic" ? "text-[#6a3fa0]" : "text-[--color-gold]/60]"}`}>
-                      {t === "original" ? "Included" : t === "enhanced" ? "+£2.99" : "+£4.99"}
+                      {t === "original" ? WIZSOUND_TIERS.ORIGINAL.price : t === "enhanced" ? WIZSOUND_TIERS.ENHANCED.price : WIZSOUND_TIERS.CINEMATIC.price}
                     </div>
                   </button>
                 ))}
@@ -820,7 +821,7 @@ export default function MusicCreator() {
                   <div className="text-[10px] font-bold tracking-[1px] text-[#9b59f5]">WIZSOUND™ CINEMATIC</div>
                   <div className="text-[9px] text-[#6a3fa0] mt-0.5">Stereo widening · EQ mastering · Spatial depth</div>
                 </div>
-                <div className="text-[13px] font-bold text-[#9b59f5]">+£4.99</div>
+                <div className="text-[13px] font-bold text-[#9b59f5]">{WIZSOUND_TIERS.CINEMATIC.price}</div>
               </button>
             </div>
 

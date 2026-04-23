@@ -78,7 +78,7 @@ const PRODUCTS_CREATE = [
     borderColor: "oklch(0.78 0.11 75 / 0.35)",
   },
   {
-    name: "WizAudio",
+    name: "WizSound™",
     tagline: "AI Music & Audio Studio",
     icon: <WizAudioEmblem size={32} />,
     href: "/products/wizsound",

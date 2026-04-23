@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { RENDER_QUALITY_TIERS } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { analytics } from "@/lib/analytics";
 import { useLocalStorage, useFormPersistence } from "@/hooks/useLocalStorage";
@@ -2450,7 +2451,7 @@ export default function MusicVideoAutopilot() {
                   <div className="border-t border-white/10 pt-3">
                     <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-2">RENDER QUALITY</h4>
                     <div className="grid grid-cols-3 gap-1">
-                      {[{l:'HD',s:'1080p',p:'Included'},{l:'4K',s:'2160p',p:'+\u00a32.99'},{l:'8K',s:'4320p',p:'+\u00a34.99'}].map((q,i) => (
+                      {RENDER_QUALITY_TIERS.map((q) => ({ l: q.label, s: q.res, p: q.price })).map((q,i) => (
                         <div key={q.l} className={`rounded-md border p-1.5 text-center ${i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15' : 'border-white/10 bg-white/5'}`}>
                           <div className="text-xs font-bold text-white">{q.l}</div>
                           <div className="text-[9px] text-white/40">{q.s}</div>

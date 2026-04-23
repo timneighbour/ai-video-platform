@@ -3,6 +3,7 @@
  * Studio app matching mockup-wizscore.html exactly
  */
 import { useState, useEffect, useRef } from "react";
+import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS } from "@/lib/pricing";
 import { Link } from "wouter";
 
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
@@ -40,9 +41,9 @@ const ENSEMBLE_GROUPS = [
 ];
 
 const TIER_INFO: Record<string,{label:string;price:string}> = {
-  original:  { label: "WIZSCORE™ — ORIGINAL MIX",  price: "Included" },
-  enhanced:  { label: "WIZSCORE™ — ENHANCED MIX",  price: "+£2.99" },
-  cinematic: { label: "WIZSCORE™ — CINEMATIC MIX", price: "+£4.99" },
+  original:  { label: "WIZSCORE™ — ORIGINAL MIX",  price: WIZSOUND_TIERS.ORIGINAL.price },
+  enhanced:  { label: "WIZSCORE™ — ENHANCED MIX",  price: WIZSOUND_TIERS.ENHANCED.price },
+  cinematic: { label: "WIZSCORE™ — CINEMATIC MIX", price: WIZSOUND_TIERS.CINEMATIC.price },
 };
 
 export default function WizScore() {
@@ -377,7 +378,7 @@ export default function WizScore() {
                 <div style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}>🎵 WizSound™ Cinematic</div>
                 <div style={{fontSize:"8px",color:"#6a3fa0",marginTop:"1px"}}>Spatial audio · Dolby Atmos · Immersive mix</div>
               </div>
-              <div style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>+£4.99</div>
+              <div style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>{WIZSOUND_TIERS.CINEMATIC.price}</div>
             </button>
             <button style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{textAlign:"left"}}>
@@ -392,7 +393,7 @@ export default function WizScore() {
           <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
             <div style={{fontSize:"9px",fontWeight:700,color:"#d4a843",letterSpacing:"1.5px",marginBottom:"8px"}}>RENDER QUALITY</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px",marginBottom:"10px"}}>
-              {[{label:"HD",sub:"48kHz · 24-bit",price:"Included"},{label:"4K",sub:"96kHz · 32-bit",price:"+£2.99"},{label:"8K",sub:"192kHz · 32-bit",price:"+£4.99"}].map(rq => (
+              {RENDER_QUALITY_TIERS.map(rq => ({ label: rq.label, sub: rq.label === "HD" ? "48kHz · 24-bit" : rq.label === "4K" ? "96kHz · 32-bit" : "192kHz · 32-bit", price: rq.price })).map(rq => (
                 <button key={rq.label} onClick={() => setRenderQuality(rq.label)} style={{
                   background:renderQuality===rq.label?"rgba(212,168,67,0.12)":"#0d0d0d",
                   border:`1px solid ${renderQuality===rq.label?"rgba(212,168,67,0.4)":"#1a1a1a"}`,

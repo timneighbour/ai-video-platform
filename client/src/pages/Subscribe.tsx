@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PAY_PER_VIDEO_TIERS, WIZSOUND_PAY_PER_VIDEO_TIERS } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import {
@@ -215,10 +216,7 @@ export default function Subscribe() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Standard Build", res: "720p", price: "£2", icon: "", highlight: false, badge: null },
-              { label: "HD Build",       res: "1080p", price: "£4", icon: "", highlight: false, badge: null },
-              { label: "4K Build",       res: "2160p", price: "£6", icon: "", highlight: false, badge: null },
-              { label: "Cinematic Pack",  res: "4K + WizSound™ + Priority", price: "£7", icon: "", highlight: true, badge: "Best Value" },
+              ...PAY_PER_VIDEO_TIERS.map(q => ({ label: q.label, res: q.res, price: q.price, icon: "", highlight: q.highlight, badge: q.badge })),
             ].map((item) => (
               <div key={item.label} className={`rounded-2xl border p-5 text-center transition-all ${item.highlight ? "border-[--color-gold]/40 bg-[--color-gold]/5 shadow-[0_0_24px_-6px_rgba(184,137,42,0.3)]" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}>
                 {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
@@ -245,9 +243,7 @@ export default function Subscribe() {
           </div>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { tier: "Standard",           desc: "Original audio, no processing",                                                   price: "Free",      highlight: false, badge: null },
-              { tier: "WizSound Active",    desc: "Stereo widening + EQ boost",                                                      price: "£1/video", highlight: false, badge: null },
-              { tier: "WizSound Spatial",   desc: "Full spatial mix — immersive depth, dynamic range, cinema-grade stereo",        price: "£3/video", highlight: true,  badge: "Recommended" },
+              ...WIZSOUND_PAY_PER_VIDEO_TIERS.map(t => ({ tier: t.tier, desc: t.desc, price: t.price, highlight: t.highlight, badge: t.badge })),
             ].map((item) => (
               <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-[#2a1f00]/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
                 {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}

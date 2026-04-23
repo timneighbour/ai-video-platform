@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -574,9 +575,9 @@ export default function WizShorts() {
               <p className="text-[10px] text-white/40 mb-3">Preview all three quality tiers. No download until payment confirmed.</p>
               <div className="space-y-2 mb-4">
                 {[
-                  { key: "original",  label: "ORIGINAL",  price: "Included" },
-                  { key: "enhanced",  label: "ENHANCED",  price: "+£2.99" },
-                  { key: "cinematic", label: "CINEMATIC", price: "+£4.99" },
+                  { key: WIZSOUND_TIERS.ORIGINAL.key,  label: "ORIGINAL",  price: WIZSOUND_TIERS.ORIGINAL.price },
+                  { key: WIZSOUND_TIERS.ENHANCED.key,  label: "ENHANCED",  price: WIZSOUND_TIERS.ENHANCED.price },
+                  { key: WIZSOUND_TIERS.CINEMATIC.key, label: "CINEMATIC", price: WIZSOUND_TIERS.CINEMATIC.price },
                 ].map((t) => (
                   <button
                     key={t.key}
@@ -622,7 +623,7 @@ export default function WizShorts() {
                 <button className="w-full rounded-xl bg-gradient-to-r from-[--color-gold]/20 to-[--color-gold]/10 border border-[--color-gold]/30 p-2.5 text-left hover:from-[--color-gold]/30 transition-all">
                   <div className="text-xs font-bold text-[--color-gold]">WizSound™ Cinematic</div>
                   <div className="text-[9px] text-white/40">Stereo widening · EQ mastering · Spatial depth</div>
-                  <div className="text-[10px] text-[--color-gold] font-bold mt-1">+£4.99</div>
+                  <div className="text-[10px] text-[--color-gold] font-bold mt-1">{WIZSOUND_TIERS.CINEMATIC.price}</div>
                 </button>
                 <button className="w-full rounded-xl bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2.5 text-left hover:from-purple-500/30 transition-all">
                   <div className="text-xs font-bold text-purple-400">WizLuminar™ Cinematic</div>
@@ -638,7 +639,7 @@ export default function WizShorts() {
               <div>
                 <div className="text-[9px] text-white/40 mb-1.5">Resolution</div>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {[{ k: "1080p", p: "Included" }, { k: "4k", p: "+£3.99" }].map((q) => (
+                  {VIDEO_QUALITY_2TIER.map((q) => ({ k: q.label, p: q.price })).map((q) => (
                     <button key={q.k} onClick={() => setRenderQuality(q.k as typeof renderQuality)} className={`rounded-lg border p-2.5 text-center transition-all ${renderQuality === q.k ? "border-[--color-gold]/40 bg-[--color-gold]/15" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
                       <div className={`text-xs font-bold ${renderQuality === q.k ? "text-[--color-gold]" : "text-white/60"}`}>{q.k}</div>
                       <div className={`text-[9px] mt-0.5 ${renderQuality === q.k ? "text-[--color-gold]" : "text-white/30"}`}>{q.p}</div>

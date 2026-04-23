@@ -6,6 +6,7 @@ import {
   WIZSYNC_STUDIO_PAGE,
   WIZSCRIPT_STUDIO_PAGE,
 } from "@/lib/routes";
+import { getProduct } from "@/lib/products";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
@@ -78,11 +79,11 @@ interface Tool {
 const TOOLS: Tool[] = [
   {
     id: "music-video",
-    name: "WizVideo\u2122",
+    name: getProduct("wizvideo")!.name,
     badge: "Most Popular",
     badgeStyle: "gold",
-    tagline: "Turn your music into a full AI-generated music video, scene by scene.",
-    description: "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric. Preview every scene before you build.",
+    tagline: getProduct("wizvideo")!.tagline,
+    description: getProduct("wizvideo")!.shortDesc,
     href: WIZVIDEO_STUDIO_PAGE,
     logo: WIZPILOT_LOGO,
     emblem: <WizVideoEmblem size={40} />,
@@ -94,11 +95,11 @@ const TOOLS: Tool[] = [
   },
   {
     id: "autopilot",
-    name: "WizScript\u2122",
+    name: getProduct("wizpilot")!.name,
     badge: "AI Autopilot",
     badgeStyle: "blue",
-    tagline: "Describe your idea in plain text and let AI build the full video script and storyboard.",
-    description: "WizScript converts a plain-text idea into a fully structured video script and storyboard. Define your concept, and WIZ AI generates the scenes, dialogue, and visual direction automatically.",
+    tagline: getProduct("wizpilot")!.tagline,
+    description: getProduct("wizpilot")!.shortDesc,
     href: WIZPILOT_STUDIO_PAGE,
     logo: WIZCREATE_LOGO,
     emblem: <WizScriptEmblem size={40} />,
@@ -109,12 +110,12 @@ const TOOLS: Tool[] = [
   },
   {
     id: "wiz-animate",
-    name: "WizAnimate\u2122",
+    name: getProduct("wizanimate")!.name,
     badge: "Animation",
     badgeStyle: "fuchsia",
-    tagline: "Bring characters and scenes to life with AI-powered animation.",
-    description: "WizAnimate brings AI-generated characters and scenes to life. From lyric videos to animated explainers, WizAnimate adds motion, expression, and cinematic movement to your creative projects.",
-    href: "/wiz-animate",
+    tagline: getProduct("wizanimate")!.tagline,
+    description: getProduct("wizanimate")!.shortDesc,
+    href: getProduct("wizanimate")!.productPage,
     logo: WIZANIMATE_LOGO,
     emblem: <WizAnimateEmblem size={40} />,
     bg: IMG.anime,
@@ -124,11 +125,11 @@ const TOOLS: Tool[] = [
   },
   {
     id: "wiz-script",
-    name: "WizScript\u2122",
+    name: getProduct("wizscript")!.name,
     badge: "Advanced",
     badgeStyle: "silver",
-    tagline: "Describe your idea in plain text and let AI build the full video script and storyboard.",
-    description: "Write each scene yourself for full creative control. WIZ AI generates every scene individually, giving you complete creative direction from concept to final build.",
+    tagline: getProduct("wizscript")!.tagline,
+    description: getProduct("wizscript")!.shortDesc,
     href: WIZSCRIPT_STUDIO_PAGE,
     emblem: <WizScriptEmblem size={40} />,
     bg: IMG.epicFantasy,
@@ -191,7 +192,7 @@ const TOOLS: Tool[] = [
   },
   {
     id: "wiz-image",
-    name: "WizImage\u2122",
+    name: getProduct("wizimage")!.name,
     badge: "New",
     badgeStyle: "gold",
     tagline: "Create cinematic AI images and visual assets from any idea, instantly.",
@@ -205,7 +206,7 @@ const TOOLS: Tool[] = [
   },
   {
     id: "wiz-shorts",
-    name: "WizShorts\u2122",
+    name: getProduct("wizshorts")!.name,
     badge: "New",
     badgeStyle: "gold",
     tagline: "Produce scroll-stopping vertical short-form videos for social media in minutes.",
@@ -219,7 +220,7 @@ const TOOLS: Tool[] = [
   },
   {
     id: "wizsync",
-    name: "WizSync\u2122",
+    name: getProduct("wizsync")!.name,
     badge: "WizPerformer™",
     badgeStyle: "silver",
     tagline: "Sync any AI-generated character to your audio with precision lip-sync and performance.",

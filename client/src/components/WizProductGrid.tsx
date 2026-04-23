@@ -5,14 +5,7 @@
  */
 import { ArrowRight } from "@/lib/icons";
 import { mp } from "@/lib/mixpanel";
-import {
-  WIZANIMATE_PRODUCT_PAGE,
-  WIZAUDIO_STUDIO_PAGE,
-  WIZIMAGE_STUDIO_PAGE,
-  WIZVIDEO_STUDIO_PAGE,
-  WIZSHORTS_STUDIO_PAGE,
-  WIZSCRIPT_STUDIO_PAGE,
-} from "@/lib/routes";
+import { getProduct } from "@/lib/products";
 
 import {
   WizAudioEmblem,
@@ -299,51 +292,51 @@ interface Product {
 
 const PRODUCTS: Product[] = [
   {
-    name: "WizAudio", label: "CREATE AUDIO",
-    tagline: "AI music & audio production studio",
-    desc: "Generate original tracks, soundscapes, and audio from text. Studio-quality sound in seconds.",
-    href: WIZAUDIO_STUDIO_PAGE, emblem: <WizAudioEmblem size={80} />, accent: "emerald",
-    cardVisual: <img src={CARD_BG_AUDIO} alt="WizAudio AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    name: getProduct("wizsound")!.name, label: "CREATE AUDIO",
+    tagline: getProduct("wizsound")!.tagline,
+    desc: getProduct("wizsound")!.shortDesc,
+    href: getProduct("wizsound")!.studioPage, emblem: <WizAudioEmblem size={80} />, accent: "emerald",
+    cardVisual: <img src={CARD_BG_AUDIO} alt="WizSound™ AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZAUDIO_LOGO,
   },
   {
-    name: "WizImage", label: "CREATE IMAGES",
-    tagline: "AI image & artwork creator",
-    desc: "Describe any image and WizImage renders it in seconds. 8 art styles, photorealistic to cinematic.",
-    href: WIZIMAGE_STUDIO_PAGE, emblem: <WizImageEmblem size={80} />, accent: "amber",
-    cardVisual: <img src={CARD_BG_IMAGE} alt="WizImage AI image and artwork creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    name: getProduct("wizimage")!.name, label: "CREATE IMAGES",
+    tagline: getProduct("wizimage")!.tagline,
+    desc: getProduct("wizimage")!.shortDesc,
+    href: getProduct("wizimage")!.studioPage, emblem: <WizImageEmblem size={80} />, accent: "amber",
+    cardVisual: <img src={CARD_BG_IMAGE} alt="WizImage™ AI image and artwork creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZIMAGE_LOGO,
   },
   {
-    name: "WizVideo", label: "CREATE VIDEO",
-    tagline: "Upload a song, get a full music video",
-    desc: "Turn any track into a full-length AI-directed music video — scenes, cuts, and all.",
-    href: WIZVIDEO_STUDIO_PAGE, emblem: <WizVideoEmblem size={80} />, accent: "violet",
-    cardVisual: <img src={CARD_BG_VIDEO} alt="WizVideo AI music video creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    name: getProduct("wizvideo")!.name, label: "CREATE VIDEO",
+    tagline: getProduct("wizvideo")!.tagline,
+    desc: getProduct("wizvideo")!.shortDesc,
+    href: getProduct("wizvideo")!.studioPage, emblem: <WizVideoEmblem size={80} />, accent: "violet",
+    cardVisual: <img src={CARD_BG_VIDEO} alt="WizVideo™ AI music video creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZVIDEO_LOGO,
   },
   {
-    name: "WizShorts", label: "CREATE SHORTS",
-    tagline: "Short-form vertical video creator",
-    desc: "Create viral-ready vertical videos for TikTok, Instagram Reels, and YouTube Shorts.",
-    href: WIZSHORTS_STUDIO_PAGE, emblem: <WizShortsEmblem size={80} />, accent: "cyan",
-    cardVisual: <img src={CARD_BG_SHORTS} alt="WizShorts AI short-form vertical video creator" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    name: getProduct("wizshorts")!.name, label: "CREATE SHORTS",
+    tagline: getProduct("wizshorts")!.tagline,
+    desc: getProduct("wizshorts")!.shortDesc,
+    href: getProduct("wizshorts")!.studioPage, emblem: <WizShortsEmblem size={80} />, accent: "cyan",
+    cardVisual: <img src={CARD_BG_SHORTS} alt="WizShorts™ AI short-form vertical video creator" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZSHORTS_LOGO,
   },
   {
-    name: "WizAnimate", label: "CREATE ANIMATION",
-    tagline: "AI character animation engine",
-    desc: "Bring characters to life with fluid, beat-matched AI animation. Every movement timed to the music.",
-    href: WIZANIMATE_PRODUCT_PAGE, emblem: <WizAnimateEmblem size={80} />, accent: "rose",
-    cardVisual: <img src={CARD_BG_ANIMATE} alt="WizAnimate AI character animation engine" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    name: getProduct("wizanimate")!.name, label: "CREATE ANIMATION",
+    tagline: getProduct("wizanimate")!.tagline,
+    desc: getProduct("wizanimate")!.shortDesc,
+    href: getProduct("wizanimate")!.productPage, emblem: <WizAnimateEmblem size={80} />, accent: "rose",
+    cardVisual: <img src={CARD_BG_ANIMATE} alt="WizAnimate™ AI character animation engine" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZANIMATE_LOGO_V3,
   },
   {
-    name: "WizScript", label: "CREATE CINEMATIC",
-    tagline: "Scene-by-scene cinematic control",
-    desc: "Write each scene yourself for full creative control. Script to storyboard to cinematic video.",
-    href: WIZSCRIPT_STUDIO_PAGE, emblem: <WizScriptEmblem size={80} />, accent: "orange",
-    cardVisual: <img src={CARD_BG_SCRIPT} alt="WizScript scene-by-scene cinematic video control" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    name: getProduct("wizscript")!.name, label: "CREATE CINEMATIC",
+    tagline: getProduct("wizscript")!.tagline,
+    desc: getProduct("wizscript")!.shortDesc,
+    href: getProduct("wizscript")!.studioPage, emblem: <WizScriptEmblem size={80} />, accent: "orange",
+    cardVisual: <img src={CARD_BG_SCRIPT} alt="WizScript™ scene-by-scene cinematic video control" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZSCRIPT_LOGO,
   },
 ];

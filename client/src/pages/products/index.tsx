@@ -18,6 +18,7 @@ import {
   WIZSCORE_STUDIO_PAGE,
   WIZSYNC_STUDIO_PAGE,
 } from "@/lib/routes";
+import { getProduct } from "@/lib/products";
 
 const HERO_IMGS = {
   wizcreate:  "/manus-storage/product-wizcreate-hero_6c3efa10.jpg",
@@ -131,7 +132,7 @@ const WIZANIMATE: ProductPageProps = {
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-cyan-500/25",
   ctaHref: WIZANIMATE_SEO_PAGE,
-  ctaLabel: "Animate Your Video",
+  ctaLabel: getProduct("wizanimate")!.ctaLabel,
   whatItDoes: "WizAnimate™ is the performance engine of WIZ AI. It takes the storyboard from WizCreate™ and generates character animation that is precisely matched to the audio — every movement, gesture, and expression timed to the beat, mood, and energy of the track.",
   capabilities: [
     "Beat-matched character motion and gestures",
@@ -182,7 +183,7 @@ const WIZSOUND: ProductPageProps = {
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-[--color-silver]/25",
   ctaHref: WIZAUDIO_STUDIO_PAGE,
-  ctaLabel: "Create Music Now",
+  ctaLabel: getProduct("wizsound")!.ctaLabel,
   whatItDoes: "WizSound™ is WIZ AI's proprietary audio enhancement engine. It applies multi-band compression, harmonic enhancement, spatial widening, and cinematic EQ curves to your audio track — transforming it from a standard recording into a rich, immersive cinematic experience.",
   capabilities: [
     "Multi-band dynamic compression and limiting",
@@ -386,7 +387,7 @@ const WIZSCRIPT: ProductPageProps = {
   bgColour: "bg-violet-500/5",
   badgeClass: "text-violet-300 bg-violet-500/10 border-violet-500/25",
   ctaHref: WIZSCRIPT_STUDIO_PAGE,
-  ctaLabel: "Write Your First Script",
+  ctaLabel: getProduct("wizscript")!.ctaLabel,
   whatItDoes: "WizScript™ is the creative intelligence layer of WIZ AI. It takes your raw idea — a sentence, a topic, or a mood — and structures it into a complete, production-ready video script. Each scene is defined with visual direction, dialogue, and timing, giving WizGenesis™ everything it needs to build your video automatically.",
   capabilities: [
     "Plain-text to full video script in seconds",
@@ -437,7 +438,7 @@ const WIZPILOT: ProductPageProps = {
   bgColour: "bg-fuchsia-500/5",
   badgeClass: "text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/25",
   ctaHref: WIZPILOT_STUDIO_PAGE,
-  ctaLabel: "Launch WizPilot™",
+  ctaLabel: getProduct("wizpilot")!.ctaLabel,
   whatItDoes: "WizPilot™ is the automation intelligence of WIZ AI. You describe your vision — a track, a concept, a style — and WizPilot™ orchestrates the entire creation pipeline automatically. WizCreate™ builds the storyboard, WizAnimate™ generates the animation, WizSync™ locks the audio, WizSound™ enhances the mix, WizLumina™ grades the visuals, WizGenesis\u2122 builds the final output. No manual steps. No handoffs. One prompt to finished video.",
   capabilities: [
     "End-to-end automated video production from a single prompt",
@@ -488,7 +489,7 @@ const WIZSYNC_INFO: ProductPageProps = {
   bgColour: "bg-purple-500/5",
   badgeClass: "text-purple-300 bg-purple-500/10 border-purple-500/25",
   ctaHref: WIZSYNC_STUDIO_PAGE,
-  ctaLabel: "Try WizSync™",
+  ctaLabel: getProduct("wizsync")!.ctaLabel,
   whatItDoes: "WizSync™ analyses your audio track at the waveform level — detecting beats, tempo changes, energy peaks, and speaker voices — then maps every visual element to the audio timeline with frame-perfect precision. The result is a video where every cut, every movement, and every transition feels intentional and musically driven.",
   capabilities: [
     "Beat-perfect audio-to-visual synchronisation",
@@ -539,7 +540,7 @@ const WIZSCORE_INFO: ProductPageProps = {
   bgColour: "bg-teal-500/5",
   badgeClass: "text-teal-300 bg-teal-500/10 border-teal-500/25",
   ctaHref: WIZSCORE_STUDIO_PAGE,
-  ctaLabel: "Score Your Video",
+  ctaLabel: getProduct("wizscore")!.ctaLabel,
   whatItDoes: "WizScore™ reverses the traditional music video workflow. Instead of fitting visuals to music, WizScore™ analyses your existing video — its pacing, mood, energy, and emotional arc — and composes an original AI soundtrack that is perfectly synchronised to your footage. The result is a track that feels composed specifically for your video, not retrofitted to it.",
   capabilities: [
     "AI-composed original soundtracks from video analysis",
@@ -630,7 +631,7 @@ const WIZSHORTS: ProductPageProps = {
   bgColour: "bg-orange-500/5",
   badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
   ctaHref: WIZSHORTS_STUDIO_PAGE,
-  ctaLabel: "Create a Short",
+  ctaLabel: getProduct("wizshorts")!.ctaLabel,
   whatItDoes: "WizShorts™ is WIZ AI's short-form video creation engine. It takes a topic, script, or concept and generates a complete 9:16 vertical video — with AI-generated scenes, optional music, and polished transitions — ready to publish on YouTube Shorts, Instagram Reels, or TikTok.",
   capabilities: [
     "9:16 vertical video output for Shorts, Reels, and TikTok",
@@ -740,7 +741,7 @@ const WIZIMAGE: ProductPageProps = {
   bgColour: "bg-amber-500/5",
   badgeClass: "text-amber-300 bg-amber-500/10 border-amber-500/25",
   ctaHref: WIZIMAGE_STUDIO_PAGE,
-  ctaLabel: "Generate an Image",
+  ctaLabel: getProduct("wizimage")!.ctaLabel,
   whatItDoes: "WizImage™ is WIZ AI's image generation engine. Type any description and WizImage™ produces a high-resolution, publication-ready image in your chosen style — from photorealistic cinematic frames to anime illustrations, 3D renders, and abstract art. Every image is yours to download and use.",
   capabilities: [
     "Text-to-image generation in seconds",
@@ -793,7 +794,7 @@ const WIZVIDEO: ProductPageProps = {
   bgColour: "bg-blue-500/5",
   badgeClass: "text-blue-300 bg-blue-500/10 border-blue-500/25",
   ctaHref: WIZVIDEO_STUDIO_PAGE,
-  ctaLabel: "Create Your Music Video",
+  ctaLabel: getProduct("wizvideo")!.ctaLabel,
   whatItDoes: "WizVideo™ is WIZ AI's end-to-end music video creation engine. Upload your track — or create music with WizScore™ — and WizVideo™ generates a full scene-by-scene storyboard, animates every scene with AI visuals, syncs cuts to your beats and lyrics, and renders a complete music video ready to publish. No editing skills. No crew. No studio.",
   capabilities: [
     "Upload any audio track or create music with WizScore™",

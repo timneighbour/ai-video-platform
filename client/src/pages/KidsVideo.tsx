@@ -4,6 +4,7 @@
  * 3-column: left config | centre storyboard workspace | right upgrade panel
  */
 import { useState, useRef } from "react";
+import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER } from "@/lib/pricing";
 import { Link } from "wouter";
 
 const ENV_IMG = "/manus-storage/env-hollywood-studio_1da3e15e.jpg";
@@ -69,7 +70,7 @@ export default function KidsVideo() {
     color: i < stageIndex ? "#000" : i === stageIndex ? "#fff" : "#555",
   });
 
-  const TIER_PRICE = { original:"Included", enhanced:"+£2.99", cinematic:"+£4.99" };
+  const TIER_PRICE = { original: WIZSOUND_TIERS.ORIGINAL.price, enhanced: WIZSOUND_TIERS.ENHANCED.price, cinematic: WIZSOUND_TIERS.CINEMATIC.price };
 
   return (
     <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#0a0a0a",color:"#ccc",fontFamily:"'Inter',sans-serif",overflow:"hidden"}}>
@@ -338,7 +339,7 @@ export default function KidsVideo() {
                 <div style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}>🎵 WizSound™ Cinematic</div>
                 <div style={{fontSize:"8px",color:"#6a3fa0",marginTop:"1px"}}>Spatial audio · Dolby Atmos</div>
               </div>
-              <div style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>+£4.99</div>
+              <div style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>{WIZSOUND_TIERS.CINEMATIC.price}</div>
             </button>
             <button style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{textAlign:"left"}}>
@@ -353,7 +354,7 @@ export default function KidsVideo() {
           <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
             <div style={{fontSize:"9px",fontWeight:700,color:"#e05c2a",letterSpacing:"1.5px",marginBottom:"8px"}}>RENDER QUALITY</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px",marginBottom:"10px"}}>
-              {[{label:"1080p",price:"Included"},{label:"4K",price:"+£3.99"}].map(rq => (
+              {VIDEO_QUALITY_2TIER.map(rq => (
                 <button key={rq.label} onClick={() => setRenderQuality(rq.label)} style={{
                   background:renderQuality===rq.label?"rgba(224,92,42,0.12)":"#0d0d0d",
                   border:`1px solid ${renderQuality===rq.label?"rgba(224,92,42,0.4)":"#1a1a1a"}`,

@@ -5,6 +5,7 @@
  * Matches the WizScore mockup quality standard.
  */
 import { useAuth } from "@/_core/hooks/useAuth";
+import { RENDER_QUALITY_TIERS, WIZSOUND_TIERS } from "@/lib/pricing";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -559,14 +560,14 @@ export default function TextToVideoCreator() {
             </div>
 
             {/* Upsell buttons */}
-            <button className="w-full btn-primary btn-sheen py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4"><span className="flex items-center gap-2"><Headphones className="w-3.5 h-3.5" /> WizSound™ Cinematic</span><span>+£4.99</span></button>
+            <button className="w-full btn-primary btn-sheen py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4"><span className="flex items-center gap-2"><Headphones className="w-3.5 h-3.5" /> WizSound™ Cinematic</span><span>{WIZSOUND_TIERS.CINEMATIC.price}</span></button>
             <button className="w-full border border-[--color-gold]/30 bg-[--color-gold]/5 hover:bg-[--color-gold]/10 text-[--color-gold] py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4 transition-colors"><span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic</span><span>+£3.99</span></button>
 
             {/* Render Quality */}
             <div className="studio-card rounded-2xl p-4">
               <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">RENDER QUALITY</h3>
               <div className="grid grid-cols-3 gap-2">
-                {([{ id: "hd" as RenderQuality, label: "HD", sub: "standard", price: "Included" }, { id: "4k" as RenderQuality, label: "4K", sub: "studio", price: "+£2.99" }, { id: "8k" as RenderQuality, label: "8K", sub: "master", price: "+£4.99" }]).map(q => (
+                {([{ id: "hd" as RenderQuality, label: RENDER_QUALITY_TIERS[0].label, sub: "standard", price: RENDER_QUALITY_TIERS[0].price }, { id: "4k" as RenderQuality, label: RENDER_QUALITY_TIERS[1].label, sub: "studio", price: RENDER_QUALITY_TIERS[1].price }, { id: "8k" as RenderQuality, label: RENDER_QUALITY_TIERS[2].label, sub: "master", price: RENDER_QUALITY_TIERS[2].price }]).map(q => (
                   <button key={q.id} onClick={() => setRenderQuality(q.id)} className={`rounded-xl p-3 text-center transition-all border ${renderQuality === q.id ? "bg-[--color-gold]/15 border-[--color-gold]/40 shadow-[0_0_12px_rgba(184,137,42,0.15)]" : "bg-white/5 border-white/10 hover:border-white/20"}`}>
                     <p className={`text-sm font-bold ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/60"}`}>{q.label}</p>
                     <p className="text-[9px] text-white/30">{q.sub}</p>
