@@ -6047,3 +6047,9 @@
 - [ ] Update Onboarding.tsx to use routing constant
 - [ ] Update Pricing.tsx to use routing constant
 - [ ] Update Help.tsx to use routing constant
+
+## Auth returnPath Fix
+- [x] Update getLoginUrl() to accept optional returnPath and encode in state
+- [x] Update OAuth callback to extract returnPath from state and redirect there after login
+- [x] Update AuthGate to accept and pass returnPath prop
+- [x] Update AiAnimationMaker to pass WIZANIMATE_STUDIO_PAGE as returnPath to AuthGate

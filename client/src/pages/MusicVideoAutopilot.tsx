@@ -1460,7 +1460,7 @@ export default function MusicVideoAutopilot() {
       </div>
       <div className="env-ambient env-tint-stage" />
       {/* Auth Gate */}
-      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your music video" />
+      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your music video" returnPath="/music-video/create" />
       {/* ===== STORYBOARD GENERATION PROGRESS OVERLAY ===== */}
       {isGeneratingStoryboard && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm">

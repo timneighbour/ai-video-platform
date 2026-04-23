@@ -262,7 +262,7 @@ export default function TextToVideoCreator() {
       {/* ── VR Environment: Hollywood LED Volume Stage ── */}
       <div className="env-bg"><img src={ENV_IMG} alt="" /><div className="env-bg-overlay" /></div>
       <div className="env-ambient env-tint-cinematic" />
-      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="build your video" />
+      <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="build your video" returnPath="/text-to-video" />
 
       {/* ══════════════ TOP NAV ══════════════ */}
       <header className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/[0.06]">

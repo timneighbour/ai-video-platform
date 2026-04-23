@@ -230,6 +230,7 @@ export default function AiAnimationMaker() {
         open={showAuthGate}
         onClose={() => setShowAuthGate(false)}
         featureName="create your animated video"
+        returnPath={WIZANIMATE_STUDIO_PAGE}
       />
 
       {/* ── Navigation ─────────────────────────────────────────────────────── */}

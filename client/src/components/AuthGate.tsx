@@ -16,6 +16,8 @@ interface AuthGateProps {
   onClose: () => void;
   /** Short description of what requires sign-in, e.g. "generate your music video" */
   featureName?: string;
+  /** After login, redirect the user to this path (e.g. "/kids-video"). Defaults to "/". */
+  returnPath?: string;
 }
 
 const BENEFITS = [
@@ -26,7 +28,7 @@ const BENEFITS = [
   { icon: <Music className="w-4 h-4 text-[--color-gold-dark]" />, text: "Powered by WizSound — proprietary audio enhancement" },
 ];
 
-export default function AuthGate({ open, onClose, featureName = "use this feature" }: AuthGateProps) {
+export default function AuthGate({ open, onClose, featureName = "use this feature", returnPath }: AuthGateProps) {
   if (!open) return null;
 
   return (
@@ -78,7 +80,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
 
           {/* CTA */}
           <a
-            href={getLoginUrl()}
+            href={getLoginUrl(returnPath)}
             className="btn-primary btn-sheen btn-sheen block w-full text-center font-semibold py-3 rounded-xl text-sm"
           >
             <Sparkles className="inline w-4 h-4 mr-2 -mt-0.5" />
