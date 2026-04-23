@@ -27,7 +27,7 @@ const AUDIO_STANDARD =
 
 // WizSound Enhanced: same source track, FFmpeg DSP processed — EQ boosted, stereo widened, compressed, loud — the "wow" moment
 const AUDIO_WIZSOUND =
-  "/manus-storage/wizsound-cinematic_ed42a2e8.mp3";
+  "/manus-storage/wizsound-enhance_417ffd57.mp3";
 
 /* ── Premium caption timeline ────────────────────────────────────────── */
 // Each entry: [startSec, endSec, headline, subtext?, accentColour?, isLuminaUpsell?]

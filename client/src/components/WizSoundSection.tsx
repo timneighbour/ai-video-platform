@@ -11,6 +11,9 @@ const AUDIO_NORMAL =
   "/manus-storage/wizsound-original_20889372.mp3";
 // Enhanced: EQ boost (bass +5dB, highs +4dB), light compression, stereo widening — -11 LUFS
 const AUDIO_ENHANCED =
+  "/manus-storage/wizsound-enhance_417ffd57.mp3";
+// Cinematic: full spatial processing, deep bass, reverb, 320kbps — -9 LUFS
+const AUDIO_CINEMATIC =
   "/manus-storage/wizsound-cinematic_ed42a2e8.mp3";
 
 type AudioMode = "normal" | "enhanced" | "cinematic";
@@ -341,8 +344,8 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
         {/* Hidden audio elements */}
         <audio ref={audioNormalRef} src={AUDIO_NORMAL} preload="auto" loop />
         <audio ref={audioEnhancedRef} src={AUDIO_ENHANCED} preload="auto" loop crossOrigin="anonymous" />
-        {/* Cinematic uses same enhanced source — Web Audio API processes it */}
-        <audio ref={audioCinematicRef} src={AUDIO_ENHANCED} preload="auto" loop crossOrigin="anonymous" />
+        {/* Cinematic: dedicated 320kbps source with full spatial processing */}
+        <audio ref={audioCinematicRef} src={AUDIO_CINEMATIC} preload="auto" loop crossOrigin="anonymous" />
 
         {/* Play overlay */}
         {!playing && loaded && (
