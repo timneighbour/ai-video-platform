@@ -1,25 +1,20 @@
 /**
- * WizAudio™ — AI Music Engine
- * Full recording studio environment: 3-column layout with numbered config sidebar,
- * central Recording Booth workspace, and right Upgrade Preview panel.
- * Matches the WizScore mockup quality standard.
+ * WizAudio™ — Recording Booth v4
+ * SSL console aesthetic: Live Room Window + console rail (EQ + VU) + channel area + master bus
+ * Matches mockup-v4-wizaudio.html exactly.
  */
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import {
   Music2, Sparkles, Play, Pause, Download, Loader2,
-  ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
-  Film, Upload, Mic2, Plus, FileText, CheckCircle2,
-  AlertCircle, Settings, Eye, Headphones, SlidersHorizontal,
-  UploadCloud, RefreshCw, Trash2, PenLine, ChevronDown, ChevronUp, X,
+  ChevronRight, ArrowLeft, Check, AlertCircle, Headphones,
+  UploadCloud, RefreshCw, Trash2, Film,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
@@ -40,7 +35,7 @@ const MOODS = [
   "Aggressive", "Dreamy", "Nostalgic", "Triumphant", "Tense",
   "Playful", "Spiritual", "Groovy", "Cinematic",
 ];
-const VOCALS = ["Male vocals", "Female vocals", "Choir", "Rap", "Spoken word", "Instrumental only"];
+const VOCALS = ["Male Vocals", "Female Vocals", "Choir", "Rap", "Spoken Word", "Instrumental Only"];
 const PROMPT_EXAMPLES = [
   "A kids pirate adventure song with a catchy chorus and upbeat energy",
   "Cinematic orchestral score for an epic fantasy battle scene",
@@ -49,73 +44,193 @@ const PROMPT_EXAMPLES = [
   "Dark electronic track with heavy bass and futuristic synths",
   "Acoustic folk ballad about missing home and family",
 ];
-
-type Stage = "compose" | "preview" | "upgrade" | "render";
-const STAGES: { id: Stage; label: string }[] = [
-  { id: "compose", label: "COMPOSE" },
-  { id: "preview", label: "PREVIEW & EDIT" },
-  { id: "upgrade", label: "UPGRADE PREVIEW" },
-  { id: "render", label: "RENDER & EXPORT" },
+const GENRE_DATA: Record<string, { bpm: string; key: string; bars: string; stems: string }> = {
+  "Pop":        { bpm: "120", key: "C",  bars: "32", stems: "10" },
+  "Hip-Hop":    { bpm: "90",  key: "Cm", bars: "32", stems: "8"  },
+  "R&B":        { bpm: "85",  key: "Fm", bars: "32", stems: "10" },
+  "Rock":       { bpm: "140", key: "Em", bars: "32", stems: "8"  },
+  "Electronic": { bpm: "128", key: "Am", bars: "64", stems: "12" },
+  "Country":    { bpm: "100", key: "G",  bars: "32", stems: "7"  },
+  "Jazz":       { bpm: "110", key: "Bb", bars: "48", stems: "6"  },
+  "Classical":  { bpm: "60",  key: "Gm", bars: "64", stems: "20" },
+  "Folk":       { bpm: "95",  key: "D",  bars: "32", stems: "5"  },
+  "Reggae":     { bpm: "80",  key: "Dm", bars: "32", stems: "7"  },
+  "Metal":      { bpm: "160", key: "Em", bars: "32", stems: "8"  },
+  "Indie":      { bpm: "115", key: "Am", bars: "32", stems: "9"  },
+  "K-Pop":      { bpm: "125", key: "C",  bars: "32", stems: "14" },
+  "Latin":      { bpm: "105", key: "Am", bars: "32", stems: "11" },
+  "Gospel":     { bpm: "90",  key: "Eb", bars: "32", stems: "12" },
+  "Blues":      { bpm: "75",  key: "Bb", bars: "24", stems: "5"  },
+};
+const MOOD_KNOBS = ["Energy", "Darkness", "Tension", "Warmth", "Space", "Drive"];
+const DURATION_OPTIONS = [
+  { value: 30,  label: "30s", sub: "Clip" },
+  { value: 60,  label: "60s", sub: "Short" },
+  { value: 120, label: "2m",  sub: "Standard" },
+  { value: 180, label: "3m",  sub: "Full" },
+  { value: 300, label: "5m",  sub: "Extended" },
 ];
-type RenderQuality = "hd" | "4k" | "8k";
-type AudioTier = "original" | "enhanced" | "cinematic";
 
-/* ── Waveform Visualizer ──────────────────────────────────────────────────── */
-function TrackWaveform({ color }: { color: string }) {
+type AudioTier = "original" | "enhanced" | "cinematic";
+type RenderQuality = "hd" | "4k" | "8k";
+type GenerationMode = "score" | "song" | "suno";
+
+/* ── Animated EQ Bars (console rail) ─────────────────────────────────────── */
+function ConsoleEQDisplay({ isActive }: { isActive: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+  const levelsRef = useRef<number[]>(Array.from({ length: 13 }, () => 0));
+  const peaksRef = useRef<number[]>(Array.from({ length: 13 }, () => 0));
+  const peakHoldRef = useRef<number[]>(Array.from({ length: 13 }, () => 0));
+  const freqCurve = [0.4, 0.55, 0.7, 0.85, 0.95, 1.0, 0.98, 0.92, 0.82, 0.68, 0.52, 0.38, 0.25];
+  const freqLabels = ["20", "50", "100", "200", "400", "800", "1k", "2k", "4k", "8k", "12k", "16k", "20k"];
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const draw = () => {
+      const W = canvas.width;
+      const H = canvas.height - 14; // leave room for labels
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const bandW = Math.floor(W / 13);
+
+      levelsRef.current.forEach((level, i) => {
+        const curve = freqCurve[i] || 0.5;
+        const target = isActive ? (0.2 + Math.random() * 0.8) * curve : 0;
+        levelsRef.current[i] += (target - level) * 0.25;
+        const l = levelsRef.current[i];
+        const segCount = 10;
+        const activeSeg = Math.floor(l * segCount);
+
+        if (activeSeg > peaksRef.current[i]) {
+          peaksRef.current[i] = activeSeg;
+          peakHoldRef.current[i] = 80;
+        } else {
+          peakHoldRef.current[i]--;
+          if (peakHoldRef.current[i] <= 0) peaksRef.current[i] = Math.max(0, peaksRef.current[i] - 0.3);
+        }
+
+        const x = i * bandW + 1;
+        const segH = Math.floor(H / segCount) - 1;
+        for (let si = 0; si < segCount; si++) {
+          const y = H - (si + 1) * (segH + 1);
+          if (si < activeSeg) {
+            if (si >= 9) ctx.fillStyle = "#ff3b30";
+            else if (si >= 8) ctx.fillStyle = "#ffd60a";
+            else if (si >= 6) ctx.fillStyle = "#30d158";
+            else if (si >= 4) ctx.fillStyle = "#40c8e0";
+            else ctx.fillStyle = "#0a84ff";
+          } else {
+            ctx.fillStyle = "rgba(255,255,255,0.04)";
+          }
+          ctx.fillRect(x, y, bandW - 2, segH);
+        }
+
+        // Peak dot
+        const peakY = H - (Math.floor(peaksRef.current[i]) + 1) * (segH + 1);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillRect(x, peakY, bandW - 2, 2);
+
+        // Freq label
+        ctx.fillStyle = "rgba(255,255,255,0.22)";
+        ctx.font = "6px 'Courier Prime', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(freqLabels[i], x + (bandW - 2) / 2, canvas.height - 2);
+      });
+
+      rafRef.current = requestAnimationFrame(draw);
+    };
+
+    rafRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [isActive]);
+
   return (
-    <div className="h-8 rounded-sm overflow-hidden relative" style={{ background: `${color}15` }}>
-      <div className="absolute inset-0 flex items-center gap-[1px] px-1">
-        {Array.from({ length: 60 }).map((_, i) => (
-          <div key={i} className="flex-1 rounded-full" style={{ height: `${Math.random() * 70 + 20}%`, background: `linear-gradient(to top, ${color}40, ${color}cc)` }} />
+    <canvas
+      ref={canvasRef}
+      width={390}
+      height={66}
+      className="w-full"
+      style={{ imageRendering: "pixelated" }}
+    />
+  );
+}
+
+/* ── VU Meter ─────────────────────────────────────────────────────────────── */
+function VUMeter({ channel, isActive }: { channel: "L" | "R"; isActive: boolean }) {
+  const [level, setLevel] = useState(0);
+  useEffect(() => {
+    if (!isActive) { setLevel(0); return; }
+    const t = setInterval(() => setLevel(0.4 + Math.random() * 0.6), 100);
+    return () => clearInterval(t);
+  }, [isActive]);
+
+  const segs = 10;
+  const active = Math.floor(level * segs);
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-[8px] text-white/16 tracking-widest">{channel}</span>
+      <div className="flex flex-col-reverse gap-[2px]">
+        {Array.from({ length: segs }).map((_, i) => (
+          <div
+            key={i}
+            className="w-[22px] h-[5px] rounded-[1px] transition-all duration-75"
+            style={{
+              background: i < active
+                ? i >= 9 ? "#ff3b30" : i >= 8 ? "#ffd60a" : "#30d158"
+                : "rgba(255,255,255,0.04)",
+              boxShadow: i < active
+                ? i >= 9 ? "0 0 4px #ff3b30" : i >= 8 ? "0 0 4px #ffd60a" : "0 0 4px #30d158"
+                : "none",
+            }}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-/* ── Spectrum Analyzer ────────────────────────────────────────────────────── */
-function SpectrumAnalyzer() {
-  return (
-    <div className="w-full h-16 flex items-end gap-[2px] px-4 overflow-hidden">
-      {Array.from({ length: 120 }).map((_, i) => {
-        const h = Math.sin(i * 0.15) * 30 + Math.random() * 25 + 15;
-        const hue = (i / 120) * 300;
-        return <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${h}%`, background: `hsl(${hue}, 80%, 55%)`, opacity: 0.85 }} />;
-      })}
-    </div>
-  );
-}
-
 /* ── Main Component ───────────────────────────────────────────────────────── */
 export default function MusicCreator() {
-  useSEO({ title: "AI Music Creator — Generate Songs with AI — WIZ AI", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
+  useSEO({ title: "WizAudio™ — AI Music Engine", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
   const { user, loading: authLoading } = useAuth();
 
   // ── Form state ──
-  const [mode, setMode] = useState<"generate" | "upload">("generate");
   const [prompt, setPrompt] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedMood, setSelectedMood] = useState("");
+  const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [selectedVocal, setSelectedVocal] = useState("");
-  const [instrumental, setInstrumental] = useState(false);
   const [title, setTitle] = useState("");
   const [lyrics, setLyrics] = useState("");
-  const [showLyrics, setShowLyrics] = useState(false);
-  const [lyricsGenerated, setLyricsGenerated] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
   const [model, setModel] = useState<"V3_5" | "V4">("V4");
-  const [targetDuration, setTargetDuration] = useState<number>(120);
-  const [generationMode, setGenerationMode] = useState<"score" | "song" | "suno">("suno");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [targetDuration, setTargetDuration] = useState<number | null>(null);
+  const [generationMode, setGenerationMode] = useState<GenerationMode>("suno");
+  const [variations, setVariations] = useState<2 | 4>(2);
+  const [activeTier, setActiveTier] = useState<AudioTier>("original");
+  const [renderQuality, setRenderQuality] = useState<RenderQuality>("hd");
+  const [ambience, setAmbience] = useState(72);
+  const [activeKnobs, setActiveKnobs] = useState<string[]>(["Energy", "Space"]);
+  const [mode, setMode] = useState<"generate" | "upload">("generate");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
   const [uploadedAudioName, setUploadedAudioName] = useState<string>("");
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Mockup state ──
-  const [activeStage, setActiveStage] = useState<Stage>("compose");
-  const [completedStages] = useState<Stage[]>([]);
-  const [activeTier, setActiveTier] = useState<AudioTier>("original");
-  const [renderQuality, setRenderQuality] = useState<RenderQuality>("hd");
-  const [ambientLevel] = useState(60);
+  // ── Generation state ──
+  const [taskId, setTaskId] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedTracks, setGeneratedTracks] = useState<Array<{ audioUrl: string; title: string; imageUrl?: string; tags?: string; duration?: number }>>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "pending" | "processing" | "trimming" | "complete" | "failed">("idle");
+
+  // ── Derived ──
+  const firstGenre = selectedGenres[0] || "";
+  const genreInfo = GENRE_DATA[firstGenre] || { bpm: "—", key: "—", bars: "—", stems: "—" };
+  const isOnAir = isGenerating;
 
   // ── API mutations ──
   const uploadAudioMutation = trpc.musicVideo.uploadAudio.useMutation({
@@ -135,17 +250,8 @@ export default function MusicCreator() {
     setIsUploadingFile(false);
   };
 
-  // Generation state
-  const [taskId, setTaskId] = useState<number | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedTracks, setGeneratedTracks] = useState<Array<{ audioUrl: string; title: string; imageUrl?: string; tags?: string; duration?: number }>>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "pending" | "processing" | "trimming" | "complete" | "failed">("idle");
-
-  const isCustomMode = !!(selectedGenres.length > 0 || selectedMood) && !!title.trim() && !instrumental && selectedVocal !== "Instrumental only";
-
   const generateLyricsMutation = trpc.suno.generateLyrics.useMutation({
-    onSuccess: (data) => { setLyrics(data.lyrics); setLyricsGenerated(true); setShowLyrics(true); toast.success("Lyrics generated!"); },
+    onSuccess: (data) => { setLyrics(data.lyrics); toast.success("Lyrics generated!"); },
     onError: (err) => toast.error(err.message || "Failed to generate lyrics."),
   });
 
@@ -177,29 +283,28 @@ export default function MusicCreator() {
   const buildStyleString = () => {
     const parts: string[] = [];
     if (selectedGenres.length > 0) parts.push(selectedGenres.join(", "));
-    if (selectedMood) parts.push(selectedMood);
-    if (selectedVocal && selectedVocal !== "Instrumental only") parts.push(selectedVocal);
+    if (selectedMoods.length > 0) parts.push(selectedMoods.join(", "));
+    if (selectedVocal && selectedVocal !== "Instrumental Only") parts.push(selectedVocal);
     return parts.join(", ");
   };
 
   const handleGenerateLyrics = () => {
     if (!prompt.trim()) { toast.error("Please describe your song first."); return; }
-    generateLyricsMutation.mutate({ prompt: prompt.trim(), genre: selectedGenres.join(", ") || undefined, mood: selectedMood || undefined, title: title.trim() || undefined });
+    generateLyricsMutation.mutate({ prompt: prompt.trim(), genre: selectedGenres.join(", ") || undefined, mood: selectedMoods.join(", ") || undefined, title: title.trim() || undefined });
   };
 
   const handleGenerate = () => {
     if (!prompt.trim()) return;
     setError(null); setGeneratedTracks([]); setTaskId(null); setStatus("idle");
     const styleStr = buildStyleString();
-    const isInstrumental = instrumental || selectedVocal === "Instrumental only";
+    const isInstrumental = selectedVocal === "Instrumental Only";
     generateMutation.mutate({ prompt: prompt.trim(), lyrics: lyrics.trim() || undefined, style: styleStr || undefined, title: title.trim() || undefined, instrumental: isInstrumental, model, origin: window.location.origin, targetDuration: targetDuration ?? undefined, generationMode });
   };
 
   const toggleGenre = (g: string) => setSelectedGenres((prev) => prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g].slice(0, 3));
+  const toggleMood = (m: string) => setSelectedMoods((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m].slice(0, 3));
+  const toggleKnob = (k: string) => setActiveKnobs((prev) => prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]);
   const canGenerate = prompt.trim().length > 0 && !isGenerating;
-  const lyricsCharCount = lyrics.length;
-  const lyricsCharColor = lyricsCharCount > 2800 ? "text-red-400" : lyricsCharCount > 2000 ? "text-yellow-400" : "text-[#a1a1aa]";
-  const durationLabel = targetDuration >= 60 ? `${Math.floor(targetDuration / 60)}:${String(targetDuration % 60).padStart(2, "0")}` : `0:${String(targetDuration).padStart(2, "0")}`;
 
   // ── Auth gate ──
   if (!authLoading && !user) {
@@ -217,382 +322,545 @@ export default function MusicCreator() {
   }
 
   return (
-    <div className="min-h-screen text-white" style={{ backgroundColor: "#06050a" }}>
-      {/* ── VR Environment: Recording Studio ── */}
-      <div className="env-bg"><img src={ENV_IMG} alt="" /><div className="env-bg-overlay" /></div>
-      <div className="env-ambient env-tint-amber" style={{ opacity: ambientLevel / 100 }} />
+    <div className="min-h-screen text-white" style={{ backgroundColor: "#060608", fontFamily: "'Inter', sans-serif" }}>
 
-      {/* ══════════════ TOP NAV ══════════════ */}
-      <header className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-white/40 hover:text-white/70 text-sm flex items-center gap-1.5 transition-colors"><ArrowLeft className="w-3.5 h-3.5" /> Back to Studio</Link>
-            <div className="flex items-center gap-2">
-              <span className="text-white font-bold text-lg tracking-tight">WIZAUDIO</span>
-              <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI MUSIC ENGINE</span>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-1 text-xs text-white/40 font-semibold tracking-widest">
-            {["SONGS", "SCORES", "SOUND FX", "VOCALS"].map((g, i) => (
-              <span key={g} className="flex items-center gap-1">{i > 0 && <span className="text-white/15 mx-1">·</span>}<span className="hover:text-white/70 cursor-pointer transition-colors">{g}</span></span>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3">
-            <div className="bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-3 py-1 text-[--color-gold] text-xs font-bold">10,000 Credits</div>
-            <div className="w-8 h-8 rounded-full bg-[--color-gold]/20 border border-[--color-gold]/30 flex items-center justify-center text-[--color-gold] text-xs font-bold">{user?.name?.charAt(0) || "T"}</div>
+      {/* ── TOP NAV ── */}
+      <header className="sticky top-0 z-50 h-[52px] flex items-center justify-between px-7" style={{ background: "rgba(4,4,6,0.97)", borderBottom: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(20px)" }}>
+        <div className="flex items-center gap-3.5">
+          <Link href="/" className="flex items-center gap-1 text-xs text-white/35 hover:text-[--color-gold] transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
+          </Link>
+          <div className="w-px h-[18px] bg-white/7" />
+          <div className="flex items-center gap-2.5">
+            <span className="font-bold text-[19px] tracking-[2px]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZAUDIO</span>
+            <span className="text-[9px] font-bold tracking-[2px] text-[--color-gold] px-1.5 py-0.5 rounded-sm border border-[--color-gold]/22 uppercase" style={{ background: "rgba(201,168,76,0.1)" }}>AI MUSIC ENGINE</span>
           </div>
         </div>
-        {/* ── 4-Stage Workflow Bar ── */}
-        <div className="border-t border-white/[0.04] bg-[#0a0a0f]/60">
-          <div className="max-w-[1600px] mx-auto px-4 py-2 flex items-center justify-center gap-2">
-            {STAGES.map((s, i) => {
-              const isActive = activeStage === s.id;
-              const isDone = completedStages.includes(s.id);
-              return (
-                <div key={s.id} className="flex items-center gap-2">
-                  <button onClick={() => setActiveStage(s.id)} className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all ${isActive ? "bg-[--color-gold]/20 border border-[--color-gold]/40 text-[--color-gold] shadow-[0_0_15px_rgba(184,137,42,0.2)]" : isDone ? "text-white/60 hover:text-white/80" : "text-white/30 hover:text-white/50"}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDone ? "bg-green-500/20 text-green-400" : isActive ? "bg-[--color-gold]/30 text-[--color-gold]" : "bg-white/10"}`}>{isDone ? <Check className="w-3 h-3" /> : i + 1}</span>
-                    <span className="hidden sm:inline">{s.label}</span>
-                  </button>
-                  {i < STAGES.length - 1 && <ChevronRight className="w-3 h-3 text-white/15" />}
-                </div>
-              );
-            })}
+        <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[--color-gold] px-3 py-1.5 rounded-[4px] border border-[--color-gold]/20" style={{ background: "rgba(201,168,76,0.08)" }}>
+            ✦ 10,000 Credits
+          </div>
+          <div className="w-[30px] h-[30px] rounded-full border border-[--color-gold]/30 flex items-center justify-center text-xs font-bold text-[--color-gold]" style={{ background: "rgba(201,168,76,0.15)" }}>
+            {user?.name?.charAt(0) || "T"}
           </div>
         </div>
       </header>
 
-      {/* ── VR Hero Banner with Spectrum ── */}
-      <div className="relative h-[200px] overflow-hidden">
-        <img src={ENV_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ filter: "brightness(0.5) saturate(1.3)" }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06050a] via-[#06050a]/30 to-transparent" />
-        <div className="absolute top-4 left-4 z-10 studio-card rounded-xl px-4 py-2.5">
-          <p className="text-[9px] text-white/40 font-bold tracking-widest uppercase">CURRENT SESSION</p>
-          <p className="text-white/80 text-sm font-bold italic">{title || "New Track"}</p>
-          <p className="text-white/30 text-[10px]">{selectedGenres.join(" · ") || "No genre"} · {selectedMood || "No mood"} · {generationMode === "suno" ? "WizAudio" : generationMode === "song" ? "Precision" : "SFX"}</p>
+      {/* ── LIVE ROOM WINDOW ── */}
+      <div className="relative w-full overflow-hidden" style={{ height: 280, background: "#000" }}>
+        <img src={ENV_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.6s ease" }} />
+        {/* Ambient overlay */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(0,0,0,0.28)" }} />
+        {/* Glass reflection */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, transparent 30%, rgba(255,255,255,0.02) 60%, transparent 100%)" }} />
+        {/* Bottom vignette */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: 90, background: "linear-gradient(0deg, rgba(14,14,18,1) 0%, rgba(14,14,18,0.6) 50%, transparent 100%)" }} />
+
+        {/* Session info */}
+        <div className="absolute top-4 left-6 z-20">
+          <div className="text-[9px] font-semibold tracking-[2.5px] uppercase text-white/40 mb-0.5">Current Session</div>
+          <div className="text-[28px] leading-none tracking-[3px] text-white/90" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
+            {title || "New Track"}
+          </div>
+          <div className="text-[11px] font-medium text-[--color-gold] mt-0.5">
+            {selectedGenres.join(" · ") || "No genre"} · {selectedMoods.join(" · ") || "No mood"}
+          </div>
         </div>
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
-          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-400 text-[10px] font-bold"><span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> STUDIO READY</span>
+
+        {/* Wiz Studios brand */}
+        <div className="absolute bottom-[60px] left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 pointer-events-none">
+          <div className="flex items-center gap-2.5 w-full justify-center">
+            <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
+          </div>
+          <div className="text-[42px] leading-none tracking-[12px] text-white/18" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 0 40px rgba(201,168,76,0.25)", WebkitTextStroke: "0.5px rgba(255,255,255,0.12)" }}>WIZ STUDIOS</div>
+          <div className="flex items-center gap-2.5 w-full justify-center">
+            <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
+            <div className="text-[9px] font-semibold tracking-[5px] uppercase text-[--color-gold]/35" style={{ textShadow: "0 0 20px rgba(201,168,76,0.2)" }}>Recording · Mixing · Mastering</div>
+            <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
+          </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0"><SpectrumAnalyzer /></div>
+
+        {/* ON AIR sign */}
+        <div className={`absolute top-4 right-6 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-[3px] border transition-all ${isOnAir ? "border-[rgba(255,59,48,0.8)] bg-[rgba(255,20,10,0.18)]" : "border-[rgba(255,59,48,0.3)] bg-[rgba(0,0,0,0.75)]"}`} style={{ boxShadow: isOnAir ? "0 0 20px rgba(255,59,48,0.3)" : "none" }}>
+          <div className={`w-2 h-2 rounded-full border transition-all ${isOnAir ? "bg-[#ff3b30] border-[#ff3b30] animate-pulse" : "bg-[rgba(255,59,48,0.2)] border-[rgba(255,59,48,0.35)]"}`} style={{ boxShadow: isOnAir ? "0 0 8px #ff3b30" : "none" }} />
+          <span className={`text-[10px] font-extrabold tracking-[3px] uppercase transition-all ${isOnAir ? "text-[#ff3b30]" : "text-white/20"}`}>ON AIR</span>
+        </div>
       </div>
 
-      {/* ══════════════ MAIN 3-COLUMN LAYOUT ══════════════ */}
-      <div className="relative z-10 max-w-[1600px] mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_280px] gap-4">
+      {/* ── SSL CONSOLE ── */}
+      <div className="flex flex-col" style={{ background: "#16161c", borderTop: "2px solid rgba(80,80,100,0.5)", minHeight: "calc(100vh - 332px)" }}>
 
-          {/* ── LEFT SIDEBAR: Song Configuration ── */}
-          <aside className="space-y-5">
-            {/* 1. Track Duration */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">1</span>
-                Track Duration
-              </h3>
-              <div className="studio-card rounded-xl p-3 space-y-2">
-                <div className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-white/40" /><span className="text-sm font-bold text-[--color-gold]">{durationLabel}</span></div>
-                <div className="flex flex-wrap gap-1">
-                  {[30, 60, 120, 180, 300].map(s => (
-                    <button key={s} onClick={() => setTargetDuration(s)} className={`text-[9px] px-2 py-1 rounded-full border transition-all ${targetDuration === s ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]" : "bg-white/5 border-white/10 text-white/40 hover:text-white/60"}`}>{s < 60 ? `${s}s` : `${Math.floor(s/60)}m`}</button>
-                  ))}
-                </div>
-                <input type="range" min={5} max={600} value={targetDuration} onChange={e => setTargetDuration(Number(e.target.value))} className="w-full h-1 accent-[--color-gold] bg-white/10 rounded-full cursor-pointer" />
-              </div>
+        {/* Console Rail */}
+        <div className="flex items-center px-4 gap-3 flex-shrink-0" style={{ height: 82, background: "#0e0e12", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+          {/* Left: brand + ambient */}
+          <div className="flex flex-col gap-1.5 flex-shrink-0">
+            <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">SSL 9000 — Master Bus</div>
+            <div className="flex items-center gap-2.5 px-3 py-1 rounded-[4px] border border-[--color-gold]/15" style={{ background: "rgba(0,0,0,0.3)" }}>
+              <span className="text-[8px] font-bold tracking-[2px] uppercase text-white/20">Studio Ambience</span>
+              <input
+                type="range" min={20} max={100} value={ambience}
+                onChange={(e) => setAmbience(Number(e.target.value))}
+                className="w-20 h-1 cursor-pointer accent-[#c9a84c]"
+                style={{ background: `linear-gradient(to right, #3a3000 0%, #c9a84c ${ambience}%, #1a1a1a ${ambience}%)` }}
+              />
+              <span className="text-[11px] font-bold text-[--color-gold] font-mono w-8">{ambience}%</span>
             </div>
+          </div>
 
-            {/* 2. Genre */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">2</span>
-                Genre <span className="text-white/30 text-[9px] font-normal">(pick up to 3)</span>
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {GENRES.map(g => (
-                  <button key={g} onClick={() => toggleGenre(g)} className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${selectedGenres.includes(g) ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]" : "bg-white/5 border-white/10 text-white/40 hover:text-white/60 hover:border-white/20"}`}>{g}</button>
+          {/* Centre: EQ display */}
+          <div className="flex-1 max-w-[520px] rounded-[4px] overflow-hidden px-2.5 pt-1.5 pb-0.5" style={{ background: "#080810", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 2px 8px rgba(0,0,0,0.8)" }}>
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-[7px] font-bold tracking-[2px] uppercase text-white/18 font-mono">Spectrum Analyser — 13 Band</span>
+              <span className="text-[7px] font-semibold tracking-[1.5px] text-[#40c8e0]/50 font-mono">● LIVE</span>
+            </div>
+            <ConsoleEQDisplay isActive={isOnAir} />
+          </div>
+
+          {/* Right: VU meters */}
+          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+            <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">Master</div>
+            <div className="flex items-center gap-2">
+              <VUMeter channel="L" isActive={isOnAir} />
+              <VUMeter channel="R" isActive={isOnAir} />
+            </div>
+          </div>
+        </div>
+
+        {/* Console Body */}
+        <div className="grid flex-1 overflow-hidden" style={{ gridTemplateColumns: "1fr 300px" }}>
+
+          {/* ── LEFT: Channel Area ── */}
+          <div className="overflow-y-auto p-3.5 flex flex-col gap-3" style={{ borderRight: "1px solid rgba(255,255,255,0.07)" }}>
+
+            {/* Engine Selector */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="flex items-center gap-2 px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)", fontSize: 9, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: "rgba(255,255,255,0.2)" }}>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
+                Recording Booth — Generation Engine
+              </div>
+              <div className="flex p-2.5 gap-0">
+                {([
+                  { value: "score" as GenerationMode, icon: "🔊", label: "Sound FX",       desc: "Cinematic effects & ambience" },
+                  { value: "song"  as GenerationMode, icon: "🎧", label: "Precision Audio", desc: "Full production, any length" },
+                  { value: "suno"  as GenerationMode, icon: "🎵", label: "WizAudio",        desc: "2 creative track variations with lyrics" },
+                ]).map((e, i, arr) => (
+                  <button
+                    key={e.value}
+                    onClick={() => setGenerationMode(e.value)}
+                    className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 px-2 border transition-all cursor-pointer ${
+                      generationMode === e.value
+                        ? "bg-[--color-gold]/10 border-[--color-gold]"
+                        : "bg-white/2 border-white/7 hover:bg-[--color-gold]/5 hover:border-[--color-gold]/25"
+                    } ${i === 0 ? "rounded-l-[4px]" : i === arr.length - 1 ? "rounded-r-[4px]" : ""} ${i > 0 ? "border-l-0" : ""}`}
+                    style={{ zIndex: generationMode === e.value ? 1 : 0 }}
+                  >
+                    <span className="text-[15px]">{e.icon}</span>
+                    <span className={`text-[10px] font-bold tracking-[0.5px] ${generationMode === e.value ? "text-[--color-gold]" : "text-white/35"}`}>{e.label}</span>
+                    <span className={`text-[8px] text-center leading-[1.3] ${generationMode === e.value ? "text-[--color-gold]/55" : "text-white/18"}`}>{e.desc}</span>
+                  </button>
                 ))}
               </div>
-            </div>
-
-            {/* 3. Mood */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">3</span>
-                Mood
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {MOODS.map(m => (
-                  <button key={m} onClick={() => setSelectedMood(selectedMood === m ? "" : m)} className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${selectedMood === m ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]" : "bg-white/5 border-white/10 text-white/40 hover:text-white/60 hover:border-white/20"}`}>{m}</button>
-                ))}
-              </div>
-            </div>
-
-            {/* 4. Vocal Style */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">4</span>
-                Vocal Style
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {VOCALS.map(v => (
-                  <button key={v} onClick={() => setSelectedVocal(selectedVocal === v ? "" : v)} className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${selectedVocal === v ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]" : "bg-white/5 border-white/10 text-white/40 hover:text-white/60 hover:border-white/20"}`}>{v}</button>
-                ))}
-              </div>
-            </div>
-
-            {/* 5. Song Brief */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">5</span>
-                Song Brief
-              </h3>
-              <div className="flex items-center gap-2 mb-2">
-                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined)} />
-                <span className="text-white/25 text-[10px]">or type below</span>
-              </div>
-              <textarea value={prompt} onChange={e => setPrompt(e.target.value)} rows={4} maxLength={400} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white/70 text-xs resize-none focus:border-[--color-gold]/30 focus:outline-none transition-colors" placeholder="e.g. A kids pirate adventure song with a catchy chorus and upbeat energy..." />
-              <p className="text-[10px] text-white/30 mt-1">{prompt.length}/400</p>
-            </div>
-
-            {/* 6. Advanced */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">6</span>
-                Advanced
-              </h3>
-              <div className="space-y-2">
-                <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Song title (optional)" maxLength={80} className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/70 text-xs focus:border-[--color-gold]/30 focus:outline-none" />
-                <select value={model} onChange={e => setModel(e.target.value as "V3_5" | "V4")} className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/70 text-xs focus:border-[--color-gold]/30 focus:outline-none">
-                  <option value="V4">WizAudio V4</option>
-                  <option value="V3_5">WizAudio V3.5</option>
+              <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-white/7" style={{ background: "rgba(0,0,0,0.2)" }}>
+                <span className="text-[9px] font-semibold tracking-[1.5px] uppercase text-white/22">Model</span>
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value as "V3_5" | "V4")}
+                  className="text-[11px] font-semibold text-[--color-gold] px-2.5 py-1 rounded-[3px] border border-[--color-gold]/20 cursor-pointer focus:outline-none"
+                  style={{ background: "rgba(201,168,76,0.08)" }}
+                >
+                  <option value="V4">🤖 WizAudio V4 (recommended)</option>
+                  <option value="V3_5">🤖 WizAudio V3.5</option>
                 </select>
               </div>
             </div>
-          </aside>
 
-          {/* ── CENTER: Recording Booth Workspace ── */}
-          <main className="space-y-4">
-            {/* Mode toggle */}
-            <div className="flex items-center gap-3 mb-2">
-              <button onClick={() => setMode("generate")} className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold border transition-all ${mode === "generate" ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]" : "bg-white/5 border-white/10 text-white/40 hover:text-white/60"}`}><Sparkles className="w-3.5 h-3.5" /> Generate with AI</button>
-              <button onClick={() => setMode("upload")} className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold border transition-all ${mode === "upload" ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]" : "bg-white/5 border-white/10 text-white/40 hover:text-white/60"}`}><UploadCloud className="w-3.5 h-3.5" /> Upload Your Track</button>
-            </div>
-
-            {/* Recording Booth Console */}
-            <div className="studio-card rounded-2xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[--color-gold]/10 bg-black/40">
-                <div className="flex items-center gap-2.5">
-                  <span className={`w-2 h-2 rounded-full ${isGenerating ? "bg-red-500 animate-pulse" : prompt.trim() ? "bg-green-500" : "bg-white/20"}`} />
-                  <span className="text-[10px] text-white/40 font-bold tracking-widest uppercase">{isGenerating ? "ON AIR — RECORDING" : "RECORDING BOOTH"}</span>
+            {/* Track Brief */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.35)" }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
+                  <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
-                <div className="flex gap-[2px]" style={{ opacity: isGenerating ? 1 : 0.2 }}>
-                  {Array.from({ length: 8 }).map((_, j) => (
-                    <div key={j} className="w-[3px] rounded-full bg-[--color-gold]" style={{ height: `${8 + Math.random() * 12}px`, animationName: isGenerating ? "wizWave" : "none", animationDuration: "0.8s", animationDelay: `${j * 0.1}s`, animationIterationCount: "infinite", animationDirection: "alternate" }} />
-                  ))}
-                </div>
+                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined)} />
               </div>
-              <div className="p-5">
-                <h2 className="text-lg font-bold text-white mb-1">Ready to generate</h2>
-                <label className="block text-xs text-[#a1a1aa] mb-2 font-medium uppercase tracking-widest">Generation Engine</label>
-                <div className="grid grid-cols-3 gap-1.5 mb-2">
-                  {([{ value: "score" as const, label: "Sound FX" }, { value: "song" as const, label: "Precision Audio" }, { value: "suno" as const, label: "WizAudio" }]).map(({ value, label }) => (
-                    <button key={value} onClick={() => setGenerationMode(value)} className={`p-2.5 rounded-xl border text-left transition-all ${generationMode === value ? "bg-[--color-gold]/15 border-[--color-gold]/30 text-[--color-gold]" : "bg-white/3 border-white/8 text-[#a1a1aa] hover:border-white/20"}`}>
-                      <div className="text-[11px] font-semibold">{label}</div>
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                rows={4}
+                maxLength={2000}
+                className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-[1.65] text-[#f5f0e8] placeholder:text-[#f5f0e8]/16 placeholder:italic"
+                style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
+                placeholder={`Describe your track. Think like you're briefing the session musicians — the vibe, the tempo, the instruments, the emotion…\n\nA driving cinematic orchestral piece with building strings and pounding percussion, like a film trailer…`}
+              />
+              <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-white/7">
+                <span className="text-[9px] text-white/18 font-mono">{prompt.length} / 2000</span>
+                <button onClick={() => setShowExamples(!showExamples)} className="flex items-center gap-1 text-[9px] text-[--color-gold]/50 hover:text-[--color-gold] transition-colors">
+                  {showExamples ? "▾" : "▸"} Example prompts
+                </button>
+              </div>
+              {showExamples && (
+                <div className="flex flex-col gap-1 px-3.5 pb-2.5">
+                  {PROMPT_EXAMPLES.map((ex) => (
+                    <button key={ex} onClick={() => { setPrompt(ex); setShowExamples(false); }} className="flex items-center gap-2 px-2.5 py-1.5 rounded-[3px] text-[11px] text-left text-white/38 hover:text-white/65 transition-all border border-white/5 hover:border-[--color-gold]/20 hover:bg-[--color-gold]/5" style={{ fontFamily: "'Courier Prime', monospace", background: "rgba(255,255,255,0.02)" }}>
+                      <span className="text-[--color-gold]/60 text-[9px] flex-shrink-0">→</span>{ex}
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-[#666] leading-relaxed mb-4">
-                  {generationMode === "score" && "Sound FX — exact-duration sound design. Stingers, cinematic hits, ambient beds up to 30s."}
-                  {generationMode === "song" && "Precision Audio — full production music at any length. Cinematic scores, background tracks, vocal songs."}
-                  {generationMode === "suno" && "WizAudio — 2 creative track variations. Great for songs with lyrics. If a duration is set, the track is trimmed to fit."}
-                </p>
+              )}
+            </div>
 
-                {/* Summary */}
-                <div className="space-y-1.5 mb-4 text-sm">
-                  {prompt && <div className="flex gap-2"><span className="text-[#a1a1aa] flex-shrink-0">Prompt:</span><span className="text-white truncate">{prompt.slice(0, 60)}{prompt.length > 60 ? "…" : ""}</span></div>}
-                  {selectedGenres.length > 0 && <div className="flex gap-2"><span className="text-[#a1a1aa]">Genre:</span><span className="text-white">{selectedGenres.join(", ")}</span></div>}
-                  {selectedMood && <div className="flex gap-2"><span className="text-[#a1a1aa]">Mood:</span><span className="text-white">{selectedMood}</span></div>}
-                </div>
-
-                {/* Lyrics */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Button variant="outline" size="sm" onClick={handleGenerateLyrics} disabled={!prompt.trim() || generateLyricsMutation.isPending} className="bg-white/4 border-white/10 text-[#a1a1aa] hover:text-white text-xs h-8 rounded-lg">
-                      {generateLyricsMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" />Writing…</> : <><Sparkles className="w-3 h-3 mr-1.5" />{lyricsGenerated ? "Regenerate Lyrics" : "Generate Lyrics with AI"}</>}
-                    </Button>
-                    <button onClick={() => setShowLyrics(!showLyrics)} className="text-[10px] text-white/30 hover:text-white/60 transition-colors">{showLyrics ? "Hide" : "Show"} lyrics</button>
-                  </div>
-                  {showLyrics && (
-                    <Textarea value={lyrics} onChange={e => setLyrics(e.target.value)} placeholder="[Verse 1]\nWrite or paste your lyrics here..." className="bg-[#0f0f0f] border-white/10 text-white placeholder:text-[#555] resize-none min-h-[160px] focus:border-[--color-gold]/30 focus:ring-0 rounded-xl font-mono text-sm" maxLength={3000} />
-                  )}
-                  {showLyrics && <p className={`text-[10px] mt-1 ${lyricsCharColor}`}>{lyricsCharCount}/3000</p>}
-                </div>
-
-                {/* Generate button */}
-                {!user ? (
-                  <Button className="w-full btn-primary btn-sheen py-3 rounded-xl text-sm font-bold" asChild><a href={getLoginUrl()}>Sign in to Generate</a></Button>
-                ) : (
-                  <Button onClick={handleGenerate} disabled={!canGenerate} className="w-full btn-primary btn-sheen py-3 rounded-xl text-sm font-bold disabled:opacity-40">
-                    {isGenerating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{status === "trimming" ? "Trimming…" : "Generating…"}</> : <><Music2 className="w-4 h-4 mr-2" />Generate Song</>}
-                  </Button>
-                )}
-
-                {/* Loading animation */}
-                {isGenerating && (
-                  <div className="mt-4 rounded-xl overflow-hidden border border-white/8 bg-gradient-to-b from-[#0f0f18] to-[#0a0a10] p-4">
-                    <div className="flex items-center justify-center gap-3 mb-3">
-                      {(["pending", "processing", "trimming"] as const).map((phase, idx) => {
-                        const labels = ["Queued", "Generating", "Trimming"];
-                        const phaseOrder = ["pending", "processing", "trimming"] as const;
-                        const currentIdx = phaseOrder.indexOf(status as typeof phaseOrder[number]);
-                        const isActive = status === phase;
-                        const isDone = currentIdx > idx;
-                        return (
-                          <div key={phase} className="flex items-center gap-1.5">
-                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${isActive ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30" : isDone ? "bg-white/5 text-white/50" : "bg-white/[0.03] text-white/25"}`}>
-                              <span>{isDone ? "✓" : labels[idx].charAt(0)}</span><span>{labels[idx]}</span>{isActive && <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />}
-                            </div>
-                            {idx < 2 && <div className="w-4 h-px bg-white/10" />}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="flex items-end justify-center gap-[3px] h-16">
-                      {Array.from({ length: 40 }).map((_, i) => (
-                        <div key={i} className="rounded-full flex-shrink-0" style={{ width: 3, minHeight: 4, background: `rgba(184,137,42,${0.3 + (i % 4) * 0.15})`, animationName: "wizWave", animationDuration: "1s", animationDelay: `${i * 0.05}s`, animationTimingFunction: "ease-in-out", animationIterationCount: "infinite", animationDirection: "alternate" }} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {error && <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2"><AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}</div>}
+            {/* Genre */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)" }}>
+                <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/28">Genre</span>
+                <span className="text-[9px] text-white/18">Pick up to 3</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 p-2.5">
+                {GENRES.map((g) => (
+                  <button key={g} onClick={() => toggleGenre(g)} className={`px-2.5 py-1.5 rounded-[3px] border text-[11px] font-medium transition-all ${selectedGenres.includes(g) ? "border-[--color-gold] bg-[--color-gold]/12 text-[--color-gold] font-semibold" : "border-white/7 bg-white/3 text-white/42 hover:border-[--color-gold]/30 hover:text-white/65 hover:bg-[--color-gold]/5"}`}>
+                    {selectedGenres.includes(g) && <span className="text-[9px] mr-1">✓</span>}{g}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Upload mode */}
-            {mode === "upload" && (
-              <div className="studio-card rounded-2xl p-5">
-                <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} />
-                {uploadedAudioUrl ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-green-400" /><span className="text-sm text-white font-medium">{uploadedAudioName}</span></div>
-                    <WizAudioPlayer audioUrl={uploadedAudioUrl} title={uploadedAudioName || "Uploaded"} />
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="text-xs">Replace</Button>
-                      <Button className="btn-primary btn-sheen text-xs" asChild>
-                        <Link href={`/music-video?audio=${encodeURIComponent(uploadedAudioUrl)}&name=${encodeURIComponent(uploadedAudioName || "")}`}><ChevronRight className="w-3.5 h-3.5 mr-1" />Create Music Video</Link>
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div onClick={() => fileInputRef.current?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleFileUpload(f); }} className="border-2 border-dashed border-white/12 hover:border-[--color-gold]/40 rounded-2xl p-10 text-center cursor-pointer transition-all group">
-                    {isUploadingFile ? <><Loader2 className="w-10 h-10 text-[--color-gold] mx-auto mb-2 animate-spin" /><p className="text-[--color-gold]">Uploading…</p></> :
-                    <><UploadCloud className="w-10 h-10 text-white/20 group-hover:text-[--color-gold] mx-auto mb-3 transition-colors" /><p className="text-white/60 group-hover:text-white transition-colors">Drop your audio file here</p><p className="text-white/30 text-sm mt-1">MP3, WAV, M4A · Max 50MB</p></>}
-                  </div>
-                )}
+            {/* Mood */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)" }}>
+                <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/28">Mood</span>
+                <span className="text-[9px] text-white/18">Pick up to 3</span>
               </div>
-            )}
+              <div className="flex flex-wrap gap-1.5 p-2.5">
+                {MOODS.map((m) => (
+                  <button key={m} onClick={() => toggleMood(m)} className={`px-2.5 py-1.5 rounded-[3px] border text-[11px] font-medium transition-all ${selectedMoods.includes(m) ? "border-[--color-gold] bg-[--color-gold]/12 text-[--color-gold] font-semibold" : "border-white/7 bg-white/3 text-white/42 hover:border-[--color-gold]/30 hover:text-white/65 hover:bg-[--color-gold]/5"}`}>
+                    {selectedMoods.includes(m) && <span className="text-[9px] mr-1">✓</span>}{m}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            {/* Generated tracks */}
-            {mode === "generate" && generatedTracks.length > 0 && (
-              <div className="studio-card rounded-2xl p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2"><Check className="w-4 h-4 text-green-400" /><h3 className="text-sm font-semibold text-white">Your tracks are ready</h3></div>
+            {/* Vocal Style */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="px-3.5 py-2 border-b border-white/7 text-[9px] font-bold tracking-[2.5px] uppercase text-white/28" style={{ background: "rgba(0,0,0,0.3)" }}>Vocal Style</div>
+              <div className="flex flex-wrap gap-1.5 p-2.5">
+                {VOCALS.map((v) => (
+                  <button key={v} onClick={() => setSelectedVocal(selectedVocal === v ? "" : v)} className={`px-2.5 py-1.5 rounded-[3px] border text-[11px] font-medium transition-all ${selectedVocal === v ? "border-[--color-gold] bg-[--color-gold]/12 text-[--color-gold] font-semibold" : "border-white/7 bg-white/3 text-white/42 hover:border-[--color-gold]/30 hover:text-white/65 hover:bg-[--color-gold]/5"}`}>
+                    {selectedVocal === v && <span className="text-[9px] mr-1">✓</span>}{v}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Lyrics */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)" }}>
+                <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/28">Lyrics</span>
+                <span className="text-[9px] text-white/18 italic">Optional — recommended for custom mode</span>
+              </div>
+              <div className="p-2.5 flex flex-col gap-2">
+                <textarea
+                  value={lyrics}
+                  onChange={(e) => setLyrics(e.target.value)}
+                  rows={3}
+                  maxLength={3000}
+                  className="w-full rounded-[4px] px-3 py-2.5 text-[12px] leading-[1.6] text-[#f5f0e8] placeholder:text-white/14 placeholder:italic resize-none focus:outline-none border border-white/6"
+                  style={{ background: "rgba(0,0,0,0.3)", fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
+                  placeholder="Enter your lyrics here, or use AI to generate them…"
+                />
+                <button
+                  onClick={handleGenerateLyrics}
+                  disabled={!prompt.trim() || generateLyricsMutation.isPending}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#0a84ff]/22 text-[11px] font-semibold text-[#4da6ff] transition-all hover:bg-[#0a84ff]/14 hover:border-[#0a84ff]/38 disabled:opacity-40 w-fit"
+                  style={{ background: "rgba(10,132,255,0.08)" }}
+                >
+                  {generateLyricsMutation.isPending ? <><Loader2 className="w-3 h-3 animate-spin" />Generating…</> : <>✨ Generate Lyrics with AI</>}
+                </button>
+              </div>
+            </div>
+
+            {/* Song Title */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="px-3.5 py-2 border-b border-white/7 text-[9px] font-bold tracking-[2.5px] uppercase text-white/28" style={{ background: "rgba(0,0,0,0.3)" }}>Song Title (optional)</div>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="My Amazing Song"
+                maxLength={80}
+                className="w-full bg-transparent border-none outline-none px-3.5 py-2.5 text-[14px] text-[#f5f0e8] placeholder:text-white/16 placeholder:italic"
+                style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
+              />
+            </div>
+
+            {/* Duration */}
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+              <div className="px-3.5 py-2 border-b border-white/7 text-[9px] font-bold tracking-[2.5px] uppercase text-white/28" style={{ background: "rgba(0,0,0,0.3)" }}>Track Duration</div>
+              <div className="p-2.5 flex flex-col gap-2">
+                <button
+                  onClick={() => setTargetDuration(null)}
+                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] border text-[11px] transition-all ${targetDuration === null ? "border-[--color-gold]/18 bg-[--color-gold]/6 text-[--color-gold]/65" : "border-white/7 text-white/35 hover:border-[--color-gold]/18"}`}
+                >
+                  <div className={`w-3.5 h-3.5 rounded-full border-[1.5px] flex items-center justify-center text-[8px] flex-shrink-0 ${targetDuration === null ? "border-[--color-gold] bg-[--color-gold]/18 text-[--color-gold]" : "border-white/30"}`}>{targetDuration === null && "✓"}</div>
+                  <div>
+                    <div className="text-[11px] font-semibold">No duration set</div>
+                    <div className="text-[9px] text-white/28 mt-0.5">WizAudio will generate a full-length track</div>
+                  </div>
+                </button>
+                <div className="text-[10px] text-white/22 px-0.5">+ Set target duration for your video</div>
+                <div className="flex gap-1.5">
+                  {DURATION_OPTIONS.map((d) => (
+                    <button
+                      key={d.value}
+                      onClick={() => setTargetDuration(d.value)}
+                      className={`flex-1 py-1.5 px-1 rounded-[4px] border flex flex-col items-center gap-0.5 transition-all ${targetDuration === d.value ? "border-[--color-gold] bg-[--color-gold]/10" : "border-white/6 bg-white/2 hover:border-[--color-gold]/30 hover:bg-[--color-gold]/4"}`}
+                    >
+                      <span className={`text-[13px] font-bold ${targetDuration === d.value ? "text-[--color-gold]" : "text-white/55"}`}>{d.label}</span>
+                      <span className="text-[8px] text-white/22 text-center">{d.sub}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="text-[10px] text-white/18 italic px-0.5">Track is trimmed to fit if duration is set</div>
+              </div>
+            </div>
+
+            {/* Generated Tracks */}
+            {generatedTracks.length > 0 && (
+              <div className="rounded-[6px] overflow-hidden border border-green-500/20" style={{ background: "#0e0e12" }}>
+                <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)" }}>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-green-400" />
+                    <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-green-400">Tracks Ready</span>
+                  </div>
                   <div className="flex items-center gap-3">
-                    <button onClick={handleGenerate} disabled={isGenerating || !canGenerate} className="flex items-center gap-1.5 text-xs text-[--color-gold]/70 hover:text-[--color-gold] transition-colors disabled:opacity-40"><RefreshCw className="w-3.5 h-3.5" /> Regenerate</button>
-                    {taskId && <button onClick={() => deleteTaskMutation.mutate({ id: taskId })} disabled={deleteTaskMutation.isPending} className="flex items-center gap-1.5 text-xs text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-40">{deleteTaskMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />} Delete</button>}
+                    <button onClick={handleGenerate} disabled={isGenerating || !canGenerate} className="flex items-center gap-1 text-[10px] text-[--color-gold]/70 hover:text-[--color-gold] transition-colors disabled:opacity-40">
+                      <RefreshCw className="w-3 h-3" /> Regenerate
+                    </button>
+                    {taskId && <button onClick={() => deleteTaskMutation.mutate({ id: taskId })} disabled={deleteTaskMutation.isPending} className="flex items-center gap-1 text-[10px] text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-40">
+                      {deleteTaskMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />} Delete
+                    </button>}
                   </div>
                 </div>
-                {generatedTracks.map((track, i) => (
-                  <WizAudioPlayer key={i} audioUrl={track.audioUrl} title={track.title || `Track ${i + 1}`} imageUrl={track.imageUrl} />
-                ))}
-                <div className="p-4 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 text-center">
-                  <p className="text-sm text-[--color-gold] mb-3">Love your track? Turn it into a full music video.</p>
-                  <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-sm font-semibold rounded-xl h-auto py-2.5 px-5" asChild>
-                    <Link href="/music-video"><ChevronRight className="w-4 h-4 mr-1.5" />Start with WizVideo</Link>
-                  </Button>
+                <div className="p-2.5 flex flex-col gap-2">
+                  {generatedTracks.map((track, i) => (
+                    <WizAudioPlayer key={i} audioUrl={track.audioUrl} title={track.title || `Track ${i + 1}`} imageUrl={track.imageUrl} />
+                  ))}
+                  <div className="p-3 rounded-[6px] border border-[--color-gold]/30 text-center mt-1" style={{ background: "rgba(201,168,76,0.08)" }}>
+                    <p className="text-sm text-[--color-gold] mb-2">Love your track? Turn it into a full music video.</p>
+                    <Link href="/music-video" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[6px] text-xs font-bold text-black btn-primary btn-sheen">
+                      <Film className="w-3.5 h-3.5" /> Start with WizVideo
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Example prompts */}
-            <div className="studio-card rounded-2xl p-5">
-              <p className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-widest mb-3">Example Prompts</p>
-              <div className="space-y-2">
-                {PROMPT_EXAMPLES.map(ex => (
-                  <button key={ex} onClick={() => setPrompt(ex)} className="w-full text-left text-sm text-[#a1a1aa] hover:text-white transition-colors p-2.5 rounded-xl hover:bg-white/4 flex items-start gap-2">
-                    <ChevronRight className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0 mt-0.5" /> {ex}
+            {error && (
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-[6px] border border-red-500/20 text-red-400 text-xs" style={{ background: "rgba(255,59,48,0.08)" }}>
+                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+              </div>
+            )}
+
+            {isGenerating && (
+              <div className="rounded-[6px] border border-[--color-gold]/20 p-4 text-center" style={{ background: "rgba(201,168,76,0.04)" }}>
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  {(["pending", "processing", "trimming"] as const).map((phase, idx) => {
+                    const labels = ["Queued", "Generating", "Trimming"];
+                    const phaseOrder = ["pending", "processing", "trimming"] as const;
+                    const currentIdx = phaseOrder.indexOf(status as typeof phaseOrder[number]);
+                    const isActive = status === phase;
+                    const isDone = currentIdx > idx;
+                    return (
+                      <div key={phase} className="flex items-center gap-1.5">
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${isActive ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30" : isDone ? "bg-white/5 text-white/50" : "bg-white/[0.03] text-white/25"}`}>
+                          <span>{isDone ? "✓" : labels[idx]}</span>
+                          {isActive && <Loader2 className="w-3 h-3 animate-spin" />}
+                        </div>
+                        {idx < 2 && <ChevronRight className="w-3 h-3 text-white/15" />}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-end justify-center gap-[3px] h-10">
+                  {Array.from({ length: 30 }).map((_, i) => (
+                    <div key={i} className="rounded-full flex-shrink-0" style={{ width: 3, minHeight: 4, background: `rgba(201,168,76,${0.3 + (i % 4) * 0.15})`, animationName: "wizWave", animationDuration: "1s", animationDelay: `${i * 0.07}s`, animationTimingFunction: "ease-in-out", animationIterationCount: "infinite", animationDirection: "alternate" }} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="h-4" />
+          </div>
+
+          {/* ── RIGHT: Master Section ── */}
+          <div className="flex flex-col gap-3 overflow-y-auto p-3.5" style={{ background: "#0e0e12" }}>
+            <div className="text-[9px] font-bold tracking-[3px] uppercase text-white/16 text-center pb-2.5 border-b border-white/7">Master Bus</div>
+
+            {/* VU Meters */}
+            <div className="flex justify-center gap-2.5">
+              <VUMeter channel="L" isActive={isOnAir} />
+              <VUMeter channel="R" isActive={isOnAir} />
+            </div>
+
+            {/* Track Params */}
+            <div className="grid grid-cols-2 gap-1.5">
+              {[
+                { label: "BPM",   value: genreInfo.bpm },
+                { label: "Key",   value: genreInfo.key },
+                { label: "Bars",  value: genreInfo.bars },
+                { label: "Stems", value: genreInfo.stems },
+              ].map((p) => (
+                <div key={p.label} className="rounded-[4px] px-2.5 py-2 border border-white/7" style={{ background: "rgba(0,0,0,0.35)" }}>
+                  <div className="text-[7px] font-bold tracking-[2px] uppercase text-white/18 mb-0.5">{p.label}</div>
+                  <div className="text-[17px] font-bold text-[--color-gold] leading-none font-mono">{p.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mood Dial Knobs */}
+            <div className="flex flex-col gap-1.5">
+              <div className="text-[8px] font-bold tracking-[2px] uppercase text-white/16">Mood Dial</div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {MOOD_KNOBS.map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => toggleKnob(k)}
+                    className={`flex flex-col items-center gap-1 cursor-pointer transition-all`}
+                  >
+                    <div
+                      className={`w-[30px] h-[30px] rounded-full relative transition-all`}
+                      style={{
+                        background: "radial-gradient(circle at 35% 35%, #3a3a42, #16161e)",
+                        border: activeKnobs.includes(k) ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.1)",
+                        boxShadow: activeKnobs.includes(k) ? "0 0 10px rgba(201,168,76,0.35)" : "0 2px 6px rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      <div
+                        className="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-[7px] rounded-[1px]"
+                        style={{ background: activeKnobs.includes(k) ? "#c9a84c" : "rgba(255,255,255,0.3)" }}
+                      />
+                    </div>
+                    <span className={`text-[7px] font-semibold text-center leading-tight ${activeKnobs.includes(k) ? "text-[--color-gold]" : "text-white/20"}`}>{k}</span>
                   </button>
                 ))}
               </div>
             </div>
-          </main>
 
-          {/* ── RIGHT SIDEBAR: Upgrade Preview ── */}
-          <aside className="space-y-4">
-            {/* Hear & See the Difference */}
-            <div className="studio-card rounded-2xl p-4">
-              <h3 className="flex items-center gap-2 text-[--color-gold] text-xs font-bold tracking-wider mb-2"><Sparkles className="w-3.5 h-3.5" /> HEAR & SEE THE DIFFERENCE</h3>
-              <p className="text-white/30 text-[10px] leading-relaxed mb-4">Listen before you commit. Preview in all three quality tiers — no download until payment confirmed.</p>
-              <div className="flex rounded-lg overflow-hidden border border-white/10 mb-4">
-                {(["original", "enhanced", "cinematic"] as AudioTier[]).map(t => (
-                  <button key={t} onClick={() => setActiveTier(t)} className={`flex-1 py-2 text-[10px] font-bold tracking-wider transition-all ${activeTier === t ? "bg-[--color-gold]/20 text-[--color-gold]" : "bg-white/5 text-white/30 hover:text-white/50"}`}>
-                    {t.toUpperCase()}
-                    {t !== "original" && <span className="block text-[8px] text-[--color-gold]/60">+£{t === "enhanced" ? "2.99" : "4.99"}</span>}
-                  </button>
-                ))}
-              </div>
-              <div className="rounded-xl overflow-hidden bg-white/[0.03] p-3 mb-3"><TrackWaveform color={activeTier === "cinematic" ? "#e8c878" : activeTier === "enhanced" ? "#78c8e8" : "#888"} /></div>
-              <p className="text-white/30 text-[9px] font-bold tracking-widest uppercase mb-1">WIZAUDIO™ — {activeTier.toUpperCase()} MIX</p>
-              <p className="text-white/70 text-xs font-semibold mb-2">{title || "New Track"}</p>
-              <div className="flex items-center gap-3 mb-3">
-                <button className="w-8 h-8 rounded-full bg-[--color-gold] flex items-center justify-center shadow-[0_0_12px_rgba(184,137,42,0.3)]"><Play className="w-3.5 h-3.5 text-black ml-0.5" /></button>
-                <span className="text-white/40 text-[11px] font-mono">0:15 / {durationLabel}</span>
-              </div>
-              <p className="text-white/25 text-[9px] leading-relaxed">Preview in {activeTier} quality — full mastering & spatial audio applied on payment confirmed.</p>
-            </div>
-
-            {/* WizLuminar Visual Quality */}
-            <div className="studio-card rounded-2xl p-4">
-              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">WIZLUMINAR™ — VISUAL QUALITY</h3>
-              <div className="flex rounded-lg overflow-hidden border border-white/10">
-                {["ORIGINAL", "ENHANCED", "CINEMATIC"].map((t, i) => (
-                  <button key={t} className={`flex-1 py-2 text-[10px] font-bold tracking-wider transition-all ${i === 0 ? "bg-white/10 text-white/70" : "bg-white/5 text-white/30 hover:text-white/50"}`}>{t}</button>
-                ))}
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 mt-3">
-                {[0.3, 0.5, 0.8].map((b, i) => (
-                  <div key={i} className="aspect-video rounded-lg overflow-hidden bg-white/5"><img src={ENV_IMG} alt="" className="w-full h-full object-cover" style={{ filter: `brightness(${b}) saturate(${0.8 + i * 0.3})` }} /></div>
-                ))}
-              </div>
-            </div>
-
-            {/* Upsell buttons */}
-            <button className="w-full btn-primary btn-sheen py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4">
-              <span className="flex items-center gap-2"><Headphones className="w-3.5 h-3.5" /> WizSound™ Cinematic</span><span>+£4.99</span>
-            </button>
-            <button className="w-full border border-[--color-gold]/30 bg-[--color-gold]/5 hover:bg-[--color-gold]/10 text-[--color-gold] py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4 transition-colors">
-              <span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic</span><span>+£3.99</span>
-            </button>
-
-            {/* Render Quality */}
-            <div className="studio-card rounded-2xl p-4">
-              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">RENDER QUALITY</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {([{ id: "hd" as RenderQuality, label: "HD", sub: "standard", price: "Included" }, { id: "4k" as RenderQuality, label: "4K", sub: "studio", price: "+£2.99" }, { id: "8k" as RenderQuality, label: "8K", sub: "master", price: "+£4.99" }]).map(q => (
-                  <button key={q.id} onClick={() => setRenderQuality(q.id)} className={`rounded-xl p-3 text-center transition-all border ${renderQuality === q.id ? "bg-[--color-gold]/15 border-[--color-gold]/40 shadow-[0_0_12px_rgba(184,137,42,0.15)]" : "bg-white/5 border-white/10 hover:border-white/20"}`}>
-                    <p className={`text-sm font-bold ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/60"}`}>{q.label}</p>
-                    <p className="text-[9px] text-white/30">{q.sub}</p>
-                    <p className={`text-[10px] font-bold mt-1 ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/40"}`}>{q.price}</p>
+            {/* Variations */}
+            <div className="flex flex-col gap-1.5">
+              <div className="text-[8px] font-bold tracking-[2px] uppercase text-white/16">Variations</div>
+              <div className="flex gap-1.5">
+                {([2, 4] as const).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setVariations(v)}
+                    className={`flex-1 py-2 rounded-[4px] border flex flex-col items-center gap-0.5 transition-all ${variations === v ? "border-[--color-gold] bg-[--color-gold]/10" : "border-white/7 bg-white/2 hover:border-[--color-gold]/30"}`}
+                  >
+                    <span className={`text-[15px] font-bold ${variations === v ? "text-[--color-gold]" : "text-white/35"}`}>{v}</span>
+                    <span className="text-[8px] text-white/22">{v === 2 ? "Standard" : "Extended"}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Render CTA */}
-            <button className="w-full btn-primary btn-sheen py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-              <Film className="w-4 h-4" /> RENDER TRACK — {renderQuality.toUpperCase()}
+            {/* Upgrade Preview */}
+            <div className="rounded-[6px] p-3.5 border border-[--color-gold]/15" style={{ background: "#0d0d10" }}>
+              <div className="text-[10px] font-bold tracking-[1.5px] text-white/50 mb-2.5">
+                🎵 UPGRADE PREVIEW <span className="text-[#555] font-normal">— Listen only · No download</span>
+              </div>
+              <div className="flex gap-1.5 mb-3">
+                {(["original", "enhanced", "cinematic"] as AudioTier[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveTier(t)}
+                    className={`flex-1 py-1.5 px-1.5 rounded-[4px] border text-center transition-all ${
+                      activeTier === t
+                        ? t === "cinematic"
+                          ? "border-[#9b59f5] bg-[#1a1020]"
+                          : "border-[--color-gold]/20 bg-[#1a1a20]"
+                        : "border-[#333] bg-[#1a1a1a] hover:border-[--color-gold]/20"
+                    }`}
+                    style={{ borderWidth: t === "cinematic" && activeTier === t ? 2 : 1 }}
+                  >
+                    <div className={`text-[9px] font-bold tracking-[1px] ${t === "cinematic" ? "text-[#9b59f5]" : "text-[--color-gold]"}`}>
+                      {t.toUpperCase()}
+                    </div>
+                    <div className={`text-[8px] mt-0.5 ${t === "original" ? "text-[#555]" : t === "cinematic" ? "text-[#6a3fa0]" : "text-[--color-gold]/60]"}`}>
+                      {t === "original" ? "Included" : t === "enhanced" ? "+£2.99" : "+£4.99"}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Mini EQ bars */}
+              <div className="flex items-end gap-0.5 mb-2" style={{ height: 32 }}>
+                {Array.from({ length: 20 }).map((_, i) => {
+                  const h = Math.sin(i * 0.4) * 40 + Math.random() * 30 + 20;
+                  const color = activeTier === "cinematic" ? "#9b59f5" : activeTier === "enhanced" ? "#4da6ff" : "#c9a84c";
+                  return <div key={i} className="flex-1 rounded-t-[1px]" style={{ height: `${h}%`, background: `${color}60` }} />;
+                })}
+              </div>
+
+              {/* Preview player */}
+              <div className="flex items-center gap-2 rounded-[4px] px-2.5 py-1.5" style={{ background: "#080810" }}>
+                <button className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-black text-[10px]" style={{ background: "#c9a84c" }}>▶</button>
+                <div className="flex-1 h-[3px] rounded-[2px] overflow-hidden" style={{ background: "#1a1a1a" }}>
+                  <div className="h-full w-[22%] rounded-[2px]" style={{ background: "linear-gradient(90deg, #c9a84c, #f0c040)" }} />
+                </div>
+                <span className="text-[9px] text-[#555]">0:22 / 3:00</span>
+                <span className="text-[9px] text-[#333]">🔒 Preview only</span>
+              </div>
+
+              {/* WizSound CTA */}
+              <button
+                onClick={() => toast.info("WizSound Cinematic — add to order at checkout")}
+                className="w-full mt-2.5 py-2.5 px-3 rounded-[5px] border border-[#9b59f5]/40 flex items-center justify-between transition-all hover:bg-[#9b59f5]/20"
+                style={{ background: "linear-gradient(135deg, rgba(155,89,245,0.15), rgba(155,89,245,0.08))" }}
+              >
+                <div className="text-left">
+                  <div className="text-[10px] font-bold tracking-[1px] text-[#9b59f5]">WIZSOUND™ CINEMATIC</div>
+                  <div className="text-[9px] text-[#6a3fa0] mt-0.5">Stereo widening · EQ mastering · Spatial depth</div>
+                </div>
+                <div className="text-[13px] font-bold text-[#9b59f5]">+£4.99</div>
+              </button>
+            </div>
+
+            {/* Studio Ambience Dimmer */}
+            <div className="rounded-[6px] p-3 border border-white/6" style={{ background: "#0d0d10" }}>
+              <div className="text-[10px] font-bold tracking-[1.5px] text-white/40 mb-2">☀ STUDIO AMBIENCE</div>
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[10px] text-[#555]">🔇 Dim</span>
+                <span className="text-[11px] font-semibold text-[--color-gold]">{ambience}%</span>
+                <span className="text-[10px] text-[#555]">☀ Bright</span>
+              </div>
+              <input
+                type="range" min={20} max={100} value={ambience}
+                onChange={(e) => setAmbience(Number(e.target.value))}
+                className="w-full h-1 cursor-pointer"
+                style={{ WebkitAppearance: "none", appearance: "none", background: `linear-gradient(to right, #4a3000 0%, #c9a84c ${ambience}%, #f0c040 100%)`, borderRadius: 2, outline: "none" }}
+              />
+            </div>
+
+            {/* Generate Song Button */}
+            <button
+              onClick={handleGenerate}
+              disabled={!canGenerate}
+              className="w-full rounded-xl font-extrabold text-sm tracking-[2px] uppercase transition-all hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed btn-primary btn-sheen"
+              style={{ padding: "14px", background: "linear-gradient(135deg, #d4a843, #b8860b)", boxShadow: "0 4px 20px rgba(212,168,67,0.3)" }}
+            >
+              {isGenerating ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {status === "trimming" ? "Trimming…" : "Generating…"}
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="text-lg">●</span>
+                  <span>Generate Song</span>
+                </span>
+              )}
             </button>
-          </aside>
+            <div className="text-[10px] text-white/18 text-center">Credits deducted on generation</div>
+          </div>
         </div>
       </div>
     </div>

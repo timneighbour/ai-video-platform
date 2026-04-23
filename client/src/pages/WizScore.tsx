@@ -1,629 +1,446 @@
 /**
- * WizScore™ — AI Scoring Studio
- * Full orchestral scoring environment: Lyndhurst Hall POV, 5-stage workflow,
- * 8 instrument tracks, score preview, Upgrade Preview panel, ambient dimmer.
+ * WizScore — AI Orchestral Score Composer
+ * Studio app matching mockup-wizscore.html exactly
  */
-import { useState, useRef, useCallback, useEffect } from "react";
-import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useSEO } from "@/hooks/useSEO";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
-import {
-  Music2, Sparkles, Play, Pause, Download, Loader2,
-  ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
-  Film, Upload, Mic2, Plus, FileText, CheckCircle2,
-  AlertCircle, Settings, Eye, Headphones, SlidersHorizontal,
-} from "@/lib/icons";
-import { VoicePromptButton } from "@/components/VoicePromptButton";
 
-/* ── Constants ────────────────────────────────────────────────────────────── */
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
 
+const STAGES = [
+  { key: "brief",    label: "PROJECT BRIEF" },
+  { key: "ensemble", label: "ENSEMBLE" },
+  { key: "compose",  label: "COMPOSE & ARRANGE" },
+  { key: "upgrade",  label: "UPGRADE PREVIEW" },
+  { key: "render",   label: "RENDER & EXPORT" },
+] as const;
+type Stage = typeof STAGES[number]["key"];
+
 const SCORE_TYPES = [
-  { id: "film", label: "Film Score", sub: "Feature · Short · Trailer", icon: "🎬" },
-  { id: "tv", label: "TV / Series", sub: "Drama · Documentary", icon: "📺" },
-  { id: "game", label: "Game Score", sub: "Adaptive · Cinematic", icon: "🎮" },
-  { id: "concert", label: "Concert Work", sub: "Orchestral · Chamber", icon: "🎻" },
-  { id: "backing", label: "Backing Track", sub: "Artist · Album · EP", icon: "🎸" },
-  { id: "choir", label: "Choir / Vocal", sub: "Choral · A Cappella", icon: "🎤" },
+  { id: "orchestral", label: "Full Orchestra",    sub: "Strings · Brass · Woodwinds · Percussion · Choir" },
+  { id: "chamber",    label: "Chamber Ensemble",  sub: "String quartet · Piano · Winds" },
+  { id: "electronic", label: "Electronic Score",  sub: "Synths · Beats · Hybrid" },
+  { id: "piano",      label: "Solo Piano",         sub: "Grand piano · Intimate" },
+  { id: "hybrid",     label: "Hybrid Cinematic",  sub: "Orchestra + Electronic" },
+  { id: "choir",      label: "Choral",             sub: "SATB choir · A cappella" },
 ];
 
-const MOODS = [
-  "Epic", "Cinematic", "Dramatic", "Emotional", "Dark", "Triumphant",
-  "Haunting", "Suspense", "Romantic", "Action", "Melancholic", "Uplifting",
+const MOODS  = ["Epic","Melancholic","Triumphant","Mysterious","Romantic","Tense","Hopeful","Dark","Playful","Spiritual"];
+const GENRES = ["Cinematic","Classical","Trailer","Documentary","Game Score","TV Drama","Horror","Fantasy","Sci-Fi","Romance"];
+
+const ENSEMBLE_GROUPS = [
+  { id: "strings",    label: "Strings",    icon: "🎻", desc: "Violins I & II · Violas · Cellos · Double Bass" },
+  { id: "brass",      label: "Brass",      icon: "🎺", desc: "Horns · Trumpets · Trombones · Tuba" },
+  { id: "woodwinds",  label: "Woodwinds",  icon: "🎷", desc: "Flutes · Oboes · Clarinets · Bassoons" },
+  { id: "percussion", label: "Percussion", icon: "🥁", desc: "Timpani · Snare · Cymbals · Taiko" },
+  { id: "choir",      label: "Choir",      icon: "🎤", desc: "Soprano · Alto · Tenor · Bass" },
+  { id: "piano",      label: "Piano",      icon: "🎹", desc: "Grand Piano · Celesta · Harpsichord" },
+  { id: "harp",       label: "Harp",       icon: "🪗", desc: "Concert Harp · Glissandi" },
+  { id: "synth",      label: "Synth",      icon: "🎛️", desc: "Pads · Textures · Hybrid elements" },
 ];
 
-const INSTRUMENTS = [
-  { name: "Strings — Full", parts: "Violins I & II, Viola, Cellos", db: "+1.2", color: "#e8c878" },
-  { name: "Choir — SATB", parts: "32 Voices: Soprano, Alto, Tenor, Bass", db: "+4.0", color: "#a3e878" },
-  { name: "Brass — Full", parts: "Horns, Trumpets, Trombones", db: "+0.8", color: "#78c8e8" },
-  { name: "Woodwinds", parts: "Flutes, Oboes, Clarinets, Bassoons", db: "+0.1", color: "#e878a3" },
-  { name: "Percussion", parts: "Timpani, Snare, Cymbals, Taiko", db: "-0.5", color: "#c878e8" },
-  { name: "Piano / Keys", parts: "Grand Piano, Celesta, Harp", db: "+0.2", color: "#78e8c8" },
-  { name: "Solo Cello", parts: "Lead melody, Opening theme", db: "-2.0", color: "#e8d878" },
-  { name: "Organ — Pipe", parts: "Lyndhurst Hall, Organ, Pedal, Tones", db: "-12.0", color: "#e89878" },
-];
+const TIER_INFO: Record<string,{label:string;price:string}> = {
+  original:  { label: "WIZSCORE™ — ORIGINAL MIX",  price: "Included" },
+  enhanced:  { label: "WIZSCORE™ — ENHANCED MIX",  price: "+£2.99" },
+  cinematic: { label: "WIZSCORE™ — CINEMATIC MIX", price: "+£4.99" },
+};
 
-type Stage = "brief" | "ensemble" | "compose" | "upgrade" | "render";
-const STAGES: { id: Stage; label: string }[] = [
-  { id: "brief", label: "PROJECT BRIEF" },
-  { id: "ensemble", label: "ENSEMBLE" },
-  { id: "compose", label: "COMPOSE & ARRANGE" },
-  { id: "upgrade", label: "UPGRADE PREVIEW" },
-  { id: "render", label: "RENDER & EXPORT" },
-];
-
-type RenderQuality = "hd" | "4k" | "8k";
-type AudioTier = "original" | "enhanced" | "cinematic";
-
-/* ── Waveform bar component ───────────────────────────────────────────────── */
-function WaveformBar({ color, width = "100%" }: { color: string; width?: string }) {
-  return (
-    <div className="h-8 rounded-sm overflow-hidden relative" style={{ width, background: `${color}15` }}>
-      <div className="absolute inset-0 flex items-center gap-[1px] px-1">
-        {Array.from({ length: 80 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex-1 rounded-full"
-            style={{
-              height: `${Math.random() * 70 + 20}%`,
-              background: `linear-gradient(to top, ${color}40, ${color}cc)`,
-              animationDelay: `${i * 0.02}s`,
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ── Spectrum Analyzer ────────────────────────────────────────────────────── */
-function SpectrumAnalyzer() {
-  return (
-    <div className="w-full h-16 flex items-end gap-[2px] px-4 overflow-hidden">
-      {Array.from({ length: 120 }).map((_, i) => {
-        const h = Math.sin(i * 0.15) * 30 + Math.random() * 25 + 15;
-        const hue = (i / 120) * 300;
-        return (
-          <div
-            key={i}
-            className="flex-1 rounded-t-sm transition-all duration-300"
-            style={{
-              height: `${h}%`,
-              background: `hsl(${hue}, 80%, 55%)`,
-              opacity: 0.85,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-/* ── Main Component ───────────────────────────────────────────────────────── */
 export default function WizScore() {
-  useSEO({
-    title: "WizScore™ — AI Scoring Studio — WIZ AI",
-    path: "/wizscore",
-    description: "Professional AI orchestral scoring studio. Compose film scores, TV themes, and game soundtracks with 8 instrument groups, score preview, and cinematic mastering.",
+  const [stage, setStage]               = useState<Stage>("compose");
+  const [scoreType, setScoreType]       = useState("orchestral");
+  const [selectedMoods, setSelectedMoods] = useState<string[]>(["Epic","Melancholic"]);
+  const [selectedGenre, setSelectedGenre] = useState("Cinematic");
+  const [scoreBrief, setScoreBrief]     = useState("A sweeping main title theme for an epic feature film. Opens with solo cello, building through strings to full orchestra. Choir enters at 1:20 for the emotional peak. Inspired by the grandeur of Lyndhurst Hall — rich, deep, cinematic.");
+  const [duration, setDuration]         = useState("2:30 — Main title");
+  const [key, setKey]                   = useState("D Minor");
+  const [tempo, setTempo]               = useState("72");
+  const [timeSig, setTimeSig]           = useState("4/4");
+  const [ambience, setAmbience]         = useState(70);
+  const [activeEnsemble, setActiveEnsemble] = useState<string[]>(["strings","brass","woodwinds","percussion","choir","piano","harp"]);
+  const [tier, setTier]                 = useState<"original"|"enhanced"|"cinematic">("original");
+  const [renderQuality, setRenderQuality] = useState("4K");
+  const [isPlaying, setIsPlaying]       = useState(false);
+  const [progress, setProgress]         = useState(35);
+  const [luminarTier, setLuminarTier]   = useState("original");
+  const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
+
+  const stageIndex = STAGES.findIndex(s => s.key === stage);
+
+  useEffect(() => {
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => setProgress(p => p >= 100 ? 0 : p + 0.3), 100);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [isPlaying]);
+
+  const toggleMood     = (m: string) => setSelectedMoods(p => p.includes(m) ? p.filter(x=>x!==m) : [...p,m]);
+  const toggleEnsemble = (id: string) => setActiveEnsemble(p => p.includes(id) ? p.filter(x=>x!==id) : [...p,id]);
+
+  const pill = (i: number) => ({
+    display:"flex",alignItems:"center",gap:"6px",padding:"14px 12px",
+    fontSize:"10px",fontWeight:700,letterSpacing:"1px",textTransform:"uppercase" as const,
+    background:"none",border:"none",cursor:"pointer",whiteSpace:"nowrap" as const,
+    borderBottom: i < stageIndex ? "2px solid #6db86d" : i === stageIndex ? "2px solid #d4a843" : "2px solid transparent",
+    color: i < stageIndex ? "#6db86d" : i === stageIndex ? "#d4a843" : "#444",
+  });
+  const pillNum = (i: number) => ({
+    width:"18px",height:"18px",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
+    fontSize:"9px",fontWeight:900,flexShrink:0,
+    background: i < stageIndex ? "#6db86d" : i === stageIndex ? "#d4a843" : "#1a1a1a",
+    color: i < stageIndex ? "#000" : i === stageIndex ? "#000" : "#555",
   });
 
-  const { isAuthenticated, user } = useAuth();
-  const [activeStage, setActiveStage] = useState<Stage>("compose");
-  const [completedStages, setCompletedStages] = useState<Stage[]>(["brief", "ensemble"]);
-  const [scoreType, setScoreType] = useState("film");
-  const [selectedMoods, setSelectedMoods] = useState<string[]>(["Epic", "Cinematic"]);
-  const [brief, setBrief] = useState("A sweeping main title theme for an epic feature film. Opens with solo cello, building through strings to full orchestra. Choir enters at 1:20 for the emotional peak. Inspired by the grandeur of Lyndhurst Hall — rich, deep, and cinematic.");
-  const [duration, setDuration] = useState("3:24");
-  const [keyScale, setKeyScale] = useState("D Minor");
-  const [bpm, setBpm] = useState("72");
-  const [timeSignature, setTimeSignature] = useState("4/4");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [timecode, setTimecode] = useState("00:01:24:08");
-  const [activeTier, setActiveTier] = useState<AudioTier>("original");
-  const [renderQuality, setRenderQuality] = useState<RenderQuality>("4k");
-  const [ambientLevel, setAmbientLevel] = useState(70);
-
-  const toggleMood = (m: string) => {
-    setSelectedMoods(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]);
-  };
-
-  /* ── Auth gate ── */
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen studio-bg flex items-center justify-center px-4">
-        <div className="env-bg"><img src={ENV_IMG} alt="" /><div className="env-bg-overlay" /></div>
-        <div className="env-ambient env-tint-gold" />
-        <div className="text-center max-w-md relative z-10">
-          <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6">
-            <Music2 className="w-8 h-8 text-[--color-gold]" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-3">WizScore™</h1>
-          <p className="text-white/50 mb-8">Sign in to access the AI Scoring Studio.</p>
-          <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild>
-            <a href={getLoginUrl()}>Sign in to continue</a>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen text-white" style={{ backgroundColor: "#06050a" }}>
-      {/* ── VR Environment: Lyndhurst Hall ── */}
-      <div className="env-bg">
-        <img src={ENV_IMG} alt="" />
-        <div className="env-bg-overlay" />
-      </div>
-      <div className="env-ambient env-tint-gold" style={{ opacity: ambientLevel / 100 }} />
+    <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#0a0a0a",color:"#ccc",fontFamily:"'Inter',sans-serif",overflow:"hidden"}}>
 
-      {/* ══════════════ TOP NAV ══════════════ */}
-      <header className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Left */}
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-white/40 hover:text-white/70 text-sm flex items-center gap-1.5 transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to Studio
-            </Link>
-            <div className="flex items-center gap-2">
-              <span className="text-white font-bold text-lg tracking-tight">WIZSCORE</span>
-              <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI SCORING STUDIO</span>
-            </div>
-          </div>
-          {/* Center: genre nav */}
-          <nav className="hidden md:flex items-center gap-1 text-xs text-white/40 font-semibold tracking-widest">
-            {["FILM", "TV", "GAMES", "CONCERT"].map((g, i) => (
-              <span key={g} className="flex items-center gap-1">
-                {i > 0 && <span className="text-white/15 mx-1">·</span>}
-                <span className="hover:text-white/70 cursor-pointer transition-colors">{g}</span>
-              </span>
-            ))}
-          </nav>
-          {/* Right */}
-          <div className="flex items-center gap-3">
-            <div className="bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-3 py-1 text-[--color-gold] text-xs font-bold">
-              10,000 Credits
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[--color-gold]/20 border border-[--color-gold]/30 flex items-center justify-center text-[--color-gold] text-xs font-bold">
-              {user?.name?.charAt(0) || "T"}
-            </div>
-          </div>
+      {/* ── Nav ── */}
+      <nav style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 20px",height:"48px",borderBottom:"1px solid #1a1a1a",flexShrink:0,background:"#0a0a0a",zIndex:10}}>
+        <div style={{display:"flex",alignItems:"center",gap:"16px"}}>
+          <Link href="/" style={{fontSize:"11px",color:"#555",textDecoration:"none"}}>← Back</Link>
+          <span style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"18px",letterSpacing:"2px",color:"#d4a843"}}>WizScore</span>
+          <span style={{fontSize:"9px",color:"#555",letterSpacing:"1px"}}>AI ORCHESTRAL COMPOSER</span>
         </div>
-
-        {/* ── 5-Stage Workflow Bar ── */}
-        <div className="border-t border-white/[0.04] bg-[#0a0a0f]/60">
-          <div className="max-w-[1600px] mx-auto px-4 py-2 flex items-center justify-center gap-2">
-            {STAGES.map((s, i) => {
-              const isActive = activeStage === s.id;
-              const isDone = completedStages.includes(s.id);
-              return (
-                <div key={s.id} className="flex items-center gap-2">
-                  <button
-                    onClick={() => setActiveStage(s.id)}
-                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all ${
-                      isActive
-                        ? "bg-[--color-gold]/20 border border-[--color-gold]/40 text-[--color-gold] shadow-[0_0_15px_rgba(184,137,42,0.2)]"
-                        : isDone
-                        ? "text-white/60 hover:text-white/80"
-                        : "text-white/30 hover:text-white/50"
-                    }`}
-                  >
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      isDone ? "bg-green-500/20 text-green-400" : isActive ? "bg-[--color-gold]/30 text-[--color-gold]" : "bg-white/10"
-                    }`}>
-                      {isDone ? <Check className="w-3 h-3" /> : i + 1}
-                    </span>
-                    <span className="hidden sm:inline">{s.label}</span>
-                  </button>
-                  {i < STAGES.length - 1 && <ChevronRight className="w-3 h-3 text-white/15" />}
-                </div>
-              );
-            })}
-          </div>
+        <div style={{display:"flex",alignItems:"center",gap:"0"}}>
+          {STAGES.map((s,i) => (
+            <div key={s.key} style={{display:"flex",alignItems:"center"}}>
+              <button onClick={() => setStage(s.key)} style={pill(i)}>
+                <span style={pillNum(i)}>{i < stageIndex ? "✓" : i+1}</span>
+                {s.label}
+              </button>
+              {i < STAGES.length-1 && <span style={{color:"#2a2a2a",fontSize:"14px",userSelect:"none"}}>›</span>}
+            </div>
+          ))}
         </div>
-      </header>
+        <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+          <span style={{fontSize:"11px",color:"#555"}}>⚡ 10,000 Credits</span>
+          <div style={{width:"28px",height:"28px",borderRadius:"50%",background:"#d4a843",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:700,color:"#000"}}>T</div>
+        </div>
+      </nav>
 
-      {/* ══════════════ SESSION INFO BAR ══════════════ */}
-      <div className="relative z-10 bg-[#0a0a0f]/40 border-b border-white/[0.04]">
-        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="studio-card rounded-lg px-4 py-2 border-l-2 border-[--color-gold]">
-            <p className="text-[10px] text-white/30 font-semibold tracking-widest uppercase">Current Session</p>
-            <p className="text-white font-bold text-sm italic">Echoes of Eternity — Main Title</p>
-            <p className="text-white/40 text-[11px]">Feature Film · {duration} · {bpm} BPM · {keyScale} · {timeSignature}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 bg-green-500/15 border border-green-500/30 rounded-full px-3 py-1 text-green-400 text-[11px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> ORCHESTRA READY
-            </span>
-            <span className="text-white/40 text-xs font-medium">CHOIR · 32 VOICES</span>
-            <span className="text-white/40 text-xs font-medium">STAGE: LYNDHURST</span>
-          </div>
+      {/* ── Hero ── */}
+      <div style={{position:"relative",width:"100%",height:"180px",overflow:"hidden",flexShrink:0}}>
+        <img src={ENV_IMG} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center 30%",filter:`brightness(${ambience/100})`}} />
+        <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.45)",pointerEvents:"none"}} />
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.3) 50%,transparent 100%)",pointerEvents:"none"}} />
+        <div style={{position:"absolute",top:"16px",left:"24px",zIndex:20}}>
+          <div style={{fontSize:"9px",fontWeight:600,letterSpacing:"2.5px",textTransform:"uppercase",color:"rgba(255,255,255,0.4)",marginBottom:"3px"}}>Session</div>
+          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"28px",letterSpacing:"3px",color:"rgba(255,255,255,0.9)",textShadow:"0 2px 20px rgba(0,0,0,0.8)",lineHeight:1}}>SCORING STAGE — ABBEY ROAD</div>
+        </div>
+        <div style={{position:"absolute",top:"16px",right:"24px",display:"flex",alignItems:"center",gap:"7px",background:"rgba(212,168,67,0.12)",border:"1px solid rgba(212,168,67,0.3)",borderRadius:"4px",padding:"5px 10px"}}>
+          <div style={{width:"7px",height:"7px",borderRadius:"50%",background:"#d4a843",boxShadow:"0 0 8px rgba(212,168,67,0.8)"}} />
+          <span style={{fontSize:"10px",fontWeight:700,letterSpacing:"2px",color:"#d4a843"}}>COMPOSING</span>
         </div>
       </div>
 
-      {/* ── VR Environment Hero (Lyndhurst Hall) ── */}
-      <div className="relative z-10 h-[220px] overflow-hidden">
-        <img
-          src={ENV_IMG}
-          alt="Lyndhurst Hall"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ filter: `brightness(${0.3 + ambientLevel * 0.004}) saturate(1.3)` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06050a] via-[#06050a]/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0">
-          <SpectrumAnalyzer />
-        </div>
-      </div>
+      {/* ── 3-Column ── */}
+      <div style={{display:"grid",gridTemplateColumns:"280px 1fr 260px",flex:1,overflow:"hidden"}}>
 
-      {/* ══════════════ MAIN 3-COLUMN LAYOUT ══════════════ */}
-      <div className="relative z-10 max-w-[1600px] mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_280px] gap-4">
+        {/* LEFT */}
+        <div style={{borderRight:"1px solid #1a1a1a",overflowY:"auto"}}>
 
-          {/* ── LEFT SIDEBAR: Score Configuration ── */}
-          <aside className="space-y-5">
-            {/* 1. Score Type */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">1</span>
-                Score Type
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {SCORE_TYPES.map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => setScoreType(t.id)}
-                    className={`studio-card rounded-xl p-3 text-left transition-all ${
-                      scoreType === t.id
-                        ? "border-[--color-gold]/40 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                        : "hover:border-white/15"
-                    }`}
-                  >
-                    <span className="text-lg mb-1 block">{t.icon}</span>
-                    <p className="text-white/80 text-[11px] font-bold leading-tight">{t.label}</p>
-                    <p className="text-white/30 text-[9px] leading-tight mt-0.5">{t.sub}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 2. Mood & Genre */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">2</span>
-                Mood & Genre
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {MOODS.map(m => (
-                  <button
-                    key={m}
-                    onClick={() => toggleMood(m)}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${
-                      selectedMoods.includes(m)
-                        ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]"
-                        : "bg-white/5 border-white/10 text-white/40 hover:text-white/60 hover:border-white/20"
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 3. Score Brief */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">3</span>
-                Score Brief
-              </h3>
-              <div className="flex items-center gap-2 mb-2">
-                <button className="btn-primary btn-sheen px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
-                  <Mic2 className="w-3 h-3" /> SPEAK YOUR BRIEF
+          {/* Score Type */}
+          <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
+            <SectionTitle num={1} label="SCORE TYPE" />
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px"}}>
+              {SCORE_TYPES.map(st => (
+                <button key={st.id} onClick={() => setScoreType(st.id)} style={{
+                  background:scoreType===st.id?"rgba(212,168,67,0.12)":"#0d0d0d",
+                  border:`1px solid ${scoreType===st.id?"rgba(212,168,67,0.4)":"#1a1a1a"}`,
+                  borderRadius:"4px",padding:"8px",cursor:"pointer",textAlign:"left",
+                }}>
+                  <div style={{fontSize:"10px",fontWeight:700,color:scoreType===st.id?"#d4a843":"#888",marginBottom:"2px"}}>{st.label}</div>
+                  <div style={{fontSize:"8px",color:"#444",lineHeight:1.3}}>{st.sub}</div>
                 </button>
-                <span className="text-white/25 text-[10px]">or type below</span>
-              </div>
-              <textarea
-                value={brief}
-                onChange={e => setBrief(e.target.value)}
-                rows={5}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white/70 text-xs resize-none focus:border-[--color-gold]/30 focus:outline-none transition-colors"
-                placeholder="Describe your score..."
-              />
+              ))}
             </div>
+          </div>
 
-            {/* 4. Duration & Key */}
-            <div>
-              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
-                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">4</span>
-                Duration & Key
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-[9px] text-white/30 uppercase tracking-widest font-semibold">Duration</label>
-                  <input
-                    value={duration}
-                    onChange={e => setDuration(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/70 text-xs focus:border-[--color-gold]/30 focus:outline-none mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-[9px] text-white/30 uppercase tracking-widest font-semibold">Key / Scale</label>
-                  <input
-                    value={keyScale}
-                    onChange={e => setKeyScale(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/70 text-xs focus:border-[--color-gold]/30 focus:outline-none mt-1"
-                  />
-                </div>
-              </div>
+          {/* Mood & Genre */}
+          <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
+            <SectionTitle num={2} label="MOOD & GENRE" />
+            <div style={{fontSize:"8px",color:"#555",marginBottom:"6px"}}>MOOD (select multiple)</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"10px"}}>
+              {MOODS.map(m => (
+                <button key={m} onClick={() => toggleMood(m)} style={{
+                  padding:"4px 8px",borderRadius:"20px",fontSize:"9px",fontWeight:600,cursor:"pointer",
+                  background:selectedMoods.includes(m)?"rgba(212,168,67,0.15)":"#111",
+                  border:`1px solid ${selectedMoods.includes(m)?"rgba(212,168,67,0.4)":"#1e1e1e"}`,
+                  color:selectedMoods.includes(m)?"#d4a843":"#555",
+                }}>{m}</button>
+              ))}
             </div>
-
-            {/* Ambient Dimmer */}
-            <div>
-              <h3 className="text-[9px] text-white/30 uppercase tracking-widest font-semibold mb-2">Ambient Lighting</h3>
-              <input
-                type="range"
-                min={10}
-                max={100}
-                value={ambientLevel}
-                onChange={e => setAmbientLevel(Number(e.target.value))}
-                className="w-full accent-[--color-gold] h-1"
-              />
-              <div className="flex justify-between text-[9px] text-white/20 mt-1">
-                <span>Darker</span><span>Brighter</span>
-              </div>
+            <div style={{fontSize:"8px",color:"#555",marginBottom:"6px"}}>GENRE</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
+              {GENRES.map(g => (
+                <button key={g} onClick={() => setSelectedGenre(g)} style={{
+                  padding:"4px 8px",borderRadius:"20px",fontSize:"9px",fontWeight:600,cursor:"pointer",
+                  background:selectedGenre===g?"rgba(155,89,245,0.15)":"#111",
+                  border:`1px solid ${selectedGenre===g?"rgba(155,89,245,0.4)":"#1e1e1e"}`,
+                  color:selectedGenre===g?"#9b59f5":"#555",
+                }}>{g}</button>
+              ))}
             </div>
-          </aside>
+          </div>
 
-          {/* ── CENTER: Compose & Arrange ── */}
-          <main className="space-y-4">
-            {/* Transport Controls */}
-            <div className="studio-card rounded-2xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 transition-colors">
-                    <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor"><path d="M1 2h2v12H1zm4 6l9-6v12z"/></svg>
-                  </button>
-                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 transition-colors">
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-10 h-10 rounded-full bg-[--color-gold] hover:bg-[--color-gold]/80 flex items-center justify-center transition-colors shadow-[0_0_20px_rgba(184,137,42,0.3)]"
-                  >
-                    {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
-                  </button>
-                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 transition-colors">
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                  <button className="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center transition-colors">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  </button>
-                </div>
-                <span className="text-white/70 font-mono text-sm tracking-wider">{timecode}</span>
-                {/* Scrub bar */}
-                <div className="hidden md:flex flex-1 mx-6 h-1 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-[--color-gold]/60 rounded-full" style={{ width: "42%" }} />
-                </div>
-                <span className="text-white/40 text-xs font-mono">BPM <span className="text-[--color-gold] font-bold">{bpm}</span> · {keyScale} · {timeSignature}</span>
-              </div>
+          {/* Score Brief */}
+          <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
+            <SectionTitle num={3} label="SCORE BRIEF" />
+            <div style={{display:"flex",gap:"6px",marginBottom:"8px"}}>
+              <button style={{flex:1,background:"#111",border:"1px solid #222",color:"#888",padding:"6px",borderRadius:"3px",fontSize:"9px",cursor:"pointer"}}>🎙 Speak Your Brief</button>
+              <button style={{flex:1,background:"rgba(212,168,67,0.1)",border:"1px solid rgba(212,168,67,0.3)",color:"#d4a843",padding:"6px",borderRadius:"3px",fontSize:"9px",cursor:"pointer"}}>✦ AI Compose Brief</button>
             </div>
+            <textarea value={scoreBrief} onChange={e=>setScoreBrief(e.target.value)} rows={4}
+              placeholder="Describe the scene, emotion, or story this score needs to tell..."
+              style={{width:"100%",background:"#0d0d0d",border:"1px solid #1e1e1e",color:"#ccc",padding:"8px",borderRadius:"3px",fontSize:"10px",resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}} />
+          </div>
 
-            {/* Score Title + Actions */}
-            <div className="flex items-center justify-between">
+          {/* Duration & Key */}
+          <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
+            <SectionTitle num={4} label="DURATION & KEY" />
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"8px"}}>
               <div>
-                <h2 className="text-white font-bold text-lg tracking-tight uppercase">Echoes of Eternity — Main Title</h2>
-                <p className="text-white/40 text-xs">Feature Film Score · {duration} · 8 Instrument Groups · Choir: 32 voices</p>
+                <div style={{fontSize:"8px",color:"#555",marginBottom:"4px"}}>DURATION</div>
+                <select value={duration} onChange={e=>setDuration(e.target.value)} style={{width:"100%",background:"#111",border:"1px solid #222",color:"#ccc",padding:"7px",borderRadius:"3px",fontSize:"10px"}}>
+                  {["0:30 — Trailer cue","1:00 — Short cue","2:30 — Main title","4:00 — Full scene","Custom length"].map(k=><option key={k}>{k}</option>)}
+                </select>
               </div>
-              <div className="flex items-center gap-2">
-                <button className="studio-card rounded-lg px-3 py-1.5 text-[11px] text-white/50 hover:text-white/70 flex items-center gap-1.5 transition-colors">
-                  <FileText className="w-3 h-3" /> Score PDF
-                </button>
-                <button className="studio-card rounded-lg px-3 py-1.5 text-[11px] text-white/50 hover:text-white/70 flex items-center gap-1.5 transition-colors">
-                  <Download className="w-3 h-3" /> MIDI Export
-                </button>
-                <button className="btn-primary btn-sheen px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5">
-                  <Plus className="w-3 h-3" /> ADD INSTRUMENT
-                </button>
+              <div>
+                <div style={{fontSize:"8px",color:"#555",marginBottom:"4px"}}>KEY / SCALE</div>
+                <select value={key} onChange={e=>setKey(e.target.value)} style={{width:"100%",background:"#111",border:"1px solid #222",color:"#ccc",padding:"7px",borderRadius:"3px",fontSize:"10px"}}>
+                  {["C Major","D Minor","E Minor","G Major","A Minor","B♭ Major","AI Chooses"].map(k=><option key={k}>{k}</option>)}
+                </select>
               </div>
             </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
+              <div>
+                <div style={{fontSize:"8px",color:"#555",marginBottom:"4px"}}>TEMPO (BPM)</div>
+                <input type="number" value={tempo} onChange={e=>setTempo(e.target.value)} style={{width:"100%",background:"#111",border:"1px solid #222",color:"#ccc",padding:"7px",borderRadius:"3px",fontSize:"10px",boxSizing:"border-box"}} />
+              </div>
+              <div>
+                <div style={{fontSize:"8px",color:"#555",marginBottom:"4px"}}>TIME SIGNATURE</div>
+                <select value={timeSig} onChange={e=>setTimeSig(e.target.value)} style={{width:"100%",background:"#111",border:"1px solid #222",color:"#ccc",padding:"7px",borderRadius:"3px",fontSize:"10px"}}>
+                  {["4/4","3/4","6/8","5/4","7/8"].map(t=><option key={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
 
-            {/* 8 Instrument Tracks */}
-            <div className="space-y-1.5">
-              {INSTRUMENTS.map((inst, i) => (
-                <div key={inst.name} className="studio-card rounded-xl p-3 flex items-center gap-3 group hover:border-white/15 transition-all">
-                  {/* Name */}
-                  <div className="w-[130px] flex-shrink-0">
-                    <p className="text-white/80 text-xs font-bold">{inst.name}</p>
-                    <p className="text-white/30 text-[9px] leading-tight">{inst.parts}</p>
-                  </div>
-                  {/* Waveform */}
-                  <div className="flex-1">
-                    <WaveformBar color={inst.color} />
-                  </div>
-                  {/* Controls */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-white/40 text-[10px] font-mono w-10 text-right">{inst.db}</span>
-                    <button className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/30 hover:text-white/50 transition-colors">
-                      <Volume2 className="w-3 h-3" />
-                    </button>
+          {/* Ambience */}
+          <div style={{padding:"14px 16px"}}>
+            <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#444",textTransform:"uppercase",marginBottom:"10px"}}>🔆 STUDIO AMBIENCE</div>
+            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+              <span style={{fontSize:"10px",color:"#555"}}>Dim</span>
+              <input type="range" min={0} max={100} value={ambience} onChange={e=>setAmbience(Number(e.target.value))} style={{flex:1,accentColor:"#d4a843"}} />
+              <span style={{fontSize:"10px",color:"#555"}}>Bright</span>
+              <span style={{fontSize:"10px",color:"#d4a843",fontWeight:700,minWidth:"32px"}}>{ambience}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* CENTRE */}
+        <div style={{overflowY:"auto",display:"flex",flexDirection:"column"}}>
+
+          {/* Ensemble */}
+          <div style={{padding:"16px 20px",borderBottom:"1px solid #141414"}}>
+            <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#d4a843",textTransform:"uppercase",marginBottom:"12px",display:"flex",alignItems:"center",gap:"8px"}}>
+              ENSEMBLE CONFIGURATION
+              <div style={{flex:1,height:"1px",background:"#1e1e1e"}} />
+              <span style={{fontSize:"8px",color:"#555",fontWeight:400,letterSpacing:0,textTransform:"none"}}>{activeEnsemble.length} groups active</span>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"8px"}}>
+              {ENSEMBLE_GROUPS.map(g => (
+                <button key={g.id} onClick={() => toggleEnsemble(g.id)} style={{
+                  background:activeEnsemble.includes(g.id)?"rgba(212,168,67,0.08)":"#0d0d0d",
+                  border:`1px solid ${activeEnsemble.includes(g.id)?"rgba(212,168,67,0.3)":"#1a1a1a"}`,
+                  borderRadius:"6px",padding:"10px 8px",cursor:"pointer",textAlign:"center",
+                }}>
+                  <div style={{fontSize:"20px",marginBottom:"4px"}}>{g.icon}</div>
+                  <div style={{fontSize:"9px",fontWeight:700,color:activeEnsemble.includes(g.id)?"#d4a843":"#666",marginBottom:"2px"}}>{g.label}</div>
+                  <div style={{fontSize:"7px",color:"#444",lineHeight:1.3}}>{g.desc}</div>
+                  {activeEnsemble.includes(g.id) && <div style={{marginTop:"4px",fontSize:"7px",color:"#6db86d",fontWeight:700}}>✓ ACTIVE</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Score Preview */}
+          <div style={{padding:"16px 20px",borderBottom:"1px solid #141414"}}>
+            <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#d4a843",textTransform:"uppercase",marginBottom:"12px",display:"flex",alignItems:"center",gap:"8px"}}>
+              SCORE PREVIEW — DYNAMIC STRUCTURE
+              <div style={{flex:1,height:"1px",background:"#1e1e1e"}} />
+            </div>
+            <div style={{background:"#0d0d0d",border:"1px solid #1a1a1a",borderRadius:"6px",padding:"12px",marginBottom:"8px"}}>
+              <svg width="100%" height="60" style={{display:"block"}}>
+                <defs>
+                  <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#9b59f5" stopOpacity="0.3" />
+                    <stop offset="50%" stopColor="#d4a843" stopOpacity="0.6" />
+                    <stop offset="100%" stopColor="#d4a843" stopOpacity="0.9" />
+                  </linearGradient>
+                </defs>
+                <path d="M 0 55 Q 100 50 150 40 Q 200 30 250 20 Q 300 10 350 5 Q 400 2 450 5 Q 500 8 550 15" stroke="url(#sg)" strokeWidth="2" fill="none" />
+                <text x="10" y="58" fill="#555" fontSize="8" fontFamily="sans-serif">pp</text>
+                <text x="160" y="35" fill="#9b59f5" fontSize="8" fontFamily="sans-serif">mf</text>
+                <text x="340" y="12" fill="#d4a843" fontSize="8" fontFamily="sans-serif" fontWeight="bold">fff</text>
+                <text x="345" y="8" fill="#9b59f5" fontSize="7" fontFamily="sans-serif">CHOIR ENTRY</text>
+                <line x1="350" y1="10" x2="350" y2="42" stroke="#9b59f5" strokeWidth="1" strokeDasharray="3,2" />
+              </svg>
+              <div style={{fontSize:"8px",color:"#444",textAlign:"center",marginTop:"4px"}}>Solo cello opens pp · Strings build cresc. · Full choir entry at bar 28 · Key: D Minor</div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:"4px"}}>
+              {[
+                {name:"STRINGS",    color:"#7c5cbf"},
+                {name:"BRASS",      color:"#d4a843"},
+                {name:"WOODWINDS",  color:"#4a9eff"},
+                {name:"CHOIR",      color:"#9b59f5"},
+                {name:"PERCUSSION", color:"#e05c2a"},
+              ].map(track => (
+                <div key={track.name} style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                  <span style={{fontSize:"7px",color:"#444",width:"64px",textAlign:"right",flexShrink:0}}>{track.name}</span>
+                  <div style={{flex:1,height:"8px",background:"#111",borderRadius:"2px",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:"70%",background:track.color,opacity:0.4,borderRadius:"1px"}} />
                   </div>
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Score Preview */}
-            <div className="studio-card rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white/60 text-xs font-bold tracking-widest uppercase">Score Preview — Bar 24-28 · Strings & Choir Entry</h3>
-              </div>
-              {/* Musical notation mockup */}
-              <div className="bg-white/[0.03] rounded-xl p-6 mb-3">
-                <div className="flex items-center justify-center gap-1">
-                  {/* Treble clef + time signature */}
-                  <span className="text-white/30 text-3xl font-serif mr-2">𝄞</span>
-                  <span className="text-white/30 text-sm font-mono mr-4">4/4</span>
-                  {/* Notes */}
-                  {["𝅘𝅥", "𝅘𝅥𝅮", "𝅗𝅥", "𝅘𝅥", "𝅘𝅥𝅮", "𝅘𝅥𝅮", "𝅝", "𝅘𝅥", "𝅘𝅥𝅮", "𝅗𝅥"].map((note, i) => (
-                    <span key={i} className="text-white/50 text-2xl mx-1">{note}</span>
-                  ))}
-                  <span className="ml-4 text-[--color-gold] text-[10px] font-bold tracking-widest uppercase">CHOIR ENTRY</span>
-                </div>
-                <div className="mt-3 flex items-center gap-4 text-[10px] text-white/30">
-                  <span className="italic">pp</span>
-                  <span>cresc.</span>
-                  <span className="italic">mf</span>
-                  <span className="italic">f</span>
-                </div>
-              </div>
-              <p className="text-white/30 text-[11px]">
-                Solo cello opens <span className="italic">pp</span> · Strings build <span className="italic">cresc.</span> · Full choir entry at bar 28 · Key: {keyScale}
-              </p>
-            </div>
-          </main>
+          {/* Generate */}
+          <div style={{padding:"16px 20px"}}>
+            <button style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
+              🎬 COMPOSE SCORE
+              <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.7}}>Brief → Ensemble → Compose → Upgrade Preview → Render</div>
+            </button>
+          </div>
+        </div>
 
-          {/* ── RIGHT SIDEBAR: Upgrade Preview ── */}
-          <aside className="space-y-4">
-            {/* Hear & See the Difference */}
-            <div className="studio-card rounded-2xl p-4">
-              <h3 className="flex items-center gap-2 text-[--color-gold] text-xs font-bold tracking-wider mb-2">
-                <Sparkles className="w-3.5 h-3.5" /> HEAR & SEE THE DIFFERENCE
-              </h3>
-              <p className="text-white/30 text-[10px] leading-relaxed mb-4">
-                Listen before you commit. Preview in all three quality tiers — no download until payment confirmed.
-              </p>
+        {/* RIGHT */}
+        <div style={{borderLeft:"1px solid #1a1a1a",overflowY:"auto"}}>
 
-              {/* Audio tier tabs */}
-              <div className="flex rounded-lg overflow-hidden border border-white/10 mb-4">
-                {(["original", "enhanced", "cinematic"] as AudioTier[]).map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setActiveTier(t)}
-                    className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider transition-all ${
-                      activeTier === t
-                        ? "bg-white text-black"
-                        : "bg-white/5 text-white/40 hover:text-white/60"
-                    }`}
-                  >
-                    {t === "original" ? "ORIGINAL" : t === "enhanced" ? (
-                      <span>ENHANCED <span className="text-[--color-gold]">+£1.99</span></span>
-                    ) : (
-                      <span>CINEMATIC <span className="text-[--color-gold]">+£4.99</span></span>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Waveform preview */}
-              <div className="h-12 rounded-lg overflow-hidden mb-3">
-                <div className="w-full h-full flex items-end gap-[1px]">
-                  {Array.from({ length: 60 }).map((_, i) => {
-                    const h = Math.sin(i * 0.2) * 40 + Math.random() * 30 + 20;
-                    const hue = (i / 60) * 300;
-                    return (
-                      <div
-                        key={i}
-                        className="flex-1 rounded-t-sm"
-                        style={{ height: `${h}%`, background: `hsl(${hue}, 70%, 50%)`, opacity: 0.7 }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Track info */}
-              <p className="text-white/30 text-[9px] font-bold tracking-widest uppercase mb-1">
-                WIZSCORE™ — {activeTier.toUpperCase()} MIX
-              </p>
-              <p className="text-white/70 text-xs font-semibold mb-2">Echoes of Eternity — Main Title</p>
-              <div className="flex items-center gap-3 mb-3">
-                <button className="w-8 h-8 rounded-full bg-[--color-gold] flex items-center justify-center shadow-[0_0_12px_rgba(184,137,42,0.3)]">
-                  <Play className="w-3.5 h-3.5 text-black ml-0.5" />
+          {/* Upgrade Preview */}
+          <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
+            <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#d4a843",textTransform:"uppercase",marginBottom:"8px"}}>🎧 HEAR & SEE THE DIFFERENCE</div>
+            <div style={{fontSize:"8px",color:"#555",marginBottom:"10px",lineHeight:1.5}}>Listen before you commit. Preview your score in all three quality tiers.</div>
+            <div style={{display:"flex",borderBottom:"1px solid #1a1a1a",marginBottom:"10px"}}>
+              {(["original","enhanced","cinematic"] as const).map(t => (
+                <button key={t} onClick={() => setTier(t)} style={{
+                  flex:1,padding:"8px 4px",background:"none",border:"none",cursor:"pointer",
+                  borderBottom:tier===t?"2px solid #d4a843":"2px solid transparent",
+                  color:tier===t?"#d4a843":"#444",
+                  fontSize:"9px",fontWeight:700,letterSpacing:"1px",textTransform:"uppercase",
+                  display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",
+                }}>
+                  {t.toUpperCase()}
+                  <span style={{fontSize:"8px",color:tier===t?"#d4a843":"#333"}}>{TIER_INFO[t].price}</span>
                 </button>
-                <span className="text-white/40 text-[11px] font-mono">0:15 / {duration}</span>
-              </div>
-              <p className="text-white/25 text-[9px] leading-relaxed">
-                Preview in {activeTier} quality — full mastering & spatial audio applied on payment confirmed.
-              </p>
+              ))}
             </div>
-
-            {/* WizLuminar Visual Quality */}
-            <div className="studio-card rounded-2xl p-4">
-              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">WIZLUMINAR™ — VISUAL QUALITY</h3>
-              <div className="flex rounded-lg overflow-hidden border border-white/10">
-                {["ORIGINAL", "ENHANCED", "CINEMATIC"].map((t, i) => (
-                  <button
-                    key={t}
-                    className={`flex-1 py-2 text-[10px] font-bold tracking-wider transition-all ${
-                      i === 0 ? "bg-white/10 text-white/70" : "bg-white/5 text-white/30 hover:text-white/50"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 mt-3">
-                {[0.3, 0.5, 0.8].map((b, i) => (
-                  <div key={i} className="aspect-video rounded-lg overflow-hidden bg-white/5">
-                    <img
-                      src={ENV_IMG}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      style={{ filter: `brightness(${b}) saturate(${0.8 + i * 0.3})` }}
-                    />
-                  </div>
-                ))}
-              </div>
+            <div style={{display:"flex",alignItems:"flex-end",gap:"2px",height:"32px",marginBottom:"8px"}}>
+              {[0.3,0.5,0.7,0.9,0.8,0.6,0.95,0.85,0.7,0.5,0.8,0.9,0.75,0.6,0.4,0.7,0.85,0.65,0.5,0.3].map((h,i) => (
+                <div key={i} style={{flex:1,background:tier==="cinematic"?"#d4a843":tier==="enhanced"?"#9b59f5":"#555",height:`${h*100}%`,borderRadius:"1px 1px 0 0",opacity:0.7}} />
+              ))}
             </div>
-
-            {/* Upsell buttons */}
-            <button className="w-full btn-primary btn-sheen py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4">
-              <span className="flex items-center gap-2">
-                <Headphones className="w-3.5 h-3.5" /> WizSound™ Cinematic
-              </span>
-              <span>+£4.99</span>
-            </button>
-            <button className="w-full border border-[--color-gold]/30 bg-[--color-gold]/5 hover:bg-[--color-gold]/10 text-[--color-gold] py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4 transition-colors">
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic
-              </span>
-              <span>+£3.99</span>
-            </button>
-
-            {/* Render Quality */}
-            <div className="studio-card rounded-2xl p-4">
-              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">RENDER QUALITY</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {([
-                  { id: "hd" as RenderQuality, label: "HD", sub: "standard", price: "Included" },
-                  { id: "4k" as RenderQuality, label: "4K", sub: "studio", price: "+£2.99" },
-                  { id: "8k" as RenderQuality, label: "8K", sub: "Full Orch.", price: "+£4.99" },
-                ]).map(q => (
-                  <button
-                    key={q.id}
-                    onClick={() => setRenderQuality(q.id)}
-                    className={`rounded-xl p-3 text-center transition-all border ${
-                      renderQuality === q.id
-                        ? "bg-[--color-gold]/15 border-[--color-gold]/40 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                        : "bg-white/5 border-white/10 hover:border-white/20"
-                    }`}
-                  >
-                    <p className={`text-sm font-bold ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/60"}`}>{q.label}</p>
-                    <p className="text-[9px] text-white/30">{q.sub}</p>
-                    <p className={`text-[10px] font-bold mt-1 ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/40"}`}>{q.price}</p>
+            <div style={{background:"#080808",border:"1px solid #1a1a1a",borderRadius:"4px",padding:"8px 10px",marginBottom:"8px"}}>
+              <div style={{fontSize:"9px",color:"#d4a843",fontWeight:700,marginBottom:"4px"}}>{TIER_INFO[tier].label}</div>
+              <div style={{fontSize:"8px",color:"#555",marginBottom:"6px"}}>Echoes of Eternity — Main Title</div>
+              <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                <button onClick={() => setIsPlaying(!isPlaying)} style={{background:"#d4a843",border:"none",borderRadius:"50%",width:"22px",height:"22px",cursor:"pointer",fontSize:"9px",color:"#000",flexShrink:0}}>
+                  {isPlaying ? "⏸" : "▶"}
+                </button>
+                <div style={{flex:1,height:"3px",background:"#1a1a1a",borderRadius:"2px",overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${progress}%`,background:"linear-gradient(90deg,#d4a843,#f0c040)",borderRadius:"2px"}} />
+                </div>
+                <span style={{fontSize:"9px",color:"#555"}}>0:35 / 2:24</span>
+              </div>
+              <div style={{fontSize:"8px",color:"#333",marginTop:"4px"}}>🔒 Preview only — no download until render complete</div>
+            </div>
+            <div style={{marginBottom:"10px"}}>
+              <div style={{fontSize:"8px",color:"#d4a843",fontWeight:700,letterSpacing:"1px",marginBottom:"6px"}}>WIZLUMINAR™ — VISUAL QUALITY</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"4px"}}>
+                {["ORIGINAL","ENHANCED","CINEMATIC"].map((lbl,li) => (
+                  <button key={lbl} onClick={() => setLuminarTier(lbl.toLowerCase())} style={{
+                    background:"#0d0d0d",border:`1px solid ${luminarTier===lbl.toLowerCase()?"#d4a843":"#1a1a1a"}`,
+                    borderRadius:"4px",overflow:"hidden",cursor:"pointer",padding:0,
+                  }}>
+                    <div style={{width:"100%",aspectRatio:"16/9",background:li===0?"linear-gradient(135deg,#1a1a1a,#2a2a2a)":li===1?"linear-gradient(135deg,#1a1208,#2a2010)":"linear-gradient(135deg,#0d0a00,#1a1400)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px"}}>
+                      {li===0?"🎼":li===1?"✨":"🌟"}
+                    </div>
+                    <div style={{fontSize:"7px",fontWeight:700,color:luminarTier===lbl.toLowerCase()?"#d4a843":"#444",padding:"3px",textAlign:"center"}}>{lbl}</div>
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Render CTA */}
-            <button className="w-full btn-primary btn-sheen py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-              <Film className="w-4 h-4" /> RENDER SCORE — {renderQuality.toUpperCase()}
+            <button style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(155,89,245,0.15),rgba(155,89,245,0.08))",border:"1px solid rgba(155,89,245,0.3)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
+              <div style={{textAlign:"left"}}>
+                <div style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}>🎵 WizSound™ Cinematic</div>
+                <div style={{fontSize:"8px",color:"#6a3fa0",marginTop:"1px"}}>Spatial audio · Dolby Atmos · Immersive mix</div>
+              </div>
+              <div style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>+£4.99</div>
             </button>
-          </aside>
+            <button style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{textAlign:"left"}}>
+                <div style={{fontSize:"10px",fontWeight:700,color:"#d4a843",letterSpacing:"1px"}}>✨ WizLuminar™ Cinematic</div>
+                <div style={{fontSize:"8px",color:"#8a6820",marginTop:"1px"}}>Colour grade · Film grain · Visual sync</div>
+              </div>
+              <div style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>+£3.99</div>
+            </button>
+          </div>
+
+          {/* Render Quality */}
+          <div style={{padding:"14px 16px",borderBottom:"1px solid #141414"}}>
+            <div style={{fontSize:"9px",fontWeight:700,color:"#d4a843",letterSpacing:"1.5px",marginBottom:"8px"}}>RENDER QUALITY</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px",marginBottom:"10px"}}>
+              {[{label:"HD",sub:"48kHz · 24-bit",price:"Included"},{label:"4K",sub:"96kHz · 32-bit",price:"+£2.99"},{label:"8K",sub:"192kHz · 32-bit",price:"+£4.99"}].map(rq => (
+                <button key={rq.label} onClick={() => setRenderQuality(rq.label)} style={{
+                  background:renderQuality===rq.label?"rgba(212,168,67,0.12)":"#0d0d0d",
+                  border:`1px solid ${renderQuality===rq.label?"rgba(212,168,67,0.4)":"#1a1a1a"}`,
+                  borderRadius:"4px",padding:"8px 4px",cursor:"pointer",textAlign:"center",
+                }}>
+                  <div style={{fontSize:"12px",fontWeight:900,color:renderQuality===rq.label?"#d4a843":"#666"}}>{rq.label}</div>
+                  <div style={{fontSize:"7px",color:"#444",margin:"2px 0"}}>{rq.sub}</div>
+                  <div style={{fontSize:"8px",color:renderQuality===rq.label?"#d4a843":"#555"}}>{rq.price}</div>
+                </button>
+              ))}
+            </div>
+            <button style={{width:"100%",padding:"10px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"3px",color:"#000",fontSize:"11px",fontWeight:900,letterSpacing:"1px",cursor:"pointer"}}>
+              🎬 RENDER SCORE — {renderQuality}
+            </button>
+          </div>
+
+          {/* Production Status */}
+          <div style={{padding:"14px 16px"}}>
+            <div style={{fontSize:"9px",fontWeight:700,color:"#d4a843",letterSpacing:"1.5px",marginBottom:"8px"}}>PRODUCTION STATUS</div>
+            {[
+              {label:"Project Brief Locked",     val:"✓",           done:true,  active:false},
+              {label:"Ensemble Configured",       val:"8 groups",    done:true,  active:false},
+              {label:"Compose & Arrange",         val:"In Progress", done:false, active:true},
+              {label:"WizSound™ Processing",      val:"Pending",     done:false, active:false},
+              {label:"WizLuminar™ Grade",         val:"Pending",     done:false, active:false},
+              {label:"Final Render & Export",     val:"Pending",     done:false, active:false},
+            ].map(step => (
+              <div key={step.label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #111"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
+                  <div style={{width:"6px",height:"6px",borderRadius:"50%",background:step.done?"#6db86d":step.active?"#d4a843":"#2a2a2a",flexShrink:0}} />
+                  <span style={{fontSize:"9px",color:step.done?"#888":step.active?"#ccc":"#444"}}>{step.label}</span>
+                </div>
+                <span style={{fontSize:"8px",color:step.done?"#6db86d":step.active?"#d4a843":"#333"}}>{step.val}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SectionTitle({ num, label }: { num: number; label: string }) {
+  return (
+    <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#444",textTransform:"uppercase",marginBottom:"10px",display:"flex",alignItems:"center",gap:"8px"}}>
+      <div style={{width:"16px",height:"16px",borderRadius:"50%",background:"#d4a843",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"8px",fontWeight:900,color:"#000",flexShrink:0}}>{num}</div>
+      {label}
+      <div style={{flex:1,height:"1px",background:"#1e1e1e"}} />
     </div>
   );
 }

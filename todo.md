@@ -6017,3 +6017,9 @@
 - [x] Rebuild WizAnimate — Animation Studio (added VR env-hollywood-studio, env-tint-cinematic, WIZANIMATE branding, studio-header) (render farm POV, audio upload with EQ visualiser, timestamped lyrics panel, 5-stage workflow, Upgrade Preview)
 - [x] Rebuild WizShorts — YouTuber Home Studio (added VR env-broadcast-studio, env-tint-stage, WIZSHORTS branding) (curved ultrawide POV, channel stats overlay, hook builder, viral formula templates, vertical 9:16 workflow, Upgrade Preview)
 - [x] Rebuild WizImage — Digital Artist Studio (already had VR env-digital-art-lab, updated WIZIMAGE branding with AI IMAGE ENGINE badge) (Wacom Cintiq POV, reference upload, image type selector, visual style tags, aspect ratio selector, variations grid, Upgrade Preview)
+
+## WizImage & MusicCreator Mockup Rewrites - COMPLETED ✅
+- [x] Rewrite WizImage.tsx to match mockup-wizimage.html (Reference Upload, Image Type grid, Style & Prompt, Visual Style tags, Aspect Ratio, Colour Palette, Variations, 2x2 canvas grid)
+- [x] Rewrite MusicCreator.tsx to match mockup-v4-wizaudio.html (SSL console aesthetic, Live Room Window, EQ display, VU meters, Engine Selector, Track Brief, Genre/Mood/Vocal/Lyrics/Title/Duration, Master Bus with Mood Dial, Upgrade Preview, Generate Song button)
+- [x] Fix TypeScript errors: ZoomIn → Maximize2, aspectRatio type, VoiceToolContext
+- [x] Verify WizShorts.tsx has creator dashboard with stats, Hook Builder, Scene Preview
