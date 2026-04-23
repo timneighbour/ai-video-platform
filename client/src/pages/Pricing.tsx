@@ -600,7 +600,7 @@ export default function Pricing() {
 
                   {/* CTA */}
                   <Button
-                    onClick={() => handleSubscribe(plan.id)}
+                    onClick={() => handleSubscribe(plan.id as "starter" | "creator" | "studio")}
                     disabled={loadingPlan === plan.id}
                     className={`w-full rounded-xl font-bold text-sm h-11 transition-all duration-300 ${
                       isPopular || isHighlighted
