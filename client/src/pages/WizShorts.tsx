@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER } from "@/lib/pricing";
+import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -628,7 +628,7 @@ export default function WizShorts() {
                 <button className="w-full rounded-xl bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2.5 text-left hover:from-purple-500/30 transition-all">
                   <div className="text-xs font-bold text-purple-400">WizLuminar™ Cinematic</div>
                   <div className="text-[9px] text-white/40">Colour grade · Film grain · Deep blacks</div>
-                  <div className="text-[10px] text-purple-400 font-bold mt-1">+£3.99</div>
+                  <div className="text-[10px] text-purple-400 font-bold mt-1">{WIZLUMINAR_CINEMATIC.price}</div>
                 </button>
               </div>
             </div>

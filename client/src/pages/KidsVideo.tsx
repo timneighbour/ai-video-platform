@@ -4,7 +4,7 @@
  * 3-column: left config | centre storyboard workspace | right upgrade panel
  */
 import { useState, useRef } from "react";
-import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER } from "@/lib/pricing";
+import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 
 const ENV_IMG = "/manus-storage/env-hollywood-studio_1da3e15e.jpg";
@@ -346,7 +346,7 @@ export default function KidsVideo() {
                 <div style={{fontSize:"10px",fontWeight:700,color:"#d4a843",letterSpacing:"1px"}}>✨ WizLuminar™ Cinematic</div>
                 <div style={{fontSize:"8px",color:"#8a6820",marginTop:"1px"}}>Colour grade · Film grain</div>
               </div>
-              <div style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>+£3.99</div>
+              <div style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>{WIZLUMINAR_CINEMATIC.price}</div>
             </button>
           </div>
 

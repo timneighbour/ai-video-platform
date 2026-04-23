@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { IMAGE_RENDER_QUALITY, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -48,10 +49,10 @@ const PRODUCTION_STATUS = [
 ];
 
 const RENDER_QUALITY = [
-  { id: "standard", label: "Standard",       desc: "1024×1024px · Fast",          price: "Included" },
-  { id: "hd",       label: "HD",             desc: "2048×2048px · Print ready",   price: "+£1.99" },
-  { id: "4k",       label: "4K Ultra",       desc: "3840×3840px · Billboard",     price: "+£3.99" },
-  { id: "8k",       label: "8K WizLuminar™", desc: "7680×7680px · Museum print",  price: "+£7.99" },
+  { id: "standard", ...IMAGE_RENDER_QUALITY.STANDARD },
+  { id: "hd",       ...IMAGE_RENDER_QUALITY.HD },
+  { id: "4k",       ...IMAGE_RENDER_QUALITY.UHD },
+  { id: "8k",       ...IMAGE_RENDER_QUALITY.UHD8 },
 ];
 
 const EXPORT_FORMATS = ["PNG", "JPEG", "TIFF", "PSD", "SVG", "WEBP"];
@@ -597,13 +598,13 @@ export default function WizImage() {
                       : "text-[#7a7060] border-transparent hover:text-white/50"
                   }`}
                 >
-                  {tier === "original" ? "ORIGINAL" : tier === "enhanced" ? <>ENHANCED<br /><span className="text-[8px] text-green-400">+£2.99</span></> : <>WIZLUMINAR™<br /><span className="text-[8px] text-[--color-gold]">+£3.99</span></>}
+                  {tier === "original" ? "ORIGINAL" : tier === "enhanced" ? <>ENHANCED<br /><span className="text-[8px] text-green-400">{IMAGE_RENDER_QUALITY.HD.price}</span></> : <>WIZLUMINAR™<br /><span className="text-[8px] text-[--color-gold]">{WIZLUMINAR_CINEMATIC.price}</span></>}
                 </button>
               ))}
             </div>
             <div className="p-2.5">
               <div className="text-[11px] text-green-400 mb-1.5">
-                {upgradeTier === "original" ? "Included — no extra cost" : upgradeTier === "enhanced" ? "+£2.99 — Enhanced quality" : "+£3.99 — WizLuminar™ grade"}
+                {upgradeTier === "original" ? "Included — no extra cost" : upgradeTier === "enhanced" ? `${IMAGE_RENDER_QUALITY.HD.price} — Enhanced quality` : `${WIZLUMINAR_CINEMATIC.price} — WizLuminar™ grade`}
               </div>
               <div className="flex flex-col gap-1 mb-2">
                 {(upgradeTier === "original"
@@ -636,7 +637,7 @@ export default function WizImage() {
           <div className="rounded-xl p-2.5 cursor-pointer transition-all hover:bg-[#d4a843]/10 border border-[#d4a843]/35" style={{ background: "linear-gradient(135deg, rgba(212,168,67,0.15), rgba(212,168,67,0.05))" }}>
             <div className="text-[11px] font-bold text-[--color-gold] mb-1">✦ WizLuminar™ Cinematic Grade</div>
             <div className="text-[10px] text-[#7a7060]">Professional colour science, HDR tone mapping, cinematic LUT, 4K upscale, noise reduction, detail enhancement</div>
-            <div className="text-[13px] font-bold text-[--color-gold] mt-1.5">Add WizLuminar™ — +£3.99</div>
+            <div className="text-[13px] font-bold text-[--color-gold] mt-1.5">Add WizLuminar™ — {WIZLUMINAR_CINEMATIC.price}</div>
           </div>
 
           {/* Render Quality */}

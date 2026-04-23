@@ -89,9 +89,14 @@ export const CREDIT_BUNDLES = [
   { label: "Studio Bundle",   builds: 40, price: "£50", perRender: "£1.25", saving: "Save 38%", highlight: false, badge: null         },
 ] as const;
 
+// ── WizLuminar™ Cinematic Add-on ────────────────────────────────────────────
+// Used by: KidsVideo, TextToVideoCreator, WizScore, WizShorts
+// Colour grade + film grain visual enhancement add-on
+export const WIZLUMINAR_CINEMATIC = { label: "WizLuminar™ Cinematic", price: "+£3.99", priceAddon: 3.99 } as const;
+
 // ── WizShorts / KidsVideo quality selector (2-tier: 1080p / 4K) ──────────────
 // Some studios only offer 2 tiers (no 8K)
 export const VIDEO_QUALITY_2TIER = [
   { label: "1080p", price: "Included" },
-  { label: "4K",    price: "+£3.99"   },
+  { label: "4K",    price: "+£2.99"   },
 ] as const;

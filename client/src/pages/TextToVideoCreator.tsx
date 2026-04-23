@@ -5,7 +5,7 @@
  * Matches the WizScore mockup quality standard.
  */
 import { useAuth } from "@/_core/hooks/useAuth";
-import { RENDER_QUALITY_TIERS, WIZSOUND_TIERS } from "@/lib/pricing";
+import { RENDER_QUALITY_TIERS, WIZSOUND_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -561,7 +561,7 @@ export default function TextToVideoCreator() {
 
             {/* Upsell buttons */}
             <button className="w-full btn-primary btn-sheen py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4"><span className="flex items-center gap-2"><Headphones className="w-3.5 h-3.5" /> WizSound™ Cinematic</span><span>{WIZSOUND_TIERS.CINEMATIC.price}</span></button>
-            <button className="w-full border border-[--color-gold]/30 bg-[--color-gold]/5 hover:bg-[--color-gold]/10 text-[--color-gold] py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4 transition-colors"><span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic</span><span>+£3.99</span></button>
+            <button className="w-full border border-[--color-gold]/30 bg-[--color-gold]/5 hover:bg-[--color-gold]/10 text-[--color-gold] py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4 transition-colors"><span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic</span><span>{WIZLUMINAR_CINEMATIC.price}</span></button>
 
             {/* Render Quality */}
             <div className="studio-card rounded-2xl p-4">

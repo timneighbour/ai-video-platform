@@ -3,7 +3,7 @@
  * Studio app matching mockup-wizscore.html exactly
  */
 import { useState, useEffect, useRef } from "react";
-import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS } from "@/lib/pricing";
+import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
@@ -385,7 +385,7 @@ export default function WizScore() {
                 <div style={{fontSize:"10px",fontWeight:700,color:"#d4a843",letterSpacing:"1px"}}>✨ WizLuminar™ Cinematic</div>
                 <div style={{fontSize:"8px",color:"#8a6820",marginTop:"1px"}}>Colour grade · Film grain · Visual sync</div>
               </div>
-              <div style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>+£3.99</div>
+              <div style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>{WIZLUMINAR_CINEMATIC.price}</div>
             </button>
           </div>
 
