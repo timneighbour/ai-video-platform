@@ -249,7 +249,42 @@ export default function WizShorts() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid lg:grid-cols-[220px_1fr_300px] gap-6">
+          {/* ── LEFT SIDEBAR: Config Summary ── */}
+          <aside className="hidden lg:block space-y-4 sticky top-40 self-start">
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 space-y-4">
+              <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase">Project Config</h3>
+              <div className="space-y-3">
+                <div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Platform</div>
+                  <div className="text-sm text-white font-medium capitalize">{platform.replace('_', ' ')}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Duration</div>
+                  <div className="text-sm text-white font-medium">{duration}s</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Visual Style</div>
+                  <div className="text-sm text-white font-medium capitalize">{visualStyle.replace('-', ' ')}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Scenes</div>
+                  <div className="text-sm text-white font-medium">{scenes.length > 0 ? `${scenes.length} planned` : `~${Math.ceil(duration / 5)} estimated`}</div>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 space-y-3">
+              <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase">Credits</h3>
+              <div className="text-2xl font-bold text-white">{Math.ceil(duration / 5) * 5}</div>
+              <div className="text-xs text-muted-foreground">credits for final render</div>
+              <div className="text-[10px] text-muted-foreground border-t border-white/10 pt-3 mt-2">
+                Scene planning is always free. You only pay when you build your final video.
+              </div>
+            </div>
+          </aside>
+          {/* ── CENTER: Main Workspace ── */}
+          <div>
         {/* ── STEP 1: Setup ──────────────────────────────────────────────────── */}
         {step === "setup" && (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
@@ -617,6 +652,77 @@ export default function WizShorts() {
             ) : null}
           </div>
         )}
+          </div>
+          {/* ── RIGHT SIDEBAR: Upgrade Preview ── */}
+          <aside className="hidden lg:block space-y-4 sticky top-40 self-start">
+            <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-b from-[--color-gold]/10 to-transparent backdrop-blur-sm p-4">
+              <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase flex items-center gap-2 mb-4">
+                <Sparkles className="h-3.5 w-3.5" />
+                Hear & See the Difference
+              </h3>
+              <p className="text-[10px] text-muted-foreground mb-4">
+                Preview all three quality tiers before you render. No download until payment confirmed.
+              </p>
+              <div className="space-y-2 mb-4">
+                {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
+                  <button
+                    key={tier}
+                    className={`w-full text-left rounded-lg border p-2.5 text-xs transition-all ${
+                      i === 0
+                        ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white'
+                        : 'border-white/10 bg-white/5 text-muted-foreground hover:border-white/20'
+                    }`}
+                  >
+                    <div className="font-bold tracking-wider">{tier}</div>
+                    <div className="text-[10px] opacity-70 mt-0.5">
+                      {i === 0 ? 'Included' : i === 1 ? '+\u00a33.99' : '+\u00a34.99'}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="border-t border-white/10 pt-4 mb-4">
+                <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-3">WIZLUMINAR\u2122 \u2014 VISUAL QUALITY</h4>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
+                    <div key={tier} className={`rounded-lg border p-2 text-center text-[10px] ${
+                      i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white' : 'border-white/10 bg-white/5 text-muted-foreground'
+                    }`}>
+                      <div className="font-bold">{tier}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <button className="w-full rounded-lg bg-gradient-to-r from-[--color-gold]/20 to-[--color-gold]/10 border border-[--color-gold]/30 p-2.5 text-left">
+                  <div className="text-xs font-bold text-[--color-gold]">WizSound\u2122 Cinematic</div>
+                  <div className="text-[10px] text-muted-foreground">+\u00a34.99</div>
+                </button>
+                <button className="w-full rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2.5 text-left">
+                  <div className="text-xs font-bold text-purple-400">WizLuminar\u2122 Cinematic</div>
+                  <div className="text-[10px] text-muted-foreground">+\u00a33.99</div>
+                </button>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
+              <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-3">RENDER QUALITY</h3>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { label: 'HD', sub: '1080p', price: 'Included' },
+                  { label: '4K', sub: '2160p', price: '+\u00a32.99' },
+                  { label: '8K', sub: '4320p', price: '+\u00a34.99' },
+                ].map((q, i) => (
+                  <div key={q.label} className={`rounded-lg border p-2.5 text-center cursor-pointer transition-all ${
+                    i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/30' : 'border-white/10 bg-white/5 hover:border-white/20'
+                  }`}>
+                    <div className="text-sm font-bold text-white">{q.label}</div>
+                    <div className="text-[10px] text-muted-foreground">{q.sub}</div>
+                    <div className={`text-[10px] mt-1 font-medium ${i === 1 ? 'text-[--color-gold]' : 'text-muted-foreground'}`}>{q.price}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

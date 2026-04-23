@@ -2427,6 +2427,56 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
+              {/* ── HEAR & SEE THE DIFFERENCE ── */}
+              <Card className="border-[--color-gold]/30 bg-gradient-to-b from-[--color-gold]/10 to-transparent">
+                <CardContent className="pt-4 pb-4 space-y-3">
+                  <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Hear & See the Difference
+                  </h3>
+                  <p className="text-[10px] text-white/40">Preview all three quality tiers. No download until payment confirmed.</p>
+                  <div className="space-y-1.5">
+                    {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
+                      <div key={tier} className={`rounded-lg border p-2 text-xs ${i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white' : 'border-white/10 bg-white/5 text-white/50'}`}>
+                        <div className="font-bold tracking-wider">{tier}</div>
+                        <div className="text-[10px] opacity-70">{i === 0 ? 'Included' : i === 1 ? '+\u00a32.99' : '+\u00a34.99'}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-white/10 pt-3">
+                    <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-2">WIZLUMINAR\u2122 \u2014 VISUAL QUALITY</h4>
+                    <div className="grid grid-cols-3 gap-1">
+                      {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
+                        <div key={tier} className={`rounded-md border p-1.5 text-center text-[9px] ${i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white' : 'border-white/10 bg-white/5 text-white/40'}`}>
+                          <div className="font-bold">{tier}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="rounded-lg bg-gradient-to-r from-[--color-gold]/20 to-[--color-gold]/10 border border-[--color-gold]/30 p-2">
+                      <div className="text-xs font-bold text-[--color-gold]">WizSound\u2122 Cinematic</div>
+                      <div className="text-[10px] text-white/40">+\u00a34.99</div>
+                    </div>
+                    <div className="rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2">
+                      <div className="text-xs font-bold text-purple-400">WizLuminar\u2122 Cinematic</div>
+                      <div className="text-[10px] text-white/40">+\u00a33.99</div>
+                    </div>
+                  </div>
+                  <div className="border-t border-white/10 pt-3">
+                    <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-2">RENDER QUALITY</h4>
+                    <div className="grid grid-cols-3 gap-1">
+                      {[{l:'HD',s:'1080p',p:'Included'},{l:'4K',s:'2160p',p:'+\u00a32.99'},{l:'8K',s:'4320p',p:'+\u00a34.99'}].map((q,i) => (
+                        <div key={q.l} className={`rounded-md border p-1.5 text-center ${i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15' : 'border-white/10 bg-white/5'}`}>
+                          <div className="text-xs font-bold text-white">{q.l}</div>
+                          <div className="text-[9px] text-white/40">{q.s}</div>
+                          <div className={`text-[9px] font-medium ${i===1?'text-[--color-gold]':'text-white/30'}`}>{q.p}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               {/* Render paywall info — replaces legacy credit balance card */}
               <Card className="bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/10 border-[--color-gold]/30">
                 <CardContent className="pt-4 pb-4">

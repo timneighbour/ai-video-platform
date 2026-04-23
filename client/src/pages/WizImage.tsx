@@ -232,8 +232,41 @@ export default function WizImage() {
         </div>
       </div>
 
-      {/* ── Main Layout ──────────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[440px_1fr] gap-6 lg:gap-8">
+      {/* ── Main Layout ────────────────────────────────────────────────────────────── */}
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[220px_440px_1fr_280px] gap-5">
+
+        {/* ── LEFT SIDEBAR: Project Config ── */}
+        <aside className="hidden lg:block space-y-4 sticky top-40 self-start">
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 space-y-4">
+            <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase">Project Config</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Style</div>
+                <div className="text-sm text-white font-medium">{activeStyle.label}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Aspect Ratio</div>
+                <div className="text-sm text-white font-medium">{aspectRatio}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Prompt</div>
+                <div className="text-xs text-white/60 line-clamp-3 mt-0.5">{prompt || 'Not set'}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Gallery</div>
+                <div className="text-sm text-white font-medium">{history?.length ?? 0} images</div>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 space-y-3">
+            <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase">Credits</h3>
+            <div className="text-2xl font-bold text-white">2</div>
+            <div className="text-xs text-muted-foreground">credits per image</div>
+            <div className="text-[10px] text-muted-foreground border-t border-white/10 pt-3 mt-2">
+              Preview is free. Credits used only on final generation.
+            </div>
+          </div>
+        </aside>
 
         {/* ── Left Panel — Controls ─────────────────────────────────────────── */}
         <div className="space-y-5">
@@ -576,6 +609,76 @@ export default function WizImage() {
             </div>
           )}
         </div>
+
+        {/* ── RIGHT SIDEBAR: Upgrade Preview ── */}
+        <aside className="hidden lg:block space-y-4 sticky top-40 self-start">
+          <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-b from-[--color-gold]/10 to-transparent backdrop-blur-sm p-4">
+            <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase flex items-center gap-2 mb-4">
+              <Sparkles className="h-3.5 w-3.5" />
+              See the Difference
+            </h3>
+            <p className="text-[10px] text-muted-foreground mb-4">
+              Preview all three quality tiers. No download until payment confirmed.
+            </p>
+            <div className="space-y-2 mb-4">
+              {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
+                <button
+                  key={tier}
+                  className={`w-full text-left rounded-lg border p-2.5 text-xs transition-all ${
+                    i === 0
+                      ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white'
+                      : 'border-white/10 bg-white/5 text-muted-foreground hover:border-white/20'
+                  }`}
+                >
+                  <div className="font-bold tracking-wider">{tier}</div>
+                  <div className="text-[10px] opacity-70 mt-0.5">
+                    {i === 0 ? 'Included' : i === 1 ? '+\u00a32.99' : '+\u00a34.99'}
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div className="border-t border-white/10 pt-4 mb-4">
+              <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-3">WIZLUMINAR\u2122 \u2014 VISUAL QUALITY</h4>
+              <div className="grid grid-cols-3 gap-1.5">
+                {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
+                  <div key={tier} className={`rounded-lg border p-2 text-center text-[10px] ${
+                    i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white' : 'border-white/10 bg-white/5 text-muted-foreground'
+                  }`}>
+                    <div className="font-bold">{tier}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <button className="w-full rounded-lg bg-gradient-to-r from-[--color-gold]/20 to-[--color-gold]/10 border border-[--color-gold]/30 p-2.5 text-left">
+                <div className="text-xs font-bold text-[--color-gold]">WizSound\u2122 Cinematic</div>
+                <div className="text-[10px] text-muted-foreground">+\u00a34.99</div>
+              </button>
+              <button className="w-full rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2.5 text-left">
+                <div className="text-xs font-bold text-purple-400">WizLuminar\u2122 Cinematic</div>
+                <div className="text-[10px] text-muted-foreground">+\u00a33.99</div>
+              </button>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
+            <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-3">RENDER QUALITY</h3>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { label: 'HD', sub: '1080p', price: 'Included' },
+                { label: '4K', sub: '2160p', price: '+\u00a32.99' },
+                { label: '8K', sub: '4320p', price: '+\u00a34.99' },
+              ].map((q, i) => (
+                <div key={q.label} className={`rounded-lg border p-2.5 text-center cursor-pointer transition-all ${
+                  i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/30' : 'border-white/10 bg-white/5 hover:border-white/20'
+                }`}>
+                  <div className="text-sm font-bold text-white">{q.label}</div>
+                  <div className="text-[10px] text-muted-foreground">{q.sub}</div>
+                  <div className={`text-[10px] mt-1 font-medium ${i === 1 ? 'text-[--color-gold]' : 'text-muted-foreground'}`}>{q.price}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
       </div>
 
       {/* Shimmer + progress keyframes */}
