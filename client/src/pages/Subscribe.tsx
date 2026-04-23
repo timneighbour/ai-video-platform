@@ -11,148 +11,21 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useSEO } from "@/hooks/useSEO";
+import { PLANS as SHARED_PLANS, COMPARISON_ROWS } from "@/lib/plans";
 
-// ── Plan data ────────────────────────────────────────────────────────────────
-const PLANS = [
-  {
-    id: "free",
-    name: "Free",
-    icon: <Gift className="w-5 h-5" />,
-    monthlyPrice: 0,
-    annualTotal: 0,
-    annualSaving: 0,
-    tagline: "Try WIZ AI with no commitment",
-    outcomes: [
-      "2 free Build Credits to try the platform",
-      "Free storyboard generation",
-      "Access to all AI tools",
-      "Standard quality (720p)",
-      "Community support",
-    ],
-    cta: "Start Creating",
-    highlight: false,
-    badge: null as string | null,
-  },
-  {
-    id: "starter",
-    name: "Starter",
-    icon: <Zap className="w-5 h-5" />,
-    monthlyPrice: 9,
-    annualTotal: 79,
-    annualSaving: 29,
-    tagline: "Create up to 2 videos/month",
-    outcomes: [
-      "2 Build Credits per month",
-      "Standard quality (720p)",
-      "All 6 WIZ AI products",
-      "Free storyboard generation",
-      "WizVideo + WizAudio creation tools",
-      "WizScript AI video creator",
-      "Email support",
-    ],
-    cta: "Start Creating",
-    highlight: false,
-    badge: null as string | null,
-  },
-  {
-    id: "basic",
-    name: "Basic",
-    icon: <Star className="w-5 h-5" />,
-    monthlyPrice: 19,
-    annualTotal: 190,
-    annualSaving: 38,
-    tagline: "Create up to 5 videos/month in HD",
-    outcomes: [
-      "5 Build Credits per month",
-      "HD quality (1080p)",
-      "All 6 AI video styles",
-      "Free storyboard generation",
-      "WizVideo + WizScript + WizAudio included",
-      "Standard build speed",
-      "Email support",
-    ],
-    cta: "Start Creating",
-    highlight: false,
-    badge: null as string | null,
-  },
-  {
-    id: "creator",
-    name: "Creator",
-    icon: <Rocket className="w-5 h-5" />,
-    monthlyPrice: 35,
-    annualTotal: 350,
-    annualSaving: 70,
-    tagline: "Create up to 15 videos/month",
-    outcomes: [
-      "15 Build Credits per month",
-      "Standard, HD & 4K quality",
-      "WizSync\u2122 character lock",
-      "Priority build queue",
-      "All 6 WIZ AI products",
-      "Free storyboard generation",
-      "No watermark on exports",
-      "Priority email support",
-    ],
-    cta: "Upgrade Plan",
-    highlight: true,
-    badge: "Most Popular" as string | null,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    icon: <Crown className="w-5 h-5" />,
-    monthlyPrice: 59,
-    annualTotal: 590,
-    annualSaving: 118,
-    tagline: "Create up to 25 videos/month in 4K",
-    outcomes: [
-      "25 Build Credits per month",
-      "Standard, HD & 4K quality",
-      "WizSync\u2122 character lock",
-      "Priority build queue",
-      "All 6 WIZ AI products",
-      "Free storyboard generation",
-      "No watermark on exports",
-      "Priority support",
-    ],
-    cta: "Upgrade Plan",
-    highlight: false,
-    badge: null as string | null,
-  },
-  {
-    id: "studio",
-    name: "Studio",
-    icon: <Gem className="w-5 h-5" />,
-    monthlyPrice: 99,
-    annualTotal: 990,
-    annualSaving: 198,
-    tagline: "Create up to 40 videos/month",
-    outcomes: [
-      "40 Build Credits per month",
-      "Standard, HD & 4K quality",
-      "Fastest build speed \u2014 top priority",
-      "WizSync\u2122 character lock",
-      "Full API access for automation",
-      "All 6 WIZ AI products",
-      "No watermark on exports",
-      "Dedicated support",
-    ],
-    cta: "Upgrade Plan",
-    highlight: false,
-    badge: "Best Value" as string | null,
-  },
-];
+// ── Plan icon overlay (UI-only, not in shared module) ────────────────────────
+const PLAN_ICONS: Record<string, React.ReactNode> = {
+  free: <Gift className="w-5 h-5" />,
+  starter: <Zap className="w-5 h-5" />,
+  basic: <Star className="w-5 h-5" />,
+  creator: <Rocket className="w-5 h-5" />,
+  pro: <Crown className="w-5 h-5" />,
+  studio: <Gem className="w-5 h-5" />,
+};
+// Merge shared plan data with UI-only icon field
+const PLANS = SHARED_PLANS.map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
-// ── Comparison table rows ────────────────────────────────────────────────────
-const COMPARISON_ROWS: { feature: string; free: string | boolean; starter: string | boolean; basic: string | boolean; creator: string | boolean; pro: string | boolean; studio: string | boolean }[] = [
-  { feature: "Build Credits/month",     free: "2 (trial)", starter: "2",    basic: "5",    creator: "15",  pro: "25",  studio: "40"  },
-  { feature: "Max quality",       free: "720p",      starter: "720p", basic: "1080p",creator: "4K",  pro: "4K",  studio: "4K"  },
-  { feature: "Free storyboard",   free: true,        starter: true,   basic: true,   creator: true,  pro: true,  studio: true  },
-  { feature: "WizSound discount", free: false,       starter: false,  basic: false,  creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "WizSync\u2122 character lock", free: false, starter: false, basic: false, creator: true, pro: true, studio: true },
-  { feature: "Build speed",   free: "Standard",  starter: "Standard", basic: "Standard", creator: "Priority", pro: "Priority", studio: "Fastest" },
-  { feature: "API access",        free: false,       starter: false,  basic: false,  creator: false, pro: false, studio: true  },
-];
+
 
 // ── Component ────────────────────────────────────────────────────────────────
 export default function Subscribe() {

@@ -10,7 +10,7 @@ import {
   Music, AlertCircle, Download, ExternalLink, Clapperboard,
   Plus, Trash2, Copy, ImageIcon, Video, X, Eye,
 } from "@/lib/icons";
-import { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -391,70 +391,75 @@ export default function Autopilot() {
         <div className="env-bg-overlay" />
       </div>
       <div className="env-ambient env-tint-blue" />
-      {/* Header */}
-      <div className="relative z-10 studio-header">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      {/* Header — Mockup-style sticky nav */}
+      <div className="sticky top-0 z-40" style={{background:'rgba(10,10,10,0.95)',backdropFilter:'blur(12px)',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
           <Button
-            variant="ghost"
-            size="sm"
+            variant="ghost" size="sm"
             onClick={() => {
-              if (step === "storyboard") {
-                setStep("input");
-              } else if (step === "generating") {
-                toast.info("Video is building — you can check progress in Projects.");
-              } else {
-                setLocation("/");
-              }
+              if (step === "storyboard") setStep("input");
+              else if (step === "generating") toast.info("Video is building — you can check progress in Projects.");
+              else setLocation("/");
             }}
-            className="gap-2 text-muted-foreground hover:text-white"
+            className="gap-2 text-white/50 hover:text-white text-xs font-medium tracking-wider uppercase"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">
-              {step === "storyboard" ? "Edit Prompt" : "Back"}
-            </span>
+            <span className="hidden sm:inline">Back to Studio</span>
           </Button>
-
-          {/* WizScript + YouTube branding */}
-          <div className="flex items-center gap-2.5">
-            <Wand2 className="h-5 w-5 text-[--color-gold]" />
-            <span className="font-bold text-white">WizScript</span>
-            <span className="text-muted-foreground/40 text-sm">·</span>
-            <div className="flex items-center gap-1.5">
-              <YouTubeLogo size={18} />
-              <span className="text-xs text-muted-foreground hidden sm:inline">for YouTube</span>
-            </div>
-          </div>
-
+          <a href="/">
+            <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+          </a>
           <CreditBalance variant="badge" />
         </div>
-      </div>
-
-      {/* Progress Steps */}
-      <div className="relative z-10 border-b border-[rgba(184,137,42,0.15)] bg-[rgba(10,8,6,0.6)] backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-1 sm:gap-2 py-3 overflow-x-auto scrollbar-none">
+        {/* Stage pills */}
+        <div className="max-w-3xl mx-auto px-4 pb-2">
+          <div className="flex items-center gap-1 overflow-x-auto pb-1">
             {[
-              { key: "input", label: "1. Describe" },
-              { key: "storyboard", label: "2. Storyboard" },
-              { key: "generating", label: "3. Render" },
-            ].map((s, i) => (
-              <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                <div
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
-                    stepIndex === i
-                      ? "bg-[--color-gold] text-white"
-                      : stepIndex > i
-                      ? "bg-[--color-silver]/15 text-[--color-silver]"
-                      : "bg-white/10 text-muted-foreground"
-                  }`}
-                >
-                  {stepIndex > i ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                  <span className="whitespace-nowrap">{s.label}</span>
-                </div>
-                {i < 2 && <ChevronRight className="h-3 w-3 text-muted-foreground/40 flex-shrink-0" />}
-              </div>
-            ))}
+              { key: "input", label: "Describe" },
+              { key: "storyboard", label: "Storyboard" },
+              { key: "generating", label: "Render" },
+            ].map((s, i) => {
+              const isActive = stepIndex === i;
+              const isDone = stepIndex > i;
+              return (
+                <React.Fragment key={s.key}>
+                  <div style={{
+                    display:'flex',alignItems:'center',gap:6,
+                    padding:'5px 14px',borderRadius:20,
+                    fontSize:11,fontWeight:700,letterSpacing:'1.5px',textTransform:'uppercase',
+                    whiteSpace:'nowrap',
+                    background: isActive ? 'linear-gradient(135deg,#d4a843,#b8892a)' : isDone ? 'rgba(212,168,67,0.12)' : 'rgba(255,255,255,0.04)',
+                    border: isActive ? '1px solid #d4a843' : isDone ? '1px solid rgba(212,168,67,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                    color: isActive ? '#000' : isDone ? '#d4a843' : 'rgba(255,255,255,0.35)',
+                  }}>
+                    <span style={{width:18,height:18,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,background:isActive?'rgba(0,0,0,0.25)':isDone?'rgba(212,168,67,0.2)':'rgba(255,255,255,0.08)',color:isActive?'#000':isDone?'#d4a843':'rgba(255,255,255,0.4)'}}>
+                      {isDone ? '✓' : i + 1}
+                    </span>
+                    <span className="hidden sm:inline">{s.label}</span>
+                  </div>
+                  {i < 2 && <ChevronRight className="w-3 h-3 flex-shrink-0" style={{color:'rgba(255,255,255,0.2)'}} />}
+                </React.Fragment>
+              );
+            })}
           </div>
+        </div>
+      </div>
+      {/* Production Set Hero — matches mockup */}
+      <div style={{position:'relative',width:'100%',height:180,overflow:'hidden',background:'#000'}}>
+        <img
+          src="/manus-storage/env-broadcast-studio_5a824d1f.jpg"
+          alt="Production Set"
+          style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 40%',filter:'brightness(0.5)'}}
+        />
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.35) 40%,transparent 100%)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',top:16,left:24,zIndex:20}}>
+          <div style={{fontSize:9,fontWeight:600,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.4)',marginBottom:3}}>WizAI</div>
+          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,letterSpacing:3,color:'rgba(255,255,255,0.9)',textShadow:'0 2px 20px rgba(0,0,0,0.8)',lineHeight:1}}>WIZVIDEO AUTOPILOT</div>
+          <div style={{fontSize:11,fontWeight:500,color:'#d4a843',letterSpacing:'0.5px',marginTop:3}}>Describe · Storyboard · Render</div>
+        </div>
+        <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.75)',border:'1px solid rgba(255,59,48,0.5)',borderRadius:3,padding:'5px 12px',zIndex:20}}>
+          <YouTubeLogo size={14} />
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#ff3b30'}}>YouTube Ready</div>
         </div>
       </div>
 

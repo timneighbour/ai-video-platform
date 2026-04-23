@@ -1611,63 +1611,23 @@ export default function MusicVideoAutopilot() {
           onBack={() => setShowLyricsIntelligence(false)}
         />
       )}
-      {/* Header — Studio Console */}
-      <div className="studio-header sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 py-3">
-          {/* Top nav row: Home + Dashboard links */}
-          <div className="flex items-center justify-between mb-3">
-            <NavLink href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm">
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Home</span>
-            </NavLink>
-            <NavLink href="/">
-              <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
-            </NavLink>
-            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm">
-              <LayoutDashboard className="w-4 h-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </NavLink>
-          </div>
-          {/* Studio identity bar */}
-          <div className="flex items-center gap-4 mb-3">
-            {/* Studio LED + icon */}
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#b8892a]/30 to-[#1a1a20] flex items-center justify-center border border-[#b8892a]/20 shadow-[0_0_12px_rgba(184,137,42,0.15)]">
-                <Music className="w-5 h-5 text-[#b8892a]" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1.5">
-                  <div className="studio-led studio-led-gold" />
-                  <span className="studio-label">Music Video Studio</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="studio-led studio-led-green" />
-                  <span className="studio-label text-[10px] text-white/30">Systems Online</span>
-                </div>
-              </div>
-            </div>
-            {/* Title + waveform */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-xl font-bold text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}>
-                  WIZVIDEO AUTOPILOT
-                </h1>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FF0000]/15 border border-[#FF0000]/30 text-[#FF4444] select-none">
-                  <svg viewBox="0 0 24 24" className="w-3 h-3 fill-[#FF4444]" aria-hidden="true">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                  </svg>
-                  YouTube Ready
-                </span>
-              </div>
-              <p className="text-white/40 text-xs mt-0.5">Upload your song. Describe your vision. We'll create the video.</p>
-            </div>
-            {/* Ambient waveform visualizer */}
-            <div className="hidden md:block studio-waveform shrink-0">
-              <span /><span /><span /><span /><span /><span /><span /><span />
-            </div>
-          </div>
-
-          {/* Step indicators — matches mockup exactly */}
+      {/* Header — Production Set Hero (matches mockup-wizvideo-stages.html) */}
+      {/* Top sticky nav */}
+      <div className="sticky top-0 z-40" style={{background:'rgba(10,10,10,0.95)',backdropFilter:'blur(12px)',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
+          <NavLink href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-xs font-medium tracking-wider uppercase">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back to Studio</span>
+          </NavLink>
+          <NavLink href="/">
+            <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+          </NavLink>
+          <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors">
+            <LayoutDashboard className="w-4 h-4" />
+          </NavLink>
+        </div>
+        {/* Stage pills — mockup style */}
+        <div className="max-w-5xl mx-auto px-4 pb-2">
           {(() => {
             const STEPS: Step[] = ["upload", "character_confirmation", "storyboard", "render"];
             const STEP_LABELS: Record<Step, string> = {
@@ -1677,53 +1637,77 @@ export default function MusicVideoAutopilot() {
               render: "Screening Room",
             };
             const currentIdx = STEPS.indexOf(step);
-            // A step is accessible if: it's already been reached (index <= currentIdx)
-            // OR it has the required data to navigate to it
             const canNavigateTo = (s: Step): boolean => {
               const targetIdx = STEPS.indexOf(s);
-              if (targetIdx <= currentIdx) return true; // can always go back
+              if (targetIdx <= currentIdx) return true;
               if (s === "character_confirmation" && jobId) return true;
               if (s === "storyboard" && scenes.length > 0) return true;
               if (s === "render" && scenes.some(sc => sc.status === "completed")) return true;
               return false;
             };
             return (
-              <div className="flex items-center gap-2 mt-4">
+              <div className="flex items-center gap-1 overflow-x-auto pb-1">
                 {STEPS.map((s, i) => {
                   const isActive = step === s;
                   const isCompleted = currentIdx > i;
                   const isAccessible = canNavigateTo(s);
                   return (
-                    <div key={s} className="flex items-center gap-2">
+                    <React.Fragment key={s}>
                       <button
                         onClick={() => isAccessible && setStep(s)}
                         disabled={!isAccessible}
-                        title={!isAccessible ? "Complete previous steps first" : `Go to ${STEP_LABELS[s]}`}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                          isActive
-                            ? "bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30"
-                            : isCompleted
-                            ? "bg-[rgba(40,32,24,0.9)] text-white/70 hover:bg-zinc-600 hover:text-white cursor-pointer"
-                            : isAccessible
-                            ? "bg-[rgba(24,20,16,0.9)] text-white/50 hover:bg-[rgba(40,32,24,0.9)] hover:text-white cursor-pointer"
-                            : "bg-[rgba(10,8,6,0.95)] text-white/30 cursor-not-allowed opacity-50"
-                        }`}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          padding: '5px 14px', borderRadius: 20,
+                          fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
+                          whiteSpace: 'nowrap', transition: 'all 0.2s',
+                          background: isActive ? 'linear-gradient(135deg,#d4a843,#b8892a)' : isCompleted ? 'rgba(212,168,67,0.12)' : 'rgba(255,255,255,0.04)',
+                          border: isActive ? '1px solid #d4a843' : isCompleted ? '1px solid rgba(212,168,67,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                          color: isActive ? '#000' : isCompleted ? '#d4a843' : 'rgba(255,255,255,0.35)',
+                          cursor: isAccessible ? 'pointer' : 'not-allowed',
+                          opacity: isAccessible ? 1 : 0.4,
+                        }}
                       >
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                          isCompleted ? "bg-[--color-silver]/15 text-[--color-silver]" : "bg-white/20"
-                        }`}>
-                          {isCompleted ? <Check className="w-3 h-3" /> : i + 1}
+                        <span style={{
+                          width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 10, fontWeight: 800,
+                          background: isActive ? 'rgba(0,0,0,0.25)' : isCompleted ? 'rgba(212,168,67,0.2)' : 'rgba(255,255,255,0.08)',
+                          color: isActive ? '#000' : isCompleted ? '#d4a843' : 'rgba(255,255,255,0.4)',
+                        }}>
+                          {isCompleted ? '✓' : i + 1}
                         </span>
-                        <span className="capitalize hidden sm:inline">{STEP_LABELS[s]}</span>
+                        <span className="hidden sm:inline">{STEP_LABELS[s]}</span>
                       </button>
-                      {i < 3 && <ChevronRight className="w-4 h-4 text-white/30" />}
-                    </div>
+                      {i < 3 && <ChevronRight className="w-3 h-3 flex-shrink-0" style={{color:'rgba(255,255,255,0.2)'}} />}
+                    </React.Fragment>
                   );
                 })}
               </div>
             );
           })()}
         </div>
+      </div>
+      {/* Production Set Hero — matches mockup */}
+      <div style={{position:'relative',width:'100%',height:200,overflow:'hidden',background:'#000'}}>
+        <img
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvideo-set-bg-infcAhpU6TjNMKxBcMDqq4.webp"
+          alt="Music Video Production Set"
+          style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 40%'}}
+        />
+        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.35)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.4) 40%,transparent 100%)',pointerEvents:'none'}} />
+        {/* Title overlay */}
+        <div style={{position:'absolute',top:16,left:24,zIndex:20}}>
+          <div style={{fontSize:9,fontWeight:600,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.4)',marginBottom:3}}>Production</div>
+          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,letterSpacing:3,color:'rgba(255,255,255,0.9)',textShadow:'0 2px 20px rgba(0,0,0,0.8)',lineHeight:1}}>MUSIC VIDEO DIRECTOR</div>
+          <div style={{fontSize:11,fontWeight:500,color:'#d4a843',letterSpacing:'0.5px',marginTop:3}}>Character Lock · Storyboard · Screening Room</div>
+        </div>
+        {/* FILMING indicator */}
+        <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.75)',border:'1px solid rgba(255,59,48,0.5)',borderRadius:3,padding:'5px 12px',zIndex:20}}>
+          <div style={{width:8,height:8,borderRadius:'50%',background:'#ff3b30',boxShadow:'0 0 8px #ff3b30',animation:'filmingBlink 1.2s ease-in-out infinite'}} />
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#ff3b30'}}>FILMING</div>
+        </div>
+        <style>{`@keyframes filmingBlink{0%,100%{opacity:1}50%{opacity:0.35}}`}</style>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6">
@@ -3987,3 +3971,4 @@ export default function MusicVideoAutopilot() {
     </div>
   );
 }
+

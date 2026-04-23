@@ -33,6 +33,7 @@ import {
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import PublicNavBar from "@/components/PublicNavBar";
+import { PLANS as SHARED_PLANS, TOPUP_PACKS } from "@/lib/plans";
 
 // ── CDN assets ────────────────────────────────────────────────────────────────
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
@@ -69,158 +70,44 @@ const PLAN_BG_CREATOR = "/manus-storage/product-wizlumina-hero_ed20683e.jpg";
 const PLAN_BG_PRO = "/manus-storage/product-wizsound-hero_8219d2d2.jpg";
 const PLAN_BG_STUDIO = "/manus-storage/product-wizboost-hero_9c11e1cc.jpg";
 
-const PLANS = [
-  // 1 scene ≈ 8 seconds of video (standard quality, 720p)
-  {
-    id: "starter" as const,
-    name: "Starter",
-    monthlyPrice: 19,
-    annualPrice: 190,
-    bestFor: "Best for first-time creators",
-    tagline: "Start creating music videos today.",
-    buildsPerMonth: 2,
-    scenesPerVideo: 8,
-    outputQuality: "720p",
-    watermark: false,
-    priorityBuilds: false,
-    wizSyncLock: false,
-    apiAccess: false,
-    popular: false,
-    badge: null as string | null,
-    accentColor: "oklch(0.65 0.08 240)",
-    bgImage: PLAN_BG_STARTER,
-    glowColor: "rgba(100,140,200,0.12)",
-    borderColor: "rgba(100,140,200,0.2)",
-    features: [
-      { text: "2 final videos per month", included: true },
-      { text: "Up to 8 scenes per video", included: true },
-      { text: "Around 64 seconds max", included: true },
-      { text: "Standard 720p quality", included: true },
-      { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "HD & 4K quality", included: false },
-      { text: "WizSync\u2122 character lock", included: false },
-    ],
+// ── UI overlay: visual fields specific to the Pricing page ──────────────────
+// These fields are NOT in the shared plans module because they are purely visual.
+// All canonical data (prices, features, outcomes) comes from @/lib/plans.
+const PLAN_UI_OVERLAY: Record<string, {
+  accentColor: string; bgImage: string; glowColor: string; borderColor: string;
+  annualPrice: number; tagline: string;
+}> = {
+  starter: {
+    accentColor: "oklch(0.65 0.08 240)", bgImage: PLAN_BG_STARTER,
+    glowColor: "rgba(100,140,200,0.12)", borderColor: "rgba(100,140,200,0.2)",
+    annualPrice: 79, tagline: "Start creating music videos today.",
   },
-  {
-    id: "creator" as const,
-    name: "Creator",
-    monthlyPrice: 49,
-    annualPrice: 490,
-    bestFor: "Best for active creators",
-    tagline: "More videos, more scenes, more creative control.",
-    buildsPerMonth: 6,
-    scenesPerVideo: 11,
-    outputQuality: "4K 2160p",
-    watermark: false,
-    priorityBuilds: true,
-    wizSyncLock: true,
-    apiAccess: false,
-    popular: true,
-    badge: "Most Popular",
-    accentColor: "oklch(0.78 0.11 75)",
-    bgImage: PLAN_BG_CREATOR,
-    glowColor: "rgba(196,164,100,0.18)",
-    borderColor: "rgba(196,164,100,0.45)",
-    features: [
-      { text: "6 final videos per month", included: true },
-      { text: "Up to 11 scenes per video", included: true },
-      { text: "Around 88 seconds max", included: true },
-      { text: "4K 2160p output", included: true },
-      { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "WizSync\u2122 character lock", included: true },
-      { text: "Priority video builds", included: true },
-    ],
+  creator: {
+    accentColor: "oklch(0.78 0.11 75)", bgImage: PLAN_BG_CREATOR,
+    glowColor: "rgba(196,164,100,0.18)", borderColor: "rgba(196,164,100,0.45)",
+    annualPrice: 350, tagline: "More videos, more scenes, more creative control.",
   },
-  {
-    id: "studio" as const,
-    name: "Studio",
-    monthlyPrice: 149,
-    annualPrice: 1490,
-    bestFor: "Best for brands, agencies and high-volume creators",
-    tagline: "12 videos a month. Full cinematic control.",
-    buildsPerMonth: 12,
-    scenesPerVideo: 12,
-    outputQuality: "4K 2160p",
-    watermark: false,
-    priorityBuilds: true,
-    wizSyncLock: true,
-    apiAccess: false,
-    popular: false,
-    badge: null as string | null,
-    accentColor: "oklch(0.72 0.12 300)",
-    bgImage: PLAN_BG_PRO,
-    glowColor: "rgba(160,100,220,0.14)",
-    borderColor: "rgba(160,100,220,0.25)",
-    features: [
-      { text: "12 final videos per month", included: true },
-      { text: "Up to 12 scenes per video", included: true },
-      { text: "Around 96 seconds max", included: true },
-      { text: "4K 2160p output", included: true },
-      { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "WizSync\u2122 character lock", included: true },
-      { text: "Priority video builds", included: true },
-    ],
+  studio: {
+    accentColor: "oklch(0.72 0.12 300)", bgImage: PLAN_BG_PRO,
+    glowColor: "rgba(160,100,220,0.14)", borderColor: "rgba(160,100,220,0.25)",
+    annualPrice: 990, tagline: "12 videos a month. Full cinematic control.",
   },
-]
+};
+// Merge shared plan data with Pricing-page UI overlay
+// Only show the 3 plans relevant to this page (starter, creator, studio)
+const PLANS = SHARED_PLANS
+  .filter((p) => ["starter", "creator", "studio"].includes(p.id))
+  .map((p) => ({ ...p, ...PLAN_UI_OVERLAY[p.id] }));
 
 // ── Build Credit Packs ────────────────────────────────────────────────────────
-const BUNDLES = [
-  {
-    key: "quick_boost" as const,
-    credits: 3,
-    price: 12,
-    perCredit: "£4.00 per Build Credit",
-    label: "Quick Boost",
-    popular: false,
-    bestValue: false,
-    desc: "Perfect for one-off extras. 3 Build Credits — use them whenever you need a bit more.",
-    bgImage: SHOWCASE_3,
-    accentColor: "rgba(100,140,200,0.15)",
-    borderColor: "rgba(100,140,200,0.2)",
-  },
-  {
-    key: "creator_boost" as const,
-    credits: 10,
-    price: 35,
-    perCredit: "£3.50 per Build Credit",
-    label: "Creator Boost",
-    popular: true,
-    bestValue: false,
-    desc: "Best for busy creator weeks. 10 Build Credits for extra campaigns, collabs or content batches.",
-    bgImage: SHOWCASE_1,
-    accentColor: "rgba(196,164,100,0.15)",
-    borderColor: "rgba(196,164,100,0.4)",
-  },
-  {
-    key: "studio_boost" as const,
-    credits: 25,
-    price: 89,
-    perCredit: "£3.56 per Build Credit",
-    label: "Studio Boost",
-    popular: false,
-    bestValue: false,
-    desc: "For campaigns and content batches. 25 Build Credits to power a full production run.",
-    bgImage: SHOWCASE_2,
-    accentColor: "rgba(160,100,220,0.15)",
-    borderColor: "rgba(160,100,220,0.25)",
-  },
-  {
-    key: "pro_bulk_boost" as const,
-    credits: 60,
-    price: 199,
-    perCredit: "£3.32 per Build Credit",
-    label: "Pro Bulk Boost",
-    popular: false,
-    bestValue: true,
-    desc: "Best value for high-volume creators. 60 Build Credits — the most credits per pound.",
-    bgImage: SHOWCASE_3,
-    accentColor: "rgba(100,200,140,0.15)",
-    borderColor: "rgba(100,200,140,0.25)",
-  },
-];
+// ── Bundle UI overlay (visual fields only — prices/labels from @/lib/plans) ──
+const BUNDLE_UI_OVERLAY: Record<string, { bgImage: string; accentColor: string; borderColor: string }> = {
+  quick_boost:   { bgImage: SHOWCASE_3, accentColor: "rgba(100,140,200,0.15)", borderColor: "rgba(100,140,200,0.2)" },
+  creator_boost: { bgImage: SHOWCASE_1, accentColor: "rgba(196,164,100,0.15)", borderColor: "rgba(196,164,100,0.4)" },
+  studio_boost:  { bgImage: SHOWCASE_2, accentColor: "rgba(160,100,220,0.15)", borderColor: "rgba(160,100,220,0.25)" },
+  pro_bulk_boost:{ bgImage: SHOWCASE_3, accentColor: "rgba(100,200,140,0.15)", borderColor: "rgba(100,200,140,0.25)" },
+};
+const BUNDLES = TOPUP_PACKS.map((p) => ({ ...p, ...BUNDLE_UI_OVERLAY[p.key] }));
 
 // ── Comparison table ──────────────────────────────────────────────────────────
 const COMPARISON_GROUPS = [
