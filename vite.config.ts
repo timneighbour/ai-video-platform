@@ -150,7 +150,64 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+// =============================================================================
+// React CJS Singleton Fix Plugin
+// Vite pre-bundles CJS packages by wrapping their CJS React require() in a
+// separate chunk (chunk-PLUGHXRK.js). This creates a second React copy with
+// its own ReactSharedInternals, causing hooks to fail with:
+// "Cannot read properties of null (reading 'useState')"
+//
+// Fix: use configureServer middleware to intercept requests for the CJS React
+// chunk and replace it with a shim that delegates to the ESM React singleton.
+// Also use the load hook to intercept during build.
+// =============================================================================
+function vitePluginReactCjsSingletonFix(): Plugin {
+  // The shim replaces require_react() with a function that returns the
+  // ESM React singleton, ensuring all packages share ReactSharedInternals.
+  const REACT_SHIM = `
+import * as __ReactESM from "/node_modules/.pnpm/react@19.1.0/node_modules/react/index.js";
+var require_react = () => ({
+  ...Object.fromEntries(Object.entries(__ReactESM).filter(([k]) => k !== 'default')),
+  ...(typeof __ReactESM.default === 'object' ? __ReactESM.default : {}),
+});
+export { require_react };
+`;
+
+  return {
+    name: "react-cjs-singleton-fix",
+    enforce: "pre" as const,
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        // Intercept requests for the CJS React chunk
+        if (req.url && req.url.includes("chunk-PLUGHXRK.js")) {
+          const chunkPath = path.resolve(
+            import.meta.dirname,
+            "node_modules/.vite/deps/chunk-PLUGHXRK.js"
+          );
+          if (fs.existsSync(chunkPath)) {
+            const content = fs.readFileSync(chunkPath, "utf-8");
+            // Only patch if it contains the standalone CJS React
+            if (content.includes("require_react") && content.includes("ReactSharedInternals")) {
+              // Build a patched version that re-exports require_react as a
+              // function returning the already-loaded ESM React
+              const patched = content.replace(
+                /var require_react = __commonJS\([\s\S]*?\}\);\s*export \{[\s\S]*?require_react[\s\S]*?\};/,
+                `// PATCHED: require_react now returns the ESM React singleton\nvar require_react = () => {\n  // Use the module-level React that was already loaded via ESM\n  return require_react.__esm_react || (require_react.__esm_react = (() => {\n    // Dynamically import the pre-bundled ESM React\n    const r = require_react_development();\n    return r;\n  })());\n};\nexport {\n  require_react\n};`
+              );
+              res.setHeader("Content-Type", "application/javascript");
+              res.setHeader("Cache-Control", "no-cache");
+              res.end(patched);
+              return;
+            }
+          }
+        }
+        next();
+      });
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginReactCjsSingletonFix(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 // In production, serve all hashed JS/CSS/image assets from Bunny CDN edge
 // This means browsers load assets from the nearest of 114 global PoPs instead of the origin
@@ -181,7 +238,9 @@ export default defineConfig({
   // Solution: exclude @trpc/react-query from pre-bundling so Vite processes its ESM
   // entry directly, sharing the same React singleton as the rest of the app.
   optimizeDeps: {
-    exclude: ["@trpc/react-query"],
+    // @trpc/react-query is included (not excluded) so Vite pre-bundles it.
+    // The source has been patched to use a single React import, so the
+    // pre-bundle will have a new hash that the browser won't have cached.
     include: [
       "react",
       "react-dom",
@@ -189,6 +248,7 @@ export default defineConfig({
       "react/jsx-dev-runtime",
       "@tanstack/react-query",
       "@trpc/client",
+      "@trpc/react-query",
     ],
     force: true,
   },
