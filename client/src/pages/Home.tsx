@@ -2475,23 +2475,23 @@ const DEMO_VIDEO = "/manus-storage/tier-standard-demo_9df28025.mp4";
 
 const TIER_DATA = [
   {
-    id: 0, label: "Standard",
-    desc: "Original source quality",
-    audioSrc: "/manus-storage/tier-original-music_c98457af.mp3",
+    id: 0, label: "Original",
+    desc: "Raw source — no processing applied",
+    audioSrc: "/manus-storage/demo-original_b7115f31.mp3",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
   },
   {
-    id: 1, label: "Enhanced",
-    desc: "Sharper visuals and richer sound",
-    audioSrc: "/manus-storage/tier-enhanced-music_e437e316.mp3",
+    id: 1, label: "WizSound Enhance",
+    desc: "Richer, warmer sound with enhanced presence",
+    audioSrc: "/manus-storage/demo-enhanced_a58d93f3.mp3",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
   },
   {
-    id: 2, label: "Cinematic",
-    desc: "Premium grade, depth and atmosphere",
-    audioSrc: "/manus-storage/tier-cinematic-music_28e1a8fb.mp3",
+    id: 2, label: "WizSound Cinematic",
+    desc: "Deep bass, spatial immersion — full cinema experience",
+    audioSrc: "/manus-storage/demo-cinematic_67808ec2.mp3",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     glowRgb: "212,175,55",
   },
