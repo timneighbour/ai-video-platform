@@ -6023,3 +6023,11 @@
 - [x] Rewrite MusicCreator.tsx to match mockup-v4-wizaudio.html (SSL console aesthetic, Live Room Window, EQ display, VU meters, Engine Selector, Track Brief, Genre/Mood/Vocal/Lyrics/Title/Duration, Master Bus with Mood Dial, Upgrade Preview, Generate Song button)
 - [x] Fix TypeScript errors: ZoomIn → Maximize2, aspectRatio type, VoiceToolContext
 - [x] Verify WizShorts.tsx has creator dashboard with stats, Hook Builder, Scene Preview
+
+## WizAnimate Routing Fix (Option A — Forward Flow)
+- [x] Fix AiAnimationMaker.tsx handleCTA: /products/wizanimate → /kids-video
+- [x] Fix AiAnimationMaker.tsx nav CTA href: /products/wizanimate → /kids-video
+- [x] Fix AiAnimationMaker.tsx ShowcaseVideoSection ctaHref: /products/wizanimate → /kids-video
+- [x] Fix WizProductGrid.tsx WizAnimate card href: /ai-animation-maker → /products/wizanimate
+- [x] Audit all remaining WizAnimate CTAs in AiAnimationMaker.tsx for any remaining circular links
+- [ ] Save checkpoint and report

@@ -217,7 +217,7 @@ export default function AiAnimationMaker() {
   const handleCTA = (source: string) => {
     mp.startCreatingClicked(source);
     if (isAuthenticated) {
-      window.location.href = "/products/wizanimate";
+      window.location.href = "/kids-video";
     } else {
       setShowAuthGate(true);
     }
@@ -264,7 +264,7 @@ export default function AiAnimationMaker() {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <NavLink
-                href="/products/wizanimate"
+                href="/kids-video"
                 className="px-5 py-2.5 bg-[--color-gold] text-black text-sm font-bold rounded-xl hover:brightness-110 transition-all"
                 onClick={() => mp.startCreatingClicked("nav_cta")}
               >
@@ -649,7 +649,7 @@ export default function AiAnimationMaker() {
         subtitle="Animation showcase"
         description="Every animation created from a text prompt. No software, no timeline, no experience needed."
         ctaLabel="Create Your First Animation"
-        ctaHref="/products/wizanimate"
+        ctaHref="/kids-video"
         items={[
           {
             id: 30003,
