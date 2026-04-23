@@ -115,7 +115,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
             </NavLink>
             <NavLink
               href={ctaHref}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-[--color-gold] text-black hover:bg-[--color-gold-light] transition-all shadow-[0_0_20px_rgba(196,164,100,0.25)]"
+              className="btn-primary btn-sheen inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs"
             >
               <Sparkles className="w-3.5 h-3.5" />
               {ctaLabel}
@@ -177,17 +177,17 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <NavLink
               href={ctaHref}
-              className="inline-flex items-center gap-3 px-12 py-5 rounded-full font-black text-base transition-all hover:scale-[1.03] active:scale-[0.97]"
+              className="btn-sheen inline-flex items-center gap-3 px-12 py-5 rounded-full font-black text-base transition-all hover:scale-[1.03] active:scale-[0.97]"
               style={{
-                background: "linear-gradient(135deg, #c4a464 0%, #d4b878 40%, #c9a84c 70%, #b8943a 100%)",
-                color: "#1a1200",
-                boxShadow: "0 0 40px rgba(196,164,100,0.45), 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
-                border: "1.5px solid rgba(212,184,120,0.6)",
+                background: "linear-gradient(180deg, #f0d878 0%, #e8c96a 8%, #d4a832 20%, #c49a3c 45%, #a07828 70%, #7a5520 88%, #5c3d10 100%)",
+                color: "#1a0f00",
+                boxShadow: "0 0 55px rgba(196,164,100,0.55), 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.3)",
+                border: "1.5px solid rgba(240,216,120,0.45)",
               }}
             >
-              <Sparkles className="w-5 h-5" style={{ color: "#1a1200" }} />
+              <Sparkles className="w-5 h-5" style={{ color: "#1a0f00" }} />
               {ctaLabel}
-              <ArrowRight className="w-5 h-5" style={{ color: "#1a1200" }} />
+              <ArrowRight className="w-5 h-5" style={{ color: "#1a0f00" }} />
             </NavLink>
             <NavLink
               href="/"
@@ -406,17 +406,17 @@ export default function ProductPageTemplate(props: ProductPageProps) {
           <p className="text-[--color-silver-dark]/55 mb-8 text-base">Start creating cinematic AI content today — no experience required.</p>
           <NavLink
             href={ctaHref}
-            className="inline-flex items-center gap-3 px-14 py-5 rounded-full font-black text-base transition-all hover:scale-[1.03] active:scale-[0.97]"
+            className="btn-sheen inline-flex items-center gap-3 px-14 py-5 rounded-full font-black text-base transition-all hover:scale-[1.03] active:scale-[0.97]"
             style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #d4b878 40%, #c9a84c 70%, #b8943a 100%)",
-              color: "#1a1200",
-              boxShadow: "0 0 50px rgba(196,164,100,0.50), 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25)",
-              border: "1.5px solid rgba(212,184,120,0.6)",
+              background: "linear-gradient(180deg, #f0d878 0%, #e8c96a 8%, #d4a832 20%, #c49a3c 45%, #a07828 70%, #7a5520 88%, #5c3d10 100%)",
+              color: "#1a0f00",
+              boxShadow: "0 0 60px rgba(196,164,100,0.60), 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.3)",
+              border: "1.5px solid rgba(240,216,120,0.45)",
             }}
           >
-            <Sparkles className="w-5 h-5" style={{ color: "#1a1200" }} />
+            <Sparkles className="w-5 h-5" style={{ color: "#1a0f00" }} />
             {ctaLabel}
-            <ArrowRight className="w-5 h-5" style={{ color: "#1a1200" }} />
+            <ArrowRight className="w-5 h-5" style={{ color: "#1a0f00" }} />
           </NavLink>
         </div>
       </section>

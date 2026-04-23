@@ -326,7 +326,7 @@ const PRODUCTS: Product[] = [
     name: "WizAnimate", label: "CREATE ANIMATION",
     tagline: "AI character animation engine",
     desc: "Bring characters to life with fluid, beat-matched AI animation. Every movement timed to the music.",
-    href: "/products/wizanimate", emblem: <WizAnimateEmblem size={80} />, accent: "rose",
+    href: "/ai-animation-maker", emblem: <WizAnimateEmblem size={80} />, accent: "rose",
     cardVisual: <img src={CARD_BG_ANIMATE} alt="WizAnimate AI character animation engine" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZANIMATE_LOGO_V3,
   },
@@ -476,11 +476,18 @@ function ProductCard({ product }: { product: Product }) {
         {/* Description */}
         <p className="text-white/38 text-xs leading-relaxed">{product.desc}</p>
 
-        {/* CTA — appears on hover */}
-        <div
-          className="flex items-center gap-1.5 mt-1 text-[11px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0"
-          style={{ color: "#c4a464" }}>
-          Start creating <ArrowRight className="w-3 h-3" />
+        {/* CTA — always-visible premium gold button */}
+        <div className="mt-3">
+          <span
+            className="btn-sheen inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all duration-300 group-hover:scale-[1.03]"
+            style={{
+              background: "linear-gradient(180deg, #f0d878 0%, #e8c96a 8%, #d4a832 20%, #c49a3c 45%, #a07828 70%, #7a5520 88%, #5c3d10 100%)",
+              color: "#1a0f00",
+              boxShadow: "0 0 16px rgba(196,164,100,0.30), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.20)",
+              border: "1px solid rgba(240,216,120,0.4)",
+            }}>
+            Start creating <ArrowRight className="w-3 h-3" />
+          </span>
         </div>
       </div>
 

@@ -5989,3 +5989,16 @@
 - [ ] Add VoicePromptButton to WizPilot prompt field
 - [ ] Add VoicePromptButton to MusicVideoAutopilot prompt field
 - [ ] Write vitest for voiceToPrompt procedure
+
+## CTA Link Audit & Premium Gold Button Upgrade - COMPLETED ✅
+- [x] Audit all product CTA links across Home.tsx, WizProductGrid, ProductPageTemplate
+- [x] Fix PRODUCTS_CREATE nav array: WizVideo → /music-video/create, WizAnimate → /ai-animation-maker, WizScript → /text-to-video, WizAudio → /music-creator, WizShorts → /wiz-shorts
+- [x] Fix BuiltFor section: Animators card → /ai-animation-maker
+- [x] Fix FeatureBlock: WizPilot CTA → /wizpilot
+- [x] Fix WizLumina demo section CTA → /music-video/create
+- [x] Fix WizSound demo section CTA → /music-creator
+- [x] Upgrade WizProductGrid card CTA from hover-only text to always-visible premium gold btn-sheen button
+- [x] Upgrade ProductPageTemplate nav CTA to btn-primary btn-sheen
+- [x] Upgrade ProductPageTemplate hero CTA to btn-sheen with metallic gold gradient
+- [x] Upgrade ProductPageTemplate mid-page CTA band to btn-sheen with metallic gold gradient
+- [x] Build passes clean (553 tests passing, zero TypeScript errors)
