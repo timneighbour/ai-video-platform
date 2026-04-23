@@ -227,24 +227,37 @@ export default function WizShorts() {
           </div>
         </div>
 
-        {/* Step indicator */}
-        <div className="max-w-5xl mx-auto px-6 pb-4">
-          <div className="flex items-center gap-2 text-sm">
-            {(["setup", "scenes", "render"] as WizStep[]).map((s, i) => (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  step === s
-                    ? "bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/40"
-                    : i < ["setup", "scenes", "render"].indexOf(step)
-                    ? "text-white/50 bg-white/5"
-                    : "text-white/30"
-                }`}>
-                  <span>{i + 1}</span>
-                  <span className="capitalize">{s === "setup" ? "Topic & Style" : s === "scenes" ? "Review Scenes" : "Render"}</span>
-                </div>
-                {i < 2 && <ChevronRight className="w-3 h-3 text-white/20" />}
-              </div>
-            ))}
+        {/* Stage bar — matches mockup exactly */}
+        <div className="border-t border-white/10 bg-white/[0.03]">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="flex items-center gap-1 sm:gap-2 py-2.5 overflow-x-auto scrollbar-none">
+              {[
+                { key: 'setup',    label: 'Platform' },
+                { key: 'script',   label: 'Script & Hook' },
+                { key: 'scenes',   label: 'Scenes' },
+                { key: 'upgrade',  label: 'Upgrade Preview' },
+                { key: 'render',   label: 'Render & Publish' },
+              ].map((s, i) => {
+                const stepOrder = ['setup','script','scenes','upgrade','render'];
+                const currentIdx = stepOrder.indexOf(step === 'setup' ? 'setup' : step === 'scenes' ? 'scenes' : 'render');
+                const thisIdx = i;
+                return (
+                  <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                    <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                      currentIdx === thisIdx
+                        ? 'bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30'
+                        : currentIdx > thisIdx
+                        ? 'bg-[--color-silver]/15 text-[--color-silver]'
+                        : 'bg-white/10 text-muted-foreground'
+                    }`}>
+                      {currentIdx > thisIdx ? <CheckCircle2 className="h-3 w-3" /> : null}
+                      {s.label}
+                    </div>
+                    {i < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40 flex-shrink-0" />}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -705,19 +718,28 @@ export default function WizShorts() {
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
               <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-3">RENDER QUALITY</h3>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5 mb-2">
                 {[
-                  { label: 'HD', sub: '1080p', price: 'Included' },
-                  { label: '4K', sub: '2160p', price: '+\u00a32.99' },
-                  { label: '8K', sub: '4320p', price: '+\u00a34.99' },
-                ].map((q, i) => (
+                  { label: '1080p', price: 'Included', active: true },
+                  { label: '4K', price: '+£3.99', active: false },
+                ].map((q) => (
                   <div key={q.label} className={`rounded-lg border p-2.5 text-center cursor-pointer transition-all ${
-                    i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/30' : 'border-white/10 bg-white/5 hover:border-white/20'
+                    q.active ? 'border-[--color-gold]/40 bg-[--color-gold]/15' : 'border-white/10 bg-white/5 hover:border-white/20'
                   }`}>
-                    <div className="text-sm font-bold text-white">{q.label}</div>
-                    <div className="text-[10px] text-muted-foreground">{q.sub}</div>
-                    <div className={`text-[10px] mt-1 font-medium ${i === 1 ? 'text-[--color-gold]' : 'text-muted-foreground'}`}>{q.price}</div>
+                    <div className={`text-xs font-bold ${q.active ? 'text-[--color-gold]' : 'text-white/60'}`}>{q.label}</div>
+                    <div className={`text-[10px] mt-1 font-medium ${q.active ? 'text-[--color-gold]' : 'text-muted-foreground'}`}>{q.price}</div>
                   </div>
+                ))}
+              </div>
+              <p className="text-[9px] text-muted-foreground mb-3">1080p included · 4K upgrade at checkout</p>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[10px] text-white/60">Format</span>
+              </div>
+              <div className="flex gap-1.5">
+                {['MP4', 'MOV'].map((fmt, i) => (
+                  <div key={fmt} className={`rounded px-3 py-1 text-[10px] font-bold border cursor-pointer ${
+                    i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-[--color-gold]' : 'border-white/10 bg-white/5 text-white/40'
+                  }`}>{fmt}</div>
                 ))}
               </div>
             </div>

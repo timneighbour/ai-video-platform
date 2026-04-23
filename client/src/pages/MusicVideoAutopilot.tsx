@@ -1667,14 +1667,14 @@ export default function MusicVideoAutopilot() {
             </div>
           </div>
 
-          {/* Step indicators — clickable based on progress */}
+          {/* Step indicators — matches mockup exactly */}
           {(() => {
             const STEPS: Step[] = ["upload", "character_confirmation", "storyboard", "render"];
             const STEP_LABELS: Record<Step, string> = {
-              upload: "Describe your video",
-              character_confirmation: "Confirm Characters",
-              storyboard: "Preview & Edit",
-              render: "Create your video",
+              upload: "Director's Brief",
+              character_confirmation: "Character Lock",
+              storyboard: "Storyboard",
+              render: "Screening Room",
             };
             const currentIdx = STEPS.indexOf(step);
             // A step is accessible if: it's already been reached (index <= currentIdx)

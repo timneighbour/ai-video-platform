@@ -231,7 +231,33 @@ export default function WizImage() {
           </div>
         </div>
       </div>
-
+      {/* ── Stage Bar ── */}
+      <div className="border-t border-white/10 bg-white/[0.03]">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-1 sm:gap-2 py-2.5 overflow-x-auto scrollbar-none">
+            {[
+              { label: 'Image Brief' },
+              { label: 'Style & Ratio' },
+              { label: 'Generate' },
+              { label: 'Upgrade Preview' },
+              { label: 'Export' },
+            ].map((s, i) => (
+              <div key={s.label} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                  i === 2
+                    ? 'bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30'
+                    : i < 2
+                    ? 'bg-[--color-silver]/15 text-[--color-silver]'
+                    : 'bg-white/10 text-muted-foreground'
+                }`}>
+                  {s.label}
+                </div>
+                {i < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40 flex-shrink-0" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       {/* ── Main Layout ────────────────────────────────────────────────────────────── */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[220px_440px_1fr_280px] gap-5">
 

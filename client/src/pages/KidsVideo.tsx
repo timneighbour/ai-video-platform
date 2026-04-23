@@ -272,10 +272,10 @@ interface StoryboardFrame {
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
 const CREATION_STEPS: { key: Step; label: string }[] = [
-  { key: "story_input", label: "1. Story" },
-  { key: "characters",  label: "2. Characters" },
-  { key: "storyboard",  label: "3. Storyboard" },
-  { key: "render",      label: "4. Build" },
+  { key: "story_input", label: "Director's Brief" },
+  { key: "characters",  label: "Character Design" },
+  { key: "storyboard",  label: "Storyboard" },
+  { key: "render",      label: "Upgrade Preview" },
 ];
 
 function stepIndex(step: Step): number {
@@ -1930,18 +1930,65 @@ export default function KidsVideo() {
               {/* Render Quality */}
               <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
                 <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-3">RENDER QUALITY</h3>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5 mb-2">
                   {[
-                    { label: 'HD', sub: '1080p', price: 'Included' },
-                    { label: '4K', sub: '2160p', price: '+£2.99' },
-                    { label: '8K', sub: '4320p', price: '+£4.99' },
-                  ].map((q, i) => (
+                    { label: 'HD 1080p', price: 'Included', active: true },
+                    { label: '4K', price: '+£5.99', active: false },
+                  ].map((q) => (
                     <div key={q.label} className={`rounded-lg border p-2.5 text-center cursor-pointer transition-all ${
-                      i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 ring-1 ring-[--color-gold]/30' : 'border-white/10 bg-white/5 hover:border-white/20'
+                      q.active ? 'border-[--color-gold]/40 bg-[--color-gold]/15' : 'border-white/10 bg-white/5 hover:border-white/20'
                     }`}>
-                      <div className="text-sm font-bold text-white">{q.label}</div>
-                      <div className="text-[10px] text-muted-foreground">{q.sub}</div>
-                      <div className={`text-[10px] mt-1 font-medium ${i === 1 ? 'text-[--color-gold]' : 'text-muted-foreground'}`}>{q.price}</div>
+                      <div className={`text-xs font-bold ${q.active ? 'text-[--color-gold]' : 'text-white/60'}`}>{q.label}</div>
+                      <div className={`text-[10px] mt-1 font-medium ${q.active ? 'text-[--color-gold]' : 'text-muted-foreground'}`}>{q.price}</div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[9px] text-muted-foreground">HD included · 4K available at checkout</p>
+              </div>
+              {/* Production Status */}
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
+                <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-3">PRODUCTION STATUS</h3>
+                <div className="space-y-2">
+                  {[
+                    { label: 'Brief Received', done: true, active: false },
+                    { label: 'Character Design', done: false, active: true },
+                    { label: 'Storyboard Generation', done: false, active: false },
+                    { label: 'Scene Animation', done: false, active: false },
+                    { label: 'WizSound Processing', done: false, active: false },
+                    { label: 'WizLuminar Grade', done: false, active: false },
+                    { label: 'Final Render & Export', done: false, active: false },
+                  ].map((s) => (
+                    <div key={s.label} className="flex items-center gap-2">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${
+                        s.done ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                        s.active ? 'bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30' :
+                        'bg-white/5 text-white/20 border border-white/10'
+                      }`}>{s.done ? '✓' : s.active ? '✎' : '□'}</div>
+                      <span className={`text-[10px] font-medium ${
+                        s.done ? 'text-green-400' : s.active ? 'text-[--color-gold]' : 'text-white/30'
+                      }`}>{s.label}</span>
+                      {s.done && <span className="ml-auto text-[8px] text-green-400 font-bold">DONE</span>}
+                      {s.active && <span className="ml-auto text-[8px] text-[--color-gold] font-bold">IN PROGRESS</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Animation Features */}
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4">
+                <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-3">ANIMATION FEATURES</h3>
+                <div className="space-y-2.5">
+                  {[
+                    'Character Consistency Lock',
+                    'Lip Sync (dialogue scenes)',
+                    'Lyric Overlay on Storyboard',
+                    'Beat-Sync Scene Cuts',
+                    'Colour Grade Consistency',
+                  ].map((feat) => (
+                    <div key={feat} className="flex items-center justify-between">
+                      <span className="text-[10px] text-white/70">{feat}</span>
+                      <div className="w-8 h-4 rounded-full bg-[--color-gold]/30 border border-[--color-gold]/50 relative flex-shrink-0">
+                        <div className="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-[--color-gold]" />
+                      </div>
                     </div>
                   ))}
                 </div>
