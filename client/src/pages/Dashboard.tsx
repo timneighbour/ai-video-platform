@@ -1,4 +1,4 @@
-import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
+import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
 /**
  * Dashboard — High-retention creator hub.
  * Shows action cards, continue projects, project grid, insights, upgrade block, inspiration, empty state.
@@ -43,7 +43,7 @@ const CREATE_ACTIONS = [
     title: "Create Video",
     subtitle: "Music video from your track",
     icon: Film,
-    href: "/music-video/create",
+    href: WIZVIDEO_STUDIO_PAGE,
     gradient: "from-[#b8892a] to-[#4a3010]",
     glow: "shadow-[#b8892a]/25",
     badge: "Most Popular",
@@ -54,7 +54,7 @@ const CREATE_ACTIONS = [
     title: "Create Music",
     subtitle: "AI-generated original songs",
     icon: Music,
-    href: "/music-creator",
+    href: WIZAUDIO_STUDIO_PAGE,
     gradient: "from-[#4a4a5a] to-[#2e2e36]",
     glow: "shadow-[#9090a0]/25",
     badge: null,
@@ -76,7 +76,7 @@ const CREATE_ACTIONS = [
     title: "YouTube Video",
     subtitle: "Cinematic content for your channel",
     icon: Youtube,
-    href: "/music-video/create",
+    href: WIZVIDEO_STUDIO_PAGE,
     gradient: "from-[#3a2a10] to-[#1a1a1a]",
     glow: "shadow-[#b8892a]/20",
     badge: null,
@@ -309,7 +309,7 @@ export default function Dashboard() {
               {continueProjects.map((job: any) => (
                 <a
                   key={job.id}
-                  href={`/music-video/create?resume=${job.id}`}
+                  href={`${WIZVIDEO_STUDIO_PAGE}?resume=${job.id}`}
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-white/[0.06] transition-all overflow-hidden"
                 >
                   {/* Thumbnail */}
@@ -381,7 +381,7 @@ export default function Dashboard() {
                   key={job.id}
                   href={job.status === "completed" && job.finalVideoUrl
                     ? job.finalVideoUrl
-                    : `/music-video/create?resume=${job.id}`}
+                    : `${WIZVIDEO_STUDIO_PAGE}?resume=${job.id}`}
                   target={job.status === "completed" && job.finalVideoUrl ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-white/20 transition-all overflow-hidden"
@@ -416,7 +416,7 @@ export default function Dashboard() {
               ))}
               {/* New project card */}
               <a
-                href="/music-video/create"
+                href={WIZVIDEO_STUDIO_PAGE}
                 className="group rounded-xl border border-dashed border-white/15 bg-transparent hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition-all flex flex-col items-center justify-center gap-2 aspect-video p-4"
               >
                 <div className="w-8 h-8 rounded-full bg-white/8 group-hover:bg-[--color-gold]/15 flex items-center justify-center transition-colors">
@@ -443,7 +443,7 @@ export default function Dashboard() {
               <p className="text-zinc-400 mb-8 max-w-md mx-auto">
                 Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
               </p>
-              <a href="/music-video/create">
+              <a href={WIZVIDEO_STUDIO_PAGE}>
                 <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Start Creating
@@ -547,7 +547,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex-shrink-0">
-              <a href="/music-video/create">
+              <a href={WIZVIDEO_STUDIO_PAGE}>
                 <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-6 h-11 font-semibold shadow-lg shadow-[#b8892a]/30 whitespace-nowrap">
                   <Wand2 className="w-4 h-4 mr-2" />
                   Upgrade your next video
@@ -569,7 +569,7 @@ export default function Dashboard() {
             {INSPIRATION.map((idea) => (
               <a
                 key={idea.title}
-                href={`/music-video/create?prompt=${encodeURIComponent(idea.prompt)}`}
+                href={`${WIZVIDEO_STUDIO_PAGE}?prompt=${encodeURIComponent(idea.prompt)}`}
                 className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 p-3 transition-all"
               >
                 <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[--color-gold]/15 text-[--color-gold] mb-2">
@@ -591,7 +591,7 @@ export default function Dashboard() {
         {hasProjects && (
           <section className="text-center py-8 border-t border-white/8">
             <p className="text-zinc-400 text-sm mb-4">Your next video could be even better.</p>
-            <a href="/music-video/create">
+            <a href={WIZVIDEO_STUDIO_PAGE}>
               <Button variant="outline" className="border-[--color-gold]/30 text-[--color-gold] bg-transparent hover:bg-[--color-gold]/15 px-6">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Another Video

@@ -6053,3 +6053,22 @@
 - [x] Update OAuth callback to extract returnPath from state and redirect there after login
 - [x] Update AuthGate to accept and pass returnPath prop
 - [x] Update AiAnimationMaker to pass WIZANIMATE_STUDIO_PAGE as returnPath to AuthGate
+
+## Routing Constants Preventative Cleanup (Apr 2026)
+- [x] Expand routes.ts with all product routing constants (WizVideo, WizAudio, WizImage, WizShorts, WizScript, WizPilot, WizScore, WizSync)
+- [x] Fix 3 incorrect constants in routes.ts (WIZVIDEO_PRODUCT_PAGE, WIZAUDIO_PRODUCT_PAGE, WIZSCORE_STUDIO_PAGE)
+- [x] Update WizProductGrid.tsx to use routing constants for all 6 product hrefs
+- [x] Update products/index.tsx to use routing constants for all ctaHrefs
+- [x] Update WizSoundProductPage.tsx to use routing constants for music-creator and wizsync hrefs
+- [x] Update Dashboard.tsx to use routing constants for all hardcoded studio hrefs
+- [x] Update Blog.tsx to use routing constants for music-video/create hrefs
+- [x] Update BlogPost.tsx to use routing constants for music-video/create hrefs
+- [x] Update Discover.tsx to use routing constants for music-video/create hrefs
+- [x] Update Create.tsx to use routing constants for all studio hrefs
+- [x] Update Home.tsx to use routing constants for all studio hrefs
+- [x] Update MusicVideosLanding.tsx to use routing constants for all studio hrefs
+- [x] Update Projects.tsx to use routing constants for music-video/create and wizpilot hrefs
+- [x] Update RenderHistory.tsx to use routing constants for music-video/create hrefs
+- [x] Update Pricing.tsx to use routing constants for music-creator, wiz-image, wiz-shorts, text-to-video hrefs
+- [x] Update SeoLandingPage.tsx to use routing constants for wizpilot hrefs
+- [x] Final sweep confirmed zero remaining hardcoded navigation hrefs

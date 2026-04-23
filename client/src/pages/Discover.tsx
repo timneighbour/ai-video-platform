@@ -1,3 +1,4 @@
+import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
@@ -184,7 +185,7 @@ function EmptyState({ category }: { category: string }) {
           ? "Be the first to get featured on WIZ AI."
           : `No ${CREATOR_TYPE_LABELS[category] ?? category} creators featured yet.`}
       </p>
-      <Link href="/music-video/create">
+      <Link href={WIZVIDEO_STUDIO_PAGE}>
         <Button className="mt-6 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
           Create a video &amp; get featured
         </Button>
@@ -240,7 +241,7 @@ export default function Discover() {
             A space for creators using WIZ AI to share music videos, animations, kids content, and more. Get featured by creating your first video.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/music-video/create">
+            <Link href={WIZVIDEO_STUDIO_PAGE}>
               <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-6">
                 Start Creating
               </Button>
@@ -389,7 +390,7 @@ export default function Discover() {
               Create a video with WIZ AI, then submit your creator profile. We feature the best creators every week.
             </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
-              <Link href="/music-video/create">
+              <Link href={WIZVIDEO_STUDIO_PAGE}>
                 <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-8 py-3 text-base">
                   Create Your Video
                 </Button>

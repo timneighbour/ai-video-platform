@@ -1,3 +1,4 @@
+import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
 import { Link, useParams } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import { trpc } from "@/lib/trpc";
@@ -129,7 +130,7 @@ export default function BlogPost() {
               <Link href="/blog" className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1">
                 <ArrowLeft className="w-3.5 h-3.5" /> Blog
               </Link>
-              <Link href="/music-video/create">
+              <Link href={WIZVIDEO_STUDIO_PAGE}>
                 <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm h-8">
                   Create Video
                 </Button>
@@ -198,7 +199,7 @@ export default function BlogPost() {
           <div className="mt-14 p-6 rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 text-center">
             <h3 className="text-lg font-bold text-white mb-2">Ready to create your first AI video?</h3>
             <p className="text-white/50 text-sm mb-4">Free to create. Only pay when you build your final video.</p>
-            <Link href="/music-video/create">
+            <Link href={WIZVIDEO_STUDIO_PAGE}>
               <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

@@ -1,4 +1,10 @@
-import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
+import {
+  WIZANIMATE_PRODUCT_PAGE,
+  WIZAUDIO_STUDIO_PAGE,
+  WIZIMAGE_STUDIO_PAGE,
+  WIZSHORTS_STUDIO_PAGE,
+  WIZSCRIPT_STUDIO_PAGE,
+} from "@/lib/routes";
 /**
  * Pricing page — premium cinematic redesign.
  * Sections:
@@ -971,12 +977,12 @@ export default function Pricing() {
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
             {[
-              { logo: LOGO_WIZAUDIO, name: "WizAudio", label: "AI Music", href: "/music-creator", color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
-              { logo: LOGO_WIZIMAGE, name: "WizImage", label: "AI Images", href: "/wiz-image", color: "rgba(196,164,100,0.15)", border: "rgba(196,164,100,0.3)" },
+              { logo: LOGO_WIZAUDIO, name: "WizAudio", label: "AI Music", href: WIZAUDIO_STUDIO_PAGE, color: "rgba(0,200,180,0.15)", border: "rgba(0,200,180,0.25)" },
+              { logo: LOGO_WIZIMAGE, name: "WizImage", label: "AI Images", href: WIZIMAGE_STUDIO_PAGE, color: "rgba(196,164,100,0.15)", border: "rgba(196,164,100,0.3)" },
               { logo: LOGO_WIZVIDEO, name: "WizVideo", label: "Music Videos", href: "/music-video", color: "rgba(60,120,220,0.15)", border: "rgba(60,120,220,0.25)" },
-              { logo: LOGO_WIZSHORTS, name: "WizShorts", label: "Short Videos", href: "/wiz-shorts", color: "rgba(220,100,40,0.15)", border: "rgba(220,100,40,0.25)" },
+              { logo: LOGO_WIZSHORTS, name: "WizShorts", label: "Short Videos", href: WIZSHORTS_STUDIO_PAGE, color: "rgba(220,100,40,0.15)", border: "rgba(220,100,40,0.25)" },
               { logo: LOGO_WIZANIMATE, name: "WizAnimate", label: "Animation", href: WIZANIMATE_PRODUCT_PAGE, color: "rgba(200,60,180,0.15)", border: "rgba(200,60,180,0.25)" },
-              { logo: LOGO_WIZSCRIPT, name: "WizScript", label: "Text-to-Video", href: "/text-to-video", color: "rgba(0,200,220,0.15)", border: "rgba(0,200,220,0.25)" },
+              { logo: LOGO_WIZSCRIPT, name: "WizScript", label: "Text-to-Video", href: WIZSCRIPT_STUDIO_PAGE, color: "rgba(0,200,220,0.15)", border: "rgba(0,200,220,0.25)" },
             ].map((product) => (
               <a
                 key={product.name}

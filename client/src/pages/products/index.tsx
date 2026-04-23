@@ -6,7 +6,18 @@
  * WizSync tool: /wizsync  |  WizScore tool: /wizscore  |  WizPilot tool: /wizpilot
  */
 import ProductPageTemplate, { ProductPageProps } from "@/components/ProductPageTemplate";
-import { WIZANIMATE_SEO_PAGE, WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
+import {
+  WIZANIMATE_SEO_PAGE,
+  WIZANIMATE_PRODUCT_PAGE,
+  WIZVIDEO_STUDIO_PAGE,
+  WIZAUDIO_STUDIO_PAGE,
+  WIZIMAGE_STUDIO_PAGE,
+  WIZSHORTS_STUDIO_PAGE,
+  WIZSCRIPT_STUDIO_PAGE,
+  WIZPILOT_STUDIO_PAGE,
+  WIZSCORE_STUDIO_PAGE,
+  WIZSYNC_STUDIO_PAGE,
+} from "@/lib/routes";
 
 const HERO_IMGS = {
   wizcreate:  "/manus-storage/product-wizcreate-hero_6c3efa10.jpg",
@@ -68,7 +79,7 @@ const WIZCREATE: ProductPageProps = {
   borderColour: "border-[--color-gold]/30",
   bgColour: "bg-[--color-gold]/15",
   badgeClass: "text-[--color-gold] bg-[--color-gold]/15 border-[--color-gold]/30",
-  ctaHref: "/music-video/create",
+  ctaHref: WIZVIDEO_STUDIO_PAGE,
   ctaLabel: "Start Creating",
   whatItDoes: "WizCreate™ analyses your audio's tempo, mood, and lyrical content — or your text description — and generates a complete cinematic storyboard. Each scene is assigned a visual style, character placement, camera angle, and timing. It's the creative director that never runs out of ideas.",
   capabilities: [
@@ -170,7 +181,7 @@ const WIZSOUND: ProductPageProps = {
   borderColour: "border-[--color-silver]/30",
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-[--color-silver]/25",
-  ctaHref: "/music-creator",
+  ctaHref: WIZAUDIO_STUDIO_PAGE,
   ctaLabel: "Create Music Now",
   whatItDoes: "WizSound™ is WIZ AI's proprietary audio enhancement engine. It applies multi-band compression, harmonic enhancement, spatial widening, and cinematic EQ curves to your audio track — transforming it from a standard recording into a rich, immersive cinematic experience.",
   capabilities: [
@@ -221,7 +232,7 @@ const WIZLUMINA: ProductPageProps = {
   borderColour: "border-[--color-gold]/30",
   bgColour: "bg-[--color-gold]/15",
   badgeClass: "text-[--color-gold] bg-[--color-gold]/15 border-[--color-gold]/30",
-  ctaHref: "/music-video/create",
+  ctaHref: WIZVIDEO_STUDIO_PAGE,
   ctaLabel: "Create Your Video",
   whatItDoes: "WizLumina™ is WIZ AI's visual post-processing engine. It analyses each frame of your AI-generated video and applies a cinematic enhancement pipeline — colour grading, HDR tone mapping, sharpening, and 4K upscaling — that transforms the output from flat AI imagery into rich, film-quality visuals.",
   capabilities: [
@@ -272,7 +283,7 @@ const WIZGENESIS: ProductPageProps = {
   borderColour: "border-rose-500/30",
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-rose-500/25",
-  ctaHref: "/music-video/create",
+  ctaHref: WIZVIDEO_STUDIO_PAGE,
   ctaLabel: "Build Your Video",
   whatItDoes: "WizGenesis\u2122 is the intelligence layer of WIZ AI. It analyses your storyboard for character consistency, enhances prompts for scene accuracy, and orchestrates the complete build pipeline \u2014 combining animated scenes from WizAnimate\u2122, spatial audio from WizSound\u2122, and graded visuals from WizLumina\u2122 into a single, polished video file at studio quality.",
   capabilities: [
@@ -323,7 +334,7 @@ const WIZBOOST: ProductPageProps = {
   borderColour: "border-orange-500/30",
   bgColour: "bg-orange-500/5",
   badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
-  ctaHref: "/music-video/create",
+  ctaHref: WIZVIDEO_STUDIO_PAGE,
   ctaLabel: "Boost Your Video",
   whatItDoes: "WizBoost™ is the distribution and growth layer of WIZ AI. After your video is rendered by WizGenesis™, WizBoost™ helps you reach your audience — connecting your content to the WIZ AI creator network, optimising it for platform algorithms, and tracking performance across channels.",
   capabilities: [
@@ -374,7 +385,7 @@ const WIZSCRIPT: ProductPageProps = {
   borderColour: "border-violet-500/30",
   bgColour: "bg-violet-500/5",
   badgeClass: "text-violet-300 bg-violet-500/10 border-violet-500/25",
-  ctaHref: "/wiz-script",
+  ctaHref: WIZSCRIPT_STUDIO_PAGE,
   ctaLabel: "Write Your First Script",
   whatItDoes: "WizScript™ is the creative intelligence layer of WIZ AI. It takes your raw idea — a sentence, a topic, or a mood — and structures it into a complete, production-ready video script. Each scene is defined with visual direction, dialogue, and timing, giving WizGenesis™ everything it needs to build your video automatically.",
   capabilities: [
@@ -425,7 +436,7 @@ const WIZPILOT: ProductPageProps = {
   borderColour: "border-fuchsia-500/30",
   bgColour: "bg-fuchsia-500/5",
   badgeClass: "text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/25",
-  ctaHref: "/wizpilot",
+  ctaHref: WIZPILOT_STUDIO_PAGE,
   ctaLabel: "Launch WizPilot™",
   whatItDoes: "WizPilot™ is the automation intelligence of WIZ AI. You describe your vision — a track, a concept, a style — and WizPilot™ orchestrates the entire creation pipeline automatically. WizCreate™ builds the storyboard, WizAnimate™ generates the animation, WizSync™ locks the audio, WizSound™ enhances the mix, WizLumina™ grades the visuals, WizGenesis\u2122 builds the final output. No manual steps. No handoffs. One prompt to finished video.",
   capabilities: [
@@ -476,7 +487,7 @@ const WIZSYNC_INFO: ProductPageProps = {
   borderColour: "border-purple-500/30",
   bgColour: "bg-purple-500/5",
   badgeClass: "text-purple-300 bg-purple-500/10 border-purple-500/25",
-  ctaHref: "/wizsync",
+  ctaHref: WIZSYNC_STUDIO_PAGE,
   ctaLabel: "Try WizSync™",
   whatItDoes: "WizSync™ analyses your audio track at the waveform level — detecting beats, tempo changes, energy peaks, and speaker voices — then maps every visual element to the audio timeline with frame-perfect precision. The result is a video where every cut, every movement, and every transition feels intentional and musically driven.",
   capabilities: [
@@ -527,7 +538,7 @@ const WIZSCORE_INFO: ProductPageProps = {
   borderColour: "border-teal-500/30",
   bgColour: "bg-teal-500/5",
   badgeClass: "text-teal-300 bg-teal-500/10 border-teal-500/25",
-  ctaHref: "/wizscore",
+  ctaHref: WIZSCORE_STUDIO_PAGE,
   ctaLabel: "Score Your Video",
   whatItDoes: "WizScore™ reverses the traditional music video workflow. Instead of fitting visuals to music, WizScore™ analyses your existing video — its pacing, mood, energy, and emotional arc — and composes an original AI soundtrack that is perfectly synchronised to your footage. The result is a track that feels composed specifically for your video, not retrofitted to it.",
   capabilities: [
@@ -618,7 +629,7 @@ const WIZSHORTS: ProductPageProps = {
   borderColour: "border-orange-500/30",
   bgColour: "bg-orange-500/5",
   badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
-  ctaHref: "/wiz-shorts",
+  ctaHref: WIZSHORTS_STUDIO_PAGE,
   ctaLabel: "Create a Short",
   whatItDoes: "WizShorts™ is WIZ AI's short-form video creation engine. It takes a topic, script, or concept and generates a complete 9:16 vertical video — with AI-generated scenes, optional music, and polished transitions — ready to publish on YouTube Shorts, Instagram Reels, or TikTok.",
   capabilities: [
@@ -673,7 +684,7 @@ const WIZPERFORMER: ProductPageProps = {
   borderColour: "border-purple-500/30",
   bgColour: "bg-purple-500/5",
   badgeClass: "text-purple-300 bg-purple-500/10 border-purple-500/25",
-  ctaHref: "/music-video/create",
+  ctaHref: WIZVIDEO_STUDIO_PAGE,
   ctaLabel: "Create Your Video",
   whatItDoes: "WizPerformer™ is WIZ AI's face-consistent character engine. Upload a single reference photo and WizPerformer™ generates a fully animated AI performer that maintains the same face, expression, and identity across every scene — no drift, no inconsistency, no manual work.",
   capabilities: [
@@ -728,7 +739,7 @@ const WIZIMAGE: ProductPageProps = {
   borderColour: "border-amber-500/30",
   bgColour: "bg-amber-500/5",
   badgeClass: "text-amber-300 bg-amber-500/10 border-amber-500/25",
-  ctaHref: "/wiz-image",
+  ctaHref: WIZIMAGE_STUDIO_PAGE,
   ctaLabel: "Generate an Image",
   whatItDoes: "WizImage™ is WIZ AI's image generation engine. Type any description and WizImage™ produces a high-resolution, publication-ready image in your chosen style — from photorealistic cinematic frames to anime illustrations, 3D renders, and abstract art. Every image is yours to download and use.",
   capabilities: [
@@ -781,7 +792,7 @@ const WIZVIDEO: ProductPageProps = {
   borderColour: "border-blue-500/30",
   bgColour: "bg-blue-500/5",
   badgeClass: "text-blue-300 bg-blue-500/10 border-blue-500/25",
-  ctaHref: "/music-video/create",
+  ctaHref: WIZVIDEO_STUDIO_PAGE,
   ctaLabel: "Create Your Music Video",
   whatItDoes: "WizVideo™ is WIZ AI's end-to-end music video creation engine. Upload your track — or create music with WizScore™ — and WizVideo™ generates a full scene-by-scene storyboard, animates every scene with AI visuals, syncs cuts to your beats and lyrics, and renders a complete music video ready to publish. No editing skills. No crew. No studio.",
   capabilities: [

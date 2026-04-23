@@ -12,7 +12,14 @@ import {
 } from "@/components/WizProductEmblems";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
-import { WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_SEO_PAGE } from "@/lib/routes";
+import {
+  WIZANIMATE_PRODUCT_PAGE,
+  WIZANIMATE_SEO_PAGE,
+  WIZVIDEO_STUDIO_PAGE,
+  WIZAUDIO_STUDIO_PAGE,
+  WIZPILOT_STUDIO_PAGE,
+  WIZSCRIPT_STUDIO_PAGE,
+} from "@/lib/routes";
 import { useProjectResume } from "@/hooks/useProjectResume";
 import { useExperiment } from "@/hooks/useExperiment";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
@@ -2270,8 +2277,8 @@ function Showcase() {
 // ── Built For ─────────────────────────────────────────────────────────────────
 function BuiltFor() {
   const audiences = [
-    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-musicians-premium-8GZ9NuzqqusE8rZ27Tqrxm.webp" },
-    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-content-premium-oEFftXPsMcVs8xZA9z88QR.webp" },
+    { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: WIZVIDEO_STUDIO_PAGE, logo: WIZSOUND_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-musicians-premium-8GZ9NuzqqusE8rZ27Tqrxm.webp" },
+    { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: WIZSCRIPT_STUDIO_PAGE, logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-content-premium-oEFftXPsMcVs8xZA9z88QR.webp" },
     { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: WIZANIMATE_SEO_PAGE, logo: WIZANIMATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-animator-premium-MLeuwBsaHxd9cindqxiXUp.webp" },
     { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-youtuber-premium-gqHtiaHLuP258LeYjwzB7S.webp" },
   ];
@@ -2322,7 +2329,7 @@ function FeatureBlock() {
       title: "AI Music Generation",
       desc: "Generate original songs, soundtracks, and audio from a text prompt. Choose genre, mood, tempo, and style — WizSound™ masters every track to professional-grade quality.",
       cta: "Generate a Song",
-      href: "/music-creator",
+      href: WIZAUDIO_STUDIO_PAGE,
       badge: "WizSound™",
       gradient: "from-[#1a1408] to-[#0d0d0d]",
       borderGlow: "hover:border-[--color-gold]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.06)]",
@@ -2332,7 +2339,7 @@ function FeatureBlock() {
       title: "Music Video Creation",
       desc: "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric.",
       cta: "Create a Music Video",
-      href: "/music-video/create",
+      href: WIZVIDEO_STUDIO_PAGE,
       badge: "WizCreate™",
       gradient: "from-[#0d1018] to-[#0d0d0d]",
       borderGlow: "hover:border-blue-500/20 hover:shadow-[0_0_40px_rgba(59,130,246,0.04)]",
@@ -2342,7 +2349,7 @@ function FeatureBlock() {
       title: "WizPilot Automation",
       desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, performance-sync, audio, build, and delivery. The complete AI music video pipeline in one click.",
       cta: "Try WizPilot",
-      href: "/wizpilot",
+      href: WIZPILOT_STUDIO_PAGE,
       badge: "WizPilot™",
       gradient: "from-[#0d1808] to-[#0d0d0d]",
       borderGlow: "hover:border-green-500/20 hover:shadow-[0_0_40px_rgba(34,197,94,0.04)]",
@@ -2403,7 +2410,7 @@ function WizVidEngineSection() {
       tagline: "AI Storyboard & Scene Engine",
       desc: "Builds your full storyboard, generates every scene, and assembles the complete video from a single idea.",
       logoUrl: WIZCREATE_LOGO,
-      href: "/music-video/create",
+      href: WIZVIDEO_STUDIO_PAGE,
     },
     {
       name: "WizSound",
@@ -3002,7 +3009,7 @@ function FinalCTA() {
             Create Your First AI Video
           </a>
           <a
-            href="/music-creator"
+            href={WIZAUDIO_STUDIO_PAGE}
             className="btn-secondary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
           >
             <img src={WIZSOUND_LOGO} alt="WizSound" aria-hidden="true" className="w-5 h-5 object-contain" />

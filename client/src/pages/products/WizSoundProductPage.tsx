@@ -1,4 +1,4 @@
-import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
+import { WIZANIMATE_PRODUCT_PAGE, WIZAUDIO_STUDIO_PAGE, WIZSYNC_STUDIO_PAGE } from "@/lib/routes";
 /**
  * WizSoundProductPage — fully custom WizSound product page
  * Replaces the generic ProductPageTemplate for /products/wizsound
@@ -32,7 +32,7 @@ const IMG = {
 const RELATED = [
   { name: "WizCreate™", href: "/products/wizcreate" },
   { name: "WizAnimate™", href: WIZANIMATE_PRODUCT_PAGE },
-  { name: "WizSync™", href: "/wizsync" },
+  { name: "WizSync™", href: WIZSYNC_STUDIO_PAGE },
   { name: "WizLumina™", href: "/products/wizlumina" },
   { name: "WizGenesis™", href: "/products/wizgenesis" },
   { name: "WizBoost™", href: "/products/wizboost" },
@@ -163,7 +163,7 @@ export default function WizSoundProductPage() {
           <div className="flex items-center gap-2">
             <NavLink href="/" className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-[--color-silver-dark]/60 hover:text-[--color-silver] transition-colors">Home</NavLink>
             <NavLink
-              href="/music-creator"
+              href={WIZAUDIO_STUDIO_PAGE}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-[--color-gold] text-black hover:bg-[--color-gold-light] transition-all shadow-[0_0_20px_rgba(196,164,100,0.25)]"
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -223,7 +223,7 @@ export default function WizSoundProductPage() {
 
             <div className="flex flex-col sm:flex-row items-start gap-4">
               <NavLink
-                href="/music-creator"
+                href={WIZAUDIO_STUDIO_PAGE}
                 className="btn-primary btn-sheen inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-sm"
               >
                 <Sparkles className="w-4 h-4" />
@@ -531,7 +531,7 @@ export default function WizSoundProductPage() {
           </h2>
           <p className="text-white/40 mb-10 text-lg">Start creating cinematic AI content today — studio-grade audio included.</p>
           <NavLink
-            href="/music-creator"
+            href={WIZAUDIO_STUDIO_PAGE}
             className="btn-primary btn-sheen inline-flex items-center gap-2 px-12 py-4 rounded-2xl font-bold text-sm"
           >
             <Sparkles className="w-4 h-4" />

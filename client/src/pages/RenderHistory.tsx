@@ -1,3 +1,4 @@
+import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -160,7 +161,7 @@ export default function RenderHistory() {
               </div>
             </div>
             <Button asChild size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
-              <Link href="/music-video/create"><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
+              <Link href={WIZVIDEO_STUDIO_PAGE}><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
             </Button>
           </div>
         </div>
@@ -200,7 +201,7 @@ export default function RenderHistory() {
               <p className="text-zinc-500 text-sm">Create your first AI music video to see it here</p>
             </div>
             <Button asChild className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
-              <Link href="/music-video/create"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
+              <Link href={WIZVIDEO_STUDIO_PAGE}><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
             </Button>
           </div>
         )}
@@ -318,7 +319,7 @@ export default function RenderHistory() {
                             className="h-7 px-2 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
                             asChild
                           >
-                            <Link href={`/music-video/create?jobId=${job.id}`}>
+                            <Link href={`${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}>
                               <Play className="w-3 h-3 mr-1" />Resume
                             </Link>
                           </Button>

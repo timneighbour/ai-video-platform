@@ -1,3 +1,4 @@
+import { WIZVIDEO_STUDIO_PAGE, WIZPILOT_STUDIO_PAGE } from "@/lib/routes";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -326,7 +327,7 @@ export default function Projects() {
 
   /* ── Handlers ─────────────────────────────────────────────────────────── */
   const handleContinueMusicJob = (job: MusicVideoJob) => {
-    window.location.href = `/music-video/create?jobId=${job.id}`;
+    window.location.href = `${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`;
   };
 
   const handleDownload = (project: Project) => {
@@ -624,7 +625,7 @@ export default function Projects() {
           : "Generate your first AI video from a text prompt in seconds."}
       </p>
       <a
-        href={activeTab === "music_videos" ? "/music-video/create" : "/wizpilot"}
+        href={activeTab === "music_videos" ? WIZVIDEO_STUDIO_PAGE : WIZPILOT_STUDIO_PAGE}
         className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold px-7 py-3 transition-all shadow-lg shadow-[#b8892a]/25 text-sm"
       >
         <Sparkles className="h-4 w-4" />
@@ -745,7 +746,7 @@ export default function Projects() {
             {/* ── New project CTA ─────────────────────────────────────────── */}
             <div className="mt-10 pt-6 border-t border-white/5 flex justify-center">
               <a
-                href={activeTab === "music_videos" ? "/music-video/create" : "/wizpilot"}
+                href={activeTab === "music_videos" ? WIZVIDEO_STUDIO_PAGE : WIZPILOT_STUDIO_PAGE}
                 className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 hover:border-[--color-gold]/30 text-zinc-400 hover:text-white font-medium px-6 py-3 transition-all text-sm"
               >
                 <Plus className="h-4 w-4 text-[--color-gold]" />

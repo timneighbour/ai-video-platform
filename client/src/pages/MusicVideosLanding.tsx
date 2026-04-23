@@ -1,3 +1,4 @@
+import { WIZVIDEO_STUDIO_PAGE, WIZSCRIPT_STUDIO_PAGE } from "@/lib/routes";
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export default function MusicVideosLanding() {
 
   const handleCTA = () => {
     if (isAuthenticated) {
-      window.location.href = "/music-video/create";
+      window.location.href = WIZVIDEO_STUDIO_PAGE;
     } else {
       setShowAuthGate(true);
     }
@@ -64,7 +65,7 @@ export default function MusicVideosLanding() {
   // – onMouseDown fires BEFORE Chrome extensions can intercept onClick
   const handleCTAMouseDown = () => {
     if (isAuthenticated) {
-      window.location.href = "/music-video/create";
+      window.location.href = WIZVIDEO_STUDIO_PAGE;
     }
     // For unauthenticated: let onClick handle the auth gate modal
   };
@@ -90,8 +91,8 @@ export default function MusicVideosLanding() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Home", href: "/" },
-              { label: "WizVideo", href: "/music-video/create" },
-              { label: "WizScript", href: "/wiz-script" },
+              { label: "WizVideo", href: WIZVIDEO_STUDIO_PAGE },
+              { label: "WizScript", href: WIZSCRIPT_STUDIO_PAGE },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
             ].map((link) => (
@@ -107,7 +108,7 @@ export default function MusicVideosLanding() {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <a
-                href="/music-video/create"
+                href={WIZVIDEO_STUDIO_PAGE}
                 className="inline-flex items-center bg-white text-black hover:bg-white/90 text-sm px-5 rounded-xl font-semibold h-9 transition-colors"
               >
                 <Sparkles className="w-3.5 h-3.5 mr-1.5" />Start with WizVideo
@@ -151,7 +152,7 @@ export default function MusicVideosLanding() {
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 {isAuthenticated ? (
                   <a
-                    href="/music-video/create"
+                    href={WIZVIDEO_STUDIO_PAGE}
                     className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
                     <Sparkles className="w-4 h-4 mr-2" />Start Creating
@@ -283,7 +284,7 @@ export default function MusicVideosLanding() {
           </p>
           {isAuthenticated ? (
             <a
-              href="/music-video/create"
+              href={WIZVIDEO_STUDIO_PAGE}
               className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-base px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               <Sparkles className="w-4 h-4 mr-2" />Start Creating
@@ -306,7 +307,7 @@ export default function MusicVideosLanding() {
         subtitle="Music video showcase"
         description="Every video built from a text prompt and an uploaded track. No crew, no editing, no experience needed."
         ctaLabel="Create Your Music Video"
-        ctaHref="/music-video/create"
+        ctaHref={WIZVIDEO_STUDIO_PAGE}
         items={MUSIC_VIDEO_SHOWCASE}
       />
 

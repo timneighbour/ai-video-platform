@@ -1,3 +1,4 @@
+import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
@@ -39,7 +40,7 @@ export default function Blog() {
             </Link>
             <div className="flex items-center gap-4">
               <Link href="/pricing" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</Link>
-              <Link href="/music-video/create">
+              <Link href={WIZVIDEO_STUDIO_PAGE}>
                 <Button size="sm" className="btn-primary btn-sheen btn-sheen text-white text-sm h-8">
                   Create Video
                 </Button>
@@ -165,7 +166,7 @@ export default function Blog() {
           <div className="max-w-2xl mx-auto px-4 py-16 text-center">
             <h2 className="text-2xl font-bold mb-3">Ready to create your first AI video?</h2>
             <p className="text-white/50 mb-6">Free to create. Only pay when you build your final video.</p>
-            <Link href="/music-video/create">
+            <Link href={WIZVIDEO_STUDIO_PAGE}>
               <Button className="btn-primary btn-sheen btn-sheen text-white px-8 h-11">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
