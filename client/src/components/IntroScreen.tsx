@@ -3,7 +3,8 @@
  *
  * Behaviour:
  * - Appears ONCE per browser session (sessionStorage gated)
- * - Permanently muted (silent cinematic experience)
+ * - Starts muted (browser autoplay policy) — user can unmute via the toggle
+ * - Mute/unmute button persists state during the session
  * - "Skip Intro" and "Enter WIZ AI" both dismiss the intro
  * - Smooth fade-out transition into the homepage
  * - Falls back to homepage after 12 s if video fails to load (iOS needs more time)
@@ -13,15 +14,18 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ChevronRight, Play } from "@/lib/icons";
+import { ChevronRight, Play, Volume2, VolumeX } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const VIDEO_URL =
-  "/manus-storage/wizai-intro-wizsound-pure_8c53762c.mp4";
+  "/manus-storage/WizAIIntroVidMAIN_a2651b4e.mp4";
 // No poster — we show a pure black screen while the video buffers to avoid any image flash on iOS Safari
 
 // iOS Safari needs significantly more time to buffer — use 12 s
 const LOAD_TIMEOUT_MS = 12000;
+
+// Session key to remember mute preference
+const MUTE_SESSION_KEY = "wizai_intro_muted";
 
 interface IntroScreenProps {
   onComplete: () => void;
@@ -55,6 +59,8 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const [showControls, setShowControls] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [showPlayHint, setShowPlayHint] = useState(false);
+  // Start muted (required for autoplay) — user can toggle
+  const [isMuted, setIsMuted] = useState(true);
   const dismissedRef = useRef(false);
   const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLandscape = useOrientation();
@@ -108,10 +114,26 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
     video.load();
   }, []);
 
+  // ── Sync muted state to video element ────────────────────────────────────
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = isMuted;
+    // If unmuting and video is paused due to autoplay block, try playing
+    if (!isMuted && video.paused) {
+      video.play().catch(() => {
+        // If play fails after unmute, re-mute and show hint
+        setIsMuted(true);
+      });
+    }
+  }, [isMuted]);
+
   // ── Video ready ───────────────────────────────────────────────────────────
   const handleCanPlay = () => {
     setVideoReady(true);
     if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    // Always start muted for autoplay compliance
+    if (videoRef.current) videoRef.current.muted = true;
     videoRef.current?.play().catch(() => {
       setShowPlayHint(true);
     });
@@ -121,8 +143,6 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const handleStalled = () => {
     const video = videoRef.current;
     if (!video || videoReady) return;
-    // On iOS, stalled can mean the video hasn't started buffering yet
-    // Calling load() again can kick it back into gear
     const currentSrc = video.src;
     if (currentSrc) {
       video.load();
@@ -135,9 +155,12 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
     setShowPlayHint(false);
   };
 
+  // ── Toggle mute ───────────────────────────────────────────────────────────
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev);
+  };
+
   // ── Determine video fit based on orientation ──────────────────────────────
-  // Portrait: contain — shows full video frame, no text cut-off, black bars on sides
-  // Landscape: cover — fills the full cinematic widescreen view
   const videoObjectFit = isLandscape ? "cover" : "contain";
 
   return (
@@ -217,8 +240,28 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           paddingRight: "max(env(safe-area-inset-right), 1.5rem)",
         }}
       >
-        {/* Top row — Skip Intro top-right */}
-        <div className="flex justify-end pointer-events-auto">
+        {/* Top row — Mute toggle (left) + Skip Intro (right) */}
+        <div className="flex justify-between items-center pointer-events-auto">
+          {/* Mute / Unmute toggle */}
+          <button
+            onClick={toggleMute}
+            className="flex items-center gap-2 text-white/50 hover:text-white/90 transition-colors text-xs tracking-[0.15em] uppercase font-medium"
+            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+          >
+            {isMuted ? (
+              <>
+                <VolumeX className="w-4 h-4" />
+                <span className="hidden sm:inline">Sound Off</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-4 h-4 text-[#c4a464]" />
+                <span className="hidden sm:inline text-[#c4a464]">Sound On</span>
+              </>
+            )}
+          </button>
+
+          {/* Skip Intro */}
           <button
             onClick={dismiss}
             className="text-white/40 hover:text-white/80 transition-colors text-xs tracking-[0.2em] uppercase font-medium"

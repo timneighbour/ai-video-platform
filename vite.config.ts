@@ -165,7 +165,32 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      // Force all packages to use the same React instance — prevents
+      // "Cannot read properties of null (reading 'useState')" from tRPC
+      "react": path.resolve(import.meta.dirname, "node_modules/react"),
+      "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
+      "react/jsx-runtime": path.resolve(import.meta.dirname, "node_modules/react/jsx-runtime.js"),
+      "react/jsx-dev-runtime": path.resolve(import.meta.dirname, "node_modules/react/jsx-dev-runtime.js"),
     },
+    // Deduplicate React to guarantee a single copy across all packages
+    dedupe: ["react", "react-dom", "react/jsx-runtime", "@tanstack/react-query", "@trpc/react-query"],
+  },
+  // Fix for duplicate React / TRPCProvider useState crash:
+  // @trpc/react-query v11 ships a CJS bundle that Vite wraps in its own React copy
+  // (chunk-PLUGHXRK.js) with a separate ReactSharedInternals — causing hooks to fail.
+  // Solution: exclude @trpc/react-query from pre-bundling so Vite processes its ESM
+  // entry directly, sharing the same React singleton as the rest of the app.
+  optimizeDeps: {
+    exclude: ["@trpc/react-query"],
+    include: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      "@tanstack/react-query",
+      "@trpc/client",
+    ],
+    force: true,
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
