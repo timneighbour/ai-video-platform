@@ -312,6 +312,9 @@ function App() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
 
   useEffect(() => {
+    // Only show intro when landing on the homepage — skip on all other pages
+    const isHomepage = window.location.pathname === "/" || window.location.pathname === "";
+    if (!isHomepage) return;
     // Detect bots/crawlers by user-agent — skip intro entirely so real homepage LCP is measured
     const ua = navigator.userAgent.toLowerCase();
     // PageSpeed Insights runs as a real Chrome instance — detect via performance timing flags
