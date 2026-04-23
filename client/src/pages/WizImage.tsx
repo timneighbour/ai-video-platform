@@ -210,8 +210,8 @@ export default function WizImage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold tracking-tight">WizImage™</h1>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#b8892a]/20 text-[#c9a84c] border border-[#b8892a]/30 font-medium">AI IMAGE</span>
+                <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}>WIZIMAGE</span>
+                <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI IMAGE ENGINE</span>
               </div>
               <div className="flex items-center gap-2 mt-0.5">
                 <div className="studio-led studio-led-gold" style={{width:6,height:6}} />

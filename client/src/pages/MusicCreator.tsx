@@ -373,18 +373,19 @@ export default function MusicCreator() {
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full bg-[#b8892a]/10 blur-[80px] pointer-events-none" />
         {/* Nav sits inside the hero */}
         <nav className="relative z-20 flex items-center justify-between px-6 py-5 max-w-5xl mx-auto">
-          <Link href="/" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
+          <Link href="/" className="flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors text-sm">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Studio
           </Link>
           <div className="flex items-center gap-2">
-            <Music2 className="w-5 h-5 text-[--color-gold]" />
-            <span className="font-bold text-white">Music Creator</span>
-            <Badge className="bg-[--color-gold-dark]/15 text-[--color-gold-mid] border-[--color-gold-dark]/20 text-xs">WizAudio</Badge>
+            <span className="text-white font-bold text-lg tracking-tight">WIZAUDIO</span>
+            <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI MUSIC ENGINE</span>
           </div>
-          {!authLoading && !user && (
-            <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors">Sign in</a>
-          )}
+          <div className="flex items-center gap-3">
+            {user && <div className="bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-3 py-1 text-[--color-gold] text-xs font-bold">10,000 Credits</div>}
+            {!authLoading && !user && (
+              <a href={getLoginUrl()} className="text-sm text-white/60 hover:text-white transition-colors">Sign in</a>
+            )}
+          </div>
         </nav>
         {/* Hero content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-[calc(100%-72px)] text-center px-6">
@@ -426,6 +427,25 @@ export default function MusicCreator() {
               Upload Your Track
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* ── 4-Stage Workflow Bar ── */}
+      <div className="bg-[#0a0a0f]/70 backdrop-blur-xl border-b border-white/[0.04]">
+        <div className="max-w-5xl mx-auto px-6 py-2.5 flex items-center justify-center gap-2">
+          {([{ id: 1, label: "COMPOSE", done: false, active: true }, { id: 2, label: "PREVIEW & EDIT", done: false, active: false }, { id: 3, label: "UPGRADE PREVIEW", done: false, active: false }, { id: 4, label: "RENDER & EXPORT", done: false, active: false }]).map((s, i) => (
+            <div key={s.id} className="flex items-center gap-2">
+              <button className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all ${
+                s.active ? "bg-[--color-gold]/20 border border-[--color-gold]/40 text-[--color-gold] shadow-[0_0_15px_rgba(184,137,42,0.2)]" : s.done ? "text-white/60" : "text-white/30"
+              }`}>
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                  s.done ? "bg-green-500/20 text-green-400" : s.active ? "bg-[--color-gold]/30 text-[--color-gold]" : "bg-white/10"
+                }`}>{s.done ? <Check className="w-3 h-3" /> : s.id}</span>
+                <span className="hidden sm:inline">{s.label}</span>
+              </button>
+              {i < 3 && <ChevronRight className="w-3 h-3 text-white/15" />}
+            </div>
+          ))}
         </div>
       </div>
 

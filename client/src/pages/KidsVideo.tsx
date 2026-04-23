@@ -699,11 +699,18 @@ export default function KidsVideo() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Animation Render Farm ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-hollywood-studio_1da3e15e.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-cinematic" />
+
       <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your kids animation" />
 
       {/* ── Header ── */}
-      <div className="border-b border-white/10 sticky top-0 z-30 bg-background/95 backdrop-blur-sm">
+      <div className="studio-header sticky top-0 z-30">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <button
             type="button"
@@ -724,19 +731,8 @@ export default function KidsVideo() {
             </span>
           </button>
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#9090a0] to-orange-500 flex items-center justify-center">
-              <svg viewBox="0 0 28 28" className="w-5 h-5" fill="none">
-                <rect x="4" y="4" width="9" height="9" rx="2" fill="white" opacity="0.9"/>
-                <rect x="15" y="4" width="9" height="9" rx="2" fill="white" opacity="0.6"/>
-                <rect x="4" y="15" width="9" height="9" rx="2" fill="white" opacity="0.6"/>
-                <rect x="15" y="15" width="9" height="9" rx="2" fill="white" opacity="0.3"/>
-                <circle cx="14" cy="14" r="3" fill="white" opacity="0.95"/>
-              </svg>
-            </div>
-            <span className="font-bold text-white text-sm sm:text-base">WizAnimate™</span>
-            <Badge className="bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/30 text-xs hidden sm:inline-flex">
-              AI Animation
-            </Badge>
+            <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}>WIZANIMATE</span>
+            <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI ANIMATION ENGINE</span>
           </div>
 
           {step !== "concept" ? (

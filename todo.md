@@ -6009,3 +6009,11 @@
 - [x] Fix WizSoundSection.tsx: audioCinematicRef now uses AUDIO_CINEMATIC (not AUDIO_ENHANCED)
 - [x] Fix DemoVideoModal.tsx: AUDIO_WIZSOUND was pointing to cinematic; now correctly uses wizsound-enhance_417ffd57.mp3
 - [x] All 553 tests passing, zero TypeScript errors
+
+## Full Mockup Rebuild - All 6 Product App Pages (April 23)
+- [x] Rebuild WizScore — AI Scoring Studio (Lyndhurst Hall POV, 5-stage workflow bar, 8 instrument tracks, score preview, Upgrade Preview panel, ambient dimmer, Speak Your Brief)
+- [x] Rebuild WizAudio — Recording Studio (added 4-stage workflow bar, WIZAUDIO branding, credits display) (SSL console POV, 4-stage workflow, waveform editor, EQ/compressor controls, Recording Booth panel, Upgrade Preview)
+- [x] Rebuild WizVideo — Music Video Director Studio (already has VR env, studio header, LED indicators, 4-step workflow bar, YouTube Ready badge) (concert stage POV, Character Lock, Instrument Lock, scene timeline, Add Scene picker, Upgrade Preview)
+- [x] Rebuild WizAnimate — Animation Studio (added VR env-hollywood-studio, env-tint-cinematic, WIZANIMATE branding, studio-header) (render farm POV, audio upload with EQ visualiser, timestamped lyrics panel, 5-stage workflow, Upgrade Preview)
+- [x] Rebuild WizShorts — YouTuber Home Studio (added VR env-broadcast-studio, env-tint-stage, WIZSHORTS branding) (curved ultrawide POV, channel stats overlay, hook builder, viral formula templates, vertical 9:16 workflow, Upgrade Preview)
+- [x] Rebuild WizImage — Digital Artist Studio (already had VR env-digital-art-lab, updated WIZIMAGE branding with AI IMAGE ENGINE badge) (Wacom Cintiq POV, reference upload, image type selector, visual style tags, aspect ratio selector, variations grid, Upgrade Preview)

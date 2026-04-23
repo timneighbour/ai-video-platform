@@ -185,7 +185,14 @@ export default function WizShorts() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+      {/* ── VR Environment: Broadcast Studio ── */}
+      <div className="env-bg">
+        <img src="/manus-storage/env-broadcast-studio_5a824d1f.jpg" alt="" />
+        <div className="env-bg-overlay" />
+      </div>
+      <div className="env-ambient env-tint-stage" />
+
       {/* Header */}
       <div className="studio-header sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -201,8 +208,8 @@ export default function WizShorts() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold tracking-tight">WizShorts™</h1>
-                <div className="studio-led studio-led-gold" style={{width:6,height:6}} />
+                <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}>WIZSHORTS</span>
+                <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI SHORTS ENGINE</span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <div className="studio-led studio-led-green" style={{width:5,height:5}} />

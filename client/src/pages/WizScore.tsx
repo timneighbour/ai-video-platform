@@ -1,184 +1,148 @@
 /**
- * WizScore™ — Video-to-Music AI
- * Upload a video → AI analyses mood/pacing/energy → generates a perfectly synced soundtrack
+ * WizScore™ — AI Scoring Studio
+ * Full orchestral scoring environment: Lyndhurst Hall POV, 5-stage workflow,
+ * 8 instrument tracks, score preview, Upgrade Preview panel, ambient dimmer.
  */
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { useSEO } from "@/hooks/useSEO";
+import { Link } from "wouter";
 import {
-  Upload, Music2, Wand2, CheckCircle2, AlertCircle,
-  Download, Play, Pause, Film, Sparkles, ChevronRight
+  Music2, Sparkles, Play, Pause, Download, Loader2,
+  ChevronRight, ArrowLeft, Check, Volume2, Clock, Wand2,
+  Film, Upload, Mic2, Plus, FileText, CheckCircle2,
+  AlertCircle, Settings, Eye, Headphones, SlidersHorizontal,
 } from "@/lib/icons";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 
-const CDN = "/manus-storage";
+/* ── Constants ────────────────────────────────────────────────────────────── */
+const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
 
-type Step = "idle" | "uploading" | "analyzing" | "generating" | "complete" | "error";
+const SCORE_TYPES = [
+  { id: "film", label: "Film Score", sub: "Feature · Short · Trailer", icon: "🎬" },
+  { id: "tv", label: "TV / Series", sub: "Drama · Documentary", icon: "📺" },
+  { id: "game", label: "Game Score", sub: "Adaptive · Cinematic", icon: "🎮" },
+  { id: "concert", label: "Concert Work", sub: "Orchestral · Chamber", icon: "🎻" },
+  { id: "backing", label: "Backing Track", sub: "Artist · Album · EP", icon: "🎸" },
+  { id: "choir", label: "Choir / Vocal", sub: "Choral · A Cappella", icon: "🎤" },
+];
 
-interface Analysis {
-  mood: string;
-  pacing: string;
-  energy: string;
-  genre: string;
-  videoDurationSeconds: number;
-  sunoPrompt: string;
-  sunoStyle: string;
+const MOODS = [
+  "Epic", "Cinematic", "Dramatic", "Emotional", "Dark", "Triumphant",
+  "Haunting", "Suspense", "Romantic", "Action", "Melancholic", "Uplifting",
+];
+
+const INSTRUMENTS = [
+  { name: "Strings — Full", parts: "Violins I & II, Viola, Cellos", db: "+1.2", color: "#e8c878" },
+  { name: "Choir — SATB", parts: "32 Voices: Soprano, Alto, Tenor, Bass", db: "+4.0", color: "#a3e878" },
+  { name: "Brass — Full", parts: "Horns, Trumpets, Trombones", db: "+0.8", color: "#78c8e8" },
+  { name: "Woodwinds", parts: "Flutes, Oboes, Clarinets, Bassoons", db: "+0.1", color: "#e878a3" },
+  { name: "Percussion", parts: "Timpani, Snare, Cymbals, Taiko", db: "-0.5", color: "#c878e8" },
+  { name: "Piano / Keys", parts: "Grand Piano, Celesta, Harp", db: "+0.2", color: "#78e8c8" },
+  { name: "Solo Cello", parts: "Lead melody, Opening theme", db: "-2.0", color: "#e8d878" },
+  { name: "Organ — Pipe", parts: "Lyndhurst Hall, Organ, Pedal, Tones", db: "-12.0", color: "#e89878" },
+];
+
+type Stage = "brief" | "ensemble" | "compose" | "upgrade" | "render";
+const STAGES: { id: Stage; label: string }[] = [
+  { id: "brief", label: "PROJECT BRIEF" },
+  { id: "ensemble", label: "ENSEMBLE" },
+  { id: "compose", label: "COMPOSE & ARRANGE" },
+  { id: "upgrade", label: "UPGRADE PREVIEW" },
+  { id: "render", label: "RENDER & EXPORT" },
+];
+
+type RenderQuality = "hd" | "4k" | "8k";
+type AudioTier = "original" | "enhanced" | "cinematic";
+
+/* ── Waveform bar component ───────────────────────────────────────────────── */
+function WaveformBar({ color, width = "100%" }: { color: string; width?: string }) {
+  return (
+    <div className="h-8 rounded-sm overflow-hidden relative" style={{ width, background: `${color}15` }}>
+      <div className="absolute inset-0 flex items-center gap-[1px] px-1">
+        {Array.from({ length: 80 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-full"
+            style={{
+              height: `${Math.random() * 70 + 20}%`,
+              background: `linear-gradient(to top, ${color}40, ${color}cc)`,
+              animationDelay: `${i * 0.02}s`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
+/* ── Spectrum Analyzer ────────────────────────────────────────────────────── */
+function SpectrumAnalyzer() {
+  return (
+    <div className="w-full h-16 flex items-end gap-[2px] px-4 overflow-hidden">
+      {Array.from({ length: 120 }).map((_, i) => {
+        const h = Math.sin(i * 0.15) * 30 + Math.random() * 25 + 15;
+        const hue = (i / 120) * 300;
+        return (
+          <div
+            key={i}
+            className="flex-1 rounded-t-sm transition-all duration-300"
+            style={{
+              height: `${h}%`,
+              background: `hsl(${hue}, 80%, 55%)`,
+              opacity: 0.85,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Main Component ───────────────────────────────────────────────────────── */
 export default function WizScore() {
-  useSEO({ title: "WizScore™ — AI Video-to-Music Generator — WIZ AI", path: "/wizscore", description: "Upload a video and let AI generate a perfectly synced soundtrack. WizScore™ analyses mood, pacing, and energy to create music that fits every frame." });
-  const { isAuthenticated } = useAuth();
-  const [step, setStep] = useState<Step>("idle");
-  const [progress, setProgress] = useState(0);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
-  const [jobId, setJobId] = useState<number | null>(null);
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [sunoTaskId, setSunoTaskId] = useState<number | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  useSEO({
+    title: "WizScore™ — AI Scoring Studio — WIZ AI",
+    path: "/wizscore",
+    description: "Professional AI orchestral scoring studio. Compose film scores, TV themes, and game soundtracks with 8 instrument groups, score preview, and cinematic mastering.",
+  });
+
+  const { isAuthenticated, user } = useAuth();
+  const [activeStage, setActiveStage] = useState<Stage>("compose");
+  const [completedStages, setCompletedStages] = useState<Stage[]>(["brief", "ensemble"]);
+  const [scoreType, setScoreType] = useState("film");
+  const [selectedMoods, setSelectedMoods] = useState<string[]>(["Epic", "Cinematic"]);
+  const [brief, setBrief] = useState("A sweeping main title theme for an epic feature film. Opens with solo cello, building through strings to full orchestra. Choir enters at 1:20 for the emotional peak. Inspired by the grandeur of Lyndhurst Hall — rich, deep, and cinematic.");
+  const [duration, setDuration] = useState("3:24");
+  const [keyScale, setKeyScale] = useState("D Minor");
+  const [bpm, setBpm] = useState("72");
+  const [timeSignature, setTimeSignature] = useState("4/4");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [timecode, setTimecode] = useState("00:01:24:08");
+  const [activeTier, setActiveTier] = useState<AudioTier>("original");
+  const [renderQuality, setRenderQuality] = useState<RenderQuality>("4k");
+  const [ambientLevel, setAmbientLevel] = useState(70);
 
-  const createJob = trpc.wizScore.create.useMutation();
-  const analyzeJob = trpc.wizScore.analyze.useMutation();
-  const generateScore = trpc.wizScore.generateScore.useMutation();
-  const completeJob = trpc.wizScore.complete.useMutation();
-  const utils = trpc.useUtils();
-
-  const handleFileSelect = useCallback((file: File) => {
-    if (!file.type.startsWith("video/")) {
-      toast.error("Invalid file", { description: "Please upload a video file (MP4, MOV, WebM)" });
-      return;
-    }
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error("File too large", { description: "Maximum video size is 100MB" });
-      return;
-    }
-    setVideoFile(file);
-    setVideoPreviewUrl(URL.createObjectURL(file));
-    setStep("idle");
-    setAnalysis(null);
-    setAudioUrl(null);
-    setErrorMsg(null);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) handleFileSelect(file);
-  }, [handleFileSelect]);
-
-  const startGeneration = async () => {
-    if (!videoFile || !isAuthenticated) return;
-    setStep("uploading");
-    setProgress(5);
-    setErrorMsg(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", videoFile);
-      const uploadRes = await fetch("/api/video/upload", { method: "POST", body: formData });
-      if (!uploadRes.ok) throw new Error("Upload failed");
-      const { key, url } = await uploadRes.json();
-      setProgress(20);
-
-      const { id } = await createJob.mutateAsync({ videoKey: key, videoUrl: url });
-      setJobId(id);
-      setStep("analyzing");
-      setProgress(30);
-
-      const analysisResult = await analyzeJob.mutateAsync({ jobId: id });
-      setAnalysis(analysisResult.analysis as Analysis);
-      setProgress(55);
-      setStep("generating");
-
-      const { sunoTaskId: taskId } = await generateScore.mutateAsync({
-        jobId: id,
-        sunoPrompt: analysisResult.sunoPrompt,
-        sunoStyle: analysisResult.sunoStyle,
-        videoDuration: analysisResult.videoDuration,
-        origin: window.location.origin,
-      });
-      setSunoTaskId(taskId);
-      setProgress(65);
-
-      let attempts = 0;
-      pollRef.current = setInterval(async () => {
-        attempts++;
-        try {
-          const statusRes = await utils.client.suno.getStatus.query({ id: taskId });
-          const pct = Math.min(65 + Math.floor(attempts * 2), 95);
-          setProgress(pct);
-
-          if (statusRes.status === "complete") {
-            clearInterval(pollRef.current!);
-            const tracks: any[] = (statusRes as any).tracks ?? [];
-            const firstTrack = tracks[0];
-            if (firstTrack?.audioUrl) {
-              await completeJob.mutateAsync({ jobId: id, audioUrl: firstTrack.audioUrl });
-              setAudioUrl(firstTrack.audioUrl);
-              setStep("complete");
-              setProgress(100);
-              toast.success("WizScore complete!", { description: "Your synced soundtrack is ready." });
-            } else {
-              throw new Error("No audio track returned");
-            }
-          } else if (statusRes.status === "failed") {
-            clearInterval(pollRef.current!);
-            throw new Error("Music generation failed");
-          } else if (attempts > 90) {
-            clearInterval(pollRef.current!);
-            throw new Error("Generation timed out. Please try again.");
-          }
-        } catch (pollErr: any) {
-          if (pollErr.message !== "Music generation failed" && attempts <= 90) return;
-          clearInterval(pollRef.current!);
-          setStep("error");
-          setErrorMsg(pollErr.message);
-        }
-      }, 4000);
-    } catch (err: any) {
-      setStep("error");
-      setErrorMsg(err.message ?? "Something went wrong. Please try again.");
-    }
+  const toggleMood = (m: string) => {
+    setSelectedMoods(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]);
   };
 
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
-    }
-  };
-
-  const STEP_LABELS: Record<Step, string> = {
-    idle: "Ready",
-    uploading: "Uploading video…",
-    analyzing: "AI is analysing your video…",
-    generating: "Composing your soundtrack…",
-    complete: "Your WizScore is ready!",
-    error: "Something went wrong",
-  };
-
+  /* ── Auth gate ── */
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen studio-bg flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
+        <div className="env-bg"><img src={ENV_IMG} alt="" /><div className="env-bg-overlay" /></div>
+        <div className="env-ambient env-tint-gold" />
+        <div className="text-center max-w-md relative z-10">
           <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6">
             <Music2 className="w-8 h-8 text-[--color-gold]" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">WizScore™</h1>
-          <p className="text-white/50 mb-8">Sign in to generate AI-matched soundtracks for your videos.</p>
+          <p className="text-white/50 mb-8">Sign in to access the AI Scoring Studio.</p>
           <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild>
             <a href={getLoginUrl()}>Sign in to continue</a>
           </Button>
@@ -188,230 +152,476 @@ export default function WizScore() {
   }
 
   return (
-    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
-      {/* ── VR Environment: World-Class Orchestral Scoring Stage ── */}
+    <div className="min-h-screen text-white" style={{ backgroundColor: "#06050a" }}>
+      {/* ── VR Environment: Lyndhurst Hall ── */}
       <div className="env-bg">
-        <img src="/manus-storage/env-scoring-stage_737b2e3f.jpg" alt="" />
+        <img src={ENV_IMG} alt="" />
         <div className="env-bg-overlay" />
       </div>
-      <div className="env-ambient env-tint-gold" />
-      {/* Header */}
-      <div className="studio-header sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto px-5 py-4 flex items-center gap-3">
-          <a href="/" className="text-white/40 hover:text-white/70 transition-colors text-sm">WIZ AI</a>
-          <ChevronRight className="w-3.5 h-3.5 text-white/20" />
-          <span className="text-white/80 font-semibold text-sm">WizScore™</span>
+      <div className="env-ambient env-tint-gold" style={{ opacity: ambientLevel / 100 }} />
+
+      {/* ══════════════ TOP NAV ══════════════ */}
+      <header className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/[0.06]">
+        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Left */}
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-white/40 hover:text-white/70 text-sm flex items-center gap-1.5 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to Studio
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="text-white font-bold text-lg tracking-tight">WIZSCORE</span>
+              <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI SCORING STUDIO</span>
+            </div>
+          </div>
+          {/* Center: genre nav */}
+          <nav className="hidden md:flex items-center gap-1 text-xs text-white/40 font-semibold tracking-widest">
+            {["FILM", "TV", "GAMES", "CONCERT"].map((g, i) => (
+              <span key={g} className="flex items-center gap-1">
+                {i > 0 && <span className="text-white/15 mx-1">·</span>}
+                <span className="hover:text-white/70 cursor-pointer transition-colors">{g}</span>
+              </span>
+            ))}
+          </nav>
+          {/* Right */}
+          <div className="flex items-center gap-3">
+            <div className="bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-3 py-1 text-[--color-gold] text-xs font-bold">
+              10,000 Credits
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[--color-gold]/20 border border-[--color-gold]/30 flex items-center justify-center text-[--color-gold] text-xs font-bold">
+              {user?.name?.charAt(0) || "T"}
+            </div>
+          </div>
+        </div>
+
+        {/* ── 5-Stage Workflow Bar ── */}
+        <div className="border-t border-white/[0.04] bg-[#0a0a0f]/60">
+          <div className="max-w-[1600px] mx-auto px-4 py-2 flex items-center justify-center gap-2">
+            {STAGES.map((s, i) => {
+              const isActive = activeStage === s.id;
+              const isDone = completedStages.includes(s.id);
+              return (
+                <div key={s.id} className="flex items-center gap-2">
+                  <button
+                    onClick={() => setActiveStage(s.id)}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all ${
+                      isActive
+                        ? "bg-[--color-gold]/20 border border-[--color-gold]/40 text-[--color-gold] shadow-[0_0_15px_rgba(184,137,42,0.2)]"
+                        : isDone
+                        ? "text-white/60 hover:text-white/80"
+                        : "text-white/30 hover:text-white/50"
+                    }`}
+                  >
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                      isDone ? "bg-green-500/20 text-green-400" : isActive ? "bg-[--color-gold]/30 text-[--color-gold]" : "bg-white/10"
+                    }`}>
+                      {isDone ? <Check className="w-3 h-3" /> : i + 1}
+                    </span>
+                    <span className="hidden sm:inline">{s.label}</span>
+                  </button>
+                  {i < STAGES.length - 1 && <ChevronRight className="w-3 h-3 text-white/15" />}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* ══════════════ SESSION INFO BAR ══════════════ */}
+      <div className="relative z-10 bg-[#0a0a0f]/40 border-b border-white/[0.04]">
+        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="studio-card rounded-lg px-4 py-2 border-l-2 border-[--color-gold]">
+            <p className="text-[10px] text-white/30 font-semibold tracking-widest uppercase">Current Session</p>
+            <p className="text-white font-bold text-sm italic">Echoes of Eternity — Main Title</p>
+            <p className="text-white/40 text-[11px]">Feature Film · {duration} · {bpm} BPM · {keyScale} · {timeSignature}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 bg-green-500/15 border border-green-500/30 rounded-full px-3 py-1 text-green-400 text-[11px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> ORCHESTRA READY
+            </span>
+            <span className="text-white/40 text-xs font-medium">CHOIR · 32 VOICES</span>
+            <span className="text-white/40 text-xs font-medium">STAGE: LYNDHURST</span>
+          </div>
         </div>
       </div>
 
-      {/* Hero section */}
-      <div className="relative overflow-hidden">
-        <div className="relative z-10 max-w-5xl mx-auto px-5 py-16">
-          {/* Hero */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-[--color-gold]/15 border border-[--color-gold]/30 rounded-full px-4 py-1.5 mb-6">
-              <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
-              <span className="text-[--color-gold] text-xs font-semibold tracking-wide uppercase">AI Video-to-Music</span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
-              WizScore<span className="text-[--color-gold]">™</span>
-            </h1>
-            <p className="text-xl text-white/60 max-w-xl mx-auto leading-relaxed">
-              Upload any video. AI analyses the mood, pacing, and energy — then generates a perfectly synced original soundtrack.
-            </p>
-          </div>
+      {/* ── VR Environment Hero (Lyndhurst Hall) ── */}
+      <div className="relative z-10 h-[220px] overflow-hidden">
+        <img
+          src={ENV_IMG}
+          alt="Lyndhurst Hall"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ filter: `brightness(${0.3 + ambientLevel * 0.004}) saturate(1.3)` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#06050a] via-[#06050a]/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0">
+          <SpectrumAnalyzer />
+        </div>
+      </div>
 
-          {/* Main card */}
-          <div className="studio-card rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-2 gap-0">
-              {/* Left: Upload */}
-              <div className="p-8 border-r border-white/[0.06]">
-                <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                  <Film className="w-5 h-5 text-[--color-gold]" /> Upload Video
-                </h2>
+      {/* ══════════════ MAIN 3-COLUMN LAYOUT ══════════════ */}
+      <div className="relative z-10 max-w-[1600px] mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_280px] gap-4">
 
-                {!videoFile ? (
-                  <div
-                    className="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center cursor-pointer hover:border-[--color-gold]/30 hover:bg-[--color-gold]/5 transition-all duration-200"
-                    onDrop={handleDrop}
-                    onDragOver={(e) => e.preventDefault()}
-                    onClick={() => fileInputRef.current?.click()}
+          {/* ── LEFT SIDEBAR: Score Configuration ── */}
+          <aside className="space-y-5">
+            {/* 1. Score Type */}
+            <div>
+              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
+                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">1</span>
+                Score Type
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {SCORE_TYPES.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setScoreType(t.id)}
+                    className={`studio-card rounded-xl p-3 text-left transition-all ${
+                      scoreType === t.id
+                        ? "border-[--color-gold]/40 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+                        : "hover:border-white/15"
+                    }`}
                   >
-                    <Upload className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="text-white/50 text-sm mb-1">Drag &amp; drop your video here</p>
-                    <p className="text-white/25 text-xs">MP4, MOV, WebM — max 100MB</p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="video/*"
-                      className="hidden"
-                      onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <video
-                      src={videoPreviewUrl!}
-                      className="w-full rounded-xl aspect-video object-cover bg-black"
-                      controls
-                      muted
-                      playsInline
-                    />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white/80 text-sm font-medium truncate max-w-[200px]">{videoFile.name}</p>
-                        <p className="text-white/35 text-xs">{(videoFile.size / 1024 / 1024).toFixed(1)} MB</p>
-                      </div>
-                      <button
-                        className="text-white/30 hover:text-white/60 text-xs underline transition-colors"
-                        onClick={() => { setVideoFile(null); setVideoPreviewUrl(null); setStep("idle"); }}
-                      >
-                        Change
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right: Status + Result */}
-              <div className="p-8">
-                <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                  <Music2 className="w-5 h-5 text-[--color-silver]" /> Your Soundtrack
-                </h2>
-
-                {step === "idle" && (
-                  <div className="flex flex-col items-center justify-center h-48 text-center">
-                    <Wand2 className="w-10 h-10 text-white/15 mb-3" />
-                    <p className="text-white/35 text-sm">Upload a video to get started</p>
-                  </div>
-                )}
-
-                {(step === "uploading" || step === "analyzing" || step === "generating") && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
-                        <div className="w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
-                      </div>
-                      <p className="text-white/70 text-sm font-medium">{STEP_LABELS[step]}</p>
-                    </div>
-                    <Progress value={progress} className="h-1.5 bg-white/5" />
-                    <p className="text-white/30 text-xs">{progress}% complete</p>
-                    <div className="space-y-2.5 mt-4">
-                      {[
-                        { label: "Upload video", done: progress >= 20 },
-                        { label: "AI video analysis", done: progress >= 55 },
-                        { label: "Compose soundtrack", done: progress >= 100 },
-                      ].map(({ label, done }) => (
-                        <div key={label} className="flex items-center gap-2.5">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${done ? "bg-[--color-silver]/10" : "bg-white/5"}`}>
-                            {done && <CheckCircle2 className="w-3 h-3 text-[--color-silver]" />}
-                          </div>
-                          <span className={`text-xs ${done ? "text-white/60" : "text-white/25"}`}>{label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {step === "complete" && analysis && audioUrl && (
-                  <div className="space-y-5">
-                    <div className="studio-panel rounded-2xl p-4 space-y-2">
-                      <p className="text-white/40 text-[11px] font-semibold uppercase tracking-widest mb-3">AI Analysis</p>
-                      {[
-                        { label: "Mood", value: analysis.mood },
-                        { label: "Energy", value: analysis.energy },
-                        { label: "Genre", value: analysis.genre },
-                        { label: "Duration", value: `${analysis.videoDurationSeconds}s` },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="flex justify-between items-center">
-                          <span className="text-white/35 text-xs">{label}</span>
-                          <span className="text-white/75 text-xs font-medium capitalize">{value}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="bg-gradient-to-r from-[#b8892a]/10 to-[#2e2e36]/10 border border-[--color-gold]/30 rounded-2xl p-4">
-                      <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} />
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={togglePlay}
-                          className="w-10 h-10 rounded-full bg-[--color-gold] hover:bg-[--color-gold]/80 flex items-center justify-center transition-colors flex-shrink-0"
-                        >
-                          {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white/80 text-sm font-semibold truncate">WizScore Soundtrack</p>
-                          <p className="text-white/35 text-xs capitalize">{analysis.genre} · {analysis.mood}</p>
-                        </div>
-                        <a
-                          href={audioUrl}
-                          download="wizscore-soundtrack.mp3"
-                          className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
-                        >
-                          <Download className="w-4 h-4 text-white/60" />
-                        </a>
-                      </div>
-                    </div>
-
-                    <Button
-                      className="w-full bg-white/5 hover:bg-white/10 text-white/70 rounded-xl text-sm"
-                      onClick={() => { setStep("idle"); setVideoFile(null); setVideoPreviewUrl(null); setAnalysis(null); setAudioUrl(null); }}
-                    >
-                      Score another video
-                    </Button>
-                  </div>
-                )}
-
-                {step === "error" && (
-                  <div className="flex flex-col items-center justify-center h-48 text-center space-y-3">
-                    <AlertCircle className="w-10 h-10 text-red-400" />
-                    <p className="text-white/60 text-sm">{errorMsg ?? "Something went wrong"}</p>
-                    <Button
-                      variant="outline"
-                      className="text-sm rounded-xl border-white/10"
-                      onClick={() => setStep("idle")}
-                    >
-                      Try again
-                    </Button>
-                  </div>
-                )}
+                    <span className="text-lg mb-1 block">{t.icon}</span>
+                    <p className="text-white/80 text-[11px] font-bold leading-tight">{t.label}</p>
+                    <p className="text-white/30 text-[9px] leading-tight mt-0.5">{t.sub}</p>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Footer CTA */}
-            {step === "idle" && videoFile && (
-              <div className="border-t border-white/5 p-6 flex items-center justify-between">
-                <div>
-                  <p className="text-white/60 text-sm font-medium">Ready to score</p>
-                  <p className="text-white/30 text-xs">AI will analyse your video and generate a synced soundtrack</p>
-                </div>
-                <Button
-                  className="btn-primary btn-sheen px-8 py-3 rounded-xl text-sm font-bold"
-                  onClick={startGeneration}
-                  disabled={step !== "idle"}
-                >
-                  <Wand2 className="w-4 h-4 mr-2" /> Generate WizScore
-                </Button>
+            {/* 2. Mood & Genre */}
+            <div>
+              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
+                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">2</span>
+                Mood & Genre
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                {MOODS.map(m => (
+                  <button
+                    key={m}
+                    onClick={() => toggleMood(m)}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all ${
+                      selectedMoods.includes(m)
+                        ? "bg-[--color-gold]/20 border-[--color-gold]/40 text-[--color-gold]"
+                        : "bg-white/5 border-white/10 text-white/40 hover:text-white/60 hover:border-white/20"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* How it works */}
-          <div className="mt-16 grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Film, title: "Upload Your Video", desc: "Drop any video — short film, music video, reel, or YouTube clip. Up to 100MB.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
-              { icon: Wand2, title: "AI Analyses the Scene", desc: "WizScore reads the mood, pacing, energy, and duration — frame by frame.", colour: "text-[--color-silver]", bg: "bg-[--color-silver]/10" },
-              { icon: Music2, title: "Synced Soundtrack", desc: "An original instrumental track is composed and trimmed to end exactly on your final frame.", colour: "text-[--color-gold]", bg: "bg-[--color-gold]/15" },
-            ].map(({ icon: Icon, title, desc, colour, bg }) => (
-              <div key={title} className="studio-card rounded-2xl p-6">
-                <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-4`}>
-                  <Icon className={`w-5 h-5 ${colour}`} />
-                </div>
-                <h3 className="text-white/85 font-bold text-base mb-2">{title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
+            {/* 3. Score Brief */}
+            <div>
+              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
+                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">3</span>
+                Score Brief
+              </h3>
+              <div className="flex items-center gap-2 mb-2">
+                <button className="btn-primary btn-sheen px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
+                  <Mic2 className="w-3 h-3" /> SPEAK YOUR BRIEF
+                </button>
+                <span className="text-white/25 text-[10px]">or type below</span>
               </div>
-            ))}
-          </div>
+              <textarea
+                value={brief}
+                onChange={e => setBrief(e.target.value)}
+                rows={5}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white/70 text-xs resize-none focus:border-[--color-gold]/30 focus:outline-none transition-colors"
+                placeholder="Describe your score..."
+              />
+            </div>
+
+            {/* 4. Duration & Key */}
+            <div>
+              <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
+                <span className="w-5 h-5 rounded-full bg-[--color-gold]/20 text-[--color-gold] flex items-center justify-center text-[10px] font-bold">4</span>
+                Duration & Key
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[9px] text-white/30 uppercase tracking-widest font-semibold">Duration</label>
+                  <input
+                    value={duration}
+                    onChange={e => setDuration(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/70 text-xs focus:border-[--color-gold]/30 focus:outline-none mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-white/30 uppercase tracking-widest font-semibold">Key / Scale</label>
+                  <input
+                    value={keyScale}
+                    onChange={e => setKeyScale(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white/70 text-xs focus:border-[--color-gold]/30 focus:outline-none mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ambient Dimmer */}
+            <div>
+              <h3 className="text-[9px] text-white/30 uppercase tracking-widest font-semibold mb-2">Ambient Lighting</h3>
+              <input
+                type="range"
+                min={10}
+                max={100}
+                value={ambientLevel}
+                onChange={e => setAmbientLevel(Number(e.target.value))}
+                className="w-full accent-[--color-gold] h-1"
+              />
+              <div className="flex justify-between text-[9px] text-white/20 mt-1">
+                <span>Darker</span><span>Brighter</span>
+              </div>
+            </div>
+          </aside>
+
+          {/* ── CENTER: Compose & Arrange ── */}
+          <main className="space-y-4">
+            {/* Transport Controls */}
+            <div className="studio-card rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 transition-colors">
+                    <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor"><path d="M1 2h2v12H1zm4 6l9-6v12z"/></svg>
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 transition-colors">
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="w-10 h-10 rounded-full bg-[--color-gold] hover:bg-[--color-gold]/80 flex items-center justify-center transition-colors shadow-[0_0_20px_rgba(184,137,42,0.3)]"
+                  >
+                    {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 transition-colors">
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center transition-colors">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  </button>
+                </div>
+                <span className="text-white/70 font-mono text-sm tracking-wider">{timecode}</span>
+                {/* Scrub bar */}
+                <div className="hidden md:flex flex-1 mx-6 h-1 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-[--color-gold]/60 rounded-full" style={{ width: "42%" }} />
+                </div>
+                <span className="text-white/40 text-xs font-mono">BPM <span className="text-[--color-gold] font-bold">{bpm}</span> · {keyScale} · {timeSignature}</span>
+              </div>
+            </div>
+
+            {/* Score Title + Actions */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-white font-bold text-lg tracking-tight uppercase">Echoes of Eternity — Main Title</h2>
+                <p className="text-white/40 text-xs">Feature Film Score · {duration} · 8 Instrument Groups · Choir: 32 voices</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="studio-card rounded-lg px-3 py-1.5 text-[11px] text-white/50 hover:text-white/70 flex items-center gap-1.5 transition-colors">
+                  <FileText className="w-3 h-3" /> Score PDF
+                </button>
+                <button className="studio-card rounded-lg px-3 py-1.5 text-[11px] text-white/50 hover:text-white/70 flex items-center gap-1.5 transition-colors">
+                  <Download className="w-3 h-3" /> MIDI Export
+                </button>
+                <button className="btn-primary btn-sheen px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5">
+                  <Plus className="w-3 h-3" /> ADD INSTRUMENT
+                </button>
+              </div>
+            </div>
+
+            {/* 8 Instrument Tracks */}
+            <div className="space-y-1.5">
+              {INSTRUMENTS.map((inst, i) => (
+                <div key={inst.name} className="studio-card rounded-xl p-3 flex items-center gap-3 group hover:border-white/15 transition-all">
+                  {/* Name */}
+                  <div className="w-[130px] flex-shrink-0">
+                    <p className="text-white/80 text-xs font-bold">{inst.name}</p>
+                    <p className="text-white/30 text-[9px] leading-tight">{inst.parts}</p>
+                  </div>
+                  {/* Waveform */}
+                  <div className="flex-1">
+                    <WaveformBar color={inst.color} />
+                  </div>
+                  {/* Controls */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-white/40 text-[10px] font-mono w-10 text-right">{inst.db}</span>
+                    <button className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/30 hover:text-white/50 transition-colors">
+                      <Volume2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Score Preview */}
+            <div className="studio-card rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white/60 text-xs font-bold tracking-widest uppercase">Score Preview — Bar 24-28 · Strings & Choir Entry</h3>
+              </div>
+              {/* Musical notation mockup */}
+              <div className="bg-white/[0.03] rounded-xl p-6 mb-3">
+                <div className="flex items-center justify-center gap-1">
+                  {/* Treble clef + time signature */}
+                  <span className="text-white/30 text-3xl font-serif mr-2">𝄞</span>
+                  <span className="text-white/30 text-sm font-mono mr-4">4/4</span>
+                  {/* Notes */}
+                  {["𝅘𝅥", "𝅘𝅥𝅮", "𝅗𝅥", "𝅘𝅥", "𝅘𝅥𝅮", "𝅘𝅥𝅮", "𝅝", "𝅘𝅥", "𝅘𝅥𝅮", "𝅗𝅥"].map((note, i) => (
+                    <span key={i} className="text-white/50 text-2xl mx-1">{note}</span>
+                  ))}
+                  <span className="ml-4 text-[--color-gold] text-[10px] font-bold tracking-widest uppercase">CHOIR ENTRY</span>
+                </div>
+                <div className="mt-3 flex items-center gap-4 text-[10px] text-white/30">
+                  <span className="italic">pp</span>
+                  <span>cresc.</span>
+                  <span className="italic">mf</span>
+                  <span className="italic">f</span>
+                </div>
+              </div>
+              <p className="text-white/30 text-[11px]">
+                Solo cello opens <span className="italic">pp</span> · Strings build <span className="italic">cresc.</span> · Full choir entry at bar 28 · Key: {keyScale}
+              </p>
+            </div>
+          </main>
+
+          {/* ── RIGHT SIDEBAR: Upgrade Preview ── */}
+          <aside className="space-y-4">
+            {/* Hear & See the Difference */}
+            <div className="studio-card rounded-2xl p-4">
+              <h3 className="flex items-center gap-2 text-[--color-gold] text-xs font-bold tracking-wider mb-2">
+                <Sparkles className="w-3.5 h-3.5" /> HEAR & SEE THE DIFFERENCE
+              </h3>
+              <p className="text-white/30 text-[10px] leading-relaxed mb-4">
+                Listen before you commit. Preview in all three quality tiers — no download until payment confirmed.
+              </p>
+
+              {/* Audio tier tabs */}
+              <div className="flex rounded-lg overflow-hidden border border-white/10 mb-4">
+                {(["original", "enhanced", "cinematic"] as AudioTier[]).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setActiveTier(t)}
+                    className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                      activeTier === t
+                        ? "bg-white text-black"
+                        : "bg-white/5 text-white/40 hover:text-white/60"
+                    }`}
+                  >
+                    {t === "original" ? "ORIGINAL" : t === "enhanced" ? (
+                      <span>ENHANCED <span className="text-[--color-gold]">+£1.99</span></span>
+                    ) : (
+                      <span>CINEMATIC <span className="text-[--color-gold]">+£4.99</span></span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Waveform preview */}
+              <div className="h-12 rounded-lg overflow-hidden mb-3">
+                <div className="w-full h-full flex items-end gap-[1px]">
+                  {Array.from({ length: 60 }).map((_, i) => {
+                    const h = Math.sin(i * 0.2) * 40 + Math.random() * 30 + 20;
+                    const hue = (i / 60) * 300;
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 rounded-t-sm"
+                        style={{ height: `${h}%`, background: `hsl(${hue}, 70%, 50%)`, opacity: 0.7 }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Track info */}
+              <p className="text-white/30 text-[9px] font-bold tracking-widest uppercase mb-1">
+                WIZSCORE™ — {activeTier.toUpperCase()} MIX
+              </p>
+              <p className="text-white/70 text-xs font-semibold mb-2">Echoes of Eternity — Main Title</p>
+              <div className="flex items-center gap-3 mb-3">
+                <button className="w-8 h-8 rounded-full bg-[--color-gold] flex items-center justify-center shadow-[0_0_12px_rgba(184,137,42,0.3)]">
+                  <Play className="w-3.5 h-3.5 text-black ml-0.5" />
+                </button>
+                <span className="text-white/40 text-[11px] font-mono">0:15 / {duration}</span>
+              </div>
+              <p className="text-white/25 text-[9px] leading-relaxed">
+                Preview in {activeTier} quality — full mastering & spatial audio applied on payment confirmed.
+              </p>
+            </div>
+
+            {/* WizLuminar Visual Quality */}
+            <div className="studio-card rounded-2xl p-4">
+              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">WIZLUMINAR™ — VISUAL QUALITY</h3>
+              <div className="flex rounded-lg overflow-hidden border border-white/10">
+                {["ORIGINAL", "ENHANCED", "CINEMATIC"].map((t, i) => (
+                  <button
+                    key={t}
+                    className={`flex-1 py-2 text-[10px] font-bold tracking-wider transition-all ${
+                      i === 0 ? "bg-white/10 text-white/70" : "bg-white/5 text-white/30 hover:text-white/50"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 mt-3">
+                {[0.3, 0.5, 0.8].map((b, i) => (
+                  <div key={i} className="aspect-video rounded-lg overflow-hidden bg-white/5">
+                    <img
+                      src={ENV_IMG}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      style={{ filter: `brightness(${b}) saturate(${0.8 + i * 0.3})` }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Upsell buttons */}
+            <button className="w-full btn-primary btn-sheen py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4">
+              <span className="flex items-center gap-2">
+                <Headphones className="w-3.5 h-3.5" /> WizSound™ Cinematic
+              </span>
+              <span>+£4.99</span>
+            </button>
+            <button className="w-full border border-[--color-gold]/30 bg-[--color-gold]/5 hover:bg-[--color-gold]/10 text-[--color-gold] py-2.5 rounded-xl text-xs font-bold flex items-center justify-between px-4 transition-colors">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic
+              </span>
+              <span>+£3.99</span>
+            </button>
+
+            {/* Render Quality */}
+            <div className="studio-card rounded-2xl p-4">
+              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">RENDER QUALITY</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { id: "hd" as RenderQuality, label: "HD", sub: "standard", price: "Included" },
+                  { id: "4k" as RenderQuality, label: "4K", sub: "studio", price: "+£2.99" },
+                  { id: "8k" as RenderQuality, label: "8K", sub: "Full Orch.", price: "+£4.99" },
+                ]).map(q => (
+                  <button
+                    key={q.id}
+                    onClick={() => setRenderQuality(q.id)}
+                    className={`rounded-xl p-3 text-center transition-all border ${
+                      renderQuality === q.id
+                        ? "bg-[--color-gold]/15 border-[--color-gold]/40 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+                        : "bg-white/5 border-white/10 hover:border-white/20"
+                    }`}
+                  >
+                    <p className={`text-sm font-bold ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/60"}`}>{q.label}</p>
+                    <p className="text-[9px] text-white/30">{q.sub}</p>
+                    <p className={`text-[10px] font-bold mt-1 ${renderQuality === q.id ? "text-[--color-gold]" : "text-white/40"}`}>{q.price}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Render CTA */}
+            <button className="w-full btn-primary btn-sheen py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+              <Film className="w-4 h-4" /> RENDER SCORE — {renderQuality.toUpperCase()}
+            </button>
+          </aside>
         </div>
       </div>
     </div>
