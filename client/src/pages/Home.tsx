@@ -12,6 +12,7 @@ import {
 } from "@/components/WizProductEmblems";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
+import { WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_SEO_PAGE } from "@/lib/routes";
 import { useProjectResume } from "@/hooks/useProjectResume";
 import { useExperiment } from "@/hooks/useExperiment";
 import { DemoVideoModal } from "@/components/DemoVideoModal";
@@ -112,7 +113,7 @@ const PRODUCTS_CREATE = [
     name: "WizAnimate",
     tagline: "AI Character Animation",
     icon: <WizAnimateEmblem size={32} />,
-    href: "/products/wizanimate",
+    href: WIZANIMATE_PRODUCT_PAGE,
     glowColor: "oklch(0.68 0.18 330)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
     borderColor: "oklch(0.68 0.18 330 / 0.35)",
@@ -2271,7 +2272,7 @@ function BuiltFor() {
   const audiences = [
     { title: "Musicians", desc: "Turn your track into a full music video — synced to lyrics, with animated characters and cinematic visuals.", cta: "Start with WizVideo", href: "/music-video/create", logo: WIZSOUND_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-musicians-premium-8GZ9NuzqqusE8rZ27Tqrxm.webp" },
     { title: "Content Creators", desc: "Generate faceless YouTube videos, social shorts, and visual stories — no camera, no editing, no crew.", cta: "Start with WizScript", href: "/text-to-video", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-content-premium-oEFftXPsMcVs8xZA9z88QR.webp" },
-    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: "/ai-animation-maker", logo: WIZANIMATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-animator-premium-MLeuwBsaHxd9cindqxiXUp.webp" },
+    { title: "Animators & Storytellers", desc: "Create cinematic 3D animations, anime, and visual stories from a single prompt.", cta: "Start with WizAnimate", href: WIZANIMATE_SEO_PAGE, logo: WIZANIMATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-animator-premium-MLeuwBsaHxd9cindqxiXUp.webp" },
     { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-youtuber-premium-gqHtiaHLuP258LeYjwzB7S.webp" },
   ];
   return (

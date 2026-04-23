@@ -1,3 +1,4 @@
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 /**
  * WIZ AI Engine Section
  * Animated pipeline flow: Audio/Idea → WizCreate → WizAnimate + WizSync → WizSound → WizLumina → WizGenesis → WizBoost
@@ -58,7 +59,7 @@ const PIPELINE: PipelineStep[] = [
     border: "border-cyan-500/40",
     bg: "bg-[--color-silver]/10",
     icon: "/manus-storage/wizanimate-logo-new_a84f9808.png",
-    href: "/products/wizanimate",
+    href: WIZANIMATE_PRODUCT_PAGE,
     isBranch: true,
     branchWith: "WizSync™",
   },

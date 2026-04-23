@@ -1,3 +1,4 @@
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 /**
  * Dashboard — High-retention creator hub.
  * Shows action cards, continue projects, project grid, insights, upgrade block, inspiration, empty state.
@@ -64,7 +65,7 @@ const CREATE_ACTIONS = [
     title: "Kids Animation",
     subtitle: "Fun animated stories for children",
     icon: Baby,
-    href: "/products/wizanimate",
+    href: WIZANIMATE_PRODUCT_PAGE,
     gradient: "from-[#9090a0] to-[#2e2e36]",
     glow: "shadow-[#9090a0]/20",
     badge: null,

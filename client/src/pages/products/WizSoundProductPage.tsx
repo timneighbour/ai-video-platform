@@ -1,3 +1,4 @@
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 /**
  * WizSoundProductPage — fully custom WizSound product page
  * Replaces the generic ProductPageTemplate for /products/wizsound
@@ -30,7 +31,7 @@ const IMG = {
 
 const RELATED = [
   { name: "WizCreate™", href: "/products/wizcreate" },
-  { name: "WizAnimate™", href: "/products/wizanimate" },
+  { name: "WizAnimate™", href: WIZANIMATE_PRODUCT_PAGE },
   { name: "WizSync™", href: "/wizsync" },
   { name: "WizLumina™", href: "/products/wizlumina" },
   { name: "WizGenesis™", href: "/products/wizgenesis" },

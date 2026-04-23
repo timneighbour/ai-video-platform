@@ -1,3 +1,4 @@
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -40,7 +41,7 @@ const menuItems = [
   { icon: Sparkles, label: "WizImage", path: "/products/wizimage" },
   { icon: Video, label: "WizVideo", path: "/music-video" },
   { icon: Zap, label: "WizShorts", path: "/products/wizshorts" },
-  { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate", path: "/products/wizanimate" },
+  { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate", path: WIZANIMATE_PRODUCT_PAGE },
   { icon: Wand2, label: "WizScript", path: "/products/wizscript" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: FolderOpen, label: "Projects", path: "/projects" },

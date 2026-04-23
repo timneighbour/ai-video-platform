@@ -20,6 +20,7 @@ import BackButton from "@/components/BackButton";
 import AuthGate from "@/components/AuthGate";
 import { mp } from "@/lib/mixpanel";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
+import { WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_STUDIO_PAGE } from "@/lib/routes";
 
 // ── Asset constants ───────────────────────────────────────────────────────────
 const CDN = "/manus-storage";
@@ -217,7 +218,7 @@ export default function AiAnimationMaker() {
   const handleCTA = (source: string) => {
     mp.startCreatingClicked(source);
     if (isAuthenticated) {
-      window.location.href = "/kids-video";
+      window.location.href = WIZANIMATE_STUDIO_PAGE;
     } else {
       setShowAuthGate(true);
     }
@@ -247,7 +248,7 @@ export default function AiAnimationMaker() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Home", href: "/" },
-              { label: "WizAnimate", href: "/products/wizanimate" },
+              { label: "WizAnimate", href: WIZANIMATE_PRODUCT_PAGE },
               { label: "WizVideo", href: "/music-video" },
               { label: "Pricing", href: "/pricing" },
               { label: "Help", href: "/help" },
@@ -264,7 +265,7 @@ export default function AiAnimationMaker() {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <NavLink
-                href="/kids-video"
+                href={WIZANIMATE_STUDIO_PAGE}
                 className="px-5 py-2.5 bg-[--color-gold] text-black text-sm font-bold rounded-xl hover:brightness-110 transition-all"
                 onClick={() => mp.startCreatingClicked("nav_cta")}
               >
@@ -649,7 +650,7 @@ export default function AiAnimationMaker() {
         subtitle="Animation showcase"
         description="Every animation created from a text prompt. No software, no timeline, no experience needed."
         ctaLabel="Create Your First Animation"
-        ctaHref="/kids-video"
+        ctaHref={WIZANIMATE_STUDIO_PAGE}
         items={[
           {
             id: 30003,
@@ -686,7 +687,7 @@ export default function AiAnimationMaker() {
           </NavLink>
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#71717a]">
             <NavLink href="/" className="hover:text-white transition-colors">Home</NavLink>
-            <NavLink href="/products/wizanimate" className="hover:text-white transition-colors">WizAnimate</NavLink>
+            <NavLink href={WIZANIMATE_PRODUCT_PAGE} className="hover:text-white transition-colors">WizAnimate</NavLink>
             <NavLink href="/music-video" className="hover:text-white transition-colors">WizVideo</NavLink>
             <NavLink href="/ai-video-generator" className="hover:text-white transition-colors">AI Video Generator</NavLink>
             <NavLink href="/pricing" className="hover:text-white transition-colors">Pricing</NavLink>

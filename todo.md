@@ -6031,3 +6031,19 @@
 - [x] Fix WizProductGrid.tsx WizAnimate card href: /ai-animation-maker → /products/wizanimate
 - [x] Audit all remaining WizAnimate CTAs in AiAnimationMaker.tsx for any remaining circular links
 - [ ] Save checkpoint and report
+
+## Shared Routing Constants (WizAnimate)
+- [ ] Create client/src/lib/routes.ts with WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_SEO_PAGE, WIZANIMATE_STUDIO_PAGE constants
+- [ ] Update AiAnimationMaker.tsx to import and use routing constants
+- [ ] Update WizProductGrid.tsx to import and use routing constants
+- [ ] Update products/index.tsx WizAnimate ctaHref to use routing constant
+- [ ] Update PublicNavBar.tsx to use routing constant
+- [ ] Update DashboardLayout.tsx to use routing constant
+- [ ] Update Home.tsx WizAnimate hrefs to use routing constants
+- [ ] Update HabitLoopPanel.tsx to use routing constant
+- [ ] Update PostRenderRetentionScreen.tsx to use routing constant
+- [ ] Update WizVidEngine.tsx to use routing constant
+- [ ] Update Dashboard.tsx to use routing constant
+- [ ] Update Onboarding.tsx to use routing constant
+- [ ] Update Pricing.tsx to use routing constant
+- [ ] Update Help.tsx to use routing constant

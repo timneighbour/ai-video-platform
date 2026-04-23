@@ -1,3 +1,4 @@
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 import { useState, useEffect } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
@@ -219,7 +220,7 @@ export default function Help() {
           {[
             { icon: <Music className="w-4 h-4" />, label: "Music Videos", href: "/music-video" },
             { icon: <Video className="w-4 h-4" />, label: "AI Video", href: "/products/wizpilot" },
-            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: "/products/wizanimate" },
+            { icon: <Baby className="w-4 h-4" />, label: "Kids Content", href: WIZANIMATE_PRODUCT_PAGE },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
               <div className="p-4 rounded-xl bg-[#0a0a0a] border border-[--color-gold]/[0.1] hover:border-[--color-gold]/[0.3] hover:bg-[--color-gold]/[0.04] transition-all cursor-pointer text-center group">

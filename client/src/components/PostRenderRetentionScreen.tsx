@@ -1,3 +1,4 @@
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 /**
  * PostRenderRetentionScreen — Celebration + next-action engine.
  *
@@ -54,7 +55,7 @@ const NEXT_ACTIONS = [
     title: "Kids animation",
     subtitle: "Fun animated story for children",
     icon: Baby,
-    href: "/products/wizanimate",
+    href: WIZANIMATE_PRODUCT_PAGE,
     gradient: "from-[#9090a0] to-[#2e2e36]",
   },
   {

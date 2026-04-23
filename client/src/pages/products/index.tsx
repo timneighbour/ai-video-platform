@@ -6,6 +6,7 @@
  * WizSync tool: /wizsync  |  WizScore tool: /wizscore  |  WizPilot tool: /wizpilot
  */
 import ProductPageTemplate, { ProductPageProps } from "@/components/ProductPageTemplate";
+import { WIZANIMATE_SEO_PAGE, WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 
 const HERO_IMGS = {
   wizcreate:  "/manus-storage/product-wizcreate-hero_6c3efa10.jpg",
@@ -43,7 +44,7 @@ const CARD_IMGS = {
 
 const ALL_RELATED = [
   { name: "WizCreate™", href: "/products/wizcreate", colour: "violet" },
-  { name: "WizAnimate™", href: "/products/wizanimate", colour: "cyan" },
+  { name: "WizAnimate™", href: WIZANIMATE_PRODUCT_PAGE, colour: "cyan" },
   { name: "WizPilot™", href: "/products/wizpilot", colour: "fuchsia" },
   { name: "WizSync™", href: "/products/wizsync-info", colour: "purple" },
   { name: "WizScore™", href: "/products/wizscore", colour: "teal" },
@@ -118,7 +119,7 @@ const WIZANIMATE: ProductPageProps = {
   borderColour: "border-cyan-500/30",
   bgColour: "bg-[--color-silver]/10",
   badgeClass: "text-[--color-silver] bg-[--color-silver]/10 border-cyan-500/25",
-  ctaHref: "/ai-animation-maker",
+  ctaHref: WIZANIMATE_SEO_PAGE,
   ctaLabel: "Animate Your Video",
   whatItDoes: "WizAnimate™ is the performance engine of WIZ AI. It takes the storyboard from WizCreate™ and generates character animation that is precisely matched to the audio — every movement, gesture, and expression timed to the beat, mood, and energy of the track.",
   capabilities: [

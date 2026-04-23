@@ -7,6 +7,7 @@ import React from "react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 import {
   WizAudioEmblem,
   WizImageEmblem,
@@ -53,7 +54,7 @@ const PRODUCTS_CREATE = [
     name: "WizAnimate",
     tagline: "AI Character Animation",
     icon: <WizAnimateEmblem size={32} />,
-    href: "/products/wizanimate",
+    href: WIZANIMATE_PRODUCT_PAGE,
     glowColor: "oklch(0.68 0.18 330)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
     borderColor: "oklch(0.68 0.18 330 / 0.35)",
