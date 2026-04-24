@@ -71,10 +71,13 @@ const WizScriptPage = lazy(() => import("@/pages/products").then(m => ({ default
 const WizPilotPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizPilotPage })));
 const WizSyncInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizSyncInfoPage })));
 const WizScoreInfoPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizScoreInfoPage })));
-const WizShortsProductPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizShortsPage })));
+const WizShortsProductPage = lazy(() => import("@/pages/products/WizShortsProductPage"));
 const WizPerformerPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizPerformerPage })));
-const WizImageProductPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizImageProductPage })));
-const WizVideoLandingPage = lazy(() => import("@/pages/products").then(m => ({ default: m.WizVideoLandingPage })));
+const WizImageProductPageNew = lazy(() => import("@/pages/products/WizImageProductPage"));
+const WizVideoLandingPage = lazy(() => import("@/pages/products/WizVideoProductPage"));
+const WizSoundProductPage = lazy(() => import("@/pages/products/WizSoundProductPage"));
+const WizScriptProductPage = lazy(() => import("@/pages/products/WizScriptProductPage"));
+const WizAnimateProductPage = lazy(() => import("@/pages/products/WizAnimateProductPage"));
 // Technology pages
 const TechCharacterConsistency = lazy(() => import("@/pages/technology").then(m => ({ default: m.CharacterConsistencyPage })));
 const TechSceneBuilder = lazy(() => import("@/pages/technology").then(m => ({ default: m.SceneBuilderPage })));
@@ -163,21 +166,21 @@ function Router() {
         <Route path={"/wizsync"} component={WizSync} />
         <Route path={"/wizscore"} component={WizScore} />
         <Route path={"/products/wizcreate"} component={WizCreatePage} />
-        <Route path={"/products/wizanimate"} component={WizAnimatePage} />
+        <Route path={"/products/wizanimate"} component={WizAnimateProductPage} />
         <Route path={"/wiz-animate"} component={AiAnimationMaker} />{/* alias → app */}
         <Route path={"/products/wizsync"} component={WizSync} />{/* alias → /wizsync */}
-        <Route path={"/products/wizsound"} component={WizSoundPage} />
+        <Route path={"/products/wizsound"} component={WizSoundProductPage} />
         <Route path={"/products/wizlumina"} component={WizLuminaPage} />
         <Route path={"/products/wizgenesis"} component={WizGenesisPage} />
         <Route path={"/products/wizboost"} component={WizBoostPage} />
-        <Route path={"/products/wizscript"} component={WizScriptPage} />
+        <Route path={"/products/wizscript"} component={WizScriptProductPage} />
         <Route path={"/wiz-script"} component={TextToVideoCreator} />{/* alias → app */}
         <Route path={"/products/wizpilot"} component={WizPilotPage} />
         <Route path={"/products/wizsync-info"} component={WizSyncInfoPage} />
         <Route path={"/products/wizscore"} component={WizScoreInfoPage} />
         <Route path={"/products/wizshorts"} component={WizShortsProductPage} />
         <Route path={"/products/wizperformer"} component={WizPerformerPage} />
-        <Route path={"/products/wizimage"} component={WizImageProductPage} />
+        <Route path={"/products/wizimage"} component={WizImageProductPageNew} />
         {/* Technology pages */}
         <Route path={"/technology/character-consistency"} component={TechCharacterConsistency} />
         <Route path={"/technology/scene-builder"} component={TechSceneBuilder} />

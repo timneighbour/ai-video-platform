@@ -6072,3 +6072,43 @@
 - [x] Update Pricing.tsx to use routing constants for music-creator, wiz-image, wiz-shorts, text-to-video hrefs
 - [x] Update SeoLandingPage.tsx to use routing constants for wizpilot hrefs
 - [x] Final sweep confirmed zero remaining hardcoded navigation hrefs
+
+## Deferred — Content Consistency (logged, do not action without explicit request)
+
+- [ ] DEFERRED: Wire or remove lib/i18n.ts — dead copy, will silently diverge from live site
+- [ ] DEFERRED: Derive PLAN_UI_OVERLAY annual prices from plans.ts monthlyPrice field (currently hardcoded £79/£350/£990 in Pricing.tsx)
+- [ ] DEFERRED: Structured storage for rich product-page copy in products/index.tsx if cross-channel reuse is needed
+
+## UX & Conversion Audit — April 2026
+
+### P1 — Live blockers
+- [ ] Fix WizAnimate Onboarding card href: /products/wizanimate → /kids-video
+- [ ] Fix WizAudio → WizSound™ naming in Onboarding page (title, description)
+- [ ] Add AuthGate to KidsVideo studio (/kids-video)
+- [ ] Add AuthGate to WizScore studio (/wizscore)
+- [ ] Fix SEO landing page CTAButton href: /music-video → /music-video/create
+
+### P2 — Hesitation and drop-off
+- [ ] Add watermark disclosure near primary CTAs (hero, Onboarding, AuthGate)
+- [ ] Fix AuthGate benefits list: replace WizSound claim, add watermark note
+- [ ] Route unauthenticated Pricing plan clicks to /onboarding instead of getLoginUrl()
+- [ ] Standardise product page CTA labels via products.ts registry
+- [ ] Add credit cost indicator near studio build buttons
+
+### P3 — Trust and messaging
+- [ ] Improve hero headline specificity
+- [ ] Add honest aggregate social proof metric or remove "Trusted by" heading
+- [ ] Add "cancel anytime" / risk-reversal line near Pricing plan CTAs
+- [ ] Fix mobile sticky CTA: remove permanent dismiss or add re-trigger on scroll
+- [ ] Improve Help page structure with return CTA
+
+## Studio-Style Product Pages — Priority 6
+
+- [x] Build WizVideo studio-style product page (music video production studio feel)
+- [x] Build WizSound studio-style product page (audio/music production studio feel)
+- [x] Build WizScript studio-style product page (writing/storyboard studio feel)
+- [x] Build WizAnimate studio-style product page (animation studio feel)
+- [x] Build WizImage studio-style product page (visual art/image creation studio feel)
+- [x] Build WizShorts studio-style product page (short-form vertical content studio feel)
+- [x] Wire all 6 new pages to their routes in App.tsx
+- [x] Resolve WizSoundProductPage.tsx orphan (wire or merge) — wired to /products/wizsound in App.tsx
