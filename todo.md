@@ -6112,3 +6112,9 @@
 - [x] Build WizShorts studio-style product page (short-form vertical content studio feel)
 - [x] Wire all 6 new pages to their routes in App.tsx
 - [x] Resolve WizSoundProductPage.tsx orphan (wire or merge) — wired to /products/wizsound in App.tsx
+
+## Priority 1 Conversion Fixes — Product Pages
+- [x] Add reassurance copy under primary CTAs on all 6 product pages
+- [x] Add trust strips under mid-page CTAs on all 6 product pages
+- [x] Fix WizScript CTA label and add studio note
+- [x] Fix WizSound related products — replace WizSync studio link with WIZSYNC_PRODUCT_PAGE

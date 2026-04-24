@@ -257,6 +257,7 @@ export default function WizImageProductPage() {
                 View pricing <ChevronRight className="w-4 h-4" />
               </NavLink>
             </div>
+            <p className="text-[11px] text-white/30 mt-3 tracking-wide">2 free credits on sign-up &middot; No card required</p>
             <div className="flex items-center gap-8">
               {[
                 { val: "6",     label: "Art styles" },
@@ -433,6 +434,13 @@ export default function WizImageProductPage() {
             Open WizImage™ Studio
             <ArrowRight className="w-4 h-4" />
           </NavLink>
+          <div className="flex items-center justify-center gap-5 mt-5 text-[11px] text-white/30 tracking-wide">
+            <span>&#10003; 6 art styles</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; Commercial use included</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; No card to start</span>
+          </div>
         </div>
       </section>
 

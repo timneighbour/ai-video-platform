@@ -316,7 +316,7 @@ export default function WizScriptProductPage() {
                 style={{ background: ACCENT, boxShadow: `0 0 30px ${ACCENT_GLOW}` }}
               >
                 <FileText className="w-4 h-4" />
-                Write Your Script
+                Open WizScript™ Studio
                 <ArrowRight className="w-4 h-4" />
               </NavLink>
               <NavLink
@@ -327,6 +327,7 @@ export default function WizScriptProductPage() {
                 View pricing <ChevronRight className="w-4 h-4" />
               </NavLink>
             </div>
+            <p className="text-[11px] text-white/30 mt-3 tracking-wide">Opens in the WizScript™ writing studio &middot; 2 free credits on sign-up &middot; No card required</p>
             <div className="flex items-center gap-8">
               {[
                 { val: "< 5m",  label: "Script generation" },
@@ -505,6 +506,13 @@ export default function WizScriptProductPage() {
             Open WizScript™ Studio
             <ArrowRight className="w-4 h-4" />
           </NavLink>
+          <div className="flex items-center justify-center gap-5 mt-5 text-[11px] text-white/30 tracking-wide">
+            <span>&#10003; Commercial use included</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; Proper screenplay format</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; No card to start</span>
+          </div>
         </div>
       </section>
 

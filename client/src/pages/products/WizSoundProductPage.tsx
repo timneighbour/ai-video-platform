@@ -1,4 +1,4 @@
-import { WIZANIMATE_PRODUCT_PAGE, WIZAUDIO_STUDIO_PAGE, WIZSYNC_STUDIO_PAGE } from "@/lib/routes";
+import { WIZANIMATE_PRODUCT_PAGE, WIZAUDIO_STUDIO_PAGE, WIZSYNC_PRODUCT_PAGE } from "@/lib/routes";
 /**
  * WizSoundProductPage — fully custom WizSound product page
  * Replaces the generic ProductPageTemplate for /products/wizsound
@@ -32,7 +32,7 @@ const IMG = {
 const RELATED = [
   { name: "WizCreate™", href: "/products/wizcreate" },
   { name: "WizAnimate™", href: WIZANIMATE_PRODUCT_PAGE },
-  { name: "WizSync™", href: WIZSYNC_STUDIO_PAGE },
+  { name: "WizSync™", href: WIZSYNC_PRODUCT_PAGE },
   { name: "WizLumina™", href: "/products/wizlumina" },
   { name: "WizGenesis™", href: "/products/wizgenesis" },
   { name: "WizBoost™", href: "/products/wizboost" },
@@ -236,6 +236,7 @@ export default function WizSoundProductPage() {
                 View pricing <ChevronRight className="w-4 h-4" />
               </NavLink>
             </div>
+            <p className="text-[11px] text-white/30 mt-3 tracking-wide">Preview free &middot; Credits only on export</p>
 
             {/* Trust stats */}
             <div className="flex items-center gap-6 mt-10">
@@ -537,6 +538,13 @@ export default function WizSoundProductPage() {
             <Sparkles className="w-4 h-4" />
             Create Music Now <ArrowRight className="w-4 h-4" />
           </NavLink>
+          <div className="flex items-center justify-center gap-5 mt-5 text-[11px] text-white/30 tracking-wide">
+            <span>&#10003; Preview free</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; Broadcast-quality output</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; Credits only on export</span>
+          </div>
         </div>
       </section>
 
