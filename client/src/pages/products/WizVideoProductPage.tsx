@@ -236,8 +236,8 @@ export default function WizVideoProductPage() {
               <span style={{ color: ACCENT }}>A cinematic</span><br />
               music video.
             </h1>
-            <p className="text-white/55 text-lg leading-relaxed mb-10 max-w-xl">
-              WizVideo™ generates a full cinematic music video from your audio track — beat-locked visuals, professional colour grading, and 4K export. No editing skills. No production team.
+            <p className="text-white/55 text-base leading-relaxed mb-10 max-w-lg">
+              Turn your audio track into a full cinematic music video — beat-locked, colour-graded, 4K. No editing skills required.
             </p>
             <div className="flex flex-wrap gap-3 mb-10">
               <NavLink

@@ -306,8 +306,8 @@ export default function WizScriptProductPage() {
               <span style={{ color: ACCENT }}>A professional</span><br />
               screenplay.
             </h1>
-            <p className="text-white/50 text-lg leading-relaxed mb-10 max-w-lg">
-              WizScript™ generates industry-standard screenplays and storyboards from a single prompt — proper format, consistent characters, and direct integration with WizVideo™.
+            <p className="text-white/50 text-base leading-relaxed mb-10 max-w-lg">
+              Generate a production-ready screenplay and storyboard from a single prompt — proper format, consistent characters, WizVideo™ ready.
             </p>
             <div className="flex flex-wrap gap-3 mb-10">
               <NavLink

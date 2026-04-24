@@ -36,9 +36,9 @@ const IMGS = {
   frame6:   `${CDN}/card-sync_b129b54a.jpg`,
 };
 
-const ACCENT = "#f59e0b";
-const ACCENT_DIM = "rgba(245,158,11,0.12)";
-const ACCENT_GLOW = "rgba(245,158,11,0.35)";
+const ACCENT = "#f97316";
+const ACCENT_DIM = "rgba(249,115,22,0.12)";
+const ACCENT_GLOW = "rgba(249,115,22,0.35)";
 
 const KEYFRAMES = [
   { label: "Frame 01", beat: "0:00", img: IMGS.frame1 },
@@ -157,7 +157,7 @@ export default function WizAnimateProductPage() {
       <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden">
         {/* Background — animation stage: amber grid on deep black */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(245,158,11,0.18) 0%, rgba(180,100,0,0.08) 40%, #050505 70%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(249,115,22,0.18) 0%, rgba(200,80,0,0.08) 40%, #050505 70%)" }} />
           <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(0deg, ${ACCENT}06 0px, ${ACCENT}06 1px, transparent 1px, transparent 60px)`, opacity: 0.6 }} />
           <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(90deg, ${ACCENT}04 0px, ${ACCENT}04 1px, transparent 1px, transparent 80px)`, opacity: 0.5 }} />
           <div className="absolute top-0 left-0 w-96 h-96 rounded-full" style={{ background: `radial-gradient(circle, ${ACCENT}12 0%, transparent 70%)`, transform: "translate(-30%, -30%)" }} />

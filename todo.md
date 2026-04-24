@@ -6118,3 +6118,9 @@
 - [x] Add trust strips under mid-page CTAs on all 6 product pages
 - [x] Fix WizScript CTA label and add studio note
 - [x] Fix WizSound related products — replace WizSync studio link with WIZSYNC_PRODUCT_PAGE
+
+## Priority 2 Conversion Improvements — Product Pages
+- [x] Reduce above-the-fold text density on WizVideo hero — body copy shortened from 2 sentences (text-lg) to 1 sentence (text-base)
+- [x] Reduce above-the-fold text density on WizScript hero — body copy shortened from 2 sentences (text-lg) to 1 sentence (text-base)
+- [x] Separate WizAnimate accent from WizSound gold — shifted from #f59e0b (amber-500) to #f97316 (orange-500)
+- [x] Social proof assessment — deferred entirely (no verified metrics or testimonials exist to add)
