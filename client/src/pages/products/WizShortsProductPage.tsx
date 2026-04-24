@@ -24,11 +24,11 @@ import {
 } from "@/lib/routes";
 
 const CDN = "/manus-storage";
-const LOGO = `${CDN}/wizshorts-logo_c3d4e5f6.png`;
+const LOGO = `${CDN}/wizshorts-logo-v1_533db978.png`;
 const WIZAI_LOGO = `${CDN}/wizai-logo-premium-transparent_ac3f550b.png`;
 
 const IMGS = {
-  hero:    `${CDN}/showcase-kids-video_a1b2c3d4.jpg`,
+  hero:    `${CDN}/hero-wizshorts_83e4e17d.jpg`,
   hook:    `${CDN}/card-video-render_d81a3b98.jpg`,
   story:   `${CDN}/card-animation_e13ffa11.jpg`,
   cta:     `${CDN}/card-storyboard_38d61672.jpg`,
@@ -231,9 +231,10 @@ export default function WizShortsProductPage() {
       {/* ── Hero — Portrait phone centre + flanking copy ── */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={IMGS.hero} alt="" className="w-full h-full object-cover object-center opacity-10" loading="eager" />
-          <div className="absolute inset-0" style={{ background: "rgba(5,5,8,0.88)" }} />
-          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 70% at 50% 50%, ${ACCENT_DIM} 0%, transparent 60%)` }} />
+          <img src={IMGS.hero} alt="" className="w-full h-full object-cover object-center opacity-20" loading="eager" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,5,8,0.7) 0%, rgba(5,5,8,0.6) 40%, rgba(5,5,8,0.92) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 70% at 50% 50%, ${ACCENT_DIM} 0%, transparent 60%)` }} />
+          <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(135deg, ${ACCENT}04 0px, ${ACCENT}04 1px, transparent 1px, transparent 40px)`, opacity: 0.7 }} />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-28 w-full">
@@ -254,6 +255,15 @@ export default function WizShortsProductPage() {
             <p className="text-white/50 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
               WizShorts™ generates platform-optimised short-form videos for TikTok, YouTube Shorts, Instagram Reels, and Snapchat Spotlight — native 9:16, Hook/Story/CTA structure, auto-captions.
             </p>
+          </div>
+
+          {/* Platform badges strip */}
+          <div className="flex items-center justify-center gap-3 mb-8 flex-wrap">
+            {PLATFORMS.map(p => (
+              <div key={p.name} className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide" style={{ background: p.color, color: p.textColor, border: `1px solid ${p.border}`, boxShadow: `0 0 12px ${p.border}30` }}>
+                {p.name}
+              </div>
+            ))}
           </div>
 
           {/* Centre: Three portrait phone frames */}

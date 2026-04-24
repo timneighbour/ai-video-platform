@@ -23,7 +23,7 @@ import {
 } from "@/lib/routes";
 
 const CDN = "/manus-storage";
-const LOGO = `${CDN}/wizimage-logo_f7g8h9i0.png`;
+const LOGO = `${CDN}/wizimage-logo-v1_83c86e5c.png`;
 const WIZAI_LOGO = `${CDN}/wizai-logo-premium-transparent_ac3f550b.png`;
 
 const IMGS = {

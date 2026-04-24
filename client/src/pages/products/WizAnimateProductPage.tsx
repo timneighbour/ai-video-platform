@@ -23,11 +23,11 @@ import {
 } from "@/lib/routes";
 
 const CDN = "/manus-storage";
-const LOGO = `${CDN}/wizanimate-logo_b3c4d5e6.png`;
+const LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
 const WIZAI_LOGO = `${CDN}/wizai-logo-premium-transparent_ac3f550b.png`;
 
 const IMGS = {
-  hero:     `${CDN}/showcase-kids-video_a1b2c3d4.jpg`,
+  hero:     `${CDN}/showcase-animation-studio_e21a763d.jpg`,
   frame1:   `${CDN}/card-animation_e13ffa11.jpg`,
   frame2:   `${CDN}/card-video-render_d81a3b98.jpg`,
   frame3:   `${CDN}/card-storyboard_38d61672.jpg`,
@@ -155,11 +155,14 @@ export default function WizAnimateProductPage() {
 
       {/* ── Hero — Headline + Keyframe strip ── */}
       <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden">
-        {/* Background */}
+        {/* Background — animation stage: amber grid on deep black */}
         <div className="absolute inset-0">
-          <img src={IMGS.hero} alt="" className="w-full h-full object-cover object-center opacity-15" loading="eager" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,5,5,0.9) 0%, rgba(5,5,5,0.7) 50%, rgba(5,5,5,0.95) 100%)" }} />
-          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 50% at 50% 30%, ${ACCENT_DIM} 0%, transparent 60%)` }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(245,158,11,0.18) 0%, rgba(180,100,0,0.08) 40%, #050505 70%)" }} />
+          <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(0deg, ${ACCENT}06 0px, ${ACCENT}06 1px, transparent 1px, transparent 60px)`, opacity: 0.6 }} />
+          <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(90deg, ${ACCENT}04 0px, ${ACCENT}04 1px, transparent 1px, transparent 80px)`, opacity: 0.5 }} />
+          <div className="absolute top-0 left-0 w-96 h-96 rounded-full" style={{ background: `radial-gradient(circle, ${ACCENT}12 0%, transparent 70%)`, transform: "translate(-30%, -30%)" }} />
+          <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full" style={{ background: `radial-gradient(circle, ${ACCENT}08 0%, transparent 70%)`, transform: "translate(30%, 30%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,5,5,0.5) 0%, transparent 30%, transparent 70%, rgba(5,5,5,0.95) 100%)" }} />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-12 w-full">
@@ -201,7 +204,21 @@ export default function WizAnimateProductPage() {
             </div>
           </div>
 
-          {/* Keyframe progression strip — the hero visual */}
+          {/* ── Animation Studio Monitor — signature visual ── */}
+          <div className="relative">
+            <div className="rounded-2xl p-4 mb-2" style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.03) 100%)", border: `1px solid ${ACCENT}25`, boxShadow: `0 0 60px ${ACCENT}10, inset 0 1px 0 ${ACCENT}15` }}>
+              <div className="flex items-center justify-between mb-3 pb-2" style={{ borderBottom: `1px solid ${ACCENT}15` }}>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ background: ACCENT, boxShadow: `0 0 6px ${ACCENT}` }} />
+                  <span className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: ACCENT }}>WizAnimate™ Studio — Timeline</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[9px] text-white/30">BPM: 128</span>
+                  <span className="text-[9px] text-white/30">|</span>
+                  <span className="text-[9px] text-white/30">00:00:24:00</span>
+                  <div className="flex gap-1">{["#ff5f57","#febc2e","#28c840"].map(c => <div key={c} className="w-2 h-2 rounded-full" style={{ background: c }} />)}</div>
+                </div>
+              </div>
           <div className="relative">
             {/* Progress bar connecting frames */}
             <div
@@ -247,6 +264,8 @@ export default function WizAnimateProductPage() {
                   <div className="text-[9px]" style={{ color: ACCENT + "80" }}>{frame.beat}</div>
                 </div>
               ))}
+            </div>
+          </div>
             </div>
           </div>
 
