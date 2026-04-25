@@ -7,11 +7,17 @@ import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useSEO } from "@/hooks/useSEO";
 import {
-  Sparkles, Download, Trash2, ImageIcon, Wand2, Loader2,
-  ChevronRight, Star, Upload, RefreshCw, Maximize2,
-  Edit3, Layers, CheckCircle2,
+  ImageIcon, Loader2, ChevronRight,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
+
+// ─── Accent / Theme Tokens ────────────────────────────────────────────────────
+const A = "#6366f1";          // indigo-500
+const A_DIM = "rgba(99,102,241,0.12)";
+const A_GLOW = "rgba(99,102,241,0.25)";
+const A_BORDER = "rgba(99,102,241,0.30)";
+const BG_BASE = "#04040e";    // deep navy
+const BG_CANVAS = "#080818";  // canvas area
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -56,8 +62,6 @@ const RENDER_QUALITY = [
 ];
 
 const EXPORT_FORMATS = ["PNG", "JPEG", "TIFF", "PSD", "SVG", "WEBP"];
-
-const BG_IMAGE = "/manus-storage/wizimage-studio-bg_554e8fec.jpg";
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -136,41 +140,65 @@ export default function WizImage() {
   const currentImageType = IMAGE_TYPES.find((t) => t.id === imageType) ?? IMAGE_TYPES[0];
 
   return (
-    <div className="min-h-screen studio-bg text-white" style={{ backgroundColor: "#08080c" }}>
-      {/* ── VR Environment ── */}
-      <div className="env-bg" style={{ opacity: ambience / 100 }}>
-        <img src={BG_IMAGE} alt="" style={{ filter: `brightness(${ambience / 100})` }} />
-        <div className="env-bg-overlay" />
+    <div className="min-h-screen text-white" style={{ backgroundColor: BG_BASE }}>
+
+      {/* ── Ambient Environment: canvas/noise texture + indigo radial glow ── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ opacity: ambience / 100 }}>
+        {/* Noise texture overlay */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat", opacity: 0.35,
+        }} />
+        {/* Indigo radial glow — top-right */}
+        <div style={{
+          position: "absolute", top: "-10%", right: "-5%",
+          width: "60vw", height: "60vw",
+          background: "radial-gradient(ellipse at center, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.06) 40%, transparent 70%)",
+          borderRadius: "50%",
+        }} />
+        {/* Secondary glow — bottom-left */}
+        <div style={{
+          position: "absolute", bottom: "10%", left: "-10%",
+          width: "40vw", height: "40vw",
+          background: "radial-gradient(ellipse at center, rgba(139,92,246,0.10) 0%, transparent 65%)",
+          borderRadius: "50%",
+        }} />
+        {/* Subtle canvas grid */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)`,
+          backgroundSize: "48px 48px",
+        }} />
       </div>
-      <div className="env-ambient" style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(139,92,246,0.08) 0%, transparent 70%)" }} />
 
       {/* ── Studio Header ── */}
-      <div className="studio-header sticky top-0 z-40 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-32 bg-[#b8892a]/10 blur-3xl rounded-full" />
-          <div className="absolute top-0 right-1/4 w-64 h-24 bg-violet-500/8 blur-3xl rounded-full" />
-        </div>
+      <div className="sticky top-0 z-40 overflow-hidden" style={{ background: "rgba(4,4,14,0.88)", backdropFilter: "blur(20px)", borderBottom: `1px solid ${A_BORDER}` }}>
         <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+
+          {/* Left: Logo + identity */}
           <div className="flex items-center gap-3">
+            <a href="/" className="text-white/40 hover:text-white/70 text-xs flex items-center gap-1 transition-colors mr-1">← Back</a>
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a84c]/30 via-[#b8892a]/20 to-[#1a1a20] flex items-center justify-center border border-[#b8892a]/20 shadow-[0_0_12px_rgba(184,137,42,0.15)]">
-                <ImageIcon className="w-5 h-5 text-[#c9a84c]" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center border"
+                style={{ background: `linear-gradient(135deg, ${A_DIM}, rgba(4,4,14,0.8))`, borderColor: A_BORDER, boxShadow: `0 0 14px ${A_GLOW}` }}>
+                <ImageIcon className="w-5 h-5" style={{ color: A }} />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#050508] studio-led studio-led-green" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 studio-led studio-led-green" style={{ borderColor: BG_BASE }} />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}>WIZIMAGE™</span>
-                <span className="bg-[--color-gold] text-black text-[10px] font-bold px-2 py-0.5 rounded tracking-widest">AI VISUAL CREATOR</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded tracking-widest text-white" style={{ background: A }}>AI VISUAL CREATOR</span>
               </div>
               <div className="flex items-center gap-2 mt-0.5">
-                <div className="studio-led studio-led-gold" style={{ width: 6, height: 6 }} />
-                <span className="studio-label">Image Studio · Systems Online</span>
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: A }} />
+                <span className="text-[10px] text-white/40 tracking-widest uppercase font-medium">Image Studio · Systems Online</span>
               </div>
             </div>
           </div>
 
-          {/* Stage Bar (in header, like mockup) */}
+          {/* Centre: Stage bar */}
           <div className="hidden md:flex items-center gap-1">
             {[
               { label: "Reference", done: true },
@@ -182,11 +210,12 @@ export default function WizImage() {
               <div key={s.label} className="flex items-center gap-1">
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
                   s.active
-                    ? "bg-[--color-gold]/15 border border-[--color-gold]/40 text-[--color-gold]"
+                    ? "border"
                     : s.done
                     ? "text-green-400"
                     : "text-white/30 hover:text-white/50"
-                }`}>
+                }`}
+                  style={s.active ? { background: A_DIM, borderColor: A_BORDER, color: A } : undefined}>
                   {s.done && <span className="text-green-400 mr-0.5">✓</span>}
                   {s.label}
                 </div>
@@ -195,59 +224,66 @@ export default function WizImage() {
             ))}
           </div>
 
+          {/* Right: Credits + avatar */}
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#b8892a]/10 border border-[#b8892a]/20">
-              <span className="text-xs text-[#c9a84c] font-medium">✦ 10,000 Credits</span>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border" style={{ background: A_DIM, borderColor: A_BORDER }}>
+              <span className="text-xs font-medium" style={{ color: A }}>✦ 10,000 Credits</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[--color-gold]/20 border border-[--color-gold]/40 flex items-center justify-center text-[--color-gold] text-xs font-bold">T</div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold border" style={{ background: A_DIM, borderColor: A_BORDER, color: A }}>
+              {user?.name?.charAt(0) || "T"}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── Main Layout: Left Panel | Centre Canvas | Right Panel ── */}
-      <div className="max-w-[1440px] mx-auto" style={{ display: "grid", gridTemplateColumns: "340px 1fr 300px", minHeight: "calc(100vh - 64px)" }}>
+      <div className="relative z-10 max-w-[1440px] mx-auto" style={{ display: "grid", gridTemplateColumns: "340px 1fr 300px", minHeight: "calc(100vh - 64px)" }}>
 
         {/* ── LEFT PANEL ── */}
-        <aside className="border-r border-[#d4a843]/20 bg-black/60 backdrop-blur-sm overflow-y-auto p-4 flex flex-col gap-4" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64 }}>
+        <aside className="overflow-y-auto p-4 flex flex-col gap-4" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64, background: "rgba(4,4,14,0.75)", backdropFilter: "blur(12px)", borderRight: `1px solid ${A_BORDER}` }}>
 
           {/* ① Reference Upload */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">① Reference Upload</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">① Reference Upload</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             {!hasRef ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-purple-500/40 rounded-xl p-5 text-center cursor-pointer transition-all hover:border-purple-400/60 hover:bg-purple-500/8"
-                style={{ background: "rgba(139,92,246,0.04)" }}
+                className="border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all"
+                style={{ borderColor: A_BORDER, background: A_DIM }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = A)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = A_BORDER)}
               >
                 <div className="text-3xl mb-2">🎨</div>
-                <div className="text-sm font-semibold text-purple-300 mb-1">Upload Your Reference</div>
-                <div className="text-[11px] text-[#7a7060] mb-3">Band photos, artist portraits, album concepts, mood images</div>
-                <button className="px-5 py-2 rounded-full text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, #8b5cf6, #6d28d9)" }}>
+                <div className="text-sm font-semibold mb-1" style={{ color: A }}>Upload Your Reference</div>
+                <div className="text-[11px] text-white/40 mb-3">Band photos, artist portraits, album concepts, mood images</div>
+                <button className="px-5 py-2 rounded-full text-xs font-bold text-white" style={{ background: `linear-gradient(135deg, ${A}, #4f46e5)` }}>
                   Browse & Upload
                 </button>
-                <div className="text-[10px] text-[#7a7060] mt-2">JPG · PNG · WEBP · RAW · up to 50MB</div>
+                <div className="text-[10px] text-white/30 mt-2">JPG · PNG · WEBP · RAW · up to 50MB</div>
               </div>
             ) : (
-              <div className="border border-purple-500/30 rounded-xl overflow-hidden">
+              <div className="rounded-xl overflow-hidden border" style={{ borderColor: A_BORDER }}>
                 <div className="grid grid-cols-4 gap-0.5">
                   {["#1a0a2e", "#0d1a2e", "#1a0a0a"].map((bg, i) => (
-                    <div key={i} className={`aspect-square relative cursor-pointer ${i === 0 ? "ring-2 ring-purple-500" : ""}`} style={{ background: `linear-gradient(135deg, ${bg}, ${bg}99)` }}>
-                      {i === 0 && <div className="absolute inset-0 bg-purple-500/40 flex items-center justify-center text-white text-lg">✓</div>}
+                    <div key={i} className={`aspect-square relative cursor-pointer`} style={{ background: `linear-gradient(135deg, ${bg}, ${bg}99)`, outline: i === 0 ? `2px solid ${A}` : "none" }}>
+                      {i === 0 && <div className="absolute inset-0 flex items-center justify-center text-white text-lg" style={{ background: `${A}40` }}>✓</div>}
                     </div>
                   ))}
-                  <div className="aspect-square border border-dashed border-purple-500/30 flex items-center justify-center text-purple-300 text-xl cursor-pointer hover:bg-purple-500/10 rounded-sm">+</div>
+                  <div className="aspect-square border border-dashed flex items-center justify-center text-xl cursor-pointer rounded-sm transition-all" style={{ borderColor: A_BORDER, color: A }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = A_DIM)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>+</div>
                 </div>
-                <div className="p-2.5 bg-purple-500/6">
+                <div className="p-2.5" style={{ background: A_DIM }}>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-purple-300">band_promo_shoot.jpg</span>
-                    <button onClick={() => setHasRef(false)} className="text-[10px] text-[#7a7060] underline">Replace</button>
+                    <span className="text-xs font-semibold" style={{ color: A }}>band_promo_shoot.jpg</span>
+                    <button onClick={() => setHasRef(false)} className="text-[10px] text-white/40 underline">Replace</button>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {["5 members detected", "Dark aesthetic", "Rock / Metal", "3 faces locked"].map((tag) => (
-                      <span key={tag} className="text-[9px] px-2 py-0.5 rounded-full border border-purple-500/25 text-purple-300" style={{ background: "rgba(139,92,246,0.12)" }}>{tag}</span>
+                      <span key={tag} className="text-[9px] px-2 py-0.5 rounded-full border" style={{ borderColor: A_BORDER, color: A, background: A_DIM }}>{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -259,23 +295,24 @@ export default function WizImage() {
           {/* ② Image Type */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">② Image Type</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">② Image Type</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="grid grid-cols-2 gap-1.5">
               {IMAGE_TYPES.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setImageType(t.id)}
-                  className={`border rounded-lg p-2.5 text-center cursor-pointer transition-all ${
-                    imageType === t.id
-                      ? "border-[--color-gold] bg-[--color-gold]/8"
-                      : "border-[#d4a843]/20 hover:border-[#d4a843]/40 hover:bg-[#d4a843]/4"
-                  }`}
+                  className="border rounded-lg p-2.5 text-center cursor-pointer transition-all"
+                  style={{
+                    borderColor: imageType === t.id ? A : A_BORDER,
+                    background: imageType === t.id ? A_DIM : "rgba(255,255,255,0.03)",
+                    boxShadow: imageType === t.id ? `0 0 10px ${A_GLOW}` : "none",
+                  }}
                 >
                   <div className="text-lg mb-1">{t.icon}</div>
-                  <div className="text-[11px] font-semibold text-[#e8e0d0]">{t.label}</div>
-                  <div className="text-[9px] text-[#7a7060] mt-0.5">{t.sub}</div>
+                  <div className="text-[11px] font-semibold text-white/80">{t.label}</div>
+                  <div className="text-[9px] text-white/40 mt-0.5">{t.sub}</div>
                 </button>
               ))}
             </div>
@@ -284,22 +321,24 @@ export default function WizImage() {
           {/* ③ Style & Prompt */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">③ Style & Prompt</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">③ Style & Prompt</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="w-full rounded-lg px-3 py-2.5 text-xs text-[#e8e0d0] placeholder:text-[#7a7060] resize-none focus:outline-none focus:border-[#d4a843]/50"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(212,168,67,0.2)", minHeight: 80, fontFamily: "inherit" }}
+              className="w-full rounded-lg px-3 py-2.5 text-xs text-white/80 placeholder:text-white/30 resize-none focus:outline-none transition-all"
+              style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${A_BORDER}`, minHeight: 80, fontFamily: "inherit" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = A)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = A_BORDER)}
               placeholder="Describe your image... e.g. 'Dark cinematic album cover, five-piece metal band, dramatic stage lighting...'"
               maxLength={1000}
             />
             <div className="flex gap-1.5 mt-1.5">
               <button
                 onClick={() => toast.info("AI prompt enhancement coming soon")}
-                className="flex-1 text-center text-[10px] py-1.5 rounded-md transition-all hover:bg-[#d4a843]/15 text-[--color-gold]"
-                style={{ background: "rgba(212,168,67,0.08)", border: "1px solid rgba(212,168,67,0.25)" }}
+                className="flex-1 text-center text-[10px] py-1.5 rounded-md transition-all"
+                style={{ background: A_DIM, border: `1px solid ${A_BORDER}`, color: A }}
               >
                 ✦ AI Enhance
               </button>
@@ -309,8 +348,8 @@ export default function WizImage() {
               />
               <button
                 onClick={() => toast.info("Suggestions coming soon")}
-                className="flex-1 text-center text-[10px] py-1.5 rounded-md transition-all hover:bg-[#d4a843]/15 text-[--color-gold]"
-                style={{ background: "rgba(212,168,67,0.08)", border: "1px solid rgba(212,168,67,0.25)" }}
+                className="flex-1 text-center text-[10px] py-1.5 rounded-md transition-all"
+                style={{ background: A_DIM, border: `1px solid ${A_BORDER}`, color: A }}
               >
                 ↺ Suggest
               </button>
@@ -320,20 +359,21 @@ export default function WizImage() {
           {/* ④ Visual Style Tags */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">④ Visual Style</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">④ Visual Style</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-wrap gap-1.5">
               {VISUAL_STYLE_TAGS.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => toggleStyleTag(tag)}
-                  className={`text-[10px] px-2.5 py-1 rounded-full border transition-all ${
-                    styleTags.includes(tag)
-                      ? "border-[--color-gold] bg-[--color-gold]/10 text-[--color-gold]"
-                      : "border-[#d4a843]/20 text-[#7a7060] hover:border-[#d4a843]/40 hover:text-[--color-gold]"
-                  }`}
-                  style={{ background: styleTags.includes(tag) ? "rgba(212,168,67,0.1)" : "rgba(255,255,255,0.04)" }}
+                  className="text-[10px] px-2.5 py-1 rounded-full border transition-all"
+                  style={{
+                    borderColor: styleTags.includes(tag) ? A : A_BORDER,
+                    background: styleTags.includes(tag) ? A_DIM : "rgba(255,255,255,0.04)",
+                    color: styleTags.includes(tag) ? A : "rgba(255,255,255,0.4)",
+                    boxShadow: styleTags.includes(tag) ? `0 0 8px ${A_GLOW}` : "none",
+                  }}
                 >
                   {tag}
                 </button>
@@ -344,20 +384,20 @@ export default function WizImage() {
           {/* ⑤ Aspect Ratio */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">⑤ Aspect Ratio</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑤ Aspect Ratio</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-wrap gap-1.5">
               {ASPECT_RATIOS.map((r) => (
                 <button
                   key={r}
                   onClick={() => setAspectRatio(r)}
-                  className={`text-[10px] px-2.5 py-1 rounded-md border transition-all ${
-                    aspectRatio === r
-                      ? "border-[--color-gold] bg-[--color-gold]/10 text-[--color-gold]"
-                      : "border-[#d4a843]/20 text-[#7a7060] hover:border-[#d4a843]/40 hover:text-[--color-gold]"
-                  }`}
-                  style={{ background: aspectRatio === r ? "rgba(212,168,67,0.1)" : "rgba(255,255,255,0.04)" }}
+                  className="text-[10px] px-2.5 py-1 rounded-md border transition-all"
+                  style={{
+                    borderColor: aspectRatio === r ? A : A_BORDER,
+                    background: aspectRatio === r ? A_DIM : "rgba(255,255,255,0.04)",
+                    color: aspectRatio === r ? A : "rgba(255,255,255,0.4)",
+                  }}
                 >
                   {r}
                 </button>
@@ -368,8 +408,8 @@ export default function WizImage() {
           {/* ⑥ Colour Palette */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">⑥ Colour Palette</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑥ Colour Palette</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex items-center gap-1.5 flex-wrap">
               {COLOUR_SWATCHES.map((color) => (
@@ -385,7 +425,10 @@ export default function WizImage() {
                 />
               ))}
               <button
-                className="w-6 h-6 rounded-full border border-dashed border-[#7a7060] flex items-center justify-center text-[#7a7060] text-sm hover:border-[--color-gold] hover:text-[--color-gold] transition-all"
+                className="w-6 h-6 rounded-full border border-dashed flex items-center justify-center text-sm transition-all"
+                style={{ borderColor: A_BORDER, color: "rgba(255,255,255,0.4)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = A; e.currentTarget.style.color = A; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = A_BORDER; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
                 onClick={() => toast.info("Custom colour picker coming soon")}
               >
                 +
@@ -396,50 +439,50 @@ export default function WizImage() {
           {/* ⑦ Variations */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">⑦ Variations</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑦ Variations</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[#7a7060]">Generate</span>
+              <span className="text-[11px] text-white/40">Generate</span>
               <div className="flex gap-1">
                 {VARIATIONS_OPTIONS.map((v) => (
                   <button
                     key={v}
                     onClick={() => setVariations(v)}
-                    className={`text-[10px] px-2.5 py-1 rounded-md border transition-all ${
-                      variations === v
-                        ? "border-[--color-gold] bg-[--color-gold]/10 text-[--color-gold]"
-                        : "border-[#d4a843]/20 text-[#7a7060] hover:border-[#d4a843]/40"
-                    }`}
-                    style={{ background: variations === v ? "rgba(212,168,67,0.1)" : "rgba(255,255,255,0.04)" }}
+                    className="text-[10px] px-2.5 py-1 rounded-md border transition-all"
+                    style={{
+                      borderColor: variations === v ? A : A_BORDER,
+                      background: variations === v ? A_DIM : "rgba(255,255,255,0.04)",
+                      color: variations === v ? A : "rgba(255,255,255,0.4)",
+                    }}
                   >
                     {v}
                   </button>
                 ))}
               </div>
-              <span className="text-[11px] text-[#7a7060]">variations</span>
+              <span className="text-[11px] text-white/40">variations</span>
             </div>
           </div>
 
           {/* Ambient Dimmer */}
-          <div className="mt-auto pt-2 border-t border-[#d4a843]/10">
+          <div className="mt-auto pt-2 border-t" style={{ borderColor: A_BORDER }}>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[1px] uppercase">☀ Studio Ambience</span>
+              <span className="text-[9px] text-white/30 tracking-[1px] uppercase">☀ Studio Ambience</span>
               <input
                 type="range" min={20} max={100} value={ambience}
                 onChange={(e) => setAmbience(Number(e.target.value))}
-                className="flex-1 h-1 rounded-full cursor-pointer accent-[#d4a843]"
-                style={{ background: `linear-gradient(to right, #222 0%, #d4a843 ${ambience}%, #222 ${ambience}%)` }}
+                className="flex-1 h-1 rounded-full cursor-pointer"
+                style={{ accentColor: A, background: `linear-gradient(to right, #222 0%, ${A} ${ambience}%, #222 ${ambience}%)` }}
               />
-              <span className="text-[10px] text-[--color-gold] w-8 text-right">{ambience}%</span>
+              <span className="text-[10px] w-8 text-right" style={{ color: A }}>{ambience}%</span>
             </div>
           </div>
         </aside>
 
         {/* ── CENTRE PANEL: Canvas ── */}
-        <div className="flex flex-col" style={{ background: "#0a0a0e", borderRight: "1px solid rgba(212,168,67,0.2)" }}>
+        <div className="flex flex-col" style={{ background: BG_CANVAS, borderRight: `1px solid ${A_BORDER}` }}>
           {/* Toolbar */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#d4a843]/20" style={{ background: "rgba(10,10,14,0.9)" }}>
+          <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ background: "rgba(8,8,24,0.9)", borderColor: A_BORDER }}>
             <div className="flex items-center gap-1.5">
               {[
                 { icon: "↖", title: "Select", active: true },
@@ -452,12 +495,12 @@ export default function WizImage() {
                 <button
                   key={tool.title}
                   title={tool.title}
-                  className={`w-8 h-8 rounded-md flex items-center justify-center text-sm transition-all ${
-                    tool.active
-                      ? "bg-[#d4a843]/12 border border-[--color-gold] text-[--color-gold]"
-                      : "border border-[#d4a843]/20 text-[#7a7060] hover:bg-[#d4a843]/8 hover:border-[#d4a843]/30 hover:text-[--color-gold]"
-                  }`}
-                  style={{ background: tool.active ? "rgba(212,168,67,0.12)" : "rgba(255,255,255,0.04)" }}
+                  className="w-8 h-8 rounded-md text-sm transition-all border"
+                  style={{
+                    background: tool.active ? A_DIM : "rgba(255,255,255,0.04)",
+                    borderColor: tool.active ? A : A_BORDER,
+                    color: tool.active ? A : "rgba(255,255,255,0.4)",
+                  }}
                   onClick={() => toast.info(`${tool.title} tool coming soon`)}
                 >
                   {tool.icon}
@@ -465,12 +508,12 @@ export default function WizImage() {
               ))}
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[#7a7060]">{variations} Variations · {currentImageType.label} · {aspectRatio}</span>
+              <span className="text-[11px] text-white/40">{variations} Variations · {currentImageType.label} · {aspectRatio}</span>
               <button
                 onClick={handleGenerate}
                 disabled={generateMutation.isPending || !prompt.trim()}
-                className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold text-black transition-all disabled:opacity-50 btn-primary btn-sheen"
-                style={{ background: "linear-gradient(135deg, #d4a843, #b8860b)" }}
+                className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold text-white transition-all disabled:opacity-50"
+                style={{ background: `linear-gradient(135deg, ${A}, #4f46e5)`, boxShadow: `0 0 18px ${A_GLOW}` }}
               >
                 {generateMutation.isPending ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Generating…</>
@@ -482,17 +525,19 @@ export default function WizImage() {
           </div>
 
           {/* Canvas Grid */}
-          <div className="flex-1 p-4" style={{ background: "#050508" }}>
+          <div className="flex-1 p-4" style={{ background: "#050510" }}>
             {generatedImages.length > 0 ? (
               <div className="grid grid-cols-2 gap-0.5 h-full" style={{ minHeight: 400 }}>
                 {[0, 1, 2, 3].map((i) => (
                   <div
                     key={i}
                     onClick={() => setSelectedCell(i)}
-                    className={`relative rounded-lg overflow-hidden cursor-pointer transition-all ${
-                      selectedCell === i ? "ring-2 ring-[--color-gold]" : "ring-1 ring-white/6 hover:ring-[#d4a843]/30"
-                    }`}
-                    style={{ background: "#0d0d18", border: selectedCell === i ? "2px solid #d4a843" : "1px solid rgba(255,255,255,0.06)" }}
+                    className="relative rounded-lg overflow-hidden cursor-pointer transition-all"
+                    style={{
+                      background: "#0d0d20",
+                      border: selectedCell === i ? `2px solid ${A}` : "1px solid rgba(255,255,255,0.06)",
+                      boxShadow: selectedCell === i ? `0 0 14px ${A_GLOW}` : "none",
+                    }}
                   >
                     {i === 0 && generatedImages[0] ? (
                       <img src={generatedImages[0]} alt="Generated" className="w-full h-full object-cover" />
@@ -501,14 +546,23 @@ export default function WizImage() {
                         VAR {String(i + 1).padStart(2, "0")}
                       </div>
                     )}
+                    {generateMutation.isPending && i === 0 && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: "rgba(4,4,14,0.85)" }}>
+                        <div className="w-8 h-8 rounded-full border-2 border-t-[#6366f1] animate-spin" style={{ borderColor: `${A_BORDER} ${A_BORDER} ${A_BORDER} ${A}` }} />
+                        <span className="text-[10px] tracking-widest" style={{ color: A }}>GENERATING</span>
+                      </div>
+                    )}
                     <div className="absolute bottom-1.5 left-2 text-[9px] text-white/50 tracking-widest">VAR {String(i + 1).padStart(2, "0")}</div>
-                    <div className={`absolute top-1.5 right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] ${
-                      selectedCell === i ? "bg-[--color-gold] border-[--color-gold] text-black" : "border-white/30 bg-transparent"
-                    }`}>
+                    <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] transition-all"
+                      style={{
+                        background: selectedCell === i ? A : "transparent",
+                        borderColor: selectedCell === i ? A : "rgba(255,255,255,0.3)",
+                        color: selectedCell === i ? "white" : "transparent",
+                      }}>
                       {selectedCell === i && "✓"}
                     </div>
                     {selectedCell === i && (
-                      <div className="absolute top-1.5 left-2 bg-[#d4a843]/90 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md">SELECTED</div>
+                      <div className="absolute top-1.5 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded-md text-white" style={{ background: A }}>SELECTED</div>
                     )}
                   </div>
                 ))}
@@ -519,16 +573,18 @@ export default function WizImage() {
                   <div
                     key={i}
                     onClick={() => setSelectedCell(i)}
-                    className={`relative rounded-lg overflow-hidden cursor-pointer transition-all ${
-                      selectedCell === i ? "ring-2 ring-[--color-gold]" : "ring-1 ring-white/6 hover:ring-[#d4a843]/30"
-                    }`}
-                    style={{ background: "#0d0d18", border: selectedCell === i ? "2px solid #d4a843" : "1px solid rgba(255,255,255,0.06)", minHeight: 180 }}
+                    className="relative rounded-lg overflow-hidden cursor-pointer transition-all"
+                    style={{
+                      background: "#0d0d20",
+                      border: selectedCell === i ? `2px solid ${A}` : "1px solid rgba(255,255,255,0.06)",
+                      minHeight: 180,
+                      boxShadow: selectedCell === i ? `0 0 14px ${A_GLOW}` : "none",
+                    }}
                   >
                     {generateMutation.isPending && i === 0 ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: "rgba(8,8,8,0.85)" }}>
-                        <div className="w-8 h-8 rounded-full border-2 border-[#d4a843]/20 border-t-[#d4a843] animate-spin" />
-                        <span className="text-[10px] text-[--color-gold] tracking-widest">GENERATING</span>
-                        <span className="text-lg font-bold text-[--color-gold]">—</span>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: "rgba(4,4,14,0.85)" }}>
+                        <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: `${A_BORDER} ${A_BORDER} ${A_BORDER} ${A}` }} />
+                        <span className="text-[10px] tracking-widest" style={{ color: A }}>GENERATING</span>
                       </div>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-white/20 text-xs font-bold">
@@ -536,13 +592,16 @@ export default function WizImage() {
                       </div>
                     )}
                     <div className="absolute bottom-1.5 left-2 text-[9px] text-white/50 tracking-widest">VAR {String(i + 1).padStart(2, "0")}</div>
-                    <div className={`absolute top-1.5 right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px] ${
-                      selectedCell === i ? "bg-[--color-gold] border-[--color-gold] text-black" : "border-white/30 bg-transparent"
-                    }`}>
+                    <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-[10px]"
+                      style={{
+                        background: selectedCell === i ? A : "transparent",
+                        borderColor: selectedCell === i ? A : "rgba(255,255,255,0.3)",
+                        color: selectedCell === i ? "white" : "transparent",
+                      }}>
                       {selectedCell === i && "✓"}
                     </div>
                     {selectedCell === i && (
-                      <div className="absolute top-1.5 left-2 bg-[#d4a843]/90 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-md">SELECTED</div>
+                      <div className="absolute top-1.5 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded-md text-white" style={{ background: A }}>SELECTED</div>
                     )}
                   </div>
                 ))}
@@ -551,8 +610,8 @@ export default function WizImage() {
           </div>
 
           {/* Canvas Bottom Bar */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#d4a843]/20" style={{ background: "rgba(10,10,14,0.9)" }}>
-            <span className="text-[11px] text-[#7a7060]">
+          <div className="flex items-center justify-between px-4 py-2.5 border-t" style={{ background: "rgba(8,8,24,0.9)", borderColor: A_BORDER }}>
+            <span className="text-[11px] text-white/40">
               {generatedImages.length > 0 ? `${variations} variations generated · VAR ${String(selectedCell + 1).padStart(2, "0")} selected` : "Awaiting generation"}
             </span>
             <div className="flex items-center gap-1.5">
@@ -565,12 +624,12 @@ export default function WizImage() {
                 <button
                   key={btn.label}
                   onClick={btn.onClick}
-                  className={`text-[10px] px-3 py-1.5 rounded-md border transition-all ${
-                    btn.primary
-                      ? "bg-[#d4a843]/10 border-[#d4a843]/40 text-[--color-gold] hover:bg-[#d4a843]/20"
-                      : "border-[#d4a843]/20 text-[#7a7060] hover:border-[#d4a843]/30 hover:text-[--color-gold]"
-                  }`}
-                  style={{ background: btn.primary ? "rgba(212,168,67,0.1)" : "rgba(255,255,255,0.04)" }}
+                  className="text-[10px] px-3 py-1.5 rounded-md border transition-all"
+                  style={{
+                    background: btn.primary ? A_DIM : "rgba(255,255,255,0.04)",
+                    borderColor: btn.primary ? A : A_BORDER,
+                    color: btn.primary ? A : "rgba(255,255,255,0.4)",
+                  }}
                 >
                   {btn.label}
                 </button>
@@ -580,25 +639,25 @@ export default function WizImage() {
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <aside className="bg-black/60 backdrop-blur-sm overflow-y-auto p-3.5 flex flex-col gap-3.5" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64 }}>
+        <aside className="overflow-y-auto p-3.5 flex flex-col gap-3.5" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64, background: "rgba(4,4,14,0.75)", backdropFilter: "blur(12px)" }}>
 
           {/* Upgrade Preview */}
-          <div className="rounded-xl overflow-hidden border border-[#d4a843]/25">
-            <div className="px-3 py-2 text-[10px] tracking-[1.5px] text-[--color-gold] uppercase border-b border-[#d4a843]/15" style={{ background: "rgba(212,168,67,0.08)" }}>
+          <div className="rounded-xl overflow-hidden border" style={{ borderColor: A_BORDER }}>
+            <div className="px-3 py-2 text-[10px] tracking-[1.5px] uppercase border-b font-bold" style={{ background: A_DIM, borderColor: A_BORDER, color: A }}>
               ✦ UPGRADE PREVIEW — SEE THE DIFFERENCE
             </div>
-            <div className="flex border-b border-[#d4a843]/15">
+            <div className="flex border-b" style={{ borderColor: A_BORDER }}>
               {(["original", "enhanced", "luminar"] as const).map((tier) => (
                 <button
                   key={tier}
                   onClick={() => setUpgradeTier(tier)}
-                  className={`flex-1 py-1.5 text-center text-[10px] border-b-2 transition-all ${
-                    upgradeTier === tier
-                      ? "text-[--color-gold] border-[--color-gold]"
-                      : "text-[#7a7060] border-transparent hover:text-white/50"
-                  }`}
+                  className="flex-1 py-1.5 text-center text-[10px] border-b-2 transition-all"
+                  style={{
+                    color: upgradeTier === tier ? A : "rgba(255,255,255,0.3)",
+                    borderColor: upgradeTier === tier ? A : "transparent",
+                  }}
                 >
-                  {tier === "original" ? "ORIGINAL" : tier === "enhanced" ? <>ENHANCED<br /><span className="text-[8px] text-green-400">{IMAGE_RENDER_QUALITY.HD.price}</span></> : <>WIZLUMINAR™<br /><span className="text-[8px] text-[--color-gold]">{WIZLUMINAR_CINEMATIC.price}</span></>}
+                  {tier === "original" ? "ORIGINAL" : tier === "enhanced" ? <><span>ENHANCED</span><br /><span className="text-[8px] text-green-400">{IMAGE_RENDER_QUALITY.HD.price}</span></> : <><span>WIZLUMINAR™</span><br /><span className="text-[8px]" style={{ color: A }}>{WIZLUMINAR_CINEMATIC.price}</span></>}
                 </button>
               ))}
             </div>
@@ -613,55 +672,60 @@ export default function WizImage() {
                   ? ["Enhanced AI generation", "2048×2048px output", "Professional colour grading", "All export formats"]
                   : ["WizLuminar™ processing", "4K upscale output", "Cinematic LUT + HDR", "RAW / TIFF / PSD export"]
                 ).map((f) => (
-                  <div key={f} className="flex items-center gap-1.5 text-[10px] text-[#7a7060]">
-                    <span className="text-[9px] text-[--color-gold]">→</span>{f}
+                  <div key={f} className="flex items-center gap-1.5 text-[10px] text-white/40">
+                    <span className="text-[9px]" style={{ color: A }}>→</span>{f}
                   </div>
                 ))}
               </div>
-              <div className="text-[9px] text-[#7a7060] mb-1.5 tracking-widest uppercase">Visual Quality Comparison</div>
+              <div className="text-[9px] text-white/30 mb-1.5 tracking-widest uppercase">Visual Quality Comparison</div>
               <div className="grid grid-cols-3 gap-1">
                 {["Original", "Enhanced", "WizLuminar™"].map((label, i) => (
-                  <div key={label} className={`rounded-md overflow-hidden relative aspect-square ${i === 2 ? "opacity-60" : ""}`} style={{ background: `linear-gradient(135deg, #1a0a2e ${i * 20}%, #2d1060, #0d0520)` }}>
+                  <div key={label} className={`rounded-md overflow-hidden relative aspect-square ${i === 2 ? "opacity-60" : ""}`}
+                    style={{ background: `linear-gradient(135deg, #0a0a20 ${i * 20}%, #1a1a40, #050518)` }}>
                     {i === 2 && <div className="absolute inset-0 flex items-center justify-center text-lg" style={{ background: "rgba(0,0,0,0.6)" }}>🔒</div>}
-                    <div className="absolute bottom-0 left-0 right-0 text-center py-0.5 text-[8px]" style={{ background: "rgba(0,0,0,0.7)", color: i === 2 ? "#d4a843" : "#7a7060" }}>{label}</div>
+                    <div className="absolute bottom-0 left-0 right-0 text-center py-0.5 text-[8px]" style={{ background: "rgba(0,0,0,0.7)", color: i === 2 ? A : "rgba(255,255,255,0.4)" }}>{label}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-2 text-[9px] text-[#7a7060] p-1.5 rounded border border-[#d4a843]/15" style={{ background: "rgba(255,255,255,0.02)" }}>
+              <div className="mt-2 text-[9px] text-white/30 p-1.5 rounded border" style={{ background: "rgba(255,255,255,0.02)", borderColor: A_BORDER }}>
                 Preview only — no download until payment confirmed.
               </div>
             </div>
           </div>
 
           {/* WizLuminar CTA */}
-          <div className="rounded-xl p-2.5 cursor-pointer transition-all hover:bg-[#d4a843]/10 border border-[#d4a843]/35" style={{ background: "linear-gradient(135deg, rgba(212,168,67,0.15), rgba(212,168,67,0.05))" }}>
-            <div className="text-[11px] font-bold text-[--color-gold] mb-1">✦ WizLuminar™ Cinematic Grade</div>
-            <div className="text-[10px] text-[#7a7060]">Professional colour science, HDR tone mapping, cinematic LUT, 4K upscale, noise reduction, detail enhancement</div>
-            <div className="text-[13px] font-bold text-[--color-gold] mt-1.5">Add WizLuminar™ — {WIZLUMINAR_CINEMATIC.price}</div>
+          <div className="rounded-xl p-2.5 cursor-pointer transition-all border" style={{ background: `linear-gradient(135deg, ${A_DIM}, rgba(99,102,241,0.05))`, borderColor: A_BORDER }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = `linear-gradient(135deg, ${A_GLOW}, ${A_DIM})`)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = `linear-gradient(135deg, ${A_DIM}, rgba(99,102,241,0.05))`)}>
+            <div className="text-[11px] font-bold mb-1" style={{ color: A }}>✦ WizLuminar™ Cinematic Grade</div>
+            <div className="text-[10px] text-white/40">Professional colour science, HDR tone mapping, cinematic LUT, 4K upscale, noise reduction, detail enhancement</div>
+            <div className="text-[13px] font-bold mt-1.5" style={{ color: A }}>Add WizLuminar™ — {WIZLUMINAR_CINEMATIC.price}</div>
           </div>
 
           {/* Render Quality */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">Render Quality</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">Render Quality</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-col gap-1.5">
               {RENDER_QUALITY.map((q) => (
                 <button
                   key={q.id}
                   onClick={() => setRenderQuality(q.id)}
-                  className={`flex items-center justify-between px-2.5 py-2 rounded-lg border transition-all ${
-                    renderQuality === q.id
-                      ? "border-[--color-gold] bg-[#d4a843]/6"
-                      : "border-[#d4a843]/20 hover:border-[#d4a843]/30"
-                  }`}
+                  className="flex items-center justify-between px-2.5 py-2 rounded-lg border transition-all"
+                  style={{
+                    borderColor: renderQuality === q.id ? A : A_BORDER,
+                    background: renderQuality === q.id ? A_DIM : "rgba(255,255,255,0.03)",
+                    boxShadow: renderQuality === q.id ? `0 0 10px ${A_GLOW}` : "none",
+                  }}
                 >
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full border-2 ${renderQuality === q.id ? "bg-[--color-gold] border-[--color-gold]" : "border-[#7a7060]"}`} />
+                    <div className="w-2 h-2 rounded-full border-2 transition-all"
+                      style={{ background: renderQuality === q.id ? A : "transparent", borderColor: renderQuality === q.id ? A : "rgba(255,255,255,0.3)" }} />
                     <div className="text-left">
-                      <div className="text-xs font-semibold text-[#e8e0d0]">{q.label}</div>
-                      <div className="text-[10px] text-[#7a7060]">{q.desc}</div>
+                      <div className="text-xs font-semibold text-white/80">{q.label}</div>
+                      <div className="text-[10px] text-white/40">{q.desc}</div>
                     </div>
                   </div>
                   <span className="text-[11px] text-green-400">{q.price}</span>
@@ -673,20 +737,20 @@ export default function WizImage() {
           {/* Export Format */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">Export Format</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">Export Format</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-wrap gap-1">
               {EXPORT_FORMATS.map((f) => (
                 <button
                   key={f}
                   onClick={() => setExportFormat(f)}
-                  className={`text-[10px] px-2.5 py-1 rounded-md border transition-all ${
-                    exportFormat === f
-                      ? "border-[--color-gold] bg-[#d4a843]/10 text-[--color-gold]"
-                      : "border-[#d4a843]/20 text-[#7a7060] hover:border-[#d4a843]/30 hover:text-[--color-gold]"
-                  }`}
-                  style={{ background: exportFormat === f ? "rgba(212,168,67,0.1)" : "rgba(255,255,255,0.04)" }}
+                  className="text-[10px] px-2.5 py-1 rounded-md border transition-all"
+                  style={{
+                    borderColor: exportFormat === f ? A : A_BORDER,
+                    background: exportFormat === f ? A_DIM : "rgba(255,255,255,0.04)",
+                    color: exportFormat === f ? A : "rgba(255,255,255,0.4)",
+                  }}
                 >
                   {f}
                 </button>
@@ -697,75 +761,60 @@ export default function WizImage() {
           {/* Production Status */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">Production Status</span>
-              <div className="flex-1 h-px bg-[#d4a843]/20" />
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">Production Status</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-col gap-1">
               {PRODUCTION_STATUS.map((s) => (
                 <div key={s.label} className="flex items-center gap-2 py-1">
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    s.status === "done" ? "bg-green-400" :
-                    s.status === "active" ? "bg-[--color-gold] animate-pulse" :
-                    "bg-white/10 border border-[#7a7060]"
-                  }`} />
-                  <span className={`text-[11px] ${
-                    s.status === "done" ? "text-green-400" :
-                    s.status === "active" ? "text-[--color-gold]" :
-                    "text-[#7a7060]"
-                  }`}>{s.label}</span>
+                  <div className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{
+                      background: s.status === "done" ? "#4ade80" : s.status === "active" ? A : "rgba(255,255,255,0.2)",
+                      boxShadow: s.status === "active" ? `0 0 6px ${A}` : "none",
+                    }} />
+                  <span className="text-[10px]" style={{ color: s.status === "done" ? "#4ade80" : s.status === "active" ? A : "rgba(255,255,255,0.3)" }}>{s.label}</span>
+                  {s.status === "active" && <span className="text-[9px] text-white/30 ml-auto">In Progress</span>}
+                  {s.status === "pending" && <span className="text-[9px] text-white/20 ml-auto">Pending</span>}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Generate Button */}
+          {/* Generate CTA */}
           <button
             onClick={handleGenerate}
             disabled={generateMutation.isPending || !prompt.trim()}
-            className="w-full py-3.5 rounded-xl font-extrabold text-sm text-black tracking-[2px] uppercase transition-all hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed btn-primary btn-sheen"
-            style={{ background: "linear-gradient(135deg, #d4a843, #b8860b)", boxShadow: "0 4px 20px rgba(212,168,67,0.3)" }}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50 mt-auto"
+            style={{ background: `linear-gradient(135deg, ${A}, #4f46e5)`, boxShadow: `0 0 20px ${A_GLOW}` }}
           >
             {generateMutation.isPending ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />Generating…
-              </span>
+              <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Generating…</span>
             ) : (
-              "✦ CREATE IMAGE"
+              "✦ GENERATE IMAGE"
             )}
           </button>
 
-          {/* Gallery (compact) */}
-          {user && history && history.length > 0 && (
+          {/* History */}
+          {history && history.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[9px] text-[#7a7060] tracking-[2px] uppercase">Recent Gallery</span>
-                <div className="flex-1 h-px bg-[#d4a843]/20" />
-                <span className="text-[9px] text-[#7a7060]">{history.length}</span>
+                <span className="text-[9px] text-white/30 tracking-[2px] uppercase">Recent Generations</span>
+                <div className="flex-1 h-px" style={{ background: A_BORDER }} />
               </div>
-              <div className="grid grid-cols-4 gap-1">
-                {history.slice(0, 8).map((img) => (
-                  <div key={img.id} className="group relative aspect-square rounded-md overflow-hidden border border-white/6 cursor-pointer hover:border-[#d4a843]/40 transition-all">
-                    <img src={img.imageUrl} alt={img.prompt} className="w-full h-full object-cover" onClick={() => setGeneratedImages([img.imageUrl])} />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                      <button onClick={(e) => { e.stopPropagation(); handleDownload(img.imageUrl); }} className="p-1 rounded bg-white/20 hover:bg-white/30">
-                        <Download className="w-2.5 h-2.5 text-white" />
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); deleteMutation.mutate({ id: img.id }); }} className="p-1 rounded bg-red-500/20 hover:bg-red-500/40">
-                        <Trash2 className="w-2.5 h-2.5 text-red-300" />
-                      </button>
+              <div className="grid grid-cols-3 gap-1">
+                {history.slice(0, 6).map((item: any) => (
+                  <div key={item.id} className="relative aspect-square rounded-md overflow-hidden group cursor-pointer border transition-all"
+                    style={{ background: "#0d0d20", borderColor: A_BORDER }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = A)}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = A_BORDER)}>
+                    {item.imageUrl && <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1" style={{ background: "rgba(4,4,14,0.85)" }}>
+                      <button onClick={() => handleDownload(item.imageUrl)} className="text-[9px] px-1.5 py-0.5 rounded text-white" style={{ background: A }}>↓</button>
+                      <button onClick={() => deleteMutation.mutate({ id: item.id })} className="text-[9px] px-1.5 py-0.5 rounded text-white bg-red-500/80">×</button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {!user && (
-            <div className="text-center py-2">
-              <button onClick={() => (window.location.href = getLoginUrl())} className="text-xs text-[--color-gold] hover:text-[#e0b85a] transition-colors font-medium">
-                Sign in
-              </button>
-              <span className="text-[11px] text-[#7a7060]"> to generate images — 2 free credits on sign-up</span>
             </div>
           )}
         </aside>
