@@ -11,11 +11,10 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import {
-  Layers, Zap, Sparkles, ArrowRight, Lock, Mic2,
-  Star, ChevronRight, Play,
+  Layers, Sparkles, ArrowRight, Lock, Mic2,
+  Star, Play, Settings,
 } from "@/lib/icons";
-import { NavLink } from "@/components/NavLink";
-import BackButton from "@/components/BackButton";
+import PublicNavBar from "@/components/PublicNavBar";
 import {
   WizAudioEmblem,
   WizImageEmblem,
@@ -26,7 +25,6 @@ import {
 } from "@/components/WizProductEmblems";
 
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const WIZPILOT_LOGO = `${CDN}/wizscript-logo-v1_c6af5345.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
@@ -53,7 +51,6 @@ const IMG = {
   youtubers:    `${CDN}/whos-it-for-youtubers_58ce347b.png`,
   aiCreators:   `${CDN}/whos-it-for-ai-creators_722cf5c6.png`,
   kidsCreators: `${CDN}/whos-it-for-kids_09e9420f.png`,
-  heroBg:       `${CDN}/concert-hall_2b6b946b.jpg`,
   demoPoster:   `${CDN}/step3-ai-scene_a71432c5.png`,
   neonStage:    `${CDN}/showcase-stage-performance_3379ee75.jpg`,
   cyberpunk:    `${CDN}/showcase-midnight-city_caf4be96.jpg`,
@@ -76,7 +73,8 @@ interface Tool {
   authRequired?: boolean;
 }
 
-const TOOLS: Tool[] = [
+// ── Core creation products (six flagship products) ────────────────────────────
+const CORE_TOOLS: Tool[] = [
   {
     id: "music-video",
     name: getProduct("wizvideo")!.name,
@@ -94,6 +92,82 @@ const TOOLS: Tool[] = [
     authRequired: true,
   },
   {
+    id: "wiz-shorts",
+    name: getProduct("wizshorts")!.name,
+    badge: "For Creators",
+    badgeStyle: "fuchsia",
+    tagline: getProduct("wizshorts")!.tagline,
+    description: getProduct("wizshorts")!.shortDesc,
+    href: WIZSHORTS_STUDIO_PAGE,
+    emblem: <WizShortsEmblem size={40} />,
+    bg: IMG.aiCreators,
+    bgAlt: IMG.kidsCreators,
+    accentColor: "#d946ef",
+    authRequired: true,
+  },
+  {
+    id: "wiz-animate",
+    name: getProduct("wizanimate")!.name,
+    badge: "Animation",
+    badgeStyle: "fuchsia",
+    tagline: getProduct("wizanimate")!.tagline,
+    description: getProduct("wizanimate")!.shortDesc,
+    href: getProduct("wizanimate")!.productPage,
+    logo: WIZANIMATE_LOGO,
+    emblem: <WizAnimateEmblem size={40} />,
+    bg: IMG.anime,
+    bgAlt: IMG.anime2,
+    accentColor: "#f97316",
+    authRequired: true,
+  },
+  {
+    id: "wiz-script",
+    name: getProduct("wizscript")!.name,
+    badge: "Cinematic",
+    badgeStyle: "silver",
+    tagline: getProduct("wizscript")!.tagline,
+    description: getProduct("wizscript")!.shortDesc,
+    href: WIZSCRIPT_STUDIO_PAGE,
+    emblem: <WizScriptEmblem size={40} />,
+    bg: IMG.epicFantasy,
+    bgAlt: IMG.horror,
+    accentColor: "#7c3aed",
+    authRequired: true,
+  },
+  {
+    id: "wiz-image",
+    name: getProduct("wizimage")!.name,
+    badge: "Images",
+    badgeStyle: "blue",
+    tagline: getProduct("wizimage")!.tagline,
+    description: getProduct("wizimage")!.shortDesc,
+    href: WIZIMAGE_STUDIO_PAGE,
+    emblem: <WizImageEmblem size={40} />,
+    bg: IMG.pixar,
+    bgAlt: IMG.demoPoster,
+    accentColor: "#6366f1",
+    authRequired: true,
+  },
+  {
+    id: "wiz-sound",
+    name: getProduct("wizsound")!.name,
+    badge: "Audio",
+    badgeStyle: "green",
+    tagline: getProduct("wizsound")!.tagline,
+    description: getProduct("wizsound")!.shortDesc,
+    href: "/music-creator",
+    logo: WIZSOUND_LOGO,
+    emblem: <WizAudioEmblem size={40} />,
+    bg: IMG.abstract,
+    bgAlt: IMG.vintage,
+    accentColor: "#c9a84c",
+    authRequired: true,
+  },
+];
+
+// ── Utility & enhancement tools ───────────────────────────────────────────────
+const UTILITY_TOOLS: Tool[] = [
+  {
     id: "autopilot",
     name: getProduct("wizpilot")!.name,
     badge: "AI Autopilot",
@@ -109,41 +183,12 @@ const TOOLS: Tool[] = [
     authRequired: true,
   },
   {
-    id: "wiz-animate",
-    name: getProduct("wizanimate")!.name,
-    badge: "Animation",
-    badgeStyle: "fuchsia",
-    tagline: getProduct("wizanimate")!.tagline,
-    description: getProduct("wizanimate")!.shortDesc,
-    href: getProduct("wizanimate")!.productPage,
-    logo: WIZANIMATE_LOGO,
-    emblem: <WizAnimateEmblem size={40} />,
-    bg: IMG.anime,
-    bgAlt: IMG.anime2,
-    accentColor: "#d946ef",
-    authRequired: true,
-  },
-  {
-    id: "wiz-script",
-    name: getProduct("wizscript")!.name,
-    badge: "Advanced",
-    badgeStyle: "silver",
-    tagline: getProduct("wizscript")!.tagline,
-    description: getProduct("wizscript")!.shortDesc,
-    href: WIZSCRIPT_STUDIO_PAGE,
-    emblem: <WizScriptEmblem size={40} />,
-    bg: IMG.epicFantasy,
-    bgAlt: IMG.horror,
-    accentColor: "#a78bfa",
-    authRequired: true,
-  },
-  {
     id: "lip-sync",
     name: "Lip Sync",
     badge: "WIZ AI",
     badgeStyle: "silver",
     tagline: "Sync any video to any audio with AI",
-    description: "Upload a video and an audio track \u2014 our AI perfectly syncs the lip movements to the new audio. Ideal for dubbing, music videos, and avatar content.",
+    description: "Upload a video and an audio track — our AI perfectly syncs the lip movements to the new audio. Ideal for dubbing, music videos, and avatar content.",
     href: "/lip-sync",
     bg: IMG.documentary,
     bgAlt: IMG.realistic,
@@ -153,10 +198,10 @@ const TOOLS: Tool[] = [
   {
     id: "enhancement-studio",
     name: "Enhancement Studio",
-    badge: "WizLumina\u2122",
+    badge: "WizLumina™",
     badgeStyle: "gold",
-    tagline: "Enhance any video \u2014 4K, colour, audio",
-    description: "Upscale to 4K, apply cinematic colour grading with WizLumina\u2122, and enhance audio quality with WizSound\u2122. Make any video look and sound premium.",
+    tagline: "Enhance any video — 4K, colour, audio",
+    description: "Upscale to 4K, apply cinematic colour grading with WizLumina™, and enhance audio quality with WizSound™. Make any video look and sound premium.",
     href: "/enhancement-studio",
     logo: WIZLUMINA_LOGO,
     bg: IMG.neonNoir,
@@ -167,7 +212,7 @@ const TOOLS: Tool[] = [
   {
     id: "style-transfer",
     name: "Style Transfer",
-    badge: "WizLumina\u2122",
+    badge: "WizLumina™",
     badgeStyle: "gold",
     tagline: "Transform any video into a new visual style",
     description: "Apply Anime, Cinematic, 3D Animation, or any custom style to an existing video. Reimagine any existing video in a completely new aesthetic.",
@@ -191,40 +236,12 @@ const TOOLS: Tool[] = [
     authRequired: true,
   },
   {
-    id: "wiz-image",
-    name: getProduct("wizimage")!.name,
-    badge: "New",
-    badgeStyle: "gold",
-    tagline: "Create cinematic AI images and visual assets from any idea, instantly.",
-    description: "Describe any image and WizImage renders it in seconds. Choose from 8 art styles, 4 aspect ratios, and build a personal gallery. Photorealistic, cinematic, anime, oil painting, and more.",
-    href: WIZIMAGE_STUDIO_PAGE,
-    emblem: <WizImageEmblem size={40} />,
-    bg: IMG.pixar,
-    bgAlt: IMG.demoPoster,
-    accentColor: "#c4a464",
-    authRequired: true,
-  },
-  {
-    id: "wiz-shorts",
-    name: getProduct("wizshorts")!.name,
-    badge: "New",
-    badgeStyle: "gold",
-    tagline: "Produce scroll-stopping vertical short-form videos for social media in minutes.",
-    description: "WizShorts is built for social-first creators. Generate vertical short-form videos optimised for TikTok, Instagram Reels, and YouTube Shorts — with captions, pacing, and visual hooks built in.",
-    href: WIZSHORTS_STUDIO_PAGE,
-    emblem: <WizShortsEmblem size={40} />,
-    bg: IMG.aiCreators,
-    bgAlt: IMG.kidsCreators,
-    accentColor: "#c4a464",
-    authRequired: true,
-  },
-  {
     id: "wizsync",
     name: getProduct("wizsync")!.name,
     badge: "WizPerformer™",
     badgeStyle: "silver",
     tagline: "Sync any AI-generated character to your audio with precision lip-sync and performance.",
-    description: "Upload any audio track. WizSync detects every speaker with timestamps, separates 6 instrument stems, and maps each voice to a character \u2014 ready for AI lip-sync generation.",
+    description: "Upload any audio track. WizSync detects every speaker with timestamps, separates 6 instrument stems, and maps each voice to a character — ready for AI lip-sync generation.",
     href: WIZSYNC_STUDIO_PAGE,
     logo: WIZSYNC_LOGO,
     emblem: <Mic2 className="w-10 h-10" />,
@@ -358,7 +375,7 @@ function ToolCard({ tool }: { tool: Tool }) {
         <div className="mt-5 flex items-center justify-between">
           <span className="text-xs font-bold transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0"
             style={{ color: accentColor }}>
-            {isAuthenticated ? "Open tool \u2192" : "Sign in to start \u2192"}
+            {isAuthenticated ? "Open tool →" : "Sign in to start →"}
           </span>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100"
             style={{ background: `${accentColor}18`, border: `1px solid ${accentColor}30` }}>
@@ -453,15 +470,15 @@ function FeaturedCard({ tool }: { tool: Tool }) {
               boxShadow: "0 0 30px rgba(196,164,100,0.25), 0 4px 20px rgba(0,0,0,0.5)",
             }}>
             <Play className="w-4 h-4 fill-[#0a0a0a]" />
-            {isAuthenticated ? "Open WizVideo\u2122" : "Sign in to start"}
+            {isAuthenticated ? "Open WizVideo™" : "Sign in to start"}
           </button>
         </div>
         <div className="flex flex-col gap-3 md:w-56">
           {[
-            { icon: "\u266b", label: "Lyrics-synced storyboard" },
-            { icon: "\u25c8", label: "AI scene generation" },
-            { icon: "\u25b6", label: "Full video in minutes" },
-            { icon: "\u2726", label: "HD & 4K output" },
+            { icon: "♫", label: "Lyrics-synced storyboard" },
+            { icon: "◈", label: "AI scene generation" },
+            { icon: "▶", label: "Full video in minutes" },
+            { icon: "✦", label: "HD & 4K output" },
           ].map((f) => (
             <div key={f.label} className="flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{ background: "rgba(196,164,100,0.06)", border: "1px solid rgba(196,164,100,0.14)" }}>
@@ -475,63 +492,40 @@ function FeaturedCard({ tool }: { tool: Tool }) {
   );
 }
 
+// ── Section divider with label ─────────────────────────────────────────────────
+function SectionDivider({ icon, label, sublabel }: { icon: React.ReactNode; label: string; sublabel?: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+          style={{ background: "rgba(196,164,100,0.10)", border: "1px solid rgba(196,164,100,0.20)" }}>
+          <span className="text-[#c4a464]">{icon}</span>
+        </div>
+        <div>
+          <p className="text-[11px] font-black tracking-[0.25em] uppercase text-[#c4a464]">{label}</p>
+          {sublabel && <p className="text-[10px] text-white/30 mt-0.5">{sublabel}</p>}
+        </div>
+      </div>
+      <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(196,164,100,0.25), transparent)" }} />
+    </div>
+  );
+}
+
 export default function Create() {
   const { isAuthenticated } = useAuth();
-  const featuredTool = TOOLS[0];
-  const remainingTools = TOOLS.slice(1);
+  const featuredTool = CORE_TOOLS[0];
+  const remainingCoreTools = CORE_TOOLS.slice(1);
 
   return (
     <div className="min-h-screen studio-bg text-white">
-      {/* NAV */}
-      <nav className="studio-header sticky top-0 z-50 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <BackButton fallback="/" label="Home" />
-            <NavLink href="/" className="hidden md:flex items-center">
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.5rem] w-auto object-contain" />
-            </NavLink>
-          </div>
-          <div className="hidden md:flex items-center gap-1">
-            {[
-              { label: "How It Works", href: "/how-it-works" },
-              { label: "Examples", href: "/creators" },
-              { label: "Pricing", href: "/pricing" },
-              { label: "Help", href: "/help" },
-            ].map((l) => (
-              <NavLink key={l.href} href={l.href}
-                className="px-3 py-2 text-sm text-white/55 hover:text-white rounded-lg hover:bg-white/5 transition-all">
-                {l.label}
-              </NavLink>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <NavLink href="/dashboard">
-                <button className="px-4 py-2 rounded-xl text-xs font-bold border border-white/12 text-white/75 hover:bg-white/6 transition-all">
-                  Dashboard
-                </button>
-              </NavLink>
-            ) : (
-              <a href={getLoginUrl()}>
-                <button className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                  style={{
-                    background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
-                    color: "#0a0a0a",
-                    boxShadow: "0 0 20px rgba(196,164,100,0.20)",
-                  }}>
-                  Sign In Free
-                </button>
-              </a>
-            )}
-          </div>
-        </div>
-      </nav>
+      {/* ── Unified PublicNavBar ─────────────────────────────────────────────── */}
+      <PublicNavBar />
 
-      {/* HERO */}
+      {/* ── Hero ────────────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(196,164,100,0.07), transparent)" }} />
-        <div className="max-w-7xl mx-auto px-6 pt-16 pb-12 text-center">
+        <div className="max-w-7xl mx-auto px-6 pt-20 pb-12 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8"
             style={{ background: "rgba(196,164,100,0.10)", border: "1px solid rgba(196,164,100,0.22)" }}>
             <Sparkles className="w-3.5 h-3.5 text-[#c4a464]" />
@@ -548,7 +542,7 @@ export default function Create() {
             </span>
           </h1>
           <p className="text-white/42 text-xl max-w-xl mx-auto mb-6 leading-relaxed">
-            Eleven professional AI tools. One platform. No editing skills required.
+            Six core creation tools plus enhancement utilities. One platform. No editing skills required.
           </p>
           {!isAuthenticated && (
             <p className="text-white/28 text-sm">
@@ -556,23 +550,54 @@ export default function Create() {
                 style={{ color: "#c4a464" }}>
                 Sign in free
               </a>{" "}
-              to unlock all tools \u2014 50 credits included, no card needed.
+              to unlock all tools — 2 free Build Credits included, no card needed.
             </p>
           )}
         </div>
       </div>
 
-      {/* TOOL GRID */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20">
+      {/* ── Core creation tools ──────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-8">
+        <SectionDivider
+          icon={<Layers className="w-4 h-4" />}
+          label="Core Creation Tools"
+          sublabel="Six flagship AI creation products"
+        />
+
+        {/* Featured card — WizVideo */}
         <div className="mb-5">
           <FeaturedCard tool={featuredTool} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {remainingTools.map((tool) => (
+
+        {/* Remaining core tools — 5 in a responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {remainingCoreTools.map((tool) => (
             <ToolCard key={tool.id} tool={tool} />
           ))}
         </div>
-        <div className="mt-16 text-center border-t border-white/5 pt-12">
+      </div>
+
+      {/* ── Utility & enhancement tools ─────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20 mt-12">
+        {/* Visual separator */}
+        <div className="border-t border-white/5 pt-12 mb-8">
+          <SectionDivider
+            icon={<Settings className="w-4 h-4" />}
+            label="Enhancement & Utility Tools"
+            sublabel="Enhance, sync, and transform your existing content"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+          {UTILITY_TOOLS.map((tool) => (
+            <ToolCard key={tool.id} tool={tool} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Footer CTA ──────────────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20">
+        <div className="text-center border-t border-white/5 pt-12">
           <p className="text-white/28 text-sm mb-5">Not sure where to start?</p>
           <div className="flex flex-wrap justify-center gap-3">
             {[
@@ -580,13 +605,13 @@ export default function Create() {
               { label: "View Pricing", href: "/pricing" },
               { label: "See Examples", href: "/creators" },
             ].map((l) => (
-              <NavLink key={l.href} href={l.href}>
+              <a key={l.href} href={l.href}>
                 <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/5"
                   style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)" }}>
-                  <ChevronRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4" />
                   {l.label}
                 </button>
-              </NavLink>
+              </a>
             ))}
           </div>
         </div>

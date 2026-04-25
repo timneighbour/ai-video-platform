@@ -39,8 +39,8 @@ const options = [
   },
   {
     href: '/products/wizanimate',
-    title: 'WizAnimate',
-    subtitle: 'Character Animation',
+    title: 'WizAnimate™',
+    subtitle: 'Character Animation Studio',
     description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
     isPopular: false,
     icon: Sparkles,
@@ -53,9 +53,9 @@ const options = [
     stats: ['Beat-matched', 'Character AI', 'Cinematic'],
   },
   {
-    href: '/wiz-script',
+    href: '/text-to-video',
     title: 'WizScript™',
-    subtitle: 'Text to Video',
+    subtitle: 'AI Screenplay Studio',
     description: 'Turn any idea into a full cinematic video — WizScript™ writes the script, builds the scenes, and renders the video.',
     isPopular: false,
     icon: Wand2,
@@ -69,9 +69,9 @@ const options = [
   },
   {
     href: '/music-creator',
-    title: 'WizAudio',
-    subtitle: 'AI Music Generator',
-    description: 'Generate original, royalty-free music in any style — powered by WizAudio.',
+    title: 'WizSound™',
+    subtitle: 'AI Recording Studio',
+    description: 'Generate original, royalty-free music in any style — studio-grade audio powered by WizSound™.',
     isPopular: false,
     icon: Music,
     bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-1-ZjbMsSCt6wFuq7NBMAyxHR.webp",
@@ -80,7 +80,7 @@ const options = [
     glowColor: 'rgba(34,197,94,0.25)',
     tag: 'Audio AI',
     tagColor: 'from-[#22c55e] to-[#86efac]',
-    stats: ['Any genre', 'Royalty-free', 'Studio quality'],
+    stats: ['Any genre', 'Royalty-free', 'Studio grade'],
   },
 ];
 

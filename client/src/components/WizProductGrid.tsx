@@ -291,22 +291,7 @@ interface Product {
 }
 
 const PRODUCTS: Product[] = [
-  {
-    name: getProduct("wizsound")!.name, label: "CREATE AUDIO",
-    tagline: getProduct("wizsound")!.tagline,
-    desc: getProduct("wizsound")!.shortDesc,
-    href: getProduct("wizsound")!.studioPage, emblem: <WizAudioEmblem size={80} />, accent: "emerald",
-    cardVisual: <img src={CARD_BG_AUDIO} alt="WizSound™ AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
-    logoUrl: WIZAUDIO_LOGO,
-  },
-  {
-    name: getProduct("wizimage")!.name, label: "CREATE IMAGES",
-    tagline: getProduct("wizimage")!.tagline,
-    desc: getProduct("wizimage")!.shortDesc,
-    href: getProduct("wizimage")!.studioPage, emblem: <WizImageEmblem size={80} />, accent: "amber",
-    cardVisual: <img src={CARD_BG_IMAGE} alt="WizImage™ AI image and artwork creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
-    logoUrl: WIZIMAGE_LOGO,
-  },
+  // ── Position 1: WizVideo — flagship, highest-ticket, most conversion-ready ──
   {
     name: getProduct("wizvideo")!.name, label: "CREATE VIDEO",
     tagline: getProduct("wizvideo")!.tagline,
@@ -315,6 +300,7 @@ const PRODUCTS: Product[] = [
     cardVisual: <img src={CARD_BG_VIDEO} alt="WizVideo™ AI music video creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZVIDEO_LOGO,
   },
+  // ── Position 2: WizShorts — social-first creators, high volume ──────────────
   {
     name: getProduct("wizshorts")!.name, label: "CREATE SHORTS",
     tagline: getProduct("wizshorts")!.tagline,
@@ -323,6 +309,7 @@ const PRODUCTS: Product[] = [
     cardVisual: <img src={CARD_BG_SHORTS} alt="WizShorts™ AI short-form vertical video creator" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZSHORTS_LOGO,
   },
+  // ── Position 3: WizAnimate — animation studio, strong visual appeal ─────────
   {
     name: getProduct("wizanimate")!.name, label: "CREATE ANIMATION",
     tagline: getProduct("wizanimate")!.tagline,
@@ -331,6 +318,7 @@ const PRODUCTS: Product[] = [
     cardVisual: <img src={CARD_BG_ANIMATE} alt="WizAnimate™ AI character animation engine" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZANIMATE_LOGO_V3,
   },
+  // ── Position 4: WizScript — cinematic control, advanced users ───────────────
   {
     name: getProduct("wizscript")!.name, label: "CREATE CINEMATIC",
     tagline: getProduct("wizscript")!.tagline,
@@ -338,6 +326,24 @@ const PRODUCTS: Product[] = [
     href: getProduct("wizscript")!.studioPage, emblem: <WizScriptEmblem size={80} />, accent: "orange",
     cardVisual: <img src={CARD_BG_SCRIPT} alt="WizScript™ scene-by-scene cinematic video control" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZSCRIPT_LOGO,
+  },
+  // ── Position 5: WizImage — visual assets, feeds into video pipeline ─────────
+  {
+    name: getProduct("wizimage")!.name, label: "CREATE IMAGES",
+    tagline: getProduct("wizimage")!.tagline,
+    desc: getProduct("wizimage")!.shortDesc,
+    href: getProduct("wizimage")!.studioPage, emblem: <WizImageEmblem size={80} />, accent: "amber",
+    cardVisual: <img src={CARD_BG_IMAGE} alt="WizImage™ AI image and artwork creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    logoUrl: WIZIMAGE_LOGO,
+  },
+  // ── Position 6: WizSound — supporting/enhancement product ───────────────────
+  {
+    name: getProduct("wizsound")!.name, label: "CREATE AUDIO",
+    tagline: getProduct("wizsound")!.tagline,
+    desc: getProduct("wizsound")!.shortDesc,
+    href: getProduct("wizsound")!.studioPage, emblem: <WizAudioEmblem size={80} />, accent: "emerald",
+    cardVisual: <img src={CARD_BG_AUDIO} alt="WizSound™ AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    logoUrl: WIZAUDIO_LOGO,
   },
 ];
 
