@@ -98,12 +98,12 @@ const BENEFITS = [
 ];
 
 const FAQS = [
-  { q: "What platforms does WizShorts™ support?",          a: "WizShorts™ generates content optimised for TikTok, YouTube Shorts, Instagram Reels, and Snapchat Spotlight. Each platform variant is adapted for that platform's algorithm, caption style, and CTA conventions." },
-  { q: "What aspect ratio does WizShorts™ output?",        a: "All WizShorts™ output is native 9:16 vertical format — composed for vertical viewing from the start, not cropped from landscape." },
+  { q: "What if the short does not perform well?",          a: "WizShorts™ supports batch generation of up to 20 variants from a single brief — each with a different hook, visual treatment, or CTA. You can test multiple versions without extra setup and regenerate any variant that is not working." },
+  { q: "What do credits cover for WizShorts™?",             a: "Credits are only charged on final video render. Brief creation, hook previews, and caption review are all free — you only pay when you are ready to export the finished short." },
+  { q: "Can I use the videos commercially?",                a: "Yes — all generated shorts are fully licensed for commercial use on all plans, including brand content, sponsored posts, and paid promotion on all four platforms." },
+  { q: "Does WizShorts™ work for all four platforms at once?", a: "Yes — a single brief generates platform-optimised variants for TikTok, YouTube Shorts, Instagram Reels, and Snapchat Spotlight simultaneously. Each variant is adapted for that platform's algorithm, caption style, and CTA conventions." },
+  { q: "Can I use my own audio?",                           a: "Yes — you can upload your own audio track or use WizSound™ to generate original music. WizShorts™ can also match content to trending audio formats on each platform." },
   { q: "How long are WizShorts™ videos?",                  a: "WizShorts™ generates videos between 15 and 60 seconds. The default is 30 seconds — the optimal length for most platform algorithms. Custom durations are available on Pro and Business plans." },
-  { q: "Can I generate multiple shorts from one brief?",   a: "Yes — WizShorts™ supports batch generation of up to 20 shorts from a single content brief. Each variant has a different hook, visual treatment, or CTA while maintaining the same core message." },
-  { q: "Does WizShorts™ add captions automatically?",      a: "Yes — captions are generated and styled automatically. Caption style, font size, and position are optimised for each platform's mobile viewing context." },
-  { q: "Can I use my own audio in WizShorts™?",            a: "Yes — you can upload your own audio track or use WizSound™ to generate original music. WizShorts™ can also match content to trending audio formats on each platform." },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -280,12 +280,16 @@ export default function WizShortsProductPage() {
               </div>
             </div>
 
-            {/* Phone frames — 3 portrait phones */}
+            {/* Phone frames — responsive: 1 on mobile, 2 on sm, 3 on md+ */}
             <div className="flex items-end gap-4 md:gap-6">
               {FORMAT_FRAMES.map((frame, i) => (
                 <div
                   key={frame.label}
-                  className="transition-transform duration-300"
+                  className={`transition-transform duration-300 ${
+                    i === 0 ? "" :
+                    i === 1 ? "hidden sm:block" :
+                    "hidden md:block"
+                  }`}
                   style={{ transform: i === 1 ? "translateY(-20px) scale(1.05)" : "translateY(0)" }}
                 >
                   <PhoneFrame
@@ -325,7 +329,7 @@ export default function WizShortsProductPage() {
               <ArrowRight className="w-4 h-4" />
             </NavLink>
             <NavLink
-              href="/pricing"
+              href="/pricing#plans"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"
               style={{ border: "1px solid rgba(255,255,255,0.12)" }}
             >

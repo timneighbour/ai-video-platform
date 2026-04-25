@@ -81,12 +81,12 @@ const BENEFITS = [
 ];
 
 const FAQS = [
-  { q: "What animation styles does WizAnimate™ support?",       a: "WizAnimate™ supports Anime, 3D, Illustrated, Cartoon, Cinematic, and Children's styles. Style can be set globally or per scene." },
+  { q: "What if the animation does not look right?",            a: "You can regenerate any individual scene without rebuilding the entire animation. Style, character appearance, and scene direction can all be adjusted and re-run — you are never locked into a result you are not happy with." },
+  { q: "What do credits cover for WizAnimate™?",               a: "Credits are only charged on final animation render. Storyboard generation, character previews, and style selection are all free — you only pay when you are ready to produce the finished animation." },
+  { q: "Can I use the animations commercially?",                a: "Yes — all generated animations are fully licensed for commercial use on all plans, including streaming platforms, social media, broadcast, and live events. No additional licensing fee is required." },
+  { q: "Can I customise the character appearance?",             a: "Yes — character appearance, costume, and personality are defined by your text prompt. You can specify detailed visual descriptions or use style presets. Character settings can be changed per scene." },
   { q: "How does beat-locked animation work?",                   a: "WizAnimate™ analyses your audio's BPM and beat grid, then generates character movements and scene transitions that align to specific beat positions — similar to how a music video editor would cut to the beat manually." },
-  { q: "Can I use WizAnimate™ for children's content?",         a: "Yes — WizAnimate™ has a dedicated Children's Content mode that uses age-appropriate visual language, bright colours, and safe character designs suitable for YouTube Kids and family platforms." },
-  { q: "Does WizSync™ lip sync work with any voice?",           a: "WizSync™ lip sync works with any vocal track — singing, spoken word, or narration. It analyses the audio and generates matching mouth movements automatically." },
-  { q: "Can I customise the character appearance?",             a: "Yes — character appearance, costume, and personality are defined by your text prompt. You can specify detailed visual descriptions or use style presets." },
-  { q: "Is the output licensed for commercial use?",            a: "Yes — all generated animations are fully licensed for commercial use, including streaming platforms, social media, broadcast, and live events." },
+  { q: "Does WizAnimate™ work for children's content?",         a: "Yes — WizAnimate™ has a dedicated Children's Content mode that uses age-appropriate visual language, bright colours, and safe character designs suitable for YouTube Kids and family platforms." },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -195,7 +195,7 @@ export default function WizAnimateProductPage() {
                 <ArrowRight className="w-4 h-4" />
               </NavLink>
               <NavLink
-                href="/pricing"
+                href="/pricing#plans"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"
                 style={{ border: "1px solid rgba(255,255,255,0.12)" }}
               >

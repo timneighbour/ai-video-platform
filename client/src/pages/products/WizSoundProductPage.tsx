@@ -120,11 +120,11 @@ const BENEFITS = [
 ];
 
 const FAQS = [
-  { q: "What is the difference between Standard, Active, and Spatial?", a: "Standard is your original audio with no processing. WizSound Active applies 7-stage enhancement including stereo widening, 3-band EQ, and loudness normalisation. WizSound Spatial adds the full 13-stage cinematic chain — Haas psychoacoustic widening, 5-band EQ, harmonic exciter, concert reverb, and −14 LUFS mastering." },
-  { q: "Does WizSound change the character of my music?", a: "No — WizSound enhances without replacing. The processing is designed to be transparent, preserving your track's original character while adding richness, width, and professional polish." },
-  { q: "What loudness standard does WizSound target?", a: "WizSound Active targets −16 LUFS integrated with true-peak at −1 dBTP. WizSound Spatial targets −14 LUFS with true-peak at −0.1 dBTP — the standard used by Spotify, Apple Music, and YouTube." },
-  { q: "Can I preview the difference before paying?", a: "Yes — use the audio demo player on this page to hear the same source track processed through each tier. The preview uses real WizSound-processed audio." },
-  { q: "Is WizSound applied automatically?", a: "Yes. Once you select your audio tier during the build setup, WizSound runs automatically as part of the WizGenesis build pipeline — no manual steps required." },
+  { q: "Will WizSound change the character of my music?",   a: "No — WizSound enhances without replacing. The processing is designed to be transparent, preserving your track's original character while adding richness, width, and professional polish. You can preview the difference before committing." },
+  { q: "Can I hear the difference before paying?",          a: "Yes — use the audio demo player on this page to hear the same source track processed through each tier. The preview uses real WizSound-processed audio, not a simulation." },
+  { q: "What do credits cover for WizSound?",               a: "Previewing is always free. Credits are only charged when you export the final enhanced audio. You can compare tiers and listen as many times as you like before deciding." },
+  { q: "Can I use the enhanced audio commercially?",        a: "Yes — all WizSound-processed audio is fully licensed for commercial use on all plans, including streaming platforms, sync licensing, broadcast, and live events." },
+  { q: "What is the difference between Active and Spatial?", a: "WizSound Active applies 7-stage enhancement including stereo widening, 3-band EQ, and loudness normalisation. WizSound Spatial adds the full 13-stage cinematic chain — Haas psychoacoustic widening, 5-band EQ, harmonic exciter, concert reverb, and −14 LUFS mastering." },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -230,7 +230,7 @@ export default function WizSoundProductPage() {
                 Create Music Now <ArrowRight className="w-4 h-4" />
               </NavLink>
               <NavLink
-                href="/pricing"
+                href="/pricing#plans"
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold text-sm text-white/50 border border-white/10 hover:border-white/20 hover:text-white/80 transition-all"
               >
                 View pricing <ChevronRight className="w-4 h-4" />

@@ -75,12 +75,12 @@ const BENEFITS = [
 ];
 
 const FAQS = [
-  { q: "What art styles does WizImage™ support?",          a: "WizImage™ supports 6 art styles: Cinematic, Anime, Oil Painting, Watercolour, 3D Render, and Photorealistic. Each style has its own visual language and is optimised for different use cases." },
-  { q: "What resolution can WizImage™ generate at?",       a: "WizImage™ generates images at up to 4096×4096 (4K) resolution. Standard generation is at 1024×1024, HD at 2048×2048, and 4K at 4096×4096." },
-  { q: "Can I use generated images commercially?",         a: "Yes — all generated images are fully licensed for commercial use on all plans, including product shots, marketing materials, editorial, and broadcast." },
-  { q: "How does WizImage™ integrate with WizVideo™?",     a: "Generated images can be used directly in WizVideo™ as scene backgrounds, character references, or visual style guides — no file export or re-upload needed." },
-  { q: "Can I generate multiple variations of the same image?", a: "Yes — WizImage™ can generate up to 4 variations of the same prompt simultaneously, allowing you to compare and choose the best result." },
-  { q: "Does WizImage™ support custom aspect ratios?",     a: "Yes — WizImage™ supports any aspect ratio including square (1:1), portrait (9:16), landscape (16:9), ultrawide (21:9), and custom dimensions." },
+  { q: "What if I do not like the image?",                  a: "You can generate up to 4 variations of the same prompt simultaneously and choose the best result. If none work, you can refine your prompt and regenerate — no credits are charged until you export." },
+  { q: "What do credits cover for WizImage™?",              a: "Credits are only charged on final image export. Generating previews, comparing variations, and adjusting your prompt are all free — you only pay when you are satisfied with the result." },
+  { q: "Can I use the images commercially?",                a: "Yes — all generated images are fully licensed for commercial use on all plans, including product shots, marketing materials, editorial, and broadcast. No additional licensing fee is required." },
+  { q: "Can I generate multiple variations to compare?",    a: "Yes — WizImage™ can generate up to 4 variations of the same prompt simultaneously, allowing you to compare styles, compositions, and colour treatments before choosing." },
+  { q: "How does WizImage™ connect to WizVideo™?",          a: "Generated images can be used directly in WizVideo™ as scene backgrounds, character references, or visual style guides — no file export or re-upload needed." },
+  { q: "What resolution and aspect ratios are supported?",  a: "WizImage™ generates up to 4096×4096 (4K) resolution and supports any aspect ratio including square (1:1), portrait (9:16), landscape (16:9), ultrawide (21:9), and custom dimensions." },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -250,7 +250,7 @@ export default function WizImageProductPage() {
                 <ArrowRight className="w-4 h-4" />
               </NavLink>
               <NavLink
-                href="/pricing"
+                href="/pricing#plans"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"
                 style={{ border: "1px solid rgba(255,255,255,0.12)" }}
               >

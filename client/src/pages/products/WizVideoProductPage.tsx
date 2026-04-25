@@ -76,12 +76,12 @@ const BENEFITS = [
 ];
 
 const FAQS = [
+  { q: "What if I do not like the output?",                   a: "You can regenerate any individual scene without rebuilding the entire video. Scene-level regeneration is available on all plans — you are never locked into a result you are not happy with. Storyboard regeneration is always free." },
+  { q: "What do credits actually cover?",                     a: "Credits are only charged on final video render. Storyboard generation, scene previews, and style selection are all free — you only pay when you are ready to produce the finished video." },
+  { q: "Can I use the videos commercially?",                  a: "Yes — all generated videos are fully licensed for commercial use on all plans, including streaming platforms, social media, broadcast, and live events. No additional licensing fee is required." },
+  { q: "Is 4K export available on the free plan?",            a: "4K export is available on Pro and Business plans. The free plan and Starter plan export at 1080p HD. You can compare export options on the pricing page." },
   { q: "What audio formats does WizVideo™ accept?",           a: "WizVideo™ accepts MP3, WAV, FLAC, AAC, and M4A files up to 50MB. For best results, use a stereo master at −14 LUFS." },
-  { q: "How long does it take to generate a music video?",    a: "A full music video (3–4 minutes) typically takes 4–8 minutes to generate, depending on resolution and scene complexity." },
-  { q: "Can I edit individual scenes after generation?",      a: "Yes — you can regenerate any individual scene without rebuilding the entire video. Scene-level editing is available on all plans." },
-  { q: "What video styles are available?",                    a: "Cinematic, Anime, 3D, Illustrated, and Live Action styles are all available. Style can be set globally or per scene." },
-  { q: "Is 4K export available on the free plan?",            a: "4K export is available on Pro and Business plans. The free plan and Starter plan export at 1080p HD." },
-  { q: "Can I use WizVideo™ for commercial music releases?",  a: "Yes — all generated videos are fully licensed for commercial use, including streaming platforms, social media, and live events." },
+  { q: "How long does generation take?",                      a: "A full music video (3–4 minutes) typically takes 4–8 minutes to generate. You will receive a notification when your video is ready — no need to stay on the page." },
 ];
 
 const RELATED = [
@@ -250,7 +250,7 @@ export default function WizVideoProductPage() {
                 <ArrowRight className="w-4 h-4" />
               </NavLink>
               <NavLink
-                href="/pricing"
+                href="/pricing#plans"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"
                 style={{ border: "1px solid rgba(255,255,255,0.12)" }}
               >
