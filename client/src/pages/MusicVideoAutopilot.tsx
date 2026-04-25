@@ -163,7 +163,7 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
 
 export default function MusicVideoAutopilot() {
 
-  useSEO({ title: "Create AI Music Video — WIZ AI", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
+  useSEO({ title: "WizVideo™ — AI Music Video Director", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
   const { user, isAuthenticated } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
@@ -1453,7 +1453,9 @@ export default function MusicVideoAutopilot() {
   const isGeneratingStoryboard = storyboardGenerating && !(step === "storyboard" && scenes.length > 0);
 
   return (
-    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
+    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#040810'}}>
+      {/* ── Ambient: Cinematic teal glow ── */}
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 60% 45% at 75% 0%, rgba(20,184,166,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 100%, rgba(6,182,212,0.06) 0%, transparent 55%)" }} />
       {/* ── VR Environment: Music Video Production Set ── */}
       <div className="env-bg">
         <img src="/manus-storage/env-music-video-set_8e723b8b.jpg" alt="" />
@@ -1476,7 +1478,7 @@ export default function MusicVideoAutopilot() {
             <p className="text-white/50 text-sm mb-8">WizCreate™ is casting characters and crafting your scenes. This takes about 60–120 seconds.</p>
             <div className="w-full bg-[rgba(24,20,16,0.9)] rounded-full h-2 mb-8 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] rounded-full transition-all duration-[3000ms] ease-out"
+                className="h-full bg-gradient-to-r from-[#14b8a6] to-[#0d9488] rounded-full transition-all duration-[3000ms] ease-out"
                 style={{ width: `${Math.min(95, 10 + storyboardStep * 18)}%` }}
               />
             </div>
@@ -1615,13 +1617,17 @@ export default function MusicVideoAutopilot() {
       {/* Header — Production Set Hero (matches mockup-wizvideo-stages.html) */}
       {/* Top sticky nav */}
       <div className="sticky top-0 z-40" style={{background:'rgba(10,10,10,0.95)',backdropFilter:'blur(12px)',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between" style={{ position: 'relative', zIndex: 1 }}>
           <NavLink href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-xs font-medium tracking-wider uppercase">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Studio</span>
           </NavLink>
-          <NavLink href="/">
-            <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+          <NavLink href="/" className="flex items-center gap-2.5">
+            <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(20,184,166,0.20)]" loading="eager" decoding="async" />
+            <span className="hidden sm:flex items-center gap-1.5">
+              <span className="font-bold text-[16px] tracking-[2px] text-white/90" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZVIDEO</span>
+              <span className="text-[8px] font-bold tracking-[2px] text-[#14b8a6] px-1.5 py-0.5 rounded-sm border border-[#14b8a6]/25 uppercase" style={{ background: "rgba(20,184,166,0.08)" }}>DIRECTOR</span>
+            </span>
           </NavLink>
           <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors">
             <LayoutDashboard className="w-4 h-4" />
@@ -1662,9 +1668,10 @@ export default function MusicVideoAutopilot() {
                           padding: '5px 14px', borderRadius: 20,
                           fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
                           whiteSpace: 'nowrap', transition: 'all 0.2s',
-                          background: isActive ? 'linear-gradient(135deg,#d4a843,#b8892a)' : isCompleted ? 'rgba(212,168,67,0.12)' : 'rgba(255,255,255,0.04)',
-                          border: isActive ? '1px solid #d4a843' : isCompleted ? '1px solid rgba(212,168,67,0.3)' : '1px solid rgba(255,255,255,0.08)',
-                          color: isActive ? '#000' : isCompleted ? '#d4a843' : 'rgba(255,255,255,0.35)',
+                          background: isActive ? 'linear-gradient(135deg,#14b8a6,#0d9488)' : isCompleted ? 'rgba(20,184,166,0.12)' : 'rgba(255,255,255,0.04)',
+                          border: isActive ? '1px solid #14b8a6' : isCompleted ? '1px solid rgba(20,184,166,0.35)' : '1px solid rgba(255,255,255,0.08)',
+                          color: isActive ? '#000' : isCompleted ? '#14b8a6' : 'rgba(255,255,255,0.35)',
+                          boxShadow: isActive ? '0 0 12px rgba(20,184,166,0.25)' : 'none',
                           cursor: isAccessible ? 'pointer' : 'not-allowed',
                           opacity: isAccessible ? 1 : 0.4,
                         }}
@@ -1672,8 +1679,8 @@ export default function MusicVideoAutopilot() {
                         <span style={{
                           width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 10, fontWeight: 800,
-                          background: isActive ? 'rgba(0,0,0,0.25)' : isCompleted ? 'rgba(212,168,67,0.2)' : 'rgba(255,255,255,0.08)',
-                          color: isActive ? '#000' : isCompleted ? '#d4a843' : 'rgba(255,255,255,0.4)',
+                          background: isActive ? 'rgba(0,0,0,0.25)' : isCompleted ? 'rgba(20,184,166,0.2)' : 'rgba(255,255,255,0.08)',
+                          color: isActive ? '#000' : isCompleted ? '#14b8a6' : 'rgba(255,255,255,0.4)',
                         }}>
                           {isCompleted ? '✓' : i + 1}
                         </span>
@@ -1699,14 +1706,14 @@ export default function MusicVideoAutopilot() {
         <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.4) 40%,transparent 100%)',pointerEvents:'none'}} />
         {/* Title overlay */}
         <div style={{position:'absolute',top:16,left:24,zIndex:20}}>
-          <div style={{fontSize:9,fontWeight:600,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.4)',marginBottom:3}}>Production</div>
+          <div style={{fontSize:9,fontWeight:600,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.4)',marginBottom:3}}>WizVideo™ · AI Studio</div>
           <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,letterSpacing:3,color:'rgba(255,255,255,0.9)',textShadow:'0 2px 20px rgba(0,0,0,0.8)',lineHeight:1}}>MUSIC VIDEO DIRECTOR</div>
-          <div style={{fontSize:11,fontWeight:500,color:'#d4a843',letterSpacing:'0.5px',marginTop:3}}>Character Lock · Storyboard · Screening Room</div>
+          <div style={{fontSize:11,fontWeight:500,color:'#14b8a6',letterSpacing:'0.5px',marginTop:3}}>Character Lock · Storyboard · Screening Room</div>
         </div>
         {/* FILMING indicator */}
-        <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.75)',border:'1px solid rgba(255,59,48,0.5)',borderRadius:3,padding:'5px 12px',zIndex:20}}>
-          <div style={{width:8,height:8,borderRadius:'50%',background:'#ff3b30',boxShadow:'0 0 8px #ff3b30',animation:'filmingBlink 1.2s ease-in-out infinite'}} />
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#ff3b30'}}>FILMING</div>
+        <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.75)',border:'1px solid rgba(20,184,166,0.4)',borderRadius:3,padding:'5px 12px',zIndex:20,boxShadow:'0 0 16px rgba(20,184,166,0.12)'}}>
+          <div style={{width:8,height:8,borderRadius:'50%',background:'#14b8a6',boxShadow:'0 0 8px #14b8a6',animation:'filmingBlink 1.2s ease-in-out infinite'}} />
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#14b8a6'}}>LIVE</div>
         </div>
         <style>{`@keyframes filmingBlink{0%,100%{opacity:1}50%{opacity:0.35}}`}</style>
       </div>

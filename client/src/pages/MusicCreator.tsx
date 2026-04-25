@@ -196,7 +196,7 @@ function VUMeter({ channel, isActive }: { channel: "L" | "R"; isActive: boolean 
 
 /* ── Main Component ───────────────────────────────────────────────────────── */
 export default function MusicCreator() {
-  useSEO({ title: "WizAudio™ — AI Music Engine", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
+  useSEO({ title: "WizSound™ — AI Recording Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
   const { user, loading: authLoading } = useAuth();
 
   // ── Form state ──
@@ -323,7 +323,9 @@ export default function MusicCreator() {
   }
 
   return (
-    <div className="min-h-screen text-white" style={{ backgroundColor: "#060608", fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen text-white" style={{ backgroundColor: "#050407", fontFamily: "'Inter', sans-serif" }}>
+      {/* ── Ambient: Gold recording studio glow ── */}
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 70% 50% at 20% 0%, rgba(201,168,76,0.10) 0%, transparent 65%), radial-gradient(ellipse 50% 40% at 80% 100%, rgba(180,140,50,0.07) 0%, transparent 60%)" }} />
 
       {/* ── TOP NAV ── */}
       <header className="sticky top-0 z-50 h-[52px] flex items-center justify-between px-7" style={{ background: "rgba(4,4,6,0.97)", borderBottom: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(20px)" }}>
@@ -333,8 +335,8 @@ export default function MusicCreator() {
           </Link>
           <div className="w-px h-[18px] bg-white/7" />
           <div className="flex items-center gap-2.5">
-            <span className="font-bold text-[19px] tracking-[2px]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZAUDIO</span>
-            <span className="text-[9px] font-bold tracking-[2px] text-[--color-gold] px-1.5 py-0.5 rounded-sm border border-[--color-gold]/22 uppercase" style={{ background: "rgba(201,168,76,0.1)" }}>AI MUSIC ENGINE</span>
+            <span className="font-bold text-[19px] tracking-[2px]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZSOUND</span>
+            <span className="text-[8px] font-bold tracking-[2.5px] text-[--color-gold] px-1.5 py-0.5 rounded-sm border border-[--color-gold]/22 uppercase" style={{ background: "rgba(201,168,76,0.1)" }}>RECORDING STUDIO</span>
           </div>
         </div>
         <div className="flex items-center gap-3.5">
@@ -363,9 +365,10 @@ export default function MusicCreator() {
           <div className="text-[28px] leading-none tracking-[3px] text-white/90" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
             {title || "New Track"}
           </div>
-          <div className="text-[11px] font-medium text-[--color-gold] mt-0.5">
+          <div className="text-[11px] font-medium text-[--color-gold] mt-0.5" style={{ letterSpacing: '0.5px' }}>
             {selectedGenres.join(" · ") || "No genre"} · {selectedMoods.join(" · ") || "No mood"}
           </div>
+          <div className="text-[8px] font-bold tracking-[3px] uppercase mt-1.5" style={{ color: 'rgba(201,168,76,0.4)' }}>WizSound™ · AI Recording Studio</div>
         </div>
 
         {/* Wiz Studios brand */}
@@ -373,10 +376,10 @@ export default function MusicCreator() {
           <div className="flex items-center gap-2.5 w-full justify-center">
             <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
           </div>
-          <div className="text-[42px] leading-none tracking-[12px] text-white/18" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 0 40px rgba(201,168,76,0.25)", WebkitTextStroke: "0.5px rgba(255,255,255,0.12)" }}>WIZ STUDIOS</div>
+          <div className="text-[42px] leading-none tracking-[12px] text-white/18" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 0 40px rgba(201,168,76,0.3)", WebkitTextStroke: "0.5px rgba(255,255,255,0.12)" }}>WIZ SOUND</div>
           <div className="flex items-center gap-2.5 w-full justify-center">
             <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
-            <div className="text-[9px] font-semibold tracking-[5px] uppercase text-[--color-gold]/35" style={{ textShadow: "0 0 20px rgba(201,168,76,0.2)" }}>Recording · Mixing · Mastering</div>
+            <div className="text-[9px] font-semibold tracking-[5px] uppercase text-[--color-gold]/40" style={{ textShadow: "0 0 20px rgba(201,168,76,0.25)" }}>Recording · Mixing · Mastering</div>
             <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
           </div>
         </div>
@@ -389,24 +392,24 @@ export default function MusicCreator() {
       </div>
 
       {/* ── SSL CONSOLE ── */}
-      <div className="flex flex-col" style={{ background: "#16161c", borderTop: "2px solid rgba(80,80,100,0.5)", minHeight: "calc(100vh - 332px)" }}>
+        <div className="flex flex-col" style={{ background: "#13111a", borderTop: "2px solid rgba(201,168,76,0.18)", minHeight: "calc(100vh - 332px)" }}>
 
-        {/* Console Rail */}
-        <div className="flex items-center px-4 gap-3 flex-shrink-0" style={{ height: 82, background: "#0e0e12", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          {/* Left: brand + ambient */}
-          <div className="flex flex-col gap-1.5 flex-shrink-0">
-            <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">SSL 9000 — Master Bus</div>
-            <div className="flex items-center gap-2.5 px-3 py-1 rounded-[4px] border border-[--color-gold]/15" style={{ background: "rgba(0,0,0,0.3)" }}>
-              <span className="text-[8px] font-bold tracking-[2px] uppercase text-white/20">Studio Ambience</span>
-              <input
-                type="range" min={20} max={100} value={ambience}
-                onChange={(e) => setAmbience(Number(e.target.value))}
-                className="w-20 h-1 cursor-pointer accent-[#c9a84c]"
-                style={{ background: `linear-gradient(to right, #3a3000 0%, #c9a84c ${ambience}%, #1a1a1a ${ambience}%)` }}
-              />
-              <span className="text-[11px] font-bold text-[--color-gold] font-mono w-8">{ambience}%</span>
+          {/* Console Rail */}
+          <div className="flex items-center px-4 gap-3 flex-shrink-0" style={{ height: 82, background: "#0b0910", borderBottom: "1px solid rgba(201,168,76,0.10)" }}>
+            {/* Left: brand + ambient */}
+            <div className="flex flex-col gap-1.5 flex-shrink-0">
+              <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">SSL 9000 — Master Bus · WizSound™</div>
+              <div className="flex items-center gap-2.5 px-3 py-1 rounded-[4px] border border-[--color-gold]/15" style={{ background: "rgba(0,0,0,0.3)" }}>
+                <span className="text-[8px] font-bold tracking-[2px] uppercase text-white/20">Studio Ambience</span>
+                <input
+                  type="range" min={20} max={100} value={ambience}
+                  onChange={(e) => setAmbience(Number(e.target.value))}
+                  className="w-20 h-1 cursor-pointer accent-[#c9a84c]"
+                  style={{ background: `linear-gradient(to right, #3a3000 0%, #c9a84c ${ambience}%, #1a1a1a ${ambience}%)` }}
+                />
+                <span className="text-[11px] font-bold text-[--color-gold] font-mono w-8">{ambience}%</span>
+              </div>
             </div>
-          </div>
 
           {/* Centre: EQ display */}
           <div className="flex-1 max-w-[520px] rounded-[4px] overflow-hidden px-2.5 pt-1.5 pb-0.5" style={{ background: "#080810", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "inset 0 2px 8px rgba(0,0,0,0.8)" }}>
@@ -428,13 +431,13 @@ export default function MusicCreator() {
         </div>
 
         {/* Console Body */}
-        <div className="grid flex-1 overflow-hidden" style={{ gridTemplateColumns: "1fr 300px" }}>
+          <div className="grid flex-1 overflow-hidden" style={{ gridTemplateColumns: "1fr 300px", background: "#0f0d15" }}>
 
-          {/* ── LEFT: Channel Area ── */}
-          <div className="overflow-y-auto p-3.5 flex flex-col gap-3" style={{ borderRight: "1px solid rgba(255,255,255,0.07)" }}>
+            {/* ── LEFT: Channel Area ── */}
+            <div className="overflow-y-auto p-3.5 flex flex-col gap-3" style={{ borderRight: "1px solid rgba(201,168,76,0.08)" }}>
 
             {/* Engine Selector */}
-            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0b0910" }}>
               <div className="flex items-center gap-2 px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)", fontSize: 9, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: "rgba(255,255,255,0.2)" }}>
                 <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
                 Recording Booth — Generation Engine
@@ -476,7 +479,7 @@ export default function MusicCreator() {
             </div>
 
             {/* Track Brief */}
-            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0b0910" }}>
               <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.35)" }}>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
@@ -693,8 +696,8 @@ export default function MusicCreator() {
           </div>
 
           {/* ── RIGHT: Master Section ── */}
-          <div className="flex flex-col gap-3 overflow-y-auto p-3.5" style={{ background: "#0e0e12" }}>
-            <div className="text-[9px] font-bold tracking-[3px] uppercase text-white/16 text-center pb-2.5 border-b border-white/7">Master Bus</div>
+          <div className="flex flex-col gap-3 overflow-y-auto p-3.5" style={{ background: "#09080e" }}>
+            <div className="text-[9px] font-bold tracking-[3px] uppercase text-white/16 text-center pb-2.5 border-b border-white/7">Master Bus · WizSound™</div>
 
             {/* VU Meters */}
             <div className="flex justify-center gap-2.5">
@@ -846,7 +849,7 @@ export default function MusicCreator() {
               onClick={handleGenerate}
               disabled={!canGenerate}
               className="w-full rounded-xl font-extrabold text-sm tracking-[2px] uppercase transition-all hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed btn-primary btn-sheen"
-              style={{ padding: "14px", background: "linear-gradient(135deg, #d4a843, #b8860b)", boxShadow: "0 4px 20px rgba(212,168,67,0.3)" }}
+              style={{ padding: "14px", background: "linear-gradient(135deg, #d4a843, #a07820)", boxShadow: "0 4px 24px rgba(212,168,67,0.35), 0 0 0 1px rgba(201,168,76,0.2)" }}
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center gap-2">
