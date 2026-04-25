@@ -3166,12 +3166,18 @@ function Footer() {
               support@wiz-ai.io
             </a>
           </div>
-          {/* Products */}
+          {/* Products — creation tools only */}
           <div>
             <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Products</h4>
-            <div className="flex flex-col gap-3">
-              {[...PRODUCTS_CREATE, ...PRODUCTS_ENHANCE, ...PRODUCTS_GROW].map((p) => (
+            <div className="flex flex-col gap-3 mb-6">
+              {PRODUCTS_CREATE.map((p) => (
                 <a key={p.name} href={p.href} className="text-sm text-[--color-silver-dark]/40 hover:text-[--color-gold] transition-colors font-medium">{p.name}</a>
+              ))}
+            </div>
+            <h4 className="text-[--color-gold-dark]/40 text-[10px] font-bold uppercase tracking-widest mb-4">Engines</h4>
+            <div className="flex flex-col gap-3">
+              {[...PRODUCTS_ENHANCE, ...PRODUCTS_GROW].map((p) => (
+                <a key={p.name} href={p.href} className="text-sm text-[--color-silver-dark]/30 hover:text-[--color-gold-dark] transition-colors font-medium">{p.name}</a>
               ))}
             </div>
           </div>

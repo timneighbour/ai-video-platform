@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, ArrowLeft, Sparkles, Play, Film, Music, Wand2, Zap } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Sparkles, Play, Film, Music, Wand2, Zap, Image } from 'lucide-react';
 import { mp } from '@/lib/mixpanel';
 import { analytics } from '@/lib/analytics';
 
@@ -7,13 +7,12 @@ const CDN = '/manus-storage';
 
 const options = [
   {
-    href: '/music-video/create',
-    title: 'WizVideo',
-    subtitle: 'Music Video Creator',
-    description: 'Turn your lyrics and audio into a full cinematic music video — with AI storyboard, characters, and scenes.',
+    href: '/music-video',
+    title: 'WizVideo™',
+    subtitle: 'AI Music Video Director',
+    description: 'Turn your audio track into a full cinematic music video — beat-locked, colour-graded, 4K. AI storyboard, characters, and scenes.',
     isPopular: true,
     icon: Film,
-    // Use cinematic style images as card backgrounds
     bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp",
     bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-2-h73cYMBR7EECiKvo2X9uWr.webp",
     accentColor: '#b8892a',
@@ -23,23 +22,23 @@ const options = [
     stats: ['Full music video', 'AI storyboard', 'Character sync'],
   },
   {
-    href: '/wiz-shorts',
+    href: '/products/wizshorts',
     title: 'WizShorts™',
-    subtitle: 'YouTube & Social Creator',
-    description: 'Create faceless YouTube videos, Reels, and TikToks automatically — AI script, visuals, voiceover, and music in one click.',
+    subtitle: 'Short-Form Creator Studio',
+    description: 'Platform-optimised short-form videos for TikTok, YouTube Shorts, Instagram Reels, and Snapchat — Hook/Story/CTA structure built in.',
     isPopular: false,
     icon: Play,
     bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-1-27gSFotXB4DE92dN47HiDu.webp",
     bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-realistic-1-3PQ9beTsYUCXpz7YnqEHJd.webp",
-    accentColor: '#ff4444',
-    glowColor: 'rgba(255,68,68,0.25)',
+    accentColor: '#d946ef',
+    glowColor: 'rgba(217,70,239,0.25)',
     tag: 'For Creators',
-    tagColor: 'from-[#ff4444] to-[#ff8888]',
-    stats: ['Faceless video', 'Auto-voiceover', 'Viral ready'],
+    tagColor: 'from-[#d946ef] to-[#e879f9]',
+    stats: ['4 platforms', 'Auto-captions', 'Viral ready'],
   },
   {
     href: '/products/wizanimate',
-    title: 'WizAnimate™',
+    title: 'WizAnimate™', // two-step: product page first
     subtitle: 'Character Animation Studio',
     description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
     isPopular: false,
@@ -81,6 +80,21 @@ const options = [
     tag: 'Audio AI',
     tagColor: 'from-[#22c55e] to-[#86efac]',
     stats: ['Any genre', 'Royalty-free', 'Studio grade'],
+  },
+  {
+    href: '/wiz-image',
+    title: 'WizImage™',
+    subtitle: 'AI Visual Creator',
+    description: 'Describe any image and WizImage renders it in seconds — photorealistic, cinematic, anime, oil painting, and more.',
+    isPopular: false,
+    icon: Image,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-1-V8cGaKNXBvMPgNtyuk2xCr.webp",
+    accentColor: '#6366f1',
+    glowColor: 'rgba(99,102,241,0.25)',
+    tag: 'Image AI',
+    tagColor: 'from-[#6366f1] to-[#818cf8]',
+    stats: ['8 art styles', 'Photorealistic', 'Instant'],
   },
 ];
 
@@ -312,9 +326,9 @@ const Onboarding: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom row: Text to Video + WizAudio */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {[options[3], options[4]].map((option, idx) => {
+           {/* Bottom row: WizScript + WizSound + WizImage */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[options[3], options[4], options[5]].map((option, idx) => {
               const realIdx = idx + 3;
               const Icon = option.icon;
               return (

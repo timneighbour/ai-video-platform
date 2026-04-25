@@ -276,13 +276,13 @@ function ToolCard({ tool }: { tool: Tool }) {
   };
 
   return (
-    <div
+      <div
       onClick={handleClick}
       className="group relative cursor-pointer rounded-3xl overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1"
       style={{
-        background: "#080808",
+        background: "#060606",
         border: `1px solid ${accentColor}28`,
-        boxShadow: `0 4px 30px rgba(0,0,0,0.6)`,
+        boxShadow: `0 8px 40px rgba(0,0,0,0.7)`,
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement;
@@ -296,7 +296,7 @@ function ToolCard({ tool }: { tool: Tool }) {
       }}
     >
       {/* Full-bleed background image */}
-      <div className="relative h-52 overflow-hidden">
+      <div className="relative h-64 overflow-hidden">
         <img
           src={tool.bg}
           alt=""
@@ -517,12 +517,28 @@ export default function Create() {
   const remainingCoreTools = CORE_TOOLS.slice(1);
 
   return (
-    <div className="min-h-screen studio-bg text-white">
+    <div className="min-h-screen text-white" style={{ background: "#040404" }}>
+      {/* ── Ambient background layers ────────────────────────────────────────── */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+        {/* Deep black base */}
+        <div className="absolute inset-0" style={{ background: "#040404" }} />
+        {/* Gold radial glow — top centre */}
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 90% 55% at 50% -10%, rgba(196,164,100,0.09), transparent 65%)" }} />
+        {/* Secondary warm glow — bottom right */}
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 40% at 90% 100%, rgba(196,164,100,0.05), transparent 70%)" }} />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(196,164,100,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(196,164,100,0.025) 1px, transparent 1px)", backgroundSize: "80px 80px" }} />
+        {/* Noise texture overlay */}
+        <div className="absolute inset-0" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E\")", opacity: 0.4 }} />
+      </div>
+
       {/* ── Unified PublicNavBar ─────────────────────────────────────────────── */}
+      <div className="relative" style={{ zIndex: 10 }}>
       <PublicNavBar />
+      </div>
 
       {/* ── Hero ────────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden">
+           <div className="relative overflow-hidden" style={{ zIndex: 1 }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(196,164,100,0.07), transparent)" }} />
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-12 text-center">
@@ -557,7 +573,7 @@ export default function Create() {
       </div>
 
       {/* ── Core creation tools ──────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-8 relative" style={{ zIndex: 1 }}>
         <SectionDivider
           icon={<Layers className="w-4 h-4" />}
           label="Core Creation Tools"
@@ -570,7 +586,7 @@ export default function Create() {
         </div>
 
         {/* Remaining core tools — 5 in a responsive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           {remainingCoreTools.map((tool) => (
             <ToolCard key={tool.id} tool={tool} />
           ))}
@@ -578,7 +594,7 @@ export default function Create() {
       </div>
 
       {/* ── Utility & enhancement tools ─────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20 mt-12">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20 mt-12 relative" style={{ zIndex: 1 }}>
         {/* Visual separator */}
         <div className="border-t border-white/5 pt-12 mb-8">
           <SectionDivider
@@ -596,7 +612,7 @@ export default function Create() {
       </div>
 
       {/* ── Footer CTA ──────────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20 relative" style={{ zIndex: 1 }}>
         <div className="text-center border-t border-white/5 pt-12">
           <p className="text-white/28 text-sm mb-5">Not sure where to start?</p>
           <div className="flex flex-wrap justify-center gap-3">
