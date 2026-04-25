@@ -1,19 +1,25 @@
 /**
  * WizShortsProductPage — dedicated studio-style product page for WizShorts™
  *
- * Visual theme: Short-form vertical content studio
+ * Visual theme: Short-form vertical content studio — creator energy
  * Accent: Hot pink / fuchsia #d946ef
- * Background: Near-black #050508 with vertical stripe pattern
- * Hero: Portrait phone mockup centre with landscape copy flanking
- * Signature section: Format Showcase — 3 vertical phone frames (Hook/Story/CTA) with platform badges
- * Key structural difference: Only page with 9:16 portrait-oriented content cards
+ * Background: Near-black #050508 with speed-lines + fuchsia radial glow
+ * Hero: Full-screen cinematic with scaled portrait phone mockups
+ * P1: Hero ambient upgrade — stronger bg, glow, speed-lines
+ * P2: Phone mockup scale-up — 180px/320px hero, 200px/356px showcase
+ * P3: Stats bar upgrade — larger numbers, 4 stats
+ * P4: PublicNavBar replaces bespoke nav
+ * P5: Section heading typography upgrade — text-4xl/5xl, gradient accents
+ * P6: Feature card copy depth — creator-facing benefit copy
+ * P7: Non-numeric credibility strip (factual, no invented metrics)
+ * P8: Mid-page CTA visual upgrade — dramatic gradient, stronger copy
  */
 import React, { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
+import PublicNavBar from "@/components/PublicNavBar";
 import { NavLink } from "@/components/NavLink";
-import BackButton from "@/components/BackButton";
 import {
-  ArrowRight, ChevronRight, ChevronDown, Sparkles, Check, Zap, Eye, Layers,
+  ArrowRight, ChevronRight, ChevronDown, Zap, Check,
 } from "@/lib/icons";
 import {
   WIZSHORTS_STUDIO_PAGE,
@@ -37,9 +43,10 @@ const IMGS = {
   feat3:   `${CDN}/card-sync_b129b54a.jpg`,
 };
 
-const ACCENT = "#d946ef";
-const ACCENT_DIM = "rgba(217,70,239,0.12)";
-const ACCENT_GLOW = "rgba(217,70,239,0.35)";
+const ACCENT      = "#d946ef";
+const ACCENT_DIM  = "rgba(217,70,239,0.14)";
+const ACCENT_GLOW = "rgba(217,70,239,0.40)";
+const ACCENT_MID  = "rgba(217,70,239,0.22)";
 
 const PLATFORMS = [
   { name: "TikTok",             color: "#010101", textColor: "#fff",    border: "#333" },
@@ -79,13 +86,38 @@ const HOW_IT_WORKS = [
   { num: "04", title: "Export and publish",         desc: "Download in 9:16 vertical format, optimised for your chosen platform — ready to upload directly." },
 ];
 
+// P6 — Creator-facing, benefit-driven feature copy
 const KEY_FEATURES = [
-  { title: "9:16 Vertical Format",        desc: "Every WizShorts™ output is native 9:16 vertical — no cropping, no black bars, no format conversion.", img: IMGS.hook },
-  { title: "Platform-Specific Optimisation", desc: "TikTok, YouTube Shorts, Instagram Reels, and Snapchat Spotlight each have different algorithms — WizShorts™ adapts content for each.", img: IMGS.feat1 },
-  { title: "Hook/Story/CTA Structure",    desc: "Every short follows the proven 3-part structure: scroll-stopping hook, engaging story, and clear CTA — automatically.", img: IMGS.story },
-  { title: "Auto-Captions",              desc: "Captions generated and styled automatically — large, readable, and positioned for mobile viewing.", img: IMGS.feat2 },
-  { title: "Trending Audio Integration", desc: "WizShorts™ can match your content to trending audio formats — or use WizSound™ to generate original music.", img: IMGS.feat3 },
-  { title: "Batch Generation",           desc: "Generate 5, 10, or 20 shorts from a single content brief — ideal for content calendars and campaign batches.", img: IMGS.cta },
+  {
+    title: "Native 9:16 Vertical Format",
+    desc: "WizShorts™ composes every frame for vertical viewing from the start — not a landscape video cropped down. No black bars, no awkward reframing, no lost detail at the edges.",
+    img: IMGS.hook,
+  },
+  {
+    title: "Platform-Specific Optimisation",
+    desc: "TikTok's algorithm rewards different pacing than Reels. YouTube Shorts has different caption conventions than Spotlight. WizShorts™ knows the difference — and adapts every output automatically for the platform you choose.",
+    img: IMGS.feat1,
+  },
+  {
+    title: "Hook/Story/CTA Structure",
+    desc: "Every short follows the proven 3-part structure that drives the highest watch-through and engagement rates. The hook stops the scroll, the story delivers the value, and the CTA converts the viewer — all generated automatically.",
+    img: IMGS.story,
+  },
+  {
+    title: "Auto-Captions",
+    desc: "Captions are generated, styled, and positioned automatically — large, readable, and formatted for mobile viewing. Platform-specific caption conventions applied per output.",
+    img: IMGS.feat2,
+  },
+  {
+    title: "Trending Audio Integration",
+    desc: "WizShorts™ can match your content to trending audio formats for each platform, or connect to WizSound™ to generate original music that fits the mood and pacing of your short.",
+    img: IMGS.feat3,
+  },
+  {
+    title: "Batch Generation",
+    desc: "Generate 5, 10, or 20 shorts from a single content brief — each with a different hook, visual treatment, or CTA. Ideal for content calendars, A/B testing, and campaign batches.",
+    img: IMGS.cta,
+  },
 ];
 
 const BENEFITS = [
@@ -95,6 +127,30 @@ const BENEFITS = [
   { title: "Content calendar scale",             desc: "Generate a week's worth of shorts in the time it takes to produce one manually — ideal for consistent posting schedules." },
   { title: "No editing skills needed",           desc: "WizShorts™ handles scripting, visuals, captions, and platform optimisation — you provide the concept, the AI produces the content." },
   { title: "Cross-platform from one brief",      desc: "One content brief generates platform-specific variants for TikTok, YouTube Shorts, Reels, and Spotlight simultaneously." },
+];
+
+// P7 — Non-numeric credibility strip (factual, no invented metrics)
+const CREDIBILITY_ITEMS = [
+  {
+    icon: "✦",
+    title: "4 platforms, one brief",
+    desc: "TikTok, YouTube Shorts, Instagram Reels, and Snapchat Spotlight — each output adapted for that platform's format, algorithm, and caption conventions.",
+  },
+  {
+    icon: "✦",
+    title: "Native 9:16 from the start",
+    desc: "Every WizShorts™ output is composed vertically from the first frame — not a landscape video reformatted after the fact.",
+  },
+  {
+    icon: "✦",
+    title: "Hook/Story/CTA — automatically",
+    desc: "The three-part structure proven to drive short-form watch-through and engagement is applied to every generated short, without manual planning.",
+  },
+  {
+    icon: "✦",
+    title: "Batch generation up to 20",
+    desc: "Generate up to 20 variants from a single brief — different hooks, visual treatments, and CTAs — for testing, scheduling, or campaign batches.",
+  },
 ];
 
 const FAQS = [
@@ -119,56 +175,70 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-/** A single portrait phone frame */
-function PhoneFrame({ img, label, subtitle, desc, tip, index }: {
+/** P2 — Scaled-up portrait phone frame */
+function PhoneFrame({
+  img, label, subtitle, desc, tip, index,
+  width = 180, height = 320,
+}: {
   img: string; label: string; subtitle: string; desc: string; tip: string; index: number;
+  width?: number; height?: number;
 }) {
   return (
     <div className="flex flex-col items-center">
-      {/* Phone shell */}
       <div
-        className="relative rounded-[28px] overflow-hidden mb-4"
+        className="relative overflow-hidden mb-5"
         style={{
-          width: "140px",
-          height: "248px",
+          width: `${width}px`,
+          height: `${height}px`,
+          borderRadius: "28px",
           border: `2px solid ${index === 0 ? ACCENT : "rgba(255,255,255,0.12)"}`,
-          boxShadow: index === 0 ? `0 0 30px ${ACCENT_GLOW}` : "0 4px 24px rgba(0,0,0,0.5)",
+          boxShadow: index === 0
+            ? `0 0 40px ${ACCENT_GLOW}, 0 0 80px ${ACCENT_MID}`
+            : "0 8px 40px rgba(0,0,0,0.6)",
           background: "#111",
         }}
       >
         {/* Notch */}
         <div
-          className="absolute top-2 left-1/2 -translate-x-1/2 z-10 rounded-full"
-          style={{ width: "36px", height: "6px", background: "#000" }}
+          className="absolute top-2.5 left-1/2 -translate-x-1/2 z-10 rounded-full"
+          style={{ width: "40px", height: "6px", background: "#000" }}
         />
-        {/* Screen content */}
         <img src={img} alt={label} className="w-full h-full object-cover" loading="lazy" />
-        {/* Overlay gradient */}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)" }} />
-        {/* Label overlay */}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 45%)" }} />
+        {/* Simulated caption bar */}
+        <div
+          className="absolute bottom-10 left-3 right-3 px-2 py-1 rounded text-center"
+          style={{ background: "rgba(0,0,0,0.72)" }}
+        >
+          <div className="text-[9px] font-black text-white uppercase tracking-wide">
+            {label === "Hook" ? "WATCH THIS 👀" : label === "Story" ? "HERE'S HOW IT WORKS" : "FOLLOW FOR MORE ✨"}
+          </div>
+        </div>
+        {/* Section label */}
         <div className="absolute bottom-3 left-0 right-0 text-center">
           <div
-            className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider"
+            className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
             style={{ background: index === 0 ? ACCENT : "rgba(255,255,255,0.15)", color: "#fff" }}
           >
             {label}
           </div>
-          <div className="text-[8px] text-white/50 mt-0.5">{subtitle}</div>
         </div>
-        {/* Status bar simulation */}
+        {/* Status bar */}
         <div className="absolute top-0 left-0 right-0 h-8 flex items-start justify-between px-3 pt-1">
           <div className="text-[7px] text-white/60 mt-1">9:41</div>
           <div className="flex gap-0.5 mt-1">
-            {[3,2,1].map(i => <div key={i} className="w-0.5 rounded-sm" style={{ height: `${i * 3}px`, background: "rgba(255,255,255,0.5)", alignSelf: "flex-end" }} />)}
+            {[3, 2, 1].map(i => (
+              <div key={i} className="w-0.5 rounded-sm" style={{ height: `${i * 3}px`, background: "rgba(255,255,255,0.5)", alignSelf: "flex-end" }} />
+            ))}
           </div>
         </div>
       </div>
       {/* Description */}
-      <div className="text-center max-w-[160px]">
-        <div className="text-xs font-bold text-white mb-1">{label}</div>
-        <div className="text-[10px] text-white/40 leading-snug mb-2">{desc}</div>
+      <div className="text-center max-w-[200px]">
+        <div className="text-sm font-bold text-white mb-1.5">{label} — {subtitle}</div>
+        <div className="text-[11px] text-white/40 leading-snug mb-3">{desc}</div>
         <div
-          className="text-[9px] px-2 py-1 rounded-lg"
+          className="text-[10px] px-3 py-1.5 rounded-lg"
           style={{ background: `${ACCENT}10`, color: ACCENT, border: `1px solid ${ACCENT}20` }}
         >
           {tip}
@@ -190,86 +260,98 @@ export default function WizShortsProductPage() {
       className="text-white min-h-screen overflow-x-hidden"
       style={{ background: "#050508" }}
     >
-      {/* Vertical stripe pattern */}
+      {/* P1 — Ambient: speed-lines + fuchsia radial glow */}
       <div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
-          backgroundImage: `repeating-linear-gradient(90deg, ${ACCENT}06 0px, ${ACCENT}06 1px, transparent 1px, transparent 40px)`,
-          opacity: 0.8,
+          backgroundImage: `
+            repeating-linear-gradient(135deg, ${ACCENT}05 0px, ${ACCENT}05 1px, transparent 1px, transparent 48px),
+            repeating-linear-gradient(90deg, ${ACCENT}04 0px, ${ACCENT}04 1px, transparent 1px, transparent 40px)
+          `,
+          opacity: 0.9,
+        }}
+      />
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          background: `radial-gradient(ellipse 70% 55% at 70% 20%, ${ACCENT_MID} 0%, transparent 60%)`,
         }}
       />
 
-      {/* ── Nav ── */}
-      <nav
-        className="sticky top-0 z-50 border-b px-6 py-4"
-        style={{ background: "rgba(5,5,8,0.92)", backdropFilter: "blur(20px)", borderColor: `${ACCENT}18` }}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <BackButton fallback="/" label="Back" />
-            <div className="flex items-center gap-3">
-              <img src={LOGO} alt="WizShorts™" className="h-8 w-auto object-contain" loading="lazy" />
-              <span
-                className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase"
-                style={{ border: `1px solid ${ACCENT}30`, background: `${ACCENT}08`, color: ACCENT }}
-              >
-                Short-Form Studio
-              </span>
-            </div>
-          </div>
-          <NavLink
-            href={WIZSHORTS_STUDIO_PAGE}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs text-white transition-all shadow-lg"
-            style={{ background: ACCENT, boxShadow: `0 0 20px ${ACCENT_GLOW}` }}
-          >
-            <Zap className="w-3.5 h-3.5" />
-            Create Short
-          </NavLink>
-        </div>
-      </nav>
+      {/* P4 — PublicNavBar */}
+      <PublicNavBar />
 
-      {/* ── Hero — Portrait phone centre + flanking copy ── */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      {/* ── Hero — Full-screen cinematic ── */}
+      <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
+        {/* P1 — Hero background: stronger opacity + layered glows */}
         <div className="absolute inset-0">
-          <img src={IMGS.hero} alt="" className="w-full h-full object-cover object-center opacity-20" loading="eager" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,5,8,0.7) 0%, rgba(5,5,8,0.6) 40%, rgba(5,5,8,0.92) 100%)" }} />
-          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 70% at 50% 50%, ${ACCENT_DIM} 0%, transparent 60%)` }} />
-          <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(135deg, ${ACCENT}04 0px, ${ACCENT}04 1px, transparent 1px, transparent 40px)`, opacity: 0.7 }} />
+          <img
+            src={IMGS.hero}
+            alt=""
+            className="w-full h-full object-cover object-center"
+            style={{ opacity: 0.40 }}
+            loading="eager"
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.50) 40%, rgba(5,5,8,0.95) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 90% 70% at 50% 30%, ${ACCENT_DIM} 0%, transparent 65%)` }} />
+          {/* Speed-lines overlay */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `repeating-linear-gradient(135deg, ${ACCENT}06 0px, ${ACCENT}06 1px, transparent 1px, transparent 60px)`,
+              opacity: 0.7,
+            }}
+          />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 py-28 w-full">
-          {/* Top: Headline centred */}
-          <div className="text-center mb-16">
-            <img src={LOGO} alt="WizShorts™" className="h-12 w-auto object-contain mx-auto mb-6" loading="eager" />
+        <div className="relative max-w-7xl mx-auto px-6 py-20 w-full">
+          {/* Logo + badge */}
+          <div className="text-center mb-10">
+            <img src={LOGO} alt="WizShorts™" className="h-14 w-auto object-contain mx-auto mb-6" loading="eager" />
             <div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-6"
-              style={{ border: `1px solid ${ACCENT}30`, background: `${ACCENT}08`, color: ACCENT }}
+              style={{ border: `1px solid ${ACCENT}35`, background: `${ACCENT}0a`, color: ACCENT }}
             >
               <Zap className="w-3 h-3" />
               The Short-Form Studio
             </div>
-            <h1 className="text-5xl md:text-6xl font-black leading-[1.05] mb-6 text-white">
+
+            {/* P5 — Larger, stronger headline */}
+            <h1 className="text-5xl md:text-7xl font-black leading-[1.02] mb-6 text-white tracking-tight">
               Stop the scroll.<br />
-              <span style={{ color: ACCENT }}>Every time.</span>
+              <span
+                style={{
+                  background: `linear-gradient(90deg, ${ACCENT} 0%, #a855f7 100%)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Every time.
+              </span>
             </h1>
-            <p className="text-white/50 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
+            <p className="text-white/55 text-xl leading-relaxed mb-8 max-w-2xl mx-auto">
               WizShorts™ generates platform-optimised short-form videos for TikTok, YouTube Shorts, Instagram Reels, and Snapchat Spotlight — native 9:16, Hook/Story/CTA structure, auto-captions.
             </p>
           </div>
 
-          {/* Platform badges strip */}
-          <div className="flex items-center justify-center gap-3 mb-8 flex-wrap">
+          {/* Platform badges */}
+          <div className="flex items-center justify-center gap-3 mb-10 flex-wrap">
             {PLATFORMS.map(p => (
-              <div key={p.name} className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide" style={{ background: p.color, color: p.textColor, border: `1px solid ${p.border}`, boxShadow: `0 0 12px ${p.border}30` }}>
+              <div
+                key={p.name}
+                className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide"
+                style={{ background: p.color, color: p.textColor, border: `1px solid ${p.border}`, boxShadow: `0 0 12px ${p.border}30` }}
+              >
                 {p.name}
               </div>
             ))}
           </div>
 
-          {/* Centre: Three portrait phone frames */}
-          <div className="flex items-end justify-center gap-8 md:gap-12 mb-12">
+          {/* P2 — Scaled-up phone frames: 180px × 320px */}
+          <div className="flex items-end justify-center gap-8 md:gap-12 mb-14">
             {/* Left copy */}
-            <div className="hidden lg:flex flex-col gap-4 max-w-[200px] text-right">
+            <div className="hidden lg:flex flex-col gap-4 max-w-[220px] text-right">
               <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <div className="text-xs font-bold text-white mb-1">Native 9:16</div>
                 <div className="text-[10px] text-white/40">Composed for vertical — not cropped from landscape</div>
@@ -278,19 +360,21 @@ export default function WizShortsProductPage() {
                 <div className="text-xs font-bold text-white mb-1">Auto-Captions</div>
                 <div className="text-[10px] text-white/40">Platform-styled captions generated automatically</div>
               </div>
+              <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="text-xs font-bold text-white mb-1">Batch Mode</div>
+                <div className="text-[10px] text-white/40">Up to 20 variants from one brief</div>
+              </div>
             </div>
 
-            {/* Phone frames — responsive: 1 on mobile, 2 on sm, 3 on md+ */}
-            <div className="flex items-end gap-4 md:gap-6">
+            {/* Phone frames */}
+            <div className="flex items-end gap-5 md:gap-8">
               {FORMAT_FRAMES.map((frame, i) => (
                 <div
                   key={frame.label}
                   className={`transition-transform duration-300 ${
-                    i === 0 ? "" :
-                    i === 1 ? "hidden sm:block" :
-                    "hidden md:block"
+                    i === 0 ? "" : i === 1 ? "hidden sm:block" : "hidden md:block"
                   }`}
-                  style={{ transform: i === 1 ? "translateY(-20px) scale(1.05)" : "translateY(0)" }}
+                  style={{ transform: i === 1 ? "translateY(-24px) scale(1.06)" : "translateY(0)" }}
                 >
                   <PhoneFrame
                     img={frame.img}
@@ -299,30 +383,36 @@ export default function WizShortsProductPage() {
                     desc={frame.desc}
                     tip={frame.tip}
                     index={i}
+                    width={180}
+                    height={320}
                   />
                 </div>
               ))}
             </div>
 
             {/* Right copy */}
-            <div className="hidden lg:flex flex-col gap-4 max-w-[200px]">
+            <div className="hidden lg:flex flex-col gap-4 max-w-[220px]">
               <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <div className="text-xs font-bold text-white mb-1">4 Platforms</div>
                 <div className="text-[10px] text-white/40">TikTok, YouTube Shorts, Reels, Spotlight</div>
               </div>
               <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <div className="text-xs font-bold text-white mb-1">Batch Mode</div>
-                <div className="text-[10px] text-white/40">Generate 20 shorts from one brief</div>
+                <div className="text-xs font-bold text-white mb-1">Hook/Story/CTA</div>
+                <div className="text-[10px] text-white/40">Proven 3-part structure — automatically applied</div>
+              </div>
+              <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="text-xs font-bold text-white mb-1">WizSound™ Integration</div>
+                <div className="text-[10px] text-white/40">Original AI music matched to your short</div>
               </div>
             </div>
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-wrap gap-3 justify-center mb-10">
+          <div className="flex flex-wrap gap-3 justify-center mb-8">
             <NavLink
               href={WIZSHORTS_STUDIO_PAGE}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-white transition-all"
-              style={{ background: ACCENT, boxShadow: `0 0 30px ${ACCENT_GLOW}` }}
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm text-white transition-all"
+              style={{ background: ACCENT, boxShadow: `0 0 40px ${ACCENT_GLOW}` }}
             >
               <Zap className="w-4 h-4" />
               Create Your Short
@@ -330,24 +420,35 @@ export default function WizShortsProductPage() {
             </NavLink>
             <NavLink
               href="/pricing#plans"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-xl font-bold text-sm text-white/60 hover:text-white transition-all"
               style={{ border: "1px solid rgba(255,255,255,0.12)" }}
             >
               View pricing <ChevronRight className="w-4 h-4" />
             </NavLink>
           </div>
-          <p className="text-[11px] text-white/30 mt-3 tracking-wide">2 free credits on sign-up &middot; No card required</p>
+          <p className="text-center text-[11px] text-white/30 tracking-wide">2 free credits on sign-up &middot; No card required</p>
 
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-12">
+          {/* P3 — Upgraded stats bar: 4 stats, larger numbers */}
+          <div className="flex items-center justify-center gap-10 md:gap-16 mt-12 pt-10 border-t border-white/[0.06]">
             {[
-              { val: "9:16",  label: "Native format" },
-              { val: "4",     label: "Platforms" },
-              { val: "20x",   label: "Batch generation" },
+              { val: "9:16",  label: "Native vertical format" },
+              { val: "4",     label: "Supported platforms" },
+              { val: "20×",   label: "Batch generation" },
+              { val: "3-part", label: "Hook/Story/CTA structure" },
             ].map(s => (
               <div key={s.val} className="text-center">
-                <div className="text-2xl font-black" style={{ color: ACCENT }}>{s.val}</div>
-                <div className="text-[10px] text-white/30 uppercase tracking-wider mt-0.5">{s.label}</div>
+                <div
+                  className="text-3xl md:text-4xl font-black mb-1"
+                  style={{
+                    background: `linear-gradient(90deg, ${ACCENT} 0%, #a855f7 100%)`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  {s.val}
+                </div>
+                <div className="text-[10px] text-white/35 uppercase tracking-wider">{s.label}</div>
               </div>
             ))}
           </div>
@@ -355,13 +456,13 @@ export default function WizShortsProductPage() {
       </section>
 
       {/* ── Signature Section: Format Showcase ── */}
-      <section className="py-24 px-6 relative overflow-hidden" style={{ background: "#080810" }}>
+      <section className="py-28 px-6 relative overflow-hidden" style={{ background: "#080810" }}>
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: `radial-gradient(ellipse 70% 50% at 50% 50%, ${ACCENT_DIM} 0%, transparent 65%)` }}
         />
         <div className="max-w-6xl mx-auto relative">
-          <div className="text-center mb-12">
+          <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-5"
               style={{ border: `1px solid ${ACCENT}25`, background: `${ACCENT}08`, color: ACCENT }}
@@ -369,16 +470,17 @@ export default function WizShortsProductPage() {
               <Zap className="w-3 h-3" />
               Format Showcase
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-              The Hook/Story/CTA structure
+            {/* P5 — Larger section heading */}
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+              The Hook/Story/<span style={{ color: ACCENT }}>CTA structure</span>
             </h2>
-            <p className="text-white/40 text-base max-w-xl mx-auto">
+            <p className="text-white/45 text-base max-w-xl mx-auto">
               Every WizShorts™ video follows the proven 3-part structure that drives the highest watch-through and engagement rates across all platforms.
             </p>
           </div>
 
           {/* Platform badges */}
-          <div className="flex flex-wrap gap-3 justify-center mb-12">
+          <div className="flex flex-wrap gap-3 justify-center mb-14">
             {PLATFORMS.map(p => (
               <div
                 key={p.name}
@@ -390,61 +492,42 @@ export default function WizShortsProductPage() {
             ))}
           </div>
 
-          {/* Three portrait phone frames — larger version */}
+          {/* P2 — Larger phone frames: 200px × 356px */}
           <div className="flex items-end justify-center gap-6 md:gap-10">
             {FORMAT_FRAMES.map((frame, i) => (
               <div
                 key={frame.label}
-                className="flex flex-col items-center"
-                style={{ transform: i === 1 ? "translateY(-16px)" : "translateY(0)" }}
+                style={{ transform: i === 1 ? "translateY(-20px)" : "translateY(0)" }}
               >
-                {/* Larger phone */}
-                <div
-                  className="relative rounded-[32px] overflow-hidden mb-5"
-                  style={{
-                    width: "160px",
-                    height: "284px",
-                    border: `2px solid ${i === 0 ? ACCENT : "rgba(255,255,255,0.1)"}`,
-                    boxShadow: i === 0 ? `0 0 40px ${ACCENT_GLOW}` : "0 8px 32px rgba(0,0,0,0.6)",
-                    background: "#111",
-                  }}
-                >
-                  <div
-                    className="absolute top-2.5 left-1/2 -translate-x-1/2 z-10 rounded-full"
-                    style={{ width: "40px", height: "6px", background: "#000" }}
-                  />
-                  <img src={frame.img} alt={frame.label} className="w-full h-full object-cover" loading="lazy" />
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 45%)" }} />
-                  {/* Simulated caption bar */}
-                  <div
-                    className="absolute bottom-10 left-3 right-3 px-2 py-1 rounded text-center"
-                    style={{ background: "rgba(0,0,0,0.7)" }}
-                  >
-                    <div className="text-[9px] font-black text-white uppercase tracking-wide">
-                      {frame.label === "Hook" ? "WATCH THIS 👀" : frame.label === "Story" ? "HERE'S HOW IT WORKS" : "FOLLOW FOR MORE ✨"}
-                    </div>
-                  </div>
-                  {/* Section label */}
-                  <div className="absolute bottom-3 left-0 right-0 text-center">
-                    <div
-                      className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
-                      style={{ background: i === 0 ? ACCENT : "rgba(255,255,255,0.15)", color: "#fff" }}
-                    >
-                      {frame.label}
-                    </div>
-                  </div>
-                </div>
-                {/* Description */}
-                <div className="text-center max-w-[180px]">
-                  <div className="text-sm font-bold text-white mb-1">{frame.label} — {frame.subtitle}</div>
-                  <div className="text-[10px] text-white/40 leading-snug mb-3">{frame.desc}</div>
-                  <div
-                    className="text-[9px] px-3 py-1.5 rounded-lg"
-                    style={{ background: `${ACCENT}10`, color: ACCENT, border: `1px solid ${ACCENT}20` }}
-                  >
-                    {frame.tip}
-                  </div>
-                </div>
+                <PhoneFrame
+                  img={frame.img}
+                  label={frame.label}
+                  subtitle={frame.subtitle}
+                  desc={frame.desc}
+                  tip={frame.tip}
+                  index={i}
+                  width={200}
+                  height={356}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* P7 — Non-numeric credibility strip */}
+      <section className="py-16 px-6 border-y border-white/[0.05]">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {CREDIBILITY_ITEMS.map(item => (
+              <div
+                key={item.title}
+                className="p-6 rounded-2xl"
+                style={{ background: `${ACCENT}06`, border: `1px solid ${ACCENT}18` }}
+              >
+                <div className="text-lg mb-3" style={{ color: ACCENT }}>{item.icon}</div>
+                <div className="text-sm font-bold text-white mb-2">{item.title}</div>
+                <div className="text-xs text-white/45 leading-relaxed">{item.desc}</div>
               </div>
             ))}
           </div>
@@ -452,7 +535,7 @@ export default function WizShortsProductPage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section className="py-20 px-6">
+      <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-6"
@@ -460,7 +543,10 @@ export default function WizShortsProductPage() {
           >
             How It Works
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-12">From brief to platform-ready short</h2>
+          {/* P5 — Larger heading */}
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-14 tracking-tight">
+            From brief to <span style={{ color: ACCENT }}>platform-ready short</span>
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {HOW_IT_WORKS.map(step => (
               <div
@@ -468,7 +554,7 @@ export default function WizShortsProductPage() {
                 className="p-6 rounded-2xl"
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <div className="text-4xl font-black mb-4" style={{ color: `${ACCENT}50` }}>{step.num}</div>
+                <div className="text-4xl font-black mb-4" style={{ color: `${ACCENT}55` }}>{step.num}</div>
                 <div className="text-sm font-bold text-white mb-2">{step.title}</div>
                 <div className="text-xs text-white/45 leading-relaxed">{step.desc}</div>
               </div>
@@ -478,7 +564,7 @@ export default function WizShortsProductPage() {
       </section>
 
       {/* ── Key Features ── */}
-      <section className="py-20 px-6" style={{ background: "#080810" }}>
+      <section className="py-24 px-6" style={{ background: "#080810" }}>
         <div className="max-w-6xl mx-auto">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-6"
@@ -486,21 +572,35 @@ export default function WizShortsProductPage() {
           >
             Key Features
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-12">Built for short-form, not adapted from long-form</h2>
+          {/* P5 — Larger heading */}
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-14 tracking-tight">
+            Built for short-form,<br />
+            <span style={{ color: ACCENT }}>not adapted from long-form</span>
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {KEY_FEATURES.map(f => (
               <div
                 key={f.title}
                 className="rounded-2xl overflow-hidden group"
-                style={{ border: "1px solid rgba(255,255,255,0.06)" }}
+                style={{ border: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.015)" }}
               >
-                {/* Portrait-oriented thumbnail (9:16 aspect ratio) */}
-                <div className="overflow-hidden" style={{ height: "160px" }}>
-                  <img src={f.img} alt={f.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                {/* P2 — Taller feature card images */}
+                <div className="overflow-hidden" style={{ height: "180px" }}>
+                  <img
+                    src={f.img}
+                    alt={f.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ background: `${ACCENT}10` }}
+                  />
                 </div>
-                <div className="p-5">
+                <div className="p-6">
                   <div className="text-sm font-bold text-white mb-2">{f.title}</div>
-                  <div className="text-xs text-white/45 leading-relaxed">{f.desc}</div>
+                  {/* P6 — Creator-facing benefit copy */}
+                  <div className="text-xs text-white/50 leading-relaxed">{f.desc}</div>
                 </div>
               </div>
             ))}
@@ -509,7 +609,7 @@ export default function WizShortsProductPage() {
       </section>
 
       {/* ── Benefits ── */}
-      <section className="py-20 px-6">
+      <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-6"
@@ -517,55 +617,89 @@ export default function WizShortsProductPage() {
           >
             Why WizShorts™
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-12">The short-form studio built for creators</h2>
+          {/* P5 — Larger heading */}
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-14 tracking-tight">
+            The short-form studio<br />
+            <span style={{ color: ACCENT }}>built for creators</span>
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {BENEFITS.map((b, i) => (
               <div
                 key={b.title}
                 className="p-6 rounded-2xl"
-                style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${i === 0 ? ACCENT + "30" : "rgba(255,255,255,0.05)"}` }}
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: `1px solid ${i === 0 ? ACCENT + "35" : "rgba(255,255,255,0.05)"}`,
+                }}
               >
-                <div className="text-sm font-bold text-white mb-2">{b.title}</div>
-                <div className="text-xs text-white/45 leading-relaxed">{b.desc}</div>
+                <div className="flex items-start gap-3 mb-3">
+                  <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: ACCENT }} />
+                  <div className="text-sm font-bold text-white">{b.title}</div>
+                </div>
+                <div className="text-xs text-white/45 leading-relaxed pl-7">{b.desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Mid-page CTA ── */}
+      {/* P8 — Mid-page CTA visual upgrade */}
       <section
-        className="py-20 px-6 relative overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${ACCENT}10 0%, rgba(5,5,8,0) 60%)` }}
+        className="py-28 px-6 relative overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, rgba(217,70,239,0.18) 0%, rgba(168,85,247,0.12) 40%, rgba(5,5,8,0) 70%)`,
+        }}
       >
+        {/* Ambient glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: `radial-gradient(ellipse 60% 70% at 30% 50%, ${ACCENT_MID} 0%, transparent 65%)` }}
+        />
         <div className="max-w-4xl mx-auto text-center relative">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-6"
+            style={{ border: `1px solid ${ACCENT}35`, background: `${ACCENT}0a`, color: ACCENT }}
+          >
+            <Zap className="w-3 h-3" />
+            Start Creating
+          </div>
+          {/* P8 — Stronger headline */}
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-5 tracking-tight">
             Ready to stop the scroll?
           </h2>
-          <p className="text-white/45 text-base mb-8 max-w-xl mx-auto">
-            One brief. Platform-optimised shorts for TikTok, YouTube Shorts, Reels, and Spotlight — ready in minutes.
+          {/* P8 — Addresses creator hesitation */}
+          <p className="text-white/55 text-lg mb-4 max-w-xl mx-auto">
+            No editing. No filming. No experience required.
+          </p>
+          <p className="text-white/40 text-base mb-10 max-w-xl mx-auto">
+            Describe your idea — WizShorts™ writes the script, builds the visuals, adds captions, and exports platform-ready for TikTok, YouTube Shorts, Reels, and Spotlight.
           </p>
           <NavLink
             href={WIZSHORTS_STUDIO_PAGE}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm text-white transition-all"
-            style={{ background: ACCENT, boxShadow: `0 0 40px ${ACCENT_GLOW}` }}
+            className="inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-base text-white transition-all"
+            style={{
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #a855f7 100%)`,
+              boxShadow: `0 0 50px ${ACCENT_GLOW}`,
+            }}
           >
-            <Zap className="w-4 h-4" />
+            <Zap className="w-5 h-5" />
             Open WizShorts™ Studio
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-5 h-5" />
           </NavLink>
-          <div className="flex items-center justify-center gap-5 mt-5 text-[11px] text-white/30 tracking-wide">
+          <div className="flex items-center justify-center gap-5 mt-6 text-[11px] text-white/35 tracking-wide flex-wrap">
             <span>&#10003; 4 platforms in one</span>
             <span className="text-white/15">·</span>
             <span>&#10003; Commercial use included</span>
             <span className="text-white/15">·</span>
             <span>&#10003; No card to start</span>
+            <span className="text-white/15">·</span>
+            <span>&#10003; 2 free credits on sign-up</span>
           </div>
         </div>
       </section>
 
       {/* ── FAQ ── */}
-      <section className="py-20 px-6" style={{ background: "#080810" }}>
+      <section className="py-24 px-6" style={{ background: "#080810" }}>
         <div className="max-w-3xl mx-auto">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase mb-6"
@@ -573,7 +707,7 @@ export default function WizShortsProductPage() {
           >
             FAQ
           </div>
-          <h2 className="text-2xl font-extrabold text-white mb-8">Common questions</h2>
+          <h2 className="text-3xl font-extrabold text-white mb-10">Common questions</h2>
           <div className="divide-y divide-white/[0.06]">
             {FAQS.map(f => <FaqItem key={f.q} q={f.q} a={f.a} />)}
           </div>
@@ -600,7 +734,10 @@ export default function WizShortsProductPage() {
                 {r.name} <ChevronRight className="w-3 h-3" />
               </NavLink>
             ))}
-            <NavLink href="/products" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white/30 hover:text-white/60 transition-all">
+            <NavLink
+              href="/products"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white/30 hover:text-white/60 transition-all"
+            >
               View all products <ChevronRight className="w-3 h-3" />
             </NavLink>
           </div>
