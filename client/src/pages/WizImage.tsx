@@ -18,6 +18,7 @@ const A_GLOW = "rgba(99,102,241,0.25)";
 const A_BORDER = "rgba(99,102,241,0.30)";
 const BG_BASE = "#04040e";    // deep navy
 const BG_CANVAS = "#080818";  // canvas area
+const ENV_IMG = "/manus-storage/env-post-production_03973686.jpg";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -198,28 +199,26 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* Centre: Stage bar */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Centre: Stage bar — border-bottom underline style matching reference */}
+          <div className="hidden md:flex items-center gap-0">
             {[
               { label: "Reference", done: true },
               { label: "Image Type", done: true },
               { label: "Style & Prompt", active: true },
               { label: "Upgrade Preview" },
               { label: "Export" },
-            ].map((s, i) => (
-              <div key={s.label} className="flex items-center gap-1">
-                <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
-                  s.active
-                    ? "border"
-                    : s.done
-                    ? "text-green-400"
-                    : "text-white/30 hover:text-white/50"
-                }`}
-                  style={s.active ? { background: A_DIM, borderColor: A_BORDER, color: A } : undefined}>
-                  {s.done && <span className="text-green-400 mr-0.5">✓</span>}
-                  {s.label}
-                </div>
-                {i < 4 && <ChevronRight className="h-3 w-3 text-white/20 flex-shrink-0" />}
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="px-4 py-1.5 text-[11px] font-medium cursor-pointer transition-all"
+                style={{
+                  color: s.active ? "#d4a843" : s.done ? "#6db86d" : "rgba(255,255,255,0.35)",
+                  borderBottom: s.active ? "2px solid #d4a843" : s.done ? "2px solid transparent" : "2px solid transparent",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {s.done && !s.active && <span className="mr-1">✓</span>}
+                {s.label}
               </div>
             ))}
           </div>
@@ -233,6 +232,72 @@ export default function WizImage() {
               {user?.name?.charAt(0) || "T"}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Studio Hero ── */}
+      <div className="relative w-full overflow-hidden" style={{ height: 320 }}>
+        {/* Background image */}
+        <img
+          src={ENV_IMG}
+          alt="WizImage Creative Studio"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.3s" }}
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,14,0.1) 0%, rgba(4,4,14,0.65) 100%)" }} />
+        {/* Cintiq overlay — 340×190px floating canvas preview centred in hero */}
+        <div className="absolute" style={{ top: 38, left: "50%", transform: "translateX(-50%)", width: 340, height: 190, borderRadius: 4, overflow: "hidden", opacity: 0.85, border: "1px solid rgba(99,102,241,0.35)", boxShadow: "0 0 24px rgba(99,102,241,0.3)" }}>
+          <div className="w-full h-full relative flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1a0a2e 0%, #2d1060 30%, #1a0a2e 60%, #0d0520 100%)" }}>
+            {/* Animated canvas shimmer */}
+            <div className="absolute inset-0" style={{ backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(99,102,241,0.03) 2px, rgba(99,102,241,0.03) 4px)` }} />
+            {generateMutation.isPending ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-6 h-6 rounded-full border-2 animate-spin" style={{ borderColor: `rgba(99,102,241,0.3) rgba(99,102,241,0.3) rgba(99,102,241,0.3) ${A}` }} />
+                <span className="text-[9px] tracking-[2px] uppercase" style={{ color: "rgba(99,102,241,0.8)" }}>Rendering</span>
+              </div>
+            ) : generatedImages.length > 0 ? (
+              <img src={generatedImages[0]} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-center">
+                <div className="text-2xl mb-1" style={{ opacity: 0.4 }}>{IMAGE_TYPES.find(t => t.id === imageType)?.icon ?? "🎨"}</div>
+                <div className="text-[9px] tracking-[1px] uppercase" style={{ color: "rgba(212,168,67,0.5)" }}>{currentImageType.label} · Awaiting Brief</div>
+              </div>
+            )}
+            {/* Canvas label */}
+            <div className="absolute bottom-1.5 left-2 text-[9px] tracking-[1px] uppercase" style={{ color: "rgba(212,168,67,0.7)" }}>
+              {currentImageType.label.toUpperCase()} · {generateMutation.isPending ? "IN PROGRESS" : generatedImages.length > 0 ? "COMPLETE" : "STANDBY"}
+            </div>
+            {/* Canvas progress */}
+            <div className="absolute top-1.5 right-2 text-[9px]" style={{ color: generateMutation.isPending ? "rgba(109,184,109,0.9)" : "rgba(255,255,255,0.3)" }}>
+              {generateMutation.isPending ? "● GENERATING" : generatedImages.length > 0 ? "● READY" : "○ STANDBY"}
+            </div>
+          </div>
+        </div>
+        {/* Studio-info stats — bottom-left */}
+        <div className="absolute flex gap-3 items-end" style={{ bottom: 16, left: 20 }}>
+          {[
+            { label: "Images Created", val: history?.length ?? 0, sub: "This session" },
+            { label: "Style", val: styleTags[0] ?? "Cinematic", sub: "Active preset", small: true },
+            { label: "Resolution", val: renderQuality === "8k" ? "8K" : renderQuality === "4k" ? "4K" : renderQuality === "hd" ? "HD" : "STD", sub: renderQuality === "8k" ? "7680×7680px" : renderQuality === "4k" ? "3840×3840px" : renderQuality === "hd" ? "2048×2048px" : "1024×1024px" },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-lg px-3 py-2" style={{ background: "rgba(4,4,14,0.8)", border: "1px solid rgba(99,102,241,0.25)" }}>
+              <div className="text-[9px] uppercase tracking-[1px]" style={{ color: "rgba(255,255,255,0.4)" }}>{stat.label}</div>
+              <div className="font-bold" style={{ fontSize: stat.small ? 13 : 16, color: "#d4a843" }}>{stat.val}</div>
+              <div className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>{stat.sub}</div>
+            </div>
+          ))}
+        </div>
+        {/* Ambient dimmer — bottom-right floating overlay */}
+        <div className="absolute flex items-center gap-2.5 rounded-xl px-3.5 py-2" style={{ bottom: 16, right: 20, background: "rgba(4,4,14,0.82)", border: "1px solid rgba(99,102,241,0.25)" }}>
+          <span className="text-[9px] tracking-[1px] uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>☀ Studio Ambience</span>
+          <input
+            type="range" min={20} max={100} value={ambience}
+            onChange={(e) => setAmbience(Number(e.target.value))}
+            className="h-1 rounded-full cursor-pointer"
+            style={{ width: 100, accentColor: "#d4a843", background: `linear-gradient(to right, #222 0%, #d4a843 ${ambience}%, #222 ${ambience}%)` }}
+          />
+          <span className="text-[10px] w-7 text-right" style={{ color: "#d4a843" }}>{ambience}%</span>
         </div>
       </div>
 
@@ -464,19 +529,7 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* Ambient Dimmer */}
-          <div className="mt-auto pt-2 border-t" style={{ borderColor: A_BORDER }}>
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] text-white/30 tracking-[1px] uppercase">☀ Studio Ambience</span>
-              <input
-                type="range" min={20} max={100} value={ambience}
-                onChange={(e) => setAmbience(Number(e.target.value))}
-                className="flex-1 h-1 rounded-full cursor-pointer"
-                style={{ accentColor: A, background: `linear-gradient(to right, #222 0%, ${A} ${ambience}%, #222 ${ambience}%)` }}
-              />
-              <span className="text-[10px] w-8 text-right" style={{ color: A }}>{ambience}%</span>
-            </div>
-          </div>
+
         </aside>
 
         {/* ── CENTRE PANEL: Canvas ── */}
