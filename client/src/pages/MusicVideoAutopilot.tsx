@@ -1633,7 +1633,7 @@ export default function MusicVideoAutopilot() {
             <LayoutDashboard className="w-4 h-4" />
           </NavLink>
         </div>
-        {/* Stage pills — mockup style */}
+        {/* Stage pills — clapperboard slate treatment */}
         <div className="max-w-5xl mx-auto px-4 pb-2">
           {(() => {
             const STEPS: Step[] = ["upload", "character_confirmation", "storyboard", "render"];
@@ -1642,6 +1642,12 @@ export default function MusicVideoAutopilot() {
               character_confirmation: "Character Lock",
               storyboard: "Storyboard",
               render: "Screening Room",
+            };
+            const STEP_SUBLABELS: Record<Step, string> = {
+              upload: "Brief",
+              character_confirmation: "Cast",
+              storyboard: "Board",
+              render: "Screen",
             };
             const currentIdx = STEPS.indexOf(step);
             const canNavigateTo = (s: Step): boolean => {
@@ -1653,40 +1659,82 @@ export default function MusicVideoAutopilot() {
               return false;
             };
             return (
-              <div className="flex items-center gap-1 overflow-x-auto pb-1">
+              <div className="flex items-center gap-0 overflow-x-auto pb-1">
                 {STEPS.map((s, i) => {
                   const isActive = step === s;
                   const isCompleted = currentIdx > i;
                   const isAccessible = canNavigateTo(s);
                   return (
                     <React.Fragment key={s}>
+                      {/* Clapperboard slate chip */}
                       <button
                         onClick={() => isAccessible && setStep(s)}
                         disabled={!isAccessible}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          padding: '5px 14px', borderRadius: 20,
-                          fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase',
-                          whiteSpace: 'nowrap', transition: 'all 0.2s',
-                          background: isActive ? 'linear-gradient(135deg,#14b8a6,#0d9488)' : isCompleted ? 'rgba(20,184,166,0.12)' : 'rgba(255,255,255,0.04)',
-                          border: isActive ? '1px solid #14b8a6' : isCompleted ? '1px solid rgba(20,184,166,0.35)' : '1px solid rgba(255,255,255,0.08)',
-                          color: isActive ? '#000' : isCompleted ? '#14b8a6' : 'rgba(255,255,255,0.35)',
-                          boxShadow: isActive ? '0 0 12px rgba(20,184,166,0.25)' : 'none',
+                          display: 'flex', alignItems: 'center', gap: 0,
+                          padding: 0, borderRadius: 4, overflow: 'hidden',
+                          border: isActive ? '1px solid rgba(20,184,166,0.6)' : isCompleted ? '1px solid rgba(20,184,166,0.25)' : '1px solid rgba(255,255,255,0.07)',
+                          boxShadow: isActive ? '0 0 10px rgba(20,184,166,0.2),inset 0 0 0 1px rgba(20,184,166,0.1)' : 'none',
                           cursor: isAccessible ? 'pointer' : 'not-allowed',
-                          opacity: isAccessible ? 1 : 0.4,
+                          opacity: isAccessible ? 1 : 0.35,
+                          transition: 'all 0.2s',
+                          background: 'transparent',
+                          flexShrink: 0,
                         }}
                       >
+                        {/* Clapper badge — diagonal-stripe black square */}
                         <span style={{
-                          width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          width: 26, height: 26, flexShrink: 0,
+                          background: isActive
+                            ? 'repeating-linear-gradient(45deg,#14b8a6 0px,#14b8a6 3px,#0a0a0a 3px,#0a0a0a 7px)'
+                            : isCompleted
+                            ? 'repeating-linear-gradient(45deg,rgba(20,184,166,0.5) 0px,rgba(20,184,166,0.5) 3px,#0a0a0a 3px,#0a0a0a 7px)'
+                            : 'repeating-linear-gradient(45deg,rgba(255,255,255,0.12) 0px,rgba(255,255,255,0.12) 3px,#0a0a0a 3px,#0a0a0a 7px)',
                           fontSize: 10, fontWeight: 800,
-                          background: isActive ? 'rgba(0,0,0,0.25)' : isCompleted ? 'rgba(20,184,166,0.2)' : 'rgba(255,255,255,0.08)',
-                          color: isActive ? '#000' : isCompleted ? '#14b8a6' : 'rgba(255,255,255,0.4)',
+                          color: isActive ? '#000' : isCompleted ? '#14b8a6' : 'rgba(255,255,255,0.5)',
+                          fontFamily: "'Courier New',monospace",
+                          borderRight: isActive ? '1px solid rgba(20,184,166,0.4)' : '1px solid rgba(255,255,255,0.06)',
                         }}>
                           {isCompleted ? '✓' : i + 1}
                         </span>
-                        <span className="hidden sm:inline">{STEP_LABELS[s]}</span>
+                        {/* Label area */}
+                        <span style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                          padding: '3px 10px 3px 8px',
+                          background: isActive ? 'rgba(20,184,166,0.08)' : isCompleted ? 'rgba(20,184,166,0.04)' : 'rgba(255,255,255,0.02)',
+                        }}>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase',
+                            color: isActive ? '#14b8a6' : isCompleted ? 'rgba(20,184,166,0.7)' : 'rgba(255,255,255,0.28)',
+                            fontFamily: "'Courier New',monospace",
+                            lineHeight: 1.2,
+                          }} className="hidden sm:block">
+                            {STEP_LABELS[s]}
+                          </span>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase',
+                            color: isActive ? '#14b8a6' : isCompleted ? 'rgba(20,184,166,0.7)' : 'rgba(255,255,255,0.28)',
+                            fontFamily: "'Courier New',monospace",
+                            lineHeight: 1.2,
+                          }} className="sm:hidden">
+                            {STEP_SUBLABELS[s]}
+                          </span>
+                        </span>
                       </button>
-                      {i < 3 && <ChevronRight className="w-3 h-3 flex-shrink-0" style={{color:'rgba(255,255,255,0.2)'}} />}
+                      {/* Connector — film-strip perforation dots */}
+                      {i < 3 && (
+                        <div style={{
+                          display: 'flex', alignItems: 'center', gap: 2, padding: '0 4px', flexShrink: 0,
+                        }}>
+                          {[0,1,2].map(d => (
+                            <div key={d} style={{
+                              width: 3, height: 3, borderRadius: '50%',
+                              background: i < currentIdx ? 'rgba(20,184,166,0.5)' : 'rgba(255,255,255,0.1)',
+                            }} />
+                          ))}
+                        </div>
+                      )}
                     </React.Fragment>
                   );
                 })}
@@ -1710,10 +1758,41 @@ export default function MusicVideoAutopilot() {
           <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,letterSpacing:3,color:'rgba(255,255,255,0.9)',textShadow:'0 2px 20px rgba(0,0,0,0.8)',lineHeight:1}}>MUSIC VIDEO DIRECTOR</div>
           <div style={{fontSize:11,fontWeight:500,color:'#14b8a6',letterSpacing:'0.5px',marginTop:3}}>Character Lock · Storyboard · Screening Room</div>
         </div>
-        {/* FILMING indicator */}
-        <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.75)',border:'1px solid rgba(20,184,166,0.4)',borderRadius:3,padding:'5px 12px',zIndex:20,boxShadow:'0 0 16px rgba(20,184,166,0.12)'}}>
-          <div style={{width:8,height:8,borderRadius:'50%',background:'#14b8a6',boxShadow:'0 0 8px #14b8a6',animation:'filmingBlink 1.2s ease-in-out infinite'}} />
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#14b8a6'}}>LIVE</div>
+        {/* REC / READY indicator — clapperboard-style */}
+        <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.80)',border: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '1px solid rgba(239,68,68,0.55)' : '1px solid rgba(20,184,166,0.4)',borderRadius:3,padding:'5px 12px',zIndex:20,boxShadow: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '0 0 16px rgba(239,68,68,0.15)' : '0 0 16px rgba(20,184,166,0.12)'}}>
+          <div style={{width:8,height:8,borderRadius:'50%',background: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '#ef4444' : '#14b8a6',boxShadow: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '0 0 8px #ef4444' : '0 0 8px #14b8a6',animation:'filmingBlink 1.2s ease-in-out infinite'}} />
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '#ef4444' : '#14b8a6',fontFamily:"'Courier New',monospace"}}>{step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? 'REC' : 'READY'}</div>
+        </div>
+        {/* Slate metadata strip — bottom of hero */}
+        <div style={{position:'absolute',bottom:0,left:0,right:0,zIndex:20,display:'flex',alignItems:'center',gap:0,overflow:'hidden'}}>
+          {/* Diagonal-stripe left edge — clapperboard identity */}
+          <div style={{width:18,height:28,flexShrink:0,background:'repeating-linear-gradient(45deg,#14b8a6 0px,#14b8a6 4px,#000 4px,#000 9px)'}} />
+          <div style={{flex:1,display:'flex',alignItems:'center',gap:0,background:'rgba(0,0,0,0.82)',borderTop:'1px solid rgba(20,184,166,0.2)',height:28,padding:'0 12px',overflow:'hidden'}}>
+            {/* SCENE */}
+            <div style={{display:'flex',alignItems:'center',gap:5,paddingRight:12,borderRight:'1px solid rgba(255,255,255,0.08)',marginRight:12}}>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>SCENE</span>
+              <span style={{fontSize:9,fontWeight:700,letterSpacing:'1.5px',textTransform:'uppercase',color:'#14b8a6',fontFamily:"'Courier New',monospace"}}>{step === 'upload' ? "DIRECTOR'S BRIEF" : step === 'character_confirmation' ? 'CHARACTER LOCK' : step === 'storyboard' ? 'STORYBOARD' : 'SCREENING ROOM'}</span>
+            </div>
+            {/* TAKE */}
+            <div style={{display:'flex',alignItems:'center',gap:5,paddingRight:12,borderRight:'1px solid rgba(255,255,255,0.08)',marginRight:12}}>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>TAKE</span>
+              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.7)',fontFamily:"'Courier New',monospace"}}>{['upload','character_confirmation','storyboard','render'].indexOf(step) + 1}</span>
+            </div>
+            {/* DIRECTOR */}
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>DIRECTOR</span>
+              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.5)',fontFamily:"'Courier New',monospace"}}>WizVideo™</span>
+            </div>
+            {/* Spacer + scenes count when on storyboard/render */}
+            {(step === 'storyboard' || step === 'render') && scenes.length > 0 && (
+              <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:5}}>
+                <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>SCENES</span>
+                <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier New',monospace"}}>{String(scenes.length).padStart(2,'0')}</span>
+              </div>
+            )}
+          </div>
+          {/* Diagonal-stripe right edge */}
+          <div style={{width:18,height:28,flexShrink:0,background:'repeating-linear-gradient(45deg,#14b8a6 0px,#14b8a6 4px,#000 4px,#000 9px)'}} />
         </div>
         <style>{`@keyframes filmingBlink{0%,100%{opacity:1}50%{opacity:0.35}}`}</style>
       </div>
@@ -3533,7 +3612,7 @@ export default function MusicVideoAutopilot() {
                   </div>
                 ) : (
                   <div>
-                    {/* Enhanced 5-stage pipeline */}
+                    {/* Enhanced 5-stage pipeline — clapperboard header rail */}
                     {(() => {
                       const stages = [
                         { key: "queued",     label: "Analysing Audio",          icon: <Music2 className="w-4 h-4" /> },
@@ -3547,6 +3626,24 @@ export default function MusicVideoAutopilot() {
                       const effectiveStatus = renderStatus === "failed" ? "rendering" : renderStatus;
                       const currentIdx = stageOrder.indexOf(effectiveStatus);
                       return (
+                        <>
+                        {/* Clapperboard pipeline header rail */}
+                        <div style={{display:'flex',alignItems:'center',gap:0,marginBottom:16,overflow:'hidden',borderRadius:4,border:'1px solid rgba(20,184,166,0.15)'}}>
+                          {/* Diagonal-stripe left badge */}
+                          <div style={{width:20,height:32,flexShrink:0,background:'repeating-linear-gradient(45deg,#14b8a6 0px,#14b8a6 3px,#0a0a0a 3px,#0a0a0a 7px)'}} />
+                          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(0,0,0,0.7)',height:32,padding:'0 12px'}}>
+                            <div style={{display:'flex',alignItems:'center',gap:8}}>
+                              <Clapperboard style={{width:12,height:12,color:'#14b8a6',flexShrink:0}} />
+                              <span style={{fontSize:9,fontWeight:700,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.55)',fontFamily:"'Courier New',monospace"}}>PRODUCTION PIPELINE</span>
+                            </div>
+                            <div style={{display:'flex',alignItems:'center',gap:8}}>
+                              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.25)',fontFamily:"'Courier New',monospace"}}>TAKE</span>
+                              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier New',monospace"}}>{String(completedScenes).padStart(2,'0')}/{String(totalScenes).padStart(2,'0')}</span>
+                            </div>
+                          </div>
+                          {/* Diagonal-stripe right badge */}
+                          <div style={{width:20,height:32,flexShrink:0,background:'repeating-linear-gradient(45deg,#14b8a6 0px,#14b8a6 3px,#0a0a0a 3px,#0a0a0a 7px)'}} />
+                        </div>
                         <div className="flex items-center justify-between mb-8 px-2">
                           {stages.map((stage, i) => {
                             const isDone    = i < currentIdx;
@@ -3576,6 +3673,7 @@ export default function MusicVideoAutopilot() {
                             );
                           })}
                         </div>
+                        </>
                       );
                     })()}
 
