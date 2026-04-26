@@ -1693,7 +1693,7 @@ export default function MusicVideoAutopilot() {
                             : 'repeating-linear-gradient(45deg,rgba(255,255,255,0.12) 0px,rgba(255,255,255,0.12) 3px,#0a0a0a 3px,#0a0a0a 7px)',
                           fontSize: 10, fontWeight: 800,
                           color: isActive ? '#000' : isCompleted ? '#14b8a6' : 'rgba(255,255,255,0.5)',
-                          fontFamily: "'Courier New',monospace",
+                          fontFamily: "'Courier Prime',monospace",
                           borderRight: isActive ? '1px solid rgba(20,184,166,0.4)' : '1px solid rgba(255,255,255,0.06)',
                         }}>
                           {isCompleted ? '✓' : i + 1}
@@ -1707,7 +1707,7 @@ export default function MusicVideoAutopilot() {
                           <span style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase',
                             color: isActive ? '#14b8a6' : isCompleted ? 'rgba(20,184,166,0.7)' : 'rgba(255,255,255,0.28)',
-                            fontFamily: "'Courier New',monospace",
+                            fontFamily: "'Courier Prime',monospace",
                             lineHeight: 1.2,
                           }} className="hidden sm:block">
                             {STEP_LABELS[s]}
@@ -1715,7 +1715,7 @@ export default function MusicVideoAutopilot() {
                           <span style={{
                             fontSize: 9, fontWeight: 700, letterSpacing: '1.8px', textTransform: 'uppercase',
                             color: isActive ? '#14b8a6' : isCompleted ? 'rgba(20,184,166,0.7)' : 'rgba(255,255,255,0.28)',
-                            fontFamily: "'Courier New',monospace",
+                            fontFamily: "'Courier Prime',monospace",
                             lineHeight: 1.2,
                           }} className="sm:hidden">
                             {STEP_SUBLABELS[s]}
@@ -1761,7 +1761,7 @@ export default function MusicVideoAutopilot() {
         {/* REC / READY indicator — clapperboard-style */}
         <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.80)',border: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '1px solid rgba(239,68,68,0.55)' : '1px solid rgba(20,184,166,0.4)',borderRadius:3,padding:'5px 12px',zIndex:20,boxShadow: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '0 0 16px rgba(239,68,68,0.15)' : '0 0 16px rgba(20,184,166,0.12)'}}>
           <div style={{width:8,height:8,borderRadius:'50%',background: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '#ef4444' : '#14b8a6',boxShadow: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '0 0 8px #ef4444' : '0 0 8px #14b8a6',animation:'filmingBlink 1.2s ease-in-out infinite'}} />
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '#ef4444' : '#14b8a6',fontFamily:"'Courier New',monospace"}}>{step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? 'REC' : 'READY'}</div>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '#ef4444' : '#14b8a6',fontFamily:"'Courier Prime',monospace"}}>{step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? 'REC' : 'READY'}</div>
         </div>
         {/* Slate metadata strip — bottom of hero */}
         <div style={{position:'absolute',bottom:0,left:0,right:0,zIndex:20,display:'flex',alignItems:'center',gap:0,overflow:'hidden'}}>
@@ -1770,24 +1770,24 @@ export default function MusicVideoAutopilot() {
           <div style={{flex:1,display:'flex',alignItems:'center',gap:0,background:'rgba(0,0,0,0.82)',borderTop:'1px solid rgba(20,184,166,0.2)',height:28,padding:'0 12px',overflow:'hidden'}}>
             {/* SCENE */}
             <div style={{display:'flex',alignItems:'center',gap:5,paddingRight:12,borderRight:'1px solid rgba(255,255,255,0.08)',marginRight:12}}>
-              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>SCENE</span>
-              <span style={{fontSize:9,fontWeight:700,letterSpacing:'1.5px',textTransform:'uppercase',color:'#14b8a6',fontFamily:"'Courier New',monospace"}}>{step === 'upload' ? "DIRECTOR'S BRIEF" : step === 'character_confirmation' ? 'CHARACTER LOCK' : step === 'storyboard' ? 'STORYBOARD' : 'SCREENING ROOM'}</span>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>SCENE</span>
+              <span style={{fontSize:9,fontWeight:700,letterSpacing:'1.5px',textTransform:'uppercase',color:'#14b8a6',fontFamily:"'Courier Prime',monospace"}}>{step === 'upload' ? "DIRECTOR'S BRIEF" : step === 'character_confirmation' ? 'CHARACTER LOCK' : step === 'storyboard' ? 'STORYBOARD' : 'SCREENING ROOM'}</span>
             </div>
             {/* TAKE */}
             <div style={{display:'flex',alignItems:'center',gap:5,paddingRight:12,borderRight:'1px solid rgba(255,255,255,0.08)',marginRight:12}}>
-              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>TAKE</span>
-              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.7)',fontFamily:"'Courier New',monospace"}}>{['upload','character_confirmation','storyboard','render'].indexOf(step) + 1}</span>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>TAKE</span>
+              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.7)',fontFamily:"'Courier Prime',monospace"}}>{['upload','character_confirmation','storyboard','render'].indexOf(step) + 1}</span>
             </div>
             {/* DIRECTOR */}
             <div style={{display:'flex',alignItems:'center',gap:5}}>
-              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>DIRECTOR</span>
-              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.5)',fontFamily:"'Courier New',monospace"}}>WizVideo™</span>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>DIRECTOR</span>
+              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.5)',fontFamily:"'Courier Prime',monospace"}}>WizVideo™</span>
             </div>
             {/* Spacer + scenes count when on storyboard/render */}
             {(step === 'storyboard' || step === 'render') && scenes.length > 0 && (
               <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:5}}>
-                <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier New',monospace"}}>SCENES</span>
-                <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier New',monospace"}}>{String(scenes.length).padStart(2,'0')}</span>
+                <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>SCENES</span>
+                <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>{String(scenes.length).padStart(2,'0')}</span>
               </div>
             )}
           </div>
@@ -3702,11 +3702,11 @@ export default function MusicVideoAutopilot() {
                           <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(0,0,0,0.7)',height:32,padding:'0 12px'}}>
                             <div style={{display:'flex',alignItems:'center',gap:8}}>
                               <Clapperboard style={{width:12,height:12,color:'#14b8a6',flexShrink:0}} />
-                              <span style={{fontSize:9,fontWeight:700,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.55)',fontFamily:"'Courier New',monospace"}}>PRODUCTION PIPELINE</span>
+                              <span style={{fontSize:9,fontWeight:700,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.55)',fontFamily:"'Courier Prime',monospace"}}>PRODUCTION PIPELINE</span>
                             </div>
                             <div style={{display:'flex',alignItems:'center',gap:8}}>
-                              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.25)',fontFamily:"'Courier New',monospace"}}>TAKE</span>
-                              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier New',monospace"}}>{String(completedScenes).padStart(2,'0')}/{String(totalScenes).padStart(2,'0')}</span>
+                              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.25)',fontFamily:"'Courier Prime',monospace"}}>TAKE</span>
+                              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>{String(completedScenes).padStart(2,'0')}/{String(totalScenes).padStart(2,'0')}</span>
                             </div>
                           </div>
                           {/* Diagonal-stripe right badge */}
