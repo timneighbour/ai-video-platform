@@ -26,6 +26,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
+import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
@@ -475,6 +476,7 @@ export default function TextToVideoCreator() {
               </h3>
               <div className="flex items-center gap-2 mb-2">
                 <VoicePromptButton toolContext="text-to-video generation" onPromptReady={(refined) => setPrompt(refined)} />
+                <EnhancePromptButton prompt={prompt} productType="script" onEnhanced={(text) => setPrompt(text)} />
                 <span className="text-white/25 text-[10px]">or type below</span>
               </div>
               <textarea

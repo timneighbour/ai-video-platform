@@ -3042,9 +3042,18 @@ export default function MusicVideoAutopilot() {
 
                     {/* Always-visible scene description editor */}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Pencil className="w-3 h-3 text-white/40" />
-                        <span className="text-white/40 text-xs font-medium">Scene description</span>
+                      <div className="flex items-center justify-between gap-1.5 mb-1">
+                        <div className="flex items-center gap-1.5">
+                          <Pencil className="w-3 h-3 text-white/40" />
+                          <span className="text-white/40 text-xs font-medium">Scene description</span>
+                        </div>
+                        <EnhancePromptButton
+                          prompt={editingSceneId === scene.id ? editPrompt : scene.prompt}
+                          productType="music_video"
+                          genre={genre}
+                          mood={mood}
+                          onEnhanced={(text) => { setEditingSceneId(scene.id); setEditPrompt(text); }}
+                        />
                       </div>
                       <Textarea
                         value={editingSceneId === scene.id ? editPrompt : scene.prompt}

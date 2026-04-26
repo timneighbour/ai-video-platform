@@ -18,6 +18,7 @@ import {
   UploadCloud, RefreshCw, Trash2, Film,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
+import EnhancePromptButton from "@/components/EnhancePromptButton";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { useGlobalAudio } from "@/contexts/AudioContext";
@@ -486,6 +487,7 @@ export default function MusicCreator() {
                   <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
                 <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined)} />
+                <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text)} />
               </div>
               <textarea
                 value={prompt}
