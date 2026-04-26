@@ -678,6 +678,12 @@ select {
   to   { height: 36px; }
 }
 
+/* ── Director's Console — blinking cursor ── */
+@keyframes wizCursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    LUXURY NAV & BUTTON COMPONENTS
    ══════════════════════════════════════════════════════════════════════════════ */

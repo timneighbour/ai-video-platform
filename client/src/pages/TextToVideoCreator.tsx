@@ -468,29 +468,62 @@ export default function TextToVideoCreator() {
               </div>
             </div>
 
-            {/* 4. Script Brief */}
+            {/* 4. Script Brief — Director's Console */}
             <div>
               <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">
                 <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: V_DIM, color: V_LIGHT }}>4</span>
                 Script Brief
               </h3>
-              <div className="flex items-center gap-2 mb-2">
-                <VoicePromptButton toolContext="text-to-video generation" onPromptReady={(refined) => setPrompt(refined)} />
-                <EnhancePromptButton prompt={prompt} productType="script" onEnhanced={(text) => setPrompt(text)} />
-                <span className="text-white/25 text-[10px]">or type below</span>
+
+              {/* Console chrome wrapper */}
+              <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${V_BORDER}`, background: "#07060f", boxShadow: `0 0 18px rgba(124,58,237,0.10)` }}>
+                {/* Title bar */}
+                <div className="flex items-center justify-between px-2.5 py-1.5" style={{ background: "linear-gradient(180deg, #130f22 0%, #0c0a18 100%)", borderBottom: `1px solid ${V_BORDER}` }}>
+                  <div className="flex items-center gap-1.5">
+                    {/* Traffic-light dots */}
+                    <div className="w-2 h-2 rounded-full" style={{ background: "#ff5f57", boxShadow: "0 0 4px rgba(255,95,87,0.5)" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ background: "#febc2e", boxShadow: "0 0 4px rgba(254,188,46,0.4)" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ background: "#28c840", boxShadow: "0 0 4px rgba(40,200,64,0.4)" }} />
+                  </div>
+                  <span className="text-[8px] font-bold tracking-[2.5px] uppercase font-mono" style={{ color: `${V_LIGHT}88` }}>DIRECTOR'S CONSOLE</span>
+                  <span className="text-[8px] font-mono" style={{ color: prompt.length >= 10 ? "rgba(74,222,128,0.7)" : "rgba(255,255,255,0.18)" }}>
+                    {prompt.length >= 10 ? "● READY" : "○ IDLE"}
+                  </span>
+                </div>
+
+                {/* Toolbar row */}
+                <div className="flex items-center gap-2 px-2.5 py-1.5" style={{ borderBottom: `1px solid rgba(124,58,237,0.12)`, background: "rgba(0,0,0,0.25)" }}>
+                  <VoicePromptButton toolContext="text-to-video generation" onPromptReady={(refined) => setPrompt(refined)} />
+                  <EnhancePromptButton prompt={prompt} productType="script" onEnhanced={(text) => setPrompt(text)} />
+                  <span className="text-white/20 text-[9px] font-mono ml-auto">or type below</span>
+                </div>
+
+                {/* Terminal body — line-number gutter + textarea */}
+                <div className="flex" style={{ background: "#07060f" }}>
+                  {/* Line number gutter */}
+                  <div className="flex flex-col pt-2.5 pb-2.5 px-1.5 select-none flex-shrink-0" style={{ background: "rgba(0,0,0,0.3)", borderRight: `1px solid rgba(124,58,237,0.10)`, minWidth: 28 }}>
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="text-[9px] font-mono leading-[1.65] text-right" style={{ color: "rgba(124,58,237,0.28)", lineHeight: "1.65" }}>{i + 1}</div>
+                    ))}
+                  </div>
+                  {/* Textarea */}
+                  <textarea
+                    value={prompt}
+                    onChange={e => setPrompt(e.target.value)}
+                    rows={8}
+                    maxLength={2000}
+                    className="flex-1 bg-transparent border-none outline-none resize-none px-3 py-2.5 text-[12px] leading-[1.65] text-white/75 placeholder:text-white/18 placeholder:italic"
+                    style={{ fontFamily: "'Courier Prime', 'Courier New', monospace", caretColor: V_LIGHT, minHeight: 0 }}
+                    placeholder={`INT. SPACE — DAY\n\nA lone astronaut walks across a red Martian landscape at sunset, slow motion, cinematic depth of field…`}
+                  />
+                </div>
+
+                {/* Status bar */}
+                <div className="flex items-center justify-between px-2.5 py-1" style={{ borderTop: `1px solid rgba(124,58,237,0.10)`, background: "rgba(0,0,0,0.35)" }}>
+                  <span className="text-[8px] font-mono" style={{ color: "rgba(124,58,237,0.45)" }}>WIZSCRIPT™ · SCREENPLAY CONSOLE</span>
+                  <span className="text-[8px] font-mono" style={{ color: prompt.length > 1800 ? "rgba(255,59,48,0.7)" : "rgba(255,255,255,0.22)" }}>{prompt.length} / 2000</span>
+                </div>
               </div>
-              <textarea
-                value={prompt}
-                onChange={e => setPrompt(e.target.value)}
-                rows={5}
-                maxLength={2000}
-                className="w-full rounded-xl px-3 py-2 text-white/70 text-xs resize-none focus:outline-none transition-colors font-mono"
-                style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${V_BORDER}` }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = V_LIGHT)}
-                onBlur={(e) => (e.currentTarget.style.borderColor = V_BORDER)}
-                placeholder="A lone astronaut walking across a red Martian landscape at sunset…"
-              />
-              <p className="text-[10px] text-white/30 mt-1">{prompt.length}/2000</p>
             </div>
           </aside>
 
@@ -500,19 +533,31 @@ export default function TextToVideoCreator() {
             {/* Step 1: Input */}
             {step === "input" && (
               <>
-                <div className="rounded-2xl overflow-hidden border" style={{ background: BG_CARD, borderColor: V_BORDER, backdropFilter: "blur(12px)" }}>
-                  <div className="flex items-center justify-between px-4 py-2.5 border-b" style={{ background: "rgba(0,0,0,0.4)", borderColor: V_BORDER }}>
+                <div className="rounded-2xl overflow-hidden border" style={{ background: BG_CARD, borderColor: V_BORDER, backdropFilter: "blur(12px)", boxShadow: `0 0 24px rgba(124,58,237,0.08)` }}>
+                  {/* Console title bar */}
+                  <div className="flex items-center justify-between px-4 py-2" style={{ background: "linear-gradient(180deg, rgba(19,15,34,0.95) 0%, rgba(12,10,24,0.90) 100%)", borderBottom: `1px solid ${V_BORDER}` }}>
                     <div className="flex items-center gap-2.5">
-                      <span className="w-2 h-2 rounded-full" style={{ background: prompt.length >= 10 ? "#4ade80" : "rgba(255,255,255,0.2)" }} />
-                      <span className="text-[10px] text-white/40 font-bold tracking-widest uppercase">SCRIPT TERMINAL</span>
-                      <span className="text-[10px] font-mono" style={{ color: prompt.length >= 10 ? "#4ade80" : "rgba(255,255,255,0.2)" }}>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full" style={{ background: "#ff5f57", boxShadow: "0 0 4px rgba(255,95,87,0.5)" }} />
+                        <div className="w-2 h-2 rounded-full" style={{ background: "#febc2e", boxShadow: "0 0 4px rgba(254,188,46,0.4)" }} />
+                        <div className="w-2 h-2 rounded-full" style={{ background: "#28c840", boxShadow: "0 0 4px rgba(40,200,64,0.4)" }} />
+                      </div>
+                      <span className="text-[9px] font-bold tracking-[2.5px] uppercase font-mono" style={{ color: `${V_LIGHT}88` }}>SCRIPT TERMINAL — DIRECTOR'S CONSOLE</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-mono" style={{ color: prompt.length >= 10 ? "rgba(74,222,128,0.7)" : "rgba(255,255,255,0.18)" }}>
                         {prompt.length >= 10 ? "● READY" : "○ AWAITING INPUT"}
                       </span>
+                      <span className="text-[9px] font-mono" style={{ color: "rgba(124,58,237,0.45)" }}>WIZSCRIPT™ v2.0</span>
                     </div>
-                    {/* Screenplay typewriter cursor decoration */}
-                    <span className="text-[10px] font-mono text-white/20 tracking-widest">WIZSCRIPT™ v2.0</span>
                   </div>
-                  <div className="p-5">
+                  {/* Command-line prompt prefix */}
+                  <div className="px-4 pt-2.5 pb-0 flex items-center gap-2">
+                    <span className="text-[10px] font-mono select-none" style={{ color: `${V_LIGHT}60` }}>$</span>
+                    <span className="text-[10px] font-mono" style={{ color: `${V_LIGHT}80` }}>wizscript --mode=director --output=storyboard</span>
+                    <span className="inline-block w-[7px] h-[12px] ml-1 align-middle" style={{ background: V_LIGHT, opacity: 0.7, animation: "wizCursorBlink 1.1s step-end infinite" }} />
+                  </div>
+                  <div className="p-5 pt-3">
                     <div className="text-center mb-4">
                       <div className="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs mb-3" style={{ background: V_DIM, borderColor: V_BORDER, color: V_LIGHT }}>
                         <Sparkles className="h-3.5 w-3.5" /> See your full storyboard before you build — always free
@@ -637,13 +682,37 @@ export default function TextToVideoCreator() {
                         <span className="text-[10px] text-white/30">▶ GENERATE PREVIEW</span>
                       </button>
                     )}
+                    {/* Scene Description — monitor-style panel */}
                     <div className="px-4 pt-3 pb-2">
-                      <Textarea value={scene.description} onChange={(e) => updateScene(scene.id, "description", e.target.value)}
-                        className="bg-white/[0.03] border-white/10 text-white text-sm resize-none min-h-[60px] rounded-xl" placeholder="Scene description…" />
+                      <div className="rounded-lg overflow-hidden" style={{ border: `1px solid rgba(124,58,237,0.18)`, background: "rgba(7,6,15,0.7)" }}>
+                        <div className="flex items-center justify-between px-2.5 py-1" style={{ background: "rgba(0,0,0,0.4)", borderBottom: `1px solid rgba(124,58,237,0.12)` }}>
+                          <span className="text-[8px] font-mono font-bold tracking-[2px] uppercase" style={{ color: `${V_LIGHT}55` }}>ACTION LINE</span>
+                          <span className="text-[8px] font-mono" style={{ color: "rgba(255,255,255,0.18)" }}>SCN {String(i + 1).padStart(2, "0")} · {scene.duration}</span>
+                        </div>
+                        <Textarea
+                          value={scene.description}
+                          onChange={(e) => updateScene(scene.id, "description", e.target.value)}
+                          className="bg-transparent border-none text-white text-sm resize-none min-h-[60px] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                          style={{ fontFamily: "'Courier Prime', 'Courier New', monospace", caretColor: V_LIGHT, fontSize: 12, lineHeight: 1.65 }}
+                          placeholder="Describe the action…"
+                        />
+                      </div>
                     </div>
+                    {/* Visual Notes — director's annotation strip */}
                     <div className="px-4 pb-4">
-                      <Textarea value={scene.visualNotes} onChange={(e) => updateScene(scene.id, "visualNotes", e.target.value)}
-                        className="bg-white/[0.03] border-white/10 text-white/50 text-xs resize-none min-h-[48px] rounded-xl" placeholder="Visual direction…" />
+                      <div className="rounded-lg overflow-hidden" style={{ border: `1px solid rgba(124,58,237,0.12)`, background: "rgba(7,6,15,0.5)" }}>
+                        <div className="flex items-center justify-between px-2.5 py-1" style={{ background: "rgba(0,0,0,0.3)", borderBottom: `1px solid rgba(124,58,237,0.08)` }}>
+                          <span className="text-[8px] font-mono font-bold tracking-[2px] uppercase" style={{ color: `${V_LIGHT}40` }}>DIRECTOR'S NOTES</span>
+                          <span className="text-[8px] font-mono" style={{ color: "rgba(255,255,255,0.14)" }}>VISUAL DIRECTION</span>
+                        </div>
+                        <Textarea
+                          value={scene.visualNotes}
+                          onChange={(e) => updateScene(scene.id, "visualNotes", e.target.value)}
+                          className="bg-transparent border-none text-white/50 text-xs resize-none min-h-[48px] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                          style={{ fontFamily: "'Courier Prime', 'Courier New', monospace", caretColor: V_LIGHT, fontSize: 11, lineHeight: 1.65 }}
+                          placeholder="Camera angle, lighting, mood…"
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
