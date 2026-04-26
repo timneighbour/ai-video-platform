@@ -72,6 +72,14 @@ const PRODUCTION_STATUS = [
 const FX = "#d946ef";
 const FX_DIM = "rgba(217,70,239,0.15)";
 const FX_BORDER = "rgba(217,70,239,0.35)";
+// ─── Studio environment ───────────────────────────────────────────────────────
+const ENV_IMG = "/manus-storage/env-broadcast-studio_5a824d1f.jpg";
+// Platform accent colours for plat-badge chips and channel-stats
+const PLAT_COLOURS: Record<string, string> = {
+  youtube_shorts: "#ff4444",
+  tiktok: "#cccccc",
+  reels: "#c060e0",
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -270,20 +278,21 @@ export default function WizShorts() {
             </div>
           </div>
 
-          {/* Platform nav pills */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Platform plat-badge chips — compact nav right treatment matching reference */}
+          <div className="hidden md:flex items-center gap-1.5">
             {PLATFORMS.map((p) => (
               <button
                 key={p.id}
                 onClick={() => setPlatform(p.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-                style={
-                  platform === p.id
-                    ? { background: FX, color: "#07040d" }
-                    : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.55)" }
-                }
+                className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold tracking-wide transition-all"
+                style={{
+                  background: platform === p.id ? "rgba(0,0,0,0.7)" : "#141414",
+                  border: `1px solid ${platform === p.id ? PLAT_COLOURS[p.id] + "66" : "#222"}`,
+                  borderRadius: 3,
+                  color: platform === p.id ? PLAT_COLOURS[p.id] : "#666",
+                }}
               >
-                <span>{p.icon}</span>
+                <span style={{ fontSize: 9 }}>{p.icon}</span>
                 <span>{p.label}</span>
               </button>
             ))}
@@ -300,36 +309,214 @@ export default function WizShorts() {
           </div>
         </div>
 
-        {/* Stage bar */}
-        <div className="border-t border-white/10 bg-white/[0.03]">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex items-center gap-1 sm:gap-2 py-2.5 overflow-x-auto scrollbar-none">
-              {[
-                { key: "setup",   label: "Platform" },
-                { key: "script",  label: "Script & Hook" },
-                { key: "scenes",  label: "Scenes" },
-                { key: "upgrade", label: "Upgrade Preview" },
-                { key: "render",  label: "Render & Publish" },
-              ].map((s, i) => (
-                <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                  <div
-                    className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all"
-                    style={
-                      stageIdx === i
-                        ? { background: FX, color: "#07040d", boxShadow: `0 4px 16px rgba(217,70,239,0.35)` }
-                        : stageIdx > i
-                        ? { background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)" }
-                        : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.35)" }
-                    }
+        {/* Stage bar — flat border-bottom underline treatment matching mockup-wizshorts.html */}
+        <div style={{ background: "#0a0a0a", borderTop: "1px solid #1a1a1a" }}>
+          <div className="flex items-center justify-center overflow-x-auto scrollbar-none">
+            {[
+              { key: "setup",   label: "Platform" },
+              { key: "script",  label: "Script & Hook" },
+              { key: "scenes",  label: "Scenes" },
+              { key: "upgrade", label: "Upgrade Preview" },
+              { key: "render",  label: "Render & Publish" },
+            ].map((s, i) => (
+              <div key={s.key} className="flex items-center flex-shrink-0">
+                <div
+                  className="flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-bold tracking-widest uppercase whitespace-nowrap transition-all cursor-pointer"
+                  style={{
+                    color: stageIdx === i ? "#e07a50" : stageIdx > i ? "#6db86d" : "#444",
+                    borderBottom: stageIdx === i ? "2px solid #e05c2a" : "2px solid transparent",
+                  }}
+                >
+                  {/* Stage number badge */}
+                  <span
+                    className="flex items-center justify-center text-[9px] font-black"
+                    style={{
+                      width: 18, height: 18, borderRadius: "50%",
+                      background: stageIdx === i ? "#e05c2a" : stageIdx > i ? "#6db86d" : "#222",
+                      color: stageIdx === i ? "#fff" : stageIdx > i ? "#000" : "#555",
+                      flexShrink: 0,
+                    }}
                   >
-                    {stageIdx > i && <CheckCircle2 className="h-3 w-3" />}
-                    {s.label}
-                  </div>
-                  {i < 4 && <ChevronRight className="h-3 w-3 text-white/20 flex-shrink-0" />}
+                    {stageIdx > i ? "✓" : i + 1}
+                  </span>
+                  {s.label}
                 </div>
-              ))}
+                {i < 4 && <span style={{ color: "#2a2a2a", fontSize: 10, padding: "0 2px" }}>›</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Studio Viewport Hero — matching .studio-viewport from mockup-wizshorts.html ── */}
+      <div
+        className="relative overflow-hidden"
+        style={{ height: 520, flexShrink: 0 }}
+      >
+        {/* Studio background image */}
+        <img
+          src={ENV_IMG}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.5s ease" }}
+          draggable={false}
+        />
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.15) 0%, rgba(8,8,8,0.0) 30%, rgba(8,8,8,0.6) 100%)" }}
+        />
+
+        {/* mon-main — floating creator dashboard panel, centre of viewport */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            left: "29%", top: "15%",
+            width: "42%", height: "52%",
+            background: "rgba(8,6,18,0.85)",
+            border: "1px solid rgba(217,70,239,0.2)",
+            borderRadius: 2,
+            overflow: "hidden",
+          }}
+        >
+          {/* mon header */}
+          <div
+            style={{
+              padding: "3px 8px",
+              fontSize: 7,
+              fontWeight: 700,
+              letterSpacing: "0.5px",
+              background: "rgba(20,8,20,0.95)",
+              borderBottom: "1px solid rgba(217,70,239,0.2)",
+              color: "#d946ef",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <span>WIZSHORTS™ — CREATOR DASHBOARD</span>
+            <span style={{ color: "#555" }}>{PLATFORMS.find(p => p.id === platform)?.label} Shorts · 9:16</span>
+          </div>
+          {/* Stats grid */}
+          <div style={{ padding: "5px 8px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
+            {[
+              { label: "SUBSCRIBERS", val: "124.7K", sub: "▲ +2.1K this week", color: "#ff6666" },
+              { label: "TOTAL VIEWS",  val: "8.4M",   sub: "Last 28 days",      color: "#d4a843" },
+              { label: "SHORTS MADE", val: "47",      sub: "12 this month",     color: "#fff" },
+            ].map((s) => (
+              <div key={s.label} style={{ background: "#1a0e08", borderRadius: 2, padding: "5px 6px" }}>
+                <div style={{ fontSize: 6, color: "#e07a50", fontWeight: 700, letterSpacing: "0.5px" }}>{s.label}</div>
+                <div style={{ fontSize: 12, fontWeight: 900, color: s.color, marginTop: 1 }}>{s.val}</div>
+                <div style={{ fontSize: 6, color: "#3a3a3a" }}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+          {/* Live / next upload row */}
+          <div style={{ padding: "0 8px 5px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+            <div style={{ background: "#0d0d0d", borderRadius: 2, padding: "4px 6px", display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff4444", animation: "wizLivePulse 1s infinite" }} />
+              <div>
+                <div style={{ fontSize: 6, color: "#ff6666", fontWeight: 700 }}>LIVE NOW</div>
+                <div style={{ fontSize: 8, color: "#888", fontWeight: 700 }}>1,247 watching</div>
+              </div>
+            </div>
+            <div style={{ background: "#0d0d0d", borderRadius: 2, padding: "4px 6px" }}>
+              <div style={{ fontSize: 6, color: "#555", fontWeight: 700 }}>NEXT UPLOAD</div>
+              <div style={{ fontSize: 8, color: "#ccc", fontWeight: 700 }}>In 2 days</div>
             </div>
           </div>
+          {/* Mini scene strip */}
+          <div style={{ padding: "0 8px 5px", display: "flex", gap: 3 }}>
+            {[
+              { id: "SC01", bg: "linear-gradient(135deg,#2a1a0a,#3a2a10)", color: "#e07a50" },
+              { id: "SC02", bg: "linear-gradient(135deg,#1a1a2a,#2a2a3a)", color: "#9b7de0" },
+              { id: "SC03", bg: "linear-gradient(135deg,#1a2a1a,#2a3a2a)", color: "#6db86d" },
+              { id: "SC04", bg: "linear-gradient(135deg,#2a1a1a,#3a2a2a)", color: "#d4a843" },
+              { id: "SC05", bg: "#141414",                                  color: "#333" },
+            ].map((sc) => (
+              <div key={sc.id} style={{ flex: 1, height: 18, background: sc.bg, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 6, color: sc.color }}>{sc.id}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* channel-stats HUD — top-left of viewport */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: 12, left: 14,
+            background: "rgba(0,0,0,0.7)",
+            border: "1px solid #1e1e1e",
+            borderRadius: 4,
+            padding: "8px 12px",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div style={{ fontSize: 10, fontWeight: 800, color: "#fff", marginBottom: 6, letterSpacing: "0.5px" }}>@TimCreates</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
+            {[
+              { val: "124.7K", lbl: "YT Subs",     color: "#ff6666" },
+              { val: "89.2K",  lbl: "TikTok",      color: "#ccc" },
+              { val: "8.4M",   lbl: "Total Views", color: "#d4a843" },
+              { val: "47",     lbl: "Shorts Made", color: "#6db86d" },
+            ].map((s) => (
+              <div key={s.lbl} style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 12, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.val}</span>
+                <span style={{ fontSize: 7, color: "#555", letterSpacing: "0.5px", textTransform: "uppercase", marginTop: 1 }}>{s.lbl}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* REC indicator — top-right of viewport */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: 12, right: 14,
+            display: "flex", alignItems: "center", gap: 6,
+            background: "rgba(0,0,0,0.6)",
+            border: "1px solid #222",
+            padding: "5px 10px",
+            borderRadius: 3,
+          }}
+        >
+          <div
+            style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: renderStatus === "rendering" ? "#ff4444" : "#444",
+              animation: renderStatus === "rendering" ? "wizLivePulse 1s ease-in-out infinite" : "none",
+            }}
+          />
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: renderStatus === "rendering" ? "#ff6666" : "#666" }}>
+            {renderStatus === "rendering" ? "LIVE · 1,247" : "STANDBY"}
+          </span>
+        </div>
+
+        {/* studio-session-info — bottom-left of viewport */}
+        <div
+          className="absolute pointer-events-none"
+          style={{ bottom: 14, left: 16 }}
+        >
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Session</div>
+          <div style={{ fontSize: 17, fontWeight: 900, color: "#fff", letterSpacing: 1, marginTop: 2, fontFamily: "'Bebas Neue', sans-serif" }}>
+            {PLATFORMS.find(p => p.id === platform)?.label} Shorts · {duration}s
+          </div>
+          <div style={{ fontSize: 10, color: "#e07a50", marginTop: 2 }}>
+            {MOCK_SCENES.length} Scenes · {VISUAL_STYLES.find(s => s.id === visualStyle)?.label} · Hook: {selectedHook !== null ? "Selected" : "None"}
+          </div>
+        </div>
+
+        {/* Ambient dimmer control — bottom-right of viewport */}
+        <div
+          className="absolute"
+          style={{ bottom: 14, right: 16, display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 1, textTransform: "uppercase" }}>Ambience</span>
+          <input
+            type="range" min={20} max={100} value={ambience}
+            onChange={(e) => setAmbience(Number(e.target.value))}
+            className="w-20 h-1 accent-fuchsia-500 cursor-pointer"
+          />
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>{ambience}%</span>
         </div>
       </div>
 
@@ -461,10 +648,19 @@ export default function WizShorts() {
           <div className="min-w-0 space-y-5">
             {step === "setup" && (
               <>
-                {/* Hook Builder */}
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm p-5">
+                {/* Hook Builder — orange gradient treatment matching mockup-wizshorts.html .hook-builder */}
+                <div
+                  className="rounded-2xl p-5"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(30,15,8,0.85), rgba(15,8,4,0.95))",
+                    border: "1px solid rgba(224,92,42,0.25)",
+                  }}
+                >
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-bold text-white tracking-widest uppercase">Hook Builder — First 3 seconds decide everything</h3>
+                    <h3 className="text-xs font-bold text-white tracking-widest uppercase">
+                      Hook Builder{" "}
+                      <span style={{ color: "#e05c2a", fontSize: 9, fontWeight: 600, textTransform: "none", letterSpacing: 0 }}>— First 3 seconds decide everything</span>
+                    </h3>
                     <button
                       onClick={() => toast.info("AI hook generation coming soon")}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
@@ -517,7 +713,19 @@ export default function WizShorts() {
                   />
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-[10px] text-white/30">{topic.length} / 500</span>
-                    <button className="flex items-center gap-1.5 text-[10px] transition-colors" style={{ color: FX }}>
+                    <button
+                      className="flex items-center gap-1.5 text-[10px] font-semibold transition-all"
+                      style={{
+                        background: "#1a1a1a",
+                        border: "1px solid #2a2a2a",
+                        color: "#666",
+                        padding: "4px 10px",
+                        borderRadius: 3,
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#e05c2a"; (e.currentTarget as HTMLButtonElement).style.color = "#e07a50"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#2a2a2a"; (e.currentTarget as HTMLButtonElement).style.color = "#666"; }}
+                    >
                       <Mic className="w-3 h-3" />
                       Speak Brief
                     </button>

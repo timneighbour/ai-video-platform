@@ -684,6 +684,12 @@ select {
   50%       { opacity: 0; }
 }
 
+/* ── WizShorts — live pulse for REC/LIVE indicators ── */
+@keyframes wizLivePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4); }
+  50%       { opacity: 0.7; box-shadow: 0 0 0 4px rgba(255, 68, 68, 0); }
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    LUXURY NAV & BUTTON COMPONENTS
    ══════════════════════════════════════════════════════════════════════════════ */
