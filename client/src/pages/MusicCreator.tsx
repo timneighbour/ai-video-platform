@@ -701,6 +701,61 @@ export default function MusicCreator() {
           <div className="flex flex-col gap-3 overflow-y-auto p-3.5" style={{ background: "#09080e" }}>
             <div className="text-[9px] font-bold tracking-[3px] uppercase text-white/16 text-center pb-2.5 border-b border-white/7">Master Bus · WizSound™</div>
 
+            {/* ── LIVE ROOM WINDOW ── */}
+            <div className="rounded-[6px] overflow-hidden border border-white/10 flex-shrink-0" style={{ background: "#08070d" }}>
+              {/* Window header bar — brushed-metal rail */}
+              <div className="flex items-center justify-between px-2.5 py-1.5" style={{ background: "linear-gradient(180deg, #1e1c26 0%, #141220 100%)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="flex items-center gap-1.5">
+                  {/* Traffic-light dots */}
+                  <div className="w-2 h-2 rounded-full" style={{ background: "#ff5f57", boxShadow: "0 0 4px rgba(255,95,87,0.6)" }} />
+                  <div className="w-2 h-2 rounded-full" style={{ background: "#febc2e", boxShadow: "0 0 4px rgba(254,188,46,0.5)" }} />
+                  <div className="w-2 h-2 rounded-full" style={{ background: "#28c840", boxShadow: "0 0 4px rgba(40,200,64,0.5)" }} />
+                </div>
+                <span className="text-[8px] font-bold tracking-[2.5px] uppercase" style={{ color: "rgba(201,168,76,0.55)" }}>Live Room</span>
+                <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] transition-all ${ isOnAir ? "bg-[rgba(255,59,48,0.18)] border border-[rgba(255,59,48,0.5)]" : "bg-transparent border border-white/8" }`}>
+                  <div className={`w-1.5 h-1.5 rounded-full transition-all ${ isOnAir ? "bg-[#ff3b30] animate-pulse" : "bg-white/15" }`} style={{ boxShadow: isOnAir ? "0 0 5px #ff3b30" : "none" }} />
+                  <span className={`text-[7px] font-extrabold tracking-[2px] uppercase transition-all ${ isOnAir ? "text-[#ff3b30]" : "text-white/18" }`}>REC</span>
+                </div>
+              </div>
+
+              {/* Viewport — framed glass window into the booth */}
+              <div className="relative" style={{ height: 128 }}>
+                {/* Studio environment image */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+                  style={{
+                    backgroundImage: `url('${ENV_IMG}')`,
+                    backgroundPosition: "center 30%",
+                    filter: isOnAir ? "brightness(0.75) saturate(1.1)" : "brightness(0.45) saturate(0.7)",
+                  }}
+                />
+                {/* Inner vignette — gives depth and frames the view */}
+                <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.72) 100%)" }} />
+                {/* Horizontal scan-line overlay for CRT/monitor feel */}
+                <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)" }} />
+                {/* Gold ambient glow when ON AIR */}
+                { isOnAir && (
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(201,168,76,0.12) 0%, transparent 70%)" }} />
+                )}
+                {/* Corner label */}
+                <div className="absolute bottom-1.5 left-2.5">
+                  <span className="text-[7px] font-mono tracking-[1.5px] uppercase" style={{ color: "rgba(201,168,76,0.45)" }}>Booth A · ISO</span>
+                </div>
+                {/* Timecode readout top-right */}
+                <div className="absolute top-1.5 right-2.5">
+                  <span className="text-[8px] font-mono" style={{ color: isOnAir ? "rgba(255,59,48,0.8)" : "rgba(255,255,255,0.15)" }}>
+                    {isOnAir ? "● REC" : "○ STANDBY"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Window sill — frosted glass strip */}
+              <div className="flex items-center justify-between px-2.5 py-1" style={{ background: "rgba(255,255,255,0.025)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <span className="text-[7px] font-mono tracking-[1px]" style={{ color: "rgba(255,255,255,0.18)" }}>WizSound™ Studio · Control Room B</span>
+                <span className="text-[7px] font-mono" style={{ color: isOnAir ? "rgba(201,168,76,0.7)" : "rgba(255,255,255,0.12)" }}>{isOnAir ? "● GENERATING" : "○ IDLE"}</span>
+              </div>
+            </div>
+
             {/* VU Meters */}
             <div className="flex justify-center gap-2.5">
               <VUMeter channel="L" isActive={isOnAir} />
