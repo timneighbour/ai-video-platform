@@ -183,27 +183,104 @@ export function PostRenderRetentionScreen({
         </p>
       </div>
 
-      {/* ── Video Player ────────────────────────────────────────────── */}
-      <div className="relative rounded-xl overflow-hidden mb-5 ring-1 ring-[--color-gold]/20 bg-black group">
-        <video
-          ref={videoRef}
-          src={finalVideoUrl}
-          controls
-          autoPlay
-          muted
-          playsInline
-          className="w-full max-h-72 bg-black"
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-        />
-        {/* Format badge */}
-        <div className="absolute top-2 left-2 pointer-events-none">
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${formatInfo.color}`}>
-            {formatInfo.platform} · {formatInfo.label}
-          </span>
+      {/* ── Screening Room Player Chrome ──────────────────────────── */}
+      <div className="mb-5" style={{fontFamily:"'Courier Prime',monospace"}}>
+        {/* Title rail */}
+        <div style={{background:'rgba(8,6,4,0.97)',borderTop:'1px solid rgba(184,137,42,0.25)',borderLeft:'1px solid rgba(184,137,42,0.25)',borderRight:'1px solid rgba(184,137,42,0.25)',borderRadius:'8px 8px 0 0',padding:'8px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div style={{display:'flex',gap:5}}>
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#ef4444'}} />
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#f59e0b'}} />
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#22c55e'}} />
+            </div>
+            <span style={{fontSize:10,fontWeight:700,letterSpacing:2,color:'rgba(212,168,67,0.9)',textTransform:'uppercase'}}>SCREENING ROOM · WizVideo™</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{fontSize:9,color:'rgba(255,255,255,0.35)',letterSpacing:1}}>TAKE 1 · FINAL CUT</span>
+            <span style={{fontSize:9,fontWeight:700,padding:'2px 7px',border:'1px solid rgba(212,168,67,0.4)',borderRadius:2,color:'rgba(212,168,67,0.9)',letterSpacing:1}}>{aspectRatio}</span>
+          </div>
         </div>
-        {/* Glow effect */}
-        <div className="absolute inset-0 pointer-events-none rounded-xl ring-1 ring-[--color-gold]/10 shadow-[0_0_40px_rgba(184,137,42,0.15)]" />
+        {/* Video container */}
+        <div className="relative overflow-hidden bg-black group" style={{border:'1px solid rgba(184,137,42,0.15)',borderTop:'none',borderBottom:'none'}}>
+          <video
+            ref={videoRef}
+            src={finalVideoUrl}
+            autoPlay
+            muted
+            playsInline
+            className="w-full max-h-72 bg-black"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+          />
+          {/* Scanlines */}
+          <div style={{position:'absolute',inset:0,backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px)',pointerEvents:'none',zIndex:2}} />
+          {/* Vignette */}
+          <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.45) 100%)',pointerEvents:'none',zIndex:3}} />
+          {/* Format badge top-left */}
+          <div style={{position:'absolute',top:10,left:10,zIndex:5,pointerEvents:'none'}}>
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${formatInfo.color}`}>
+              {formatInfo.platform} · {formatInfo.label}
+            </span>
+          </div>
+          {/* Gold circular play/pause button — centre */}
+          <button
+            onClick={togglePlay}
+            style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:52,height:52,borderRadius:'50%',background:'linear-gradient(135deg,rgba(212,168,67,0.9),rgba(184,137,42,0.7))',border:'2px solid rgba(212,168,67,0.6)',boxShadow:'0 0 24px rgba(212,168,67,0.35)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:6,opacity: isPlaying ? 0 : 1,transition:'opacity 0.2s'}}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying
+              ? <Pause style={{width:20,height:20,color:'#000'}} />
+              : <Play style={{width:20,height:20,color:'#000',marginLeft:2}} />
+            }
+          </button>
+          {/* Glow ring */}
+          <div style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:4,boxShadow:'inset 0 0 40px rgba(184,137,42,0.12)'}} />
+        </div>
+        {/* Transport controls bar */}
+        <div style={{background:'rgba(8,6,4,0.97)',border:'1px solid rgba(184,137,42,0.15)',borderTop:'1px solid rgba(184,137,42,0.25)',borderRadius:'0 0 8px 8px',padding:'8px 14px'}}>
+          {/* Progress bar */}
+          <div
+            style={{width:'100%',height:3,background:'rgba(255,255,255,0.1)',borderRadius:2,marginBottom:8,cursor:'pointer',position:'relative'}}
+            onClick={(e) => {
+              const v = videoRef.current;
+              if (!v || !v.duration) return;
+              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+              const pct = (e.clientX - rect.left) / rect.width;
+              v.currentTime = pct * v.duration;
+            }}
+          >
+            <div style={{height:'100%',background:'linear-gradient(90deg,#d4a843,#b8892a)',borderRadius:2,width:'0%',transition:'width 0.1s'}} id="screening-room-progress" />
+            <div style={{position:'absolute',top:'50%',left:'0%',transform:'translate(-50%,-50%)',width:9,height:9,borderRadius:'50%',background:'#d4a843',boxShadow:'0 0 6px rgba(212,168,67,0.6)'}} id="screening-room-scrubber" />
+          </div>
+          {/* Transport controls row */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <button onClick={togglePlay} style={{background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,0.7)',padding:0,display:'flex',alignItems:'center'}}>
+                {isPlaying ? <Pause style={{width:14,height:14}} /> : <Play style={{width:14,height:14}} />}
+              </button>
+              <span style={{fontSize:9,color:'rgba(255,255,255,0.35)',letterSpacing:0.5}}>00:00 / --:--</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <button onClick={handleDownload} style={{background:'none',border:'none',cursor:'pointer',color:'rgba(212,168,67,0.7)',padding:0,display:'flex',alignItems:'center',gap:4,fontSize:9,fontWeight:600,letterSpacing:1}}>
+                <Download style={{width:11,height:11}} /> EXPORT
+              </button>
+              <button onClick={handleShare} style={{background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,0.35)',padding:0,display:'flex',alignItems:'center',gap:4,fontSize:9,letterSpacing:1}}>
+                <Share2 style={{width:11,height:11}} /> SHARE
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Filmstrip beneath player */}
+        <div style={{marginTop:6,display:'flex',gap:3,overflowX:'auto',paddingBottom:2}}>
+          {Array.from({length:8}).map((_,i) => (
+            <div key={i} style={{flexShrink:0,width:48,height:28,background:'rgba(24,20,16,0.9)',border:'1px solid rgba(184,137,42,0.12)',borderRadius:2,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+              {/* Sprocket holes */}
+              <div style={{position:'absolute',top:2,left:2,width:4,height:4,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:'1px solid rgba(184,137,42,0.15)'}} />
+              <div style={{position:'absolute',bottom:2,right:2,width:4,height:4,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:'1px solid rgba(184,137,42,0.15)'}} />
+              <span style={{fontSize:7,color:'rgba(255,255,255,0.2)',fontWeight:600}}>{String(i+1).padStart(2,'0')}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ── Primary CTAs ────────────────────────────────────────────── */}

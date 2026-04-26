@@ -240,22 +240,25 @@ export default function CharacterConfirmationStep({
     );
   }
 
+  const lockedCount = characters.filter(c => c.isLocked).length;
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div style={{maxWidth:'100%'}}>
+      {/* ── char-lock-header ── */}
+      <div style={{background:'#0c0c0c',borderBottom:'1px solid #1a1a1a',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,borderRadius:'8px 8px 0 0'}}>
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-emerald-400" />
-            Confirm Your Characters
+          <h2 style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:20,letterSpacing:3,color:'#fff',margin:0,display:'flex',alignItems:'center',gap:8}}>
+            <ShieldCheck style={{width:18,height:18,color:'#6db86d'}} />
+            CHARACTER LOCK
           </h2>
-          <p className="text-zinc-400 text-sm mt-1">
-            Generate a full-body portrait for each character. Check the face, hair colour, and outfit — then approve.
-          </p>
+          <p style={{fontSize:11,color:'#666',marginTop:3}}>Build each band member's full profile — face, build, instrument &amp; performance. <span style={{color:'#d4a843'}}>Up to 10 characters.</span> Every scene uses these exact locked profiles.</p>
         </div>
-        <Badge className={`text-sm px-3 py-1.5 ${allApproved ? "bg-emerald-900/60 text-emerald-300 border-emerald-700" : "bg-zinc-800 text-zinc-400 border-zinc-700"}`}>
-          {approvedCount} / {characters.length} Approved
-        </Badge>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          {/* lock status badge */}
+          <div style={{background:'#141414',border:'1px solid #2a2a2a',borderRadius:4,padding:'6px 12px',display:'flex',alignItems:'center',gap:8}}>
+            <span style={{width:8,height:8,borderRadius:'50%',background: allApproved ? '#6db86d' : '#d4a843',boxShadow:`0 0 8px ${allApproved ? 'rgba(109,184,109,0.6)' : 'rgba(212,168,67,0.6)'}`,display:'inline-block'}} />
+            <span style={{fontSize:11,color:'#ccc',fontWeight:600,letterSpacing:1}}>{approvedCount}/{characters.length} APPROVED</span>
+          </div>
+        </div>
       </div>
 
       {/* Character Lock Mode toggle */}
@@ -298,6 +301,26 @@ export default function CharacterConfirmationStep({
               Click "Create Full-Body Portrait" on each photo character below. You'll see the AI version of them — face, hair colour, and complete outfit — so you can verify everything looks right before the storyboard is built.
             </p>
           </div>
+        </div>
+      )}
+
+      {/* ── char-face-strip: 4-up face close-up grid ── */}
+      {characters.length > 0 && (
+        <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(characters.length,4)},1fr)`,gap:10,marginBottom:16}}>
+          {characters.slice(0,4).map((char) => (
+            <div key={char.id} style={{position:'relative',borderRadius:3,overflow:'hidden',border:`1px solid ${char.previewApproved ? '#6db86d' : '#2a2a2a'}`,background:'#111',aspectRatio:'1/1',cursor:'pointer',transition:'border-color 0.2s'}}>
+              {char.previewImageUrl ? (
+                <img src={char.previewImageUrl} alt={char.name} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'top'}} />
+              ) : (
+                <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',background:'#1a1a1a'}}>
+                  <User style={{width:24,height:24,color:'#444'}} />
+                </div>
+              )}
+              <div style={{position:'absolute',bottom:0,left:0,right:0,background:'rgba(0,0,0,0.85)',fontSize:9,fontWeight:600,letterSpacing:1,color: char.previewApproved ? '#d4a843' : '#888',textAlign:'center',padding:'4px',textTransform:'uppercase'}}>
+                {char.name}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -588,33 +611,56 @@ export default function CharacterConfirmationStep({
         </div>
       )}
 
-      {/* Navigation buttons */}
-      <div className="flex items-center gap-3 pt-2">
-        <Button
+      {/* ── char-lock-panel: lock status card + LOCK CHARACTER gold CTA ── */}
+      <div style={{background:'#0f0f0f',border:'1px solid #1e1e1e',borderRadius:8,padding:'20px',marginTop:16}}>
+        <div style={{fontSize:10,fontWeight:600,letterSpacing:2,color:'#555',textTransform:'uppercase',marginBottom:12,paddingBottom:8,borderBottom:'1px solid #1e1e1e'}}>LOCK STATUS</div>
+        {/* lock-status-card */}
+        <div style={{background:'#141414',border:'1px solid #2a2a2a',borderRadius:4,padding:16,marginBottom:16}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+            <span style={{fontSize:11,color:'#888'}}>Characters Defined</span>
+            <span style={{fontSize:11,fontWeight:600,color:'#ccc'}}>{characters.length}</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+            <span style={{fontSize:11,color:'#888'}}>Portraits Generated</span>
+            <span style={{fontSize:11,fontWeight:600,color:'#d4a843'}}>{characters.filter(c=>!!c.previewImageUrl).length} / {characters.length}</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+            <span style={{fontSize:11,color:'#888'}}>Approved</span>
+            <span style={{fontSize:11,fontWeight:600,color: allApproved ? '#6db86d' : '#d4a843'}}>
+              <span style={{width:8,height:8,borderRadius:'50%',background: allApproved ? '#6db86d' : '#d4a843',display:'inline-block',marginRight:6}} />
+              {approvedCount} / {characters.length}
+            </span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <span style={{fontSize:11,color:'#888'}}>Lock Mode</span>
+            <span style={{fontSize:11,fontWeight:600,color: characterLockMode ? '#d4a843' : '#888'}}>{characterLockMode ? 'ENFORCED' : 'STANDARD'}</span>
+          </div>
+        </div>
+        {/* Back button */}
+        <button
           type="button"
-          variant="outline"
           onClick={onBack}
           disabled={isGeneratingStoryboard}
-          className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800 gap-2"
+          style={{background:'#1a1a1a',border:'1px solid #333',color:'#888',padding:'8px 14px',fontSize:11,fontWeight:600,letterSpacing:0.5,borderRadius:3,cursor:'pointer',display:'flex',alignItems:'center',gap:6,marginBottom:12,width:'100%',justifyContent:'center',opacity: isGeneratingStoryboard ? 0.5 : 1}}
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Setup
-        </Button>
-
-        <div className="flex-1" />
-
-        <Button
-          type="button"
-          onClick={onApproveAll}
-          disabled={!allApproved || isGeneratingStoryboard}
-          className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white font-semibold px-6 gap-2 disabled:opacity-50"
-        >
-          {isGeneratingStoryboard ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Generating Storyboard...</>
-          ) : (
-            <><Sparkles className="w-4 h-4" /> Generate Storyboard</>
-          )}
-        </Button>
+          <ArrowLeft style={{width:12,height:12}} /> BACK TO SETUP
+        </button>
+        {/* LOCK CHARACTER gold CTA */}
+        <div style={{marginTop:'auto',paddingTop:0,borderTop:'1px solid #1e1e1e'}}>
+          <button
+            type="button"
+            onClick={onApproveAll}
+            disabled={!allApproved || isGeneratingStoryboard}
+            style={{width:'100%',background: allApproved ? 'linear-gradient(135deg,#d4a843,#b8892a)' : '#1a1a1a',border: allApproved ? 'none' : '1px solid #333',color: allApproved ? '#000' : '#555',padding:14,fontSize:13,fontWeight:700,letterSpacing:2,borderRadius:3,cursor: allApproved ? 'pointer' : 'not-allowed',display:'flex',alignItems:'center',justifyContent:'center',gap:10,transition:'all 0.2s',marginTop:12}}
+          >
+            {isGeneratingStoryboard ? (
+              <><Loader2 style={{width:16,height:16,animation:'spin 1s linear infinite'}} /> GENERATING STORYBOARD...</>
+            ) : (
+              <><Lock style={{width:16,height:16}} /> {allApproved ? 'LOCK CHARACTER · GENERATE STORYBOARD' : `APPROVE ALL ${characters.length} CHARACTERS TO CONTINUE`}</>
+            )}
+          </button>
+          <div style={{textAlign:'center',fontSize:10,color:'#555',marginTop:8}}>Face · Build · Instrument · Performance · Wardrobe — all locked. No randomness.</div>
+        </div>
       </div>
     </div>
   );

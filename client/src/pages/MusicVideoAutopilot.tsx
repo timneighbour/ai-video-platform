@@ -2960,7 +2960,7 @@ export default function MusicVideoAutopilot() {
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
                   {/* Scene preview image */}
-                  <div className="relative w-full aspect-video bg-[rgba(24,20,16,0.9)]">
+                  <div className="relative w-full aspect-video bg-[rgba(24,20,16,0.9)]" style={{fontFamily:"'Courier Prime',monospace"}}>
                     {scene.previewImageUrl ? (
                       <img
                         src={scene.previewImageUrl}
@@ -3012,23 +3012,66 @@ export default function MusicVideoAutopilot() {
                         <span className="text-white/50 text-[10px]">Applying your description</span>
                       </div>
                     )}
-                    {/* Scene number overlay */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                      <Badge className="bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
-                        Scene {scene.sceneIndex + 1}
-                      </Badge>
-                      {inferSceneType(scene.lyrics, scene.prompt) && (
-                        <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-0 text-xs backdrop-blur-sm">
-                          {inferSceneType(scene.lyrics, scene.prompt)}
+                    {/* ── Viewfinder overlay ── */}
+                    {scene.previewImageUrl && (
+                      <>
+                        {/* Scanline overlay */}
+                        <div style={{position:'absolute',inset:0,backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px)',pointerEvents:'none',zIndex:2}} />
+                        {/* Vignette */}
+                        <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.55) 100%)',pointerEvents:'none',zIndex:3}} />
+                        {/* Corner brackets — TL */}
+                        <div style={{position:'absolute',top:6,left:6,width:14,height:14,borderTop:'1.5px solid rgba(212,168,67,0.8)',borderLeft:'1.5px solid rgba(212,168,67,0.8)',zIndex:4}} />
+                        {/* Corner brackets — TR */}
+                        <div style={{position:'absolute',top:6,right:6,width:14,height:14,borderTop:'1.5px solid rgba(212,168,67,0.8)',borderRight:'1.5px solid rgba(212,168,67,0.8)',zIndex:4}} />
+                        {/* Corner brackets — BL */}
+                        <div style={{position:'absolute',bottom:6,left:6,width:14,height:14,borderBottom:'1.5px solid rgba(212,168,67,0.8)',borderLeft:'1.5px solid rgba(212,168,67,0.8)',zIndex:4}} />
+                        {/* Corner brackets — BR */}
+                        <div style={{position:'absolute',bottom:6,right:6,width:14,height:14,borderBottom:'1.5px solid rgba(212,168,67,0.8)',borderRight:'1.5px solid rgba(212,168,67,0.8)',zIndex:4}} />
+                        {/* Focus crosshair */}
+                        <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:16,height:16,zIndex:4,pointerEvents:'none'}}>
+                          <div style={{position:'absolute',top:'50%',left:0,right:0,height:1,background:'rgba(212,168,67,0.4)',transform:'translateY(-50%)'}} />
+                          <div style={{position:'absolute',left:'50%',top:0,bottom:0,width:1,background:'rgba(212,168,67,0.4)',transform:'translateX(-50%)'}} />
+                        </div>
+                        {/* REC indicator — top right */}
+                        <div style={{position:'absolute',top:8,right:8,display:'flex',alignItems:'center',gap:4,zIndex:5}}>
+                          <span style={{width:6,height:6,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 6px rgba(239,68,68,0.8)',display:'inline-block',animation:'wizLivePulse 1.2s ease-in-out infinite'}} />
+                          <span style={{fontSize:8,fontWeight:700,letterSpacing:1.5,color:'rgba(255,255,255,0.9)',textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>REC</span>
+                        </div>
+                        {/* Scene number — top left */}
+                        <div style={{position:'absolute',top:8,left:8,zIndex:5}}>
+                          <span style={{fontSize:8,fontWeight:700,letterSpacing:1,color:'rgba(212,168,67,0.9)',textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>SC {String(scene.sceneIndex + 1).padStart(2,'0')}</span>
+                          {inferSceneType(scene.lyrics, scene.prompt) && (
+                            <span style={{marginLeft:6,fontSize:7,letterSpacing:0.5,color:'rgba(255,255,255,0.5)'}}>{inferSceneType(scene.lyrics, scene.prompt).toUpperCase()}</span>
+                          )}
+                        </div>
+                        {/* Timecode + exposure — bottom left */}
+                        <div style={{position:'absolute',bottom:8,left:8,zIndex:5,display:'flex',flexDirection:'column',gap:1}}>
+                          <span style={{fontSize:8,fontWeight:600,letterSpacing:0.5,color:'rgba(255,255,255,0.7)',textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>{formatTime(scene.startTime)} · {scene.duration}s</span>
+                          <span style={{fontSize:7,color:'rgba(255,255,255,0.35)',letterSpacing:0.3}}>f/2.8 · ISO 800 · 1/50</span>
+                        </div>
+                      </>
+                    )}
+                    {/* Scene number overlay (no preview state) */}
+                    {!scene.previewImageUrl && (
+                      <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                        <Badge className="bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
+                          Scene {scene.sceneIndex + 1}
                         </Badge>
-                      )}
-                    </div>
-                    {/* Duration overlay */}
-                    <div className="absolute bottom-2 right-2">
-                      <span className="text-xs text-white/80 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm">
-                        {formatTime(scene.startTime)} · {scene.duration}s
-                      </span>
-                    </div>
+                        {inferSceneType(scene.lyrics, scene.prompt) && (
+                          <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-0 text-xs backdrop-blur-sm">
+                            {inferSceneType(scene.lyrics, scene.prompt)}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    {/* Duration overlay (no preview state) */}
+                    {!scene.previewImageUrl && (
+                      <div className="absolute bottom-2 right-2">
+                        <span className="text-xs text-white/80 bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-sm">
+                          {formatTime(scene.startTime)} · {scene.duration}s
+                        </span>
+                      </div>
+                    )}
                     {/* Style Lock heart button — only shown when scene has a preview image */}
                     {scene.previewImageUrl && (
                       <button
@@ -3368,6 +3411,31 @@ export default function MusicVideoAutopilot() {
                 />
               </div>
             )}
+            {/* ── Sticky bottom approval bar ── */}
+            <div style={{position:'sticky',bottom:0,left:0,right:0,background:'rgba(8,6,4,0.97)',borderTop:'1px solid rgba(184,137,42,0.15)',backdropFilter:'blur(12px)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,marginTop:24,zIndex:30}}>
+              {/* Approval status dots */}
+              <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',flex:1,minWidth:0}}>
+                <span style={{fontSize:10,fontWeight:600,letterSpacing:1.5,color:'#555',textTransform:'uppercase',marginRight:4,whiteSpace:'nowrap'}}>SCENES</span>
+                {scenes.slice(0,8).map((sc,i) => (
+                  <div key={sc.id} title={`Scene ${i+1}: ${sc.status}`} style={{width:8,height:8,borderRadius:'50%',background: sc.previewImageUrl ? (sc.status === 'approved' ? '#6db86d' : 'rgba(212,168,67,0.9)') : '#2a2a2a',boxShadow: sc.previewImageUrl ? '0 0 6px rgba(212,168,67,0.4)' : 'none',transition:'background 0.2s',flexShrink:0}} />
+                ))}
+                {scenes.length > 8 && <span style={{fontSize:9,color:'#555',marginLeft:2}}>+{scenes.length-8}</span>}
+                <span style={{fontSize:10,color:'#555',marginLeft:8,whiteSpace:'nowrap'}}>{scenes.filter(s=>!!s.previewImageUrl).length}/{scenes.length} ready</span>
+              </div>
+              {/* PROCEED TO RENDER gold CTA */}
+              <button
+                type="button"
+                onClick={handleStartRender}
+                disabled={startRender.isPending || scenes.length === 0}
+                style={{background: scenes.length > 0 && !startRender.isPending ? 'linear-gradient(135deg,#d4a843,#b8892a)' : '#1a1a1a',border: scenes.length > 0 && !startRender.isPending ? 'none' : '1px solid #333',color: scenes.length > 0 && !startRender.isPending ? '#000' : '#555',padding:'12px 24px',fontSize:12,fontWeight:700,letterSpacing:2,borderRadius:3,cursor: scenes.length > 0 && !startRender.isPending ? 'pointer' : 'not-allowed',display:'flex',alignItems:'center',gap:10,transition:'all 0.2s',whiteSpace:'nowrap',flexShrink:0}}
+              >
+                {startRender.isPending ? (
+                  <><Loader2 style={{width:14,height:14,animation:'spin 1s linear infinite'}} /> STARTING RENDER...</>
+                ) : (
+                  <><Clapperboard style={{width:14,height:14}} /> PROCEED TO RENDER</>
+                )}
+              </button>
+            </div>
           </div>
         )}
         {/* ===== STEP 3: RENDER ===== */}
