@@ -151,6 +151,8 @@ export default function TextToVideoCreator() {
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [storyboard, setStoryboard] = useState<StoryboardScene[]>([]);
   const [regenerating, setRegenerating] = useState(false);
+  const [consistencyAnchor, setConsistencyAnchor] = useState<string>("");
+  const [storyboardGenerating, setStoryboardGenerating] = useState(false);
 
   // ── Mockup state ──
   const [activeStage, setActiveStage] = useState<Stage>("prompt");
@@ -208,40 +210,77 @@ export default function TextToVideoCreator() {
   });
 
   const generateScenePreviewMutation = trpc.billing.generateScenePreview.useMutation();
+  const generateAIStoryboardMutation = trpc.billing.generateAIStoryboard.useMutation();
 
-  const generatePreviewForScene = useCallback(async (sceneId: number) => {
+  const generatePreviewForScene = useCallback(async (sceneId: number, anchor?: string) => {
     const scene = storyboard.find((s) => s.id === sceneId);
     if (!scene) return;
     setStoryboard((prev) => prev.map((s) => s.id === sceneId ? { ...s, previewLoading: true } : s));
     try {
       const styleLabel = VIDEO_STYLES.find((s) => s.id === style)?.label || style;
-      const result = await generateScenePreviewMutation.mutateAsync({ sceneTitle: scene.title, sceneDescription: scene.description, visualNotes: scene.visualNotes, style: styleLabel });
+      // Pass the consistency anchor so the image AI generates the same subject/costume/setting
+      const result = await generateScenePreviewMutation.mutateAsync({
+        sceneTitle: scene.title,
+        sceneDescription: scene.description,
+        visualNotes: scene.visualNotes,
+        style: styleLabel,
+        consistencyAnchor: anchor ?? consistencyAnchor,
+      });
       setStoryboard((prev) => prev.map((s) => s.id === sceneId ? { ...s, previewLoading: false, previewImageUrl: result.imageUrl } : s));
     } catch {
       setStoryboard((prev) => prev.map((s) => s.id === sceneId ? { ...s, previewLoading: false } : s));
       toast.error("Preview generation failed for this scene.");
     }
-  }, [storyboard, style, generateScenePreviewMutation]);
+  }, [storyboard, style, generateScenePreviewMutation, consistencyAnchor]);
 
-  const generateAllPreviews = useCallback(async (scenes: StoryboardScene[]) => {
-    for (const scene of scenes) { await generatePreviewForScene(scene.id); }
+  const generateAllPreviews = useCallback(async (scenes: StoryboardScene[], anchor?: string) => {
+    for (const scene of scenes) { await generatePreviewForScene(scene.id, anchor); }
   }, [generatePreviewForScene]);
 
-  const handleGenerateStoryboard = useCallback(() => {
+  const handleGenerateStoryboard = useCallback(async () => {
     if (!prompt.trim() || prompt.length < 10) { toast.error("Please enter a prompt (at least 10 characters)."); return; }
-    const scenes = generateStoryboard(prompt, style);
-    setStoryboard(scenes); setStep("storyboard");
-    setTimeout(() => generateAllPreviews(scenes), 300);
-  }, [prompt, style, generateAllPreviews]);
+    setStoryboardGenerating(true);
+    try {
+      const styleLabel = VIDEO_STYLES.find((s) => s.id === style)?.label || style;
+      // Use AI-powered storyboard generation with world-lock for consistency
+      const result = await generateAIStoryboardMutation.mutateAsync({
+        prompt,
+        style: styleLabel,
+        sceneCount: 3,
+      });
+      const scenes = result.scenes as StoryboardScene[];
+      setConsistencyAnchor(result.consistencyAnchor);
+      setStoryboard(scenes);
+      setStep("storyboard");
+      // Generate preview images with the locked consistency anchor
+      setTimeout(() => generateAllPreviews(scenes, result.consistencyAnchor), 300);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to generate storyboard. Please try again.");
+    } finally {
+      setStoryboardGenerating(false);
+    }
+  }, [prompt, style, generateAIStoryboardMutation, generateAllPreviews]);
 
-  const handleRegenerateStoryboard = useCallback(() => {
+  const handleRegenerateStoryboard = useCallback(async () => {
     setRegenerating(true);
-    setTimeout(() => {
-      const scenes = generateStoryboard(prompt + " " + Math.random().toString(36).slice(2, 6), style);
-      setStoryboard(scenes); setRegenerating(false); toast.success("Storyboard regenerated!");
-      generateAllPreviews(scenes);
-    }, 1200);
-  }, [prompt, style, generateAllPreviews]);
+    try {
+      const styleLabel = VIDEO_STYLES.find((s) => s.id === style)?.label || style;
+      const result = await generateAIStoryboardMutation.mutateAsync({
+        prompt,
+        style: styleLabel,
+        sceneCount: 3,
+      });
+      const scenes = result.scenes as StoryboardScene[];
+      setConsistencyAnchor(result.consistencyAnchor);
+      setStoryboard(scenes);
+      toast.success("Storyboard regenerated with AI!");
+      generateAllPreviews(scenes, result.consistencyAnchor);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to regenerate storyboard.");
+    } finally {
+      setRegenerating(false);
+    }
+  }, [prompt, style, generateAIStoryboardMutation, generateAllPreviews]);
 
   const updateScene = useCallback((id: number, field: keyof StoryboardScene, value: string) => {
     setStoryboard((prev) => prev.map((s) => s.id === id ? { ...s, [field]: value } : s));
@@ -617,11 +656,15 @@ export default function TextToVideoCreator() {
                     {/* Generate Storyboard CTA */}
                     <button
                       onClick={handleGenerateStoryboard}
-                      disabled={prompt.length < 10}
+                      disabled={prompt.length < 10 || storyboardGenerating}
                       className="w-full py-4 rounded-xl text-base font-bold text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                       style={{ background: `linear-gradient(135deg, ${V}, #5b21b6)`, boxShadow: `0 0 24px ${V_GLOW}` }}
                     >
-                      <Wand2 className="h-5 w-5" /> Generate Free Storyboard
+                      {storyboardGenerating ? (
+                        <><span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Analysing your vision…</>
+                      ) : (
+                        <><Wand2 className="h-5 w-5" /> Generate Free Storyboard</>
+                      )}
                     </button>
                     <p className="text-xs text-white/30 mt-2 text-center">Free storyboard preview · Credits only charged on final build</p>
                   </div>

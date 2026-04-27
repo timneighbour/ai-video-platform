@@ -440,6 +440,198 @@ export const billingRouter = router({
     }),
 
   /**
+   * Generate an AI storyboard from a user prompt.
+   * Uses a two-pass LLM approach:
+   *   1. World-lock pass: extract subject, costume, setting, tone, camera style, action progression
+   *   2. Scene generation pass: generate all scenes from the locked base
+   * Free — no credits deducted. Used in WizScript storyboard step.
+   */
+  generateAIStoryboard: protectedProcedure
+    .input(
+      z.object({
+        prompt: z.string().min(5).max(2000),
+        style: z.string(),
+        sceneCount: z.number().int().min(2).max(6).default(3),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+
+      // ── Pass 1: World-lock extraction ──────────────────────────────────────
+      // Extract a locked "world bible" from the user prompt before generating scenes.
+      // This prevents each scene from re-inventing the subject/costume/setting.
+      const worldLockResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a film director's assistant. Your job is to extract a precise, locked "world bible" from a user's video prompt.
+You must identify and lock:
+- main_subject: the exact subject (person, creature, object) — include age, build, gender if described
+- costume: exact clothing, suit, colors, accessories — be specific
+- setting: exact location, time of day, weather, atmosphere
+- tone: cinematic mood (e.g. "epic slow-motion", "tense thriller", "warm nostalgic")
+- camera_style: preferred shot types and movement style
+- action_progression: a logical 3-6 step sequence of what happens in the scene from start to finish
+Return ONLY valid JSON. No commentary.`,
+          },
+          {
+            role: "user",
+            content: `Extract the world bible for this video prompt: "${input.prompt}"`,
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "world_bible",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                main_subject: { type: "string" },
+                costume: { type: "string" },
+                setting: { type: "string" },
+                tone: { type: "string" },
+                camera_style: { type: "string" },
+                action_progression: {
+                  type: "array",
+                  items: { type: "string" },
+                },
+              },
+              required: ["main_subject", "costume", "setting", "tone", "camera_style", "action_progression"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      let worldBible: {
+        main_subject: string;
+        costume: string;
+        setting: string;
+        tone: string;
+        camera_style: string;
+        action_progression: string[];
+      };
+      try {
+        const raw = worldLockResponse.choices[0]?.message?.content ?? "{}";
+        worldBible = JSON.parse(typeof raw === "string" ? raw : JSON.stringify(raw));
+      } catch {
+        // Fallback: derive from prompt directly
+        worldBible = {
+          main_subject: input.prompt.slice(0, 80),
+          costume: "as described in the prompt",
+          setting: input.prompt.slice(0, 80),
+          tone: input.style,
+          camera_style: "cinematic",
+          action_progression: ["opening", "main action", "closing"],
+        };
+      }
+
+      const consistencyAnchor = [
+        `Subject: ${worldBible.main_subject}.`,
+        `Costume/appearance: ${worldBible.costume}.`,
+        `Setting: ${worldBible.setting}.`,
+        `Tone: ${worldBible.tone}.`,
+        `Camera style: ${worldBible.camera_style}.`,
+      ].join(" ");
+
+      // ── Pass 2: Scene generation from locked world bible ───────────────────
+      const sceneCount = input.sceneCount;
+      const actionSteps = worldBible.action_progression.slice(0, sceneCount);
+      // Pad if fewer steps than requested scenes
+      while (actionSteps.length < sceneCount) {
+        actionSteps.push(`Continue the narrative (scene ${actionSteps.length + 1})`);
+      }
+
+      const scenesResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a film director breaking a single continuous scene into sequential shots for a storyboard.
+You have a locked world bible. Every scene MUST use the EXACT same subject, costume, setting, and visual identity.
+NEVER introduce new characters, new locations, or symbolic cutaways unless the user explicitly asked for them.
+Each scene should feel like the next shot in the same film — same world, same subject, same costume, continuous narrative.
+Return ONLY valid JSON. No commentary.`,
+          },
+          {
+            role: "user",
+            content: `World bible:
+${consistencyAnchor}
+
+Original prompt: "${input.prompt}"
+Style: ${input.style}
+
+Generate exactly ${sceneCount} sequential storyboard scenes. Each scene must:
+1. Feature the EXACT same subject with the EXACT same costume/appearance as described in the world bible
+2. Stay in the EXACT same setting as described in the world bible
+3. Progress the action logically: ${actionSteps.join(" → ")}
+4. Include a specific camera shot type and movement
+
+Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(", ")}`,
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "storyboard_scenes",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                scenes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      description: { type: "string" },
+                      visualNotes: { type: "string" },
+                      duration: { type: "string" },
+                    },
+                    required: ["title", "description", "visualNotes", "duration"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ["scenes"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      let rawScenes: Array<{ title: string; description: string; visualNotes: string; duration: string }> = [];
+      try {
+        const raw = scenesResponse.choices[0]?.message?.content ?? "{}";
+        const parsed = JSON.parse(typeof raw === "string" ? raw : JSON.stringify(raw));
+        rawScenes = parsed.scenes ?? [];
+      } catch {
+        rawScenes = [];
+      }
+
+      // Fallback: if LLM failed to return scenes, generate basic consistent ones
+      if (rawScenes.length === 0) {
+        rawScenes = actionSteps.map((step, i) => ({
+          title: i === 0 ? "Opening Shot" : i === sceneCount - 1 ? "Closing Shot" : `Scene ${i + 1}`,
+          description: `${worldBible.main_subject} — ${step}. ${worldBible.setting}.`,
+          visualNotes: `${input.style} style. ${worldBible.camera_style}. ${consistencyAnchor}`,
+          duration: i === 0 || i === sceneCount - 1 ? "3s" : "5s",
+        }));
+      }
+
+      const scenes = rawScenes.slice(0, sceneCount).map((s, i) => ({
+        id: i + 1,
+        title: s.title,
+        description: s.description,
+        // Prepend consistency anchor to visualNotes so image generation stays locked
+        visualNotes: `${consistencyAnchor} ${s.visualNotes}`,
+        duration: s.duration || (i === 0 || i === sceneCount - 1 ? "3s" : "5s"),
+      }));
+
+      return { scenes, consistencyAnchor, worldBible };
+    }),
+
+  /**
    * Generate an AI preview image for a single storyboard scene.
    * Free — no credits deducted. Used in WizScript storyboard step.
    */
@@ -451,15 +643,22 @@ export const billingRouter = router({
         visualNotes: z.string(),
         style: z.string(),
         contextImageUrl: z.string().optional(),
+        consistencyAnchor: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
+      // Build the image prompt with the consistency anchor prepended so the
+      // image AI generates the same subject/costume/setting across all scenes.
+      const anchorPrefix = input.consistencyAnchor
+        ? `${input.consistencyAnchor} `
+        : "";
       const prompt = [
-        `${input.style} style video scene.`,
+        `${input.style} style cinematic video scene.`,
+        anchorPrefix,
         `Scene: ${input.sceneTitle}.`,
         input.sceneDescription,
         `Visual direction: ${input.visualNotes}`,
-        "Cinematic composition, high quality, detailed, 16:9 aspect ratio.",
+        "High quality, detailed, 16:9 aspect ratio, consistent character appearance throughout.",
       ].join(" ");
 
       const options: Parameters<typeof generateImage>[0] = { prompt };
