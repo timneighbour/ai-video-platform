@@ -7,7 +7,7 @@ const CDN = '/manus-storage';
 
 const options = [
   {
-    href: '/music-video',
+    href: '/music-video/create',
     title: 'WizVideo™',
     subtitle: 'AI Music Video Director',
     description: 'Turn your audio track into a full cinematic music video — beat-locked, colour-graded, 4K. AI storyboard, characters, and scenes.',

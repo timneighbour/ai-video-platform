@@ -7,6 +7,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
@@ -114,6 +116,7 @@ function EQSpectrum({ tier }: { tier: "original" | "enhanced" | "cinematic" }) {
 export default function KidsVideo() {
   // Studio entry tracking — fires once on mount (page is auth-gated upstream)
   useEffect(() => { mp.studioEntered("WizAnimate"); }, []);
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [stage, setStage]             = useState<Stage>("character");
   const [animStyle, setAnimStyle]     = useState("ghibli");
   const [brief, setBrief]             = useState("A young girl discovers a magical forest where animals can talk. She befriends a wise old owl who guides her on a journey to find a lost star. Warm, whimsical, Studio Ghibli-inspired atmosphere.");
@@ -191,6 +194,22 @@ export default function KidsVideo() {
     background: i < stageIndex ? "#6db86d" : i === stageIndex ? ACCENT : "#222",
     color: i < stageIndex ? "#000" : "#fff",
   });
+
+  // Page-load auth gate: redirect unauthenticated users to sign-in
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#080808", color: "#ccc", fontFamily: "'Inter', sans-serif", alignItems: "center", justifyContent: "center", gap: "24px" }}>
+        <div style={{ textAlign: "center", maxWidth: "400px" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: `${ACCENT_DIM}`, border: `1px solid ${ACCENT_BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={ACCENT_LIGHT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#fff", marginBottom: "12px" }}>WizAnimate™</h1>
+          <p style={{ color: "rgba(255,255,255,0.45)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start creating AI animations.</p>
+          <a href={getLoginUrl("/kids-video")} style={{ display: "inline-block", padding: "12px 32px", background: `linear-gradient(135deg, ${ACCENT_LIGHT}, ${ACCENT})`, color: "#fff", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{

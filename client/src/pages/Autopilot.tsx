@@ -340,7 +340,7 @@ export default function Autopilot() {
 
   const handleRenderVideo = useCallback(() => {
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      window.location.href = getLoginUrl("/wizpilot");
       return;
     }
     analytics.renderVideoClicked("wizpilot");

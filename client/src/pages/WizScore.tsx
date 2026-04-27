@@ -7,6 +7,8 @@ import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS, WIZLUMINAR_CINEMATIC } from "@/li
 import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
 import { useSEO } from "@/hooks/useSEO";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
 
@@ -243,6 +245,7 @@ function TrackWaveform({ color }: { color: string }) {
 export default function WizScore() {
   // noindex — auth-gated studio app, not intended for search indexing
   useSEO({ title: "WizScore™ — AI Orchestral Score Composer — WIZ AI", path: "/wizscore", noindex: true });
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [stage, setStage]               = useState<Stage>("compose");
   const [scoreType, setScoreType]       = useState("film");
   const [selectedMoods, setSelectedMoods] = useState<string[]>(["Epic","Cinematic"]);
@@ -294,6 +297,22 @@ export default function WizScore() {
     background: i < stageIndex ? "#6db86d" : i === stageIndex ? "#d4a843" : "#1a1a1a",
     color: i < stageIndex ? "#000" : i === stageIndex ? "#000" : "#555",
   });
+
+  // Page-load auth gate: redirect unauthenticated users to sign-in
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#080808", color: "#e0d8cc", fontFamily: "'Montserrat',sans-serif", alignItems: "center", justifyContent: "center", gap: "24px" }}>
+        <div style={{ textAlign: "center", maxWidth: "400px" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: "rgba(212,168,67,0.12)", border: "1px solid rgba(212,168,67,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#e0d8cc", marginBottom: "12px" }}>WizScore™</h1>
+          <p style={{ color: "rgba(224,216,204,0.45)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start composing AI orchestral scores.</p>
+          <a href={getLoginUrl("/wizscore")} style={{ display: "inline-block", padding: "12px 32px", background: "linear-gradient(135deg, #d4a843, #b8892a)", color: "#000", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#080808",color:"#e0d8cc",fontFamily:"'Montserrat',sans-serif",overflow:"hidden"}}>

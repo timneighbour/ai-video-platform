@@ -157,7 +157,7 @@ export default function EnhancementStudio() {
           <h1 className="text-3xl font-bold text-white mb-3">Enhancement Studio</h1>
           <p className="text-white/50 mb-8">Sign in to enhance your videos with AI colour grading and soundtrack generation.</p>
           <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild>
-            <a href={getLoginUrl()}>Sign in to continue</a>
+            <a href={getLoginUrl("/enhancement-studio")}>Sign in to continue</a>
           </Button>
         </div>
       </div>

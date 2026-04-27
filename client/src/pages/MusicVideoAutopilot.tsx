@@ -164,7 +164,7 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
 export default function MusicVideoAutopilot() {
 
   useSEO({ title: "WizVideo™ — AI Music Video Director", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
@@ -1445,12 +1445,27 @@ export default function MusicVideoAutopilot() {
     }
   };
 
-  // Show UI first, gate generate action behind auth
-
+   // Show UI first, gate generate action behind auth
   // Use explicit storyboardGenerating state (not mutation.isPending) to avoid the overlay
   // persisting after scenes have already been received and rendered.
   // Safety net: if we have scenes and are on the storyboard step, the overlay must not show.
   const isGeneratingStoryboard = storyboardGenerating && !(step === "storyboard" && scenes.length > 0);
+
+  // Page-load auth gate: show sign-in screen for logged-out users
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen studio-bg flex flex-col items-center justify-center gap-6 px-4" style={{backgroundColor:'#040810'}}>
+        <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 60% 45% at 75% 0%, rgba(20,184,166,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 100%, rgba(6,182,212,0.06) 0%, transparent 55%)" }} />
+        <div className="env-bg"><img src="/manus-storage/env-music-video-set_8e723b8b.jpg" alt="" /><div className="env-bg-overlay" /></div>
+        <div className="text-center max-w-md relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6"><Music2 className="w-8 h-8 text-[--color-gold]" /></div>
+          <h1 className="text-3xl font-bold text-white mb-3">WizVideo™</h1>
+          <p className="text-white/50 mb-8">Sign in to start creating AI music videos.</p>
+          <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild><a href={getLoginUrl("/music-video/create")}>Sign in to continue</a></Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#040810'}}>

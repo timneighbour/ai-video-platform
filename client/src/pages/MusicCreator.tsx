@@ -374,7 +374,7 @@ export default function MusicCreator() {
           <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6"><Music2 className="w-8 h-8 text-[--color-gold]" /></div>
           <h1 className="text-3xl font-bold text-white mb-3">WizAudio™</h1>
           <p className="text-white/50 mb-8">Sign in to access the AI Music Engine.</p>
-          <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild><a href={getLoginUrl()}>Sign in to continue</a></Button>
+          <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild><a href={getLoginUrl("/music-creator")}>Sign in to continue</a></Button>
         </div>
       </div>
     );

@@ -119,7 +119,7 @@ export default function WizShorts() {
   }, []);
 
   const handleCreateJob = async () => {
-    if (!user) { window.location.href = getLoginUrl(); return; }
+    if (!user) { window.location.href = getLoginUrl("/wiz-shorts"); return; }
     if (!topic.trim()) { toast.error("Please describe your video topic"); return; }
     try {
       const job = await createJobMutation.mutateAsync({ topic: topic.trim(), platform, targetDuration: duration, visualStyle });

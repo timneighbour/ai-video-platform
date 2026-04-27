@@ -6160,3 +6160,24 @@
 - [ ] Add noindex to 9 auth-gated pages via useSEO
 - [ ] Add server-side canonical headers to server/_core/vite.ts
 - [ ] Prepare Tier 1 GSC indexing request list (11 URLs)
+
+## QA Fix Pass — Apr 2026
+### P1 — Critical
+- [x] Fix OAuth returnPath: all auth gates must pass current path as returnPath so users return to the right page after login
+- [x] Add auth gate to /music-video/create (MusicVideoAutopilot) — currently shows full studio to logged-out users at page load
+- [x] Add auth gate to /kids-video (KidsVideo) — currently shows full studio to logged-out users at page load
+- [ ] Fix /products/wizsync-info 404 in WORKFLOW dropdown (nav links to /products/wizsync-info which may not exist)
+### P2 — High
+- [x] Fix WizSync getLoginUrl() — pass returnPath="/wizsync" so user returns after login
+- [x] Fix MusicCreator getLoginUrl() — pass returnPath="/music-creator" so user returns after login
+- [x] Fix EnhancementStudio getLoginUrl() — pass returnPath="/enhancement-studio" so user returns after login
+- [x] Fix Autopilot getLoginUrl() — pass returnPath="/wizpilot" so user returns after login
+- [x] Fix WizShorts getLoginUrl() — pass returnPath="/wiz-shorts" so user returns after login
+- [x] Fix WizImage getLoginUrl() — pass returnPath="/wiz-image" so user returns after login
+### P3 — Medium
+- [x] Fix WizBoost CTA destination — currently points to /music-video/create; should point to /onboarding or /create
+- [x] Fix onboarding → WizVideo flow — clicking WizVideo goes to /music-video product page instead of studio
+- [ ] Fix /for-creators 404 — some pages link here; redirect to /showcase or /discover
+### P4 — Low
+- [ ] Fix console ERR_FAILED errors for missing preloaded assets
+- [ ] Mobile layout audit at 375px — check nav, hero, studio pages

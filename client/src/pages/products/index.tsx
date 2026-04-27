@@ -335,8 +335,8 @@ const WIZBOOST: ProductPageProps = {
   borderColour: "border-orange-500/30",
   bgColour: "bg-orange-500/5",
   badgeClass: "text-orange-300 bg-orange-500/10 border-orange-500/25",
-  ctaHref: WIZVIDEO_STUDIO_PAGE,
-  ctaLabel: "Boost Your Video",
+  ctaHref: "/onboarding",
+  ctaLabel: "Start Creating",
   whatItDoes: "WizBoost™ is the distribution and growth layer of WIZ AI. After your video is rendered by WizGenesis™, WizBoost™ helps you reach your audience — connecting your content to the WIZ AI creator network, optimising it for platform algorithms, and tracking performance across channels.",
   capabilities: [
     "Multi-platform distribution (YouTube, Instagram, TikTok)",

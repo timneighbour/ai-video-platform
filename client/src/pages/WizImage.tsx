@@ -114,7 +114,7 @@ export default function WizImage() {
   });
 
   const handleGenerate = () => {
-    if (!user) { window.location.href = getLoginUrl(); return; }
+    if (!user) { window.location.href = getLoginUrl("/wiz-image"); return; }
     if (!prompt.trim()) { toast.error("Please enter a prompt"); return; }
     mp.projectCreated("WizImage");
     mp.buildStarted("WizImage");
