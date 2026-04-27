@@ -8,8 +8,10 @@
  * When the user is not signed in and tries to use a protected feature,
  * show this modal instead of silently redirecting.
  */
+import { useEffect } from "react";
 import { X, Sparkles, Lock, Music, Video, Star } from "@/lib/icons";
 import { getLoginUrl } from "@/const";
+import { mp } from "@/lib/mixpanel";
 
 interface AuthGateProps {
   open: boolean;
@@ -29,6 +31,13 @@ const BENEFITS = [
 ];
 
 export default function AuthGate({ open, onClose, featureName = "use this feature", returnPath }: AuthGateProps) {
+  // Fire "Auth Gate Shown" once each time the modal opens
+  useEffect(() => {
+    if (open) {
+      mp.authGateShown(featureName, window.location.pathname);
+    }
+  }, [open, featureName]);
+
   if (!open) return null;
 
   return (
@@ -81,6 +90,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
           {/* CTA */}
           <a
             href={getLoginUrl(returnPath)}
+            onClick={() => mp.authGateSignInClicked(featureName, window.location.pathname)}
             className="btn-primary btn-sheen btn-sheen block w-full text-center font-semibold py-3 rounded-xl text-sm"
           >
             <Sparkles className="inline w-4 h-4 mr-2 -mt-0.5" />

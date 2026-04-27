@@ -171,16 +171,24 @@ export default function Dashboard() {
 
   // Fire Purchase Completed (client-side confirmation) when Stripe redirects back with ?success=true.
   // The authoritative server-side Purchase Completed fires from the Stripe webhook in webhooks.ts.
-  // This client-side call is a belt-and-suspenders confirmation that also carries the plan name.
+  // Deduplication: sessionStorage key prevents duplicate fires if the component re-renders while
+  // ?success=true is still in the URL (e.g. due to currentPlan loading asynchronously).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("success") === "true") {
-      const plan = params.get("plan") ?? currentPlan ?? "subscription";
+    if (params.get("success") !== "true") return;
+    // Remove ?success from URL immediately so back-navigation cannot retrigger this
+    const url = new URL(window.location.href);
+    const plan = params.get("plan") ?? currentPlan ?? "subscription";
+    url.searchParams.delete("success");
+    url.searchParams.delete("plan");
+    window.history.replaceState({}, "", url.toString());
+    // Guard against duplicate fires within the same browser session
+    const dedupKey = `purchase_completed_fired_${plan}`;
+    if (sessionStorage.getItem(dedupKey)) return;
+    sessionStorage.setItem(dedupKey, "1");
+    // Only fire if plan is resolved (not still loading)
+    if (plan && plan !== "subscription") {
       mp.purchaseCompleted(plan, 0, "GBP");
-      const url = new URL(window.location.href);
-      url.searchParams.delete("success");
-      url.searchParams.delete("plan");
-      window.history.replaceState({}, "", url.toString());
     }
   }, [currentPlan]);
 

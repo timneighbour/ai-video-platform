@@ -6,6 +6,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
+import { mp } from "@/lib/mixpanel";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
@@ -109,10 +110,10 @@ function EQSpectrum({ tier }: { tier: "original" | "enhanced" | "cinematic" }) {
   }, [tier, barColor]);
 
   return <canvas ref={canvasRef} width={220} height={28} style={{ width: "100%", height: "28px", display: "block" }} />;
-}
-
-// ─── Component ───────────────────────────────────────────────────────────────
+}// ─── Component ───────────────────────────────────────────────────────────────────────────────
 export default function KidsVideo() {
+  // Studio entry tracking — fires once on mount (page is auth-gated upstream)
+  useEffect(() => { mp.studioEntered("WizAnimate"); }, []);
   const [stage, setStage]             = useState<Stage>("character");
   const [animStyle, setAnimStyle]     = useState("ghibli");
   const [brief, setBrief]             = useState("A young girl discovers a magical forest where animals can talk. She befriends a wise old owl who guides her on a journey to find a lost star. Warm, whimsical, Studio Ghibli-inspired atmosphere.");
@@ -718,7 +719,7 @@ export default function KidsVideo() {
             </div>
 
             {/* Generate */}
-            <button style={{
+            <button onClick={() => mp.generationStarted("WizAnimate", undefined, brief.trim().length > 0)} style={{
               width: "100%", padding: "14px",
               background: `linear-gradient(135deg, ${ACCENT}, #5a3d9a)`,
               border: "none", borderRadius: "4px",
@@ -909,7 +910,7 @@ export default function KidsVideo() {
             </div>
 
             {/* Upgrade CTAs */}
-            <button style={{
+            <button onClick={() => mp.upgradeCTAClicked("WizAnimate", "WizSound Cinematic")} style={{
               width: "100%", padding: "10px 14px", borderRadius: "3px", border: "none", cursor: "pointer",
               background: "linear-gradient(135deg, #5a3d9a, #3a2a6a)",
               borderTop: `1px solid rgba(124,92,191,0.4)`,
@@ -922,7 +923,7 @@ export default function KidsVideo() {
               </div>
               <span style={{ fontSize: "12px", fontWeight: 900 }}>{WIZSOUND_TIERS.CINEMATIC.price}</span>
             </button>
-            <button style={{
+            <button onClick={() => mp.upgradeCTAClicked("WizAnimate", "WizLuminar Cinematic")} style={{
               width: "100%", padding: "10px 14px", borderRadius: "3px", border: "none", cursor: "pointer",
               background: "linear-gradient(135deg, #3a2a08, #5a4010)",
               borderTop: `1px solid rgba(212,168,67,0.35)`,

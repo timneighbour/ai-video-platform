@@ -19,6 +19,7 @@ import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
 import { useSEO } from "@/hooks/useSEO";
+import { mp } from "@/lib/mixpanel";
 import {
   Mic2, Upload, UploadCloud, Loader2, CheckCircle2, AlertCircle,
   Music2, Users, Layers, Zap, ChevronRight, RefreshCw,
@@ -418,6 +419,8 @@ export default function WizSyncPage() {
 
   useSEO({ title: "WizSync™ — AI Voice to Character Assignment — WIZ AI", path: "/wizsync", description: "Automatically assign voices to characters in your AI video. WizSync™ analyses your audio and maps each voice to the right character for perfect lip-sync." });
   const { user, loading: authLoading } = useAuth();
+  // Studio entry tracking — fires once when an authenticated user lands on this page
+  useEffect(() => { if (user) { mp.studioEntered("WizSync"); } }, [user]);
 
   // ── Upload state ──────────────────────────────────────────────────────────
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
@@ -452,9 +455,11 @@ export default function WizSyncPage() {
     onSuccess: (data) => {
       setCurrentJobId(data.jobId);
       setPollingEnabled(true);
+      mp.generationStarted("WizSync", undefined, !!uploadedAudioUrl);
       toast.success("Analysis started!", { description: "Detecting voices and separating stems…" });
     },
     onError: (err) => {
+      mp.generationFailed("WizSync", "analysis_failed");
       toast.error("Analysis failed", { description: err.message });
     },
   });
@@ -486,8 +491,12 @@ export default function WizSyncPage() {
     if (!pollQuery.data) return;
     const d = pollQuery.data as { job: WizSyncJob; speakers: Speaker[]; segments: Segment[] };
     setJobData(d);
-    if (d.job.status === "ready" || d.job.status === "error") {
+    if (d.job.status === "ready") {
       setPollingEnabled(false);
+      mp.generationCompleted("WizSync");
+    } else if (d.job.status === "error") {
+      setPollingEnabled(false);
+      mp.generationFailed("WizSync", "analysis_failed");
     }
   }, [pollQuery.data]);
 

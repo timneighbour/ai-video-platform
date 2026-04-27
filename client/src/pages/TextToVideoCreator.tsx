@@ -32,6 +32,7 @@ import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
 import { useSEO } from "@/hooks/useSEO";
+import { mp } from "@/lib/mixpanel";
 
 // ─── Accent / Theme Tokens ────────────────────────────────────────────────────
 const V = "#7c3aed";                          // violet-700
@@ -136,6 +137,8 @@ function SpectrumAnalyzer() {
 export default function TextToVideoCreator() {
   useSEO({ title: "AI Text to Video Generator — WIZ AI", path: "/text-to-video", description: "Turn any text prompt into a cinematic AI video. Describe your vision and WIZ AI generates stunning visuals with WizGenesis™ prompt enhancement and WizLumina™ grading." });
   const { user, isAuthenticated } = useAuth();
+  // Studio entry tracking — fires once when an authenticated user lands on this page
+  useEffect(() => { if (isAuthenticated) { mp.studioEntered("WizVideo"); } }, [isAuthenticated]);
   const { balance: creditBalance } = useCreditGuard();
 
 
@@ -199,9 +202,9 @@ export default function TextToVideoCreator() {
   const generateVideoMutation = trpc.billing.generateVideo.useMutation({
     onSuccess: (data) => {
       if (data.projectId) { setProjectId(data.projectId); startPolling(data.projectId); }
-      if (data.status === "completed") { stopProgressAnimation(); setProgressPct(100); setStep("done"); toast.success("Your video is ready!"); }
+      if (data.status === "completed") { stopProgressAnimation(); setProgressPct(100); setStep("done"); toast.success("Your video is ready!"); mp.generationCompleted("WizVideo"); }
     },
-    onError: (err) => { stopProgressAnimation(); setGenerationError(err.message || "Video generation failed."); setStep("storyboard"); toast.error(err.message || "Video generation failed."); },
+    onError: (err) => { stopProgressAnimation(); setGenerationError(err.message || "Video generation failed."); setStep("storyboard"); toast.error(err.message || "Video generation failed."); mp.generationFailed("WizVideo", "api_error"); },
   });
 
   const generateScenePreviewMutation = trpc.billing.generateScenePreview.useMutation();
@@ -261,6 +264,7 @@ export default function TextToVideoCreator() {
   const handleRenderVideo = useCallback(() => {
     if (!isAuthenticated) { setShowAuthGate(true); return; }
     analytics.renderVideoClicked("text_to_video_creator");
+    mp.generationStarted("WizVideo", undefined, !!prompt.trim());
     setGenerationError(null); setGeneratedVideoUrl(null); setProjectId(null);
     setStep("generating"); startProgressAnimation();
     generateVideoMutation.mutate({ toolType: "text_to_video", prompt, options: { style, duration, aspectRatio } });

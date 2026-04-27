@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef } from "react";
 import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
+import { mp } from "@/lib/mixpanel";
 
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
 
@@ -258,6 +259,9 @@ export default function WizScore() {
   const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
   const stageIndex = STAGES.findIndex(s => s.key === stage);
+
+  // Studio entry tracking — fires once on mount (page is auth-gated upstream)
+  useEffect(() => { mp.studioEntered("WizScore"); }, []);
 
   useEffect(() => {
     if (isPlaying) {
@@ -642,7 +646,7 @@ export default function WizScore() {
 
           {/* Generate */}
           <div style={{padding:"16px 0 0"}}>
-            <button style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
+            <button onClick={() => mp.generationStarted("WizScore", undefined, scoreBrief.trim().length > 0)} style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
               🎬 COMPOSE SCORE
               <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.7}}>Brief → Ensemble → Compose → Upgrade Preview → Render</div>
             </button>
@@ -721,11 +725,11 @@ export default function WizScore() {
             </div>
 
             {/* Upgrade CTAs */}
-            <button style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(155,89,245,0.15),rgba(155,89,245,0.08))",border:"1px solid rgba(155,89,245,0.3)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
+            <button onClick={() => mp.upgradeCTAClicked("WizScore", "WizSound Cinematic")} style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(155,89,245,0.15),rgba(155,89,245,0.08))",border:"1px solid rgba(155,89,245,0.3)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
               <span style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}>🎵 WizSound™ Cinematic</span>
               <span style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>{WIZSOUND_TIERS.CINEMATIC.price}</span>
             </button>
-            <button style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <button onClick={() => mp.upgradeCTAClicked("WizScore", "WizLuminar Cinematic")} style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span style={{fontSize:"10px",fontWeight:700,color:"#d4a843",letterSpacing:"1px"}}>✨ WizLuminar™ Cinematic</span>
               <span style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>{WIZLUMINAR_CINEMATIC.price}</span>
             </button>

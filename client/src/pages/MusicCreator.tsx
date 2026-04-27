@@ -22,6 +22,7 @@ import EnhancePromptButton from "@/components/EnhancePromptButton";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { useGlobalAudio } from "@/contexts/AudioContext";
+import { mp } from "@/lib/mixpanel";
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
 const ENV_IMG = "/manus-storage/env-recording-studio_90a4b01f.jpg";
@@ -252,6 +253,8 @@ function RailMeters({ isActive }: { isActive: boolean }) {
 export default function MusicCreator() {
   useSEO({ title: "WizSound™ — AI Recording Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
   const { user, loading: authLoading } = useAuth();
+  // Studio entry tracking — fires once when an authenticated user lands on this page
+  useEffect(() => { if (user) { mp.studioEntered("WizAudio"); } }, [user]);
 
   // ── Form state ──
   const [prompt, setPrompt] = useState("");
@@ -317,7 +320,7 @@ export default function MusicCreator() {
 
   const generateMutation = trpc.suno.generate.useMutation({
     onSuccess: (data) => { setTaskId(data.id); setStatus("pending"); setIsGenerating(true); },
-    onError: (err) => { setError(err.message); setIsGenerating(false); setStatus("failed"); },
+    onError: (err) => { setError(err.message); setIsGenerating(false); setStatus("failed"); mp.generationFailed("WizAudio", "api_error"); },
   });
 
   const statusQuery = trpc.suno.getStatus.useQuery(
@@ -330,9 +333,9 @@ export default function MusicCreator() {
     const d = statusQuery.data;
     const newStatus = d.status as typeof status;
     setStatus(newStatus);
-    if (newStatus === "complete" && d.tracks && d.tracks.length > 0) { setGeneratedTracks(d.tracks as typeof generatedTracks); setIsGenerating(false); }
+    if (newStatus === "complete" && d.tracks && d.tracks.length > 0) { setGeneratedTracks(d.tracks as typeof generatedTracks); setIsGenerating(false); mp.generationCompleted("WizAudio"); }
     else if (newStatus === "trimming") { setIsGenerating(true); }
-    else if (newStatus === "failed") { setError(d.errorMessage ?? "Generation failed."); setIsGenerating(false); }
+    else if (newStatus === "failed") { setError(d.errorMessage ?? "Generation failed."); setIsGenerating(false); mp.generationFailed("WizAudio", "generation_failed"); }
   }, [statusQuery.data]);
 
   const buildStyleString = () => {
@@ -350,6 +353,7 @@ export default function MusicCreator() {
 
   const handleGenerate = () => {
     if (!prompt.trim()) return;
+    mp.generationStarted("WizAudio", undefined, !!prompt.trim());
     setError(null); setGeneratedTracks([]); setTaskId(null); setStatus("idle");
     const styleStr = buildStyleString();
     const isInstrumental = selectedVocal === "Instrumental Only";
@@ -952,7 +956,7 @@ export default function MusicCreator() {
 
               {/* WizSound CTA */}
               <button
-                onClick={() => toast.info("WizSound Cinematic — add to order at checkout")}
+                onClick={() => { mp.upgradeCTAClicked("WizAudio", "WizSound Cinematic"); toast.info("WizSound Cinematic — add to order at checkout"); }}
                 className="w-full mt-2.5 py-2.5 px-3 rounded-[5px] border border-[#9b59f5]/40 flex items-center justify-between transition-all hover:bg-[#9b59f5]/20"
                 style={{ background: "linear-gradient(135deg, rgba(155,89,245,0.15), rgba(155,89,245,0.08))" }}
               >

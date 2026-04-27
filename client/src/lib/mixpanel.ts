@@ -170,6 +170,66 @@ export const mp = {
   renderStarted: (quality: string, audioTier: string, price: number) =>
     track("Render Started", { quality, audio_tier: audioTier, price }),
 
+  // ── Auth gate ─────────────────────────────────────────────────────────────
+  /**
+   * Fires when the AuthGate modal opens (unauthenticated user hits a gated feature).
+   * @param feature  Human-readable feature name, e.g. "generate music"
+   * @param sourcePage  URL path where the gate was triggered, e.g. "/music-creator"
+   */
+  authGateShown: (feature: string, sourcePage: string) =>
+    track("Auth Gate Shown", { feature, source_page: sourcePage }),
+
+  /**
+   * Fires when the user clicks the sign-in button inside the AuthGate modal.
+   */
+  authGateSignInClicked: (feature: string, sourcePage: string) =>
+    track("Auth Gate Sign In Clicked", { feature, source_page: sourcePage }),
+
+  // ── Studio entry ──────────────────────────────────────────────────────────
+  /**
+   * Fires once on mount of each studio/application page (authenticated users only).
+   * @param product  PascalCase product name, e.g. "WizScore", "MusicCreator"
+   * @param entrySource  How the user arrived, e.g. "direct", "product_page", "onboarding"
+   */
+  studioEntered: (product: string, entrySource?: string) =>
+    track("Studio Entered", { product, entry_source: entrySource ?? "direct" }),
+
+  // ── Generation funnel ────────────────────────────────────────────────────
+  /**
+   * Fires when the user clicks the primary generate/build/render action in a studio.
+   * @param product  PascalCase product name
+   * @param quality  Optional quality tier, e.g. "standard", "hd", "4k"
+   * @param hasPrompt  Whether the user has entered a text prompt
+   */
+  generationStarted: (product: string, quality?: string, hasPrompt?: boolean) =>
+    track("Generation Started", { product, quality, has_prompt: hasPrompt }),
+
+  /**
+   * Fires when a generation job completes successfully.
+   * @param product  PascalCase product name
+   * @param durationSeconds  Wall-clock time from start to completion
+   */
+  generationCompleted: (product: string, durationSeconds?: number) =>
+    track("Generation Completed", { product, duration_seconds: durationSeconds }),
+
+  /**
+   * Fires when a generation job fails or is rejected.
+   * @param product  PascalCase product name
+   * @param reason  snake_case reason, e.g. "insufficient_credits", "api_timeout", "validation_error"
+   */
+  generationFailed: (product: string, reason?: string) =>
+    track("Generation Failed", { product, reason }),
+
+  // ── Upgrade CTA ───────────────────────────────────────────────────────────
+  /**
+   * Fires when any upgrade CTA button is clicked anywhere on the site.
+   * @param source  snake_case location, e.g. "post_render", "paywall", "dashboard", "product_page"
+   * @param currentPlan  User's current plan, e.g. "free", "starter"
+   * @param targetPlan  Intended upgrade target, e.g. "pro", "business" (if known)
+   */
+  upgradeCTAClicked: (source: string, currentPlan?: string, targetPlan?: string) =>
+    track("Upgrade CTA Clicked", { source, current_plan: currentPlan, target_plan: targetPlan }),
+
   // ── Generic passthrough ───────────────────────────────────────────────────
   track,
 };

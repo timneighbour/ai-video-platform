@@ -6135,3 +6135,22 @@
 - [x] TypeScript: 0 errors confirmed after both reskins
 - [x] Screenshots captured of both studio pages
 - [x] Checkpoint saved: Phase 1 studio reskins complete
+
+## GSC Coverage Remediation (27 April 2026)
+- [ ] Step 1: Audit sitemap.xml — confirm all routes present, no duplicates, no noindex pages included
+- [ ] Step 2: Fix redirect issue — identify and resolve the 1 page-with-redirect GSC flag
+- [ ] Step 3: Fix canonical issue — identify and resolve the 1 alternative-page-with-proper-canonical-tag flag
+- [ ] Step 4: Review crawled-not-indexed pages — identify the 2 URLs and fix thin/duplicate content or add canonical
+- [ ] Step 5: Add JSON-LD structured data to key pages (homepage, product pages, pricing, studio pages)
+- [ ] Step 6: Internal linking audit — ensure all studio and product pages have 2+ internal links pointing to them
+
+## Analytics Priority 1 Implementation
+- [x] Add typed event helpers to mixpanel.ts: authGateShown, authGateSignInClicked, studioEntered, generationStarted, generationCompleted, generationFailed, upgradeCTAClicked
+- [x] Instrument AuthGate.tsx: fire authGateShown on open, authGateSignInClicked on button click
+- [x] Instrument TextToVideoCreator.tsx: studioEntered, generationStarted, generationCompleted, generationFailed
+- [x] Instrument WizSync.tsx: studioEntered, generationStarted, generationCompleted, generationFailed
+- [x] Instrument MusicCreator.tsx: studioEntered, generationStarted, generationCompleted, generationFailed
+- [x] Instrument KidsVideo.tsx: studioEntered, generationStarted, generationCompleted, generationFailed
+- [x] Instrument WizScore.tsx: studioEntered, generationStarted, generationCompleted, generationFailed
+- [x] Add upgradeCTAClicked to all upgrade buttons site-wide
+- [x] Fix Purchase Completed: add sessionStorage deduplication key, fire only once per payment
