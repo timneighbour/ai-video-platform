@@ -195,6 +195,59 @@ function VUMeter({ channel, isActive }: { channel: "L" | "R"; isActive: boolean 
   );
 }
 
+/* ── Rail Meters (horizontal, console-mounted) ───────────────────────────── */
+function RailMeters({ isActive }: { isActive: boolean }) {
+  const [levelsL, setLevelsL] = useState<number[]>(Array(8).fill(0));
+  const [levelsR, setLevelsR] = useState<number[]>(Array(8).fill(0));
+
+  useEffect(() => {
+    if (!isActive) { setLevelsL(Array(8).fill(0)); setLevelsR(Array(8).fill(0)); return; }
+    const t = setInterval(() => {
+      const lvl = () => Math.floor(3 + Math.random() * 5);
+      const fill = (n: number) => Array.from({ length: 8 }, (_, i) => i < n ? 1 : 0);
+      setLevelsL(fill(lvl()));
+      setLevelsR(fill(lvl()));
+    }, 110);
+    return () => clearInterval(t);
+  }, [isActive]);
+
+  const segColor = (i: number, active: number) => {
+    if (!active) return "rgba(255,255,255,0.04)";
+    if (i >= 7) return "#ff3b30";
+    if (i >= 5) return "#ffd60a";
+    return "#30d158";
+  };
+  const segShadow = (i: number, active: number) => {
+    if (!active) return "none";
+    if (i >= 7) return "0 0 3px #ff3b30";
+    if (i >= 5) return "0 0 3px #ffd60a";
+    return "0 0 3px #30d158";
+  };
+
+  return (
+    <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+      <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">Master</div>
+      <div className="flex flex-col gap-1">
+        {([levelsL, levelsR] as const).map((segs, ci) => (
+          <div key={ci} className="flex items-center gap-1.5">
+            <span className="text-[8px] text-white/15 w-2">{ci === 0 ? "L" : "R"}</span>
+            <div className="flex gap-[2px]">
+              {segs.map((active, i) => (
+                <div key={i} style={{
+                  width: 7, height: 9, borderRadius: 1,
+                  background: segColor(i, active),
+                  boxShadow: segShadow(i, active),
+                  transition: "background 0.08s",
+                }} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Component ───────────────────────────────────────────────────────── */
 export default function MusicCreator() {
   useSEO({ title: "WizSound™ — AI Recording Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
@@ -397,17 +450,49 @@ export default function MusicCreator() {
 
           {/* Console Rail */}
           <div className="flex items-center px-4 gap-3 flex-shrink-0" style={{ height: 82, background: "#0b0910", borderBottom: "1px solid rgba(201,168,76,0.10)" }}>
-            {/* Left: brand + ambient */}
+            {/* Left: brand + ambient knob */}
             <div className="flex flex-col gap-1.5 flex-shrink-0">
               <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">SSL 9000 — Master Bus · WizSound™</div>
               <div className="flex items-center gap-2.5 px-3 py-1 rounded-[4px] border border-[--color-gold]/15" style={{ background: "rgba(0,0,0,0.3)" }}>
                 <span className="text-[8px] font-bold tracking-[2px] uppercase text-white/20">Studio Ambience</span>
-                <input
-                  type="range" min={20} max={100} value={ambience}
-                  onChange={(e) => setAmbience(Number(e.target.value))}
-                  className="w-20 h-1 cursor-pointer accent-[#c9a84c]"
-                  style={{ background: `linear-gradient(to right, #3a3000 0%, #c9a84c ${ambience}%, #1a1a1a ${ambience}%)` }}
-                />
+                {/* Circular draggable knob — drag up to increase, down to decrease */}
+                <div
+                  style={{ position: "relative", width: 26, height: 26, cursor: "ns-resize", userSelect: "none", flexShrink: 0 }}
+                  onPointerDown={(e) => {
+                    const startY = e.clientY;
+                    const startVal = ambience;
+                    const onMove = (me: PointerEvent) => {
+                      const delta = Math.round((startY - me.clientY) / 1.5);
+                      setAmbience(Math.max(20, Math.min(100, startVal + delta)));
+                    };
+                    const onUp = () => {
+                      window.removeEventListener("pointermove", onMove);
+                      window.removeEventListener("pointerup", onUp);
+                    };
+                    window.addEventListener("pointermove", onMove);
+                    window.addEventListener("pointerup", onUp);
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                  }}
+                >
+                  {/* Knob body */}
+                  <div style={{
+                    width: 26, height: 26, borderRadius: "50%",
+                    background: "radial-gradient(circle at 35% 35%, #3a3a46, #14141c)",
+                    border: ambience > 20 ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.12)",
+                    boxShadow: ambience > 20 ? "0 0 12px rgba(201,168,76,0.4)" : "0 2px 8px rgba(0,0,0,0.6)",
+                    position: "relative",
+                  }}>
+                    {/* Indicator line — rotates with value: -135deg (min 20) → +135deg (max 100) */}
+                    <div style={{
+                      position: "absolute", top: 3, left: "50%",
+                      width: 2, height: 7,
+                      background: ambience > 20 ? "#c9a84c" : "rgba(255,255,255,0.3)",
+                      borderRadius: 1,
+                      transformOrigin: "50% 100%",
+                      transform: `translateX(-50%) rotate(${-135 + ((ambience - 20) / 80) * 270}deg)`,
+                    }} />
+                  </div>
+                </div>
                 <span className="text-[11px] font-bold text-[--color-gold] font-mono w-8">{ambience}%</span>
               </div>
             </div>
@@ -421,14 +506,8 @@ export default function MusicCreator() {
             <ConsoleEQDisplay isActive={isOnAir} />
           </div>
 
-          {/* Right: VU meters */}
-          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-            <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">Master</div>
-            <div className="flex items-center gap-2">
-              <VUMeter channel="L" isActive={isOnAir} />
-              <VUMeter channel="R" isActive={isOnAir} />
-            </div>
-          </div>
+          {/* Right: horizontal rail meters */}
+          <RailMeters isActive={isOnAir} />
         </div>
 
         {/* Console Body */}
