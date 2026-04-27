@@ -6181,3 +6181,17 @@
 ### P4 — Low
 - [ ] Fix console ERR_FAILED errors for missing preloaded assets
 - [ ] Mobile layout audit at 375px — check nav, hero, studio pages
+
+## QA Fix Pass — Phase 2 (Post-Publish)
+- [x] Publish checkpoint 49a2dd8e to production
+- [x] Verify live returnPath for /wizsync auth gate
+- [x] Verify live returnPath for /music-creator auth gate
+- [x] Verify live returnPath for /enhancement-studio auth gate
+- [x] Verify live returnPath for /wizpilot auth gate (auth gate added + returnPath confirmed)
+- [x] Verify live returnPath for /wiz-shorts auth gate (auth gate added)
+- [x] Verify live returnPath for /wiz-image auth gate (auth gate added)
+- [x] Verify GA4 SPA page_view tracking in production
+- [x] Confirm no regressions on /music-video/create, /kids-video, /wizscore auth gates
+- [x] Fix WizAnimate Onboarding card to link directly to /kids-video
+- [x] CDN assets confirmed 200 OK via 307 redirect — no action needed
+- [x] Deliver final confirmation report

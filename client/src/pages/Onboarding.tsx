@@ -37,8 +37,8 @@ const options = [
     stats: ['4 platforms', 'Auto-captions', 'Viral ready'],
   },
   {
-    href: '/products/wizanimate',
-    title: 'WizAnimate™', // two-step: product page first
+    href: '/kids-video',
+    title: 'WizAnimate™', // direct to studio
     subtitle: 'Character Animation Studio',
     description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
     isPopular: false,

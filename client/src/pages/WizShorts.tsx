@@ -85,7 +85,7 @@ const PLAT_COLOURS: Record<string, string> = {
 
 export default function WizShorts() {
   useSEO({ title: "WizShorts™ — AI Shorts Creator", path: "/wiz-shorts", description: "Create viral AI short-form videos for TikTok, YouTube Shorts, and Instagram Reels.", noindex: true });
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState<WizStep>("setup");
   const [jobId, setJobId] = useState<number | null>(null);
   const [scenes, setScenes] = useState<Scene[]>([]);
@@ -194,6 +194,22 @@ export default function WizShorts() {
   // ─── Stage index ─────────────────────────────────────────────────────────────
   const STAGES = ["setup", "script", "scenes", "upgrade", "render"];
   const stageIdx = step === "setup" ? 0 : step === "scenes" ? 2 : 4;
+
+  // Page-load auth gate
+  if (!authLoading && !user) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#07040d", color: "#e0d8cc", fontFamily: "'Montserrat',sans-serif", alignItems: "center", justifyContent: "center", gap: "24px" }}>
+        <div style={{ textAlign: "center", maxWidth: "400px" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: "rgba(212,168,67,0.12)", border: "1px solid rgba(212,168,67,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+          </div>
+          <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "12px", color: "#e0d8cc" }}>WizShorts™ requires an account</h2>
+          <p style={{ color: "rgba(224,216,204,0.45)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to create viral AI short-form videos for TikTok, YouTube Shorts, and Instagram Reels.</p>
+          <a href={getLoginUrl("/wiz-shorts")} style={{ display: "inline-block", padding: "12px 32px", background: "linear-gradient(135deg, #d4a843, #b8892a)", color: "#000", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen studio-bg text-white" style={{ backgroundColor: "#07040d" }}>

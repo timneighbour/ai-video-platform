@@ -6,6 +6,7 @@
 import { ArrowRight } from "@/lib/icons";
 import { mp } from "@/lib/mixpanel";
 import { getProduct } from "@/lib/products";
+import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
 
 import {
   WizAudioEmblem,
@@ -314,7 +315,7 @@ const PRODUCTS: Product[] = [
     name: getProduct("wizanimate")!.name, label: "CREATE ANIMATION",
     tagline: getProduct("wizanimate")!.tagline,
     desc: getProduct("wizanimate")!.shortDesc,
-    href: getProduct("wizanimate")!.productPage, emblem: <WizAnimateEmblem size={80} />, accent: "rose",
+    href: WIZANIMATE_PRODUCT_PAGE, emblem: <WizAnimateEmblem size={80} />, accent: "rose",
     cardVisual: <img src={CARD_BG_ANIMATE} alt="WizAnimate™ AI character animation engine" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZANIMATE_LOGO_V3,
   },

@@ -118,7 +118,7 @@ function YouTubeLogo({ size = 20 }: { size?: number }) {
 export default function Autopilot() {
 
   useSEO({ title: "WizPilot™ — AI Video Autopilot — WIZ AI", path: "/wizpilot", description: "Let AI handle everything. WizPilot™ takes your prompt and automatically generates a complete video with scenes, transitions, music, and effects.", noindex: true });
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();
 
@@ -382,6 +382,22 @@ export default function Autopilot() {
   }, []);
 
   const stepIndex = { input: 0, storyboard: 1, generating: 2, done: 2 }[step];
+
+  // Page-load auth gate
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#06050a", color: "#e0d8cc", fontFamily: "'Montserrat',sans-serif", alignItems: "center", justifyContent: "center", gap: "24px" }}>
+        <div style={{ textAlign: "center", maxWidth: "400px" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: "rgba(212,168,67,0.12)", border: "1px solid rgba(212,168,67,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+          </div>
+          <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "12px", color: "#e0d8cc" }}>WizPilot™ requires an account</h2>
+          <p style={{ color: "rgba(224,216,204,0.45)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to describe, storyboard, and render AI-powered videos automatically.</p>
+          <a href={getLoginUrl("/wizpilot")} style={{ display: "inline-block", padding: "12px 32px", background: "linear-gradient(135deg, #d4a843, #b8892a)", color: "#000", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
