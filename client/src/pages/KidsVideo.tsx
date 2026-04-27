@@ -7,7 +7,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
-import { useSEO } from "@/hooks/useSEO";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
@@ -113,8 +112,6 @@ function EQSpectrum({ tier }: { tier: "original" | "enhanced" | "cinematic" }) {
   return <canvas ref={canvasRef} width={220} height={28} style={{ width: "100%", height: "28px", display: "block" }} />;
 }// ─── Component ───────────────────────────────────────────────────────────────────────────────
 export default function KidsVideo() {
-  // noindex — auth-gated studio app, not intended for search indexing
-  useSEO({ title: "WizAnimate™ — AI Character Animation Studio — WIZ AI", path: "/kids-video", noindex: true });
   // Studio entry tracking — fires once on mount (page is auth-gated upstream)
   useEffect(() => { mp.studioEntered("WizAnimate"); }, []);
   const [stage, setStage]             = useState<Stage>("character");
