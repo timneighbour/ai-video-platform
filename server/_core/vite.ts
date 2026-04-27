@@ -22,6 +22,14 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
+  // Guard: never serve the SPA shell for /api/* routes — return 404 JSON instead
+  // This prevents tRPC clients from receiving HTML when a route is unmatched or the
+  // server is temporarily degraded (stale DB pool, mid-restart, etc.)
+  app.use("/api/*", (req, res, next) => {
+    if (!res.headersSent) {
+      res.status(404).json({ error: "API route not found", path: req.path });
+    }
+  });
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
@@ -102,6 +110,12 @@ export function serveStatic(app: Express) {
     "/privacy", "/terms", "/refund",
   ]);
 
+  // Guard: never serve the SPA shell for /api/* routes — return 404 JSON instead
+  app.use("/api/*", (req, res, _next) => {
+    if (!res.headersSent) {
+      res.status(404).json({ error: "API route not found", path: req.path });
+    }
+  });
   // fall through to index.html if the file doesn't exist
   app.use("*", (req, res) => {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
