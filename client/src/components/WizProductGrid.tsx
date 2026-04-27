@@ -292,7 +292,16 @@ interface Product {
 }
 
 const PRODUCTS: Product[] = [
-  // ── Position 1: WizVideo — flagship, highest-ticket, most conversion-ready ──
+  // ── Position 1: WizAudio — music creation studio ──────────────────────────────────
+  {
+    name: getProduct("wizsound")!.name, label: "CREATE AUDIO",
+    tagline: getProduct("wizsound")!.tagline,
+    desc: getProduct("wizsound")!.shortDesc,
+    href: getProduct("wizsound")!.studioPage, emblem: <WizAudioEmblem size={80} />, accent: "emerald",
+    cardVisual: <img src={CARD_BG_AUDIO} alt="WizAudio™ AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    logoUrl: WIZAUDIO_LOGO,
+  },
+  // ── Position 2: WizVideo — flagship music video generator ───────────────────────
   {
     name: getProduct("wizvideo")!.name, label: "CREATE VIDEO",
     tagline: getProduct("wizvideo")!.tagline,
@@ -301,16 +310,7 @@ const PRODUCTS: Product[] = [
     cardVisual: <img src={CARD_BG_VIDEO} alt="WizVideo™ AI music video creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZVIDEO_LOGO,
   },
-  // ── Position 2: WizShorts — social-first creators, high volume ──────────────
-  {
-    name: getProduct("wizshorts")!.name, label: "CREATE SHORTS",
-    tagline: getProduct("wizshorts")!.tagline,
-    desc: getProduct("wizshorts")!.shortDesc,
-    href: getProduct("wizshorts")!.productPage, emblem: <WizShortsEmblem size={80} />, accent: "cyan",
-    cardVisual: <img src={CARD_BG_SHORTS} alt="WizShorts™ AI short-form vertical video creator" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
-    logoUrl: WIZSHORTS_LOGO,
-  },
-  // ── Position 3: WizAnimate — animation studio, strong visual appeal ─────────
+  // ── Position 3: WizAnimate — animation studio ─────────────────────────────────
   {
     name: getProduct("wizanimate")!.name, label: "CREATE ANIMATION",
     tagline: getProduct("wizanimate")!.tagline,
@@ -319,32 +319,32 @@ const PRODUCTS: Product[] = [
     cardVisual: <img src={CARD_BG_ANIMATE} alt="WizAnimate™ AI character animation engine" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZANIMATE_LOGO_V3,
   },
-  // ── Position 4: WizScript — cinematic control, advanced users ───────────────
-  {
-    name: getProduct("wizscript")!.name, label: "CREATE CINEMATIC",
-    tagline: getProduct("wizscript")!.tagline,
-    desc: getProduct("wizscript")!.shortDesc,
-    href: getProduct("wizscript")!.studioPage, emblem: <WizScriptEmblem size={80} />, accent: "orange", // one-step: direct to studio
-    cardVisual: <img src={CARD_BG_SCRIPT} alt="WizScript™ scene-by-scene cinematic video control" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
-    logoUrl: WIZSCRIPT_LOGO,
-  },
-  // ── Position 5: WizImage — visual assets, feeds into video pipeline ─────────
+  // ── Position 4: WizImage — visual assets ────────────────────────────────────────
   {
     name: getProduct("wizimage")!.name, label: "CREATE IMAGES",
     tagline: getProduct("wizimage")!.tagline,
     desc: getProduct("wizimage")!.shortDesc,
-    href: getProduct("wizimage")!.studioPage, emblem: <WizImageEmblem size={80} />, accent: "amber", // one-step: direct to studio
+    href: getProduct("wizimage")!.studioPage, emblem: <WizImageEmblem size={80} />, accent: "amber",
     cardVisual: <img src={CARD_BG_IMAGE} alt="WizImage™ AI image and artwork creation" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
     logoUrl: WIZIMAGE_LOGO,
   },
-  // ── Position 6: WizSound — supporting/enhancement product ───────────────────
+  // ── Position 5: WizScript — cinematic control ────────────────────────────────────
   {
-    name: getProduct("wizsound")!.name, label: "CREATE AUDIO",
-    tagline: getProduct("wizsound")!.tagline,
-    desc: getProduct("wizsound")!.shortDesc,
-    href: getProduct("wizsound")!.studioPage, emblem: <WizAudioEmblem size={80} />, accent: "emerald", // one-step: direct to studio
-    cardVisual: <img src={CARD_BG_AUDIO} alt="WizSound™ AI music and audio production" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
-    logoUrl: WIZAUDIO_LOGO,
+    name: getProduct("wizscript")!.name, label: "CREATE CINEMATIC",
+    tagline: getProduct("wizscript")!.tagline,
+    desc: getProduct("wizscript")!.shortDesc,
+    href: getProduct("wizscript")!.studioPage, emblem: <WizScriptEmblem size={80} />, accent: "orange",
+    cardVisual: <img src={CARD_BG_SCRIPT} alt="WizScript™ scene-by-scene cinematic video control" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    logoUrl: WIZSCRIPT_LOGO,
+  },
+  // ── Position 6: WizShorts — social-first short-form video ──────────────────────
+  {
+    name: getProduct("wizshorts")!.name, label: "CREATE SHORTS",
+    tagline: getProduct("wizshorts")!.tagline,
+    desc: getProduct("wizshorts")!.shortDesc,
+    href: getProduct("wizshorts")!.productPage, emblem: <WizShortsEmblem size={80} />, accent: "cyan",
+    cardVisual: <img src={CARD_BG_SHORTS} alt="WizShorts™ AI short-form vertical video creator" className="absolute inset-0 w-full h-full object-cover opacity-60" loading="lazy" width="740" height="494" />,
+    logoUrl: WIZSHORTS_LOGO,
   },
 ];
 
@@ -544,7 +544,7 @@ export default function WizProductGrid() {
         <div className="mb-16 reveal">
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI Platform</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-4">
-            Choose what you want to create
+            Welcome to Wiz Studios
           </h2>
           <p className="text-white/40 text-lg max-w-xl leading-relaxed">
             Six premium AI creation tools — one unified platform. No editing experience required.
