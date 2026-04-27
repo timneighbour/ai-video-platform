@@ -1016,19 +1016,28 @@ function Hero() {
             </button>
           </div>
 
-          {/* 6-icon value strip */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 mb-10">
+          {/* 6-feature premium badge strip */}
+          <div className="flex flex-wrap gap-3 mb-10">
             {[
-              { icon: <img src={WIZCREATE_LOGO} alt="WizCreate" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "AI Video" },
-              { icon: <WaveformSVG className="w-3.5 h-3.5" color="currentColor" />, label: "Studio Audio" },
-              { icon: <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Cinematic Visuals" },
-              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Instant Building" },
-              { icon: <img src={WIZANIMATE_LOGO} alt="WizAnimate" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "8 Art Styles" },
-              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />, label: "Free Storyboard" },
-            ].map((item, i) => (
-              <span key={item.label} className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.06em] uppercase text-[--color-silver-dark]/45">
-                {i > 0 && <span className="w-px h-3 bg-[--color-gold]/10 mr-1" />}
-                <span className="text-[--color-gold]/55">{item.icon}</span>
+              { icon: <img src={WIZCREATE_LOGO} alt="WizCreate" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "AI Video", glow: "oklch(0.70 0.18 260)" },
+              { icon: <WaveformSVG className="w-5 h-5" color="oklch(0.72 0.18 160)" />, label: "Studio Audio", glow: "oklch(0.72 0.18 160)" },
+              { icon: <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Cinematic Visuals", glow: "oklch(0.78 0.11 75)" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Instant Building", glow: "oklch(0.78 0.11 75)" },
+              { icon: <img src={WIZANIMATE_LOGO} alt="WizAnimate" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "8 Art Styles", glow: "oklch(0.68 0.18 330)" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Free Storyboard", glow: "oklch(0.78 0.11 75)" },
+            ].map((item) => (
+              <span
+                key={item.label}
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13px] font-bold tracking-wide"
+                style={{
+                  background: "linear-gradient(135deg, rgba(196,164,100,0.10) 0%, rgba(196,164,100,0.04) 100%)",
+                  border: "1px solid oklch(0.78 0.11 75 / 0.22)",
+                  color: "oklch(0.90 0.08 75)",
+                  boxShadow: `0 0 18px ${item.glow}18, inset 0 1px 0 oklch(0.78 0.11 75 / 0.14)`,
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <span style={{ filter: `drop-shadow(0 0 6px ${item.glow}88)` }}>{item.icon}</span>
                 {item.label}
               </span>
             ))}
