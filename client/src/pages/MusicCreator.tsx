@@ -251,7 +251,7 @@ function RailMeters({ isActive }: { isActive: boolean }) {
 
 /* ── Main Component ───────────────────────────────────────────────────────── */
 export default function MusicCreator() {
-  useSEO({ title: "WizSound™ — AI Recording Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering.", noindex: true });
+  useSEO({ title: "WizAudio™ — AI Music Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering.", noindex: true });
   const { user, loading: authLoading } = useAuth();
   // Studio entry tracking — fires once when an authenticated user lands on this page
   useEffect(() => { if (user) { mp.studioEntered("WizAudio"); } }, [user]);
@@ -393,8 +393,8 @@ export default function MusicCreator() {
           </Link>
           <div className="w-px h-[18px] bg-white/7" />
           <div className="flex items-center gap-2.5">
-            <span className="font-bold text-[19px] tracking-[2px]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZSOUND</span>
-            <span className="text-[8px] font-bold tracking-[2.5px] text-[--color-gold] px-1.5 py-0.5 rounded-sm border border-[--color-gold]/22 uppercase" style={{ background: "rgba(201,168,76,0.1)" }}>RECORDING STUDIO</span>
+            <span className="font-bold text-[19px] tracking-[2px]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZAUDIO</span>
+            <span className="text-[8px] font-bold tracking-[2.5px] text-[--color-gold] px-1.5 py-0.5 rounded-sm border border-[--color-gold]/22 uppercase" style={{ background: "rgba(201,168,76,0.1)" }}>MUSIC STUDIO</span>
           </div>
         </div>
         <div className="flex items-center gap-3.5">
@@ -426,7 +426,7 @@ export default function MusicCreator() {
           <div className="text-[11px] font-medium text-[--color-gold] mt-0.5" style={{ letterSpacing: '0.5px' }}>
             {selectedGenres.join(" · ") || "No genre"} · {selectedMoods.join(" · ") || "No mood"}
           </div>
-          <div className="text-[8px] font-bold tracking-[3px] uppercase mt-1.5" style={{ color: 'rgba(201,168,76,0.4)' }}>WizSound™ · AI Recording Studio</div>
+          <div className="text-[8px] font-bold tracking-[3px] uppercase mt-1.5" style={{ color: 'rgba(201,168,76,0.4)' }}>WizAudio™ · AI Music Studio</div>
         </div>
 
         {/* Wiz Studios brand */}
@@ -434,7 +434,7 @@ export default function MusicCreator() {
           <div className="flex items-center gap-2.5 w-full justify-center">
             <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
           </div>
-          <div className="text-[42px] leading-none tracking-[12px] text-white/18" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 0 40px rgba(201,168,76,0.3)", WebkitTextStroke: "0.5px rgba(255,255,255,0.12)" }}>WIZ SOUND</div>
+          <div className="text-[42px] leading-none tracking-[12px] text-white/18" style={{ fontFamily: "'Bebas Neue', sans-serif", textShadow: "0 0 40px rgba(201,168,76,0.3)", WebkitTextStroke: "0.5px rgba(255,255,255,0.12)" }}>WIZ AUDIO</div>
           <div className="flex items-center gap-2.5 w-full justify-center">
             <div className="h-px w-[60px]" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />
             <div className="text-[9px] font-semibold tracking-[5px] uppercase text-[--color-gold]/40" style={{ textShadow: "0 0 20px rgba(201,168,76,0.25)" }}>Recording · Mixing · Mastering</div>
@@ -530,7 +530,7 @@ export default function MusicCreator() {
                 {([
                   { value: "score" as GenerationMode, icon: "🔊", label: "Sound FX",       desc: "Cinematic effects & ambience" },
                   { value: "song"  as GenerationMode, icon: "🎧", label: "Precision Audio", desc: "Full production, any length" },
-                  { value: "suno"  as GenerationMode, icon: "🎵", label: "WizSound™",       desc: "2 creative track variations with lyrics" },
+                  { value: "suno"  as GenerationMode, icon: "🎵", label: "WizAudio™",       desc: "2 creative track variations with lyrics" },
                 ]).map((e, i, arr) => (
                   <button
                     key={e.value}

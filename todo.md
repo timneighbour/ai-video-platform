@@ -6201,3 +6201,15 @@
 - [x] Root cause: corrupted pnpm store entries for uuid@10.0.0 (v6.js), svix@1.90.0 (replayOut.js), and invariant — caused server crash on startup
 - [x] Fix: patched resend lazy-load for svix, created replayOut2.js bypass for corrupted svix model, installed fresh invariant at top-level node_modules
 - [x] Verified: /kids-video loads fully with all 5 studio tabs functional
+
+## Bug Fix — WizAudio Naming Correction (Apr 27 2026)
+- [ ] Rename WizAudio back to WizAudio everywhere it was incorrectly changed to WizSound on product/studio pages (WizSound is the enhancement engine only)
+
+## WizAudio Rename Fix — Session Apr 27 2026
+- [x] DashboardLayout.tsx: sidebar label Music2 → "WizAudio™"
+- [x] PublicNavBar.tsx PRODUCTS_CREATE: name "WizSound™" → "WizAudio™" (AI Music & Audio Studio)
+- [x] MusicCreator.tsx line 254: useSEO title "WizSound™ — AI Recording Studio" → "WizAudio™ — AI Music Studio"
+- [x] MusicCreator.tsx line 396: nav header "WIZSOUND" → "WIZAUDIO", badge "RECORDING STUDIO" → "MUSIC STUDIO"
+- [x] MusicCreator.tsx line 429: watermark "WizSound™ · AI Recording Studio" → "WizAudio™ · AI Music Studio"
+- [x] MusicCreator.tsx line 437: large background text "WIZ SOUND" → "WIZ AUDIO"
+- [x] MusicCreator.tsx line 533: generation mode label "WizSound™" → "WizAudio™"

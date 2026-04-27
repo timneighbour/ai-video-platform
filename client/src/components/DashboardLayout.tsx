@@ -37,7 +37,7 @@ const WIZANIMATE_LOGO = "/manus-storage/wizanimate-logo-new_a84f9808.png";
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Music2, label: "WizSound™", path: "/music-creator" },
+  { icon: Music2, label: "WizAudio™", path: "/music-creator" },
   { icon: Sparkles, label: "WizImage", path: "/products/wizimage" },
   { icon: Video, label: "WizVideo", path: "/music-video" },
   { icon: Zap, label: "WizShorts", path: "/products/wizshorts" },
