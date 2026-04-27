@@ -9,6 +9,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 
 import { trpc } from "./lib/trpc";
 import { wizAnalytics } from "./lib/wizAnalytics";
+import { trackPageView } from "@/lib/analytics";
 import GlobalMuteButton from "./components/GlobalMuteButton";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
@@ -271,10 +272,11 @@ function WizAnalyticsTracker() {
     }
   }, [me?.id, me]);
 
-  // Track page view on every route change
+  // Track page view on every route change (first-party + GA4 SPA)
   useEffect(() => {
     if (initialized) {
       wizAnalytics.page(location);
+      trackPageView(location);
     }
   }, [location, initialized]);
 
