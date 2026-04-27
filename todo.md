@@ -6195,3 +6195,9 @@
 - [x] Fix WizAnimate Onboarding card to link directly to /kids-video
 - [x] CDN assets confirmed 200 OK via 307 redirect — no action needed
 - [x] Deliver final confirmation report
+
+## Bug Fix — WizAnimate Application Not Loading (Apr 27 2026)
+- [x] Diagnose WizAnimate (/kids-video) application page not loading for authenticated users
+- [x] Root cause: corrupted pnpm store entries for uuid@10.0.0 (v6.js), svix@1.90.0 (replayOut.js), and invariant — caused server crash on startup
+- [x] Fix: patched resend lazy-load for svix, created replayOut2.js bypass for corrupted svix model, installed fresh invariant at top-level node_modules
+- [x] Verified: /kids-video loads fully with all 5 studio tabs functional
