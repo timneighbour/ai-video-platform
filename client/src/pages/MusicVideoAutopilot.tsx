@@ -1758,20 +1758,20 @@ export default function MusicVideoAutopilot() {
           })()}
         </div>
       </div>
-      {/* Production Set Hero — matches mockup */}
-      <div style={{position:'relative',width:'100%',height:200,overflow:'hidden',background:'#000'}}>
+      {/* Production Set Hero — immersive studio view */}
+      <div style={{position:'relative',width:'100%',height:340,overflow:'hidden',background:'#000'}}>
         <img
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvideo-set-bg-infcAhpU6TjNMKxBcMDqq4.webp"
           alt="Music Video Production Set"
           style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 40%'}}
         />
-        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.35)',pointerEvents:'none'}} />
-        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.4) 40%,transparent 100%)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.18)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.25) 45%,transparent 100%)',pointerEvents:'none'}} />
         {/* Title overlay */}
-        <div style={{position:'absolute',top:16,left:24,zIndex:20}}>
-          <div style={{fontSize:9,fontWeight:600,letterSpacing:'2.5px',textTransform:'uppercase',color:'rgba(255,255,255,0.4)',marginBottom:3}}>WizVideo™ · AI Studio</div>
-          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:26,letterSpacing:3,color:'rgba(255,255,255,0.9)',textShadow:'0 2px 20px rgba(0,0,0,0.8)',lineHeight:1}}>MUSIC VIDEO DIRECTOR</div>
-          <div style={{fontSize:11,fontWeight:500,color:'#14b8a6',letterSpacing:'0.5px',marginTop:3}}>Character Lock · Storyboard · Screening Room</div>
+        <div style={{position:'absolute',top:24,left:28,zIndex:20}}>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:'rgba(255,255,255,0.65)',marginBottom:6,textShadow:'0 1px 8px rgba(0,0,0,0.9)'}}>WizVideo™ · AI Studio</div>
+          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:42,letterSpacing:4,color:'#ffffff',textShadow:'0 2px 32px rgba(0,0,0,0.95), 0 0 60px rgba(20,184,166,0.25)',lineHeight:1,marginBottom:8}}>MUSIC VIDEO DIRECTOR</div>
+          <div style={{fontSize:13,fontWeight:600,color:'#14b8a6',letterSpacing:'1px',textShadow:'0 1px 12px rgba(0,0,0,0.8), 0 0 20px rgba(20,184,166,0.4)'}}>Character Lock · Storyboard · Screening Room</div>
         </div>
         {/* REC / READY indicator — clapperboard-style */}
         <div style={{position:'absolute',top:16,right:24,display:'flex',alignItems:'center',gap:7,background:'rgba(0,0,0,0.80)',border: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '1px solid rgba(239,68,68,0.55)' : '1px solid rgba(20,184,166,0.4)',borderRadius:3,padding:'5px 12px',zIndex:20,boxShadow: step === 'render' && (renderStatus === 'rendering' || renderStatus === 'assembling' || renderStatus === 'wizsound') ? '0 0 16px rgba(239,68,68,0.15)' : '0 0 16px rgba(20,184,166,0.12)'}}>
