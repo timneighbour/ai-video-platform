@@ -121,7 +121,7 @@ const PRODUCTS_CREATE = [
     name: getProduct("wizanimate")!.name,
     tagline: getProduct("wizanimate")!.tagline,
     icon: <WizAnimateEmblem size={32} />,
-    href: getProduct("wizanimate")!.productPage,
+    href: getProduct("wizanimate")!.studioPage,
     glowColor: "oklch(0.68 0.18 330)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
     borderColor: "oklch(0.68 0.18 330 / 0.35)",
@@ -130,7 +130,7 @@ const PRODUCTS_CREATE = [
     name: getProduct("wizscript")!.name,
     tagline: getProduct("wizscript")!.tagline,
     icon: <WizScriptEmblem size={32} />,
-    href: getProduct("wizscript")!.productPage,
+    href: getProduct("wizscript")!.studioPage,
     glowColor: "oklch(0.75 0.16 200)",
     bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 200 / 0.9) 0%, oklch(0.17 0.06 200 / 0.95) 100%)",
     borderColor: "oklch(0.75 0.16 200 / 0.35)",
@@ -139,7 +139,7 @@ const PRODUCTS_CREATE = [
     name: getProduct("wizimage")!.name,
     tagline: getProduct("wizimage")!.tagline,
     icon: <WizImageEmblem size={32} />,
-    href: getProduct("wizimage")!.productPage,
+    href: getProduct("wizimage")!.studioPage,
     glowColor: "oklch(0.78 0.11 75)",
     bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
     borderColor: "oklch(0.78 0.11 75 / 0.35)",
@@ -148,7 +148,7 @@ const PRODUCTS_CREATE = [
     name: getProduct("wizsound")!.name,
     tagline: getProduct("wizsound")!.tagline,
     icon: <WizAudioEmblem size={32} />,
-    href: getProduct("wizsound")!.productPage,
+    href: getProduct("wizsound")!.studioPage,
     glowColor: "oklch(0.72 0.18 160)",
     bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
     borderColor: "oklch(0.72 0.18 160 / 0.35)",
@@ -157,7 +157,7 @@ const PRODUCTS_CREATE = [
     name: getProduct("wizshorts")!.name,
     tagline: getProduct("wizshorts")!.tagline,
     icon: <WizShortsEmblem size={32} />,
-    href: getProduct("wizshorts")!.productPage,
+    href: getProduct("wizshorts")!.studioPage,
     glowColor: "oklch(0.72 0.18 30)",
     bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
     borderColor: "oklch(0.72 0.18 30 / 0.35)",
@@ -301,7 +301,7 @@ function Nav() {
                 aria-expanded={productsOpen}
                 onClick={toggleProducts}
               >
-                Products
+                Wiz Studios
                 <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
                   productsOpen ? "rotate-180 text-[--color-gold]" : ""
                 }`} />
@@ -763,7 +763,7 @@ function Nav() {
               >
                 <span className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileProductsOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />
-                  Products
+                  Wiz Studios
                 </span>
                 <ChevronDownSVG className={`w-4 h-4 transition-transform duration-300 ${
                   mobileProductsOpen ? "rotate-180" : ""

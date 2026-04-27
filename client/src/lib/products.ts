@@ -75,7 +75,7 @@ export const PRODUCTS: ProductEntry[] = [
   },
   {
     id: "wizsound",
-    name: "WizSound™",
+    name: "WizAudio™",
     tagline: "AI Music & Audio Studio",
     shortDesc:
       "Create original songs and cinematic audio. Choose style, mood, and genre — then generate full tracks with studio-grade mastering.",

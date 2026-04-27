@@ -22,7 +22,7 @@ const options = [
     stats: ['Full music video', 'AI storyboard', 'Character sync'],
   },
   {
-    href: '/products/wizshorts',
+    href: '/wiz-shorts',
     title: 'WizShorts™',
     subtitle: 'Short-Form Creator Studio',
     description: 'Platform-optimised short-form videos for TikTok, YouTube Shorts, Instagram Reels, and Snapchat — Hook/Story/CTA structure built in.',
@@ -68,9 +68,9 @@ const options = [
   },
   {
     href: '/music-creator',
-    title: 'WizSound™',
-    subtitle: 'AI Recording Studio',
-    description: 'Generate original, royalty-free music in any style — studio-grade audio powered by WizSound™.',
+    title: 'WizAudio™',
+    subtitle: 'AI Music Studio',
+    description: 'Generate original, royalty-free music in any style — studio-grade audio powered by WizAudio™.',
     isPopular: false,
     icon: Music,
     bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-1-ZjbMsSCt6wFuq7NBMAyxHR.webp",

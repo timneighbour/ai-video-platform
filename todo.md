@@ -6231,3 +6231,12 @@
 - [x] Fix 4: WizScript exact character spec continuity — upgraded world-lock to 10-field exact spec, proven with 9 test images (billing.ts)
 - [x] Fix 5: Voice transcription error messages — all error paths now return specific actionable messages (VoicePromptButton.tsx, voice.ts)
 - [x] Fix 6: WizAnimate webhook render fix — added kids_video handler to webhooks.ts, created kids-video-render-service.ts (Seedance i2v + ffmpeg assembly)
+
+## Post-Launch QA Pass — Apr 28 2026
+
+- [x] WizAudio rename: products.ts name "WizSound™" → "WizAudio™" (canonical product registry)
+- [x] Onboarding.tsx: WizShorts href /products/wizshorts → /wiz-shorts (studio direct), WizSound™ → WizAudio™
+- [x] Home.tsx: nav button "Products" → "Wiz Studios", PRODUCTS_CREATE studioPage fix for all 6 tools
+- [x] Verified /products/wizsync-info route exists and loads correctly (P1 404 fix confirmed resolved)
+- [x] Verified /for-creators links removed from codebase (no 404 risk)
+- [x] DashboardLayout.tsx sidebar fix confirmed (WizAudio™ label, correct studio hrefs)
