@@ -15,6 +15,7 @@
  * Usage:
  *   useSEO({ title: "Pricing — WIZ AI", path: "/pricing" })
  *   useSEO({ title: "...", path: "/blog", description: "...", image: "..." })
+ *   useSEO({ title: "Studio — WIZ AI", path: "/music-creator", noindex: true })
  */
 
 import { useEffect } from "react";
@@ -36,6 +37,12 @@ interface SEOOptions {
   image?: string;
   /** Optional og:type — defaults to "website" */
   type?: string;
+  /**
+   * When true, sets <meta name="robots" content="noindex, nofollow">.
+   * Use for auth-gated pages, duplicate routes, and thin utility pages
+   * that should not appear in search results.
+   */
+  noindex?: boolean;
 }
 
 function setMetaTag(
@@ -69,12 +76,16 @@ export function useSEO({
   description = DEFAULT_DESCRIPTION,
   image = DEFAULT_IMAGE,
   type = "website",
+  noindex = false,
 }: SEOOptions): void {
   useEffect(() => {
     const canonicalUrl = `${BASE_URL}${path}`;
 
     // Document title
     document.title = title;
+
+    // Robots — noindex for auth-gated / duplicate pages
+    setMetaTag("robots", noindex ? "noindex, nofollow" : "index, follow");
 
     // Canonical
     setLinkTag("canonical", canonicalUrl);
@@ -94,5 +105,5 @@ export function useSEO({
     setMetaTag("twitter:title", title);
     setMetaTag("twitter:description", description);
     setMetaTag("twitter:image", absoluteImage);
-  }, [title, path, description, image, type]);
+  }, [title, path, description, image, type, noindex]);
 }

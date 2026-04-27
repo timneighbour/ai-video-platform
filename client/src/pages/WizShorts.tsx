@@ -84,7 +84,7 @@ const PLAT_COLOURS: Record<string, string> = {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function WizShorts() {
-  useSEO({ title: "WizShorts™ — AI Shorts Creator", path: "/wiz-shorts", description: "Create viral AI short-form videos for TikTok, YouTube Shorts, and Instagram Reels." });
+  useSEO({ title: "WizShorts™ — AI Shorts Creator", path: "/wiz-shorts", description: "Create viral AI short-form videos for TikTok, YouTube Shorts, and Instagram Reels.", noindex: true });
   const { user } = useAuth();
   const [step, setStep] = useState<WizStep>("setup");
   const [jobId, setJobId] = useState<number | null>(null);

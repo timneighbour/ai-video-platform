@@ -251,7 +251,7 @@ function RailMeters({ isActive }: { isActive: boolean }) {
 
 /* ── Main Component ───────────────────────────────────────────────────────── */
 export default function MusicCreator() {
-  useSEO({ title: "WizSound™ — AI Recording Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering." });
+  useSEO({ title: "WizSound™ — AI Recording Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering.", noindex: true });
   const { user, loading: authLoading } = useAuth();
   // Studio entry tracking — fires once when an authenticated user lands on this page
   useEffect(() => { if (user) { mp.studioEntered("WizAudio"); } }, [user]);

@@ -87,9 +87,29 @@ export function serveStatic(app: Express) {
     })
   );
 
+  // ── Server-side canonical Link headers ────────────────────────────────────
+  // Injected as HTTP headers so crawlers (including those that don't execute JS)
+  // receive the canonical URL before any client-side useSEO hook runs.
+  // Only public, indexable routes are listed here. Auth-gated and duplicate
+  // routes are intentionally omitted (they carry noindex via useSEO instead).
+  const BASE = "https://wiz-ai.io";
+  const CANONICAL_ROUTES = new Set([
+    "/", "/pricing", "/how-it-works", "/help", "/discover",
+    "/text-to-video", "/ai-video-generator",
+    "/music-video", "/music-video/create",
+    "/products/wizvideo", "/products/wizsound", "/products/wizscript",
+    "/products/wizanimate", "/products/wizimage", "/products/wizshorts",
+    "/privacy", "/terms", "/refund",
+  ]);
+
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  app.use("*", (req, res) => {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    // Inject canonical header for known public routes
+    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+    if (CANONICAL_ROUTES.has(pathname)) {
+      res.setHeader("Link", `<${BASE}${pathname}>; rel="canonical"`);
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

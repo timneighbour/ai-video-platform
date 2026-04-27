@@ -417,7 +417,7 @@ function SegmentPreviewPlayer({
 
 export default function WizSyncPage() {
 
-  useSEO({ title: "WizSync™ — AI Voice to Character Assignment — WIZ AI", path: "/wizsync", description: "Automatically assign voices to characters in your AI video. WizSync™ analyses your audio and maps each voice to the right character for perfect lip-sync." });
+  useSEO({ title: "WizSync™ — AI Voice to Character Assignment — WIZ AI", path: "/wizsync", description: "Automatically assign voices to characters in your AI video. WizSync™ analyses your audio and maps each voice to the right character for perfect lip-sync.", noindex: true });
   const { user, loading: authLoading } = useAuth();
   // Studio entry tracking — fires once when an authenticated user lands on this page
   useEffect(() => { if (user) { mp.studioEntered("WizSync"); } }, [user]);

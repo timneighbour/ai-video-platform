@@ -6154,3 +6154,9 @@
 - [x] Instrument WizScore.tsx: studioEntered, generationStarted, generationCompleted, generationFailed
 - [x] Add upgradeCTAClicked to all upgrade buttons site-wide
 - [x] Fix Purchase Completed: add sessionStorage deduplication key, fire only once per payment
+
+## GSC Quick Wins (27 Apr 2026)
+- [ ] Remove 17 Tier 4 URLs from sitemap
+- [ ] Add noindex to 9 auth-gated pages via useSEO
+- [ ] Add server-side canonical headers to server/_core/vite.ts
+- [ ] Prepare Tier 1 GSC indexing request list (11 URLs)

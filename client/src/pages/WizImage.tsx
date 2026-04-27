@@ -67,7 +67,7 @@ const EXPORT_FORMATS = ["PNG", "JPEG", "TIFF", "PSD", "SVG", "WEBP"];
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function WizImage() {
-  useSEO({ title: "WizImage™ — AI Visual Creator", path: "/wiz-image", description: "Create stunning AI visuals: album covers, band photos, tour posters, merch designs and more. Powered by WizImage™ AI Visual Creator." });
+  useSEO({ title: "WizImage™ — AI Visual Creator", path: "/wiz-image", description: "Create stunning AI visuals: album covers, band photos, tour posters, merch designs and more. Powered by WizImage™ AI Visual Creator.", noindex: true });
   const { user } = useAuth();
 
   // ── State ──

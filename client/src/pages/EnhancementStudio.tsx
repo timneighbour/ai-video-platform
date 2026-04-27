@@ -39,6 +39,7 @@ export default function EnhancementStudio() {
     title: "AI Video Enhancement Studio — WIZ AI",
     path: "/enhancement-studio",
     description: "Enhance any video with AI. Upscale resolution, improve lighting, add cinematic colour grading with WizLumina™, and master audio with WizSound™.",
+    noindex: true,
   });
 
   const { user, isAuthenticated } = useAuth();

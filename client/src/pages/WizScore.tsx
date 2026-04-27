@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
+import { useSEO } from "@/hooks/useSEO";
 
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
 
@@ -240,6 +241,8 @@ function TrackWaveform({ color }: { color: string }) {
 }
 
 export default function WizScore() {
+  // noindex — auth-gated studio app, not intended for search indexing
+  useSEO({ title: "WizScore™ — AI Orchestral Score Composer — WIZ AI", path: "/wizscore", noindex: true });
   const [stage, setStage]               = useState<Stage>("compose");
   const [scoreType, setScoreType]       = useState("film");
   const [selectedMoods, setSelectedMoods] = useState<string[]>(["Epic","Cinematic"]);

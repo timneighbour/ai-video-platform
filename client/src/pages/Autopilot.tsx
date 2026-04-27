@@ -117,7 +117,7 @@ function YouTubeLogo({ size = 20 }: { size?: number }) {
 
 export default function Autopilot() {
 
-  useSEO({ title: "WizPilot™ — AI Video Autopilot — WIZ AI", path: "/wizpilot", description: "Let AI handle everything. WizPilot™ takes your prompt and automatically generates a complete video with scenes, transitions, music, and effects." });
+  useSEO({ title: "WizPilot™ — AI Video Autopilot — WIZ AI", path: "/wizpilot", description: "Let AI handle everything. WizPilot™ takes your prompt and automatically generates a complete video with scenes, transitions, music, and effects.", noindex: true });
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
   const [, setLocation] = useLocation();
