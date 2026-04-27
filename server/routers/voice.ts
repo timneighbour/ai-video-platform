@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { invokeLLM } from "../_core/llm";
+import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 
 /**
  * Refine a raw voice transcript into an optimised AI generation prompt.
@@ -26,20 +27,25 @@ Rules:
 - Be specific and descriptive — more detail = better AI output
 - Return ONLY the refined prompt, no explanation, no preamble, no quotes`;
 
-  const response = await invokeLLM({
-    messages: [
-      { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: `Raw voice transcript: "${rawTranscript}"\n\nConvert this into an optimised ${toolContext} prompt:`,
-      },
-    ],
-  });
-
-  const content = response?.choices?.[0]?.message?.content;
-  const refined =
-    (typeof content === "string" ? content.trim() : null) ?? rawTranscript;
-  return refined;
+   try {
+    const response = await invokeLLM({
+      messages: [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `Raw voice transcript: "${rawTranscript}"\n\nConvert this into an optimised ${toolContext} prompt:`,
+        },
+      ],
+    });
+    const content = response?.choices?.[0]?.message?.content;
+    const refined =
+      (typeof content === "string" ? content.trim() : null) ?? rawTranscript;
+    return refined;
+  } catch (err) {
+    // LLM refinement is best-effort — fall back to raw transcript on failure
+    console.warn("[VoiceRouter] LLM refinement failed, returning raw transcript:", err instanceof Error ? err.message : err);
+    return rawTranscript;
+  }
 }
 
 export const voiceRouter = router({
@@ -75,17 +81,26 @@ export const voiceRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // Step 1: Transcribe the audio
-      const transcriptionResult = await transcribeAudio({
+      // Step 1: Transcribe the audio (with quota guard for rate-limit errors)
+      const transcriptionResult = await withQuotaGuard(() => transcribeAudio({
         audioUrl: input.audioUrl,
         language: input.language,
         prompt: `Transcribe the user's creative brief for ${input.toolContext}`,
-      });
+      }));
 
       if ("error" in transcriptionResult) {
+        // Surface quota/rate-limit errors with a friendly message
+        const details = (transcriptionResult as any).details ?? "";
+        if (/412|usage exhausted|quota|rate limit/i.test(details)) {
+          throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: QUOTA_EXHAUSTED_MESSAGE });
+        }
+        // Surface download errors clearly
+        if (transcriptionResult.code === "INVALID_FORMAT" || transcriptionResult.code === "FILE_TOO_LARGE") {
+          throw new TRPCError({ code: "BAD_REQUEST", message: transcriptionResult.error });
+        }
         throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: transcriptionResult.error,
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Voice transcription failed: ${transcriptionResult.error}. Please try again.`,
           cause: transcriptionResult,
         });
       }

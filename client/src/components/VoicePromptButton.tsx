@@ -55,9 +55,23 @@ export function VoicePromptButton({
     },
     onError: (err) => {
       setState("error");
-      toast.error("Voice processing failed", {
-        description: err.message,
-      });
+      // Map raw error messages to user-friendly descriptions
+      const rawMsg = err.message || "";
+      let description: string;
+      if (rawMsg.includes("quota") || rawMsg.includes("rate limit") || rawMsg.includes("429")) {
+        description = "Voice service is busy — please wait a moment and try again.";
+      } else if (rawMsg.includes("too large") || rawMsg.includes("16MB") || rawMsg.includes("size")) {
+        description = "Recording is too long. Please keep voice briefs under 60 seconds.";
+      } else if (rawMsg.includes("network") || rawMsg.includes("fetch") || rawMsg.includes("ECONNREFUSED")) {
+        description = "Network error — check your connection and try again.";
+      } else if (rawMsg.includes("Transcription service") || rawMsg.includes("transcrib")) {
+        description = "The transcription service is temporarily unavailable. Please try again in a few seconds.";
+      } else if (rawMsg.includes("UNAUTHORIZED") || rawMsg.includes("401") || rawMsg.includes("sign in")) {
+        description = "Please sign in to use voice input.";
+      } else {
+        description = "Voice processing failed — please try again.";
+      }
+      toast.error("Voice input failed", { description });
       setTimeout(() => setState("idle"), 2500);
     },
   });
@@ -120,16 +134,22 @@ export function VoicePromptButton({
             { method: "POST", body: formData }
           );
 
-          if (!uploadRes.ok) throw new Error("Audio upload failed");
+          if (!uploadRes.ok) {
+            const status = uploadRes.status;
+            if (status === 413) throw new Error("Recording is too large. Please keep voice briefs under 60 seconds.");
+            if (status === 401 || status === 403) throw new Error("Please sign in to use voice input.");
+            if (status === 429) throw new Error("Voice service is busy — please wait a moment and try again.");
+            throw new Error("Audio upload failed — please try again.");
+          }
           const { url: audioUrl } = await uploadRes.json();
 
           // Now transcribe + refine
           transcribeMutation.mutate({ audioUrl, toolContext });
         } catch (err) {
           setState("error");
-          toast.error("Upload failed", {
+          toast.error("Voice input failed", {
             description:
-              err instanceof Error ? err.message : "Could not upload audio",
+              err instanceof Error ? err.message : "Could not upload audio — please try again.",
           });
           setTimeout(() => setState("idle"), 2500);
         }

@@ -6,7 +6,7 @@
 import Stripe from "stripe";
 import { getDb } from "./db";
 import { eq } from "drizzle-orm";
-import { subscriptions, creditTransactions, credits, topupPurchases } from "../drizzle/schema";
+import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits } from "./credit-service";
 import {
@@ -15,6 +15,7 @@ import {
   emailFailedPayment,
 } from "./email";
 import { trackPurchaseCompleted } from "./mixpanel-server";
+import { triggerKidsVideoRender } from "./kids-video-render-service";
 
 // Lazy-init Stripe client (avoids crash if key not set at import time)
 function getStripe() {
@@ -51,6 +52,38 @@ async function handleCheckoutSessionCompleted(session: any) {
   const metadata = session.metadata ?? {};
 
   try {
+    // Detect WizAnimate (kids_video) paid render
+    if (metadata.job_type === "kids_video") {
+      const jobId = parseInt(metadata.kids_video_job_id, 10);
+      if (!jobId || isNaN(jobId)) {
+        console.error("[Stripe Webhook] Invalid kids_video_job_id:", metadata.kids_video_job_id);
+        return { success: false, error: "Invalid kids_video_job_id" };
+      }
+
+      const db2 = await getDb();
+      if (db2) {
+        // Mark payment as paid and queue the render
+        await db2.update(kidsVideoJobs)
+          .set({ paymentStatus: "paid", renderStatus: "queued", updatedAt: new Date() })
+          .where(eq(kidsVideoJobs.id, jobId));
+      }
+
+      console.log(`[Stripe Webhook] WizAnimate job ${jobId} payment confirmed — triggering render`);
+
+      // Notify owner
+      await notifyOwner({
+        title: "WizAnimate Render Queued",
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) paid for WizAnimate job #${jobId} (\u00a3${(session.amount_total ?? 0) / 100}). Render starting.`,
+      }).catch(() => {});
+
+      // Fire render asynchronously — do NOT await (webhook must return 200 immediately)
+      triggerKidsVideoRender(jobId).catch(err =>
+        console.error(`[Stripe Webhook] triggerKidsVideoRender(${jobId}) threw:`, err)
+      );
+
+      return { success: true, type: "kids_video", jobId };
+    }
+
     // Detect upsell purchase: billing router sends metadata.type === 'upsell'
     if (metadata.type === "upsell") {
       const jobId = parseInt(metadata.job_id, 10);

@@ -6213,3 +6213,21 @@
 - [x] MusicCreator.tsx line 429: watermark "WizSound™ · AI Recording Studio" → "WizAudio™ · AI Music Studio"
 - [x] MusicCreator.tsx line 437: large background text "WIZ SOUND" → "WIZ AUDIO"
 - [x] MusicCreator.tsx line 533: generation mode label "WizSound™" → "WizAudio™"
+
+## Launch-Blocker Sprint (27 Apr 2026)
+
+- [ ] Fix 1: WizPilot — replace hardcoded storyboard template with AI world-lock system
+- [ ] Fix 2: Nav Create dropdown — WizAudio → /music-creator, WizImage → /wiz-image
+- [ ] Fix 3: WizScore — add video upload field to studio page
+- [ ] Fix 4: WizScript — re-run exact character spec test and confirm visual continuity
+- [ ] Fix 5: Voice transcription — improve error messages in VoicePromptButton
+- [ ] Fix 6: WizAnimate — add webhook handler and trigger video render after payment
+
+## Launch-Blocker Sprint — Apr 27 2026
+
+- [x] Fix 1: WizPilot AI storyboard — replace hardcoded template with AI world-lock system (Autopilot.tsx)
+- [x] Fix 2: Nav Create dropdown destinations — WizAudio→/music-creator, WizImage→/wiz-image, WizScript→/text-to-video, WizShorts→/wiz-shorts (PublicNavBar.tsx)
+- [x] Fix 3: WizScore video upload UI — add SOURCE VIDEO drag-and-drop upload panel (WizScore.tsx)
+- [x] Fix 4: WizScript exact character spec continuity — upgraded world-lock to 10-field exact spec, proven with 9 test images (billing.ts)
+- [x] Fix 5: Voice transcription error messages — all error paths now return specific actionable messages (VoicePromptButton.tsx, voice.ts)
+- [x] Fix 6: WizAnimate webhook render fix — added kids_video handler to webhooks.ts, created kids-video-render-service.ts (Seedance i2v + ffmpeg assembly)

@@ -78,33 +78,6 @@ type StoryboardScene = {
 
 let nextSceneId = 100;
 
-function generateStoryboardFromPrompt(prompt: string, style: string): StoryboardScene[] {
-  const styleDesc = VIDEO_STYLES.find((s) => s.id === style)?.label || "Cinematic";
-  return [
-    {
-      id: 1,
-      title: "Opening Shot",
-      description: `Establish the scene: ${prompt.slice(0, 60)}…`,
-      visualNotes: `${styleDesc} wide-angle establishing shot. Rich colour palette, dramatic lighting.`,
-      duration: "2s",
-    },
-    {
-      id: 2,
-      title: "Main Action",
-      description: `Core narrative moment — ${prompt.slice(0, 80)}`,
-      visualNotes: `Medium close-up. ${styleDesc} motion blur and depth of field. Emotional peak.`,
-      duration: "6s",
-    },
-    {
-      id: 3,
-      title: "Closing Frame",
-      description: "Resolution and final impression.",
-      visualNotes: `${styleDesc} slow zoom out. Fade to black with lingering atmosphere.`,
-      duration: "4s",
-    },
-  ];
-}
-
 // YouTube logo SVG inline
 function YouTubeLogo({ size = 20 }: { size?: number }) {
   return (
@@ -235,9 +208,12 @@ export default function Autopilot() {
   });
 
   const generateScenePreviewMutation = trpc.billing.generateScenePreview.useMutation();
+  const generateAIStoryboardMutation = trpc.billing.generateAIStoryboard.useMutation();
+  const [isGeneratingStoryboard, setIsGeneratingStoryboard] = useState(false);
+  const [consistencyAnchor, setConsistencyAnchor] = useState<string | undefined>(undefined);
 
   // Generate AI preview image for a single scene
-  const generatePreviewForScene = useCallback(async (sceneId: number) => {
+  const generatePreviewForScene = useCallback(async (sceneId: number, anchor?: string) => {
     const scene = storyboard.find((s) => s.id === sceneId);
     if (!scene) return;
     setStoryboard((prev) =>
@@ -251,6 +227,7 @@ export default function Autopilot() {
         visualNotes: scene.visualNotes,
         style: styleLabel,
         contextImageUrl: contextImageUrl || undefined,
+        consistencyAnchor: anchor ?? consistencyAnchor,
       });
       setStoryboard((prev) =>
         prev.map((s) =>
@@ -268,40 +245,66 @@ export default function Autopilot() {
   }, [storyboard, style, contextImageUrl, generateScenePreviewMutation]);
 
   // Generate previews for all scenes
-  const generateAllPreviews = useCallback(async (scenes: StoryboardScene[]) => {
+  const generateAllPreviews = useCallback(async (scenes: StoryboardScene[], anchor?: string) => {
     for (const scene of scenes) {
-      await generatePreviewForScene(scene.id);
+      await generatePreviewForScene(scene.id, anchor);
     }
   }, [generatePreviewForScene]);
 
-  // Storyboard handlers
-  const handleGenerateStoryboard = useCallback(() => {
+  // Storyboard handlers — AI world-lock system
+  const handleGenerateStoryboard = useCallback(async () => {
     if (!prompt.trim() || prompt.length < 10) {
       toast.error("Please enter a prompt of at least 10 characters.");
       return;
     }
-    setGenerationError(null); // Clear any previous render error
-    const scenes = generateStoryboardFromPrompt(prompt, style);
-    setStoryboard(scenes);
-    setStep("storyboard");
-    // Auto-generate previews for all scenes
-    setTimeout(() => generateAllPreviews(scenes), 100);
-  }, [prompt, style, generateAllPreviews]);
-
-  const handleRegenerateStoryboard = useCallback(() => {
-    setGenerationError(null); // Clear any previous render error
-    setRegenerating(true);
-    setTimeout(() => {
-      const scenes = generateStoryboardFromPrompt(
-        prompt + " " + Math.random().toString(36).slice(2, 6),
-        style
-      );
+    setGenerationError(null);
+    setIsGeneratingStoryboard(true);
+    try {
+      const styleLabel = VIDEO_STYLES.find((s) => s.id === style)?.label || style;
+      const result = await generateAIStoryboardMutation.mutateAsync({ prompt: prompt.trim(), style: styleLabel });
+      const anchor = result.consistencyAnchor;
+      setConsistencyAnchor(anchor);
+      const scenes: StoryboardScene[] = result.scenes.map((s: any, i: number) => ({
+        id: i + 1,
+        title: s.title,
+        description: s.description,
+        visualNotes: s.visualNotes,
+        duration: s.duration ?? "4s",
+      }));
       setStoryboard(scenes);
-      setRegenerating(false);
+      setStep("storyboard");
+      setTimeout(() => generateAllPreviews(scenes, anchor), 100);
+    } catch (err: any) {
+      toast.error(err.message || "Storyboard generation failed. Please try again.");
+    } finally {
+      setIsGeneratingStoryboard(false);
+    }
+  }, [prompt, style, generateAIStoryboardMutation, generateAllPreviews]);
+
+  const handleRegenerateStoryboard = useCallback(async () => {
+    setGenerationError(null);
+    setRegenerating(true);
+    try {
+      const styleLabel = VIDEO_STYLES.find((s) => s.id === style)?.label || style;
+      const result = await generateAIStoryboardMutation.mutateAsync({ prompt: prompt.trim(), style: styleLabel });
+      const anchor = result.consistencyAnchor;
+      setConsistencyAnchor(anchor);
+      const scenes: StoryboardScene[] = result.scenes.map((s: any, i: number) => ({
+        id: i + 1,
+        title: s.title,
+        description: s.description,
+        visualNotes: s.visualNotes,
+        duration: s.duration ?? "4s",
+      }));
+      setStoryboard(scenes);
       toast.success("Storyboard regenerated — free of charge!");
-      generateAllPreviews(scenes);
-    }, 1200);
-  }, [prompt, style, generateAllPreviews]);
+      generateAllPreviews(scenes, anchor);
+    } catch (err: any) {
+      toast.error(err.message || "Storyboard regeneration failed.");
+    } finally {
+      setRegenerating(false);
+    }
+  }, [prompt, style, generateAIStoryboardMutation, generateAllPreviews]);
 
   // Scene editing handlers
   const updateScene = useCallback((id: number, field: keyof StoryboardScene, value: string) => {
@@ -788,14 +791,17 @@ export default function Autopilot() {
               <Button
                 size="lg"
                 onClick={handleGenerateStoryboard}
-                disabled={prompt.length < 10}
+                disabled={prompt.length < 10 || isGeneratingStoryboard}
                 className="gap-2 btn-primary btn-sheen border-0 w-full sm:w-auto px-10 py-6 text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Sparkles className="h-5 w-5" />
-                Generate Storyboard — Free
+                {isGeneratingStoryboard ? (
+                  <><Loader2 className="h-5 w-5 animate-spin" />Building your storyboard…</>
+                ) : (
+                  <><Sparkles className="h-5 w-5" />Generate Storyboard — Free</>
+                )}
               </Button>
               <p className="mt-3 text-xs text-muted-foreground">
-                No credits required. Regenerate as many times as you like.
+                {isGeneratingStoryboard ? "WizGenesis™ is locking your world bible and building scenes…" : "No credits required. Regenerate as many times as you like."}
               </p>
             </div>
           </div>

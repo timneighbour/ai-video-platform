@@ -9,6 +9,8 @@ import { mp } from "@/lib/mixpanel";
 import { useSEO } from "@/hooks/useSEO";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
 
@@ -264,6 +266,49 @@ export default function WizScore() {
   const [mutedTracks, setMutedTracks]   = useState<string[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
+  // ── Video upload state ──────────────────────────────────────────────────────
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const [videoFile, setVideoFile]       = useState<File|null>(null);
+  const [videoUrl, setVideoUrl]         = useState<string>("");
+  const [videoKey, setVideoKey]         = useState<string>("");
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [uploadProgress, setUploadProgress]     = useState(0);
+  const [wizScoreJobId, setWizScoreJobId]       = useState<number|null>(null);
+
+  const createJobMutation = trpc.wizScore.create.useMutation({
+    onSuccess: (data) => {
+      setWizScoreJobId(data.id);
+      setStage("ensemble");
+      toast.success("Video uploaded — configure your ensemble to continue.");
+    },
+    onError: (err) => toast.error(err.message || "Failed to create WizScore job."),
+  });
+
+  const handleVideoUpload = async (file: File) => {
+    if (!file.type.startsWith("video/")) { toast.error("Please upload a video file."); return; }
+    if (file.size > 500 * 1024 * 1024) { toast.error("Video must be under 500 MB."); return; }
+    setVideoFile(file);
+    setIsUploadingVideo(true);
+    setUploadProgress(10);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/video/upload?type=video", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed — please try again.");
+      const { url, key } = await res.json() as { url: string; key: string };
+      setVideoUrl(url);
+      setVideoKey(key);
+      setUploadProgress(100);
+      toast.success("Video ready — creating WizScore job…");
+      createJobMutation.mutate({ videoUrl: url, videoKey: key });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Upload failed.");
+      setVideoFile(null);
+    } finally {
+      setIsUploadingVideo(false);
+    }
+  };
+
   const stageIndex = STAGES.findIndex(s => s.key === stage);
 
   // Studio entry tracking — fires once on mount (page is auth-gated upstream)
@@ -421,9 +466,64 @@ export default function WizScore() {
         {/* ── LEFT PANEL ── */}
         <div style={{background:"#0f0f0f",borderRight:"1px solid #1e1e1e",overflowY:"auto",padding:"16px"}}>
 
+          {/* ── VIDEO UPLOAD ── */}
+          <div style={{marginBottom:"20px"}}>
+            <SectionTitle num={1} label="SOURCE VIDEO" />
+            {/* Hidden file input */}
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              style={{display:"none"}}
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleVideoUpload(f); }}
+            />
+            {videoFile ? (
+              <div style={{background:"#0d0d0d",border:"1px solid rgba(212,168,67,0.3)",borderRadius:"4px",padding:"12px",position:"relative"}}>
+                <div style={{fontSize:"8px",color:"#888",letterSpacing:"1px",marginBottom:"4px"}}>SOURCE VIDEO</div>
+                <div style={{fontSize:"11px",fontWeight:700,color:"#e0d8cc",marginBottom:"4px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{videoFile.name}</div>
+                <div style={{fontSize:"9px",color:"#888",marginBottom:isUploadingVideo?"8px":"0"}}>
+                  {(videoFile.size / (1024*1024)).toFixed(1)} MB
+                  {videoUrl && <span style={{color:"#6db86d",marginLeft:"8px"}}>✓ UPLOADED</span>}
+                </div>
+                {isUploadingVideo && (
+                  <div style={{height:"3px",background:"#1a1a1a",borderRadius:"2px",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${uploadProgress}%`,background:"linear-gradient(90deg,#d4a843,#f0c040)",transition:"width 0.3s",borderRadius:"2px"}} />
+                  </div>
+                )}
+                {!isUploadingVideo && (
+                  <button
+                    onClick={() => { setVideoFile(null); setVideoUrl(""); setVideoKey(""); setWizScoreJobId(null); }}
+                    style={{position:"absolute",top:"8px",right:"8px",background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:"12px",padding:"2px 4px"}}
+                  >×</button>
+                )}
+              </div>
+            ) : (
+              <div
+                onClick={() => videoInputRef.current?.click()}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleVideoUpload(f); }}
+                style={{
+                  border:"2px dashed #2a2a2a",borderRadius:"4px",padding:"20px 12px",
+                  textAlign:"center",cursor:"pointer",transition:"border-color 0.2s",
+                  background:"#0a0a0a",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor="rgba(212,168,67,0.4)")}
+                onMouseLeave={e => (e.currentTarget.style.borderColor="#2a2a2a")}
+              >
+                <div style={{fontSize:"22px",marginBottom:"6px"}}>🎬</div>
+                <div style={{fontSize:"10px",fontWeight:700,color:"#e0d8cc",marginBottom:"4px"}}>UPLOAD YOUR VIDEO</div>
+                <div style={{fontSize:"9px",color:"#888",marginBottom:"8px"}}>Drag & drop or click to browse</div>
+                <div style={{fontSize:"8px",color:"#555"}}>MP4 · MOV · AVI · WebM · up to 500 MB</div>
+              </div>
+            )}
+            <div style={{fontSize:"8px",color:"#555",marginTop:"6px",lineHeight:1.4}}>
+              WizScore™ analyses your video’s mood, pacing, and energy to compose a perfectly synced original score.
+            </div>
+          </div>
+
           {/* Score Type */}
           <div style={{marginBottom:"20px"}}>
-            <SectionTitle num={1} label="SCORE TYPE" />
+            <SectionTitle num={2} label="SCORE TYPE" />
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px"}}>
               {SCORE_TYPES.map(st => (
                 <button key={st.id} onClick={() => setScoreType(st.id)} style={{

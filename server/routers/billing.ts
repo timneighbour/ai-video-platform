@@ -464,19 +464,24 @@ export const billingRouter = router({
         messages: [
           {
             role: "system",
-            content: `You are a film director's assistant. Your job is to extract a precise, locked "world bible" from a user's video prompt.
-You must identify and lock:
-- main_subject: the exact subject (person, creature, object) — include age, build, gender if described
-- costume: exact clothing, suit, colors, accessories — be specific
-- setting: exact location, time of day, weather, atmosphere
-- tone: cinematic mood (e.g. "epic slow-motion", "tense thriller", "warm nostalgic")
-- camera_style: preferred shot types and movement style
-- action_progression: a logical 3-6 step sequence of what happens in the scene from start to finish
+            content: `You are a film director's assistant. Your job is to extract a precise, locked "world bible" and exact character specification from a user's video prompt.
+You must identify and lock EVERY visual detail so that an image AI can reproduce the EXACT same character in every scene with zero drift.
+Be hyper-specific. Do not use vague terms like "standard" or "typical". Infer plausible specific details if not stated.
+Examples of the level of detail required:
+- face_identity: "young woman, early 20s, pale skin, sharp cheekbones, dark brown eyes, no visible makeup"
+- age_range: "early 20s"
+- body_proportions: "slender build, average height, slight frame"
+- clothing_details: "oversized bright yellow PVC raincoat, double-breasted with large collar, knee-length"
+- colour_accents: "bright canary yellow coat, black buttons, white shirt collar visible at neck"
+- footwear_details: "tall black rubber Wellington boots, knee-high, matte finish, no visible branding"
+- headwear_state: "no hat, hood of raincoat down, wet dark hair plastered to face"
+- props_accessories: "no bag, hands at sides, no umbrella"
+- companion_details: "none" (or e.g. "black warhorse, full barding armour, dark mane")
 Return ONLY valid JSON. No commentary.`,
           },
           {
             role: "user",
-            content: `Extract the world bible for this video prompt: "${input.prompt}"`,
+            content: `Extract the complete world bible and exact character specification for this video prompt: "${input.prompt}"`,
           },
         ],
         response_format: {
@@ -488,7 +493,15 @@ Return ONLY valid JSON. No commentary.`,
               type: "object",
               properties: {
                 main_subject: { type: "string" },
-                costume: { type: "string" },
+                face_identity: { type: "string" },
+                age_range: { type: "string" },
+                body_proportions: { type: "string" },
+                clothing_details: { type: "string" },
+                colour_accents: { type: "string" },
+                footwear_details: { type: "string" },
+                headwear_state: { type: "string" },
+                props_accessories: { type: "string" },
+                companion_details: { type: "string" },
                 setting: { type: "string" },
                 tone: { type: "string" },
                 camera_style: { type: "string" },
@@ -497,7 +510,7 @@ Return ONLY valid JSON. No commentary.`,
                   items: { type: "string" },
                 },
               },
-              required: ["main_subject", "costume", "setting", "tone", "camera_style", "action_progression"],
+              required: ["main_subject", "face_identity", "age_range", "body_proportions", "clothing_details", "colour_accents", "footwear_details", "headwear_state", "props_accessories", "companion_details", "setting", "tone", "camera_style", "action_progression"],
               additionalProperties: false,
             },
           },
@@ -506,7 +519,15 @@ Return ONLY valid JSON. No commentary.`,
 
       let worldBible: {
         main_subject: string;
-        costume: string;
+        face_identity: string;
+        age_range: string;
+        body_proportions: string;
+        clothing_details: string;
+        colour_accents: string;
+        footwear_details: string;
+        headwear_state: string;
+        props_accessories: string;
+        companion_details: string;
         setting: string;
         tone: string;
         camera_style: string;
@@ -519,7 +540,15 @@ Return ONLY valid JSON. No commentary.`,
         // Fallback: derive from prompt directly
         worldBible = {
           main_subject: input.prompt.slice(0, 80),
-          costume: "as described in the prompt",
+          face_identity: "as described in the prompt",
+          age_range: "adult",
+          body_proportions: "average build",
+          clothing_details: "as described in the prompt",
+          colour_accents: "as described in the prompt",
+          footwear_details: "as described in the prompt",
+          headwear_state: "as described in the prompt",
+          props_accessories: "none",
+          companion_details: "none",
           setting: input.prompt.slice(0, 80),
           tone: input.style,
           camera_style: "cinematic",
@@ -527,13 +556,22 @@ Return ONLY valid JSON. No commentary.`,
         };
       }
 
+      // Build a rich consistency anchor that explicitly names every visual spec
       const consistencyAnchor = [
         `Subject: ${worldBible.main_subject}.`,
-        `Costume/appearance: ${worldBible.costume}.`,
+        `Face/identity: ${worldBible.face_identity}.`,
+        `Age: ${worldBible.age_range}.`,
+        `Build: ${worldBible.body_proportions}.`,
+        `Clothing: ${worldBible.clothing_details}.`,
+        `Colours: ${worldBible.colour_accents}.`,
+        `Footwear: ${worldBible.footwear_details}.`,
+        `Headwear/helmet: ${worldBible.headwear_state}.`,
+        `Props/accessories: ${worldBible.props_accessories}.`,
+        worldBible.companion_details && worldBible.companion_details !== "none" ? `Companion: ${worldBible.companion_details}.` : "",
         `Setting: ${worldBible.setting}.`,
         `Tone: ${worldBible.tone}.`,
-        `Camera style: ${worldBible.camera_style}.`,
-      ].join(" ");
+        `Camera: ${worldBible.camera_style}.`,
+      ].filter(Boolean).join(" ");
 
       // ── Pass 2: Scene generation from locked world bible ───────────────────
       const sceneCount = input.sceneCount;
@@ -548,24 +586,29 @@ Return ONLY valid JSON. No commentary.`,
           {
             role: "system",
             content: `You are a film director breaking a single continuous scene into sequential shots for a storyboard.
-You have a locked world bible. Every scene MUST use the EXACT same subject, costume, setting, and visual identity.
-NEVER introduce new characters, new locations, or symbolic cutaways unless the user explicitly asked for them.
-Each scene should feel like the next shot in the same film — same world, same subject, same costume, continuous narrative.
+You have a locked world bible with an exact character specification. Every scene MUST:
+- Use the EXACT same face/identity, age, build, clothing, colours, footwear, headwear state, props, and companion as locked below
+- Stay in the EXACT same setting
+- NEVER change the character's costume, footwear, or helmet state between scenes unless the action explicitly requires it
+- NEVER introduce new characters, new locations, or symbolic cutaways unless the user explicitly asked for them
+- Each scene description MUST explicitly name the locked costume/footwear/headwear details so the image AI cannot drift
+Each scene should feel like the next shot in the same film — same world, same character, continuous narrative.
 Return ONLY valid JSON. No commentary.`,
           },
           {
             role: "user",
-            content: `World bible:
+            content: `LOCKED CHARACTER SPECIFICATION (must be repeated explicitly in every scene description):
 ${consistencyAnchor}
 
 Original prompt: "${input.prompt}"
 Style: ${input.style}
 
 Generate exactly ${sceneCount} sequential storyboard scenes. Each scene must:
-1. Feature the EXACT same subject with the EXACT same costume/appearance as described in the world bible
-2. Stay in the EXACT same setting as described in the world bible
+1. Feature the EXACT same character with the EXACT same face, clothing (${worldBible.clothing_details}), footwear (${worldBible.footwear_details}), and headwear state (${worldBible.headwear_state})
+2. Stay in the EXACT same setting: ${worldBible.setting}
 3. Progress the action logically: ${actionSteps.join(" → ")}
 4. Include a specific camera shot type and movement
+5. In the scene description, explicitly name the character's clothing, footwear, and headwear — do NOT just say "same as before"
 
 Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(", ")}`,
           },
