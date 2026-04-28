@@ -71,7 +71,7 @@ const PRODUCTS_CREATE = [
   },
   {
     name: "WizAnimate",
-    tagline: "AI Character Animation",
+    tagline: "AI Character Animation Engine",
     icon: <WizAnimateEmblem size={32} />,
     href: WIZANIMATE_PRODUCT_PAGE,
     glowColor: "oklch(0.68 0.18 330)",
@@ -98,7 +98,7 @@ const PRODUCTS_CREATE = [
   },
   {
     name: "WizScript",
-    tagline: "AI Script & Storyboard Builder",
+    tagline: "AI Script & Storyboard Engine",
     icon: <WizScriptEmblem size={32} />,
     href: "/text-to-video",
     glowColor: "oklch(0.75 0.16 200)",
