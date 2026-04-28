@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { RENDER_QUALITY_TIERS } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { analytics } from "@/lib/analytics";
@@ -4191,6 +4192,7 @@ export default function MusicVideoAutopilot() {
           </div>
         )}
       </div>
+      <LandscapeHint />
     </div>
   );
 }

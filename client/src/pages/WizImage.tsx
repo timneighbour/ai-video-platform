@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { IMAGE_RENDER_QUALITY, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
@@ -918,6 +919,7 @@ export default function WizImage() {
           )}
         </aside>
       </div>
+      <LandscapeHint />
     </div>
   );
 }

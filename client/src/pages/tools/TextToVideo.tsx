@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { analytics } from "@/lib/analytics";
 import { ArrowLeft, Sparkles, Wand2, Film, Zap, Play, ChevronRight } from "@/lib/icons";
 import { useState } from "react";
@@ -262,6 +263,7 @@ export default function TextToVideo() {
           </div>
         </div>
       </div>
+      <LandscapeHint />
     </div>
   );
 }

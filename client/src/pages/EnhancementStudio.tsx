@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trackEvent } from "@/lib/analytics";
 import { trpc } from "@/lib/trpc";
@@ -468,6 +469,7 @@ export default function EnhancementStudio() {
           </div>
         )}
       </div>
+      <LandscapeHint />
     </div>
   );
 }

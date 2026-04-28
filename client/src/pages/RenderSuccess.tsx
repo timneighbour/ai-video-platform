@@ -12,6 +12,7 @@ import { useLocation, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { CheckCircle, Download, Loader2, AlertCircle, ArrowLeft, Film, ExternalLink } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
+import { FuelTheSession } from "@/components/FuelTheSession";
 
 function useSearchParams() {
   const [location] = useLocation();
@@ -165,6 +166,11 @@ export default function RenderSuccess() {
             </Button>
           </>
         )}
+      </div>
+
+      {/* Fuel the Session — shown while render processes */}
+      <div className="max-w-md w-full mt-6">
+        <FuelTheSession compact />
       </div>
     </div>
   );

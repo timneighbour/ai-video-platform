@@ -6,6 +6,7 @@ import {
   WIZSYNC_STUDIO_PAGE,
   WIZSCRIPT_STUDIO_PAGE,
 } from "@/lib/routes";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { getProduct } from "@/lib/products";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -632,6 +633,7 @@ export default function Create() {
           </div>
         </div>
       </div>
+      <LandscapeHint />
     </div>
   );
 }

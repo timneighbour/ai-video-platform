@@ -7,6 +7,7 @@
  * Route: /dashboard/batch-regeneration
  */
 import { useEffect, useCallback } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import BackButton from "@/components/BackButton";
@@ -356,6 +357,7 @@ export default function BatchRegeneration() {
           </div>
         )}
       </div>
+      <LandscapeHint />
     </div>
   );
 }

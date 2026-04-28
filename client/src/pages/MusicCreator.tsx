@@ -4,6 +4,7 @@
  * Matches mockup-v4-wizaudio.html exactly.
  */
 import { useState, useRef, useEffect } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS } from "@/lib/pricing";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -192,6 +193,7 @@ function VUMeter({ channel, isActive }: { channel: "L" | "R"; isActive: boolean 
           />
         ))}
       </div>
+      <LandscapeHint />
     </div>
   );
 }

@@ -4,6 +4,7 @@
  * All workflow logic preserved; UI fidelity additions only.
  */
 import { useState, useRef, useEffect, useCallback } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 import StudioAmbientLight from "@/components/StudioAmbientLight";
@@ -1137,6 +1138,7 @@ export default function KidsVideo() {
           100% { left: 95%; }
         }
       `}</style>
+      <LandscapeHint />
     </div>
   );
 }

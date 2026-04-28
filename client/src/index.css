@@ -1427,3 +1427,58 @@ select {
     inset 0 0 0 1px rgba(184,137,42,0.12);
   color: #e0c060;
 }
+
+/* landscape studio utilities added */
+
+/* ── Landscape / Mobile Studio Responsiveness ──────────────────────────────── */
+
+/* On small screens in landscape, reduce vertical padding to keep controls visible */
+@media (max-height: 500px) and (orientation: landscape) {
+  .studio-page-root {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .studio-header {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    min-height: 2.5rem;
+  }
+  .studio-panel {
+    max-height: calc(100dvh - 3rem);
+    overflow-y: auto;
+  }
+}
+
+/* Landscape two-column split for studio pages on tablet/phone landscape */
+@media (max-width: 1023px) and (orientation: landscape) {
+  .studio-landscape-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+  .studio-landscape-preview {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* Prevent horizontal overflow on all studio pages */
+.studio-page-root {
+  overflow-x: hidden;
+}
+
+/* Ensure CTA buttons are always reachable on mobile */
+@media (max-width: 767px) {
+  .studio-sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to top, rgba(10,10,10,0.98) 70%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}

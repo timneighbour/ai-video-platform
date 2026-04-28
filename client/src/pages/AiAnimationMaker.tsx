@@ -13,6 +13,7 @@
  * Pure landing page — CTA drives to /kids-video (WizAnimate tool).
  */
 import { useState } from "react";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { useSEO } from "@/hooks/useSEO";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { NavLink } from "@/components/NavLink";
@@ -701,6 +702,7 @@ export default function AiAnimationMaker() {
           <p className="text-[#52525b] text-xs">© 2026 WIZ AI. All rights reserved.</p>
         </div>
       </footer>
+      <LandscapeHint />
     </div>
   );
 }

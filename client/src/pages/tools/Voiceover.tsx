@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -168,6 +169,7 @@ export default function Voiceover() {
           </div>
         </div>
       </div>
+      <LandscapeHint />
     </div>
   );
 }

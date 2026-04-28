@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -359,6 +360,7 @@ export default function LipSync() {
           </div>
         </div>
       </div>
+      <LandscapeHint />
     </div>
   );
 }

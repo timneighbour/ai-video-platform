@@ -6,6 +6,7 @@
  * All workflow logic (storyboard generation, render, polling) preserved.
  */
 import { useAuth } from "@/_core/hooks/useAuth";
+import { LandscapeHint } from "@/components/LandscapeHint";
 import { RENDER_QUALITY_TIERS, WIZSOUND_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import { analytics } from "@/lib/analytics";
@@ -995,6 +996,7 @@ export default function TextToVideoCreator() {
           ]}
         />
       )}
+      <LandscapeHint />
     </div>
   );
 }

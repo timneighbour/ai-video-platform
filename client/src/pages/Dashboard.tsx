@@ -1,4 +1,5 @@
 import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
+import { FuelTheSession } from "@/components/FuelTheSession";
 /**
  * Dashboard — High-retention creator hub.
  * Shows action cards, continue projects, project grid, insights, upgrade block, inspiration, empty state.
@@ -594,6 +595,9 @@ export default function Dashboard() {
             ))}
           </div>
         </section>
+
+        {/* ── Fuel the Session ─────────────────────────────────────── */}
+        <FuelTheSession />
 
         {/* ── Your next video could be even better ─────────────────────── */}
         {hasProjects && (
