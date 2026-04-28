@@ -31,6 +31,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import AuthGate from "@/components/AuthGate";
+import StudioAmbientLight from "@/components/StudioAmbientLight";
+import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { WizBrandBadge, WizBrandPostBadge } from "@/components/WizBrand";
 import HabitLoopPanel from "@/components/HabitLoopPanel";
 import PostRenderUpgradePanel from "@/components/PostRenderUpgradePanel";
@@ -166,6 +168,7 @@ export default function MusicVideoAutopilot() {
   useSEO({ title: "WizVideo™ — AI Music Video Director", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
+  const [ambience, setAmbience] = useState(65);
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
 
@@ -1456,7 +1459,7 @@ export default function MusicVideoAutopilot() {
     return (
       <div className="min-h-screen studio-bg flex flex-col items-center justify-center gap-6 px-4" style={{backgroundColor:'#040810'}}>
         <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 60% 45% at 75% 0%, rgba(20,184,166,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 100%, rgba(6,182,212,0.06) 0%, transparent 55%)" }} />
-        <div className="env-bg"><img src="/manus-storage/env-music-video-set_8e723b8b.jpg" alt="" /><div className="env-bg-overlay" /></div>
+        <div className="env-bg"><img src="/manus-storage/env-wizvideo-film-studio_b80ecab4.jpg" alt="" /><div className="env-bg-overlay" /></div>
         <div className="text-center max-w-md relative z-10">
           <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6"><Music2 className="w-8 h-8 text-[--color-gold]" /></div>
           <h1 className="text-3xl font-bold text-white mb-3">WizVideo™</h1>
@@ -1473,7 +1476,7 @@ export default function MusicVideoAutopilot() {
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 60% 45% at 75% 0%, rgba(20,184,166,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 100%, rgba(6,182,212,0.06) 0%, transparent 55%)" }} />
       {/* ── VR Environment: Music Video Production Set ── */}
       <div className="env-bg">
-        <img src="/manus-storage/env-music-video-set_8e723b8b.jpg" alt="" />
+        <img src="/manus-storage/env-wizvideo-film-studio_b80ecab4.jpg" alt="" style={{ filter: `brightness(${ambience/100})`, transition: "filter 0.6s ease" }} />
         <div className="env-bg-overlay" />
       </div>
       <div className="env-ambient env-tint-stage" />
@@ -1644,9 +1647,12 @@ export default function MusicVideoAutopilot() {
               <span className="text-[8px] font-bold tracking-[2px] text-[#14b8a6] px-1.5 py-0.5 rounded-sm border border-[#14b8a6]/25 uppercase" style={{ background: "rgba(20,184,166,0.08)" }}>DIRECTOR</span>
             </span>
           </NavLink>
-          <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors">
-            <LayoutDashboard className="w-4 h-4" />
-          </NavLink>
+          <div className="flex items-center gap-3">
+            <StudioAmbientLight value={ambience} onChange={setAmbience} accentColor="#14b8a6" />
+            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors">
+              <LayoutDashboard className="w-4 h-4" />
+            </NavLink>
+          </div>
         </div>
         {/* Stage pills — clapperboard slate treatment */}
         <div className="max-w-5xl mx-auto px-4 pb-2">
@@ -1815,7 +1821,26 @@ export default function MusicVideoAutopilot() {
       <div className="max-w-5xl mx-auto px-4 py-6">
 
         {/* ===== STEP 1: UPLOAD ===== */}
-        {step === "upload" && (
+              {/* ── AUDIO UPLOAD BANNER — always visible on upload step ── */}
+      {step === "upload" && !audioFile && !sunoGeneratedAudioUrl && (
+        <div className="flex items-center gap-4 px-6 py-4 relative z-10" style={{ background: "linear-gradient(90deg, rgba(20,184,166,0.14) 0%, rgba(20,184,166,0.07) 100%)", borderBottom: "1px solid rgba(20,184,166,0.3)" }}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.35)" }}>🎵</div>
+          <div className="flex-1">
+            <div className="text-sm font-bold mb-0.5" style={{ color: "#2dd4bf", letterSpacing: "0.5px" }}>UPLOAD YOUR SONG TO BEGIN</div>
+            <div className="text-xs text-zinc-500">MP3, WAV, M4A · up to 50MB · WizVideo™ auto-transcribes lyrics, casts characters, and builds your storyboard</div>
+          </div>
+          <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(20,184,166,0.12)", border: "1px solid rgba(20,184,166,0.3)", color: "#2dd4bf" }}>START BELOW ↓</div>
+        </div>
+      )}
+      {step === "upload" && (audioFile || sunoGeneratedAudioUrl) && (
+        <div className="flex items-center gap-3 px-6 py-3 relative z-10" style={{ background: "rgba(109,184,109,0.08)", borderBottom: "1px solid rgba(109,184,109,0.2)" }}>
+          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
+          <span className="text-xs font-bold text-green-400">AUDIO LOADED — {audioFile?.name || "Generated Track"}</span>
+          <div className="flex-1 h-7 mx-4"><AnimatedEqualiser barCount={40} color="#14b8a6" height={28} alwaysAnimate={true} /></div>
+        </div>
+      )}
+
+      {step === "upload" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div className="lg:col-span-2 space-y-6">
               {/* ── Artist Type Selection ── */}

@@ -25,7 +25,7 @@ import { useGlobalAudio } from "@/contexts/AudioContext";
 import { mp } from "@/lib/mixpanel";
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
-const ENV_IMG = "/manus-storage/env-recording-studio_90a4b01f.jpg";
+const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizaudio-producer-TJv4iFWWsQCVnrNJxEfy7J.webp";
 
 const GENRES = [
   "Pop", "Hip-Hop", "R&B", "Rock", "Electronic", "Country",

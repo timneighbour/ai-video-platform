@@ -3,6 +3,8 @@ import { IMAGE_RENDER_QUALITY, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import StudioAmbientLight from "@/components/StudioAmbientLight";
+import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useSEO } from "@/hooks/useSEO";
@@ -18,7 +20,7 @@ const A_GLOW = "rgba(99,102,241,0.25)";
 const A_BORDER = "rgba(99,102,241,0.30)";
 const BG_BASE = "#04040e";    // deep navy
 const BG_CANVAS = "#080818";  // canvas area
-const ENV_IMG = "/manus-storage/env-post-production_03973686.jpg";
+const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizimage-retoucher-NeN2P2u86dfGsfVCX8Yqrn.webp";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -258,7 +260,7 @@ export default function WizImage() {
           src={ENV_IMG}
           alt="WizImage Creative Studio"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.3s" }}
+          style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.6s ease" }}
         />
         {/* Gradient overlay */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,14,0.1) 0%, rgba(4,4,14,0.65) 100%)" }} />
@@ -316,6 +318,34 @@ export default function WizImage() {
           <span className="text-[10px] w-7 text-right" style={{ color: "#d4a843" }}>{ambience}%</span>
         </div>
       </div>
+
+      {/* ── REFERENCE UPLOAD BANNER (top of page, always visible) ── */}
+      {!hasRef ? (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-4 px-6 py-4 cursor-pointer transition-all relative z-10"
+          style={{
+            background: "linear-gradient(90deg, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0.07) 100%)",
+            borderBottom: "1px solid rgba(99,102,241,0.3)",
+          }}
+          onMouseEnter={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(99,102,241,0.22) 0%, rgba(99,102,241,0.11) 100%)")}
+          onMouseLeave={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0.07) 100%)")}
+        >
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.4)" }}>🎨</div>
+          <div className="flex-1">
+            <div className="text-sm font-bold mb-0.5" style={{ color: "#818cf8", letterSpacing: "0.5px" }}>UPLOAD YOUR REFERENCE IMAGE TO BEGIN</div>
+            <div className="text-xs text-zinc-500">Band photos, artist portraits, album concepts, mood images · JPG, PNG, WEBP, RAW · up to 50MB</div>
+          </div>
+          <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.35)", color: "#818cf8" }}>BROWSE & UPLOAD</div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 px-6 py-3 relative z-10" style={{ background: "rgba(109,184,109,0.08)", borderBottom: "1px solid rgba(109,184,109,0.2)" }}>
+          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
+          <span className="text-xs font-bold text-green-400">REFERENCE LOADED — band_promo_shoot.jpg</span>
+          <div className="flex-1 h-7 mx-4"><AnimatedEqualiser barCount={32} color="#4ade80" height={28} alwaysAnimate={true} /></div>
+          <button onClick={() => setHasRef(false)} className="text-zinc-600 hover:text-zinc-400 text-sm ml-auto">Replace ×</button>
+        </div>
+      )}
 
       {/* ── Main Layout: Left Panel | Centre Canvas | Right Panel ── */}
       <div className="relative z-10 max-w-[1440px] mx-auto" style={{ display: "grid", gridTemplateColumns: "340px 1fr 300px", minHeight: "calc(100vh - 64px)" }}>

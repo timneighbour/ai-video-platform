@@ -6,12 +6,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
+import StudioAmbientLight from "@/components/StudioAmbientLight";
+import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { mp } from "@/lib/mixpanel";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
+const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizanimate-animator-DuTWqwZqZNYHzRQeR6w6e7.webp";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const ACCENT = "#7c5cbf";
@@ -139,6 +142,9 @@ export default function KidsVideo() {
   const [duration, setDuration]       = useState("30s");
   const [cameraMove, setCameraMove]   = useState("Dynamic (AI decides)");
   const [musicSrc, setMusicSrc]       = useState("Uploaded track");
+  const [audioFile, setAudioFile]     = useState<File|null>(null);
+  const [audioUrl, setAudioUrl]       = useState<string>("");
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const [activePreviewScene, setActivePreviewScene] = useState(1);
 
   const stageIndex = STAGES.findIndex(s => s.key === stage);
@@ -216,7 +222,13 @@ export default function KidsVideo() {
       display: "flex", flexDirection: "column", height: "100vh",
       background: "#080808", color: "#ccc",
       fontFamily: "'Inter', sans-serif", overflow: "hidden",
+      position: "relative",
     }}>
+      {/* ── VR Environment: Animation Studio ── */}
+      <div className="env-bg" style={{ opacity: 0.55 }}>
+        <img src={ENV_IMG} alt="" style={{ objectPosition: "center 40%", filter: `brightness(${ambience/100})`, transition: "filter 0.6s ease" }} />
+        <div className="env-bg-overlay" />
+      </div>
 
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <nav style={{
@@ -246,6 +258,7 @@ export default function KidsVideo() {
 
         {/* Right */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <StudioAmbientLight value={ambience} onChange={setAmbience} accentColor={ACCENT_LIGHT} />
           <div style={{
             background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: "4px",
             padding: "6px 12px", fontSize: "11px", fontWeight: 700, color: GOLD,
@@ -277,6 +290,38 @@ export default function KidsVideo() {
           </div>
         ))}
       </div>
+
+      {/* ── AUDIO UPLOAD BANNER ── */}
+      <input ref={audioInputRef} type="file" accept="audio/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(f){setAudioFile(f);setAudioUrl(URL.createObjectURL(f));setMusicSrc("Uploaded track");}}} />
+      {!audioFile ? (
+        <div
+          onClick={() => audioInputRef.current?.click()}
+          onDragOver={e=>e.preventDefault()}
+          onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files?.[0];if(f&&f.type.startsWith("audio/")){setAudioFile(f);setAudioUrl(URL.createObjectURL(f));}}}
+          style={{
+            flexShrink:0, cursor:"pointer", transition:"background 0.2s",
+            background:"linear-gradient(90deg, rgba(124,92,191,0.14) 0%, rgba(124,92,191,0.07) 100%)",
+            borderBottom:"1px solid rgba(124,92,191,0.3)",
+            padding:"12px 20px", display:"flex", alignItems:"center", gap:"14px",
+          }}
+          onMouseEnter={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(124,92,191,0.22) 0%, rgba(124,92,191,0.11) 100%)")}
+          onMouseLeave={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(124,92,191,0.14) 0%, rgba(124,92,191,0.07) 100%)")}
+        >
+          <div style={{width:"40px",height:"40px",borderRadius:"8px",background:"rgba(124,92,191,0.18)",border:"1px solid rgba(124,92,191,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px",flexShrink:0}}>🎵</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:"11px",fontWeight:800,color:ACCENT_LIGHT,letterSpacing:"0.8px",marginBottom:"2px"}}>UPLOAD YOUR AUDIO TRACK TO BEGIN</div>
+            <div style={{fontSize:"9px",color:"rgba(255,255,255,0.4)"}}>MP3, WAV, M4A · WizAnimate™ syncs every scene to your music, extracts lyrics, and animates to the beat</div>
+          </div>
+          <div style={{fontSize:"9px",fontWeight:700,color:"rgba(124,92,191,0.7)",border:"1px solid rgba(124,92,191,0.3)",padding:"5px 12px",borderRadius:"3px",flexShrink:0}}>CLICK OR DROP</div>
+        </div>
+      ) : (
+        <div style={{flexShrink:0,background:"rgba(109,184,109,0.08)",borderBottom:"1px solid rgba(109,184,109,0.2)",padding:"8px 20px",display:"flex",alignItems:"center",gap:"10px"}}>
+          <div style={{width:"7px",height:"7px",borderRadius:"50%",background:"#6db86d",boxShadow:"0 0 6px #6db86d",animation:"wizLivePulse 1.5s infinite",flexShrink:0}} />
+          <div style={{fontSize:"10px",fontWeight:700,color:"#6db86d"}}>AUDIO LOADED — {audioFile.name}</div>
+          <div style={{flex:1,height:"28px"}}><AnimatedEqualiser barCount={32} color="#6db86d" height={28} alwaysAnimate={true} /></div>
+          <button onClick={()=>{setAudioFile(null);setAudioUrl("");}} style={{background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:"13px"}}>×</button>
+        </div>
+      )}
 
       {/* ── 2-Column Layout ─────────────────────────────────────────────────── */}
       <div style={{

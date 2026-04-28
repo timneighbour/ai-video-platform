@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import CreditBalance from "@/components/CreditBalance";
+import StudioAmbientLight from "@/components/StudioAmbientLight";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
@@ -44,7 +45,7 @@ const BG_BASE = "#06060f";                    // deep navy
 const BG_CARD = "rgba(10,8,22,0.85)";
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
-const ENV_IMG = "/manus-storage/env-hollywood-studio_1da3e15e.jpg";
+const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizscript-writer-kxJKU2hknMtjw7eqCz9m8i.webp";
 
 const VIDEO_STYLES = [
   { id: "cinematic",    label: "Cinematic",    desc: "Hollywood-quality realism",       image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&q=80" },
@@ -144,6 +145,7 @@ export default function TextToVideoCreator() {
 
   // ── Form state ──
   const [step, setStep] = useState<"input" | "storyboard" | "generating" | "done">("input");
+  const [ambience, setAmbience] = useState(60);
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("cinematic");
@@ -376,6 +378,7 @@ export default function TextToVideoCreator() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <StudioAmbientLight value={ambience} onChange={setAmbience} accentColor="#7c3aed" />
             <CreditBalance variant="badge" />
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold border" style={{ background: V_DIM, borderColor: V_BORDER, color: V_LIGHT }}>
               {user?.name?.charAt(0) || "T"}
@@ -420,7 +423,7 @@ export default function TextToVideoCreator() {
 
       {/* ── VR Hero Banner ── */}
       <div className="relative h-[180px] overflow-hidden" style={{ zIndex: 1 }}>
-        <img src={ENV_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ filter: "brightness(0.35) saturate(0.9) hue-rotate(250deg)" }} />
+        <img src={ENV_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ filter: `brightness(${0.2 + ambience/250}) saturate(0.9) hue-rotate(250deg)`, transition: "filter 0.6s ease" }} />
         <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${BG_BASE} 0%, rgba(6,6,15,0.3) 60%, transparent 100%)` }} />
         <div className="absolute top-4 left-4 z-10 rounded-xl px-4 py-2.5 border" style={{ background: BG_CARD, borderColor: V_BORDER, backdropFilter: "blur(12px)" }}>
           <p className="text-[9px] text-white/40 font-bold tracking-widest uppercase">CURRENT PROJECT</p>
@@ -434,6 +437,18 @@ export default function TextToVideoCreator() {
         </div>
         <div className="absolute bottom-0 left-0 right-0"><SpectrumAnalyzer /></div>
       </div>
+
+      {/* ── PROMPT BANNER — always visible, prompts user to start ── */}
+      {step === "input" && !prompt && (
+        <div className="flex items-center gap-4 px-6 py-4 relative z-10" style={{ background: "linear-gradient(90deg, rgba(124,58,237,0.14) 0%, rgba(124,58,237,0.07) 100%)", borderBottom: "1px solid rgba(124,58,237,0.3)" }}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(124,58,237,0.18)", border: "1px solid rgba(124,58,237,0.4)" }}>🎬</div>
+          <div className="flex-1">
+            <div className="text-sm font-bold mb-0.5" style={{ color: "#a78bfa", letterSpacing: "0.5px" }}>DESCRIBE YOUR VIDEO TO BEGIN</div>
+            <div className="text-xs text-zinc-500">Type your screenplay prompt below — WizScript™ generates a full storyboard with AI scene previews</div>
+          </div>
+          <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.35)", color: "#a78bfa" }}>START BELOW ↓</div>
+        </div>
+      )}
 
       {/* ══════════════ MAIN 3-COLUMN LAYOUT ══════════════ */}
       <div className="relative z-10 max-w-[1600px] mx-auto px-4 py-6">

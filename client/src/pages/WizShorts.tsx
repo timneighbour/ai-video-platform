@@ -7,6 +7,7 @@ import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { useSEO } from "@/hooks/useSEO";
 import {
   Sparkles, Play, Download, ChevronRight,
@@ -73,7 +74,7 @@ const FX = "#d946ef";
 const FX_DIM = "rgba(217,70,239,0.15)";
 const FX_BORDER = "rgba(217,70,239,0.35)";
 // ─── Studio environment ───────────────────────────────────────────────────────
-const ENV_IMG = "/manus-storage/env-broadcast-studio_5a824d1f.jpg";
+const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizshorts-broadcast-HKpktoXUEoyQmeq2n6G6fw.webp";
 // Platform accent colours for plat-badge chips and channel-stats
 const PLAT_COLOURS: Record<string, string> = {
   youtube_shorts: "#ff4444",
@@ -624,7 +625,23 @@ export default function WizShorts() {
           />
           <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>{ambience}%</span>
         </div>
+        {/* EQ Visualiser strip — bottom of hero */}
+        <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ padding: "0 16px 4px" }}>
+          <AnimatedEqualiser barCount={52} color="#e05c2a" height={44} alwaysAnimate={true} />
+        </div>
       </div>
+
+      {/* ── TOPIC BANNER — always visible, prompts user to start ── */}
+      {step === "setup" && !topic && (
+        <div className="flex items-center gap-4 px-6 py-4" style={{ background: "linear-gradient(90deg, rgba(224,92,42,0.14) 0%, rgba(224,92,42,0.07) 100%)", borderBottom: "1px solid rgba(224,92,42,0.3)" }}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(224,92,42,0.18)", border: "1px solid rgba(224,92,42,0.4)" }}>🎬</div>
+          <div className="flex-1">
+            <div className="text-sm font-bold mb-0.5" style={{ color: "#e07a50", letterSpacing: "0.5px" }}>WHAT IS YOUR SHORT ABOUT?</div>
+            <div className="text-xs text-zinc-500">Type your topic below in the Hook Builder — WizShorts™ generates scenes, captions, and music automatically</div>
+          </div>
+          <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(224,92,42,0.15)", border: "1px solid rgba(224,92,42,0.35)", color: "#e07a50" }}>START BELOW ↓</div>
+        </div>
+      )}
 
       {/* ── Main Layout ── */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-6">

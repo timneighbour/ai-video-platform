@@ -6322,3 +6322,24 @@
 - [ ] Update pricing page to include WizScore
 - [ ] Update product lists and comparison sections
 - [ ] Remove engine/utility-only treatment of WizScore
+
+## Homepage Tightening + Lyndhurst Hall Environment — Apr 28 2026
+- [ ] Remove UseCases section (duplicates BuiltFor)
+- [ ] Remove WizVidEngineSection (duplicates WizEngines)
+- [ ] Remove DemoVideoGallery (duplicates Showcase)
+- [ ] Trim WizEngines embedded workflow steps (duplicates HowItWorks)
+- [ ] Fix BuiltFor eyebrow/H2 verbatim duplication
+- [ ] Rename SeeTheDifference section to 'The Cinematic Difference'
+- [ ] Fix FinalCTA double 'No credit card required' copy
+- [ ] Reframe FeatureBlock header from breadth to depth
+- [ ] Apply Lyndhurst Hall Air Studios visual environment to hero/ambient backdrop
+
+## Studio Immersion + Animated Equaliser — Apr 28 2026
+- [ ] Generate first-person studio environments for all 7 studios and homepage
+- [ ] Build AnimatedEqualiser component (Web Audio API, real-time frequency bars)
+- [ ] Upload all environment images to CDN
+- [ ] Apply environments to all studio pages
+- [ ] Integrate AnimatedEqualiser into WizAudio, WizScore, WizSync, WizVideo studios
+- [ ] Apply homepage content-tightening pass + Lyndhurst Hall hero
+- [ ] TypeScript clean (0 errors)
+- [ ] Visual review in browser

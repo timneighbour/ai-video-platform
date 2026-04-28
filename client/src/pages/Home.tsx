@@ -2308,7 +2308,7 @@ function BuiltFor() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Built for creators</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Who it's for</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
             Built for Creators
           </h2>
@@ -2382,12 +2382,12 @@ function FeatureBlock() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Complete AI creative platform</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Purpose-built studios</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">
-            Create complete AI content
+            Each studio is built for its format
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto mt-4">
-            Music, video, and storytelling — all in one platform. Replace hours of production with minutes of prompting.
+            Not a general tool. Every WIZ AI studio is purpose-engineered for one creative format — so the output is always right.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
@@ -2706,7 +2706,7 @@ function SeeTheDifference() {
               <span className="text-xs font-bold text-white/50">WizLumina™</span>
             </div>
           </div>
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">See the WIZ Difference</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">The Cinematic Difference</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             Standard. Enhanced. <span className="metallic-gold">Cinematic.</span>
           </h2>
@@ -3042,7 +3042,7 @@ function FinalCTA() {
             View Pricing <ArrowSVG className="w-4 h-4" />
           </a>
           <span className="w-px h-3 bg-[--color-gold]/10" />
-          <span className="text-xs text-[--color-silver-dark]/25">No credit card required. 2 free videos included.</span>
+          <span className="text-xs text-[--color-silver-dark]/25">2 free videos included. Cancel anytime.</span>
         </div>
       </div>
     </section>
@@ -3348,13 +3348,10 @@ export default function Home() {
         <WizSoundDemo />
         <WizLuminaDemo />
         <WhyWizAI />
-        <UseCases />
         <Showcase />
         <BuiltFor />
         <FeatureBlock />
-        <WizVidEngineSection />
         <SeeTheDifference />
-        <DemoVideoGallery />
         <FinalCTA />
       </main>
       <Footer />

@@ -18,6 +18,9 @@ import { toast } from "sonner";
 import { NavLink } from "@/components/NavLink";
 import BackButton from "@/components/BackButton";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
+import StudioAmbientLight from "@/components/StudioAmbientLight";
+import AnimatedEqualiser from "@/components/AnimatedEqualiser";
+import StudioStageFlow, { type Stage as StageItem } from "@/components/StudioStageFlow";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
 import {
@@ -426,6 +429,7 @@ export default function WizSyncPage() {
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
   const [uploadedAudioName, setUploadedAudioName] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
+  const [ambience, setAmbience] = useState(65);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -606,6 +610,14 @@ export default function WizSyncPage() {
 
   const isAnalysing = jobData?.job.status === "analysing" || analyseAudioMutation.isPending || pollingEnabled;
   const isReady = jobData?.job.status === "ready";
+
+  const SYNC_STAGES: StageItem[] = [
+    { id: "upload", label: "Upload Audio", icon: "🎵" },
+    { id: "analyse", label: "AI Analysis", icon: "🔬" },
+    { id: "assign", label: "Assign Characters", icon: "👥" },
+    { id: "lipsync", label: "Lip-Sync", icon: "🎬" },
+  ];
+  const currentSyncStage = uploadedAudioUrl ? (isReady ? "assign" : "analyse") : "upload";
   const hasError = jobData?.job.status === "error";
   const stems = isReady ? (jobData?.job.stems as Record<string, { url: string } | undefined> | null) : null;
 
@@ -613,7 +625,7 @@ export default function WizSyncPage() {
     <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
       {/* ── VR Environment: Professional Post-Production Suite ── */}
       <div className="env-bg">
-        <img src="/manus-storage/env-post-production_03973686.jpg" alt="" />
+        <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizsync-dubbing-hqdm3nA5LxMyE4Mjr5RygR.webp" alt="" style={{ filter: `brightness(${ambience/100})`, transition: "filter 0.6s ease" }} />
         <div className="env-bg-overlay" />
       </div>
       <div className="env-ambient env-tint-amber" />
@@ -632,6 +644,7 @@ export default function WizSyncPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <StudioAmbientLight value={ambience} onChange={setAmbience} accentColor="#8b5cf6" />
             <NavLink href="/create" className="text-sm text-zinc-400 hover:text-white transition-colors">All Tools</NavLink>
             <NavLink href="/music-video/create" className="text-sm text-zinc-400 hover:text-white transition-colors">Music Video</NavLink>
           </div>
@@ -671,6 +684,36 @@ export default function WizSyncPage() {
             ))}
           </div>
         </div>
+
+        {/* ── Stage Flow ── */}
+        <StudioStageFlow stages={SYNC_STAGES} currentStage={currentSyncStage} accentColor="#8b5cf6" className="mb-2" />
+
+        {/* ── EQ Visualiser ── */}
+        <div className="rounded-xl overflow-hidden border border-white/6" style={{ background: "rgba(0,0,0,0.4)", height: 56, padding: "4px 12px" }}>
+          <AnimatedEqualiser barCount={36} color="#8b5cf6" height={48} alwaysAnimate={true} />
+        </div>
+
+        {/* ── Upload Banner (when no audio) ── */}
+        {!uploadedAudioUrl && (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            className="rounded-2xl border-2 border-dashed cursor-pointer transition-all flex items-center gap-5 px-6 py-5"
+            style={{
+              borderColor: isDragging ? "#8b5cf6" : "rgba(139,92,246,0.3)",
+              background: isDragging ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.06)",
+            }}
+          >
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>🎵</div>
+            <div className="flex-1">
+              <div className="text-sm font-bold text-white mb-1">DROP YOUR AUDIO TRACK HERE TO BEGIN</div>
+              <div className="text-xs text-zinc-500">MP3, WAV, M4A, OGG · max 50MB · WizSync™ detects every voice and separates stems automatically</div>
+            </div>
+            <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", color: "#8b5cf6" }}>UPLOAD</div>
+          </div>
+        )}
 
         {/* ── Main grid ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

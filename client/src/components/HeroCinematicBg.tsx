@@ -8,10 +8,11 @@ import { Pause, Play } from "@/lib/icons";
 const ASSETS = {
   // Served via /manus-storage/ proxy
   videoMP4: "/manus-storage/hero-bg-v2_dc5fb17d.mp4",
+  // Lyndhurst Hall, Air Studios — the world's greatest recording hall
   poster:
-    "/manus-storage/concert-hall_2b6b946b.jpg",
+    "/manus-storage/lyndhurst-hall-orchestra-dark_4904fd65.jpg",
   staticBg:
-    "/manus-storage/concert-hall_2b6b946b.jpg",
+    "/manus-storage/lyndhurst-hall-orchestra-dark_4904fd65.jpg",
 };
 
 const LS_KEY = "wizai_motion_paused";

@@ -12,7 +12,9 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
-const ENV_IMG = "/manus-storage/env-scoring-stage_737b2e3f.jpg";
+import StudioAmbientLight from "@/components/StudioAmbientLight";
+import AnimatedEqualiser from "@/components/AnimatedEqualiser";
+const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizscore-scoring-gp2y6naC4cVHcYGuJy8fJK.webp";
 
 const STAGES = [
   { key: "brief",    label: "PROJECT BRIEF" },
@@ -375,6 +377,7 @@ export default function WizScore() {
         </div>
         <span style={{fontSize:"11px",fontWeight:700,color:"#888",letterSpacing:"2px",borderLeft:"1px solid #222",paddingLeft:"16px"}}>AI FILM SCORING STUDIO</span>
         <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:"10px"}}>
+          <StudioAmbientLight value={ambience} onChange={setAmbience} />
           <span style={{fontSize:"10px",fontWeight:700,background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.3)",color:"#d4a843",padding:"5px 12px",borderRadius:"3px"}}>⚡ 10,000 Credits</span>
           <div style={{width:"30px",height:"30px",borderRadius:"50%",background:"#d4a843",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:800,color:"#000"}}>T</div>
         </div>
@@ -453,12 +456,53 @@ export default function WizScore() {
             </div>
           </div>
 
-          {/* Bottom: Console VU meter strip */}
+          {/* Bottom: Animated Equaliser */}
           <div style={{position:"absolute",bottom:0,left:0,right:0,height:"64px",pointerEvents:"none",padding:"0 16px 4px"}}>
-            <ConsoleMeterStrip />
+            <AnimatedEqualiser barCount={48} color="#d4a843" height={60} alwaysAnimate={true} />
           </div>
         </div>
       </div>
+
+      {/* ── UPLOAD BANNER — always visible at top when no video uploaded ── */}
+      {!videoFile && (
+        <div
+          onClick={() => videoInputRef.current?.click()}
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleVideoUpload(f); }}
+          style={{
+            flexShrink:0,
+            background:"linear-gradient(90deg, rgba(212,168,67,0.12) 0%, rgba(212,168,67,0.06) 100%)",
+            borderBottom:"1px solid rgba(212,168,67,0.25)",
+            padding:"14px 24px",
+            display:"flex",alignItems:"center",gap:"16px",
+            cursor:"pointer",transition:"background 0.2s",
+          }}
+          onMouseEnter={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(212,168,67,0.18) 0%, rgba(212,168,67,0.09) 100%)")}
+          onMouseLeave={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(212,168,67,0.12) 0%, rgba(212,168,67,0.06) 100%)")}
+        >
+          <div style={{width:"42px",height:"42px",borderRadius:"8px",background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px",flexShrink:0}}>🎬</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:"12px",fontWeight:800,color:"#d4a843",letterSpacing:"1px",marginBottom:"2px"}}>UPLOAD YOUR VIDEO TO BEGIN</div>
+            <div style={{fontSize:"10px",color:"rgba(224,216,204,0.55)"}}>Drop your MP4, MOV, or WebM here — WizScore™ analyses the mood and pacing to compose a perfectly synced original score</div>
+          </div>
+          <div style={{fontSize:"9px",fontWeight:700,color:"rgba(212,168,67,0.6)",letterSpacing:"1px",border:"1px solid rgba(212,168,67,0.25)",padding:"6px 14px",borderRadius:"3px",flexShrink:0}}>CLICK OR DROP</div>
+        </div>
+      )}
+      {videoFile && (
+        <div style={{
+          flexShrink:0,
+          background:"rgba(109,184,109,0.08)",
+          borderBottom:"1px solid rgba(109,184,109,0.2)",
+          padding:"10px 24px",
+          display:"flex",alignItems:"center",gap:"12px",
+        }}>
+          <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#6db86d",boxShadow:"0 0 8px #6db86d",animation:"wizLivePulse 1.5s infinite",flexShrink:0}} />
+          <div style={{fontSize:"11px",fontWeight:700,color:"#6db86d"}}>VIDEO LOADED — {videoFile.name}</div>
+          <div style={{fontSize:"10px",color:"rgba(224,216,204,0.4)"}}>({(videoFile.size/(1024*1024)).toFixed(1)} MB)</div>
+          {isUploadingVideo && <div style={{flex:1,height:"3px",background:"#1a1a1a",borderRadius:"2px",overflow:"hidden"}}><div style={{height:"100%",width:`${uploadProgress}%`,background:"linear-gradient(90deg,#d4a843,#f0c040)",transition:"width 0.3s",borderRadius:"2px"}} /></div>}
+          <button onClick={()=>{setVideoFile(null);setVideoUrl("");setVideoKey("");setWizScoreJobId(null);}} style={{marginLeft:"auto",background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:"14px"}}>×</button>
+        </div>
+      )}
 
       {/* ── 3-Column Layout ── */}
       <div style={{display:"grid",gridTemplateColumns:"320px 1fr 300px",flex:1,overflow:"hidden",borderTop:"1px solid #1e1e1e"}}>
