@@ -1,10 +1,16 @@
 /**
- * WIZ AI Service Worker
+ * WIZ AI Service Worker — Self-Versioning Edition
  *
- * VERSION STRATEGY:
- * CACHE_VERSION is injected at build time by vite.config.ts using a Unix timestamp.
- * Every production build produces a unique version string, so old caches are always
- * purged on the first visit after a deploy — no manual bumping required.
+ * VERSION STRATEGY (Cloudflare-proof):
+ * sw.js itself is cached by Cloudflare CDN for up to 90 days.
+ * Build-time injection of __SW_VERSION__ cannot reach the CDN-cached copy.
+ *
+ * Solution: the SW derives its own CACHE_VERSION at runtime by fetching the
+ * HTML page (which is always served with no-cache, no-store) and extracting
+ * the content-hash fingerprint of the main JS bundle from it.
+ *
+ * Every deploy produces a new HTML with new chunk hashes. The SW detects the
+ * change on its next check and purges old caches — even if sw.js itself is stale.
  *
  * ASSET STRATEGY:
  * - HTML navigation requests: network-first (always fresh from server)
@@ -19,111 +25,170 @@
  * SW activates immediately, and the page reloads with the fresh bundle.
  */
 
-// __SW_VERSION__ is replaced at build time by the Vite plugin in vite.config.ts.
-// Falls back to a timestamp in development so hot-reloads still work.
-/* global __SW_VERSION__ */
-var CACHE_VERSION = (typeof __SW_VERSION__ !== "undefined") ? __SW_VERSION__ : ("dev-" + Date.now());
-var CACHE_NAME = "wizai-" + CACHE_VERSION;
+/* global self, caches, fetch, clients */
+'use strict';
 
-// Install: cache the HTML shell only
-self.addEventListener("install", function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(["/", "/manifest.json"]);
+var CACHE_NAME_PREFIX = 'wizai-';
+
+// ── Runtime version detection ────────────────────────────────────────────────
+// Fetch the HTML shell with no-cache and extract the main JS chunk hash.
+// The HTML is always served fresh (no-cache, no-store) so this always reflects
+// the current deployment, regardless of how stale sw.js itself may be.
+function detectVersion() {
+  return fetch('/?_sw_ver=' + Date.now(), { cache: 'no-store' })
+    .then(function(res) { return res.text(); })
+    .then(function(html) {
+      // Extract the fingerprinted main entry chunk, e.g. assets/index-DdUuvEt0.js
+      var match = html.match(/assets\/index-([A-Za-z0-9_\-]+)\.js/);
+      if (match && match[1]) {
+        return match[1]; // e.g. "DdUuvEt0"
+      }
+      // Fallback: use any hashed chunk fingerprint
+      var anyChunk = html.match(/assets\/[A-Za-z0-9_\-]+-([A-Za-z0-9_\-]{8,})\.js/);
+      if (anyChunk && anyChunk[1]) {
+        return anyChunk[1];
+      }
+      return String(Date.now());
     })
-  );
-  // Do NOT skipWaiting here — triggered only when user taps "Update now"
-});
+    .catch(function() {
+      return String(Date.now());
+    });
+}
 
-// Activate: delete all caches from previous deployments
-self.addEventListener("activate", function(event) {
+// ── Install ──────────────────────────────────────────────────────────────────
+self.addEventListener('install', function(event) {
   event.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_NAME; }).map(function(k) { return caches.delete(k); })
-      );
-    }).then(function() {
-      return self.clients.matchAll({ includeUncontrolled: true, type: "window" });
-    }).then(function(clients) {
-      clients.forEach(function(client) {
-        client.postMessage({ type: "SW_ACTIVATED", version: CACHE_VERSION });
+    detectVersion().then(function(version) {
+      var cacheName = CACHE_NAME_PREFIX + version;
+      console.log('[SW] Installing with cache:', cacheName);
+      return caches.open(cacheName).then(function(cache) {
+        return cache.add('/');
       });
-      return self.clients.claim();
     })
   );
 });
 
-// Message: handle SKIP_WAITING from the update banner
-self.addEventListener("message", function(event) {
-  if (event.data && event.data.type === "SKIP_WAITING") {
+// ── Activate — purge old caches ───────────────────────────────────────────────
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    detectVersion().then(function(version) {
+      var cacheName = CACHE_NAME_PREFIX + version;
+      console.log('[SW] Activating with cache:', cacheName);
+      return caches.keys().then(function(keys) {
+        return Promise.all(
+          keys
+            .filter(function(k) { return k.startsWith(CACHE_NAME_PREFIX) && k !== cacheName; })
+            .map(function(k) {
+              console.log('[SW] Deleting old cache:', k);
+              return caches.delete(k);
+            })
+        );
+      }).then(function() {
+        return self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+      }).then(function(allClients) {
+        allClients.forEach(function(client) {
+          client.postMessage({ type: 'SW_ACTIVATED', version: cacheName });
+        });
+        return self.clients.claim();
+      });
+    })
+  );
+});
+
+// ── Message handler — SKIP_WAITING ───────────────────────────────────────────
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
 
-// Fetch: strategy by asset type
-self.addEventListener("fetch", function(event) {
-  var url = new URL(event.request.url);
+// ── Fetch strategy ───────────────────────────────────────────────────────────
+self.addEventListener('fetch', function(event) {
+  var url;
+  try {
+    url = new URL(event.request.url);
+  } catch (e) {
+    return;
+  }
 
-  if (event.request.method !== "GET") return;
-  if (url.pathname.startsWith("/api/")) return;
-  if (url.pathname.startsWith("/manus-storage/")) return;
+  if (event.request.method !== 'GET') return;
+
+  // Never intercept API calls, OAuth, tRPC, Stripe, or Manus storage
   if (
-    url.pathname.includes("/.vite/deps/") ||
-    url.pathname.includes("/@fs/") ||
-    url.pathname.includes("/@vite/") ||
-    url.pathname.includes("/@id/") ||
-    url.pathname.startsWith("/src/") ||
-    url.pathname.startsWith("/node_modules/")
-  ) return;
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/manus-storage/') ||
+    url.hostname.includes('stripe.com') ||
+    url.hostname.includes('manus.im') ||
+    url.pathname.includes('/.vite/') ||
+    url.pathname.includes('/@fs/') ||
+    url.pathname.includes('/@vite/') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/node_modules/')
+  ) {
+    return;
+  }
 
-  // HTML: network-first
-  if (event.request.mode === "navigate") {
+  // HTML navigation — network-first
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).then(function(response) {
-        if (response.ok) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
-        }
-        return response;
-      }).catch(function() {
-        return caches.match("/") || caches.match(event.request);
-      })
+      fetch(event.request, { cache: 'no-store' })
+        .then(function(response) {
+          if (response && response.ok) {
+            detectVersion().then(function(version) {
+              var cacheName = CACHE_NAME_PREFIX + version;
+              caches.open(cacheName).then(function(cache) {
+                cache.put(event.request, response.clone());
+              });
+            });
+          }
+          return response;
+        })
+        .catch(function() {
+          return caches.match('/');
+        })
     );
     return;
   }
 
-  // JS/CSS: stale-while-revalidate
-  // Neutralises the Bunny CDN 90-day max-age by always revalidating in the background.
+  // JS / CSS — stale-while-revalidate
   var isJsOrCss = (
-    url.pathname.endsWith(".js") ||
-    url.pathname.endsWith(".css") ||
-    url.pathname.includes("/assets/")
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.includes('/assets/')
   );
 
   if (isJsOrCss) {
     event.respondWith(
-      caches.open(CACHE_NAME).then(function(cache) {
-        return cache.match(event.request).then(function(cached) {
-          var fetchPromise = fetch(event.request).then(function(networkResponse) {
-            if (networkResponse.ok) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
+      detectVersion().then(function(version) {
+        var cacheName = CACHE_NAME_PREFIX + version;
+        return caches.open(cacheName).then(function(cache) {
+          return cache.match(event.request).then(function(cached) {
+            var networkFetch = fetch(event.request).then(function(networkResponse) {
+              if (networkResponse && networkResponse.ok) {
+                cache.put(event.request, networkResponse.clone());
+              }
+              return networkResponse;
+            }).catch(function() { return cached; });
+            return cached || networkFetch;
           });
-          return cached || fetchPromise;
         });
       })
     );
     return;
   }
 
-  // Everything else: cache-first with network fallback
+  // Images and media — cache-first with network fallback
   event.respondWith(
     caches.match(event.request).then(function(cached) {
-      return cached || fetch(event.request).then(function(response) {
-        if (response.ok) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
+      if (cached) return cached;
+      return fetch(event.request).then(function(response) {
+        if (response && response.ok) {
+          detectVersion().then(function(version) {
+            var cacheName = CACHE_NAME_PREFIX + version;
+            caches.open(cacheName).then(function(cache) {
+              cache.put(event.request, response.clone());
+            });
+          });
         }
         return response;
       });
