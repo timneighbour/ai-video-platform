@@ -7,12 +7,10 @@ import { Pause, Play } from "@/lib/icons";
 ────────────────────────────────────────────────────────────────────── */
 const ASSETS = {
   // WIZ AI — The Air Studios of AI — Variation 3B (refined)
-  videoMP4: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-bg-v3b-web_da5cd200.mp4",
+  videoMP4: "/manus-storage/wiz-bg-v3b-web_392a7466.mp4",
   // Static fallback — mid-frame from the studio environment video
-  poster:
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-bg-fallback_95af72d2.jpg",
-  staticBg:
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-bg-fallback_95af72d2.jpg",
+  poster: "/manus-storage/wiz-bg-fallback_8a501fb4.jpg",
+  staticBg: "/manus-storage/wiz-bg-fallback_8a501fb4.jpg",
 };
 
 const LS_KEY = "wizai_motion_paused";
@@ -72,7 +70,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
   });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [videoOpacity, setVideoOpacity] = useState(0);
+  const [videoOpacity, setVideoOpacity] = useState(1);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -96,20 +94,23 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
     setVideoReady(true);
   }, []);
 
-  // Fade-in at start, fade-out near end — seamless loop
-  const FADE_DURATION = 1.5; // seconds
+  // Fade-out near end of loop, fade-in at start — seamless loop transition
+  // Only applies the fade during the transition window; video is fully visible otherwise.
+  const FADE_DURATION = 1.2; // seconds
   const handleTimeUpdate = useCallback(() => {
     const v = videoRef.current;
-    if (!v || !v.duration) return;
+    if (!v || !v.duration || v.duration < FADE_DURATION * 2 + 1) return;
     const t = v.currentTime;
     const d = v.duration;
-    let opacity = 1;
+    // Only fade during the first and last FADE_DURATION seconds
     if (t < FADE_DURATION) {
-      opacity = t / FADE_DURATION;
+      setVideoOpacity(Math.max(0.05, t / FADE_DURATION));
     } else if (t > d - FADE_DURATION) {
-      opacity = (d - t) / FADE_DURATION;
+      setVideoOpacity(Math.max(0.05, (d - t) / FADE_DURATION));
+    } else {
+      // Fully visible in the middle — avoid unnecessary re-renders
+      setVideoOpacity((prev) => (prev < 0.99 ? 1 : prev));
     }
-    setVideoOpacity(Math.max(0, Math.min(1, opacity)));
   }, []);
 
   const togglePause = useCallback(() => {
