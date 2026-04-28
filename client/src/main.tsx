@@ -73,6 +73,9 @@ const AI_LONG_RUNNING_PROCEDURES = [
   "musicVideo.renderVideo",
   "autopilot.start",
   "wizpilot.generate",
+  // WizShorts: pollProgress downloads scene clips; assembleJob triggers background ffmpeg
+  "wizShorts.pollProgress",
+  "wizShorts.assembleJob",
 ];
 
 const fetchWithCredentials = (input: RequestInfo | URL, init?: RequestInit) =>

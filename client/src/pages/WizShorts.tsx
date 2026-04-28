@@ -103,7 +103,7 @@ export default function WizShorts() {
   const [features, setFeatures] = useState({
     autoCaptions: true, beatSync: false, hookOptimiser: true, subscribeCta: false, multiPlatform: false,
   });
-  const [renderStatus, setRenderStatus] = useState<"idle" | "rendering" | "complete" | "failed">("idle");
+  const [renderStatus, setRenderStatus] = useState<"idle" | "rendering" | "assembling" | "complete" | "failed">("idle");
   const [completedScenes, setCompletedScenes] = useState(0);
   const [totalScenes, setTotalScenes] = useState(0);
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
@@ -113,6 +113,11 @@ export default function WizShorts() {
   const generateScenesMutation = trpc.wizShorts.generateScenes.useMutation();
   const startRenderMutation = trpc.wizShorts.startRender.useMutation();
   const pollProgressMutation = trpc.wizShorts.pollProgress.useMutation();
+  const assembleJobMutation = trpc.wizShorts.assembleJob.useMutation();
+  const getJobQuery = trpc.wizShorts.getJob.useQuery(
+    { jobId: jobId ?? 0 },
+    { enabled: false } // manually triggered via refetch
+  );
 
   useEffect(() => {
     return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
@@ -156,6 +161,26 @@ export default function WizShorts() {
         if (result.status === "rendering") {
           setCompletedScenes((result as any).completedScenes ?? 0);
           setTotalScenes((result as any).totalScenes ?? totalScenes);
+        } else if (result.status === "scenes_ready") {
+          // All scenes rendered — stop scene-polling and trigger background assembly
+          clearInterval(pollIntervalRef.current!);
+          setCompletedScenes((result as any).completedScenes ?? 0);
+          setRenderStatus("assembling" as any);
+          toast.info("Scenes ready — assembling final video...");
+          try {
+            await assembleJobMutation.mutateAsync({ jobId: jid });
+          } catch (assembleErr: any) {
+            toast.error(assembleErr?.message || "Assembly failed to start");
+            setRenderStatus("failed");
+            return;
+          }
+          // Switch to polling getJob every 10s for the final assembled URL
+          startAssemblyPolling(jid);
+        } else if (result.status === "assembling") {
+          // Assembly already running (e.g. page refresh mid-assembly)
+          clearInterval(pollIntervalRef.current!);
+          setRenderStatus("assembling" as any);
+          startAssemblyPolling(jid);
         } else if (result.status === "complete") {
           clearInterval(pollIntervalRef.current!);
           setRenderStatus("complete");
@@ -170,6 +195,29 @@ export default function WizShorts() {
         }
       } catch (_) {}
     }, 8000);
+  };
+
+  const startAssemblyPolling = (jid: number) => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const { job } = await getJobQuery.refetch().then((r) => r.data ?? { job: null, scenes: [] });
+        if (!job) return;
+        if (job.status === "complete") {
+          clearInterval(pollIntervalRef.current!);
+          setRenderStatus("complete");
+          setFinalVideoUrl(job.videoUrl ?? null);
+          mp.buildCompleted("WizShorts");
+          toast.success("Your WizShort is ready!");
+        } else if (job.status === "failed") {
+          clearInterval(pollIntervalRef.current!);
+          setRenderStatus("failed");
+          mp.buildFailed("WizShorts");
+          toast.error("Assembly failed. Please try again.");
+        }
+        // status === "assembling" → keep polling
+      } catch (_) {}
+    }, 10000);
   };
 
   const handleDownload = () => {
@@ -858,6 +906,33 @@ export default function WizShorts() {
                         }}
                       />
                     </div>
+                  </div>
+                ) : renderStatus === "assembling" ? (
+                  <div className="text-center space-y-6">
+                    <div className="relative w-32 h-32 mx-auto">
+                      <div
+                        className="absolute inset-0 rounded-full border-2 animate-spin"
+                        style={{ borderColor: "rgba(168,85,247,0.2)", borderTopColor: "#a855f7", animationDuration: "2s" }}
+                      />
+                      <div
+                        className="absolute inset-3 rounded-full border-2 animate-pulse"
+                        style={{ borderColor: `${FX}55`, borderTopColor: FX }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Zap className="w-10 h-10" style={{ color: "#a855f7" }} />
+                      </div>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold mb-2">Assembling final video...</h2>
+                      <p className="text-white/50 text-sm">{completedScenes} scenes assembled — stitching and encoding</p>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div
+                        className="h-2 rounded-full animate-pulse"
+                        style={{ width: "85%", background: `linear-gradient(90deg, #a855f7 0%, ${FX} 100%)` }}
+                      />
+                    </div>
+                    <p className="text-white/30 text-xs">This usually takes 10–30 seconds</p>
                   </div>
                 ) : renderStatus === "complete" && finalVideoUrl ? (
                   <div className="text-center space-y-6">

@@ -6240,3 +6240,26 @@
 - [x] Verified /products/wizsync-info route exists and loads correctly (P1 404 fix confirmed resolved)
 - [x] Verified /for-creators links removed from codebase (no 404 risk)
 - [x] DashboardLayout.tsx sidebar fix confirmed (WizAudio™ label, correct studio hrefs)
+
+## WizShorts Final Assembly Fix — Sprint Apr 28 2026
+
+- [x] Decouple assembly from pollProgress — assembly must not run inside an HTTP request
+- [x] Add assembleJob tRPC mutation that triggers assembly in a detached/background path
+- [x] Fix ffmpeg concat to use -c copy (stream copy) instead of libx264 re-encode
+- [x] Add wizShorts.pollProgress and wizShorts.assembleJob to AI_LONG_RUNNING_PROCEDURES list
+- [x] Add "assembling" status handling in WizShorts.tsx frontend
+- [x] Frontend: call assembleJob when all scenes are complete, then poll getJob for final URL
+- [x] Verify final assembled video URL is returned correctly to the UI
+
+## Homepage Content Tightening — Sprint Apr 28 2026
+
+- [ ] Remove UseCases section (duplicated by BuiltFor)
+- [ ] Remove WizVidEngineSection (duplicated by WizEngines)
+- [ ] Remove DemoVideoGallery (duplicated by Showcase)
+- [ ] Remove embedded 4-step flow from WizEngines (duplicated by HowItWorks)
+- [ ] Strip workflow prose from WelcomeSection copy (let video carry the explanation)
+- [ ] Replace WhyWizAI card 4 with content ownership differentiator
+- [ ] Rewrite FeatureBlock header from breadth to depth framing
+- [ ] Fix BuiltFor section header — eyebrow and H2 are verbatim identical
+- [ ] Rename SeeTheDifference headline to "The Cinematic Difference"
+- [ ] Fix FinalCTA — consolidate "no credit card" into badge, remove duplicate microcopy

@@ -3,11 +3,15 @@
  * Powered by Grok Imagine video generation (9:16 vertical, 15-60s)
  *
  * Workflow:
- * 1. createJob — user submits topic, platform, duration, style
+ * 1. createJob      — user submits topic, platform, duration, style
  * 2. generateScenes — LLM breaks topic into scenes with prompts + captions
- * 3. startRender — submits all scenes to Grok Imagine video API
- * 4. pollProgress — polls each scene until complete, then assembles final video
- * 5. getJob — returns job status + final video URL
+ * 3. startRender    — submits all scenes to Grok Imagine video API
+ * 4. pollProgress   — polls each scene until complete; returns "scenes_ready"
+ *                     when all scenes are done (does NOT assemble)
+ * 5. assembleJob    — triggered by frontend when pollProgress returns
+ *                     "scenes_ready"; runs assembly in a detached background
+ *                     path so it never blocks an HTTP request
+ * 6. getJob         — frontend polls this for final status + videoUrl
  */
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
@@ -150,7 +154,7 @@ export const wizShortsRouter = router({
         },
       });
 
-       const content = llmResponse?.choices?.[0]?.message?.content;
+      const content = llmResponse?.choices?.[0]?.message?.content;
       if (!content || typeof content !== "string") throw new Error("LLM returned no content");
       const parsed = JSON.parse(content) as { scenes: Array<{ index: number; prompt: string; caption: string | null }> };
 
@@ -229,6 +233,18 @@ export const wizShortsRouter = router({
       return { submitted: scenes.length };
     }),
 
+  /**
+   * pollProgress — polls each generating scene for completion.
+   * Returns one of:
+   *   { status: "rendering", completedScenes, totalScenes }   — still in progress
+   *   { status: "scenes_ready", completedScenes, totalScenes } — all scenes done, assembly not yet started
+   *   { status: "assembling" }                                 — assembly running in background
+   *   { status: "complete", videoUrl }                         — final video ready
+   *   { status: "failed" }                                     — terminal failure
+   *
+   * IMPORTANT: This procedure never runs assembly itself. Assembly is triggered
+   * by the frontend calling assembleJob after receiving "scenes_ready".
+   */
   pollProgress: protectedProcedure
     .input(z.object({ jobId: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -241,14 +257,18 @@ export const wizShortsRouter = router({
         .where(and(eq(wizShortsJobs.id, input.jobId), eq(wizShortsJobs.userId, ctx.user.id)));
 
       if (!job) throw new Error("Job not found");
-      if (job.status === "complete" || job.status === "failed") return { status: job.status, videoUrl: job.videoUrl };
+
+      // Terminal states — return immediately
+      if (job.status === "complete") return { status: "complete" as const, videoUrl: job.videoUrl };
+      if (job.status === "failed") return { status: "failed" as const, videoUrl: null };
+      if (job.status === "assembling") return { status: "assembling" as const, videoUrl: null };
 
       const scenes = await db
         .select()
         .from(wizShortsScenes)
         .where(eq(wizShortsScenes.jobId, input.jobId));
 
-      // Poll generating scenes
+      // Poll each scene that is still generating
       for (const scene of scenes) {
         if (scene.status !== "generating" || !scene.taskId) continue;
 
@@ -301,7 +321,7 @@ export const wizShortsRouter = router({
         };
       }
 
-      // All scenes done — assemble the final video
+      // All scenes done — signal the frontend to call assembleJob
       if (completedScenes.length === 0) {
         await db
           .update(wizShortsJobs)
@@ -310,30 +330,66 @@ export const wizShortsRouter = router({
         return { status: "failed" as const, videoUrl: null };
       }
 
+      return {
+        status: "scenes_ready" as const,
+        completedScenes: completedScenes.length,
+        totalScenes,
+        videoUrl: null,
+      };
+    }),
+
+  /**
+   * assembleJob — decoupled assembly mutation.
+   * Called by the frontend once pollProgress returns "scenes_ready".
+   * Sets job status to "assembling" and fires the assembly in a detached
+   * background path (setImmediate + .catch) so the HTTP response returns
+   * immediately. The frontend then polls getJob for the final URL.
+   */
+  assembleJob: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const [job] = await db
+        .select()
+        .from(wizShortsJobs)
+        .where(and(eq(wizShortsJobs.id, input.jobId), eq(wizShortsJobs.userId, ctx.user.id)));
+
+      if (!job) throw new Error("Job not found");
+
+      // Idempotent — if already assembling or complete, return current status
+      if (job.status === "complete") return { status: "complete" as const, videoUrl: job.videoUrl };
+      if (job.status === "assembling") return { status: "assembling" as const };
+      if (job.status === "failed") return { status: "failed" as const };
+
+      const completedScenes = await db
+        .select()
+        .from(wizShortsScenes)
+        .where(eq(wizShortsScenes.jobId, input.jobId));
+
+      const readyScenes = completedScenes.filter((s) => s.status === "completed");
+      if (readyScenes.length === 0) throw new Error("No completed scenes to assemble");
+
+      // Mark job as assembling immediately so the frontend can show the right state
       await db
         .update(wizShortsJobs)
         .set({ status: "assembling", updatedAt: new Date() })
         .where(eq(wizShortsJobs.id, input.jobId));
 
-      try {
-        const videoUrl = await assembleShorts(input.jobId, completedScenes, job.musicUrl ?? undefined);
+      // Fire assembly in a detached background path — does NOT block the response
+      const userId = ctx.user.id;
+      const creditCost = job.creditCost;
+      const musicUrl = job.musicUrl ?? undefined;
 
-        // Deduct credits
-        await deductCredits(ctx.user.id, job.creditCost, "WizShorts video generation");
+      setImmediate(() => {
+        runAssembly(input.jobId, readyScenes, musicUrl, userId, creditCost).catch((err) => {
+          console.error(`[WizShorts] Background assembly error for job ${input.jobId}:`, err?.message ?? err);
+        });
+      });
 
-        await db
-          .update(wizShortsJobs)
-          .set({ status: "complete", videoUrl, updatedAt: new Date() })
-          .where(eq(wizShortsJobs.id, input.jobId));
-
-        return { status: "complete" as const, videoUrl, completedScenes: completedScenes.length, totalScenes };
-      } catch (assembleErr: any) {
-        await db
-          .update(wizShortsJobs)
-          .set({ status: "failed", errorMessage: String(assembleErr?.message ?? assembleErr), updatedAt: new Date() })
-          .where(eq(wizShortsJobs.id, input.jobId));
-        return { status: "failed" as const, videoUrl: null };
-      }
+      // Return immediately — frontend polls getJob for completion
+      return { status: "assembling" as const };
     }),
 
   getJob: protectedProcedure
@@ -374,7 +430,49 @@ export const wizShortsRouter = router({
     }),
 });
 
-// ─── Assembly ────────────────────────────────────────────────────────────────
+// ─── Background Assembly ──────────────────────────────────────────────────────
+// Runs entirely outside the HTTP request lifecycle. Called via setImmediate
+// from assembleJob so the response returns before any ffmpeg work begins.
+
+async function runAssembly(
+  jobId: number,
+  scenes: Array<{ sceneIndex: number; videoUrl: string | null; caption: string | null }>,
+  musicUrl: string | undefined,
+  userId: number,
+  creditCost: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.error(`[WizShorts] runAssembly: DB unavailable for job ${jobId}`);
+    return;
+  }
+
+  try {
+    const videoUrl = await assembleShorts(jobId, scenes, musicUrl);
+
+    // Deduct credits on successful assembly
+    await deductCredits(userId, creditCost, "WizShorts video generation");
+
+    await db
+      .update(wizShortsJobs)
+      .set({ status: "complete", videoUrl, updatedAt: new Date() })
+      .where(eq(wizShortsJobs.id, jobId));
+
+    console.log(`[WizShorts] Job ${jobId} assembly complete → ${videoUrl}`);
+  } catch (err: any) {
+    const msg = String(err?.message ?? err);
+    console.error(`[WizShorts] Job ${jobId} assembly failed:`, msg);
+    await db
+      .update(wizShortsJobs)
+      .set({ status: "failed", errorMessage: msg, updatedAt: new Date() })
+      .where(eq(wizShortsJobs.id, jobId));
+  }
+}
+
+// ─── ffmpeg Assembly ──────────────────────────────────────────────────────────
+// Uses -c copy (stream copy) for the concat step — no re-encode, <5s for
+// typical 6-scene shorts. Re-encode is only applied if music mixing is needed
+// and the audio codec requires it.
 
 async function assembleShorts(
   jobId: number,
@@ -387,58 +485,84 @@ async function assembleShorts(
     // Sort scenes by index
     const sorted = [...scenes].sort((a, b) => a.sceneIndex - b.sceneIndex);
 
-    // Download all scene videos
+    // Download all scene videos to temp dir
     const sceneFiles: string[] = [];
     for (const scene of sorted) {
       if (!scene.videoUrl) continue;
       const sceneFile = path.join(tmpDir, `scene-${String(scene.sceneIndex).padStart(3, "0")}.mp4`);
       const resp = await fetch(scene.videoUrl);
+      if (!resp.ok) {
+        console.warn(`[WizShorts] Scene ${scene.sceneIndex} download failed: HTTP ${resp.status}`);
+        continue;
+      }
       const buf = Buffer.from(await resp.arrayBuffer());
       fs.writeFileSync(sceneFile, buf);
       sceneFiles.push(sceneFile);
     }
 
-    if (sceneFiles.length === 0) throw new Error("No scene files to assemble");
+    if (sceneFiles.length === 0) throw new Error("No scene files downloaded for assembly");
 
-    // Concatenate scenes
+    // Write concat list
     const concatFile = path.join(tmpDir, "concat.txt");
     fs.writeFileSync(concatFile, sceneFiles.map((f) => `file '${f}'`).join("\n"));
 
     const concatenated = path.join(tmpDir, "concatenated.mp4");
-    await execAsync(
-      `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" "${concatenated}"`,
-      { timeout: 300000 }
-    );
+
+    // -c copy: stream copy — no re-encode, fast and lossless
+    // If scenes have mismatched codecs this will fail; fallback to libx264 below
+    let concatOk = false;
+    try {
+      await execAsync(
+        `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c copy "${concatenated}"`,
+        { timeout: 120000 }
+      );
+      concatOk = true;
+      console.log(`[WizShorts] Job ${jobId} concat (stream copy) succeeded`);
+    } catch (copyErr: any) {
+      console.warn(`[WizShorts] Job ${jobId} stream copy failed, falling back to libx264:`, copyErr?.message);
+    }
+
+    // Fallback: re-encode with libx264 if stream copy failed (codec mismatch)
+    if (!concatOk) {
+      await execAsync(
+        `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" "${concatenated}"`,
+        { timeout: 300000 }
+      );
+      console.log(`[WizShorts] Job ${jobId} concat (libx264 fallback) succeeded`);
+    }
 
     let finalVideo = concatenated;
 
-    // Mix in music if provided
+    // Mix in music if provided — audio mixing always requires re-encode of audio track
     if (musicUrl) {
       try {
         const audioFile = path.join(tmpDir, "music.mp3");
         const audioResp = await fetch(musicUrl);
+        if (!audioResp.ok) throw new Error(`Music download HTTP ${audioResp.status}`);
         const audioBuf = Buffer.from(await audioResp.arrayBuffer());
         fs.writeFileSync(audioFile, audioBuf);
 
         const withAudio = path.join(tmpDir, "with-audio.mp4");
+        // -c:v copy keeps video stream untouched; only audio is re-encoded
         await execAsync(
           `ffmpeg -y -i "${concatenated}" -i "${audioFile}" -c:v copy -c:a aac -shortest -map 0:v:0 -map 1:a:0 "${withAudio}"`,
           { timeout: 120000 }
         );
         finalVideo = withAudio;
-      } catch (audioErr) {
-        console.warn("[WizShorts] Music mixing failed, using video without audio:", audioErr);
+        console.log(`[WizShorts] Job ${jobId} music mixed successfully`);
+      } catch (audioErr: any) {
+        console.warn(`[WizShorts] Job ${jobId} music mixing failed, using video without audio:`, audioErr?.message);
       }
     }
 
-    // Upload to S3
+    // Upload final video to S3
     const videoBuffer = fs.readFileSync(finalVideo);
     const key = `wiz-shorts/${jobId}/final-${Date.now()}.mp4`;
     const { url } = await storagePut(key, videoBuffer, "video/mp4");
 
     return url;
   } finally {
-    // Cleanup temp dir
+    // Always clean up temp dir
     try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
   }
 }
