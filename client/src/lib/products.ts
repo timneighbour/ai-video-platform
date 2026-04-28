@@ -46,11 +46,21 @@ export interface ProductEntry {
   productPage: string;
   /** Route to the studio/creation tool */
   studioPage: string;
+  /**
+   * Visual tokens used in nav dropdowns, product grids, and cards.
+   * Defined once here so Home.tsx and PublicNavBar.tsx never diverge.
+   */
+  glowColor: string;
+  bgGradient: string;
+  borderColor: string;
 }
 
 /**
  * Canonical product list.
  * Order reflects the primary user-facing display order (most prominent first).
+ *
+ * ⚠️  To change the display order, edit this array only.
+ *     Home.tsx and PublicNavBar.tsx both derive from PRIMARY_PRODUCTS below.
  */
 export const PRODUCTS: ProductEntry[] = [
   // ── 1. WizAudio — music creation studio (flagship audio product) ──────────────
@@ -63,6 +73,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Create Music Now",
     productPage: WIZAUDIO_PRODUCT_PAGE,
     studioPage: WIZAUDIO_STUDIO_PAGE,
+    glowColor: "oklch(0.72 0.18 160)",
+    bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
+    borderColor: "oklch(0.72 0.18 160 / 0.35)",
   },
   // ── 2. WizImage — image & artwork creator ────────────────────────────────────
   {
@@ -74,6 +87,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Generate an Image",
     productPage: WIZIMAGE_PRODUCT_PAGE,
     studioPage: WIZIMAGE_STUDIO_PAGE,
+    glowColor: "oklch(0.78 0.11 75)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
+    borderColor: "oklch(0.78 0.11 75 / 0.35)",
   },
   // ── 3. WizVideo — flagship music video generator ─────────────────────────────
   {
@@ -85,6 +101,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Create Your Music Video",
     productPage: WIZVIDEO_PRODUCT_PAGE,
     studioPage: WIZVIDEO_STUDIO_PAGE,
+    glowColor: "oklch(0.70 0.18 260)",
+    bgGradient: "linear-gradient(135deg, oklch(0.22 0.08 260 / 0.9) 0%, oklch(0.16 0.06 260 / 0.95) 100%)",
+    borderColor: "oklch(0.70 0.18 260 / 0.35)",
   },
   // ── 4. WizAnimate — character animation engine ───────────────────────────────
   {
@@ -96,6 +115,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Animate Your Video",
     productPage: WIZANIMATE_PRODUCT_PAGE,
     studioPage: WIZANIMATE_STUDIO_PAGE,
+    glowColor: "oklch(0.68 0.18 330)",
+    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
+    borderColor: "oklch(0.68 0.18 330 / 0.35)",
   },
   // ── 5. WizScore — video-to-music engine ──────────────────────────────────────
   {
@@ -107,6 +129,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Score Your Video",
     productPage: WIZSCORE_PRODUCT_PAGE,
     studioPage: WIZSCORE_STUDIO_PAGE,
+    glowColor: "oklch(0.68 0.18 5)",
+    bgGradient: "linear-gradient(135deg, oklch(0.26 0.09 5 / 0.9) 0%, oklch(0.18 0.06 5 / 0.95) 100%)",
+    borderColor: "oklch(0.68 0.18 5 / 0.35)",
   },
   // ── 6. WizShorts — short-form video creator ───────────────────────────────────
   {
@@ -118,6 +143,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Create a Short",
     productPage: WIZSHORTS_PRODUCT_PAGE,
     studioPage: WIZSHORTS_STUDIO_PAGE,
+    glowColor: "oklch(0.72 0.18 30)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
+    borderColor: "oklch(0.72 0.18 30 / 0.35)",
   },
   // ── 7. WizScript — script & storyboard engine ────────────────────────────────
   {
@@ -129,6 +157,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Write Your First Script",
     productPage: WIZSCRIPT_PRODUCT_PAGE,
     studioPage: WIZSCRIPT_STUDIO_PAGE,
+    glowColor: "oklch(0.75 0.16 200)",
+    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 200 / 0.9) 0%, oklch(0.17 0.06 200 / 0.95) 100%)",
+    borderColor: "oklch(0.75 0.16 200 / 0.35)",
   },
   // ── 8. WizPilot — workflow automation ────────────────────────────────────────
   {
@@ -140,6 +171,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Launch WizPilot™",
     productPage: WIZPILOT_PRODUCT_PAGE,
     studioPage: WIZPILOT_STUDIO_PAGE,
+    glowColor: "oklch(0.78 0.11 75)",
+    bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
+    borderColor: "oklch(0.78 0.11 75 / 0.35)",
   },
   // ── 9. WizSync — audio-visual sync engine ────────────────────────────────────
   {
@@ -151,6 +185,9 @@ export const PRODUCTS: ProductEntry[] = [
     ctaLabel: "Try WizSync™",
     productPage: WIZSYNC_PRODUCT_PAGE,
     studioPage: WIZSYNC_STUDIO_PAGE,
+    glowColor: "oklch(0.68 0.18 310)",
+    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 310 / 0.9) 0%, oklch(0.17 0.06 310 / 0.95) 100%)",
+    borderColor: "oklch(0.68 0.18 310 / 0.35)",
   },
 ];
 
@@ -160,8 +197,11 @@ export function getProduct(id: string): ProductEntry | undefined {
 }
 
 /**
- * The 6 primary products shown in the main product grid and pricing coverage strip.
- * These are the products with dedicated studio pages and full marketing pages.
+ * The 7 primary studio products shown in nav dropdowns, the footer Products
+ * section, and the main product grid.
+ *
+ * ⚠️  This is the ONLY array that drives display order for both Home.tsx
+ *     and PublicNavBar.tsx. Edit the PRODUCTS array above to change order.
  */
 export const PRIMARY_PRODUCTS = PRODUCTS.filter((p) =>
   ["wizsound", "wizimage", "wizvideo", "wizanimate", "wizscore", "wizshorts", "wizscript"].includes(p.id)

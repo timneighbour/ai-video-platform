@@ -7,7 +7,7 @@ import React from "react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
+import { PRIMARY_PRODUCTS } from "@/lib/products";
 import {
   WizAudioEmblem,
   WizImageEmblem,
@@ -41,71 +41,30 @@ const WIZSYNC_LOGO = `/manus-storage/wizsync-logo-new_9563f007.png`;
 const WIZGENESIS_LOGO = `/manus-storage/wizgenesis-logo-new_9814b3d1.png`;
 
 // ── Products — categorised by purpose ────────────────────────────────────────
-const PRODUCTS_CREATE = [
-  {
-    name: "WizAudio™",
-    tagline: "AI Music & Audio Studio",
-    icon: <WizAudioEmblem size={32} />,
-    href: "/music-creator",
-    glowColor: "oklch(0.72 0.18 160)",
-    bgGradient: "linear-gradient(135deg, oklch(0.25 0.06 160 / 0.9) 0%, oklch(0.18 0.04 160 / 0.95) 100%)",
-    borderColor: "oklch(0.72 0.18 160 / 0.35)",
-  },
-  {
-    name: "WizImage",
-    tagline: "AI Image & Artwork Creator",
-    icon: <WizImageEmblem size={32} />,
-    href: "/wiz-image",
-    glowColor: "oklch(0.78 0.11 75)",
-    bgGradient: "linear-gradient(135deg, oklch(0.28 0.08 75 / 0.9) 0%, oklch(0.20 0.06 75 / 0.95) 100%)",
-    borderColor: "oklch(0.78 0.11 75 / 0.35)",
-  },
-  {
-    name: "WizVideo",
-    tagline: "AI Music Video Generator",
-    icon: <WizVideoEmblem size={32} />,
-    href: "/music-video",
-    glowColor: "oklch(0.70 0.18 260)",
-    bgGradient: "linear-gradient(135deg, oklch(0.22 0.08 260 / 0.9) 0%, oklch(0.16 0.06 260 / 0.95) 100%)",
-    borderColor: "oklch(0.70 0.18 260 / 0.35)",
-  },
-  {
-    name: "WizAnimate",
-    tagline: "AI Character Animation Engine",
-    icon: <WizAnimateEmblem size={32} />,
-    href: WIZANIMATE_PRODUCT_PAGE,
-    glowColor: "oklch(0.68 0.18 330)",
-    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 330 / 0.9) 0%, oklch(0.17 0.06 330 / 0.95) 100%)",
-    borderColor: "oklch(0.68 0.18 330 / 0.35)",
-  },
-  {
-    name: "WizScore™",
-    tagline: "AI Video-to-Music Engine",
-    icon: <WizScoreEmblem size={32} />,
-    href: "/wizscore",
-    glowColor: "oklch(0.68 0.18 5)",
-    bgGradient: "linear-gradient(135deg, oklch(0.26 0.09 5 / 0.9) 0%, oklch(0.18 0.06 5 / 0.95) 100%)",
-    borderColor: "oklch(0.68 0.18 5 / 0.35)",
-  },
-  {
-    name: "WizShorts",
-    tagline: "AI Short-Form Video Creator",
-    icon: <WizShortsEmblem size={32} />,
-    href: "/wiz-shorts",
-    glowColor: "oklch(0.72 0.18 30)",
-    bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
-    borderColor: "oklch(0.72 0.18 30 / 0.35)",
-  },
-  {
-    name: "WizScript",
-    tagline: "AI Script & Storyboard Engine",
-    icon: <WizScriptEmblem size={32} />,
-    href: "/text-to-video",
-    glowColor: "oklch(0.75 0.16 200)",
-    bgGradient: "linear-gradient(135deg, oklch(0.24 0.08 200 / 0.9) 0%, oklch(0.17 0.06 200 / 0.95) 100%)",
-    borderColor: "oklch(0.75 0.16 200 / 0.35)",
-  },
-];
+// Emblem map: maps product id → React emblem component (size 32)
+const EMBLEM_MAP: Record<string, React.ReactNode> = {
+  wizsound:   <WizAudioEmblem size={32} />,
+  wizimage:   <WizImageEmblem size={32} />,
+  wizvideo:   <WizVideoEmblem size={32} />,
+  wizanimate: <WizAnimateEmblem size={32} />,
+  wizscore:   <WizScoreEmblem size={32} />,
+  wizshorts:  <WizShortsEmblem size={32} />,
+  wizscript:  <WizScriptEmblem size={32} />,
+};
+
+/**
+ * Derived from PRIMARY_PRODUCTS in lib/products.ts — single source of truth.
+ * To change order or add a studio, edit products.ts only.
+ */
+const PRODUCTS_CREATE = PRIMARY_PRODUCTS.map((p) => ({
+  name:        p.name,
+  tagline:     p.tagline,
+  icon:        EMBLEM_MAP[p.id] ?? null,
+  href:        p.studioPage,
+  glowColor:   p.glowColor,
+  bgGradient:  p.bgGradient,
+  borderColor: p.borderColor,
+}));
 
 const PRODUCTS_ENHANCE = [
   { name: "WizSound", tagline: "Premium Audio Engine", href: "/products/wizsound", logo: WIZSOUND_LOGO, glowColor: "oklch(0.72 0.18 160)" },
