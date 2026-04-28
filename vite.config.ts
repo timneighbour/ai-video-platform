@@ -220,7 +220,45 @@ var require_react = () => {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginReactCjsSingletonFix(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * vitePluginSwVersionStamp
+ * Injects a unique build-time timestamp into sw.js as __SW_VERSION__.
+ * Every production build produces a new version string, so the service worker
+ * cache name changes on every deploy — old caches are purged automatically.
+ */
+function vitePluginSwVersionStamp(): Plugin {
+  const buildVersion = `${Date.now()}`;
+  return {
+    name: "vite-plugin-sw-version-stamp",
+    // Replace __SW_VERSION__ in the sw.js source file during build
+    transform(code, id) {
+      if (id.includes("sw.js") && !id.includes("node_modules")) {
+        return {
+          code: code.replace(
+            /typeof __SW_VERSION__ !== ["']undefined["']/g,
+            `true`
+          ).replace(
+            /__SW_VERSION__/g,
+            JSON.stringify(buildVersion)
+          ),
+          map: null,
+        };
+      }
+      return null;
+    },
+    // Also handle sw.js when it is copied from publicDir during build
+    generateBundle(_options, bundle) {
+      const swAsset = bundle["sw.js"];
+      if (swAsset && swAsset.type === "asset" && typeof swAsset.source === "string") {
+        swAsset.source = swAsset.source
+          .replace(/typeof __SW_VERSION__ !== ["']undefined["']/g, `true`)
+          .replace(/__SW_VERSION__/g, JSON.stringify(buildVersion));
+      }
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginReactCjsSingletonFix(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginSwVersionStamp()];
 
 // In production, serve all hashed JS/CSS/image assets from Bunny CDN edge
 // This means browsers load assets from the nearest of 114 global PoPs instead of the origin

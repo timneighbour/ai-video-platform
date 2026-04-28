@@ -13,6 +13,7 @@ import { httpBatchLink, httpLink, splitLink, TRPCClientError } from "@trpc/clien
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import { HelmetProvider } from "react-helmet-async";
+import { SwUpdateBanner } from "@/components/SwUpdateBanner";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import { GlobalAudioProvider } from "@/contexts/AudioContext";
@@ -119,6 +120,7 @@ createRoot(document.getElementById("root")!).render(
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <GlobalAudioProvider>
+          <SwUpdateBanner />
           <App />
         </GlobalAudioProvider>
       </QueryClientProvider>
