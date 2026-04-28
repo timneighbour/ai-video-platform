@@ -7,10 +7,10 @@ import { Pause, Play } from "@/lib/icons";
 ────────────────────────────────────────────────────────────────────── */
 const ASSETS = {
   // WIZ AI — The Air Studios of AI — Variation 3B (refined)
-  videoMP4: "/manus-storage/wiz-bg-v3b-web_392a7466.mp4",
+  videoMP4: "/manus-storage/wiz-new-v3-web_3be73592.mp4",
   // Static fallback — mid-frame from the studio environment video
-  poster: "/manus-storage/wiz-bg-fallback_8a501fb4.jpg",
-  staticBg: "/manus-storage/wiz-bg-fallback_8a501fb4.jpg",
+  poster: "/manus-storage/wiz-new-v3-poster_b20ed4dc.jpg",
+  staticBg: "/manus-storage/wiz-new-v3-poster_b20ed4dc.jpg",
 };
 
 const LS_KEY = "wizai_motion_paused";
@@ -266,7 +266,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
     return (
       <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
         <img src={ASSETS.staticBg} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/75" />
         <button
           onClick={() => { setPaused(false); setPrefersReducedMotion(false); }}
           className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-all pointer-events-auto"
@@ -320,11 +320,11 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
       />
 
       {/* ── Dark gradient overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/35 to-black/75 pointer-events-none" />
       {/* Radial vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% 35%, transparent 30%, rgba(0,0,0,0.45) 100%)" }}
+        style={{ background: "radial-gradient(ellipse at 50% 35%, transparent 20%, rgba(0,0,0,0.60) 100%)" }}
       />
       {/* Left-side gradient for text readability */}
       <div
