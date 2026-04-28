@@ -939,20 +939,24 @@ function Hero() {
               <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
               <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
             </span>
-            <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">The AI Creative Studio for Serious Creators</span>
+            <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">The AI Creative Studio</span>
             <span className="w-px h-3 bg-[--color-gold]/20" />
             <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">WIZ AI</span>
           </div>
 
           {/* Headline */}
           <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">
-            Create anything.<br />
-            <span className="metallic-gold">Instantly.</span>
+            The AI Creative<br />
+            <span className="metallic-gold">Studio.</span>
           </h1>
-
           {/* Subheadline */}
-          <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/70 leading-relaxed max-w-xl mb-8">
-            Music. Videos. Animation. Images. Shorts. All from a single idea — with studio-grade audio and film-level visuals built in. No experience required.
+          <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/70 leading-relaxed max-w-xl mb-4">
+            Music videos. Animation. Original scores. Cinematic visuals.
+            Produced to a professional standard — from a single brief.
+          </p>
+          <p className="text-[clamp(0.85rem,1.4vw,1rem)] text-[--color-silver]/45 leading-relaxed max-w-xl mb-8">
+            Nine specialised AI studios. One unified production environment.
+            Solo production. Studio standard.
           </p>
 
           {/* CTAs */}
@@ -963,13 +967,13 @@ function Hero() {
               onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
             >
               <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
-              Create Your First Video — Free
+              Enter the Studio — Free
             </a>
             <a
               href="/pricing"
               className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
             >
-              See Pricing
+              See What It Produces
               <ArrowSVG className="w-4 h-4" />
             </a>
             <button
@@ -986,15 +990,15 @@ function Hero() {
             </button>
           </div>
 
-          {/* 6-feature premium badge strip */}
+          {/* Proof strip — studio-grade capabilities */}
           <div className="flex flex-wrap gap-3 mb-10">
             {[
-              { icon: <img src={WIZCREATE_LOGO} alt="WizCreate" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "AI Video", glow: "oklch(0.70 0.18 260)" },
-              { icon: <WaveformSVG className="w-5 h-5" color="oklch(0.72 0.18 160)" />, label: "Studio Audio", glow: "oklch(0.72 0.18 160)" },
-              { icon: <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Cinematic Visuals", glow: "oklch(0.78 0.11 75)" },
-              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Instant Building", glow: "oklch(0.78 0.11 75)" },
-              { icon: <img src={WIZANIMATE_LOGO} alt="WizAnimate" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "8 Art Styles", glow: "oklch(0.68 0.18 330)" },
-              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Free Storyboard", glow: "oklch(0.78 0.11 75)" },
+              { icon: <img src={WIZCREATE_LOGO} alt="WizCreate" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "AI Music Video", glow: "oklch(0.70 0.18 260)" },
+              { icon: <WaveformSVG className="w-5 h-5" color="oklch(0.72 0.18 160)" />, label: "Studio Audio Mastering", glow: "oklch(0.72 0.18 160)" },
+              { icon: <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Cinematic Visual Grade", glow: "oklch(0.78 0.11 75)" },
+              { icon: <img src={WIZANIMATE_LOGO} alt="WizAnimate" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Character Lock Animation", glow: "oklch(0.68 0.18 330)" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Original Score", glow: "oklch(0.78 0.11 75)" },
+              { icon: <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />, label: "Free Preview Every Scene", glow: "oklch(0.78 0.11 75)" },
             ].map((item) => (
               <span
                 key={item.label}
@@ -1067,12 +1071,12 @@ function WelcomeSection() {
       <div className="max-w-5xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="reveal">
-            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">See it in action</p>
+            <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">The Studio in Action</p>
             <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white leading-tight mb-6">
-              From idea to finished video.<br />In minutes.
+              One brief.<br />Studio-grade output.
             </h2>
             <p className="text-[--color-silver-dark]/55 text-base leading-relaxed mb-8">
-              Describe your idea. WIZ AI builds the storyboard, generates every scene, adds music, and delivers a complete video — ready to publish.
+              Describe your idea. WIZ AI builds the storyboard, generates every scene, applies studio audio mastering and cinematic grading, and delivers a complete production — ready to publish.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
@@ -1637,42 +1641,92 @@ function HowItWorks() {
   );
 }
 
-// ── Why WIZ AI ────────────────────────────────────────────────────────────────
+// ── The Standard ─────────────────────────────────────────────────────────────
 function WhyWizAI() {
-  const reasons = [
-    { logo: WIZAI_LOGO, title: "Full video, not just clips", desc: "WIZ AI produces complete, structured videos — not short clips or fragments. Full narrative. Final video build.", img: "/manus-storage/why-wiz-full-video_5f818c4d.png" },
-    { logo: WIZAI_LOGO, title: "Preview before you pay", desc: "See your entire video — every scene — before spending a single credit on building.", img: "/manus-storage/why-wiz-preview_a3e1de16.png" },
-    { logo: WIZCREATE_LOGO, title: "No editing experience needed", desc: "WIZ AI handles storyboarding, scene generation, audio enhancement, and visual grading automatically.", img: "/manus-storage/why-wiz-no-editing_37037a03.png" },
-    { logo: WIZANIMATE_LOGO, title: "Every creative format covered", desc: "Music videos, animations, shorts, images, audio tracks, and text-to-video — all in one platform.", img: "/manus-storage/why-wiz-formats_98888fe0.png" },
-    { logo: WIZCREATE_LOGO, title: "Create more, publish faster", desc: "Solo creator or full team — produce weeks of content in a single session. WIZ AI keeps up with your ambition.", img: "/manus-storage/why-wiz-faster_532c9bed.png" },
-    { logo: WIZAI_LOGO, title: "Trusted by real creators", desc: "Musicians, YouTubers, animators, and brands use WIZ AI to produce content that gets results.", img: "/manus-storage/why-wiz-creators_3ebbdae1.png" },
+  const standards = [
+    {
+      number: "01",
+      title: "Character Lock",
+      subtitle: "Consistent characters. Every scene.",
+      desc: "WizAnimate™ maintains exact visual consistency across every scene — same face, same costume, same performance. No drift. No inconsistency. The character you brief is the character that appears, from the first frame to the last.",
+      logo: WIZANIMATE_LOGO,
+      img: "/manus-storage/why-wiz-formats_98888fe0.png",
+    },
+    {
+      number: "02",
+      title: "Studio Audio",
+      subtitle: "Every track. Professionally mastered.",
+      desc: "Raw AI audio is flat, narrow, and unfinished. WizSound™ mastering applies spatial depth, frequency balance, and cinematic width to every track — automatically. The output is not AI audio. It is a mastered record.",
+      logo: WIZSOUND_LOGO,
+      img: "/manus-storage/why-wiz-full-video_5f818c4d.png",
+    },
+    {
+      number: "03",
+      title: "Cinematic Grade",
+      subtitle: "Every frame. Colour-graded.",
+      desc: "Raw AI footage is ungraded and visually inconsistent. WizLumina™ applies cinematic colour grading, HDR enhancement, and frame-level polish to every production — automatically. The output is not AI footage. It is a graded film.",
+      logo: WIZLUMINA_LOGO,
+      img: "/manus-storage/why-wiz-preview_a3e1de16.png",
+    },
+    {
+      number: "04",
+      title: "Complete Production",
+      subtitle: "One brief. Finished work.",
+      desc: "WIZ AI does not produce clips. It produces complete productions — storyboard, scenes, audio, grade, and final build — from a single creative brief. The output is ready to publish. No assembly required.",
+      logo: WIZAI_LOGO,
+      img: "/manus-storage/why-wiz-no-editing_37037a03.png",
+    },
+    {
+      number: "05",
+      title: "Preview Before Build",
+      subtitle: "See everything. Before you commit.",
+      desc: "Every scene is reviewed and approved before a single credit is spent on the final build. The complete production — every frame, every scene — is visible before rendering begins. This is how a serious studio works.",
+      logo: WIZCREATE_LOGO,
+      img: "/manus-storage/why-wiz-faster_532c9bed.png",
+    },
+    {
+      number: "06",
+      title: "Every Creative Format",
+      subtitle: "Music video. Animation. Score. Image. Shorts.",
+      desc: "Nine specialised AI studios cover every format a serious creator needs — from full music videos and character animation to original scores, cinematic images, and short-form content. One ecosystem. Every format.",
+      logo: WIZAI_LOGO,
+      img: "/manus-storage/why-wiz-creators_3ebbdae1.png",
+    },
   ];
   return (
     <section className="relative bg-[#030303] py-28 px-6">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
       <div className="max-w-7xl mx-auto">
         <div className="mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Why WIZ AI is different</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI — The Standard</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight max-w-2xl">
-            Not just another AI tool. A complete creative system.
+            The standard.
           </h2>
+          <p className="text-white/40 text-lg max-w-xl leading-relaxed mt-4">
+            Every production that leaves WIZ AI passes through the same quality threshold. These are the principles that define it.
+          </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reasons.map((r) => (
-            <div key={r.title} className="reveal group relative rounded-2xl overflow-hidden flex flex-col" style={{ border: "1px solid rgba(196,164,100,0.12)", background: "linear-gradient(160deg, rgba(196,164,100,0.04) 0%, rgba(4,4,4,0.95) 100%)" }}>
+          {standards.map((s) => (
+            <div key={s.number} className="reveal group relative rounded-2xl overflow-hidden flex flex-col" style={{ border: "1px solid rgba(196,164,100,0.12)", background: "linear-gradient(160deg, rgba(196,164,100,0.04) 0%, rgba(4,4,4,0.95) 100%)" }}>
               {/* Card image */}
               <div className="relative h-40 overflow-hidden">
-                <img src={r.img} alt={r.title} className="w-full h-full object-cover opacity-80 brightness-[1.1] saturate-[1.1] group-hover:opacity-95 group-hover:scale-105 transition-all duration-700" loading="lazy" />
+                <img src={s.img} alt={s.title} className="w-full h-full object-cover opacity-80 brightness-[1.1] saturate-[1.1] group-hover:opacity-95 group-hover:scale-105 transition-all duration-700" loading="lazy" />
                 <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(4,4,4,0.0) 0%, rgba(4,4,4,0.55) 100%)" }} />
-                {/* Icon badge over image */}
+                {/* Standard number badge */}
+                <div className="absolute top-4 left-5 px-2.5 py-1 rounded-lg border border-[--color-gold]/[0.25] bg-black/70 backdrop-blur-sm">
+                  <span className="text-[10px] font-black tracking-[0.2em] uppercase text-[--color-gold-dark]">{s.number}</span>
+                </div>
+                {/* Logo badge */}
                 <div className="absolute bottom-4 left-5 w-10 h-10 rounded-xl border border-[--color-gold]/[0.2] bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                  <img src={(r as any).logo} alt="WIZ AI" aria-hidden="true" className="w-6 h-6 object-contain opacity-80" />
+                  <img src={s.logo} alt="WIZ AI" aria-hidden="true" className="w-6 h-6 object-contain opacity-80" />
                 </div>
               </div>
               {/* Card text */}
-              <div className="p-6 flex flex-col gap-3 flex-1">
-                <h3 className="text-base font-bold text-white">{r.title}</h3>
-                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{r.desc}</p>
+              <div className="p-6 flex flex-col gap-2 flex-1">
+                <h3 className="text-base font-bold text-white">{s.title}</h3>
+                <p className="text-[--color-gold-dark]/70 text-xs font-semibold tracking-wide uppercase">{s.subtitle}</p>
+                <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed mt-1">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -1780,13 +1834,13 @@ function WizSoundDemo() {
         <div className="text-center mb-16 reveal">
           <div className="inline-flex items-center gap-3 mb-6 px-5 py-2.5 rounded-full border border-[--color-gold]/10 bg-[--color-gold]/[0.03]">
             <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-8 w-auto" loading="lazy" />
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[--color-gold]/60">Powered by WizSound™</span>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[--color-gold]/60">WizSound™ — The Mastering Suite</span>
           </div>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
-            Hear the difference
+            Hear the difference.
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-lg mx-auto leading-relaxed">
-            Proprietary audio enhancement for richer, more immersive sound. Switch between tiers and hear the upgrade instantly.
+            Raw AI audio is flat and unfinished. WizSound™ mastering applies spatial depth, frequency balance, and cinematic width — automatically. Switch between tiers and hear what studio-grade sounds like.
           </p>
         </div>
 
@@ -1964,12 +2018,12 @@ function WizLuminaDemo() {
           <div className="flex items-center justify-center mb-5">
             <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(196,164,100,0.4)]"  loading="lazy" />
           </div>
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizLumina™ — Visual Enhancement Engine</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WizLumina™ — The Grading Suite</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
-            See the difference
+            See the difference.
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-xl mx-auto">
-            Cinematic colour grading, HDR enhancement, and visual polish — part of the unified WizSound™ + WizLumina™ Cinematic Engine. Applied to every frame automatically.
+            Raw AI footage is ungraded and visually inconsistent. WizLumina™ applies cinematic colour grading, HDR enhancement, and frame-level polish to every production — automatically. Drag to compare.
           </p>
         </div>
 
@@ -3285,7 +3339,7 @@ function ContinueProjectBanner() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function Home() {
-  useSEO({ title: "WIZ AI — AI Video, Audio & Image Creator", path: "/", description: "Create stunning AI videos, music videos, animations, and cinematic visuals in minutes. WIZ AI combines WizCreate, WizAnimate, WizSound, and WizLumina into one powerful creative platform." });
+  useSEO({ title: "WIZ AI — The AI Creative Studio", path: "/", description: "WIZ AI is the world’s first AI creative studio. Music videos, animation, original scores, and cinematic visuals — produced to a professional standard from a single brief. Nine specialised AI studios. One unified production environment." });
   useReveal();
   useEffect(() => { mp.homepageViewed(); }, []);
   return (
@@ -3302,11 +3356,11 @@ export default function Home() {
         <Hero />
         <ProductGrid />
         <WelcomeSection />
-        <WizEngines />
-        <HowItWorks />
+        <WhyWizAI />
         <WizSoundDemo />
         <WizLuminaDemo />
-        <WhyWizAI />
+        <WizEngines />
+        <HowItWorks />
         <Showcase />
         <BuiltFor />
         <FeatureBlock />

@@ -542,12 +542,12 @@ export default function WizProductGrid() {
       <div className="max-w-6xl mx-auto relative">
         {/* Section header */}
         <div className="mb-16 reveal">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI Platform</p>
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI — The Studio Suites</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-4">
-            Welcome to Wiz Studios
+            Nine suites. Every creative format.
           </h2>
           <p className="text-white/40 text-lg max-w-xl leading-relaxed">
-            Six premium AI creation tools — one unified platform. No editing experience required.
+            WIZ AI is built around specialised AI production suites — each one engineered for a single creative discipline, each one producing finished, professional-grade output.
           </p>
         </div>
 
@@ -559,10 +559,10 @@ export default function WizProductGrid() {
         {/* CTA */}
         <div className="mt-16 text-center">
           <a href="/create" onClick={() => mp.startCreatingClicked("homepage_product_grid")} className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold">
-            <span>Explore All Tools</span>
+            <span>Explore All Studios</span>
             <ArrowRight className="w-4 h-4" />
           </a>
-          <p className="mt-4 text-white/25 text-xs">2 free Build Credits on sign-up — no card required</p>
+          <p className="mt-4 text-white/25 text-xs">2 free Build Credits on sign-up — no card required. Studio-grade output from your first session.</p>
         </div>
       </div>
 
