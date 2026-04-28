@@ -1636,7 +1636,7 @@ export default function MusicVideoAutopilot() {
       {/* Top sticky nav */}
       <div className="sticky top-0 z-40" style={{background:'rgba(10,10,10,0.95)',backdropFilter:'blur(12px)',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
         <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between" style={{ position: 'relative', zIndex: 1 }}>
-          <NavLink href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-xs font-medium tracking-wider uppercase">
+          <NavLink href="/" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-xs font-medium tracking-wider uppercase">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Studio</span>
           </NavLink>
@@ -1649,7 +1649,7 @@ export default function MusicVideoAutopilot() {
           </NavLink>
           <div className="flex items-center gap-3">
             <StudioAmbientLight value={ambience} onChange={setAmbience} accentColor="#14b8a6" />
-            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors">
+            <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors">
               <LayoutDashboard className="w-4 h-4" />
             </NavLink>
           </div>
@@ -1775,7 +1775,7 @@ export default function MusicVideoAutopilot() {
         <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.25) 45%,transparent 100%)',pointerEvents:'none'}} />
         {/* Title overlay */}
         <div style={{position:'absolute',top:24,left:28,zIndex:20}}>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:'rgba(255,255,255,0.65)',marginBottom:6,textShadow:'0 1px 8px rgba(0,0,0,0.9)'}}>WizVideo™ · AI Studio</div>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:'rgba(255,255,255,0.9)',marginBottom:6,textShadow:'0 1px 8px rgba(0,0,0,0.9)'}}>WizVideo™ · AI Studio</div>
           <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:42,letterSpacing:4,color:'#ffffff',textShadow:'0 2px 32px rgba(0,0,0,0.95), 0 0 60px rgba(20,184,166,0.25)',lineHeight:1,marginBottom:8}}>MUSIC VIDEO DIRECTOR</div>
           <div style={{fontSize:13,fontWeight:600,color:'#14b8a6',letterSpacing:'1px',textShadow:'0 1px 12px rgba(0,0,0,0.8), 0 0 20px rgba(20,184,166,0.4)'}}>Character Lock · Storyboard · Screening Room</div>
         </div>
@@ -1791,24 +1791,24 @@ export default function MusicVideoAutopilot() {
           <div style={{flex:1,display:'flex',alignItems:'center',gap:0,background:'rgba(0,0,0,0.82)',borderTop:'1px solid rgba(20,184,166,0.2)',height:28,padding:'0 12px',overflow:'hidden'}}>
             {/* SCENE */}
             <div style={{display:'flex',alignItems:'center',gap:5,paddingRight:12,borderRight:'1px solid rgba(255,255,255,0.08)',marginRight:12}}>
-              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>SCENE</span>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>SCENE</span>
               <span style={{fontSize:9,fontWeight:700,letterSpacing:'1.5px',textTransform:'uppercase',color:'#14b8a6',fontFamily:"'Courier Prime',monospace"}}>{step === 'upload' ? "DIRECTOR'S BRIEF" : step === 'character_confirmation' ? 'CHARACTER LOCK' : step === 'storyboard' ? 'STORYBOARD' : 'SCREENING ROOM'}</span>
             </div>
             {/* TAKE */}
             <div style={{display:'flex',alignItems:'center',gap:5,paddingRight:12,borderRight:'1px solid rgba(255,255,255,0.08)',marginRight:12}}>
-              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>TAKE</span>
-              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.7)',fontFamily:"'Courier Prime',monospace"}}>{['upload','character_confirmation','storyboard','render'].indexOf(step) + 1}</span>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>TAKE</span>
+              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.9)',fontFamily:"'Courier Prime',monospace"}}>{['upload','character_confirmation','storyboard','render'].indexOf(step) + 1}</span>
             </div>
             {/* DIRECTOR */}
             <div style={{display:'flex',alignItems:'center',gap:5}}>
-              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>DIRECTOR</span>
-              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.5)',fontFamily:"'Courier Prime',monospace"}}>WizVideo™</span>
+              <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>DIRECTOR</span>
+              <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.85)',fontFamily:"'Courier Prime',monospace"}}>WizVideo™</span>
             </div>
             {/* Spacer + scenes count when on storyboard/render */}
             {(step === 'storyboard' || step === 'render') && scenes.length > 0 && (
               <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:5}}>
-                <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',fontFamily:"'Courier Prime',monospace"}}>SCENES</span>
-                <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>{String(scenes.length).padStart(2,'0')}</span>
+                <span style={{fontSize:8,fontWeight:600,letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.6)',fontFamily:"'Courier Prime',monospace"}}>SCENES</span>
+                <span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.9)',fontFamily:"'Courier Prime',monospace"}}>{String(scenes.length).padStart(2,'0')}</span>
               </div>
             )}
           </div>
@@ -1827,7 +1827,7 @@ export default function MusicVideoAutopilot() {
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.35)" }}>🎵</div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#2dd4bf", letterSpacing: "0.5px" }}>UPLOAD YOUR SONG TO BEGIN</div>
-            <div className="text-xs text-zinc-500">MP3, WAV, M4A · up to 50MB · WizVideo™ auto-transcribes lyrics, casts characters, and builds your storyboard</div>
+            <div className="text-xs text-zinc-300">MP3, WAV, M4A · up to 50MB · WizVideo™ auto-transcribes lyrics, casts characters, and builds your storyboard</div>
           </div>
           <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(20,184,166,0.12)", border: "1px solid rgba(20,184,166,0.3)", color: "#2dd4bf" }}>START BELOW ↓</div>
         </div>
@@ -1850,7 +1850,7 @@ export default function MusicVideoAutopilot() {
                     <Users className="w-4 h-4 text-[--color-gold]" />
                     Who's in your video?
                   </CardTitle>
-                  <p className="text-xs text-white/40 mt-1">Choose your artist type to optimise character generation and lip sync</p>
+                  <p className="text-xs text-white/70 mt-1">Choose your artist type to optimise character generation and lip sync</p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
