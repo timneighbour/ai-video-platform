@@ -6,13 +6,13 @@ import { Pause, Play } from "@/lib/icons";
    Luxury upgrade: gold dust particles, metallic bloom, warm waveform.
 ────────────────────────────────────────────────────────────────────── */
 const ASSETS = {
-  // Served via /manus-storage/ proxy
-  videoMP4: "/manus-storage/hero-bg-v2_dc5fb17d.mp4",
-  // Lyndhurst Hall, Air Studios — the world's greatest recording hall
+  // WIZ AI — The Air Studios of AI — Variation 3B (refined)
+  videoMP4: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-bg-v3b-web_da5cd200.mp4",
+  // Static fallback — mid-frame from the studio environment video
   poster:
-    "/manus-storage/lyndhurst-hall-orchestra-dark_4904fd65.jpg",
+    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-bg-fallback_95af72d2.jpg",
   staticBg:
-    "/manus-storage/lyndhurst-hall-orchestra-dark_4904fd65.jpg",
+    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-bg-fallback_95af72d2.jpg",
 };
 
 const LS_KEY = "wizai_motion_paused";
