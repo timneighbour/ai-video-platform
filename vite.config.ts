@@ -228,31 +228,29 @@ var require_react = () => {
  */
 function vitePluginSwVersionStamp(): Plugin {
   const buildVersion = `${Date.now()}`;
+  let outDir = "dist/public"; // default, overridden by configResolved
   return {
     name: "vite-plugin-sw-version-stamp",
-    // Replace __SW_VERSION__ in the sw.js source file during build
-    transform(code, id) {
-      if (id.includes("sw.js") && !id.includes("node_modules")) {
-        return {
-          code: code.replace(
-            /typeof __SW_VERSION__ !== ["']undefined["']/g,
-            `true`
-          ).replace(
-            /__SW_VERSION__/g,
-            JSON.stringify(buildVersion)
-          ),
-          map: null,
-        };
-      }
-      return null;
+    // Capture the resolved output directory
+    configResolved(config) {
+      outDir = config.build.outDir;
     },
-    // Also handle sw.js when it is copied from publicDir during build
-    generateBundle(_options, bundle) {
-      const swAsset = bundle["sw.js"];
-      if (swAsset && swAsset.type === "asset" && typeof swAsset.source === "string") {
-        swAsset.source = swAsset.source
-          .replace(/typeof __SW_VERSION__ !== ["']undefined["']/g, `true`)
+    // sw.js lives in publicDir and is copied verbatim by Vite — it is NOT processed
+    // by transform() or generateBundle(). The only reliable hook is closeBundle(),
+    // which runs after all assets have been written to disk.
+    closeBundle() {
+      if (process.env.NODE_ENV !== "production") return;
+      const swPath = path.join(outDir, "sw.js");
+      try {
+        const fs = require("fs");
+        let content = fs.readFileSync(swPath, "utf8");
+        content = content
+          .replace(/typeof __SW_VERSION__ !== ["']undefined["']/g, "true")
           .replace(/__SW_VERSION__/g, JSON.stringify(buildVersion));
+        fs.writeFileSync(swPath, content, "utf8");
+        console.log(`[sw-version-stamp] Stamped sw.js with version ${buildVersion}`);
+      } catch (e) {
+        console.warn("[sw-version-stamp] Could not stamp sw.js:", e);
       }
     },
   };
