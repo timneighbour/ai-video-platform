@@ -72,6 +72,7 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
   });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [videoOpacity, setVideoOpacity] = useState(0);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -93,6 +94,22 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
 
   const handleVideoCanPlay = useCallback(() => {
     setVideoReady(true);
+  }, []);
+
+  // Fade-in at start, fade-out near end — seamless loop
+  const FADE_DURATION = 1.5; // seconds
+  const handleTimeUpdate = useCallback(() => {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    const t = v.currentTime;
+    const d = v.duration;
+    let opacity = 1;
+    if (t < FADE_DURATION) {
+      opacity = t / FADE_DURATION;
+    } else if (t > d - FADE_DURATION) {
+      opacity = (d - t) / FADE_DURATION;
+    }
+    setVideoOpacity(Math.max(0, Math.min(1, opacity)));
   }, []);
 
   const togglePause = useCallback(() => {
@@ -277,13 +294,15 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
           ref={videoRef}
           autoPlay muted loop playsInline preload="none"
           onCanPlay={handleVideoCanPlay}
+          onTimeUpdate={handleTimeUpdate}
           width={1920}
           height={1080}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1500 ${videoReady ? "opacity-100" : "opacity-0"}`}
+          className="absolute inset-0 w-full h-full object-cover"
           style={{
             transform: `translate(${px}px, ${py}px) scale(1.04)`,
-            transition: "transform 0.4s ease-out, opacity 1.5s ease",
+            transition: "transform 0.4s ease-out",
             filter: "brightness(0.75) saturate(1.0) contrast(1.05) sepia(0.05)",
+            opacity: videoReady ? videoOpacity : 0,
           }}
           aria-hidden="true"
         >
