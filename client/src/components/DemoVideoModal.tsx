@@ -16,10 +16,10 @@ import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ──────────────────────────────────────────────────────── */
 const POSTER_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp";
+  "/manus-storage/demo_poster_baa969b3.jpg";
 
 const VIDEO_SRC =
-  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/showcase-music-video_19324f13.mp4";
+  "/manus-storage/demo_raw_d9fdaab1.mp4";
 
 // Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
@@ -42,14 +42,18 @@ interface CaptionEntry {
 }
 
 const CAPTION_TIMELINE: CaptionEntry[] = [
-  { start: 0,   end: 4,   headline: "Six AI tools. One creative platform.", sub: "WIZ AI — built for creators who think in stories", accent: "#d4af37" },
-  { start: 4,   end: 8,   headline: "WizCreate™ — Turn any idea into a storyboard", sub: "Describe your concept. AI builds the full scene plan.", accent: "#c4a464" },
-  { start: 8,   end: 12,  headline: "WizAnimate™ — Bring characters to life", sub: "Pixar-quality animation styles. No rigging. No keyframes.", accent: "#67e8f9" },
-  { start: 12,  end: 16,  headline: "WizScript™ — Plain text to full video script", sub: "Scene-by-scene structure, dialogue, and visual direction — instantly.", accent: "#a78bfa" },
-  { start: 16,  end: 20,  headline: "WizGenesis™ — Cinematic building engine", sub: "4K output. Consistent characters. Every scene, every time.", accent: "#f9a8d4" },
-  { start: 20,  end: 24,  headline: "WizLumina™ — See the difference", sub: "AI colour grading and cinematic enhancement — before and after.", accent: "#fbbf24", isLumina: true },
-  { start: 24,  end: 28,  headline: "WizSound™ — Hear the difference", sub: "Spatial audio mastering. Toggle Standard vs WizSound™ below.", accent: "#d4af37", isSoundUpsell: true },
-  { start: 28,  end: 32,  headline: "WizBoost™ — Distribute to the world", sub: "YouTube, Instagram, TikTok — one click, all platforms.", accent: "#fb923c" },
+  // Scene 1 (0–5.2s): Character portrait — Air Studios opening
+  { start: 0,   end: 5.2,  headline: "The AI Creative Studio.", sub: "Built for creators who think in stories.", accent: "#d4af37" },
+  // Scene 2 (5.2–10.4s): Dashboard reveal
+  { start: 5.2,  end: 10.4, headline: "Every creative format. One platform.", sub: "CREATE · ENHANCE · GROW — nine studios, zero compromise.", accent: "#c4a464" },
+  // Scene 3 (10.4–15.6s): WizAudio UI on laptop
+  { start: 10.4, end: 15.6, headline: "WizAudio™ — Original cinematic scores.", sub: "Describe the feeling. The studio writes the music.", accent: "#d4af37" },
+  // Scene 4 (15.6–20.8s): Cinematic output on monitor
+  { start: 15.6, end: 20.8, headline: "Studio-grade output. Every time.", sub: "WizLumina™ cinematic grading applied automatically.", accent: "#fbbf24", isLumina: true },
+  // Scene 5 (20.8–26.0s): Character consistency at desk
+  { start: 20.8, end: 26.0, headline: "Your character. Locked in.", sub: "Consistent faces, expressions, and style across every scene.", accent: "#c4a464" },
+  // Scene 6 (26.0–32.0s): Final output on curved monitor
+  { start: 26.0, end: 32.0, headline: "From brief to broadcast.", sub: "WIZ AI — The Air Studios of AI.", accent: "#d4af37" },
 ];
 
 function getCaption(t: number): CaptionEntry | null {

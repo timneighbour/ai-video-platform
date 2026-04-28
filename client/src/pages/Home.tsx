@@ -69,7 +69,7 @@ const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
 const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007.png`;
 const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
 const HERO_BG_POSTER = `${CDN}/concert-hall_2b6b946b.jpg`;
-const DEMO_POSTER = `${CDN}/step3-ai-scene_a71432c5.png`;
+const DEMO_POSTER = `${CDN}/demo_poster_baa969b3.jpg`;
 
 const WHO_IMAGES = [
   `${CDN}/whos-it-for-musicians_45f54b69.png`,
@@ -1114,7 +1114,7 @@ function WelcomeSection() {
                     <PlaySVG className="w-6 h-6 text-[--color-gold] ml-0.5" />
                   </span>
                 </div>
-                <span className="text-white font-semibold text-sm drop-shadow-lg">Watch 20-sec Demo</span>
+                <span className="text-white font-semibold text-sm drop-shadow-lg">Watch the Studio Demo</span>
               </div>
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                 <span className="text-xs text-[--color-silver-dark]/50 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-[--color-gold]/[0.06]">Prompt → Storyboard → Final Video</span>
