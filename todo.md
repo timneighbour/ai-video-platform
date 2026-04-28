@@ -6263,3 +6263,62 @@
 - [ ] Fix BuiltFor section header — eyebrow and H2 are verbatim identical
 - [ ] Rename SeeTheDifference headline to "The Cinematic Difference"
 - [ ] Fix FinalCTA — consolidate "no credit card" into badge, remove duplicate microcopy
+
+## WizShorts Final Validation — Apr 28 2026
+
+- [ ] Refresh-during-assembly test: start build, refresh mid-assembly, confirm UI recovers to final video
+- [ ] Audio sync sanity check: play back final assembled output, confirm no drift or corruption
+
+## WizSync Full Render — Apr 28 2026
+
+- [ ] Diagnose WizSync full render pipeline (only 5-second preview works)
+- [ ] Implement full render fix
+- [ ] Test WizSync end-to-end
+
+## WizShorts Final Validation — Apr 28 2026
+
+- [ ] Refresh-during-assembly test: start build, refresh mid-assembly, confirm UI recovers to final video
+- [ ] Audio sync sanity check: play back final assembled output, confirm no drift or corruption
+
+## WizSync Full Render — Apr 28 2026
+
+- [ ] Diagnose WizSync full render pipeline (only 5-second preview works)
+- [ ] Implement full render fix
+- [ ] Test WizSync end-to-end
+
+## WizShorts Refresh-Recovery Fix — Apr 28 2026
+- [ ] Persist jobId and renderStatus to localStorage on WizShorts page
+- [ ] On page load, check localStorage for active job and resume polling/assembling state
+- [ ] Clear localStorage entry when job reaches complete or failed state
+- [ ] Test: refresh mid-assembly recovers to assembling state and reaches final video
+
+## WizScore Full Product Elevation — Apr 28 2026
+- [ ] Audit WizScore across homepage, nav, onboarding, registry, pricing, help, studio UI, product lists
+- [ ] Add WizScore to PRODUCTS_CREATE dropdown in Home.tsx nav (7th product)
+- [ ] Add WizScore to Onboarding.tsx product card grid
+- [ ] Update products.ts registry: WizScore as full product with studioPage
+- [ ] Add WizScore to DashboardLayout.tsx sidebar navigation
+- [ ] Add WizScore to PublicNavBar.tsx PRODUCTS_CREATE array
+- [ ] Confirm WizScore studio has video upload facility working
+- [ ] Confirm WizScore product promise is consistent: upload video → AI generates synced soundtrack
+- [ ] Update pricing page to include WizScore as 7th product
+- [ ] Update any product lists or comparison sections to include WizScore
+- [ ] Remove any references that treat WizScore as an engine/utility only
+
+## WizShorts Refresh-Recovery Fix — Apr 28 2026
+- [ ] Persist jobId and renderStatus to localStorage on WizShorts page
+- [ ] On page load, check localStorage for active job and resume polling/assembling state
+- [ ] Clear localStorage entry when job reaches complete or failed state
+- [ ] Test: refresh mid-assembly recovers to assembling state and reaches final video
+
+## WizScore Full Product Elevation — Apr 28 2026
+- [ ] Audit WizScore across all site surfaces
+- [ ] Add WizScore to nav PRODUCTS_CREATE dropdown (7th product)
+- [ ] Add WizScore to Onboarding product card grid
+- [ ] Update products.ts registry: WizScore as full product with studioPage
+- [ ] Add WizScore to DashboardLayout sidebar
+- [ ] Add WizScore to PublicNavBar PRODUCTS_CREATE
+- [ ] Confirm WizScore studio has working video upload facility
+- [ ] Update pricing page to include WizScore
+- [ ] Update product lists and comparison sections
+- [ ] Remove engine/utility-only treatment of WizScore

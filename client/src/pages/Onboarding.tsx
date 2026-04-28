@@ -96,6 +96,21 @@ const options = [
     tagColor: 'from-[#6366f1] to-[#818cf8]',
     stats: ['8 art styles', 'Photorealistic', 'Instant'],
   },
+  {
+    href: '/wizscore',
+    title: 'WizScore™',
+    subtitle: 'AI Video-to-Music Engine',
+    description: 'Upload any video and WizScore™ generates an original soundtrack perfectly matched to its mood, pacing, and visual energy.',
+    isPopular: false,
+    icon: Film,
+    bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-documentary-1-27gSFotXB4DE92dN47HiDu.webp",
+    bgAlt: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-abstract-1-ZjbMsSCt6wFuq7NBMAyxHR.webp",
+    accentColor: '#e11d48',
+    glowColor: 'rgba(225,29,72,0.25)',
+    tag: 'Video → Music',
+    tagColor: 'from-[#e11d48] to-[#fb7185]',
+    stats: ['Upload video', 'AI soundtrack', 'Mood-matched'],
+  },
 ];
 
 const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";

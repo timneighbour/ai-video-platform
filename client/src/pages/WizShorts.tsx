@@ -109,6 +109,13 @@ export default function WizShorts() {
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Persist active job to localStorage so page refresh can recover
+  const WIZ_SHORTS_RESUME_KEY = "wizshorts_active_job";
+  const persistJob = (jid: number, status: string) => {
+    localStorage.setItem(WIZ_SHORTS_RESUME_KEY, JSON.stringify({ jobId: jid, status, ts: Date.now() }));
+  };
+  const clearPersistedJob = () => localStorage.removeItem(WIZ_SHORTS_RESUME_KEY);
+
   const createJobMutation = trpc.wizShorts.createJob.useMutation();
   const generateScenesMutation = trpc.wizShorts.generateScenes.useMutation();
   const startRenderMutation = trpc.wizShorts.startRender.useMutation();
@@ -122,6 +129,34 @@ export default function WizShorts() {
   useEffect(() => {
     return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
   }, []);
+
+  // On mount: check localStorage for an in-progress job and resume
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) return;
+    try {
+      const saved = localStorage.getItem(WIZ_SHORTS_RESUME_KEY);
+      if (!saved) return;
+      const { jobId: savedJobId, status: savedStatus, ts } = JSON.parse(saved);
+      // Only resume jobs less than 30 minutes old
+      if (Date.now() - ts > 30 * 60 * 1000) { clearPersistedJob(); return; }
+      if (!savedJobId) return;
+      if (savedStatus === "assembling" || savedStatus === "rendering" || savedStatus === "scenes_ready") {
+        setJobId(savedJobId);
+        setStep("render");
+        setRenderStatus(savedStatus === "assembling" ? "assembling" : "rendering");
+        toast.info("Resuming your WizShorts build...");
+        if (savedStatus === "assembling") {
+          startAssemblyPolling(savedJobId);
+        } else {
+          startPolling(savedJobId);
+        }
+      } else if (savedStatus === "complete") {
+        clearPersistedJob();
+      }
+    } catch (_) { clearPersistedJob(); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user]);
 
   const handleCreateJob = async () => {
     if (!user) { window.location.href = getLoginUrl("/wiz-shorts"); return; }
@@ -147,6 +182,7 @@ export default function WizShorts() {
       mp.buildStarted("WizShorts");
       setStep("render");
       setRenderStatus("rendering");
+      persistJob(jobId, "rendering");
       startPolling(jobId);
     } catch (err: any) {
       toast.error(err.message || "Failed to start render");
@@ -166,6 +202,7 @@ export default function WizShorts() {
           clearInterval(pollIntervalRef.current!);
           setCompletedScenes((result as any).completedScenes ?? 0);
           setRenderStatus("assembling" as any);
+          persistJob(jid, "assembling");
           toast.info("Scenes ready — assembling final video...");
           try {
             await assembleJobMutation.mutateAsync({ jobId: jid });
@@ -183,12 +220,14 @@ export default function WizShorts() {
           startAssemblyPolling(jid);
         } else if (result.status === "complete") {
           clearInterval(pollIntervalRef.current!);
+          clearPersistedJob();
           setRenderStatus("complete");
           setFinalVideoUrl(result.videoUrl ?? null);
           mp.buildCompleted("WizShorts");
           toast.success("Your WizShort is ready!");
         } else if (result.status === "failed") {
           clearInterval(pollIntervalRef.current!);
+          clearPersistedJob();
           setRenderStatus("failed");
           mp.buildFailed("WizShorts");
           toast.error("Build failed. Please try again.");
@@ -205,12 +244,14 @@ export default function WizShorts() {
         if (!job) return;
         if (job.status === "complete") {
           clearInterval(pollIntervalRef.current!);
+          clearPersistedJob();
           setRenderStatus("complete");
           setFinalVideoUrl(job.videoUrl ?? null);
           mp.buildCompleted("WizShorts");
           toast.success("Your WizShort is ready!");
         } else if (job.status === "failed") {
           clearInterval(pollIntervalRef.current!);
+          clearPersistedJob();
           setRenderStatus("failed");
           mp.buildFailed("WizShorts");
           toast.error("Assembly failed. Please try again.");
@@ -231,6 +272,7 @@ export default function WizShorts() {
 
   const handleReset = () => {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    clearPersistedJob();
     setStep("setup");
     setJobId(null);
     setScenes([]);

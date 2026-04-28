@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle } from "@/lib/icons";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle, Film } from "@/lib/icons";
 import CreditBalance from "./CreditBalance";
 import { LowCreditBanner } from "./LowCreditBanner";
 import { trpc } from "@/lib/trpc";
@@ -43,6 +43,7 @@ const menuItems = [
   { icon: Zap, label: "WizShorts", path: "/wiz-shorts" },
   { icon: null, imgSrc: WIZANIMATE_LOGO, label: "WizAnimate", path: WIZANIMATE_PRODUCT_PAGE },
   { icon: Wand2, label: "WizScript", path: "/text-to-video" },
+  { icon: Film, label: "WizScore™", path: "/wizscore" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: FolderOpen, label: "Projects", path: "/projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },

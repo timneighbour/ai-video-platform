@@ -15,6 +15,7 @@ import {
   WizShortsEmblem,
   WizAnimateEmblem,
   WizScriptEmblem,
+  WizScoreEmblem,
 } from "@/components/WizProductEmblems";
 
 // ── SVG helpers ───────────────────────────────────────────────────────────────
@@ -94,6 +95,15 @@ const PRODUCTS_CREATE = [
     glowColor: "oklch(0.72 0.18 30)",
     bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
     borderColor: "oklch(0.72 0.18 30 / 0.35)",
+  },
+  {
+    name: "WizScore™",
+    tagline: "AI Video-to-Music Engine",
+    icon: <WizScoreEmblem size={32} />,
+    href: "/wizscore",
+    glowColor: "oklch(0.68 0.18 5)",
+    bgGradient: "linear-gradient(135deg, oklch(0.26 0.09 5 / 0.9) 0%, oklch(0.18 0.06 5 / 0.95) 100%)",
+    borderColor: "oklch(0.68 0.18 5 / 0.35)",
   },
 ];
 

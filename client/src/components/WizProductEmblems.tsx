@@ -337,3 +337,45 @@ export function WizScriptEmblem({ size = 64 }: { size?: number }) {
     </svg>
   );
 }
+
+// ── WizScore — Rose/crimson video-to-music icon ───────────────────────────────
+export function WizScoreEmblem({ size = 64 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ws-g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#9f1239" />
+          <stop offset="35%" stopColor="#e11d48" />
+          <stop offset="65%" stopColor="#fb7185" />
+          <stop offset="100%" stopColor="#be123c" />
+        </linearGradient>
+        <radialGradient id="ws-glow" cx="40%" cy="45%" r="52%">
+          <stop offset="0%" stopColor="#e11d48" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#e11d48" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* Ambient glow */}
+      <ellipse cx="32" cy="32" rx="26" ry="26" fill="url(#ws-glow)" />
+      {/* Film frame — left side */}
+      <rect x="5" y="12" width="26" height="40" rx="3" stroke="url(#ws-g)" strokeWidth="1.5" fill="none" opacity="0.5" />
+      {/* Film perforations */}
+      {[16, 24, 32, 40, 48].map((y, i) => (
+        <rect key={i} x="7" y={y - 2} width="3.5" height="4" rx="0.75" fill="url(#ws-g)" opacity="0.35" />
+      ))}
+      {/* Video frame content lines */}
+      <line x1="14" y1="20" x2="27" y2="20" stroke="url(#ws-g)" strokeWidth="1" opacity="0.4" />
+      <line x1="14" y1="32" x2="27" y2="32" stroke="url(#ws-g)" strokeWidth="1" opacity="0.4" />
+      <line x1="14" y1="44" x2="27" y2="44" stroke="url(#ws-g)" strokeWidth="1" opacity="0.4" />
+      {/* Arrow — video to music */}
+      <path d="M31 32 L38 32 M35 28 L39 32 L35 36" stroke="url(#ws-g)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+      {/* Music note */}
+      <path d="M44 18 L56 15 L56 24 L44 27 Z" stroke="url(#ws-g)" strokeWidth="1.2" fill="none" opacity="0.55" />
+      <line x1="44" y1="27" x2="44" y2="42" stroke="url(#ws-g)" strokeWidth="1.5" opacity="0.8" />
+      <line x1="56" y1="24" x2="56" y2="39" stroke="url(#ws-g)" strokeWidth="1.5" opacity="0.8" />
+      <ellipse cx="41" cy="43" rx="4" ry="3" stroke="url(#ws-g)" strokeWidth="1.2" fill="none" opacity="0.7" />
+      <ellipse cx="53" cy="40" rx="4" ry="3" stroke="url(#ws-g)" strokeWidth="1.2" fill="none" opacity="0.7" />
+      {/* Specular */}
+      <circle cx="56" cy="15" r="1.5" fill="#fb7185" opacity="0.8" />
+    </svg>
+  );
+}

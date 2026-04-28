@@ -9,6 +9,7 @@ import {
   WizShortsEmblem,
   WizAnimateEmblem,
   WizScriptEmblem,
+  WizScoreEmblem,
 } from "@/components/WizProductEmblems";
 import { NavLink } from "@/components/NavLink";
 import { mp } from "@/lib/mixpanel";
@@ -162,6 +163,15 @@ const PRODUCTS_CREATE = [
     bgGradient: "linear-gradient(135deg, oklch(0.28 0.10 30 / 0.9) 0%, oklch(0.20 0.07 30 / 0.95) 100%)",
     borderColor: "oklch(0.72 0.18 30 / 0.35)",
   },
+  {
+    name: getProduct("wizscore")!.name,
+    tagline: getProduct("wizscore")!.tagline,
+    icon: <WizScoreEmblem size={32} />,
+    href: getProduct("wizscore")!.studioPage,
+    glowColor: "oklch(0.68 0.18 5)",
+    bgGradient: "linear-gradient(135deg, oklch(0.26 0.09 5 / 0.9) 0%, oklch(0.18 0.06 5 / 0.95) 100%)",
+    borderColor: "oklch(0.68 0.18 5 / 0.35)",
+  },
 ];
 
 const PRODUCTS_ENHANCE = [
@@ -183,6 +193,7 @@ const WIZ_TECHNOLOGY_CORE = [
 const WIZ_TECHNOLOGY_ADVANCED = [
   { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
   { name: "WizScore", tagline: "Quality Scoring", desc: "Quality checks and improvement scoring before final output.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
+  // Note: WizScore is also a full product — see PRODUCTS_CREATE above
   { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
 const WIZ_TECHNOLOGY = [...WIZ_TECHNOLOGY_CORE, ...WIZ_TECHNOLOGY_ADVANCED];
