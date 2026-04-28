@@ -53,26 +53,7 @@ export interface ProductEntry {
  * Order reflects the primary user-facing display order (most prominent first).
  */
 export const PRODUCTS: ProductEntry[] = [
-  {
-    id: "wizvideo",
-    name: "WizVideo™",
-    tagline: "AI Music Video Generator",
-    shortDesc:
-      "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric.",
-    ctaLabel: "Create Your Music Video",
-    productPage: WIZVIDEO_PRODUCT_PAGE,
-    studioPage: WIZVIDEO_STUDIO_PAGE,
-  },
-  {
-    id: "wizanimate",
-    name: "WizAnimate™",
-    tagline: "AI Character Animation Engine",
-    shortDesc:
-      "Bring characters and scenes to life with AI-powered animation. Beat-matched motion, emotion-driven performance, and cinematic movement.",
-    ctaLabel: "Animate Your Video",
-    productPage: WIZANIMATE_PRODUCT_PAGE,
-    studioPage: WIZANIMATE_STUDIO_PAGE,
-  },
+  // ── 1. WizAudio — music creation studio (flagship audio product) ──────────────
   {
     id: "wizsound",
     name: "WizAudio™",
@@ -83,6 +64,7 @@ export const PRODUCTS: ProductEntry[] = [
     productPage: WIZAUDIO_PRODUCT_PAGE,
     studioPage: WIZAUDIO_STUDIO_PAGE,
   },
+  // ── 2. WizImage — image & artwork creator ────────────────────────────────────
   {
     id: "wizimage",
     name: "WizImage™",
@@ -93,36 +75,29 @@ export const PRODUCTS: ProductEntry[] = [
     productPage: WIZIMAGE_PRODUCT_PAGE,
     studioPage: WIZIMAGE_STUDIO_PAGE,
   },
+  // ── 3. WizVideo — flagship music video generator ─────────────────────────────
   {
-    id: "wizshorts",
-    name: "WizShorts™",
-    tagline: "AI Short-Form Video Creator",
+    id: "wizvideo",
+    name: "WizVideo™",
+    tagline: "AI Music Video Generator",
     shortDesc:
-      "Produce scroll-stopping vertical short-form videos for TikTok, Instagram Reels, and YouTube Shorts — with captions, pacing, and visual hooks built in.",
-    ctaLabel: "Create a Short",
-    productPage: WIZSHORTS_PRODUCT_PAGE,
-    studioPage: WIZSHORTS_STUDIO_PAGE,
+      "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric.",
+    ctaLabel: "Create Your Music Video",
+    productPage: WIZVIDEO_PRODUCT_PAGE,
+    studioPage: WIZVIDEO_STUDIO_PAGE,
   },
+  // ── 4. WizAnimate — character animation engine ───────────────────────────────
   {
-    id: "wizscript",
-    name: "WizScript™",
-    tagline: "AI Script & Storyboard Engine",
+    id: "wizanimate",
+    name: "WizAnimate™",
+    tagline: "AI Character Animation Engine",
     shortDesc:
-      "Write each scene yourself for full creative control. WIZ AI generates every scene individually, giving you complete creative direction from concept to final build.",
-    ctaLabel: "Write Your First Script",
-    productPage: WIZSCRIPT_PRODUCT_PAGE,
-    studioPage: WIZSCRIPT_STUDIO_PAGE,
+      "Bring characters and scenes to life with AI-powered animation. Beat-matched motion, emotion-driven performance, and cinematic movement.",
+    ctaLabel: "Animate Your Video",
+    productPage: WIZANIMATE_PRODUCT_PAGE,
+    studioPage: WIZANIMATE_STUDIO_PAGE,
   },
-  {
-    id: "wizpilot",
-    name: "WizPilot™",
-    tagline: "AI Workflow Automation Engine",
-    shortDesc:
-      "Describe your idea in plain text and WizPilot builds the full video script and storyboard automatically — from concept to scenes in seconds.",
-    ctaLabel: "Launch WizPilot™",
-    productPage: WIZPILOT_PRODUCT_PAGE,
-    studioPage: WIZPILOT_STUDIO_PAGE,
-  },
+  // ── 5. WizScore — video-to-music engine ──────────────────────────────────────
   {
     id: "wizscore",
     name: "WizScore™",
@@ -133,6 +108,40 @@ export const PRODUCTS: ProductEntry[] = [
     productPage: WIZSCORE_PRODUCT_PAGE,
     studioPage: WIZSCORE_STUDIO_PAGE,
   },
+  // ── 6. WizShorts — short-form video creator ───────────────────────────────────
+  {
+    id: "wizshorts",
+    name: "WizShorts™",
+    tagline: "AI Short-Form Video Creator",
+    shortDesc:
+      "Produce scroll-stopping vertical short-form videos for TikTok, Instagram Reels, and YouTube Shorts — with captions, pacing, and visual hooks built in.",
+    ctaLabel: "Create a Short",
+    productPage: WIZSHORTS_PRODUCT_PAGE,
+    studioPage: WIZSHORTS_STUDIO_PAGE,
+  },
+  // ── 7. WizScript — script & storyboard engine ────────────────────────────────
+  {
+    id: "wizscript",
+    name: "WizScript™",
+    tagline: "AI Script & Storyboard Engine",
+    shortDesc:
+      "Write each scene yourself for full creative control. WIZ AI generates every scene individually, giving you complete creative direction from concept to final build.",
+    ctaLabel: "Write Your First Script",
+    productPage: WIZSCRIPT_PRODUCT_PAGE,
+    studioPage: WIZSCRIPT_STUDIO_PAGE,
+  },
+  // ── 8. WizPilot — workflow automation ────────────────────────────────────────
+  {
+    id: "wizpilot",
+    name: "WizPilot™",
+    tagline: "AI Workflow Automation Engine",
+    shortDesc:
+      "Describe your idea in plain text and WizPilot builds the full video script and storyboard automatically — from concept to scenes in seconds.",
+    ctaLabel: "Launch WizPilot™",
+    productPage: WIZPILOT_PRODUCT_PAGE,
+    studioPage: WIZPILOT_STUDIO_PAGE,
+  },
+  // ── 9. WizSync — audio-visual sync engine ────────────────────────────────────
   {
     id: "wizsync",
     name: "WizSync™",
@@ -155,7 +164,7 @@ export function getProduct(id: string): ProductEntry | undefined {
  * These are the products with dedicated studio pages and full marketing pages.
  */
 export const PRIMARY_PRODUCTS = PRODUCTS.filter((p) =>
-  ["wizvideo", "wizanimate", "wizsound", "wizimage", "wizshorts", "wizscript"].includes(p.id)
+  ["wizsound", "wizimage", "wizvideo", "wizanimate", "wizscore", "wizshorts", "wizscript"].includes(p.id)
 );
 
 /**
