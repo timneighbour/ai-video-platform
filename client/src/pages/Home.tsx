@@ -2543,255 +2543,349 @@ function WizVidEngineSection() {
 }
 
 /// ── See the Difference (Cinematic Demo Player) ──────────────────────────────
-// CDN paths for the new v2 demo assets
-const STD_VIDEO = "/manus-storage/std-demo-v2-video_d6e39c08.mp4";
-const STD_AUDIO = {
-  original:  "/manus-storage/tier-original-v2_f2db69f2.mp3",
-  enhanced:  "/manus-storage/tier-enhanced-v2_c2184071.mp3",
-  cinematic: "/manus-storage/tier-cinematic-v2_b7df8d6e.mp3",
-};
 
-// Per-tier CSS filter grading applied to the video element
-const STD_FILTERS = {
-  original:  "saturate(0.55) contrast(0.85) brightness(0.88) grayscale(0.3)",
-  enhanced:  "saturate(1.15) contrast(1.05) brightness(1.02) hue-rotate(5deg)",
-  cinematic: "saturate(1.35) contrast(1.12) brightness(1.05) hue-rotate(12deg) sepia(0.08)",
+const STD_VIDEO = "/manus-storage/std-demo-scene_3d3bc3f2.mp4";
+
+const STD_AUDIO = {
+  original: "/manus-storage/std-audio-original-v4_6b9fbd71.mp3",
+  enhanced: "/manus-storage/std-audio-enhanced-v4_94203f59.mp3",
+  cinematic: "/manus-storage/std-audio-cinematic-v4_d8e7543f.mp3",
 };
 
 type StdTier = "original" | "enhanced" | "cinematic";
 
+const STD_TIERS: {
+  key: StdTier;
+  label: string;
+  tagline: string;
+  audioLabel: string;
+  gradient: string;
+  glow: string;
+  videoFilter: string;
+}[] = [
+  {
+    key: "original",
+    label: "Original",
+    tagline: "Raw, unprocessed footage",
+    audioLabel: "Basic Stereo · No processing",
+    gradient: "from-zinc-500 to-zinc-400",
+    glow: "rgba(113,113,122,0.4)",
+    videoFilter: "saturate(0.5) brightness(0.85) contrast(0.9)",
+  },
+  {
+    key: "enhanced",
+    label: "Enhanced",
+    tagline: "Professional colour & audio grade",
+    audioLabel: "Broadcast Quality · Warm & balanced",
+    gradient: "from-amber-500 to-yellow-400",
+    glow: "rgba(245,158,11,0.5)",
+    videoFilter: "saturate(1.2) brightness(1.05) contrast(1.08)",
+  },
+  {
+    key: "cinematic",
+    label: "Cinematic",
+    tagline: "Hollywood-grade mastering",
+    audioLabel: "Dolby Atmos™ Style · Deep bass · Spatial",
+    gradient: "from-orange-500 to-amber-400",
+    glow: "rgba(249,115,22,0.6)",
+    videoFilter: "saturate(1.15) brightness(1.0) contrast(1.15) sepia(0.15)",
+  },
+];
+
 function SeeTheDifference() {
   const [activeTier, setActiveTier] = useState<StdTier>("original");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [audioReady, setAudioReady] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioRefs = useRef<Record<StdTier, HTMLAudioElement | null>>({
+    original: null,
+    enhanced: null,
+    cinematic: null,
+  });
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // When tier changes, swap audio source and resume playback position
-  const handleTierChange = useCallback((tier: StdTier) => {
-    if (tier === activeTier) return;
-    const audio = audioRef.current;
-    const video = videoRef.current;
-    if (!audio || !video) { setActiveTier(tier); return; }
-    const currentTime = audio.currentTime;
-    const wasPlaying = !audio.paused;
-    audio.pause();
-    audio.src = STD_AUDIO[tier];
-    audio.load();
-    audio.currentTime = currentTime;
-    setActiveTier(tier);
-    if (wasPlaying) {
-      audio.play().catch(() => {});
-    }
-  }, [activeTier]);
-
-  const handlePlay = useCallback(async () => {
-    const video = videoRef.current;
-    const audio = audioRef.current;
-    if (!video || !audio) return;
-    try {
-      video.muted = true;
-      await video.play();
-      audio.currentTime = video.currentTime;
-      await audio.play();
-      setIsPlaying(true);
-      setHasStarted(true);
-    } catch (e) {
-      console.warn("Playback error:", e);
-    }
-  }, []);
-
-  const handlePause = useCallback(() => {
-    videoRef.current?.pause();
-    audioRef.current?.pause();
-    setIsPlaying(false);
-  }, []);
-
-  const handleTogglePlay = useCallback(() => {
-    if (isPlaying) handlePause();
-    else handlePlay();
-  }, [isPlaying, handlePlay, handlePause]);
-
-  // Keep audio in sync with video
+  // Pre-load all 3 audio elements on mount
   useEffect(() => {
-    const video = videoRef.current;
-    const audio = audioRef.current;
-    if (!video || !audio) return;
-    const onEnded = () => { setIsPlaying(false); setHasStarted(false); };
-    const onPause = () => { if (!video.ended) audio.pause(); };
-    video.addEventListener("ended", onEnded);
-    video.addEventListener("pause", onPause);
+    (Object.keys(STD_AUDIO) as StdTier[]).forEach((tier) => {
+      const audio = new Audio(STD_AUDIO[tier]);
+      audio.preload = "auto";
+      audioRefs.current[tier] = audio;
+    });
+    currentAudioRef.current = audioRefs.current.original;
     return () => {
-      video.removeEventListener("ended", onEnded);
-      video.removeEventListener("pause", onPause);
+      (Object.keys(STD_AUDIO) as StdTier[]).forEach((tier) => {
+        const a = audioRefs.current[tier];
+        if (a) { a.pause(); a.src = ""; }
+      });
     };
   }, []);
 
-  const tiers: { id: StdTier; label: string; badge: string; color: string }[] = [
-    { id: "original",  label: "Original",  badge: "Unprocessed",          color: "from-zinc-600 to-zinc-500" },
-    { id: "enhanced",  label: "Enhanced",  badge: "WizSound Enhanced",    color: "from-amber-700 to-amber-500" },
-    { id: "cinematic", label: "Cinematic", badge: "WizSound Cinematic",   color: "from-yellow-600 to-amber-400" },
-  ];
+  const switchTier = useCallback((tier: StdTier) => {
+    if (tier === activeTier || isSwitching) return;
+    setIsSwitching(true);
+
+    const prevAudio = currentAudioRef.current;
+    const nextAudio = audioRefs.current[tier];
+
+    if (prevAudio) {
+      // Fade out previous
+      const fadeOut = setInterval(() => {
+        if (prevAudio.volume > 0.05) {
+          prevAudio.volume = Math.max(0, prevAudio.volume - 0.1);
+        } else {
+          prevAudio.pause();
+          prevAudio.volume = 1;
+          clearInterval(fadeOut);
+        }
+      }, 30);
+    }
+
+    setActiveTier(tier);
+    currentAudioRef.current = nextAudio;
+
+    if (isPlaying && nextAudio) {
+      nextAudio.currentTime = prevAudio?.currentTime ?? 0;
+      nextAudio.volume = 0;
+      nextAudio.play().catch(() => {});
+      // Fade in new audio
+      const fadeIn = setInterval(() => {
+        if (nextAudio.volume < 0.95) {
+          nextAudio.volume = Math.min(1, nextAudio.volume + 0.1);
+        } else {
+          nextAudio.volume = 1;
+          clearInterval(fadeIn);
+        }
+      }, 30);
+    }
+
+    setTimeout(() => setIsSwitching(false), 200);
+  }, [activeTier, isPlaying, isSwitching]);
+
+  const handlePlayPause = useCallback(() => {
+    const video = videoRef.current;
+    const audio = currentAudioRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play().catch(() => {});
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      if (audio) audio.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const handleVideoEnded = useCallback(() => {
+    const audio = currentAudioRef.current;
+    if (audio) audio.pause();
+    setIsPlaying(false);
+  }, []);
+
+  const activeTierData = STD_TIERS.find((t) => t.key === activeTier)!;
 
   return (
-    <section className="relative bg-[#040404] py-24 px-6 overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-10"
-          style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
-      </div>
+    <section className="relative py-24 bg-[#050505] overflow-hidden">
+      {/* Ambient background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-1000"
+        style={{
+          background: `radial-gradient(ellipse 70% 60% at 50% 110%, ${activeTierData.glow} 0%, transparent 65%)`,
+        }}
+      />
 
-      <div className="relative max-w-6xl mx-auto">
+      <div className="container max-w-5xl mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium tracking-widest uppercase mb-6">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/40 tracking-widest uppercase mb-5">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            See The Difference
+            WizSound™ · WizLumina™ Demo
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-            Hear the transformation.
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+            Hear &amp; See the{" "}
+            <span
+              className="bg-clip-text text-transparent"
+              style={{
+                backgroundImage:
+                  activeTier === "cinematic"
+                    ? "linear-gradient(135deg, #f97316, #fbbf24)"
+                    : activeTier === "enhanced"
+                    ? "linear-gradient(135deg, #f59e0b, #fde68a)"
+                    : "linear-gradient(135deg, #a1a1aa, #d4d4d8)",
+                transition: "background-image 0.5s ease",
+              }}
+            >
+              Difference
+            </span>
           </h2>
-          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-            The same scene. Three levels of cinematic quality. Press play and switch between tiers to hear and see the difference.
+          <p className="text-base text-white/40 max-w-lg mx-auto">
+            Same scene. Same music. Three completely different levels of quality.
+            Click a tier to switch — audio and visuals transform instantly.
           </p>
         </div>
 
-        {/* Tier selector */}
-        <div className="flex justify-center gap-3 mb-8">
-          {tiers.map((tier) => (
-            <button
-              key={tier.id}
-              onClick={() => handleTierChange(tier.id)}
-              className={`
-                relative px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 border
-                ${activeTier === tier.id
-                  ? `bg-gradient-to-r ${tier.color} text-white border-transparent shadow-lg scale-105`
-                  : "bg-zinc-900/80 text-zinc-400 border-zinc-700/50 hover:border-zinc-500 hover:text-zinc-200"
-                }
-              `}
-            >
-              {tier.label}
-              {activeTier === tier.id && (
-                <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] bg-amber-500 text-black px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
-                  {tier.badge}
-                </span>
-              )}
-            </button>
-          ))}
+        {/* Tier buttons */}
+        <div className="flex justify-center gap-3 mb-6">
+          {STD_TIERS.map((tier) => {
+            const isActive = activeTier === tier.key;
+            return (
+              <button
+                key={tier.key}
+                onClick={() => switchTier(tier.key)}
+                disabled={isSwitching}
+                className={`
+                  relative px-7 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-300
+                  ${isActive
+                    ? `bg-gradient-to-r ${tier.gradient} text-black shadow-xl`
+                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white"
+                  }
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                `}
+                style={isActive ? { boxShadow: `0 0 30px ${tier.glow}` } : {}}
+              >
+                {tier.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Video player */}
-        <div className="relative rounded-2xl overflow-hidden border border-zinc-800/60 shadow-2xl bg-black"
-          style={{ aspectRatio: "16/9" }}>
+        <div
+          className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl cursor-pointer group"
+          onClick={handlePlayPause}
+          style={{ boxShadow: `0 0 60px ${activeTierData.glow}` }}
+        >
+          {/* The single video — visual grading via CSS filter */}
+          <div className="relative aspect-video bg-black">
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover transition-all duration-700"
+              style={{ filter: activeTierData.videoFilter }}
+              onEnded={handleVideoEnded}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              loop
+              muted
+              playsInline
+              preload="auto"
+            >
+              <source src={STD_VIDEO} type="video/mp4" />
+            </video>
 
-          {/* Video with per-tier CSS filter grading */}
-          <video
-            ref={videoRef}
-            src={STD_VIDEO}
-            className="w-full h-full object-cover transition-all duration-700"
-            style={{ filter: STD_FILTERS[activeTier] }}
-            playsInline
-            muted
-            preload="auto"
-          />
-
-          {/* Hidden audio element */}
-          <audio
-            ref={audioRef}
-            src={STD_AUDIO[activeTier]}
-            preload="auto"
-            onCanPlay={() => setAudioReady(true)}
-          />
-
-          {/* Play overlay (shown before first play) */}
-          {!hasStarted && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
-              <button
-                onClick={handlePlay}
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-200 mb-4"
-              >
-                <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </button>
-              <p className="text-white/80 text-sm font-medium">Press play to experience the difference</p>
-            </div>
-          )}
-
-          {/* Play/pause control (shown after first play) */}
-          {hasStarted && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4">
-              <button
-                onClick={handleTogglePlay}
-                className="w-12 h-12 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/90 transition-colors"
-              >
-                {isPlaying ? (
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+            {/* Play overlay */}
+            {!isPlaying && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] transition-opacity duration-300">
+                <div
+                  className={`w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br ${activeTierData.gradient} shadow-2xl mb-4 group-hover:scale-110 transition-transform duration-200`}
+                  style={{ boxShadow: `0 0 40px ${activeTierData.glow}` }}
+                >
+                  <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
-                )}
-              </button>
-              {/* Audio waveform indicator */}
-              {isPlaying && (
-                <div className="flex items-end gap-0.5 h-6">
-                  {[1,2,3,4,5].map((i) => (
-                    <div key={i} className="w-1 bg-amber-400 rounded-full animate-pulse"
-                      style={{
-                        height: `${activeTier === "cinematic" ? 14 + i * 3 : activeTier === "enhanced" ? 8 + i * 2 : 4 + i}px`,
-                        animationDelay: `${i * 0.1}s`,
-                        animationDuration: `${0.5 + i * 0.1}s`
-                      }} />
-                  ))}
                 </div>
-              )}
-            </div>
-          )}
+                <p className="text-white/60 text-sm">Click to play with audio</p>
+              </div>
+            )}
 
-          {/* Tier badge overlay */}
-          <div className="absolute top-4 left-4">
-            <div className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r ${tiers.find(t => t.id === activeTier)?.color} shadow-lg`}>
-              {activeTier === "original" ? "Original" : activeTier === "enhanced" ? "WizSound Enhanced" : "WizSound Cinematic"}
+            {/* Active tier badge */}
+            <div className="absolute top-4 left-4 pointer-events-none">
+              <div
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase bg-gradient-to-r ${activeTierData.gradient} text-black`}
+              >
+                {activeTierData.label}
+              </div>
+            </div>
+
+            {/* Switching indicator */}
+            {isSwitching && (
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
+                <div
+                  className={`w-6 h-6 rounded-full border-2 border-t-transparent animate-spin bg-gradient-to-r ${activeTierData.gradient}`}
+                  style={{ borderColor: activeTierData.glow }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Info bar */}
+          <div className="flex items-center justify-between px-5 py-3 bg-black/90 border-t border-white/5">
+            <div>
+              <p className="text-white text-sm font-semibold">{activeTierData.label} Tier</p>
+              <p className="text-white/35 text-xs mt-0.5">{activeTierData.tagline}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Animated audio bars */}
+              <div className="flex items-end gap-[3px] h-5">
+                {[4, 7, 5, 9, 6, 8, 4, 7, 5].map((h, i) => {
+                  const multiplier = activeTier === "cinematic" ? 1.0 : activeTier === "enhanced" ? 0.65 : 0.3;
+                  return (
+                    <div
+                      key={i}
+                      className={`w-[3px] rounded-full transition-all duration-500`}
+                      style={{
+                        height: isPlaying ? `${Math.round(h * multiplier * 3) + 2}px` : "3px",
+                        background: isPlaying
+                          ? `linear-gradient(to top, ${activeTierData.glow}, #fff8)`
+                          : "rgba(255,255,255,0.15)",
+                        animationDelay: `${i * 80}ms`,
+                        animation: isPlaying ? `pulse ${0.4 + i * 0.05}s ease-in-out infinite alternate` : "none",
+                      }}
+                    />
+                  );
+                })}
+              </div>
+              <span className="text-white/30 text-xs hidden sm:block">{activeTierData.audioLabel}</span>
             </div>
           </div>
         </div>
 
-        {/* Tier descriptions */}
-        <div className="grid grid-cols-3 gap-4 mt-8">
-          {tiers.map((tier) => (
-            <div
-              key={tier.id}
-              onClick={() => handleTierChange(tier.id)}
-              className={`
-                p-4 rounded-xl border cursor-pointer transition-all duration-300
-                ${activeTier === tier.id
-                  ? "border-amber-500/40 bg-amber-500/5"
-                  : "border-zinc-800/60 bg-zinc-900/40 hover:border-zinc-600"
-                }
-              `}
-            >
-              <div className={`text-sm font-bold mb-1 ${activeTier === tier.id ? "text-amber-400" : "text-zinc-400"}`}>
-                {tier.label}
-              </div>
-              <div className="text-xs text-zinc-500">
-                {tier.id === "original" && "Flat, unprocessed audio. Basic stereo. No depth or warmth."}
-                {tier.id === "enhanced" && "Professional mix. Warm tones, wider stereo, balanced clarity."}
-                {tier.id === "cinematic" && "Immersive spatial audio. Deep bass, full orchestra, room-filling sound."}
-              </div>
-            </div>
-          ))}
+        {/* Comparison cards */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          {STD_TIERS.map((tier) => {
+            const isActive = activeTier === tier.key;
+            return (
+              <button
+                key={tier.key}
+                onClick={() => switchTier(tier.key)}
+                disabled={isSwitching}
+                className={`p-4 rounded-xl text-left transition-all duration-300 border ${
+                  isActive
+                    ? "bg-white/8 border-white/20"
+                    : "bg-white/3 border-white/5 hover:bg-white/6 hover:border-white/12"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full mb-3 bg-gradient-to-r ${tier.gradient}`}
+                  style={isActive ? { boxShadow: `0 0 8px ${tier.glow}` } : {}}
+                />
+                <p className={`text-sm font-semibold mb-1 ${isActive ? "text-white" : "text-white/40"}`}>
+                  {tier.label}
+                </p>
+                <p className="text-xs text-white/25 leading-relaxed">{tier.tagline}</p>
+              </button>
+            );
+          })}
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-12">
-          <p className="text-zinc-400 text-sm mb-4">Ready to transform your audio?</p>
-          <button className="px-8 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-sm hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shadow-lg hover:shadow-amber-500/25">
-            Try WizSound Free →
-          </button>
+        <div className="text-center mt-10">
+          <p className="text-white/30 text-sm mb-4">
+            Experience this transformation on your own content
+          </p>
+          <a
+            href="/wizsound"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all duration-200 shadow-lg"
+            style={{ boxShadow: "0 0 30px rgba(249,115,22,0.4)" }}
+          >
+            Try WizSound™ Free
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>
