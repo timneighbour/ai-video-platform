@@ -15,7 +15,7 @@ import { getLoginUrl } from "@/const";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
-const ENV_IMG = "/manus-storage/wizanimate-studio-bg_db3d45e8.jpg";
+const ENV_IMG = "/manus-storage/wizanimate-studio-pov-v2_e5827366.jpg";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const ACCENT = "#7c5cbf";
@@ -147,6 +147,14 @@ export default function KidsVideo() {
   const [audioUrl, setAudioUrl]       = useState<string>("");
   const audioInputRef = useRef<HTMLInputElement>(null);
   const [activePreviewScene, setActivePreviewScene] = useState(1);
+  // Character photo uploads
+  const [charPhotos, setCharPhotos]   = useState<Record<string, File|null>>({});
+  const [charPhotoUrls, setCharPhotoUrls] = useState<Record<string, string>>({});
+  const charPhotoRefs = useRef<Record<string, HTMLInputElement|null>>({});
+  const [charDesc, setCharDesc]       = useState<Record<string, string>>({ maya: "A brave 10-year-old girl with curious eyes and a red scarf", owl: "A wise old owl with silver feathers and round spectacles", fox: "A mischievous young fox with amber fur and a bushy tail" });
+  const [addingChar, setAddingChar]   = useState(false);
+  const [newCharName, setNewCharName] = useState("");
+  const [newCharDesc, setNewCharDesc] = useState("");
 
   const stageIndex = STAGES.findIndex(s => s.key === stage);
 
@@ -227,7 +235,7 @@ export default function KidsVideo() {
     }}>
       {/* ── Studio Hero — Pixar Animation Studio ── */}
       <div style={{position:'relative',width:'100%',height:280,overflow:'hidden',background:'#000',flexShrink:0}}>
-        <img src={ENV_IMG} alt="WizAnimate Animation Studio" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 35%',filter:`brightness(${ambience/100})`,transition:'filter 0.6s ease'}} />
+        <img src={ENV_IMG} alt="WizAnimate Animation Studio" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 40%',filter:`brightness(${0.3 + (ambience/100)*0.85})`,transition:'filter 0.6s ease'}} />
         <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.3)',pointerEvents:'none'}} />
         <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,0.35) 55%,transparent 100%)',pointerEvents:'none'}} />
         <div style={{position:'absolute',top:20,left:24,zIndex:20}}>
@@ -653,56 +661,116 @@ export default function KidsVideo() {
 
             {/* Characters */}
             <div>
-              <SectionLabel label="Characters" sub="— up to 10 · Upload photo, pet, or describe" />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "6px", marginBottom: "8px" }}>
+              <SectionLabel label="Character Design" sub="— Upload photo or describe · AI generates consistent characters" />
+              {/* Hidden file inputs for each character */}
+              {CHARS.map(ch => (
+                <input key={ch.id} type="file" accept="image/*" style={{display:"none"}}
+                  ref={el => { charPhotoRefs.current[ch.id] = el; }}
+                  onChange={e => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setCharPhotos(p => ({...p, [ch.id]: f}));
+                      setCharPhotoUrls(p => ({...p, [ch.id]: URL.createObjectURL(f)}));
+                    }
+                  }}
+                />
+              ))}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gap: "10px", marginBottom: "10px" }}>
                 {CHARS.map(ch => (
                   <div key={ch.id} style={{
-                    background: "#111",
-                    border: `2px solid ${ch.color}`,
-                    borderRadius: "6px", overflow: "hidden", cursor: "pointer", position: "relative",
+                    background: "#111", border: `1px solid ${ch.color === ACCENT ? ACCENT_BORDER : "rgba(212,168,67,0.25)"}`,
+                    borderRadius: "8px", overflow: "hidden", padding: "10px",
+                    display: "flex", gap: "10px", alignItems: "flex-start",
                   }}>
-                    <div style={{
-                      width: "100%", aspectRatio: "1",
-                      background: ch.id === "maya"
-                        ? `linear-gradient(135deg, #3a2a6a, ${ACCENT})`
-                        : ch.id === "owl"
-                        ? "linear-gradient(135deg, #2a3a1a, #4a7a2a)"
-                        : "linear-gradient(135deg, #3a2a0a, #8a5a1a)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "20px", color: "#fff", fontWeight: 900,
-                      fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "1px",
-                    }}>{ch.initial}</div>
-                    <div style={{ padding: "4px", textAlign: "center" }}>
-                      <div style={{ fontSize: "8px", fontWeight: 700, color: ch.color }}>{ch.label}</div>
-                      <div style={{ fontSize: "7px", color: ch.status === "LOCKED" ? "#6db86d" : GOLD }}>{ch.status}</div>
-                    </div>
-                    {ch.role && (
+                    {/* Photo slot */}
+                    <div
+                      onClick={() => charPhotoRefs.current[ch.id]?.click()}
+                      style={{
+                        width: "56px", height: "56px", borderRadius: "6px", flexShrink: 0,
+                        overflow: "hidden", cursor: "pointer", position: "relative",
+                        border: `2px solid ${ch.color}`,
+                        background: charPhotoUrls[ch.id] ? "#000" :
+                          ch.id === "maya" ? `linear-gradient(135deg, #3a2a6a, ${ACCENT})`
+                          : ch.id === "owl" ? "linear-gradient(135deg, #2a3a1a, #4a7a2a)"
+                          : "linear-gradient(135deg, #3a2a0a, #8a5a1a)",
+                      }}
+                    >
+                      {charPhotoUrls[ch.id] ? (
+                        <img src={charPhotoUrls[ch.id]} alt={ch.label} style={{width:"100%",height:"100%",objectFit:"cover"}} />
+                      ) : (
+                        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"2px"}}>
+                          <div style={{fontSize:"18px",fontWeight:900,color:"rgba(255,255,255,0.8)",fontFamily:"'Bebas Neue',sans-serif"}}>{ch.initial}</div>
+                          <div style={{fontSize:"7px",color:"rgba(255,255,255,0.4)",textAlign:"center",lineHeight:1}}>Upload<br/>Photo</div>
+                        </div>
+                      )}
                       <div style={{
-                        position: "absolute", top: "3px", right: "3px",
-                        background: ACCENT, color: "#fff", fontSize: "7px",
-                        padding: "1px 4px", borderRadius: "2px",
-                      }}>{ch.role}</div>
-                    )}
+                        position:"absolute",bottom:0,left:0,right:0,
+                        background:"rgba(0,0,0,0.65)",fontSize:"7px",fontWeight:700,
+                        padding:"2px 4px",textAlign:"center",color:ch.color,letterSpacing:"0.5px",
+                      }}>📷</div>
+                    </div>
+                    {/* Info */}
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}}>
+                        <span style={{fontSize:"10px",fontWeight:700,color:ch.color,letterSpacing:"1px"}}>{ch.label}</span>
+                        {ch.role && <span style={{fontSize:"7px",background:ACCENT,color:"#fff",padding:"1px 5px",borderRadius:"2px"}}>{ch.role}</span>}
+                        <span style={{fontSize:"7px",color:ch.status==="LOCKED"?"#6db86d":GOLD,marginLeft:"auto"}}>{ch.status}</span>
+                      </div>
+                      <textarea
+                        value={charDesc[ch.id] ?? ""}
+                        onChange={e => setCharDesc(p => ({...p, [ch.id]: e.target.value}))}
+                        placeholder={`Describe ${ch.label}'s appearance, personality, outfit...`}
+                        rows={2}
+                        style={{
+                          width:"100%",background:"#0a0a0a",border:"1px solid #1e1e1e",borderRadius:"4px",
+                          color:"#bbb",fontSize:"10px",lineHeight:1.5,resize:"none",
+                          fontFamily:"inherit",outline:"none",boxSizing:"border-box",padding:"6px 8px",
+                        }}
+                      />
+                      <div style={{display:"flex",gap:"4px",marginTop:"4px"}}>
+                        <button
+                          onClick={() => charPhotoRefs.current[ch.id]?.click()}
+                          style={{fontSize:"8px",padding:"3px 8px",background:"#1a1a1a",border:`1px solid ${ACCENT_BORDER}`,color:ACCENT_LIGHT,borderRadius:"3px",cursor:"pointer"}}>
+                          {charPhotoUrls[ch.id] ? "Replace Photo" : "Upload Photo"}
+                        </button>
+                        {charPhotoUrls[ch.id] && (
+                          <button
+                            onClick={() => { setCharPhotos(p=>({...p,[ch.id]:null})); setCharPhotoUrls(p=>({...p,[ch.id]:""})); }}
+                            style={{fontSize:"8px",padding:"3px 8px",background:"#1a1a1a",border:"1px solid #2a2a2a",color:"#666",borderRadius:"3px",cursor:"pointer"}}>
+                            Remove
+                          </button>
+                        )}
+                        <button
+                          style={{fontSize:"8px",padding:"3px 8px",background:ACCENT_DIM,border:`1px solid ${ACCENT_BORDER}`,color:ACCENT_LIGHT,borderRadius:"3px",cursor:"pointer",marginLeft:"auto"}}>
+                          🔒 Lock Character
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
-                {/* Add character */}
-                <div style={{
-                  background: "#0d0d0d", border: "2px dashed #222", borderRadius: "6px",
-                  cursor: "pointer", display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", aspectRatio: "1", gap: "4px",
-                }}>
-                  <div style={{ fontSize: "18px", color: "#333", lineHeight: 1 }}>+</div>
-                  <div style={{ fontSize: "7px", color: "#333", textAlign: "center" }}>Add</div>
-                </div>
-                <div style={{
-                  background: "#0d0d0d", border: "2px dashed #1a1a1a", borderRadius: "6px",
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", aspectRatio: "1", opacity: 0.3,
-                }}>
-                  <div style={{ fontSize: "18px", color: "#222", lineHeight: 1 }}>+</div>
-                </div>
               </div>
-              <div style={{ fontSize: "9px", color: "#3a3a3a", padding: "4px 0" }}>
+              {/* Add new character */}
+              {!addingChar ? (
+                <button
+                  onClick={() => setAddingChar(true)}
+                  style={{
+                    width:"100%",padding:"10px",background:"#0d0d0d",border:"2px dashed #222",
+                    borderRadius:"6px",cursor:"pointer",color:"#444",fontSize:"10px",fontWeight:700,
+                    letterSpacing:"1px",textTransform:"uppercase",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",
+                  }}
+                >+ Add Character (up to 10)</button>
+              ) : (
+                <div style={{background:"#0d0d0d",border:`1px solid ${ACCENT_BORDER}`,borderRadius:"6px",padding:"10px"}}>
+                  <div style={{fontSize:"9px",fontWeight:700,color:ACCENT_LIGHT,letterSpacing:"1px",marginBottom:"8px"}}>NEW CHARACTER</div>
+                  <input value={newCharName} onChange={e=>setNewCharName(e.target.value)} placeholder="Character name" style={{width:"100%",background:"#111",border:"1px solid #2a2a2a",borderRadius:"3px",color:"#ccc",fontSize:"11px",padding:"6px 8px",marginBottom:"6px",boxSizing:"border-box" as const,fontFamily:"inherit",outline:"none"}} />
+                  <textarea value={newCharDesc} onChange={e=>setNewCharDesc(e.target.value)} placeholder="Describe appearance, personality, role..." rows={2} style={{width:"100%",background:"#111",border:"1px solid #2a2a2a",borderRadius:"3px",color:"#ccc",fontSize:"11px",padding:"6px 8px",marginBottom:"8px",resize:"none" as const,boxSizing:"border-box" as const,fontFamily:"inherit",outline:"none"}} />
+                  <div style={{display:"flex",gap:"6px"}}>
+                    <button onClick={()=>{setAddingChar(false);setNewCharName("");setNewCharDesc("");}} style={{flex:1,padding:"6px",background:"#1a1a1a",border:"1px solid #2a2a2a",color:"#666",borderRadius:"3px",cursor:"pointer",fontSize:"10px"}}>Cancel</button>
+                    <button onClick={()=>{if(newCharName.trim()){setAddingChar(false);setNewCharName("");setNewCharDesc("");}}} style={{flex:2,padding:"6px",background:ACCENT,border:"none",color:"#fff",borderRadius:"3px",cursor:"pointer",fontSize:"10px",fontWeight:700}}>Add Character</button>
+                  </div>
+                </div>
+              )}
+              <div style={{ fontSize: "9px", color: "#3a3a3a", padding: "6px 0 0" }}>
                 Character consistency lock active — no drift, no random substitutions between scenes
               </div>
             </div>

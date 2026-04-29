@@ -75,7 +75,7 @@ const FX = "#d946ef";
 const FX_DIM = "rgba(217,70,239,0.15)";
 const FX_BORDER = "rgba(217,70,239,0.35)";
 // ─── Studio environment ───────────────────────────────────────────────────────
-const ENV_IMG = "/manus-storage/wizshorts-studio-bg_b5192727.jpg";
+const ENV_IMG = "/manus-storage/wizshorts-creator-pov-v2_f5971b8f.jpg";
 // Platform accent colours for plat-badge chips and channel-stats
 const PLAT_COLOURS: Record<string, string> = {
   youtube_shorts: "#ff4444",
@@ -102,6 +102,14 @@ export default function WizShorts() {
   const [renderFormat, setRenderFormat] = useState<"mp4" | "mov">("mp4");
   const [exportFor, setExportFor] = useState<"youtube" | "tiktok" | "all">("youtube");
   const [ambience, setAmbience] = useState(50);
+  // Audio upload
+  const [audioFile, setAudioFile] = useState<File|null>(null);
+  const [audioUrl, setAudioUrl] = useState<string>("");
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  // Visual/image uploads (for talking head or b-roll)
+  const [visualFiles, setVisualFiles] = useState<File[]>([]);
+  const [visualUrls, setVisualUrls] = useState<string[]>([]);
+  const visualInputRef = useRef<HTMLInputElement>(null);
   const [features, setFeatures] = useState({
     autoCaptions: true, beatSync: false, hookOptimiser: true, subscribeCta: false, multiPlatform: false,
   });
@@ -423,7 +431,7 @@ export default function WizShorts() {
           src={ENV_IMG}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.5s ease" }}
+          style={{ objectPosition: "center 40%", filter: `brightness(${0.3 + (ambience/100)*0.85})`, transition: "filter 0.5s ease" }}
           draggable={false}
         />
         {/* Gradient overlay — stronger base */}
@@ -673,6 +681,90 @@ export default function WizShorts() {
         </div>
       )}
 
+      {/* ── AUDIO UPLOAD BANNER ── */}
+      <input ref={audioInputRef} type="file" accept="audio/*" style={{display:"none"}}
+        onChange={e => {
+          const f = e.target.files?.[0];
+          if (f) { setAudioFile(f); setAudioUrl(URL.createObjectURL(f)); }
+        }}
+      />
+      <input ref={visualInputRef} type="file" accept="image/*,video/*" multiple style={{display:"none"}}
+        onChange={e => {
+          const files = Array.from(e.target.files ?? []);
+          if (files.length) {
+            setVisualFiles(prev => [...prev, ...files]);
+            setVisualUrls(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+          }
+        }}
+      />
+      {!audioFile ? (
+        <div
+          onClick={() => audioInputRef.current?.click()}
+          onDragOver={e => e.preventDefault()}
+          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f && f.type.startsWith("audio/")) { setAudioFile(f); setAudioUrl(URL.createObjectURL(f)); } }}
+          style={{
+            flexShrink: 0, cursor: "pointer", transition: "background 0.2s",
+            background: "linear-gradient(90deg, rgba(217,70,239,0.12) 0%, rgba(217,70,239,0.06) 100%)",
+            borderBottom: "1px solid rgba(217,70,239,0.25)",
+            padding: "12px 24px", display: "flex", alignItems: "center", gap: 14,
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = "linear-gradient(90deg, rgba(217,70,239,0.2) 0%, rgba(217,70,239,0.1) 100%)")}
+          onMouseLeave={e => (e.currentTarget.style.background = "linear-gradient(90deg, rgba(217,70,239,0.12) 0%, rgba(217,70,239,0.06) 100%)")}
+        >
+          <div style={{width:40,height:40,borderRadius:8,background:"rgba(217,70,239,0.18)",border:"1px solid rgba(217,70,239,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🎵</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:11,fontWeight:800,color:FX,letterSpacing:"0.8px",marginBottom:2}}>ADD BACKGROUND MUSIC OR AUDIO TRACK</div>
+            <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>MP3, WAV, M4A · WizShorts™ syncs beat cuts, captions and transitions to your audio</div>
+          </div>
+          <div style={{fontSize:9,fontWeight:700,color:"rgba(217,70,239,0.7)",border:"1px solid rgba(217,70,239,0.3)",padding:"5px 12px",borderRadius:3,flexShrink:0}}>CLICK OR DROP</div>
+        </div>
+      ) : (
+        <div style={{flexShrink:0,background:"rgba(109,184,109,0.08)",borderBottom:"1px solid rgba(109,184,109,0.2)",padding:"8px 24px",display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:7,height:7,borderRadius:"50%",background:"#6db86d",boxShadow:"0 0 6px #6db86d",flexShrink:0}} />
+          <div style={{fontSize:10,fontWeight:700,color:"#6db86d"}}>AUDIO LOADED — {audioFile.name}</div>
+          <div style={{flex:1,height:28}}><AnimatedEqualiser barCount={32} color="#6db86d" height={28} alwaysAnimate={true} /></div>
+          <button onClick={() => { setAudioFile(null); setAudioUrl(""); }} style={{background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:13}}>×</button>
+        </div>
+      )}
+      {/* ── VISUAL / IMAGE UPLOAD BANNER ── */}
+      <div
+        onClick={() => visualInputRef.current?.click()}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => {
+          e.preventDefault();
+          const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/") || f.type.startsWith("video/"));
+          if (files.length) { setVisualFiles(prev => [...prev, ...files]); setVisualUrls(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]); }
+        }}
+        style={{
+          flexShrink: 0, cursor: "pointer", transition: "background 0.2s",
+          background: visualUrls.length > 0
+            ? "linear-gradient(90deg, rgba(109,184,109,0.08) 0%, rgba(109,184,109,0.04) 100%)"
+            : "linear-gradient(90deg, rgba(255,165,0,0.08) 0%, rgba(255,165,0,0.04) 100%)",
+          borderBottom: "1px solid rgba(255,165,0,0.2)",
+          padding: "10px 24px", display: "flex", alignItems: "center", gap: 14,
+        }}
+        onMouseEnter={e => (e.currentTarget.style.background = "linear-gradient(90deg, rgba(255,165,0,0.14) 0%, rgba(255,165,0,0.07) 100%)")}
+        onMouseLeave={e => (e.currentTarget.style.background = visualUrls.length > 0
+          ? "linear-gradient(90deg, rgba(109,184,109,0.08) 0%, rgba(109,184,109,0.04) 100%)"
+          : "linear-gradient(90deg, rgba(255,165,0,0.08) 0%, rgba(255,165,0,0.04) 100%)")}
+      >
+        <div style={{width:36,height:36,borderRadius:8,background:"rgba(255,165,0,0.18)",border:"1px solid rgba(255,165,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🖼</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:11,fontWeight:800,color:"#ffa500",letterSpacing:"0.8px",marginBottom:2}}>UPLOAD VISUALS — PHOTOS, B-ROLL, FACE CAM</div>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>JPG, PNG, MP4 · Upload your face cam, product shots, or b-roll for AI to use in your Short</div>
+        </div>
+        {visualUrls.length > 0 ? (
+          <div style={{display:"flex",alignItems:"center",gap:6}}>
+            {visualUrls.slice(0,4).map((url, i) => (
+              <img key={i} src={url} alt="" style={{width:32,height:32,objectFit:"cover",borderRadius:4,border:"1px solid rgba(255,165,0,0.4)"}} />
+            ))}
+            {visualUrls.length > 4 && <span style={{fontSize:9,color:"#ffa500",fontWeight:700}}>+{visualUrls.length-4}</span>}
+            <button onClick={e => { e.stopPropagation(); setVisualFiles([]); setVisualUrls([]); }} style={{background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:13,marginLeft:4}}>×</button>
+          </div>
+        ) : (
+          <div style={{fontSize:9,fontWeight:700,color:"rgba(255,165,0,0.7)",border:"1px solid rgba(255,165,0,0.3)",padding:"5px 12px",borderRadius:3,flexShrink:0}}>CLICK OR DROP</div>
+        )}
+      </div>
       {/* ── Main Layout ── */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-6">
         <div className="grid lg:grid-cols-[220px_1fr_300px] gap-5">

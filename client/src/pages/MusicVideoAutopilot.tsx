@@ -1760,9 +1760,9 @@ export default function MusicVideoAutopilot() {
       {/* Production Set Hero — immersive studio view */}
       <div style={{position:'relative',width:'100%',height:340,overflow:'hidden',background:'#000'}}>
         <img
-          src="/manus-storage/wizvideo-studio-bg_e8790a28.jpg"
+          src="/manus-storage/wizvideo-director-pov-v2_5af0d4ca.jpg"
           alt="WizVideo Film Production Studio"
-          style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 30%'}}
+          style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 40%',filter:`brightness(${0.3 + (ambience/100)*0.85})`,transition:'filter 0.6s ease'}}
         />
         <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.35)',pointerEvents:'none'}} />
         <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,0.4) 50%,transparent 100%)',pointerEvents:'none'}} />
