@@ -226,14 +226,20 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
     });
     if (!v || !active) return;
     active.currentTime = v.currentTime;
-    active.muted = isMuted;
+    // Use volume=0 instead of muted=true to avoid autoplay policy issues
+    active.muted = false;
+    active.volume = isMuted ? 0 : 1;
     if (playing) active.play().catch(() => {});
   }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Mute sync ── */
   useEffect(() => {
     [audioNormalRef, audioEnhancedRef, audioCinematicRef].forEach(ref => {
-      if (ref.current) ref.current.muted = isMuted;
+      if (ref.current) {
+        // Use volume=0 instead of muted=true to avoid blocking autoplay policy
+        ref.current.muted = false;
+        ref.current.volume = isMuted ? 0 : 1;
+      }
     });
   }, [isMuted]);
 
@@ -251,7 +257,9 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
   }, [playing, mode, getAudioForMode]);
 
   /* ── Play / Pause ── */
-  const togglePlay = useCallback(async () => {
+  // CRITICAL: synchronous handler — both v.play() and active.play() must be called
+  // in the same user-gesture tick. async/await loses gesture context on mobile Safari.
+  const togglePlay = useCallback(() => {
     const v = videoRef.current;
     const active = getAudioForMode(mode);
     if (!v || !active) return;
@@ -262,19 +270,24 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
       setPlaying(false);
     } else {
       active.currentTime = v.currentTime;
-      active.muted = isMuted;
-      try {
-        await v.play();
-        await active.play();
+      // Use volume=0 instead of muted=true
+      active.muted = false;
+      active.volume = isMuted ? 0 : 1;
+      // Start both synchronously in the same user-gesture tick
+      const vPromise = v.play();
+      const aPromise = active.play();
+      // Handle results without awaiting
+      aPromise.then(() => {
         setPlaying(true);
         rafRef.current = requestAnimationFrame(trackProgress);
-      } catch {
-        try {
-          await v.play();
+      }).catch(() => {
+        // Audio blocked — try video only
+        vPromise.then(() => {
           setPlaying(true);
           rafRef.current = requestAnimationFrame(trackProgress);
-        } catch { setPlaying(false); }
-      }
+        }).catch(() => setPlaying(false));
+      });
+      vPromise.catch(() => {}); // video failure is non-fatal
     }
   }, [playing, mode, getAudioForMode, isMuted, trackProgress]);
 

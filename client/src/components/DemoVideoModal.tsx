@@ -427,7 +427,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
         setTimeout(resolve, 800);
       });
       audio.currentTime = video.currentTime; // Re-sync after load
-      audio.muted = isMuted;
+      audio.muted = false; // never set muted=true — use volume=0 for mute
+      audio.volume = isMuted ? 0 : 1;
       try {
         await audio.play();
       } catch {
@@ -443,10 +444,14 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     switchTrack(wizsoundMode);
   }, [wizsoundMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── Sync mute ───────────────────────────────────────────────────── */
+  /* ── Sync mute ──────────────────────────────────────────────────────────────────────── */
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio) audio.muted = isMuted;
+    if (audio) {
+      // Use volume=0 instead of muted=true to avoid blocking autoplay policy
+      audio.muted = false;
+      audio.volume = isMuted ? 0 : 1;
+    }
   }, [isMuted]);
 
   /* ── AudioContext resume on visibility change (iOS/Android tab-switch fix) ── */
@@ -557,18 +562,18 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     audioRef.current?.pause();
   }, []);
 
-  /* ── Play / Pause ────────────────────────────────────────────────── */
-  const togglePlay = useCallback(async () => {
+  /* ── Play / Pause ──────────────────────────────────────────────────────────────────────── */
+  // CRITICAL: synchronous handler — play() calls must be in the same user-gesture tick.
+  // async/await loses gesture context on mobile Safari and some desktop browsers.
+  const togglePlay = useCallback(() => {
     const vid = videoRef.current;
     const aud = audioRef.current;
     if (!vid) return;
-
     buildAudioGraph();
-
+    // Resume AudioContext synchronously (does not need await to unblock play)
     if (audioCtxRef.current?.state === "suspended") {
-      await audioCtxRef.current.resume();
+      audioCtxRef.current.resume();
     }
-
     if (playing) {
       vid.pause();
       aud?.pause();
@@ -577,23 +582,24 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     } else {
       if (aud) {
         aud.currentTime = vid.currentTime;
-        aud.muted = isMuted;
+        // Use volume=0 instead of muted=true — muted can block autoplay policy
+        aud.muted = false;
+        aud.volume = isMuted ? 0 : 1;
         applyEQ(wizsoundMode);
       }
-      try {
-        await vid.play();
-        if (aud) await aud.play();
+      // Start both synchronously in the same user-gesture tick
+      const vPromise = vid.play();
+      const aPromise = aud ? aud.play() : Promise.resolve();
+      aPromise.then(() => {
         setPlaying(true);
         mp.demoVideoPlayed();
-      } catch {
-        try {
-          await vid.play();
+      }).catch(() => {
+        vPromise.then(() => {
           setPlaying(true);
           mp.demoVideoPlayed();
-        } catch {
-          setPlaying(false);
-        }
-      }
+        }).catch(() => setPlaying(false));
+      });
+      vPromise.catch(() => {}); // video failure is non-fatal
     }
   }, [playing, isMuted, wizsoundMode, buildAudioGraph, applyEQ]);
 

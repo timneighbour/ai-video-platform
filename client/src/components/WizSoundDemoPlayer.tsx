@@ -475,7 +475,9 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
   }, [isPlaying, buildChain]);
 
   /* ── Toggle play/pause ───────────────────────────────────────────── */
-  const togglePlay = useCallback(async () => {
+  // IMPORTANT: Must be synchronous (not async) so el.play() is called in the
+  // same user-gesture tick. Async functions lose the gesture context on mobile Safari.
+  const togglePlay = useCallback(() => {
     const el = audioRef.current;
     if (!el || !loaded) return;
 
@@ -484,20 +486,24 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
       setIsPlaying(false);
       stopProgressTracking();
     } else {
-      // Build DSP chain for current tier
+      // Resume AudioContext synchronously (required before any Web Audio node can produce sound)
+      const ctx = ensureAudioContext();
+      if (ctx.state === "suspended") ctx.resume();
+      // Build DSP chain for current tier (connects audio element into Web Audio graph)
       buildChain(activeTier);
+      // Use volume=0 instead of muted=true — muted blocks autoplay on some browsers
       el.volume = isMuted ? 0 : volume;
-      el.muted = isMuted;
+      el.muted = false; // never set muted=true — use volume control instead
       if (!isMuted) requestAudioFocus("wizsound-demo-player");
-      try {
-        await el.play();
+      // Call play() synchronously in the same user-gesture handler
+      el.play().then(() => {
         setIsPlaying(true);
         startProgressTracking();
-      } catch (err) {
-        console.warn("Audio play failed:", err);
-      }
+      }).catch((err) => {
+        console.warn("[WizSoundDemoPlayer] audio play blocked:", err);
+      });
     }
-  }, [isPlaying, loaded, activeTier, buildChain, isMuted, volume, requestAudioFocus, startProgressTracking, stopProgressTracking]);
+  }, [isPlaying, loaded, activeTier, buildChain, ensureAudioContext, isMuted, volume, requestAudioFocus, startProgressTracking, stopProgressTracking]);
 
   /* ── Seek ────────────────────────────────────────────────────────── */
   const handleSeek = (pct: number) => {

@@ -2647,8 +2647,8 @@ function SeeTheDifference() {
     const onCanPlay = () => {
       a.removeEventListener('canplay', onCanPlay);
       a.currentTime = savedTime;
+      a.muted = false; // never set muted=true — use volume=0 for mute
       a.volume = isMuted ? 0 : volume;
-      a.muted = isMuted;
       if (wasPlaying) {
         a.play().catch(() => {});
       }
