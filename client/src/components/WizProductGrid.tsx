@@ -271,25 +271,18 @@ export default function WizProductGrid() {
       <div className="luxury-divider absolute top-0 left-0 right-0" />
 
       <div className="max-w-7xl mx-auto relative">
-
-        {/* ── Section header ──────────────────────────────────────────── */}
-        <div className="mb-16 reveal">
+        {/* ── Section header ──────────────────────────────────────────────── */}
+        <div className="mb-16 reveal text-center">
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">
             WIZ AI — The Creative Ecosystem
           </p>
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-            <div>
-              <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-3">
-                Explore the Studios
-              </h2>
-              <p className="text-white/40 text-base max-w-2xl leading-relaxed">
-                Ten specialised AI studios. One platform. Every creative discipline covered — from original music to cinematic video, animation, and beyond.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Row 1: CREATE (7 tiles) ──────────────────────────────────── */}
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-3">
+            Explore the Studios
+          </h2>
+          <p className="text-white/40 text-base max-w-2xl leading-relaxed mx-auto">
+            Ten specialised AI studios. One platform. Every creative discipline covered — from original music to cinematic video, animation, and beyond.
+          </p>
+        </div>       {/* ── Row 1: CREATE (7 tiles) ──────────────────────────────────── */}
         <div className="mb-14 reveal">
           <RowLabel label="Create" count={7} accentColor="#34d399" />
           {/* 4 + 3 layout on desktop */}
