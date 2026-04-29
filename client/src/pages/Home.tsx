@@ -2613,17 +2613,34 @@ function SeeTheDifference() {
       stopRaf();
       setIsPlaying(false);
     } else {
+      // Ensure video is loaded before trying to play
+      if (v.readyState === 0) {
+        v.load();
+      }
       // CRITICAL: Both play() calls must be in the same synchronous user-gesture handler.
       // Calling a.play() inside v.play().then() is treated as async and gets blocked by
       // browser autoplay policy on mobile and some desktop browsers.
       if (a) {
-        a.currentTime = v.currentTime;
+        a.currentTime = v.readyState >= 1 ? v.currentTime : 0;
         a.volume = isMuted ? 0 : volume;
         a.muted = false; // never mute the element itself — use volume=0 for mute
         // Start audio immediately in the user gesture
         a.play().catch((err) => console.warn('[WizSound] audio play blocked:', err));
       }
-      v.play().catch((err) => console.warn('[WizSound] video play blocked:', err));
+      // Video play — if it fails, audio still continues independently
+      v.play().catch((err) => {
+        console.warn('[WizSound] video play blocked, retrying after load:', err);
+        // Retry once after the video has loaded enough data
+        const onCanPlay = () => {
+          v.removeEventListener('canplay', onCanPlay);
+          if (a && !a.paused) {
+            v.currentTime = a.currentTime;
+          }
+          v.play().catch(() => {});
+        };
+        v.addEventListener('canplay', onCanPlay);
+        v.load();
+      });
       rafRef.current = requestAnimationFrame(tickProgress);
       setIsPlaying(true);
       setHasStarted(true);
@@ -2680,9 +2697,11 @@ function SeeTheDifference() {
     else if (v) setDuration(v.duration || 0);
   }, []);
 
-  const handleVideoEnded = useCallback(() => {
+  // Video now loops — this handler is for when the AUDIO track finishes
+  const handleAudioEnded = useCallback(() => {
     stopRaf();
-    audioRef.current?.pause();
+    const v = videoRef.current;
+    if (v) { v.pause(); v.currentTime = 0; }
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
@@ -2709,7 +2728,7 @@ function SeeTheDifference() {
         ref={audioRef}
         src={TIER_DATA[0].audioSrc}
         preload="auto"
-        loop
+        onEnded={handleAudioEnded}
       />
 
       <div className="max-w-5xl mx-auto relative z-10">
@@ -2787,9 +2806,9 @@ function SeeTheDifference() {
                 style={{ filter: VIDEO_FILTERS[activeTier] }}
                 playsInline
                 muted
+                loop
                 preload="auto"
                 onLoadedMetadata={handleVideoLoaded}
-                onEnded={handleVideoEnded}
               />
 
               {/* Tier badge top-left */}
@@ -2824,7 +2843,7 @@ function SeeTheDifference() {
                     <button
                       className="w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 hover:scale-105"
                       style={{ borderColor: tier.accentColor, background: `rgba(${tier.glowRgb},0.2)`, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.3)` }}
-                      onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
+                      onClick={togglePlay}
                     >
                       <PlaySVG className="w-7 h-7 text-white" />
                     </button>
@@ -2858,7 +2877,7 @@ function SeeTheDifference() {
             <div className="flex items-center gap-4">
               {/* Play/Pause */}
               <button
-                onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
+                onClick={togglePlay}
                 className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 flex-shrink-0"
                 style={{
                   background: isPlaying ? `rgba(${tier.glowRgb},0.15)` : "rgba(255,255,255,0.04)",

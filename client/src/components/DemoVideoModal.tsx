@@ -14,7 +14,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { X, Play, Pause, Volume2, VolumeX, Sparkles, Maximize2 } from "@/lib/icons";
 import { mp } from "@/lib/mixpanel";
 
-/* ── CDN assets ──────────────────────────────────────────────────────── */
+/* -- CDN assets -------------------------------------------------------- */
 const POSTER_URL =
   "/manus-storage/trailer-v2-poster_4a74cc1c.jpg";
 
@@ -29,7 +29,7 @@ const AUDIO_STANDARD =
 const AUDIO_WIZSOUND =
   "/manus-storage/wizsound-enhanced_3d6ddffd.mp3";
 
-/* ── Premium caption timeline ────────────────────────────────────────── */
+/* -- Premium caption timeline ------------------------------------------ */
 // Each entry: [startSec, endSec, headline, subtext?, accentColour?, isLuminaUpsell?]
 interface CaptionEntry {
   start: number;
@@ -78,7 +78,7 @@ function getCaption(t: number): CaptionEntry | null {
   return CAPTION_TIMELINE.find(c => t >= c.start && t < c.end) ?? null;
 }
 
-/* ── Web Audio context (singleton, created on first user gesture) ─────── */
+/* -- Web Audio context (singleton, created on first user gesture) ------- */
 let sharedCtx: AudioContext | null = null;
 function getAudioContext(): AudioContext {
   if (!sharedCtx || sharedCtx.state === "closed") {
@@ -87,7 +87,7 @@ function getAudioContext(): AudioContext {
   return sharedCtx;
 }
 
-/* ── Real-FFT EQ bar component ──────────────────────────────────────── */
+/* -- Real-FFT EQ bar component ---------------------------------------- */
 interface EQBarsProps {
   analyser: AnalyserNode | null;
   wizsound: boolean;
@@ -174,7 +174,7 @@ function EQBars({ analyser, wizsound, active }: EQBarsProps) {
   );
 }
 
-/* ── WizLumina before/after upsell overlay ───────────────────────────── */
+/* -- WizLumina before/after upsell overlay ----------------------------- */
 function LuminaUpsellOverlay({ visible }: { visible: boolean }) {
   if (!visible) return null;
   return (
@@ -228,7 +228,7 @@ function LuminaUpsellOverlay({ visible }: { visible: boolean }) {
   );
 }
 
-/* ── Premium caption overlay ─────────────────────────────────────────── */
+/* -- Premium caption overlay ------------------------------------------- */
 interface CaptionOverlayProps {
   caption: CaptionEntry | null;
   playing: boolean;
@@ -304,7 +304,7 @@ function CaptionOverlay({ caption, playing }: CaptionOverlayProps) {
   );
 }
 
-/* ── Main component ──────────────────────────────────────────────────── */
+/* -- Main component ---------------------------------------------------- */
 interface DemoVideoModalProps {
   open: boolean;
   onClose: () => void;
@@ -336,7 +336,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const currentCaption = getCaption(currentTime);
   const showLuminaUpsell = playing && currentCaption?.isLumina === true;
 
-  /* ── Build Web Audio graph (once, on first play) ─────────────────── */
+  /* -- Build Web Audio graph (once, on first play) ------------------- */
   const buildAudioGraph = useCallback(() => {
     if (graphBuiltRef.current) return;
     const audio = audioRef.current;
@@ -382,7 +382,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     setAnalyser(analyserNode);
   }, []);
 
-  /* ── Apply / remove EQ based on mode ────────────────────────────── */
+  /* -- Apply / remove EQ based on mode ------------------------------ */
   const applyEQ = useCallback((wizSound: boolean) => {
     const ramp = audioCtxRef.current?.currentTime ?? 0;
     const t = ramp + 0.05;
@@ -397,7 +397,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     }
   }, []);
 
-  /* ── Switch audio track (swap src, maintain position) ─────────────── */
+  /* -- Switch audio track (swap src, maintain position) --------------- */
   const switchTrack = useCallback(async (toWizSound: boolean) => {
     const audio = audioRef.current;
     const video = videoRef.current;
@@ -439,12 +439,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     }
   }, [applyEQ, isMuted]);
 
-  /* ── React to mode toggle ────────────────────────────────────────── */
+  /* -- React to mode toggle ------------------------------------------ */
   useEffect(() => {
     switchTrack(wizsoundMode);
   }, [wizsoundMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── Sync mute ──────────────────────────────────────────────────────────────────────── */
+  /* -- Sync mute ------------------------------------------------------------------------ */
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
@@ -454,7 +454,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     }
   }, [isMuted]);
 
-  /* ── AudioContext resume on visibility change (iOS/Android tab-switch fix) ── */
+  /* -- AudioContext resume on visibility change (iOS/Android tab-switch fix) -- */
   useEffect(() => {
     if (!playing) return;
     const handleVisibility = async () => {
@@ -482,7 +482,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [playing]);
 
-  /* ── Drift correction (rate-based, no seeks = no pops) ───────────── */
+  /* -- Drift correction (rate-based, no seeks = no pops) ------------- */
   // Instead of seeking the audio element (which causes buffer decode pops),
   // we nudge playbackRate to gently speed up or slow down the audio until
   // it catches up with the video. Only hard-seek as a last resort (>2s drift).
@@ -519,7 +519,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     };
   }, [playing]);
 
-  /* ── ESC to close ────────────────────────────────────────────────── */
+  /* -- ESC to close -------------------------------------------------- */
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -527,7 +527,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
-  /* ── Full reset on close ─────────────────────────────────────────── */
+  /* -- Full reset on close ------------------------------------------- */
   useEffect(() => {
     if (!open) {
       const vid = videoRef.current;
@@ -539,7 +539,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     }
   }, [open]);
 
-  /* ── Video event handlers ────────────────────────────────────────── */
+  /* -- Video event handlers ------------------------------------------ */
   const handleCanPlay = useCallback(() => {
     setVideoLoaded(true);
     const vid = videoRef.current;
@@ -562,7 +562,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     audioRef.current?.pause();
   }, []);
 
-  /* ── Play / Pause ──────────────────────────────────────────────────────────────────────── */
+  /* -- Play / Pause ------------------------------------------------------------------------ */
   // CRITICAL: synchronous handler — play() calls must be in the same user-gesture tick.
   // async/await loses gesture context on mobile Safari and some desktop browsers.
   const togglePlay = useCallback(() => {
@@ -603,7 +603,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     }
   }, [playing, isMuted, wizsoundMode, buildAudioGraph, applyEQ]);
 
-  /* ── Progress bar seek ───────────────────────────────────────────── */
+  /* -- Progress bar seek --------------------------------------------- */
   const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const vid = videoRef.current;
     const aud = audioRef.current;
@@ -641,7 +641,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
       <div className="relative z-10 w-full max-w-5xl mx-4 flex flex-col gap-0">
 
-        {/* ── Header label ── */}
+        {/* -- Header label -- */}
         <div className="flex items-center justify-center gap-2 pb-3">
           <Sparkles className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.7)' }} />
           <p
@@ -664,7 +664,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           <Sparkles className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.7)' }} />
         </div>
 
-        {/* ── Modal container ── */}
+        {/* -- Modal container -- */}
         <div
           id="wizai-demo-container"
           className="relative w-full rounded-2xl overflow-hidden bg-black"
@@ -676,13 +676,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             transition: "box-shadow 0.4s ease",
           }}
         >
-          {/* ── Premium caption overlay (top-centre, above toggle pill) ── */}
+          {/* -- Premium caption overlay (top-centre, above toggle pill) -- */}
           <CaptionOverlay caption={currentCaption} playing={playing} />
 
-          {/* ── WizLumina upsell overlay ── */}
+          {/* -- WizLumina upsell overlay -- */}
           <LuminaUpsellOverlay visible={showLuminaUpsell} />
 
-          {/* ── WizSound toggle pill ── */}
+          {/* -- WizSound toggle pill -- */}
           <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/85 border border-white/15 backdrop-blur-md p-1 shadow-xl">
             <button
               onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(false); }}
@@ -714,7 +714,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             </button>
           </div>
 
-          {/* ── Video (always muted — audio from separate element) ── */}
+          {/* -- Video (always muted — audio from separate element) -- */}
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
@@ -730,7 +730,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <source src={VIDEO_SRC} type="video/mp4" />
           </video>
 
-          {/* ── Single audio element — src swapped on toggle ── */}
+          {/* -- Single audio element — src swapped on toggle -- */}
           <audio
             ref={audioRef}
             src={AUDIO_STANDARD}
@@ -738,7 +738,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             crossOrigin="anonymous"
           />
 
-          {/* ── Close ── */}
+          {/* -- Close -- */}
           <button
             onMouseDown={onClose}
             className="absolute top-4 right-4 z-40 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
@@ -747,7 +747,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <X className="w-4 h-4" />
           </button>
 
-          {/* ── Centre play button ── */}
+          {/* -- Centre play button -- */}
           {!playing && (
             <button
               onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
@@ -763,7 +763,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             </button>
           )}
 
-          {/* ── Controls bar ── */}
+          {/* -- Controls bar -- */}
           <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/98 via-black/70 to-transparent px-4 pb-4 pt-20">
 
             {/* Real FFT EQ bars */}
@@ -869,7 +869,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           )}
         </div>
 
-        {/* ── Below modal hint ── */}
+        {/* -- Below modal hint -- */}
         <div className="flex items-center justify-center gap-2 pt-3">
           <p className="text-center text-xs text-white/40 font-medium">
             Toggle between{" "}
