@@ -2610,6 +2610,8 @@ function SeeTheDifference() {
     } else {
       // The video element carries the audio track — one play() call is all that's needed.
       // This is identical to how the intro video works and is not blocked by autoplay policy.
+      // Unmute in the same gesture tick — browser allows this
+      v.muted = false;
       v.volume = isMuted ? 0 : volume;
       v.play().catch((err) => console.warn('[WizSound] play blocked:', err));
       rafRef.current = requestAnimationFrame(tickProgress);
@@ -2628,6 +2630,7 @@ function SeeTheDifference() {
     if (current) current.pause();
     setActiveTier(id);
     if (!next) return;
+    next.muted = false;
     next.volume = isMuted ? 0 : volume;
     // Seek to same position in the new tier video
     if (next.duration) {
@@ -2762,6 +2765,7 @@ function SeeTheDifference() {
                     pointerEvents: activeTier === idx ? "auto" : "none",
                   }}
                   playsInline
+                  muted
                   loop
                   preload={idx === 0 ? "auto" : "metadata"}
                   onLoadedMetadata={() => handleVideoLoaded(idx)}

@@ -582,24 +582,20 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     } else {
       if (aud) {
         aud.currentTime = vid.currentTime;
-        // Use volume=0 instead of muted=true — muted can block autoplay policy
         aud.muted = false;
         aud.volume = isMuted ? 0 : 1;
         applyEQ(wizsoundMode);
+        // Call play() synchronously in the same gesture tick — no Promise chains
+        aud.play().catch((e) => console.warn('[DemoModal] audio blocked:', e.message));
       }
-      // Start both synchronously in the same user-gesture tick
-      const vPromise = vid.play();
-      const aPromise = aud ? aud.play() : Promise.resolve();
-      aPromise.then(() => {
+      // Call video play() synchronously in the same gesture tick
+      vid.play().then(() => {
         setPlaying(true);
         mp.demoVideoPlayed();
-      }).catch(() => {
-        vPromise.then(() => {
-          setPlaying(true);
-          mp.demoVideoPlayed();
-        }).catch(() => setPlaying(false));
+      }).catch((e) => {
+        console.warn('[DemoModal] video blocked:', e.message);
+        setPlaying(false);
       });
-      vPromise.catch(() => {}); // video failure is non-fatal
     }
   }, [playing, isMuted, wizsoundMode, buildAudioGraph, applyEQ]);
 
