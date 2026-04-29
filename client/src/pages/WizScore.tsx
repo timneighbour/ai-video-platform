@@ -26,25 +26,25 @@ const STAGES = [
 type Stage = typeof STAGES[number]["key"];
 
 const SCORE_TYPES = [
-  { id: "film",       label: "Film Score",       icon: "🎬", sub: "Feature · Short · Trailer" },
-  { id: "tv",         label: "TV / Series",       icon: "📺", sub: "Drama · Documentary" },
-  { id: "game",       label: "Game Score",        icon: "🎮", sub: "Adaptive · Cinematic" },
-  { id: "concert",    label: "Concert Work",      icon: "🎼", sub: "Orchestral · Chamber" },
-  { id: "backing",    label: "Backing Track",     icon: "🎵", sub: "Artist · Album · EP" },
-  { id: "choir",      label: "Choir / Vocal",     icon: "🎙", sub: "Choral · A Cappella" },
+  { id: "film",       label: "Film Score",       icon: "VI", sub: "Feature · Short · Trailer" },
+  { id: "tv",         label: "TV / Series",       icon: "TV", sub: "Drama · Documentary" },
+  { id: "game",       label: "Game Score",        icon: "GM", sub: "Adaptive · Cinematic" },
+  { id: "concert",    label: "Concert Work",      icon: "", sub: "Orchestral · Chamber" },
+  { id: "backing",    label: "Backing Track",     icon: "AU", sub: "Artist · Album · EP" },
+  { id: "choir",      label: "Choir / Vocal",     icon: "MK", sub: "Choral · A Cappella" },
 ];
 
 const MOODS = ["Epic","Cinematic","Dramatic","Emotional","Dark","Triumphant","Haunting","Suspense","Romantic","Action","Melancholic","Uplifting"];
 
 const ENSEMBLE_GROUPS = [
-  { id: "strings",    label: "Strings",    icon: "🎻", desc: "Violins I & II · Violas · Cellos · Double Bass" },
-  { id: "brass",      label: "Brass",      icon: "🎺", desc: "Horns · Trumpets · Trombones · Tuba" },
-  { id: "woodwinds",  label: "Woodwinds",  icon: "🎷", desc: "Flutes · Oboes · Clarinets · Bassoons" },
-  { id: "percussion", label: "Percussion", icon: "🥁", desc: "Timpani · Snare · Cymbals · Taiko" },
-  { id: "choir",      label: "Choir",      icon: "🎤", desc: "Soprano · Alto · Tenor · Bass" },
-  { id: "piano",      label: "Piano",      icon: "🎹", desc: "Grand Piano · Celesta · Harpsichord" },
-  { id: "harp",       label: "Harp",       icon: "🪗", desc: "Concert Harp · Glissandi" },
-  { id: "synth",      label: "Synth",      icon: "🎛️", desc: "Pads · Textures · Hybrid elements" },
+  { id: "strings",    label: "Strings",    icon: "", desc: "Violins I & II · Violas · Cellos · Double Bass" },
+  { id: "brass",      label: "Brass",      icon: "", desc: "Horns · Trumpets · Trombones · Tuba" },
+  { id: "woodwinds",  label: "Woodwinds",  icon: "", desc: "Flutes · Oboes · Clarinets · Bassoons" },
+  { id: "percussion", label: "Percussion", icon: "", desc: "Timpani · Snare · Cymbals · Taiko" },
+  { id: "choir",      label: "Choir",      icon: "", desc: "Soprano · Alto · Tenor · Bass" },
+  { id: "piano",      label: "Piano",      icon: "", desc: "Grand Piano · Celesta · Harpsichord" },
+  { id: "harp",       label: "Harp",       icon: "Harp", desc: "Concert Harp · Glissandi" },
+  { id: "synth",      label: "Synth",      icon: "️", desc: "Pads · Textures · Hybrid elements" },
 ];
 
 const INSTRUMENT_TRACKS = [
@@ -480,7 +480,7 @@ export default function WizScore() {
           onMouseEnter={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(212,168,67,0.18) 0%, rgba(212,168,67,0.09) 100%)")}
           onMouseLeave={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(212,168,67,0.12) 0%, rgba(212,168,67,0.06) 100%)")}
         >
-          <div style={{width:"42px",height:"42px",borderRadius:"8px",background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px",flexShrink:0}}>🎬</div>
+          <div style={{width:"42px",height:"42px",borderRadius:"8px",background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px",flexShrink:0}}></div>
           <div style={{flex:1}}>
             <div style={{fontSize:"12px",fontWeight:800,color:"#d4a843",letterSpacing:"1px",marginBottom:"2px"}}>UPLOAD YOUR VIDEO TO BEGIN</div>
             <div style={{fontSize:"10px",color:"rgba(224,216,204,0.55)"}}>Drop your MP4, MOV, or WebM here — WizScore™ analyses the mood and pacing to compose a perfectly synced original score</div>
@@ -554,7 +554,7 @@ export default function WizScore() {
                 onMouseEnter={e => (e.currentTarget.style.borderColor="rgba(212,168,67,0.4)")}
                 onMouseLeave={e => (e.currentTarget.style.borderColor="#2a2a2a")}
               >
-                <div style={{fontSize:"22px",marginBottom:"6px"}}>🎬</div>
+                <div style={{fontSize:"22px",marginBottom:"6px"}}></div>
                 <div style={{fontSize:"10px",fontWeight:700,color:"#e0d8cc",marginBottom:"4px"}}>UPLOAD YOUR VIDEO</div>
                 <div style={{fontSize:"9px",color:"#888",marginBottom:"8px"}}>Drag & drop or click to browse</div>
                 <div style={{fontSize:"8px",color:"#555"}}>MP4 · MOV · AVI · WebM · up to 500 MB</div>
@@ -609,7 +609,7 @@ export default function WizScore() {
                 color:"#d4a843",padding:"7px 12px",borderRadius:"3px",
                 fontSize:"9px",fontWeight:700,letterSpacing:"1px",cursor:"pointer",
               }}>
-                <span style={{fontSize:"13px"}}>🎙</span> SPEAK YOUR BRIEF
+                <span style={{fontSize:"13px"}}></span> SPEAK YOUR BRIEF
               </button>
               <span style={{fontSize:"8px",color:"#888"}}>or type below</span>
             </div>
@@ -660,7 +660,7 @@ export default function WizScore() {
           {/* Studio Ambience */}
           <div style={{marginBottom:"8px"}}>
             <div style={{fontSize:"9px",fontWeight:700,color:"#d4a843",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"10px",display:"flex",alignItems:"center",gap:"6px"}}>
-              🔆 STUDIO AMBIENCE
+               STUDIO AMBIENCE
               <div style={{flex:1,height:"1px",background:"#1e1e1e"}} />
             </div>
             <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
@@ -703,8 +703,8 @@ export default function WizScore() {
               <div style={{fontSize:"9px",color:"#888",marginTop:"2px"}}>Feature Film Score · 2:24 · 8 instrument groups · Choir: 32 voices</div>
             </div>
             <div style={{display:"flex",gap:"6px"}}>
-              <button style={{padding:"5px 10px",background:"#111",border:"1px solid #222",color:"#888",fontSize:"9px",borderRadius:"3px",cursor:"pointer"}}>📄 Score PDF</button>
-              <button style={{padding:"5px 10px",background:"#111",border:"1px solid #222",color:"#888",fontSize:"9px",borderRadius:"3px",cursor:"pointer"}}>🎼 MIDI Export</button>
+              <button style={{padding:"5px 10px",background:"#111",border:"1px solid #222",color:"#888",fontSize:"9px",borderRadius:"3px",cursor:"pointer"}}> Score PDF</button>
+              <button style={{padding:"5px 10px",background:"#111",border:"1px solid #222",color:"#888",fontSize:"9px",borderRadius:"3px",cursor:"pointer"}}> MIDI Export</button>
               <button style={{padding:"5px 10px",background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.4)",color:"#d4a843",fontSize:"9px",borderRadius:"3px",cursor:"pointer",fontWeight:700}}>+ ADD INSTRUMENT</button>
             </div>
           </div>
@@ -813,7 +813,7 @@ export default function WizScore() {
           {/* Generate */}
           <div style={{padding:"16px 0 0"}}>
             <button onClick={() => mp.generationStarted("WizScore", undefined, scoreBrief.trim().length > 0)} style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
-              🎬 COMPOSE SCORE
+               COMPOSE SCORE
               <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.7}}>Brief → Ensemble → Compose → Upgrade Preview → Render</div>
             </button>
           </div>
@@ -824,7 +824,7 @@ export default function WizScore() {
 
           {/* Upgrade Preview */}
           <div style={{borderBottom:"1px solid #141414",paddingBottom:"14px",marginBottom:"14px"}}>
-            <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#d4a843",textTransform:"uppercase",marginBottom:"6px"}}>🎧 HEAR & SEE THE DIFFERENCE</div>
+            <div style={{fontSize:"9px",fontWeight:700,letterSpacing:"2px",color:"#d4a843",textTransform:"uppercase",marginBottom:"6px"}}> HEAR & SEE THE DIFFERENCE</div>
             <div style={{fontSize:"8px",color:"#555",marginBottom:"10px",lineHeight:1.5}}>Listen before you commit. Preview your score in all three quality tiers — no download until payment confirmed.</div>
 
             {/* Tier tabs */}
@@ -861,7 +861,7 @@ export default function WizScore() {
                 </div>
                 <span style={{fontSize:"9px",color:"#555"}}>0:35 / 2:24</span>
               </div>
-              <div style={{fontSize:"8px",color:"#333",marginTop:"4px"}}>🔒 Preview only — no download until render complete & payment confirmed</div>
+              <div style={{fontSize:"8px",color:"#333",marginTop:"4px"}}> Preview only — no download until render complete & payment confirmed</div>
             </div>
 
             {/* WizLuminar visual quality */}
@@ -878,11 +878,11 @@ export default function WizScore() {
                       background:li===0?"linear-gradient(135deg,#1a1a1a,#2a2a2a)":li===1?"linear-gradient(135deg,#1a1208,#2a2010)":"linear-gradient(135deg,#0d0a00,#1a1400)",
                       display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",
                     }}>
-                      {li===0?"🎼":li===1?"✨":"🌟"}
+                      {li===0?"":li===1?"★":""}
                     </div>
                     {/* Lock overlay on CINEMATIC if not selected */}
                     {li === 2 && luminarTier !== "cinematic" && (
-                      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.55)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px"}}>🔒</div>
+                      <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.55)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px"}}></div>
                     )}
                     <div style={{fontSize:"7px",fontWeight:700,color:luminarTier===lbl.toLowerCase()?"#d4a843":"#444",padding:"3px",textAlign:"center"}}>{lbl}</div>
                   </button>
@@ -892,7 +892,7 @@ export default function WizScore() {
 
             {/* Upgrade CTAs */}
             <button onClick={() => mp.upgradeCTAClicked("WizScore", "WizSound Cinematic")} style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(155,89,245,0.15),rgba(155,89,245,0.08))",border:"1px solid rgba(155,89,245,0.3)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
-              <span style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}>🎵 WizSound™ Cinematic</span>
+              <span style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}> WizSound™ Cinematic</span>
               <span style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>{WIZSOUND_TIERS.CINEMATIC.price}</span>
             </button>
             <button onClick={() => mp.upgradeCTAClicked("WizScore", "WizLuminar Cinematic")} style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -921,7 +921,7 @@ export default function WizScore() {
               })}
             </div>
             <button style={{width:"100%",padding:"10px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"3px",color:"#000",fontSize:"11px",fontWeight:900,letterSpacing:"1px",cursor:"pointer"}}>
-              🎬 RENDER SCORE — {renderQuality}
+               RENDER SCORE — {renderQuality}
             </button>
           </div>
 

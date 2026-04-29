@@ -469,8 +469,8 @@ i18n
 export default i18n;
 
 export const LANGUAGES = [
-  { code: "en", name: "English", flag: "🇬🇧", shortName: "EN" },
-  { code: "es", name: "Español", flag: "🇪🇸", shortName: "ES" },
-  { code: "pt-BR", name: "Português", flag: "🇧🇷", shortName: "PT" },
-  { code: "fr", name: "Français", flag: "🇫🇷", shortName: "FR" },
+  { code: "en", name: "English", flag: "", shortName: "EN" },
+  { code: "es", name: "Español", flag: "", shortName: "ES" },
+  { code: "pt-BR", name: "Português", flag: "", shortName: "PT" },
+  { code: "fr", name: "Français", flag: "", shortName: "FR" },
 ];

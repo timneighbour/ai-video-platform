@@ -59,7 +59,7 @@ export function useCurrency() {
 
   const rates = rateData?.rates ?? {};
   const currencies: CurrencyMeta[] = (rateData?.currencies as CurrencyMeta[] | undefined) ?? [
-    { code: "GBP", symbol: "£", name: "British Pound", flag: "🇬🇧" },
+    { code: "GBP", symbol: "£", name: "British Pound", flag: "" },
   ];
 
   const currentMeta = currencies.find(c => c.code === selectedCurrency) ?? currencies[0];

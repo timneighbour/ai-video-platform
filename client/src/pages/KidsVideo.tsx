@@ -328,7 +328,7 @@ export default function KidsVideo() {
           onMouseEnter={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(124,92,191,0.22) 0%, rgba(124,92,191,0.11) 100%)")}
           onMouseLeave={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(124,92,191,0.14) 0%, rgba(124,92,191,0.07) 100%)")}
         >
-          <div style={{width:"40px",height:"40px",borderRadius:"8px",background:"rgba(124,92,191,0.18)",border:"1px solid rgba(124,92,191,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px",flexShrink:0}}>🎵</div>
+          <div style={{width:"40px",height:"40px",borderRadius:"8px",background:"rgba(124,92,191,0.18)",border:"1px solid rgba(124,92,191,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px",flexShrink:0}}></div>
           <div style={{flex:1}}>
             <div style={{fontSize:"11px",fontWeight:800,color:ACCENT_LIGHT,letterSpacing:"0.8px",marginBottom:"2px"}}>UPLOAD YOUR AUDIO TRACK TO BEGIN</div>
             <div style={{fontSize:"9px",color:"rgba(255,255,255,0.4)"}}>MP3, WAV, M4A · WizAnimate™ syncs every scene to your music, extracts lyrics, and animates to the beat</div>
@@ -441,7 +441,7 @@ export default function KidsVideo() {
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexDirection: "column", gap: "6px",
               }}>
-                <div style={{ fontSize: "28px" }}>🎬</div>
+                <div style={{ fontSize: "28px" }}>VID</div>
                 <div style={{ fontSize: "8px", color: "#555", letterSpacing: "1px" }}>{selectedStyle?.label?.toUpperCase() ?? "—"}</div>
               </div>
             </div>
@@ -461,7 +461,7 @@ export default function KidsVideo() {
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
                 <span>Character — {charName}</span>
-                <span style={{ color: "#444" }}>🔒</span>
+                <span style={{ color: "#444" }}></span>
               </div>
               <div style={{
                 width: "100%", height: "calc(100% - 20px)",
@@ -619,7 +619,7 @@ export default function KidsVideo() {
                     background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#666",
                     fontSize: "10px", padding: "4px 10px", borderRadius: "3px", cursor: "pointer",
                     display: "flex", alignItems: "center", gap: "4px",
-                  }}>🎙 Speak Brief</button>
+                  }}> Speak Brief</button>
                 </div>
               </div>
             </div>
@@ -707,7 +707,7 @@ export default function KidsVideo() {
                         position:"absolute",bottom:0,left:0,right:0,
                         background:"rgba(0,0,0,0.65)",fontSize:"7px",fontWeight:700,
                         padding:"2px 4px",textAlign:"center",color:ch.color,letterSpacing:"0.5px",
-                      }}>📷</div>
+                      }}></div>
                     </div>
                     {/* Info */}
                     <div style={{flex:1,minWidth:0}}>
@@ -742,7 +742,7 @@ export default function KidsVideo() {
                         )}
                         <button
                           style={{fontSize:"8px",padding:"3px 8px",background:ACCENT_DIM,border:`1px solid ${ACCENT_BORDER}`,color:ACCENT_LIGHT,borderRadius:"3px",cursor:"pointer",marginLeft:"auto"}}>
-                          🔒 Lock Character
+                           Lock Character
                         </button>
                       </div>
                     </div>
@@ -996,7 +996,7 @@ export default function KidsVideo() {
                 {String(Math.floor((progress / 100) * 222 / 60)).padStart(1, "0")}:{String(Math.floor((progress / 100) * 222 % 60)).padStart(2, "0")} / 3:42
               </span>
               <div style={{ fontSize: "8px", color: "#3a3a3a", marginLeft: "auto", display: "flex", alignItems: "center", gap: "3px" }}>
-                <span>🔒</span><span>Preview only</span>
+                <span></span><span>Preview only</span>
               </div>
             </div>
 
@@ -1045,7 +1045,7 @@ export default function KidsVideo() {
                   border: "1px solid #2a2a2a", background: "#0d0d0d",
                   display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "4px",
                 }}>
-                  <div style={{ fontSize: "18px", color: "#2a2a2a" }}>🔒</div>
+                  <div style={{ fontSize: "18px", color: "#2a2a2a" }}></div>
                   <div style={{ fontSize: "7px", color: "#333", textAlign: "center", letterSpacing: "0.5px" }}>Download unlocks<br />after payment</div>
                 </div>
               </div>
@@ -1120,7 +1120,7 @@ export default function KidsVideo() {
               border: "none", borderRadius: "3px",
               color: "#fff", fontSize: "11px", fontWeight: 900, letterSpacing: "1px", cursor: "pointer",
             }}>
-              🎬 RENDER — {renderQuality}
+               RENDER — {renderQuality}
             </button>
           </RightSection>
 

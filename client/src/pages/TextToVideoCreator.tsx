@@ -442,7 +442,7 @@ export default function TextToVideoCreator() {
       {/* ── PROMPT BANNER — always visible, prompts user to start ── */}
       {step === "input" && !prompt && (
         <div className="flex items-center gap-4 px-6 py-4 relative z-10" style={{ background: "linear-gradient(90deg, rgba(124,58,237,0.14) 0%, rgba(124,58,237,0.07) 100%)", borderBottom: "1px solid rgba(124,58,237,0.3)" }}>
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(124,58,237,0.18)", border: "1px solid rgba(124,58,237,0.4)" }}>🎬</div>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(124,58,237,0.18)", border: "1px solid rgba(124,58,237,0.4)" }}></div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#a78bfa", letterSpacing: "0.5px" }}>DESCRIBE YOUR VIDEO TO BEGIN</div>
             <div className="text-xs text-zinc-500">Type your screenplay prompt below — WizScript™ generates a full storyboard with AI scene previews</div>

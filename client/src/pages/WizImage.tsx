@@ -26,12 +26,12 @@ const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDN
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const IMAGE_TYPES = [
-  { id: "album_cover",      label: "Album Cover",      icon: "💿", sub: "Square · 3000×3000px" },
-  { id: "band_photo",       label: "Band Photo",        icon: "📸", sub: "Landscape · 4K" },
-  { id: "tour_poster",      label: "Tour Poster",       icon: "🎭", sub: "Portrait · A2 print" },
-  { id: "social_media",     label: "Social Media",      icon: "📱", sub: "Multi-format pack" },
-  { id: "merch_design",     label: "Merch Design",      icon: "👕", sub: "T-shirt · Hoodie" },
-  { id: "video_thumbnail",  label: "Video Thumbnail",   icon: "🎬", sub: "16:9 · YouTube" },
+  { id: "album_cover",      label: "Album Cover",      icon: "AL", sub: "Square · 3000×3000px" },
+  { id: "band_photo",       label: "Band Photo",        icon: "PH", sub: "Landscape · 4K" },
+  { id: "tour_poster",      label: "Tour Poster",       icon: "PO", sub: "Portrait · A2 print" },
+  { id: "social_media",     label: "Social Media",      icon: "MO", sub: "Multi-format pack" },
+  { id: "merch_design",     label: "Merch Design",      icon: "", sub: "T-shirt · Hoodie" },
+  { id: "video_thumbnail",  label: "Video Thumbnail",   icon: "VI", sub: "16:9 · YouTube" },
 ];
 
 const VISUAL_STYLE_TAGS = [
@@ -245,7 +245,7 @@ export default function WizImage() {
           {/* Right: Credits + avatar */}
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border" style={{ background: A_DIM, borderColor: A_BORDER }}>
-              <span className="text-xs font-medium" style={{ color: A }}>✦ 10,000 Credits</span>
+              <span className="text-xs font-medium" style={{ color: A }}>10,000 Credits</span>
             </div>
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold border" style={{ background: A_DIM, borderColor: A_BORDER, color: A }}>
               {user?.name?.charAt(0) || "T"}
@@ -279,7 +279,7 @@ export default function WizImage() {
               <img src={generatedImages[0]} alt="" className="w-full h-full object-cover" />
             ) : (
               <div className="text-center">
-                <div className="text-2xl mb-1" style={{ opacity: 0.4 }}>{IMAGE_TYPES.find(t => t.id === imageType)?.icon ?? "🎨"}</div>
+                <div className="text-2xl mb-1" style={{ opacity: 0.4 }}>{IMAGE_TYPES.find(t => t.id === imageType)?.icon ?? ""}</div>
                 <div className="text-[9px] tracking-[1px] uppercase" style={{ color: "rgba(212,168,67,0.5)" }}>{currentImageType.label} · Awaiting Brief</div>
               </div>
             )}
@@ -332,7 +332,7 @@ export default function WizImage() {
           onMouseEnter={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(99,102,241,0.22) 0%, rgba(99,102,241,0.11) 100%)")}
           onMouseLeave={e=>(e.currentTarget.style.background="linear-gradient(90deg, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0.07) 100%)")}
         >
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.4)" }}>🎨</div>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.4)" }}></div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#818cf8", letterSpacing: "0.5px" }}>UPLOAD YOUR REFERENCE IMAGE TO BEGIN</div>
             <div className="text-xs text-zinc-500">Band photos, artist portraits, album concepts, mood images · JPG, PNG, WEBP, RAW · up to 50MB</div>
@@ -368,7 +368,7 @@ export default function WizImage() {
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = A)}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = A_BORDER)}
               >
-                <div className="text-3xl mb-2">🎨</div>
+                <div className="text-3xl mb-2"></div>
                 <div className="text-sm font-semibold mb-1" style={{ color: A }}>Upload Your Reference</div>
                 <div className="text-[11px] text-white/40 mb-3">Band photos, artist portraits, album concepts, mood images</div>
                 <button className="px-5 py-2 rounded-full text-xs font-bold text-white" style={{ background: `linear-gradient(135deg, ${A}, #4f46e5)` }}>
@@ -586,11 +586,11 @@ export default function WizImage() {
             <div className="flex items-center gap-1.5">
               {[
                 { icon: "↖", title: "Select", active: true },
-                { icon: "🔍", title: "Zoom" },
+                { icon: "", title: "Zoom" },
                 { icon: "⊞", title: "Compare" },
                 { icon: "⛶", title: "Fullscreen" },
                 { icon: "✏", title: "Edit" },
-                { icon: "🖌", title: "Inpaint" },
+                { icon: "", title: "Inpaint" },
               ].map((tool) => (
                 <button
                   key={tool.title}
@@ -618,7 +618,7 @@ export default function WizImage() {
                 {generateMutation.isPending ? (
                   <><Loader2 className="w-4 h-4 animate-spin" />Generating…</>
                 ) : (
-                  <>✦ GENERATE</>
+                  <>GENERATE</>
                 )}
               </button>
             </div>
@@ -782,7 +782,7 @@ export default function WizImage() {
                 {["Original", "Enhanced", "WizLuminar™"].map((label, i) => (
                   <div key={label} className={`rounded-md overflow-hidden relative aspect-square ${i === 2 ? "opacity-60" : ""}`}
                     style={{ background: `linear-gradient(135deg, #0a0a20 ${i * 20}%, #1a1a40, #050518)` }}>
-                    {i === 2 && <div className="absolute inset-0 flex items-center justify-center text-lg" style={{ background: "rgba(0,0,0,0.6)" }}>🔒</div>}
+                    {i === 2 && <div className="absolute inset-0 flex items-center justify-center text-lg" style={{ background: "rgba(0,0,0,0.6)" }}></div>}
                     <div className="absolute bottom-0 left-0 right-0 text-center py-0.5 text-[8px]" style={{ background: "rgba(0,0,0,0.7)", color: i === 2 ? A : "rgba(255,255,255,0.4)" }}>{label}</div>
                   </div>
                 ))}
@@ -890,7 +890,7 @@ export default function WizImage() {
             {generateMutation.isPending ? (
               <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Generating…</span>
             ) : (
-              "✦ GENERATE IMAGE"
+              "GENERATE IMAGE"
             )}
           </button>
 

@@ -1817,7 +1817,7 @@ export default function MusicVideoAutopilot() {
               {/* ── AUDIO UPLOAD BANNER — always visible on upload step ── */}
       {step === "upload" && !audioFile && !sunoGeneratedAudioUrl && (
         <div className="flex items-center gap-4 px-6 py-4 relative z-10" style={{ background: "linear-gradient(90deg, rgba(20,184,166,0.14) 0%, rgba(20,184,166,0.07) 100%)", borderBottom: "1px solid rgba(20,184,166,0.3)" }}>
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.35)" }}>🎵</div>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.35)" }}></div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#2dd4bf", letterSpacing: "0.5px" }}>UPLOAD YOUR SONG TO BEGIN</div>
             <div className="text-xs text-zinc-300">MP3, WAV, M4A · up to 50MB · WizVideo™ auto-transcribes lyrics, casts characters, and builds your storyboard</div>
@@ -1848,11 +1848,11 @@ export default function MusicVideoAutopilot() {
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {([
-                      { value: "solo_artist" as const, label: "Solo Artist", icon: "♪", desc: "One main performer" },
-                      { value: "band" as const, label: "Band", icon: "♫", desc: "Multiple performers" },
-                      { value: "animated_characters" as const, label: "Animated Group", icon: "▶", desc: "Stylised 3D / anime" },
-                      { value: "solo_animated" as const, label: "Solo Animated", icon: "✦", desc: "Single animated character" },
-                    ] as const).map(({ value, label, icon, desc }) => (
+                      { value: "solo_artist" as const, label: "Solo Artist", desc: "One main performer" },
+                      { value: "band" as const, label: "Band", desc: "Multiple performers" },
+                      { value: "animated_characters" as const, label: "Animated Group", desc: "Stylised 3D / anime" },
+                      { value: "solo_animated" as const, label: "Solo Animated", desc: "Single animated character" },
+                    ] as const).map(({ value, label, desc }) => (
                       <button
                         key={value}
                         type="button"
@@ -1868,7 +1868,6 @@ export default function MusicVideoAutopilot() {
                             : "border-[rgba(184,137,42,0.12)] bg-[rgba(20,16,12,0.6)] hover:border-zinc-500 hover:bg-[rgba(24,20,16,0.9)]"
                         }`}
                       >
-                        <span className="text-2xl">{icon}</span>
                         <div>
                           <p className={`text-xs font-semibold ${artistType === value ? "text-[--color-gold]" : "text-white"}`}>{label}</p>
                           <p className="text-[10px] text-white/40 mt-0.5">{desc}</p>

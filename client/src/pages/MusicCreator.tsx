@@ -401,7 +401,7 @@ export default function MusicCreator() {
         </div>
         <div className="flex items-center gap-3.5">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-[--color-gold] px-3 py-1.5 rounded-[4px] border border-[--color-gold]/20" style={{ background: "rgba(201,168,76,0.08)" }}>
-            ✦ 10,000 Credits
+            10,000 Credits
           </div>
           <div className="w-[30px] h-[30px] rounded-full border border-[--color-gold]/30 flex items-center justify-center text-xs font-bold text-[--color-gold]" style={{ background: "rgba(201,168,76,0.15)" }}>
             {user?.name?.charAt(0) || "T"}
@@ -530,9 +530,9 @@ export default function MusicCreator() {
               </div>
               <div className="flex p-2.5 gap-0">
                 {([
-                  { value: "score" as GenerationMode, icon: "🔊", label: "Sound FX",       desc: "Cinematic effects & ambience" },
-                  { value: "song"  as GenerationMode, icon: "🎧", label: "Precision Audio", desc: "Full production, any length" },
-                  { value: "suno"  as GenerationMode, icon: "🎵", label: "WizAudio™",       desc: "2 creative track variations with lyrics" },
+                  { value: "score" as GenerationMode, icon: "FX", label: "Sound FX",       desc: "Cinematic effects & ambience" },
+                  { value: "song"  as GenerationMode, icon: "PRO", label: "Precision Audio", desc: "Full production, any length" },
+                  { value: "suno"  as GenerationMode, icon: "AI", label: "WizAudio™",       desc: "2 creative track variations with lyrics" },
                 ]).map((e, i, arr) => (
                   <button
                     key={e.value}
@@ -558,8 +558,8 @@ export default function MusicCreator() {
                   className="text-[11px] font-semibold text-[--color-gold] px-2.5 py-1 rounded-[3px] border border-[--color-gold]/20 cursor-pointer focus:outline-none"
                   style={{ background: "rgba(201,168,76,0.08)" }}
                 >
-                  <option value="V4">🤖 WizAudio V4 (recommended)</option>
-                  <option value="V3_5">🤖 WizAudio V3.5</option>
+                  <option value="V4">WizAudio V4 (recommended)</option>
+                  <option value="V3_5">WizAudio V3.5</option>
                 </select>
               </div>
             </div>
@@ -609,7 +609,7 @@ export default function MusicCreator() {
               <div className="flex flex-wrap gap-1.5 p-2.5">
                 {GENRES.map((g) => (
                   <button key={g} onClick={() => toggleGenre(g)} className={`px-2.5 py-1.5 rounded-[3px] border text-[11px] font-medium transition-all ${selectedGenres.includes(g) ? "border-[--color-gold] bg-[--color-gold]/12 text-[--color-gold] font-semibold" : "border-white/7 bg-white/3 text-white/42 hover:border-[--color-gold]/30 hover:text-white/65 hover:bg-[--color-gold]/5"}`}>
-                    {selectedGenres.includes(g) && <span className="text-[9px] mr-1">✓</span>}{g}
+                    {selectedGenres.includes(g) && <span className="text-[9px] mr-1"></span>}{g}
                   </button>
                 ))}
               </div>
@@ -624,7 +624,7 @@ export default function MusicCreator() {
               <div className="flex flex-wrap gap-1.5 p-2.5">
                 {MOODS.map((m) => (
                   <button key={m} onClick={() => toggleMood(m)} className={`px-2.5 py-1.5 rounded-[3px] border text-[11px] font-medium transition-all ${selectedMoods.includes(m) ? "border-[--color-gold] bg-[--color-gold]/12 text-[--color-gold] font-semibold" : "border-white/7 bg-white/3 text-white/42 hover:border-[--color-gold]/30 hover:text-white/65 hover:bg-[--color-gold]/5"}`}>
-                    {selectedMoods.includes(m) && <span className="text-[9px] mr-1">✓</span>}{m}
+                    {selectedMoods.includes(m) && <span className="text-[9px] mr-1"></span>}{m}
                   </button>
                 ))}
               </div>
@@ -636,7 +636,7 @@ export default function MusicCreator() {
               <div className="flex flex-wrap gap-1.5 p-2.5">
                 {VOCALS.map((v) => (
                   <button key={v} onClick={() => setSelectedVocal(selectedVocal === v ? "" : v)} className={`px-2.5 py-1.5 rounded-[3px] border text-[11px] font-medium transition-all ${selectedVocal === v ? "border-[--color-gold] bg-[--color-gold]/12 text-[--color-gold] font-semibold" : "border-white/7 bg-white/3 text-white/42 hover:border-[--color-gold]/30 hover:text-white/65 hover:bg-[--color-gold]/5"}`}>
-                    {selectedVocal === v && <span className="text-[9px] mr-1">✓</span>}{v}
+                    {selectedVocal === v && <span className="text-[9px] mr-1"></span>}{v}
                   </button>
                 ))}
               </div>
@@ -664,7 +664,7 @@ export default function MusicCreator() {
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#0a84ff]/22 text-[11px] font-semibold text-[#4da6ff] transition-all hover:bg-[#0a84ff]/14 hover:border-[#0a84ff]/38 disabled:opacity-40 w-fit"
                   style={{ background: "rgba(10,132,255,0.08)" }}
                 >
-                  {generateLyricsMutation.isPending ? <><Loader2 className="w-3 h-3 animate-spin" />Generating…</> : <>✨ Generate Lyrics with AI</>}
+                  {generateLyricsMutation.isPending ? <><Loader2 className="w-3 h-3 animate-spin" />Generating…</> : <>Generate Lyrics with AI</>}
                 </button>
               </div>
             </div>
@@ -691,7 +691,7 @@ export default function MusicCreator() {
                   onClick={() => setTargetDuration(null)}
                   className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] border text-[11px] transition-all ${targetDuration === null ? "border-[--color-gold]/18 bg-[--color-gold]/6 text-[--color-gold]/65" : "border-white/7 text-white/35 hover:border-[--color-gold]/18"}`}
                 >
-                  <div className={`w-3.5 h-3.5 rounded-full border-[1.5px] flex items-center justify-center text-[8px] flex-shrink-0 ${targetDuration === null ? "border-[--color-gold] bg-[--color-gold]/18 text-[--color-gold]" : "border-white/30"}`}>{targetDuration === null && "✓"}</div>
+                  <div className={`w-3.5 h-3.5 rounded-full border-[1.5px] flex items-center justify-center text-[8px] flex-shrink-0 ${targetDuration === null ? "border-[--color-gold] bg-[--color-gold]/18 text-[--color-gold]" : "border-white/30"}`}>{targetDuration === null && ""}</div>
                   <div>
                     <div className="text-[11px] font-semibold">No duration set</div>
                     <div className="text-[9px] text-white/28 mt-0.5">WizAudio will generate a full-length track</div>
@@ -763,7 +763,7 @@ export default function MusicCreator() {
                     return (
                       <div key={phase} className="flex items-center gap-1.5">
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${isActive ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30" : isDone ? "bg-white/5 text-white/50" : "bg-white/[0.03] text-white/25"}`}>
-                          <span>{isDone ? "✓" : labels[idx]}</span>
+                          <span>{isDone ? "" : labels[idx]}</span>
                           {isActive && <Loader2 className="w-3 h-3 animate-spin" />}
                         </div>
                         {idx < 2 && <ChevronRight className="w-3 h-3 text-white/15" />}
@@ -911,7 +911,7 @@ export default function MusicCreator() {
             {/* Upgrade Preview */}
             <div className="rounded-[6px] p-3.5 border border-[--color-gold]/15" style={{ background: "#0d0d10" }}>
               <div className="text-[10px] font-bold tracking-[1.5px] text-white/50 mb-2.5">
-                🎵 UPGRADE PREVIEW <span className="text-[#555] font-normal">— Listen only · No download</span>
+                UPGRADE PREVIEW <span className="text-[#555] font-normal">— Listen only · No download</span>
               </div>
               <div className="flex gap-1.5 mb-3">
                 {(["original", "enhanced", "cinematic"] as AudioTier[]).map((t) => (
@@ -953,7 +953,7 @@ export default function MusicCreator() {
                   <div className="h-full w-[22%] rounded-[2px]" style={{ background: "linear-gradient(90deg, #c9a84c, #f0c040)" }} />
                 </div>
                 <span className="text-[9px] text-[#555]">0:22 / 3:00</span>
-                <span className="text-[9px] text-[#333]">🔒 Preview only</span>
+                <span className="text-[9px] text-[#333]">Preview only</span>
               </div>
 
               {/* WizSound CTA */}
@@ -972,11 +972,11 @@ export default function MusicCreator() {
 
             {/* Studio Ambience Dimmer */}
             <div className="rounded-[6px] p-3 border border-white/6" style={{ background: "#0d0d10" }}>
-              <div className="text-[10px] font-bold tracking-[1.5px] text-white/40 mb-2">☀ STUDIO AMBIENCE</div>
+              <div className="text-[10px] font-bold tracking-[1.5px] text-white/40 mb-2">STUDIO AMBIENCE</div>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[10px] text-[#555]">🔇 Dim</span>
+                <span className="text-[10px] text-[#555]">Dim</span>
                 <span className="text-[11px] font-semibold text-[--color-gold]">{ambience}%</span>
-                <span className="text-[10px] text-[#555]">☀ Bright</span>
+                <span className="text-[10px] text-[#555]"> Bright</span>
               </div>
               <input
                 type="range" min={20} max={100} value={ambience}

@@ -351,7 +351,7 @@ function ShowcaseHero({ item, onPlay }: { item: ShowcaseItem; onPlay: () => void
         <div className="flex items-center gap-3 mb-4">
           <span className="text-[10px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full"
             style={{ background: "linear-gradient(135deg, #c4a464, #e8c97a)", color: "#0a0a14" }}>
-            ✦ Featured
+            Featured
           </span>
           <span className="text-xs font-semibold tracking-widest uppercase text-white/40">{item.category}</span>
           {item.tool && <span className="text-xs text-white/30">· {item.tool}</span>}

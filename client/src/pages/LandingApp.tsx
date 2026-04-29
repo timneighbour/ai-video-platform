@@ -30,11 +30,11 @@ const PROOF_POINTS = [
 ];
 
 const STYLES = [
-  { label: "Music Videos", emoji: "♪" },
+  { label: "Music Videos" },
   { label: "Cinematic Films", emoji: "▶" },
-  { label: "Stylised 3D", emoji: "✦" },
-  { label: "Anime", emoji: "★" },
-  { label: "Epic Fantasy", emoji: "✶" },
+  { label: "Stylised 3D" },
+  { label: "Anime" },
+  { label: "Epic Fantasy" },
 ];
 
 const STEPS = [

@@ -711,7 +711,7 @@ export default function WizShorts() {
           onMouseEnter={e => (e.currentTarget.style.background = "linear-gradient(90deg, rgba(217,70,239,0.2) 0%, rgba(217,70,239,0.1) 100%)")}
           onMouseLeave={e => (e.currentTarget.style.background = "linear-gradient(90deg, rgba(217,70,239,0.12) 0%, rgba(217,70,239,0.06) 100%)")}
         >
-          <div style={{width:40,height:40,borderRadius:8,background:"rgba(217,70,239,0.18)",border:"1px solid rgba(217,70,239,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🎵</div>
+          <div style={{width:40,height:40,borderRadius:8,background:"rgba(217,70,239,0.18)",border:"1px solid rgba(217,70,239,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}></div>
           <div style={{flex:1}}>
             <div style={{fontSize:11,fontWeight:800,color:FX,letterSpacing:"0.8px",marginBottom:2}}>ADD BACKGROUND MUSIC OR AUDIO TRACK</div>
             <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>MP3, WAV, M4A · WizShorts™ syncs beat cuts, captions and transitions to your audio</div>
@@ -748,7 +748,7 @@ export default function WizShorts() {
           ? "linear-gradient(90deg, rgba(109,184,109,0.08) 0%, rgba(109,184,109,0.04) 100%)"
           : "linear-gradient(90deg, rgba(255,165,0,0.08) 0%, rgba(255,165,0,0.04) 100%)")}
       >
-        <div style={{width:36,height:36,borderRadius:8,background:"rgba(255,165,0,0.18)",border:"1px solid rgba(255,165,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🖼</div>
+        <div style={{width:36,height:36,borderRadius:8,background:"rgba(255,165,0,0.18)",border:"1px solid rgba(255,165,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}></div>
         <div style={{flex:1}}>
           <div style={{fontSize:11,fontWeight:800,color:"#ffa500",letterSpacing:"0.8px",marginBottom:2}}>UPLOAD VISUALS — PHOTOS, B-ROLL, FACE CAM</div>
           <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>JPG, PNG, MP4 · Upload your face cam, product shots, or b-roll for AI to use in your Short</div>
@@ -1213,7 +1213,7 @@ export default function WizShorts() {
                   </div>
                   <span className="text-[9px] text-white/30">0:21 / 1:00</span>
                 </div>
-                <div className="text-[9px] text-white/30 mt-2">🔒 Preview only</div>
+                <div className="text-[9px] text-white/30 mt-2"> Preview only</div>
               </div>
               {/* WizLuminar */}
               <div className="mb-4">
@@ -1230,7 +1230,7 @@ export default function WizShorts() {
                       }
                     >
                       <div className="font-bold">{t}</div>
-                      {i > 0 && <div className="text-[8px] mt-0.5">🔒</div>}
+                      {i > 0 && <div className="text-[8px] mt-0.5"></div>}
                     </div>
                   ))}
                 </div>

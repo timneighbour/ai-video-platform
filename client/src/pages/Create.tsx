@@ -476,10 +476,10 @@ function FeaturedCard({ tool }: { tool: Tool }) {
         </div>
         <div className="flex flex-col gap-3 md:w-56">
           {[
-            { icon: "♫", label: "Lyrics-synced storyboard" },
+            { label: "Lyrics-synced storyboard" },
             { icon: "◈", label: "AI scene generation" },
             { icon: "▶", label: "Full video in minutes" },
-            { icon: "✦", label: "HD & 4K output" },
+            { label: "HD & 4K output" },
           ].map((f) => (
             <div key={f.label} className="flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{ background: "rgba(196,164,100,0.06)", border: "1px solid rgba(196,164,100,0.14)" }}>

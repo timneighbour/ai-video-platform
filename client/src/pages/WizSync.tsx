@@ -612,10 +612,10 @@ export default function WizSyncPage() {
   const isReady = jobData?.job.status === "ready";
 
   const SYNC_STAGES: StageItem[] = [
-    { id: "upload", label: "Upload Audio", icon: "🎵" },
-    { id: "analyse", label: "AI Analysis", icon: "🔬" },
-    { id: "assign", label: "Assign Characters", icon: "👥" },
-    { id: "lipsync", label: "Lip-Sync", icon: "🎬" },
+    { id: "upload", label: "Upload Audio", icon: "AU" },
+    { id: "analyse", label: "AI Analysis", icon: "AI" },
+    { id: "assign", label: "Assign Characters", icon: "CH" },
+    { id: "lipsync", label: "Lip-Sync", icon: "VI" },
   ];
   const currentSyncStage = uploadedAudioUrl ? (isReady ? "assign" : "analyse") : "upload";
   const hasError = jobData?.job.status === "error";
@@ -706,7 +706,7 @@ export default function WizSyncPage() {
               background: isDragging ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.06)",
             }}
           >
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>🎵</div>
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}></div>
             <div className="flex-1">
               <div className="text-sm font-bold text-white mb-1">DROP YOUR AUDIO TRACK HERE TO BEGIN</div>
               <div className="text-xs text-zinc-500">MP3, WAV, M4A, OGG · max 50MB · WizSync™ detects every voice and separates stems automatically</div>
