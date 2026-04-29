@@ -2545,26 +2545,25 @@ function WizVidEngineSection() {
 /// ── See the Difference (Video + Audio Comparison) ────────────────────────────
 // Architecture: ONE video plays continuously; THREE audio elements swap on tier switch.
 // Audio synced to video.currentTime on every switch — no reloads, no resets, no gaps.
-const STD_VIDEO_SRC = "/manus-storage/tier-original-fixed_d48f8ad2.mp4";
 const TIER_DATA = [
   {
     id: 0, label: "Original",
     desc: "Raw source — no processing applied",
-    audioSrc: "/manus-storage/wizsound-original_105087e8.mp3",
+    videoSrc: "/manus-storage/tier-original-fixed_d48f8ad2.mp4",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
   },
   {
     id: 1, label: "WizSound Enhance",
     desc: "Richer, warmer sound with enhanced presence",
-    audioSrc: "/manus-storage/wizsound-enhanced_3d6ddffd.mp3",
+    videoSrc: "/manus-storage/tier-enhanced-new_ee0067a3.mp4",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
   },
   {
     id: 2, label: "WizSound Cinematic",
     desc: "Deep bass, spatial immersion — full cinema experience",
-    audioSrc: "/manus-storage/wizsound-cinematic_73f24d09.mp3",
+    videoSrc: "/manus-storage/tier-cinematic-new_ee0067a3.mp4",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     glowRgb: "212,175,55",
   },
@@ -2587,8 +2586,10 @@ function SeeTheDifference() {
   const [hasStarted, setHasStarted] = useState(false);
   // Single video ref — plays continuously, muted (no audio track).
   // Three audio refs — only the active tier's audio plays, synced to video.currentTime.
+  // Single video ref — src swapped imperatively on tier switch.
+  // Video contains embedded audio — no separate audio elements needed.
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioRefs = useRef<(HTMLAudioElement | null)[]>([null, null, null]);
+  const savedTimeRef = useRef<number>(0);
   const rafRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
@@ -2621,62 +2622,49 @@ function SeeTheDifference() {
 
   useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
-  // On mount: pre-load all audio elements imperatively
+  // Sync volume/mute to video element
   useEffect(() => {
-    audioRefs.current.forEach((a, i) => {
-      if (!a) return;
-      a.src = TIER_DATA[i].audioSrc;
-      a.load();
-      a.volume = 0.8;
-    });
-  }, []);
-
-  // Sync volume/mute to all audio elements
-  useEffect(() => {
-    audioRefs.current.forEach(a => {
-      if (a) a.volume = isMuted ? 0 : volume;
-    });
+    const v = videoRef.current;
+    if (v) { v.volume = isMuted ? 0 : volume; v.muted = isMuted; }
   }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
-    const a = audioRefs.current[activeTier];
-    if (!v || !a) return;
+    if (!v) return;
     if (isPlaying) {
       v.pause();
-      a.pause();
       stopRaf();
       setIsPlaying(false);
     } else {
-      // Video is muted — play silently for visuals only
-      v.muted = true;
-      // Sync audio to video position
-      if (v.duration && a.duration) a.currentTime = v.currentTime % a.duration;
-      a.volume = isMuted ? 0 : volume;
-      // CRITICAL: call audio.play() SYNCHRONOUSLY in the same gesture tick.
-      // Calling it inside v.play().then() puts it in a Promise microtask,
-      // which is outside the browser's autoplay gesture trust window.
-      a.play().catch(err => console.warn('[STD] AUDIO_BLOCKED:', err));
+      v.muted = isMuted;
+      v.volume = isMuted ? 0 : volume;
       v.play().catch(err => console.warn('[STD] VIDEO_BLOCKED:', err));
       rafRef.current = requestAnimationFrame(tickProgress);
       setIsPlaying(true);
       setHasStarted(true);
     }
-  }, [isPlaying, volume, isMuted, tickProgress, stopRaf, activeTier]);
+  }, [isPlaying, volume, isMuted, tickProgress, stopRaf]);
 
-  // Tier switch: video keeps playing uninterrupted; swap audio only
+  // Tier switch: swap video src imperatively, restore position, resume if playing
   const handleTierSwitch = useCallback((id: number) => {
     if (id === activeTier) return;
     const v = videoRef.current;
-    const currentAudio = audioRefs.current[activeTier];
-    const nextAudio = audioRefs.current[id];
     console.log('[STD] TIER_SWITCH →', TIER_DATA[id].label, '| videoTime:', v?.currentTime.toFixed(2));
-    if (currentAudio) currentAudio.pause();
+    if (v) savedTimeRef.current = v.currentTime;
     setActiveTier(id);
-    if (!nextAudio || !v) return;
-    nextAudio.volume = isMuted ? 0 : volume;
-    if (nextAudio.duration) nextAudio.currentTime = v.currentTime % nextAudio.duration;
-    if (isPlaying) nextAudio.play().catch(err => console.warn('[STD] SWITCH_BLOCKED:', err));
+    if (!v) return;
+    const wasPlaying = isPlaying;
+    v.pause();
+    v.src = TIER_DATA[id].videoSrc + '?t=' + Date.now();
+    v.load();
+    v.muted = isMuted;
+    v.volume = isMuted ? 0 : volume;
+    const onCanPlay = () => {
+      v.removeEventListener('canplay', onCanPlay);
+      if (v.duration) v.currentTime = Math.min(savedTimeRef.current, v.duration - 0.1);
+      if (wasPlaying) v.play().catch(err => console.warn('[STD] SWITCH_BLOCKED:', err));
+    };
+    v.addEventListener('canplay', onCanPlay);
   }, [activeTier, isPlaying, volume, isMuted]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -2686,8 +2674,6 @@ function SeeTheDifference() {
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const newTime = pct * v.duration;
     v.currentTime = newTime;
-    const a = audioRefs.current[activeTier];
-    if (a && a.duration) a.currentTime = newTime % a.duration;
     setProgress(pct * 100);
     setCurrentTime(newTime);
   }, [activeTier]);
@@ -2698,7 +2684,6 @@ function SeeTheDifference() {
   }, []);
 
   const handleVideoEnded = useCallback(() => {
-    audioRefs.current.forEach(a => { if (a) { a.pause(); a.currentTime = 0; } });
     stopRaf();
     setIsPlaying(false);
     setProgress(0);
@@ -2721,15 +2706,6 @@ function SeeTheDifference() {
           style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
       </div>
 
-      {/* Hidden audio elements — one per tier. src set imperatively on mount. */}
-      {TIER_DATA.map((t, i) => (
-        <audio
-          key={t.id}
-          ref={(el) => { audioRefs.current[i] = el; }}
-          preload="auto"
-          style={{ display: "none" }}
-        />
-      ))}
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
@@ -2799,15 +2775,14 @@ function SeeTheDifference() {
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              {/* Single video — plays continuously, muted. Audio comes from separate <audio> elements. */}
+              {/* Single video — src swapped imperatively on tier switch. Audio is embedded in each video file. */}
               <video
                 ref={videoRef}
-                src={STD_VIDEO_SRC}
+                src={TIER_DATA[0].videoSrc}
                 className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
                 style={{ filter: VIDEO_FILTERS[activeTier] }}
                 playsInline
                 loop
-                muted
                 preload="auto"
                 onLoadedMetadata={handleVideoLoaded}
                 onEnded={handleVideoEnded}
