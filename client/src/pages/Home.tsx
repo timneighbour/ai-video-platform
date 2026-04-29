@@ -2622,6 +2622,18 @@ function SeeTheDifference() {
 
   useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
+  // On mount: set video src imperatively — NEVER use React src prop on this element.
+  // If src is a React prop, setActiveTier() re-renders reset it to TIER_DATA[0] overwriting imperative changes.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.src = TIER_DATA[0].videoSrc;
+    v.load();
+    v.muted = false;
+    v.volume = 0.8;
+    console.log('[STD] MOUNT: src set imperatively to', TIER_DATA[0].videoSrc);
+  }, []);
+
   // Sync volume/mute to video element
   useEffect(() => {
     const v = videoRef.current;
@@ -2775,10 +2787,9 @@ function SeeTheDifference() {
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              {/* Single video — src swapped imperatively on tier switch. Audio is embedded in each video file. */}
+              {/* src is set imperatively on mount — no React src prop to prevent React re-renders from resetting it */}
               <video
                 ref={videoRef}
-                src={TIER_DATA[0].videoSrc}
                 className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
                 style={{ filter: VIDEO_FILTERS[activeTier] }}
                 playsInline
