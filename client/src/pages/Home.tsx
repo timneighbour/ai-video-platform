@@ -2542,39 +2542,38 @@ function WizVidEngineSection() {
   );
 }
 
-// ── See the Difference (Video + Audio Comparison) ────────────────────────────
-// ── Tier data — each tier has audio BAKED INTO the video file ────────────────
-// This is the only approach that works reliably across all browsers (Chrome, Safari, Firefox, mobile).
-// A separate <audio> element gets blocked by autoplay policy on deployed sites.
+/// ── See the Difference (Video + Audio Comparison) ────────────────────────────
+// Architecture: ONE video plays continuously; THREE audio elements swap on tier switch.
+// Audio synced to video.currentTime on every switch — no reloads, no resets, no gaps.
+const STD_VIDEO_SRC = "/manus-storage/tier-original-fixed_d48f8ad2.mp4";
 const TIER_DATA = [
   {
     id: 0, label: "Original",
     desc: "Raw source — no processing applied",
-    videoSrc: "/manus-storage/tier-original-fixed_d48f8ad2.mp4",
+    audioSrc: "/manus-storage/wizsound-original_105087e8.mp3",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
   },
   {
     id: 1, label: "WizSound Enhance",
     desc: "Richer, warmer sound with enhanced presence",
-    videoSrc: "/manus-storage/tier-enhanced-fixed_40ffc50a.mp4",
+    audioSrc: "/manus-storage/wizsound-enhanced_3d6ddffd.mp3",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
   },
   {
     id: 2, label: "WizSound Cinematic",
     desc: "Deep bass, spatial immersion — full cinema experience",
-    videoSrc: "/manus-storage/tier-cinematic-new_ee006f72.mp4",
+    audioSrc: "/manus-storage/wizsound-cinematic_73f24d09.mp3",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     glowRgb: "212,175,55",
   },
 ];
-
-// Clear visual progression — Original is flat/dull, Enhanced is clean, Cinematic is rich
+// Visual filter per tier — video stays the same, filter changes to match tier mood
 const VIDEO_FILTERS = [
-  "brightness(0.82) saturate(0.65) contrast(0.88)",               // Original: flat, desaturated, dull
-  "brightness(1.0) saturate(1.2) contrast(1.1)",                  // Enhanced: clean, sharp, better colour
-  "brightness(1.06) saturate(1.5) contrast(1.22) sepia(0.14) hue-rotate(-6deg)",  // Cinematic: rich, warm, deep
+  "brightness(0.82) saturate(0.65) contrast(0.88)",
+  "brightness(1.0) saturate(1.2) contrast(1.1)",
+  "brightness(1.06) saturate(1.5) contrast(1.22) sepia(0.14) hue-rotate(-6deg)",
 ];
 
 function SeeTheDifference() {
@@ -2586,10 +2585,10 @@ function SeeTheDifference() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
-  // One ref per tier — audio is baked into each video file.
-  // This is the ONLY approach that works reliably on all browsers (Chrome, Safari, Firefox, mobile).
-  // A separate <audio> element gets silently blocked by browser autoplay policy on deployed sites.
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null]);
+  // Single video ref — plays continuously, muted (no audio track).
+  // Three audio refs — only the active tier's audio plays, synced to video.currentTime.
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRefs = useRef<(HTMLAudioElement | null)[]>([null, null, null]);
   const rafRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
@@ -2606,17 +2605,15 @@ function SeeTheDifference() {
   }, [trackCtaImpression]);
 
   const tier = TIER_DATA[activeTier];
-  const activeVideo = () => videoRefs.current[activeTier];
-
-  // RAF-based progress tracking
+  // RAF-based progress tracking — driven by the single video element
   const tickProgress = useCallback(() => {
-    const v = videoRefs.current[activeTier];
+    const v = videoRef.current;
     if (v && v.duration) {
       setCurrentTime(v.currentTime);
       setProgress((v.currentTime / v.duration) * 100);
     }
     rafRef.current = requestAnimationFrame(tickProgress);
-  }, [activeTier]);
+  }, []);
 
   const stopRaf = useCallback(() => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
@@ -2624,81 +2621,82 @@ function SeeTheDifference() {
 
   useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
-  // Mute all videos on mount so the browser can load them without autoplay blocking.
-  // We unmute imperatively in togglePlay() within the user gesture tick.
+  // On mount: pre-load all audio elements imperatively
   useEffect(() => {
-    videoRefs.current.forEach(v => {
-      if (v) { v.muted = true; v.volume = 0.8; }
+    audioRefs.current.forEach((a, i) => {
+      if (!a) return;
+      a.src = TIER_DATA[i].audioSrc;
+      a.load();
+      a.volume = 0.8;
     });
   }, []);
 
-  // Sync volume/mute to all video elements
+  // Sync volume/mute to all audio elements
   useEffect(() => {
-    videoRefs.current.forEach(v => {
-      if (v) v.volume = isMuted ? 0 : volume;
+    audioRefs.current.forEach(a => {
+      if (a) a.volume = isMuted ? 0 : volume;
     });
   }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
-    const v = activeVideo();
-    if (!v) return;
+    const v = videoRef.current;
+    const a = audioRefs.current[activeTier];
+    if (!v || !a) return;
     if (isPlaying) {
       v.pause();
+      a.pause();
       stopRaf();
       setIsPlaying(false);
     } else {
-      // Imperatively set muted=false and volume BEFORE calling play().
-      // We do NOT rely on React's muted prop here — React batches state updates
-      // and would apply them after this handler returns, which is too late.
-      v.muted = false;
-      v.volume = isMuted ? 0 : volume;
-      v.play().catch((err) => console.warn('[WizSound] play blocked:', err));
+      // Video is muted — play silently for visuals only
+      v.muted = true;
+      // Sync audio to video position
+      if (v.duration && a.duration) a.currentTime = v.currentTime % a.duration;
+      a.volume = isMuted ? 0 : volume;
+      v.play().then(() => {
+        a.play().catch(err => console.warn('[STD] AUDIO_BLOCKED:', err));
+      }).catch(err => console.warn('[STD] VIDEO_BLOCKED:', err));
       rafRef.current = requestAnimationFrame(tickProgress);
       setIsPlaying(true);
       setHasStarted(true);
     }
   }, [isPlaying, volume, isMuted, tickProgress, stopRaf, activeTier]);
 
-  // Tier switch: pause current, seek new to same position, resume if playing
+  // Tier switch: video keeps playing uninterrupted; swap audio only
   const handleTierSwitch = useCallback((id: number) => {
     if (id === activeTier) return;
-    const current = videoRefs.current[activeTier];
-    const next = videoRefs.current[id];
-    const savedTime = current?.currentTime ?? 0;
-    const wasPlaying = isPlaying;
-    if (current) current.pause();
+    const v = videoRef.current;
+    const currentAudio = audioRefs.current[activeTier];
+    const nextAudio = audioRefs.current[id];
+    console.log('[STD] TIER_SWITCH →', TIER_DATA[id].label, '| videoTime:', v?.currentTime.toFixed(2));
+    if (currentAudio) currentAudio.pause();
     setActiveTier(id);
-    if (!next) return;
-    next.muted = false;
-    next.volume = isMuted ? 0 : volume;
-    // Seek to same position in the new tier video
-    if (next.duration) {
-      next.currentTime = savedTime % next.duration;
-    }
-    if (wasPlaying) {
-      next.play().catch(() => {});
-    }
+    if (!nextAudio || !v) return;
+    nextAudio.volume = isMuted ? 0 : volume;
+    if (nextAudio.duration) nextAudio.currentTime = v.currentTime % nextAudio.duration;
+    if (isPlaying) nextAudio.play().catch(err => console.warn('[STD] SWITCH_BLOCKED:', err));
   }, [activeTier, isPlaying, volume, isMuted]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const v = activeVideo();
+    const v = videoRef.current;
     if (!v || !v.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const newTime = pct * v.duration;
     v.currentTime = newTime;
+    const a = audioRefs.current[activeTier];
+    if (a && a.duration) a.currentTime = newTime % a.duration;
     setProgress(pct * 100);
     setCurrentTime(newTime);
   }, [activeTier]);
 
-  const handleVideoLoaded = useCallback((idx: number) => {
-    if (idx === activeTier) {
-      const v = videoRefs.current[idx];
-      if (v) setDuration(v.duration || 0);
-    }
-  }, [activeTier]);
+  const handleVideoLoaded = useCallback(() => {
+    const v = videoRef.current;
+    if (v) setDuration(v.duration || 0);
+  }, []);
 
   const handleVideoEnded = useCallback(() => {
+    audioRefs.current.forEach(a => { if (a) { a.pause(); a.currentTime = 0; } });
     stopRaf();
     setIsPlaying(false);
     setProgress(0);
@@ -2721,8 +2719,15 @@ function SeeTheDifference() {
           style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
       </div>
 
-      {/* Three video elements — one per tier, each with audio baked in.
-           Only the active tier is visible; others are hidden but preloaded. */}
+      {/* Hidden audio elements — one per tier. src set imperatively on mount. */}
+      {TIER_DATA.map((t, i) => (
+        <audio
+          key={t.id}
+          ref={(el) => { audioRefs.current[i] = el; }}
+          preload="auto"
+          style={{ display: "none" }}
+        />
+      ))}
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
@@ -2792,24 +2797,19 @@ function SeeTheDifference() {
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              {TIER_DATA.map((t, idx) => (
-                <video
-                  key={t.id}
-                  ref={(el) => { videoRefs.current[idx] = el; }}
-                  src={t.videoSrc}
-                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
-                  style={{
-                    filter: VIDEO_FILTERS[idx],
-                    opacity: activeTier === idx ? 1 : 0,
-                    pointerEvents: activeTier === idx ? "auto" : "none",
-                  }}
-                  playsInline
-                  loop
-                  preload={idx === 0 ? "auto" : "metadata"}
-                  onLoadedMetadata={() => handleVideoLoaded(idx)}
-                  onEnded={handleVideoEnded}
-                />
-              ))}
+              {/* Single video — plays continuously, muted. Audio comes from separate <audio> elements. */}
+              <video
+                ref={videoRef}
+                src={STD_VIDEO_SRC}
+                className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
+                style={{ filter: VIDEO_FILTERS[activeTier] }}
+                playsInline
+                loop
+                muted
+                preload="auto"
+                onLoadedMetadata={handleVideoLoaded}
+                onEnded={handleVideoEnded}
+              />
 
               {/* Tier badge top-left */}
               <div className="absolute top-4 left-4 z-20">
