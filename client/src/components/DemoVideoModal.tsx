@@ -16,10 +16,10 @@ import { mp } from "@/lib/mixpanel";
 
 /* ── CDN assets ──────────────────────────────────────────────────────── */
 const POSTER_URL =
-  "/manus-storage/demo_poster_baa969b3.jpg";
+  "/manus-storage/trailer-v2-poster_4a74cc1c.jpg";
 
 const VIDEO_SRC =
-  "/manus-storage/demo_raw_d9fdaab1.mp4";
+  "/manus-storage/wiz-ai-trailer-v2_b2091d6b.mp4";
 
 // Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
@@ -42,18 +42,36 @@ interface CaptionEntry {
 }
 
 const CAPTION_TIMELINE: CaptionEntry[] = [
-  // Scene 1 (0–5.2s): Character portrait — Air Studios opening
-  { start: 0,   end: 5.2,  headline: "The AI Creative Studio.", sub: "Built for creators who think in stories.", accent: "#d4af37" },
-  // Scene 2 (5.2–10.4s): Dashboard reveal
-  { start: 5.2,  end: 10.4, headline: "Every creative format. One platform.", sub: "CREATE · ENHANCE · GROW — nine studios, zero compromise.", accent: "#c4a464" },
-  // Scene 3 (10.4–15.6s): WizAudio UI on laptop
-  { start: 10.4, end: 15.6, headline: "WizAudio™ — Original cinematic scores.", sub: "Describe the feeling. The studio writes the music.", accent: "#d4af37" },
-  // Scene 4 (15.6–20.8s): Cinematic output on monitor
-  { start: 15.6, end: 20.8, headline: "Studio-grade output. Every time.", sub: "WizLumina™ cinematic grading applied automatically.", accent: "#fbbf24", isLumina: true },
-  // Scene 5 (20.8–26.0s): Character consistency at desk
-  { start: 20.8, end: 26.0, headline: "Your character. Locked in.", sub: "Consistent faces, expressions, and style across every scene.", accent: "#c4a464" },
-  // Scene 6 (26.0–32.0s): Final output on curved monitor
-  { start: 26.0, end: 32.0, headline: "From brief to broadcast.", sub: "WIZ AI — The Air Studios of AI.", accent: "#d4af37" },
+  // Act 1 (0–3s): Opening title
+  { start: 0,    end: 3,    headline: "This changes everything.", accent: "#ffffff" },
+  // Act 2 (3–9s): Platform reveal
+  { start: 3,    end: 9,    headline: "The AI Creative Studio.", sub: "CREATE · ENHANCE · GROW — ten studios, zero compromise.", accent: "#d4af37" },
+  // Act 2b (9–12s): Brand card
+  { start: 9,    end: 12,   headline: "Wiz AI.", sub: "Your all-in-one AI Studio Platform.", accent: "#d4af37" },
+  // Act 3a (12–14s): WizAudio
+  { start: 12,   end: 14,   headline: "Create.", sub: "WizAudio™ — AI music composition.", accent: "#d4af37" },
+  // Act 3b (14–16s): WizImage
+  { start: 14,   end: 16,   headline: "Imagine.", sub: "WizImage™ — AI visual generation.", accent: "#c4a464" },
+  // Act 3c (16–18s): WizVideo
+  { start: 16,   end: 18,   headline: "Animate.", sub: "WizVideo™ — AI video generation.", accent: "#d4af37" },
+  // Act 3d (18–20s): WizAnimate
+  { start: 18,   end: 20,   headline: "Produce.", sub: "WizAnimate™ — Character animation.", accent: "#c4a464" },
+  // Act 3e (20–22s): WizShorts
+  { start: 20,   end: 22,   headline: "Go Viral.", sub: "WizShorts™ — YouTube content creator.", accent: "#d4af37" },
+  // Act 3f (22–24s): WizScore
+  { start: 22,   end: 24,   headline: "All in one.", sub: "WizScore™ — Music to video.", accent: "#c4a464" },
+  // Act 4 (24–30s): Rockstar transformation
+  { start: 24,   end: 30,   headline: "Upload a face. Create a legend.", sub: "Character AI Engine — one photo, infinite possibilities.", accent: "#d4af37" },
+  // Act 5 (30–36s): Female singer lip sync
+  { start: 30,   end: 36,   headline: "Perfectly synced audio.", sub: "WizSync™ — frame-perfect lip sync.", accent: "#c4a464" },
+  // Act 6 (36–42s): WizLumina
+  { start: 36,   end: 42,   headline: "Cinematic enhancement.", sub: "WizLumina™ — every frame, elevated.", accent: "#fbbf24", isLumina: true },
+  // Act 7 (42–48s): WizSound
+  { start: 42,   end: 48,   headline: "Studio-grade audio.", sub: "WizSound™ — powered by proprietary audio AI.", accent: "#d4af37", isSoundUpsell: true },
+  // Act 8 (48–52s): Payoff
+  { start: 48,   end: 52,   headline: "Studio-quality results.", sub: "Every time.", accent: "#d4af37" },
+  // Act 9 (52–53s): End frame
+  { start: 52,   end: 53,   headline: "Create. Enhance. Grow.", accent: "#d4af37" },
 ];
 
 function getCaption(t: number): CaptionEntry | null {

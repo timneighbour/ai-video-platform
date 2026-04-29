@@ -69,7 +69,7 @@ const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
 const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007.png`;
 const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
 const HERO_BG_POSTER = `${CDN}/concert-hall_2b6b946b.jpg`;
-const DEMO_POSTER = `${CDN}/demo_poster_baa969b3.jpg`;
+const DEMO_POSTER = `${CDN}/trailer-v2-poster_4a74cc1c.jpg`;
 
 const WHO_IMAGES = [
   `${CDN}/whos-it-for-musicians_45f54b69.png`,
