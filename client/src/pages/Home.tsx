@@ -2653,9 +2653,11 @@ function SeeTheDifference() {
       // Sync audio to video position
       if (v.duration && a.duration) a.currentTime = v.currentTime % a.duration;
       a.volume = isMuted ? 0 : volume;
-      v.play().then(() => {
-        a.play().catch(err => console.warn('[STD] AUDIO_BLOCKED:', err));
-      }).catch(err => console.warn('[STD] VIDEO_BLOCKED:', err));
+      // CRITICAL: call audio.play() SYNCHRONOUSLY in the same gesture tick.
+      // Calling it inside v.play().then() puts it in a Promise microtask,
+      // which is outside the browser's autoplay gesture trust window.
+      a.play().catch(err => console.warn('[STD] AUDIO_BLOCKED:', err));
+      v.play().catch(err => console.warn('[STD] VIDEO_BLOCKED:', err));
       rafRef.current = requestAnimationFrame(tickProgress);
       setIsPlaying(true);
       setHasStarted(true);
