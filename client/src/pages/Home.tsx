@@ -1744,7 +1744,7 @@ const AUDIO_TIERS = [
     tagline: "Standard Audio",
     desc: "Raw AI-generated audio. Flat, narrow, and unprocessed.",
     features: ["Mono mix", "No spatial depth", "Basic EQ", "Thin low-end"],
-    src: "/manus-storage/original_test_268addb1.mp3", // TEST: 440Hz tone
+    src: "/manus-storage/wizsound-tier-normal_e9c08a24.mp3",
     bars: [0.25, 0.35, 0.3, 0.45, 0.25, 0.35, 0.3, 0.25, 0.35, 0.3, 0.4, 0.25, 0.3, 0.35, 0.25, 0.3, 0.35, 0.28, 0.32, 0.38],
     color: "rgba(100,100,110,0.4)",
     colorActive: "rgba(140,140,150,0.7)",
@@ -1757,7 +1757,7 @@ const AUDIO_TIERS = [
     tagline: "WizSound Enhance",
     desc: "Cleaned, balanced, and broadcast-ready with stereo width.",
     features: ["Stereo widening", "Noise reduction", "EQ mastering", "Improved clarity"],
-    src: "/manus-storage/enhanced_test_b2a5540a.mp3", // TEST: 880Hz tone
+    src: "/manus-storage/wizsound-tier-enhanced_0d2e5e8e.mp3",
     bars: [0.35, 0.5, 0.55, 0.65, 0.4, 0.55, 0.5, 0.4, 0.55, 0.48, 0.62, 0.4, 0.5, 0.55, 0.42, 0.5, 0.52, 0.45, 0.48, 0.58],
     color: "rgba(180,165,120,0.5)",
     colorActive: "rgba(196,170,100,0.85)",
@@ -1770,7 +1770,7 @@ const AUDIO_TIERS = [
     tagline: "WizSound Cinematic",
     desc: "Full spatial immersion with deep bass, warmth, and studio-grade presence.",
     features: ["Spatial 3D audio", "Deep cinematic bass", "Studio mastering", "Immersive depth"],
-    src: "/manus-storage/cinematic_test_5d2bc6b3.mp3", // TEST: 220Hz tone
+    src: "/manus-storage/wizsound-tier-cinematic_ecd21eaf.mp3",
     bars: [0.45, 0.65, 0.8, 0.92, 0.6, 0.85, 0.75, 0.58, 0.82, 0.7, 0.95, 0.62, 0.78, 0.88, 0.58, 0.75, 0.82, 0.68, 0.72, 0.9],
     color: "rgba(212,175,55,0.4)",
     colorActive: "rgba(212,175,55,0.9)",
@@ -2059,57 +2059,27 @@ function WizLuminaDemo() {
         </div>
 
         <div className="reveal">
-          {/* Before / After slider */}
-          <div
-            ref={containerRef}
-            className="relative max-w-3xl mx-auto aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] cursor-ew-resize select-none"
-            onMouseDown={(e) => { isDragging.current = true; handleMove(e.clientX); }}
-            onTouchStart={(e) => { isDragging.current = true; handleMove(e.touches[0].clientX); }}
-          >
-            {/* "After" (full image, underneath) */}
-            <div className="absolute inset-0">
-              <img
-                src={DEMO_POSTER}
-                alt="After WizLumina enhancement"
-                className="w-full h-full object-cover"
-                style={{ filter: "contrast(1.2) saturate(1.35) brightness(1.1)" }}
-                loading="lazy" width="1920" height="1080" />
-              {/* Warm cinematic overlay */}
-              <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 60%)" }} />
-            </div>
-
-            {/* "Before" (clipped) */}
-            <div
-              className="absolute inset-0"
-              style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
+          {/* Cinematic video — replaces before/after slider */}
+          <div className="relative max-w-3xl mx-auto aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] shadow-2xl"
+            style={{ boxShadow: "0 0 60px rgba(196,164,100,0.12)" }}>
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
             >
-              <img
-                src={DEMO_POSTER}
-                alt="Before WizLumina"
-                className="w-full h-full object-cover"
-                style={{ filter: "saturate(0.55) brightness(0.85) contrast(0.95)" }}
-                loading="lazy" width="1920" height="1080" />
-              {/* Desaturated overlay */}
-              <div className="absolute inset-0 bg-black/05" />
-            </div>
-
-            {/* Slider line */}
-            <div
-              className="absolute top-0 bottom-0 w-0.5 bg-white/80 z-10 pointer-events-none"
-              style={{ left: `${sliderPos}%`, boxShadow: "0 0 12px rgba(255,255,255,0.3)" }}
-            >
-              {/* Handle */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border-2 border-white/40 flex items-center justify-center shadow-xl">
-                <img src={WIZLUMINA_LOGO} alt="WizLumina" aria-hidden="true" className="w-5 h-5 object-contain opacity-80" />
-              </div>
-            </div>
-
-            {/* Labels */}
-            <div className="absolute top-4 left-4 z-20">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white/60 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10">Before</span>
-            </div>
+              <source src="/manus-storage/std-demo-scene_3d3bc3f2.mp4" type="video/mp4" />
+            </video>
+            {/* Cinematic overlay */}
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%)" }} />
+            {/* WizLumina badge */}
             <div className="absolute top-4 right-4 z-20">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-gold] bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[--color-gold]/20">After WizLumina</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-gold] bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[--color-gold]/20 flex items-center gap-1.5">
+                <img src={WIZLUMINA_LOGO} alt="" className="w-3.5 h-3.5 object-contain" />
+                WizLumina™ Enhanced
+              </span>
             </div>
           </div>
 
@@ -3232,9 +3202,7 @@ export default function Home() {
         Skip to main content
       </a>
       <Nav />
-      {/* DEPLOYMENT VERIFICATION — remove after confirming live site updates */}
-      <div id="build-version" style={{position:'fixed',top:0,left:0,right:0,zIndex:99999,background:'#ff0000',color:'#ffffff',textAlign:'center',padding:'8px 0',fontSize:'14px',fontWeight:'bold',letterSpacing:'0.05em',fontFamily:'monospace'}}>⚡ BUILD VERSION: 08:45-29Apr-audio-sync-fix ⚡ — if you see this, deployment is working</div>
-      <div style={{height:'36px'}} />
+
       <main id="main-content">
         <Hero />
         <ProductGrid />
