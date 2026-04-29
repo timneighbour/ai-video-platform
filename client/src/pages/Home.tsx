@@ -2070,7 +2070,7 @@ function WizLuminaDemo() {
               playsInline
               preload="auto"
             >
-              <source src="/manus-storage/std-demo-scene_3d3bc3f2.mp4" type="video/mp4" />
+              <source src="/manus-storage/wiz-ai-trailer-v2_02720938.mp4" type="video/mp4" />
             </video>
             {/* Cinematic overlay */}
             <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%)" }} />
@@ -2514,7 +2514,7 @@ function WizVidEngineSection() {
 
 /// ── See the Difference (Cinematic Demo Player) ──────────────────────────────
 
-const STD_VIDEO = "/manus-storage/std-demo-scene_3d3bc3f2.mp4";
+const STD_VIDEO = "/manus-storage/wiz-ai-trailer-v2_02720938.mp4";
 
 const STD_AUDIO = {
   original: "/manus-storage/std-audio-original-v4_6b9fbd71.mp3",
