@@ -2519,31 +2519,31 @@ const TIER_DATA = [
   {
     id: 0, label: "Original",
     desc: "Raw source — no processing applied",
-    audioSrc: "/manus-storage/wizsound-original_20889372.mp3",
+    audioSrc: "/manus-storage/wizsound-original_38267cf5.mp3",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
   },
   {
     id: 1, label: "WizSound Enhance",
     desc: "Richer, warmer sound with enhanced presence",
-    audioSrc: "/manus-storage/wizsound-enhance_417ffd57.mp3",
+    audioSrc: "/manus-storage/wizsound-enhanced_5a9e3f59.mp3",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
   },
   {
     id: 2, label: "WizSound Cinematic",
     desc: "Deep bass, spatial immersion — full cinema experience",
-    audioSrc: "/manus-storage/wizsound-cinematic_ed42a2e8.mp3",
+    audioSrc: "/manus-storage/wizsound-cinematic_e7f9c0e5.mp3",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     glowRgb: "212,175,55",
   },
 ];
 
-// Subtle CSS filters — restrained per spec
+// Clear visual progression — Original is flat/dull, Enhanced is clean, Cinematic is rich
 const VIDEO_FILTERS = [
-  "none",                                                         // Standard: raw source
-  "contrast(1.05) saturate(1.05) brightness(1.02)",                // Enhanced: subtle lift
-  "contrast(1.08) saturate(1.06) brightness(1.01) sepia(0.03)",    // Cinematic: warm, premium
+  "brightness(0.82) saturate(0.65) contrast(0.88)",               // Original: flat, desaturated, dull
+  "brightness(1.0) saturate(1.2) contrast(1.1)",                  // Enhanced: clean, sharp, better colour
+  "brightness(1.06) saturate(1.5) contrast(1.22) sepia(0.14) hue-rotate(-6deg)",  // Cinematic: rich, warm, deep
 ];
 
 function SeeTheDifference() {
@@ -2721,10 +2721,10 @@ function SeeTheDifference() {
           </div>
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">The Cinematic Difference</p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
-            Standard. Enhanced. <span className="metallic-gold">Cinematic.</span>
+            Original. Enhanced. <span className="metallic-gold">Cinematic.</span>
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto">
-            Play one scene and switch between <strong className="text-white/70">Standard</strong>, <strong className="text-white/70">Enhanced</strong>, and <strong className="text-white/70">Cinematic</strong> to hear and see how WIZ AI elevates the same source into a more polished final result.
+            Press play once, then switch between <strong className="text-white/70">Original</strong>, <strong className="text-white/70">Enhanced</strong>, and <strong className="text-white/70">Cinematic</strong> — same track, same moment, instantly transformed.
           </p>
         </div>
 
@@ -2801,12 +2801,12 @@ function SeeTheDifference() {
                 <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
                   style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
                   <img src={WIZSOUND_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
-                  {activeTier === 0 ? "Standard Audio" : activeTier === 1 ? "Enhanced Audio" : "Spatial Audio"}
+                  {activeTier === 0 ? "Original Audio" : activeTier === 1 ? "Enhanced Audio" : "Spatial Audio"}
                 </span>
                 <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
                   style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
                   <img src={WIZLUMINA_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
-                  {activeTier === 0 ? "Standard Video" : activeTier === 1 ? "Enhanced Video" : "HDR Video"}
+                  {activeTier === 0 ? "Original Video" : activeTier === 1 ? "Enhanced Video" : "HDR Video"}
                 </span>
               </div>
 
@@ -2942,7 +2942,7 @@ function SeeTheDifference() {
               </div>
               <div className="space-y-2.5">
                 {(activeTier === 0
-                  ? ["Standard AI output", "No colour grading", "Basic resolution"]
+                  ? ["Original AI output", "Flat, ungraded colour", "Basic resolution"]
                   : activeTier === 1
                     ? ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"]
                     : ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"]
