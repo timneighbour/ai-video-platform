@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { triggerIntroReplay } from "@/lib/introReplay";
 import WizProductGrid from "@/components/WizProductGrid";
@@ -2543,472 +2543,261 @@ function WizVidEngineSection() {
 }
 
 /// ── See the Difference (Cinematic Demo Player) ──────────────────────────────
-// Architecture: ONE self-contained MP4 (30s) with audio + visual baked in.
-// Chapters: 0-10s = Original, 10-20s = Enhanced, 20-30s = Cinematic.
-// Tier buttons seek to the correct chapter timestamp — no src swapping, no audio elements.
-const STD_VIDEO_SRC = "/manus-storage/std-demo-v1_657bfa0e.mp4";
-const STD_CHAPTERS = [
-  {
-    id: 0, label: "Original", time: 0,
-    desc: "Raw AI output — unprocessed audio and flat visuals",
-    accentColor: "rgba(160,160,170,0.75)", borderColor: "rgba(255,255,255,0.08)",
-    glowRgb: "160,160,170",
-    audioFeatures: ["Flat, dry, unprocessed audio", "Mono — no stereo width", "Raw AI output"],
-    visualFeatures: ["Original AI output", "Flat, ungraded colour", "Basic resolution"],
-  },
-  {
-    id: 1, label: "WizSound Enhance", time: 10,
-    desc: "Richer, warmer sound with enhanced presence and colour",
-    accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
-    glowRgb: "196,164,100",
-    audioFeatures: ["Stereo widening + natural reverb", "EQ mastered — broadcast-ready", "Light strings added for warmth"],
-    visualFeatures: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
-  },
-  {
-    id: 2, label: "WizSound Cinematic", time: 20,
-    desc: "Deep bass, spatial immersion — full cinema experience",
-    accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
-    glowRgb: "212,175,55",
-    audioFeatures: ["Full orchestra — strings, horns, choir", "Deep sub-bass + spatial 3D mastering", "Studio-grade cinematic mix"],
-    visualFeatures: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
-  },
-];
+// CDN paths for the new v2 demo assets
+const STD_VIDEO = "/manus-storage/std-demo-v2-video_d6e39c08.mp4";
+const STD_AUDIO = {
+  original:  "/manus-storage/tier-original-v2_f2db69f2.mp3",
+  enhanced:  "/manus-storage/tier-enhanced-v2_c2184071.mp3",
+  cinematic: "/manus-storage/tier-cinematic-v2_b7df8d6e.mp3",
+};
+
+// Per-tier CSS filter grading applied to the video element
+const STD_FILTERS = {
+  original:  "saturate(0.55) contrast(0.85) brightness(0.88) grayscale(0.3)",
+  enhanced:  "saturate(1.15) contrast(1.05) brightness(1.02) hue-rotate(5deg)",
+  cinematic: "saturate(1.35) contrast(1.12) brightness(1.05) hue-rotate(12deg) sepia(0.08)",
+};
+
+type StdTier = "original" | "enhanced" | "cinematic";
 
 function SeeTheDifference() {
-  const [activeTier, setActiveTier] = useState(0);
+  const [activeTier, setActiveTier] = useState<StdTier>("original");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.8);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const ctaSectionRef = useRef<HTMLDivElement>(null);
-  const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
+  const [audioReady, setAudioReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    const el = ctaSectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { trackCtaImpression(); observer.disconnect(); } },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [trackCtaImpression]);
-
-  // On mount: set src imperatively so React never resets it on re-render
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.src = STD_VIDEO_SRC;
-    v.load();
-    v.volume = 0.8;
-    v.muted = false;
-  }, []);
-
-  // Sync volume/mute state to video element
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.volume = isMuted ? 0 : volume;
-    v.muted = isMuted;
-  }, [volume, isMuted]);
-
-  const stopRaf = useCallback(() => {
-    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
-  }, []);
-  useEffect(() => () => stopRaf(), [stopRaf]);
-
-  const tickProgress = useCallback(() => {
-    const v = videoRef.current;
-    if (v && v.duration) {
-      const ct = v.currentTime;
-      setCurrentTime(ct);
-      setProgress((ct / v.duration) * 100);
-      // Auto-update active tier based on playback position
-      if (ct >= 20) setActiveTier(2);
-      else if (ct >= 10) setActiveTier(1);
-      else setActiveTier(0);
+  // When tier changes, swap audio source and resume playback position
+  const handleTierChange = useCallback((tier: StdTier) => {
+    if (tier === activeTier) return;
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !video) { setActiveTier(tier); return; }
+    const currentTime = audio.currentTime;
+    const wasPlaying = !audio.paused;
+    audio.pause();
+    audio.src = STD_AUDIO[tier];
+    audio.load();
+    audio.currentTime = currentTime;
+    setActiveTier(tier);
+    if (wasPlaying) {
+      audio.play().catch(() => {});
     }
-    rafRef.current = requestAnimationFrame(tickProgress);
-  }, []);
+  }, [activeTier]);
 
-  const togglePlay = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (isPlaying) {
-      v.pause();
-      stopRaf();
-      setIsPlaying(false);
-    } else {
-      // Play the video — audio is baked in, no separate element needed
-      v.play().catch(err => console.warn('[STD] play blocked:', err));
-      rafRef.current = requestAnimationFrame(tickProgress);
+  const handlePlay = useCallback(async () => {
+    const video = videoRef.current;
+    const audio = audioRef.current;
+    if (!video || !audio) return;
+    try {
+      video.muted = true;
+      await video.play();
+      audio.currentTime = video.currentTime;
+      await audio.play();
       setIsPlaying(true);
       setHasStarted(true);
+    } catch (e) {
+      console.warn("Playback error:", e);
     }
-  }, [isPlaying, tickProgress, stopRaf]);
-
-  // Tier button: seek to chapter start time
-  const handleTierSeek = useCallback((chapterId: number) => {
-    const chapter = STD_CHAPTERS[chapterId];
-    const v = videoRef.current;
-    if (!v) return;
-    setActiveTier(chapterId);
-    v.currentTime = chapter.time;
-    if (!isPlaying) {
-      // Start playing when user clicks a chapter
-      v.play().catch(err => console.warn('[STD] seek-play blocked:', err));
-      rafRef.current = requestAnimationFrame(tickProgress);
-      setIsPlaying(true);
-      setHasStarted(true);
-    }
-  }, [isPlaying, tickProgress]);
-
-  const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const v = videoRef.current;
-    if (!v || !v.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    v.currentTime = pct * v.duration;
-    setProgress(pct * 100);
-    setCurrentTime(pct * v.duration);
   }, []);
 
-  const handleVideoLoaded = useCallback(() => {
-    const v = videoRef.current;
-    if (v) setDuration(v.duration || 0);
-  }, []);
-
-  const handleVideoEnded = useCallback(() => {
-    stopRaf();
+  const handlePause = useCallback(() => {
+    videoRef.current?.pause();
+    audioRef.current?.pause();
     setIsPlaying(false);
-    setProgress(0);
-    setCurrentTime(0);
-    setActiveTier(0);
-  }, [stopRaf]);
+  }, []);
 
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${m}:${sec.toString().padStart(2, "0")}`;
-  };
+  const handleTogglePlay = useCallback(() => {
+    if (isPlaying) handlePause();
+    else handlePlay();
+  }, [isPlaying, handlePlay, handlePause]);
 
-  const tier = STD_CHAPTERS[activeTier];
+  // Keep audio in sync with video
+  useEffect(() => {
+    const video = videoRef.current;
+    const audio = audioRef.current;
+    if (!video || !audio) return;
+    const onEnded = () => { setIsPlaying(false); setHasStarted(false); };
+    const onPause = () => { if (!video.ended) audio.pause(); };
+    video.addEventListener("ended", onEnded);
+    video.addEventListener("pause", onPause);
+    return () => {
+      video.removeEventListener("ended", onEnded);
+      video.removeEventListener("pause", onPause);
+    };
+  }, []);
+
+  const tiers: { id: StdTier; label: string; badge: string; color: string }[] = [
+    { id: "original",  label: "Original",  badge: "Unprocessed",          color: "from-zinc-600 to-zinc-500" },
+    { id: "enhanced",  label: "Enhanced",  badge: "WizSound Enhanced",    color: "from-amber-700 to-amber-500" },
+    { id: "cinematic", label: "Cinematic", badge: "WizSound Cinematic",   color: "from-yellow-600 to-amber-400" },
+  ];
 
   return (
-    <section className="relative bg-[#040404] py-28 px-6">
-      <div className="luxury-divider absolute top-0 left-0 right-0" />
-
-      {/* Ambient glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full transition-all duration-700"
-          style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
+    <section className="relative bg-[#040404] py-24 px-6 overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-10"
+          style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
       </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="relative max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-14 reveal">
-          <div className="inline-flex items-center gap-4 mb-6 px-6 py-3 rounded-full border border-white/[0.06] bg-white/[0.02]">
-            <div className="flex items-center gap-2">
-              <img src={WIZSOUND_LOGO} alt="WizSound" className="h-8 w-auto" loading="lazy" />
-              <span className="text-xs font-bold text-white/50">WizSound™</span>
-            </div>
-            <span className="text-white/15 text-base">+</span>
-            <div className="flex items-center gap-2">
-              <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-8 w-8 object-contain" loading="lazy" />
-              <span className="text-xs font-bold text-white/50">WizLumina™</span>
-            </div>
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium tracking-widest uppercase mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            See The Difference
           </div>
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">The Cinematic Difference</p>
-          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
-            Original. Enhanced. <span className="metallic-gold">Cinematic.</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+            Hear the transformation.
           </h2>
-          <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto">
-            Press play and watch the transformation — or jump directly to any stage to hear and see the difference instantly.
+          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+            The same scene. Three levels of cinematic quality. Press play and switch between tiers to hear and see the difference.
           </p>
         </div>
 
-        <div className="reveal">
-          {/* Chapter selector */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-              {STD_CHAPTERS.map((ch) => (
-                <button
-                  key={ch.id}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSeek(ch.id); }}
-                  className={`relative px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${
-                    activeTier === ch.id
-                      ? ch.id === 2
-                        ? "bg-gradient-to-r from-[--color-gold]/15 to-[--color-gold]/5 text-[--color-gold] shadow-[0_0_24px_rgba(212,175,55,0.12)]"
-                        : ch.id === 1
-                          ? "bg-white/[0.07] text-[--color-gold-dark]"
-                          : "bg-white/[0.05] text-white/75"
-                      : "text-white/25 hover:text-white/50"
-                  }`}
-                  style={activeTier === ch.id ? { boxShadow: `0 0 20px rgba(${ch.glowRgb},0.08)` } : {}}
-                >
-                  {ch.id === 2 && activeTier === 2 && (
-                    <span className="absolute -top-2 -right-1 text-[8px] font-black uppercase tracking-widest text-[--color-gold] bg-[--color-gold]/10 border border-[--color-gold]/20 px-1.5 py-0.5 rounded-full">Best</span>
-                  )}
-                  {ch.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Tier label + description */}
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              {activeTier > 0 && <img src={WIZSOUND_LOGO} alt="" className="h-5 w-auto opacity-70" loading="lazy" />}
-              <p className="text-base font-bold text-white">{tier.label}</p>
-            </div>
-            <p className="text-sm text-[--color-silver-dark]/40">{tier.desc}</p>
-          </div>
-
-          {/* Video player */}
-          <div className="relative rounded-2xl overflow-hidden border transition-all duration-700 mb-3"
-            style={{ borderColor: tier.borderColor, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.08)` }}>
-            {activeTier === 2 && (
-              <div className="absolute -inset-px rounded-2xl pointer-events-none z-0"
-                style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
-            )}
-            <div className="relative z-10 aspect-video bg-black">
-              {/* Single video — src set imperatively on mount, never via React prop */}
-              <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover"
-                playsInline
-                preload="auto"
-                onLoadedMetadata={handleVideoLoaded}
-                onEnded={handleVideoEnded}
-              />
-
-              {/* Chapter badge top-left */}
-              <div className="absolute top-4 left-4 z-20">
-                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm transition-all duration-500"
-                  style={{
-                    color: activeTier === 2 ? "var(--color-gold)" : activeTier === 1 ? "rgba(196,164,100,0.9)" : "rgba(200,200,210,0.7)",
-                    borderColor: `rgba(${tier.glowRgb},0.3)`,
-                    background: "rgba(0,0,0,0.65)",
-                  }}
-                >{tier.label}</span>
-              </div>
-
-              {/* Audio + Visual badges top-right */}
-              <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5">
-                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
-                  style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
-                  <img src={WIZSOUND_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
-                  {activeTier === 0 ? "Original Audio" : activeTier === 1 ? "Enhanced Audio" : "Spatial Audio"}
-                </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 transition-all duration-500"
-                  style={{ background: "rgba(0,0,0,0.65)", color: tier.accentColor, border: `1px solid rgba(${tier.glowRgb},0.2)` }}>
-                  <img src={WIZLUMINA_LOGO} alt="" className="w-3 h-3 object-contain opacity-80" />
-                  {activeTier === 0 ? "Original Video" : activeTier === 1 ? "Enhanced Video" : "HDR Video"}
-                </span>
-              </div>
-
-              {/* Play overlay — shown before first play */}
-              {!hasStarted && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-black/60 backdrop-blur-sm border border-white/10">
-                    <button
-                      className="w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 hover:scale-105"
-                      style={{ borderColor: tier.accentColor, background: `rgba(${tier.glowRgb},0.2)`, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.3)` }}
-                      onClick={togglePlay}
-                    >
-                      <PlaySVG className="w-7 h-7 text-white" />
-                    </button>
-                    <span className="text-xs text-white/70 font-semibold tracking-wide">Press play — or click a tier to jump straight in</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Player controls bar */}
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm p-5 mb-6">
-            {/* Chapter markers on scrubber */}
-            <div className="relative mb-1">
-              <div className="flex justify-between px-0">
-                {STD_CHAPTERS.map((ch) => (
-                  <button
-                    key={ch.id}
-                    onClick={() => handleTierSeek(ch.id)}
-                    className="text-[9px] font-bold uppercase tracking-wider transition-colors duration-300"
-                    style={{ color: activeTier === ch.id ? tier.accentColor : "rgba(255,255,255,0.2)" }}
-                  >
-                    {ch.id === 0 ? "0:00" : ch.id === 1 ? "0:10" : "0:20"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Scrubber */}
-            <div
-              className="relative h-2 bg-white/[0.06] rounded-full mb-4 cursor-pointer group"
-              onClick={handleScrub}
+        {/* Tier selector */}
+        <div className="flex justify-center gap-3 mb-8">
+          {tiers.map((tier) => (
+            <button
+              key={tier.id}
+              onClick={() => handleTierChange(tier.id)}
+              className={`
+                relative px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 border
+                ${activeTier === tier.id
+                  ? `bg-gradient-to-r ${tier.color} text-white border-transparent shadow-lg scale-105`
+                  : "bg-zinc-900/80 text-zinc-400 border-zinc-700/50 hover:border-zinc-500 hover:text-zinc-200"
+                }
+              `}
             >
-              {/* Chapter dividers */}
-              <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: "33.33%" }} />
-              <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: "66.66%" }} />
-              {/* Progress fill */}
-              <div
-                className="absolute left-0 top-0 h-full rounded-full transition-all duration-100"
-                style={{ width: `${progress}%`, background: `linear-gradient(90deg, rgba(${tier.glowRgb},0.6), rgba(${tier.glowRgb},1))` }}
-              />
-              {/* Playhead thumb */}
-              <div
-                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ left: `calc(${progress}% - 8px)`, background: tier.accentColor, borderColor: "white" }}
-              />
-            </div>
+              {tier.label}
+              {activeTier === tier.id && (
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] bg-amber-500 text-black px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                  {tier.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
 
-            {/* Controls row */}
-            <div className="flex items-center gap-4">
-              {/* Play/Pause */}
+        {/* Video player */}
+        <div className="relative rounded-2xl overflow-hidden border border-zinc-800/60 shadow-2xl bg-black"
+          style={{ aspectRatio: "16/9" }}>
+
+          {/* Video with per-tier CSS filter grading */}
+          <video
+            ref={videoRef}
+            src={STD_VIDEO}
+            className="w-full h-full object-cover transition-all duration-700"
+            style={{ filter: STD_FILTERS[activeTier] }}
+            playsInline
+            muted
+            preload="auto"
+          />
+
+          {/* Hidden audio element */}
+          <audio
+            ref={audioRef}
+            src={STD_AUDIO[activeTier]}
+            preload="auto"
+            onCanPlay={() => setAudioReady(true)}
+          />
+
+          {/* Play overlay (shown before first play) */}
+          {!hasStarted && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
               <button
-                onClick={togglePlay}
-                className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 flex-shrink-0"
-                style={{
-                  background: isPlaying ? `rgba(${tier.glowRgb},0.15)` : "rgba(255,255,255,0.04)",
-                  borderColor: isPlaying ? `rgba(${tier.glowRgb},0.5)` : "rgba(255,255,255,0.08)",
-                  boxShadow: isPlaying ? `0 0 20px rgba(${tier.glowRgb},0.2)` : "none",
-                }}
+                onClick={handlePlay}
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-200 mb-4"
               >
-                {isPlaying ? <PauseSVG className="w-4 h-4 text-white" /> : <PlaySVG className="w-4 h-4 text-white/80" />}
+                <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </button>
-
-              {/* Time */}
-              <span className="text-[11px] font-mono text-white/30 flex-shrink-0 w-16">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
-
-              {/* Volume */}
-              <div className="flex items-center gap-2 flex-1">
-                <button
-                  onClick={() => setIsMuted(!isMuted)}
-                  className="flex-shrink-0 text-white/40 hover:text-white/70 transition-colors"
-                >
-                  {isMuted || volume === 0 ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                      <line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" />
-                    </svg>
-                  ) : volume < 0.5 ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                    </svg>
-                  )}
-                </button>
-                <input
-                  type="range"
-                  min="0" max="1" step="0.01"
-                  value={isMuted ? 0 : volume}
-                  onChange={(e) => { setVolume(parseFloat(e.target.value)); setIsMuted(false); }}
-                  className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-                  style={{ accentColor: tier.accentColor }}
-                />
-              </div>
-
-              {/* Waveform icon */}
-              <WaveformSVG className="w-5 h-5 flex-shrink-0" color={tier.accentColor} />
-            </div>
-          </div>
-
-          {/* Feature comparison — Audio + Visual side by side below video */}
-          <div className="grid md:grid-cols-2 gap-4 mb-6">
-            {/* WizSound card */}
-            <div className="rounded-xl border bg-[#080808]/80 p-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
-              <div className="flex items-center gap-2.5 mb-4">
-                <img src={WIZSOUND_LOGO} alt="WizSound" className="h-7 w-auto" loading="lazy" />
-                <div>
-                  <p className="text-xs font-bold text-white">WizSound™</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: tier.accentColor }}>Audio</p>
-                </div>
-              </div>
-              <div className="space-y-2.5">
-                {tier.audioFeatures.map((f) => (
-                  <div key={f} className="flex items-start gap-2">
-                    <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: tier.accentColor }} />
-                    <span className="text-xs text-white/55">{f}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* WizLumina card */}
-            <div className="rounded-xl border bg-[#080808]/80 p-5 transition-all duration-500" style={{ borderColor: tier.borderColor }}>
-              <div className="flex items-center gap-2.5 mb-4">
-                <img src={WIZLUMINA_LOGO} alt="WizLumina" className="h-7 w-7 object-contain" loading="lazy" />
-                <div>
-                  <p className="text-xs font-bold text-white">WizLumina™</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: tier.accentColor }}>Visual</p>
-                </div>
-              </div>
-              <div className="space-y-2.5">
-                {tier.visualFeatures.map((f) => (
-                  <div key={f} className="flex items-start gap-2">
-                    <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: tier.accentColor }} />
-                    <span className="text-xs text-white/55">{f}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Cinematic Pack includes row */}
-          {activeTier === 2 && (
-            <div className="rounded-xl border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] px-6 py-4 mb-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
-              <span className="text-[--color-gold] font-semibold">Cinematic Pack includes:</span>
-              <span className="text-white/50">4K Resolution</span>
-              <span className="text-white/20">+</span>
-              <span className="text-white/50">WizSound™ Spatial</span>
-              <span className="text-white/20">+</span>
-              <span className="text-white/50">WizLumina™ HDR</span>
-              <span className="text-white/20">+</span>
-              <span className="text-white/50">Priority Build</span>
-              <span className="text-[--color-gold] font-bold ml-2">£7 per video</span>
+              <p className="text-white/80 text-sm font-medium">Press play to experience the difference</p>
             </div>
           )}
 
-          {/* CTA — A/B tested */}
-          <div className="text-center" ref={ctaSectionRef}>
-            {ctaVariant === "control" && (
-              <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm" onClick={trackCtaClick}>
-                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
-                Upgrade to Cinematic Mode
-              </a>
-            )}
-            {ctaVariant === "variant_b" && (
-              <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm" onClick={trackCtaClick}>
-                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
-                Unlock Cinematic Quality — Limited Offer
-              </a>
-            )}
-            {ctaVariant === "variant_c" && (
-              <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm" onClick={trackCtaClick}>
-                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
-                Join Creators Going Cinematic
-              </a>
-            )}
-            <p className="text-xs text-[--color-silver-dark]/30 mt-3">WizSound™ + WizLumina™ Cinematic bundle — included in every build upgrade</p>
+          {/* Play/pause control (shown after first play) */}
+          {hasStarted && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4">
+              <button
+                onClick={handleTogglePlay}
+                className="w-12 h-12 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/90 transition-colors"
+              >
+                {isPlaying ? (
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                )}
+              </button>
+              {/* Audio waveform indicator */}
+              {isPlaying && (
+                <div className="flex items-end gap-0.5 h-6">
+                  {[1,2,3,4,5].map((i) => (
+                    <div key={i} className="w-1 bg-amber-400 rounded-full animate-pulse"
+                      style={{
+                        height: `${activeTier === "cinematic" ? 14 + i * 3 : activeTier === "enhanced" ? 8 + i * 2 : 4 + i}px`,
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: `${0.5 + i * 0.1}s`
+                      }} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tier badge overlay */}
+          <div className="absolute top-4 left-4">
+            <div className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r ${tiers.find(t => t.id === activeTier)?.color} shadow-lg`}>
+              {activeTier === "original" ? "Original" : activeTier === "enhanced" ? "WizSound Enhanced" : "WizSound Cinematic"}
+            </div>
           </div>
+        </div>
+
+        {/* Tier descriptions */}
+        <div className="grid grid-cols-3 gap-4 mt-8">
+          {tiers.map((tier) => (
+            <div
+              key={tier.id}
+              onClick={() => handleTierChange(tier.id)}
+              className={`
+                p-4 rounded-xl border cursor-pointer transition-all duration-300
+                ${activeTier === tier.id
+                  ? "border-amber-500/40 bg-amber-500/5"
+                  : "border-zinc-800/60 bg-zinc-900/40 hover:border-zinc-600"
+                }
+              `}
+            >
+              <div className={`text-sm font-bold mb-1 ${activeTier === tier.id ? "text-amber-400" : "text-zinc-400"}`}>
+                {tier.label}
+              </div>
+              <div className="text-xs text-zinc-500">
+                {tier.id === "original" && "Flat, unprocessed audio. Basic stereo. No depth or warmth."}
+                {tier.id === "enhanced" && "Professional mix. Warm tones, wider stereo, balanced clarity."}
+                {tier.id === "cinematic" && "Immersive spatial audio. Deep bass, full orchestra, room-filling sound."}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="text-center mt-12">
+          <p className="text-zinc-400 text-sm mb-4">Ready to transform your audio?</p>
+          <button className="px-8 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-sm hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shadow-lg hover:shadow-amber-500/25">
+            Try WizSound Free →
+          </button>
         </div>
       </div>
     </section>
   );
 }
+
 
 
 // ── Final CTA ─────────────────────────────────────────────────────────────────
