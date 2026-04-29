@@ -1794,7 +1794,8 @@ function WizSoundDemo() {
     const wasPlaying = !audio.paused;
     console.log('[WizSound] TIER_SWITCH → tier:', AUDIO_TIERS[i].label, '| savedTime:', savedTime.toFixed(2), '| wasPlaying:', wasPlaying);
     // Imperatively swap src and reload — React has NO src prop on <audio> so this cannot be overwritten
-    const newSrc = AUDIO_TIERS[i].src;
+    // Cache-bust with timestamp to force fresh network request (bypasses any cached 307 redirect)
+    const newSrc = AUDIO_TIERS[i].src + '?t=' + Date.now();
     console.log('[WizSound] SWITCHING TO:', newSrc);
     audio.src = newSrc;
     audio.load();
