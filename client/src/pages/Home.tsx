@@ -2458,13 +2458,18 @@ function WizVidEngineSection() {
 
 /// See the Difference (Cinematic Demo Player) 
 
-const STD_VIDEO = "/manus-storage/wiz-ai-trailer-v2_02720938.mp4";
+// v5 — baked-in grades: each phase is a different visual grade rendered into the video
+// The video plays continuously; tier buttons jump to the correct timestamp
+const STD_VIDEO = "/manus-storage/std-demo-v5_8c505272.mp4";
 
 const STD_AUDIO = {
- original: "/manus-storage/std-audio-original-v4_6b9fbd71.mp3",
- enhanced: "/manus-storage/std-audio-enhanced-v4_94203f59.mp3",
- cinematic: "/manus-storage/std-audio-cinematic-v4_d8e7543f.mp3",
+ original: "/manus-storage/std-v5-audio-original_641c2c62.mp3",
+ enhanced: "/manus-storage/std-v5-audio-enhanced_992b0682.mp3",
+ cinematic: "/manus-storage/std-v5-audio-cinematic_005fd7a3.mp3",
 };
+
+// Each tier starts at a specific timestamp in the 27s video
+const STD_TIER_TIMESTAMPS: Record<string, number> = { original: 0, enhanced: 9, cinematic: 18 };
 
 type StdTier = "original" | "enhanced" | "cinematic";
 
@@ -2480,29 +2485,29 @@ const STD_TIERS: {
  {
  key: "original",
  label: "Original",
- tagline: "Raw, unprocessed footage",
- audioLabel: "Basic Stereo · No processing",
+ tagline: "Flat, dull, lifeless — raw AI output",
+ audioLabel: "Thin · Narrow · No processing",
  gradient: "from-zinc-500 to-zinc-400",
  glow: "rgba(113,113,122,0.4)",
- videoFilter: "saturate(0.5) brightness(0.85) contrast(0.9)",
+ videoFilter: "none",
  },
  {
  key: "enhanced",
  label: "Enhanced",
- tagline: "Professional colour & audio grade",
- audioLabel: "Broadcast Quality · Warm & balanced",
+ tagline: "Sharp, vibrant, professional grade",
+ audioLabel: "Full · Balanced · Broadcast quality",
  gradient: "from-amber-500 to-yellow-400",
  glow: "rgba(245,158,11,0.5)",
- videoFilter: "saturate(1.2) brightness(1.05) contrast(1.08)",
+ videoFilter: "none",
  },
  {
  key: "cinematic",
  label: "Cinematic",
- tagline: "Hollywood-grade mastering",
- audioLabel: "Dolby Atmos™ Style · Deep bass · Spatial",
+ tagline: "Golden light, deep shadows, movie-trailer quality",
+ audioLabel: "Deep bass · Wide stereo · Immersive",
  gradient: "from-orange-500 to-amber-400",
  glow: "rgba(249,115,22,0.6)",
- videoFilter: "saturate(1.15) brightness(1.0) contrast(1.15) sepia(0.15)",
+ videoFilter: "none",
  },
 ];
 
@@ -2540,9 +2545,10 @@ function SeeTheDifference() {
 
  const prevAudio = currentAudioRef.current;
  const nextAudio = audioRefs.current[tier];
+ const video = videoRef.current;
 
+ // Fade out previous audio
  if (prevAudio) {
- // Fade out previous
  const fadeOut = setInterval(() => {
  if (prevAudio.volume > 0.05) {
  prevAudio.volume = Math.max(0, prevAudio.volume - 0.1);
@@ -2557,8 +2563,14 @@ function SeeTheDifference() {
  setActiveTier(tier);
  currentAudioRef.current = nextAudio;
 
+ // Seek video to the baked-in timestamp for this tier
+ if (video) {
+ video.currentTime = STD_TIER_TIMESTAMPS[tier] ?? 0;
+ if (isPlaying) video.play().catch(() => {});
+ }
+
  if (isPlaying && nextAudio) {
- nextAudio.currentTime = prevAudio?.currentTime ?? 0;
+ nextAudio.currentTime = 0;
  nextAudio.volume = 0;
  nextAudio.play().catch(() => {});
  // Fade in new audio
@@ -2572,7 +2584,7 @@ function SeeTheDifference() {
  }, 30);
  }
 
- setTimeout(() => setIsSwitching(false), 200);
+ setTimeout(() => setIsSwitching(false), 300);
  }, [activeTier, isPlaying, isSwitching]);
 
  const handlePlayPause = useCallback(() => {
@@ -2581,6 +2593,8 @@ function SeeTheDifference() {
  if (!video) return;
 
  if (video.paused) {
+ // Seek to the correct tier timestamp before playing
+ video.currentTime = STD_TIER_TIMESTAMPS[activeTier] ?? 0;
  video.play().catch(() => {});
  if (audio) {
  audio.currentTime = 0;
@@ -2592,7 +2606,7 @@ function SeeTheDifference() {
  if (audio) audio.pause();
  setIsPlaying(false);
  }
- }, []);
+ }, [activeTier]);
 
  const handleVideoEnded = useCallback(() => {
  const audio = currentAudioRef.current;
@@ -2616,9 +2630,9 @@ function SeeTheDifference() {
  {/* Header */}
  <div className="text-center mb-10">
  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/40 tracking-widest uppercase mb-5">
- <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />WizSound™ · WizLumina™ Demo
+ <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />WizSound™ · WizLumina™ · Cinematic Demo
  </div>
- <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">Hear &amp; See the{" "}
+ <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">One scene.{" "}
  <span
  className="bg-clip-text text-transparent"
  style={{
@@ -2630,11 +2644,12 @@ function SeeTheDifference() {
  : "linear-gradient(135deg, #a1a1aa, #d4d4d8)",
  transition: "background-image 0.5s ease",
  }}
- >Difference
+ >Three transformations.
  </span>
  </h2>
- <p className="text-base text-white/40 max-w-lg mx-auto">Same scene. Same music. Three completely different levels of quality.
- Click a tier to switch — audio and visuals transform instantly.
+ <p className="text-base text-white/40 max-w-lg mx-auto">
+ The same epic landscape — three completely different levels of quality.
+ Watch the visual and audio transform from flat and lifeless to cinematic and immersive.
  </p>
  </div>
 
@@ -2669,12 +2684,12 @@ function SeeTheDifference() {
  onClick={handlePlayPause}
  style={{ boxShadow: `0 0 60px ${activeTierData.glow}` }}
  >
- {/* The single video — visual grading via CSS filter */}
+ {/* v5: visual grades are baked into the video — no CSS filter needed */}
  <div className="relative aspect-video bg-black">
  <video
  ref={videoRef}
- className="w-full h-full object-cover transition-all duration-700"
- style={{ filter: activeTierData.videoFilter }}
+ className="w-full h-full object-cover"
+ style={{ filter: "none" }}
  onEnded={handleVideoEnded}
  onPlay={() => setIsPlaying(true)}
  onPause={() => setIsPlaying(false)}
