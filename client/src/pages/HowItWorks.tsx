@@ -108,7 +108,7 @@ function StepCard({ step, index }: { step: typeof STEPS[0]; index: number }) {
       )}
       <div className="relative overflow-hidden rounded-3xl border transition-all duration-500 group-hover:scale-[1.005]"
         style={{
-          background: "linear-gradient(135deg, rgba(10,10,10,0.97) 0%, rgba(14,14,14,0.95) 100%)",
+          backgroundImage: "linear-gradient(135deg, rgba(10,10,10,0.97) 0%, rgba(14,14,14,0.95) 100%)",
           borderColor: c.border,
           boxShadow: `0 0 0 1px ${c.border}, 0 24px 60px rgba(0,0,0,0.5)`,
         }}>
@@ -133,7 +133,7 @@ function StepCard({ step, index }: { step: typeof STEPS[0]; index: number }) {
                   : "linear-gradient(90deg, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.45) 45%, transparent 100%)",
               }} />
             <div className="absolute inset-0"
-              style={{ background: "linear-gradient(180deg, rgba(10,10,10,0.55) 0%, transparent 35%, transparent 65%, rgba(10,10,10,0.55) 100%)" }} />
+              style={{ backgroundImage: "linear-gradient(180deg, rgba(10,10,10,0.55) 0%, transparent 35%, transparent 65%, rgba(10,10,10,0.55) 100%)" }} />
             <div className="absolute bottom-3 left-4 lg:bottom-5 lg:left-5 font-black text-[72px] lg:text-[108px] leading-none select-none pointer-events-none"
               style={{
                 color: "transparent",
@@ -191,7 +191,7 @@ export default function HowItWorks() {
       <div className="relative overflow-hidden min-h-[520px] flex flex-col">
         <div className="absolute inset-0">
           <img src={STEP_IMAGES.hero} alt="" className="w-full h-full object-cover object-center opacity-30" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(6,6,6,0.25) 0%, rgba(6,6,6,0.55) 50%, rgba(6,6,6,1) 100%)" }} />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(180deg, rgba(6,6,6,0.25) 0%, rgba(6,6,6,0.55) 50%, rgba(6,6,6,1) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 90% 70% at 50% 0%, rgba(139,92,246,0.18), transparent)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 80% 50%, rgba(196,164,100,0.08), transparent)" }} />
         </div>
@@ -205,7 +205,7 @@ export default function HowItWorks() {
           <a href="/onboarding"
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
+              backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
               color: "#0a0a0a",
               boxShadow: "0 0 20px rgba(196,164,100,0.25)",
             }}>
@@ -223,7 +223,7 @@ export default function HowItWorks() {
             <span className="text-white">From idea to video</span>
             <br />
             <span style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 30%, #a78bfa 65%, #c4a464 100%)",
+              backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 30%, #a78bfa 65%, #c4a464 100%)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
             }}>in five steps</span>
           </h1>
@@ -256,7 +256,7 @@ export default function HowItWorks() {
       {/* RENDER PIPELINE */}
       <div className="relative overflow-hidden mt-12">
         <div className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, rgba(6,6,6,0) 0%, rgba(12,8,24,0.9) 20%, rgba(12,8,24,0.9) 80%, rgba(6,6,6,0) 100%)" }} />
+          style={{ backgroundImage: "linear-gradient(180deg, rgba(6,6,6,0) 0%, rgba(12,8,24,0.9) 20%, rgba(12,8,24,0.9) 80%, rgba(6,6,6,0) 100%)" }} />
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(196,164,100,0.05), transparent)" }} />
         <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
@@ -267,7 +267,7 @@ export default function HowItWorks() {
           </div>
           <div className="relative">
             <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(196,164,100,0.25) 20%, rgba(196,164,100,0.25) 80%, transparent)" }} />
+              style={{ backgroundImage: "linear-gradient(90deg, transparent, rgba(196,164,100,0.25) 20%, rgba(196,164,100,0.25) 80%, transparent)" }} />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5">
               {RENDER_STAGES.map((item, i) => (
                 <div key={item.stage}
@@ -303,7 +303,7 @@ export default function HowItWorks() {
           </div>
           <div className="mt-8 p-5 rounded-2xl flex items-start gap-4"
             style={{
-              background: "linear-gradient(135deg, rgba(196,164,100,0.07), rgba(196,164,100,0.03))",
+              backgroundImage: "linear-gradient(135deg, rgba(196,164,100,0.07), rgba(196,164,100,0.03))",
               border: "1px solid rgba(196,164,100,0.18)",
             }}>
             <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
@@ -343,7 +343,7 @@ export default function HowItWorks() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img src={STEP_IMAGES.kids} alt="" className="w-full h-full object-cover opacity-18" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(6,6,6,1) 0%, rgba(6,6,6,0.65) 30%, rgba(6,6,6,0.65) 70%, rgba(6,6,6,1) 100%)" }} />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(180deg, rgba(6,6,6,1) 0%, rgba(6,6,6,0.65) 30%, rgba(6,6,6,0.65) 70%, rgba(6,6,6,1) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 80% at 50% 50%, rgba(217,70,239,0.07), transparent)" }} />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-6 py-20 text-center">
@@ -355,7 +355,7 @@ export default function HowItWorks() {
           <h2 className="text-3xl md:text-5xl font-black text-white mb-5">
             Create videos.<br />
             <span style={{
-              background: "linear-gradient(135deg, #d946ef, #f0abfc)",
+              backgroundImage: "linear-gradient(135deg, #d946ef, #f0abfc)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
             }}>Build your audience.</span>
           </h2>
@@ -381,14 +381,14 @@ export default function HowItWorks() {
       {/* CTA */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, rgba(6,6,6,0) 0%, rgba(10,8,20,0.96) 100%)" }} />
+          style={{ backgroundImage: "linear-gradient(180deg, rgba(6,6,6,0) 0%, rgba(10,8,20,0.96) 100%)" }} />
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 70% 60% at 50% 100%, rgba(196,164,100,0.07), transparent)" }} />
         <div className="relative z-10 max-w-3xl mx-auto px-6 py-24 text-center">
           <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-5">
             Ready to create<br />
             <span style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 40%, #c4a464 100%)",
+              backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 40%, #c4a464 100%)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
             }}>your video?</span>
           </h2>
@@ -399,7 +399,7 @@ export default function HowItWorks() {
             <a href="/onboarding"
               className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base font-bold transition-all hover:scale-105"
               style={{
-                background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
+                backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
                 color: "#0a0a0a",
                 boxShadow: "0 0 40px rgba(196,164,100,0.28), 0 8px 32px rgba(0,0,0,0.5)",
               }}>

@@ -1349,7 +1349,7 @@ function WizEngines() {
                     <span
                       className="text-2xl font-black tracking-tight"
                       style={{
-                        background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                        backgroundImage: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         filter: "drop-shadow(0 0 8px oklch(0.78 0.11 75 / 0.6))",
@@ -1390,7 +1390,7 @@ function WizEngines() {
                   <span
                     className="text-lg font-black"
                     style={{
-                      background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                      backgroundImage: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       filter: "drop-shadow(0 0 6px oklch(0.78 0.11 75 / 0.6))",
@@ -1535,7 +1535,7 @@ function HowItWorks() {
                     <span
                       className="relative text-base font-black tracking-tight transition-all duration-500"
                       style={i <= activeStep ? {
-                        background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                        backgroundImage: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         filter: "drop-shadow(0 0 6px oklch(0.78 0.11 75 / 0.8))",
@@ -1596,7 +1596,7 @@ function HowItWorks() {
                 <span
                   className="text-sm font-black transition-all duration-500"
                   style={i <= activeStep ? {
-                    background: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
+                    backgroundImage: "linear-gradient(160deg, #f0d080 0%, #c4a450 40%, #8a6520 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     filter: "drop-shadow(0 0 6px oklch(0.78 0.11 75 / 0.7))",

@@ -430,18 +430,18 @@ function FeaturedCard({ tool }: { tool: Tool }) {
           <img src={tool.bgAlt} alt="" className="absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-50 scale-105" />
         )}
         <div className="absolute inset-0"
-          style={{ background: "linear-gradient(135deg, rgba(8,8,8,0.94) 0%, rgba(8,8,8,0.60) 50%, rgba(8,8,8,0.80) 100%)" }} />
+          style={{ backgroundImage: "linear-gradient(135deg, rgba(8,8,8,0.94) 0%, rgba(8,8,8,0.60) 50%, rgba(8,8,8,0.80) 100%)" }} />
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           style={{ background: "radial-gradient(ellipse 70% 80% at 0% 50%, rgba(196,164,100,0.10), transparent)" }} />
       </div>
       <div className="absolute top-0 inset-x-0 h-px"
-        style={{ background: "linear-gradient(90deg, rgba(196,164,100,0.8), rgba(232,213,160,0.4), transparent)" }} />
+        style={{ backgroundImage: "linear-gradient(90deg, rgba(196,164,100,0.8), rgba(232,213,160,0.4), transparent)" }} />
 
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-8 p-8 md:p-10">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-              style={{ background: "linear-gradient(135deg, #c4a464, #e8d5a0)", boxShadow: "0 2px 12px rgba(196,164,100,0.4)" }}>
+              style={{ backgroundImage: "linear-gradient(135deg, #c4a464, #e8d5a0)", boxShadow: "0 2px 12px rgba(196,164,100,0.4)" }}>
               <Star className="w-3 h-3 fill-[#0a0a0a] text-[#0a0a0a]" />
               <span className="text-[10px] font-black uppercase tracking-widest text-[#0a0a0a]">Most Popular</span>
             </div>
@@ -454,7 +454,7 @@ function FeaturedCard({ tool }: { tool: Tool }) {
             ) : (
               <h2 className="text-4xl font-black tracking-tight"
                 style={{
-                  background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 35%, #fff 55%, #e8d5a0 70%, #c4a464 100%)",
+                  backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 35%, #fff 55%, #e8d5a0 70%, #c4a464 100%)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                 }}>
                 {tool.name}
@@ -466,7 +466,7 @@ function FeaturedCard({ tool }: { tool: Tool }) {
           <button
             className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
+              backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
               color: "#0a0a0a",
               boxShadow: "0 0 30px rgba(196,164,100,0.25), 0 4px 20px rgba(0,0,0,0.5)",
             }}>
@@ -507,7 +507,7 @@ function SectionDivider({ icon, label, sublabel }: { icon: React.ReactNode; labe
           {sublabel && <p className="text-[10px] text-white/30 mt-0.5">{sublabel}</p>}
         </div>
       </div>
-      <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(196,164,100,0.25), transparent)" }} />
+      <div className="flex-1 h-px" style={{ backgroundImage: "linear-gradient(90deg, rgba(196,164,100,0.25), transparent)" }} />
     </div>
   );
 }
@@ -552,7 +552,7 @@ export default function Create() {
             <span className="text-white">Choose Your</span>
             <br />
             <span style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 30%, #fff 50%, #e8d5a0 70%, #c4a464 100%)",
+              backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 30%, #fff 50%, #e8d5a0 70%, #c4a464 100%)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
             }}>
               AI Creation Tool

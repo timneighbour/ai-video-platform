@@ -329,7 +329,7 @@ export default function WizSoundShowcase() {
             className="text-3xl md:text-4xl font-bold text-white mb-3"
           >
             Powered by{" "}
-            <span style={{ background: "linear-gradient(90deg, #a78bfa, #e879f9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+            <span style={{ backgroundImage: "linear-gradient(90deg, #a78bfa, #e879f9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               WizSound™
             </span>
           </h2>

@@ -180,7 +180,7 @@ function LuminaUpsellOverlay({ visible }: { visible: boolean }) {
   return (
     <div
       className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none"
-      style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.5) 100%)" }}
+      style={{ backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.5) 100%)" }}
     >
       <div
         className="flex gap-0 rounded-xl overflow-hidden border border-white/20 shadow-2xl"
@@ -191,7 +191,7 @@ function LuminaUpsellOverlay({ visible }: { visible: boolean }) {
           <div
             className="w-full h-20 sm:h-28"
             style={{
-              background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+              backgroundImage: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
               filter: "grayscale(0.6) brightness(0.7)",
             }}
           />
@@ -206,16 +206,16 @@ function LuminaUpsellOverlay({ visible }: { visible: boolean }) {
           <div
             className="w-full h-20 sm:h-28"
             style={{
-              background: "linear-gradient(135deg, #1a1a2e 0%, #2d1b69 50%, #0f3460 100%)",
+              backgroundImage: "linear-gradient(135deg, #1a1a2e 0%, #2d1b69 50%, #0f3460 100%)",
               filter: "saturate(1.8) brightness(1.2) contrast(1.1)",
             }}
           />
           <div className="absolute bottom-0 left-0 right-0 py-1 text-center"
-            style={{ background: "linear-gradient(90deg, rgba(251,191,36,0.3), rgba(196,164,100,0.3))" }}>
+            style={{ backgroundImage: "linear-gradient(90deg, rgba(251,191,36,0.3), rgba(196,164,100,0.3))" }}>
             <span
               className="text-[0.6rem] font-bold tracking-widest uppercase"
               style={{
-                background: "linear-gradient(90deg,#fbbf24,#d4af37)",
+                backgroundImage: "linear-gradient(90deg,#fbbf24,#d4af37)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -649,7 +649,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             style={
               wizsoundMode
                 ? {
-                    background: "linear-gradient(90deg,#d4af37,#c4a464,#d4af37)",
+                    backgroundImage: "linear-gradient(90deg,#d4af37,#c4a464,#d4af37)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
@@ -703,7 +703,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               style={
                 wizsoundMode
                   ? {
-                      background: "linear-gradient(135deg,rgba(212,175,55,0.9),rgba(196,164,100,0.8))",
+                      backgroundImage: "linear-gradient(135deg,rgba(212,175,55,0.9),rgba(196,164,100,0.8))",
                       boxShadow: "0 0 16px rgba(212,175,55,0.35), 0 0 4px rgba(196,164,100,0.5)",
                     }
                   : {}
@@ -833,7 +833,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                   <span
                     className="font-bold text-[0.65rem] tracking-wide"
                     style={{
-                      background: "linear-gradient(90deg,#d4af37,#c4a464)",
+                      backgroundImage: "linear-gradient(90deg,#d4af37,#c4a464)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text",
@@ -878,7 +878,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <span
               className="font-bold"
               style={{
-                background: "linear-gradient(90deg,#d4af37,#c4a464)",
+                backgroundImage: "linear-gradient(90deg,#d4af37,#c4a464)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",

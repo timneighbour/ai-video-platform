@@ -204,7 +204,7 @@ function PhoneFrame({
           style={{ width: "40px", height: "6px", background: "#000" }}
         />
         <img src={img} alt={label} className="w-full h-full object-cover" loading="lazy" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 45%)" }} />
+        <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 45%)" }} />
         {/* Simulated caption bar */}
         <div
           className="absolute bottom-10 left-3 right-3 px-2 py-1 rounded text-center"
@@ -292,7 +292,7 @@ export default function WizShortsProductPage() {
             style={{ opacity: 0.40 }}
             loading="eager"
           />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.50) 40%, rgba(5,5,8,0.95) 100%)" }} />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to bottom, rgba(5,5,8,0.55) 0%, rgba(5,5,8,0.50) 40%, rgba(5,5,8,0.95) 100%)" }} />
           <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 90% 70% at 50% 30%, ${ACCENT_DIM} 0%, transparent 65%)` }} />
           {/* Speed-lines overlay */}
           <div

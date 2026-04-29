@@ -164,7 +164,7 @@ export default function LandingStudio() {
               style={{ fontSize: "clamp(4rem, 12vw, 9rem)" }}>
               <span className="text-white">Wiz</span>
               <span style={{
-                background: "linear-gradient(135deg, #a855f7 0%, #e879f9 50%, #c084fc 100%)",
+                backgroundImage: "linear-gradient(135deg, #a855f7 0%, #e879f9 50%, #c084fc 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -233,7 +233,7 @@ export default function LandingStudio() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
               Everything in WIZ AI,<br />
               <span style={{
-                background: "linear-gradient(90deg, #c4b5fd, #e879f9)",
+                backgroundImage: "linear-gradient(90deg, #c4b5fd, #e879f9)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",

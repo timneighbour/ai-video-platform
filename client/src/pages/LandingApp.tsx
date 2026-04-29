@@ -143,7 +143,7 @@ export default function LandingApp() {
                 key={styleIdx}
                 className="font-bold text-sm"
                 style={{
-                  background: "linear-gradient(90deg, #c4b5fd, #e879f9)",
+                  backgroundImage: "linear-gradient(90deg, #c4b5fd, #e879f9)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",

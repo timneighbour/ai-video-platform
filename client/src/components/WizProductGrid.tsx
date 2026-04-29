@@ -165,7 +165,7 @@ function Tile({ tile, height = 220 }: { tile: StudioTile; height?: number }) {
       <div
         className="absolute inset-0"
         style={{
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.88) 100%)",
+          backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.88) 100%)",
         }}
       />
 
@@ -180,7 +180,7 @@ function Tile({ tile, height = 220 }: { tile: StudioTile; height?: number }) {
       {/* Top bevel highlight */}
       <div
         className="absolute top-0 left-0 right-0 h-px pointer-events-none z-20"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(232,213,160,0.25) 30%, rgba(232,213,160,0.45) 50%, rgba(232,213,160,0.25) 80%, transparent 100%)" }}
+        style={{ backgroundImage: "linear-gradient(90deg, transparent 0%, rgba(232,213,160,0.25) 30%, rgba(232,213,160,0.45) 50%, rgba(232,213,160,0.25) 80%, transparent 100%)" }}
       />
 
       {/* Content */}
@@ -189,7 +189,7 @@ function Tile({ tile, height = 220 }: { tile: StudioTile; height?: number }) {
         <h3
           className="font-black text-lg leading-tight mb-1.5 transition-transform duration-300 group-hover:-translate-y-0.5"
           style={{
-            background: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 40%, #ffffff 70%, #e8d5a0 100%)",
+            backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 40%, #ffffff 70%, #e8d5a0 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -249,7 +249,7 @@ export default function WizProductGrid() {
     <section
       id="products"
       className="relative py-28 px-6 scroll-mt-20 overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #030303 0%, #050505 50%, #030303 100%)" }}
+      style={{ backgroundImage: "linear-gradient(180deg, #030303 0%, #050505 50%, #030303 100%)" }}
     >
       {/* Atmospheric depth */}
       <div className="absolute inset-0 pointer-events-none" style={{
