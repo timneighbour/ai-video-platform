@@ -1744,7 +1744,7 @@ const AUDIO_TIERS = [
     tagline: "Standard Audio",
     desc: "Raw AI-generated audio. Flat, narrow, and unprocessed.",
     features: ["Mono mix", "No spatial depth", "Basic EQ", "Thin low-end"],
-    src: "/manus-storage/wizsound-original_105087e8.mp3",
+    src: "/manus-storage/original_test_268addb1.mp3", // TEST: 440Hz tone
     bars: [0.25, 0.35, 0.3, 0.45, 0.25, 0.35, 0.3, 0.25, 0.35, 0.3, 0.4, 0.25, 0.3, 0.35, 0.25, 0.3, 0.35, 0.28, 0.32, 0.38],
     color: "rgba(100,100,110,0.4)",
     colorActive: "rgba(140,140,150,0.7)",
@@ -1757,7 +1757,7 @@ const AUDIO_TIERS = [
     tagline: "WizSound Enhance",
     desc: "Cleaned, balanced, and broadcast-ready with stereo width.",
     features: ["Stereo widening", "Noise reduction", "EQ mastering", "Improved clarity"],
-    src: "/manus-storage/wizsound-enhanced_3d6ddffd.mp3",
+    src: "/manus-storage/enhanced_test_b2a5540a.mp3", // TEST: 880Hz tone
     bars: [0.35, 0.5, 0.55, 0.65, 0.4, 0.55, 0.5, 0.4, 0.55, 0.48, 0.62, 0.4, 0.5, 0.55, 0.42, 0.5, 0.52, 0.45, 0.48, 0.58],
     color: "rgba(180,165,120,0.5)",
     colorActive: "rgba(196,170,100,0.85)",
@@ -1770,7 +1770,7 @@ const AUDIO_TIERS = [
     tagline: "WizSound Cinematic",
     desc: "Full spatial immersion with deep bass, warmth, and studio-grade presence.",
     features: ["Spatial 3D audio", "Deep cinematic bass", "Studio mastering", "Immersive depth"],
-    src: "/manus-storage/wizsound-cinematic_73f24d09.mp3",
+    src: "/manus-storage/cinematic_test_5d2bc6b3.mp3", // TEST: 220Hz tone
     bars: [0.45, 0.65, 0.8, 0.92, 0.6, 0.85, 0.75, 0.58, 0.82, 0.7, 0.95, 0.62, 0.78, 0.88, 0.58, 0.75, 0.82, 0.68, 0.72, 0.9],
     color: "rgba(212,175,55,0.4)",
     colorActive: "rgba(212,175,55,0.9)",
@@ -1786,39 +1786,59 @@ function WizSoundDemo() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const tier = AUDIO_TIERS[activeTier];
 
-  // Switch tier: stop current, reset
+  // STEP 2: Single audio element — imperative src-swap, currentTime preserved, volume=1.0
   const handleTierSwitch = (i: number) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    const audio = audioRef.current;
+    if (!audio) return;
+    const savedTime = audio.currentTime; // preserve position
+    const wasPlaying = !audio.paused;
+    console.log('[WizSound] TIER_SWITCH → tier:', AUDIO_TIERS[i].label, '| savedTime:', savedTime.toFixed(2), '| wasPlaying:', wasPlaying);
+    // Imperatively swap src and reload
+    audio.src = AUDIO_TIERS[i].src;
+    console.log('[WizSound] NEW_SRC:', audio.src);
+    audio.load();
+    audio.volume = 1.0;
+    audio.currentTime = savedTime; // restore position after load
+    if (wasPlaying) {
+      audio.play().then(() => {
+        console.log('[WizSound] RESUMED at time:', audio.currentTime.toFixed(2));
+      }).catch((err) => {
+        console.error('[WizSound] PLAY_BLOCKED:', err);
+      });
     }
     setActiveTier(i);
-    setIsPlaying(false);
-    setProgress(0);
   };
 
   // Play / pause toggle
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 1.0;
+    console.log('[WizSound] TOGGLE_PLAY | isPlaying:', isPlaying, '| src:', audio.src, '| currentTime:', audio.currentTime.toFixed(2));
     if (isPlaying) {
-      audioRef.current.pause();
+      audio.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().catch(() => {});
-      setIsPlaying(true);
+      audio.play().then(() => {
+        console.log('[WizSound] PLAY_SUCCESS | muted:', audio.muted, '| volume:', audio.volume);
+        setIsPlaying(true);
+      }).catch((err) => {
+        console.error('[WizSound] PLAY_BLOCKED:', err);
+      });
     }
   };
 
-  // Progress tracking
+  // Progress tracking — attach once on mount, not per tier
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    audio.volume = 1.0;
     const onTime = () => setProgress((audio.currentTime / (audio.duration || 1)) * 100);
     const onEnded = () => { setIsPlaying(false); setProgress(0); };
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("ended", onEnded);
     return () => { audio.removeEventListener("timeupdate", onTime); audio.removeEventListener("ended", onEnded); };
-  }, [activeTier]);
+  }, []); // ← empty deps: attach once, never re-attach
 
   return (
     <section className="relative py-32 px-6" style={{ background: "linear-gradient(180deg, #030303 0%, #0a0a0f 50%, #030303 100%)" }}>
@@ -1851,7 +1871,7 @@ function WizSoundDemo() {
               {AUDIO_TIERS.map((t, i) => (
                 <button
                   key={t.id}
-                  onClick={() => handleTierSwitch(i)}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSwitch(i); }}
                   className={`relative px-7 py-3 rounded-xl text-sm font-bold transition-all duration-400 ${
                     activeTier === i
                       ? i === 2
@@ -1897,8 +1917,8 @@ function WizSoundDemo() {
 
             {/* Right: Player card */}
             <div className="lg:col-span-3 rounded-2xl p-8 border border-white/[0.06] bg-white/[0.015] backdrop-blur-sm">
-              {/* Hidden audio element */}
-              <audio ref={audioRef} src={tier.src} preload="metadata" />
+              {/* Single audio element — src swapped imperatively, never remounted */}
+              <audio ref={audioRef} src={AUDIO_TIERS[0].src} preload="auto" />
 
               {/* Animated waveform bars — more bars, thinner, premium look */}
               <div className="flex items-end justify-center gap-[3px] h-24 mb-8">
