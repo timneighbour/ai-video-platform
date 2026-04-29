@@ -6343,3 +6343,23 @@
 - [ ] Apply homepage content-tightening pass + Lyndhurst Hall hero
 - [ ] TypeScript clean (0 errors)
 - [ ] Visual review in browser
+
+## Product Suite Section — 10 Products with App Screenshots
+- [x] Generate 10 AI app UI screenshot mockups (WizSound, WizImage, WizVideo, WizAnimate, WizScore, WizShorts, WizScript, WizPilot, WizSync, WizGenesis)
+- [x] Upload all 10 screenshots to manus-storage CDN
+- [x] Rebuild WizProductGrid.tsx with CREATE/ENHANCE/GROW tab navigation
+- [x] Integrate app screenshots as card hero visuals (180px tall, object-cover, hover scale)
+- [x] Add 4 new products: WizScore, WizGenesis, WizPilot, WizSync
+- [x] Add feature bullet list (hover-reveal) per card
+- [x] Update section header to "WIZ AI — The Product Suite"
+- [x] Update section headline to be tab-contextual
+- [x] TypeScript: 0 errors confirmed
+
+## Product Suite Section — 10 Products with App Screenshots
+- [x] Generate 10 AI app UI screenshot mockups
+- [x] Upload all 10 screenshots to manus-storage CDN
+- [x] Rebuild WizProductGrid.tsx with CREATE/ENHANCE/GROW tab navigation
+- [x] Integrate app screenshots as card hero visuals
+- [x] Add 4 new products: WizScore, WizGenesis, WizPilot, WizSync
+- [x] Add feature bullet list (hover-reveal) per card
+- [x] TypeScript: 0 errors confirmed
