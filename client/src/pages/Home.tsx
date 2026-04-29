@@ -2594,12 +2594,13 @@ function SeeTheDifference() {
 
   useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
-  // Sync volume/mute to audio element whenever they change
+  // Sync volume/mute to audio element whenever they change.
+  // Never set a.muted=true — use volume=0 instead, so the element stays
+  // in a playable state and isn't blocked by autoplay policy.
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
     a.volume = isMuted ? 0 : volume;
-    a.muted = isMuted;
   }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
@@ -2612,18 +2613,20 @@ function SeeTheDifference() {
       stopRaf();
       setIsPlaying(false);
     } else {
-      // Sync audio to video time before playing
+      // CRITICAL: Both play() calls must be in the same synchronous user-gesture handler.
+      // Calling a.play() inside v.play().then() is treated as async and gets blocked by
+      // browser autoplay policy on mobile and some desktop browsers.
       if (a) {
         a.currentTime = v.currentTime;
         a.volume = isMuted ? 0 : volume;
-        a.muted = isMuted;
+        a.muted = false; // never mute the element itself — use volume=0 for mute
+        // Start audio immediately in the user gesture
+        a.play().catch((err) => console.warn('[WizSound] audio play blocked:', err));
       }
-      v.play().then(() => {
-        a?.play().catch(() => {});
-        rafRef.current = requestAnimationFrame(tickProgress);
-        setIsPlaying(true);
-        setHasStarted(true);
-      }).catch(() => {});
+      v.play().catch((err) => console.warn('[WizSound] video play blocked:', err));
+      rafRef.current = requestAnimationFrame(tickProgress);
+      setIsPlaying(true);
+      setHasStarted(true);
     }
   }, [isPlaying, volume, isMuted, tickProgress, stopRaf]);
 
