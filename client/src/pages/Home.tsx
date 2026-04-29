@@ -3381,7 +3381,7 @@ export default function Home() {
       </a>
       <Nav />
       {/* DEPLOYMENT VERIFICATION — remove after confirming live site updates */}
-      <div id="build-version" style={{position:'fixed',top:0,left:0,right:0,zIndex:99999,background:'#ff0000',color:'#ffffff',textAlign:'center',padding:'8px 0',fontSize:'14px',fontWeight:'bold',letterSpacing:'0.05em',fontFamily:'monospace'}}>⚡ BUILD VERSION: 06:03-29Apr-audio-fix ⚡ — if you see this, deployment is working</div>
+      <div id="build-version" style={{position:'fixed',top:0,left:0,right:0,zIndex:99999,background:'#ff0000',color:'#ffffff',textAlign:'center',padding:'8px 0',fontSize:'14px',fontWeight:'bold',letterSpacing:'0.05em',fontFamily:'monospace'}}>⚡ BUILD VERSION: 08:45-29Apr-audio-sync-fix ⚡ — if you see this, deployment is working</div>
       <div style={{height:'36px'}} />
       <main id="main-content">
         <Hero />
