@@ -23,11 +23,11 @@ const VIDEO_SRC =
 
 // Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
-  "/manus-storage/wizsound-original_20889372.mp3";
+  "/manus-storage/wizsound-original_105087e8.mp3";
 
 // WizSound Enhanced: same source track, FFmpeg DSP processed — EQ boosted, stereo widened, compressed, loud — the "wow" moment
 const AUDIO_WIZSOUND =
-  "/manus-storage/wizsound-enhance_417ffd57.mp3";
+  "/manus-storage/wizsound-enhanced_3d6ddffd.mp3";
 
 /* ── Premium caption timeline ────────────────────────────────────────── */
 // Each entry: [startSec, endSec, headline, subtext?, accentColour?, isLuminaUpsell?]

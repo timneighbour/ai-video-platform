@@ -8,13 +8,13 @@ const VIDEO_SRC =
   "/manus-storage/demo-video-only_404f1adb.mp4"; // Re-uploaded with video/mp4 MIME type
 // Normal: flat, dry, unprocessed reference — -16 LUFS
 const AUDIO_NORMAL =
-  "/manus-storage/wizsound-original_20889372.mp3";
+  "/manus-storage/wizsound-original_105087e8.mp3";
 // Enhanced: EQ boost (bass +5dB, highs +4dB), light compression, stereo widening — -11 LUFS
 const AUDIO_ENHANCED =
-  "/manus-storage/wizsound-enhance_417ffd57.mp3";
+  "/manus-storage/wizsound-enhanced_3d6ddffd.mp3";
 // Cinematic: full spatial processing, deep bass, reverb, 320kbps — -9 LUFS
 const AUDIO_CINEMATIC =
-  "/manus-storage/wizsound-cinematic_ed42a2e8.mp3";
+  "/manus-storage/wizsound-cinematic_73f24d09.mp3";
 
 type AudioMode = "normal" | "enhanced" | "cinematic";
 
