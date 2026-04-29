@@ -2512,28 +2512,28 @@ function WizVidEngineSection() {
 }
 
 // ── See the Difference (Video + Audio Comparison) ────────────────────────────
-// ── Tier data for the unified comparison player ────────────────────────────
-const DEMO_VIDEO = "/manus-storage/tier-standard-demo_9df28025.mp4";
-
+// ── Tier data — each tier has audio BAKED INTO the video file ────────────────
+// This is the only approach that works reliably across all browsers (Chrome, Safari, Firefox, mobile).
+// A separate <audio> element gets blocked by autoplay policy on deployed sites.
 const TIER_DATA = [
   {
     id: 0, label: "Original",
     desc: "Raw source — no processing applied",
-    audioSrc: "/manus-storage/wizsound-original_105087e8.mp3",
+    videoSrc: "/manus-storage/tier-original_94173942.mp4",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
   },
   {
     id: 1, label: "WizSound Enhance",
     desc: "Richer, warmer sound with enhanced presence",
-    audioSrc: "/manus-storage/wizsound-enhanced_3d6ddffd.mp3",
+    videoSrc: "/manus-storage/tier-enhanced_df77668a.mp4",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
   },
   {
     id: 2, label: "WizSound Cinematic",
     desc: "Deep bass, spatial immersion — full cinema experience",
-    audioSrc: "/manus-storage/wizsound-cinematic_73f24d09.mp3",
+    videoSrc: "/manus-storage/tier-cinematic-new_ee006f72.mp4",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     glowRgb: "212,175,55",
   },
@@ -2555,10 +2555,10 @@ function SeeTheDifference() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  // Single audio element — src swapped on tier change.
-  // This is the only approach that works on all browsers including mobile Safari.
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // One ref per tier — audio is baked into each video file.
+  // This is the ONLY approach that works reliably on all browsers (Chrome, Safari, Firefox, mobile).
+  // A separate <audio> element gets silently blocked by browser autoplay policy on deployed sites.
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([null, null, null]);
   const rafRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
@@ -2575,18 +2575,17 @@ function SeeTheDifference() {
   }, [trackCtaImpression]);
 
   const tier = TIER_DATA[activeTier];
+  const activeVideo = () => videoRefs.current[activeTier];
 
-  // RAF-based progress tracking — tracks audio time (audio is 85s, video loops at 8s)
+  // RAF-based progress tracking
   const tickProgress = useCallback(() => {
-    const a = audioRef.current;
-    const v = videoRef.current;
-    const src = a && a.duration ? a : v;
-    if (src && src.duration) {
-      setCurrentTime(src.currentTime);
-      setProgress((src.currentTime / src.duration) * 100);
+    const v = videoRefs.current[activeTier];
+    if (v && v.duration) {
+      setCurrentTime(v.currentTime);
+      setProgress((v.currentTime / v.duration) * 100);
     }
     rafRef.current = requestAnimationFrame(tickProgress);
-  }, []);
+  }, [activeTier]);
 
   const stopRaf = useCallback(() => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
@@ -2594,114 +2593,71 @@ function SeeTheDifference() {
 
   useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
-  // Sync volume/mute to audio element whenever they change.
-  // Never set a.muted=true — use volume=0 instead, so the element stays
-  // in a playable state and isn't blocked by autoplay policy.
+  // Sync volume/mute to all video elements
   useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    a.volume = isMuted ? 0 : volume;
+    videoRefs.current.forEach(v => {
+      if (v) v.volume = isMuted ? 0 : volume;
+    });
   }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
-    const v = videoRef.current;
-    const a = audioRef.current;
+    const v = activeVideo();
     if (!v) return;
     if (isPlaying) {
       v.pause();
-      a?.pause();
       stopRaf();
       setIsPlaying(false);
     } else {
-      // Ensure video is loaded before trying to play
-      if (v.readyState === 0) {
-        v.load();
-      }
-      // CRITICAL: Both play() calls must be in the same synchronous user-gesture handler.
-      // Calling a.play() inside v.play().then() is treated as async and gets blocked by
-      // browser autoplay policy on mobile and some desktop browsers.
-      if (a) {
-        a.currentTime = v.readyState >= 1 ? v.currentTime : 0;
-        a.volume = isMuted ? 0 : volume;
-        a.muted = false; // never mute the element itself — use volume=0 for mute
-        // Start audio immediately in the user gesture
-        a.play().catch((err) => console.warn('[WizSound] audio play blocked:', err));
-      }
-      // Video play — if it fails, audio still continues independently
-      v.play().catch((err) => {
-        console.warn('[WizSound] video play blocked, retrying after load:', err);
-        // Retry once after the video has loaded enough data
-        const onCanPlay = () => {
-          v.removeEventListener('canplay', onCanPlay);
-          if (a && !a.paused) {
-            v.currentTime = a.currentTime;
-          }
-          v.play().catch(() => {});
-        };
-        v.addEventListener('canplay', onCanPlay);
-        v.load();
-      });
+      // The video element carries the audio track — one play() call is all that's needed.
+      // This is identical to how the intro video works and is not blocked by autoplay policy.
+      v.volume = isMuted ? 0 : volume;
+      v.play().catch((err) => console.warn('[WizSound] play blocked:', err));
       rafRef.current = requestAnimationFrame(tickProgress);
       setIsPlaying(true);
       setHasStarted(true);
     }
-  }, [isPlaying, volume, isMuted, tickProgress, stopRaf]);
+  }, [isPlaying, volume, isMuted, tickProgress, stopRaf, activeTier]);
 
-  // Mode switch: swap audio src, preserve currentTime, resume if playing
+  // Tier switch: pause current, seek new to same position, resume if playing
   const handleTierSwitch = useCallback((id: number) => {
     if (id === activeTier) return;
-    const a = audioRef.current;
-    const v = videoRef.current;
-    const savedTime = v?.currentTime ?? 0;
+    const current = videoRefs.current[activeTier];
+    const next = videoRefs.current[id];
+    const savedTime = current?.currentTime ?? 0;
     const wasPlaying = isPlaying;
-    // Update tier state immediately so UI + video filter update
+    if (current) current.pause();
     setActiveTier(id);
-    if (!a) return;
-    // Swap src and reload
-    a.src = TIER_DATA[id].audioSrc;
-    a.load();
-    // Once enough data is loaded, seek to saved position and resume
-    const onCanPlay = () => {
-      a.removeEventListener('canplay', onCanPlay);
-      a.currentTime = savedTime;
-      a.muted = false; // never set muted=true — use volume=0 for mute
-      a.volume = isMuted ? 0 : volume;
-      if (wasPlaying) {
-        a.play().catch(() => {});
-      }
-    };
-    a.addEventListener('canplay', onCanPlay);
+    if (!next) return;
+    next.volume = isMuted ? 0 : volume;
+    // Seek to same position in the new tier video
+    if (next.duration) {
+      next.currentTime = savedTime % next.duration;
+    }
+    if (wasPlaying) {
+      next.play().catch(() => {});
+    }
   }, [activeTier, isPlaying, volume, isMuted]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const v = videoRef.current;
-    const a = audioRef.current;
-    if (!v) return;
+    const v = activeVideo();
+    if (!v || !v.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    // Use audio duration for scrubbing (audio is 85s, video loops)
-    const totalDuration = (a && a.duration) ? a.duration : (v.duration || 0);
-    const newTime = pct * totalDuration;
-    // Video loops so clamp its seek to its own duration
-    if (v.duration) v.currentTime = newTime % v.duration;
-    if (a) a.currentTime = newTime;
+    const newTime = pct * v.duration;
+    v.currentTime = newTime;
     setProgress(pct * 100);
     setCurrentTime(newTime);
-  }, []);
+  }, [activeTier]);
 
-  const handleVideoLoaded = useCallback(() => {
-    // Use audio duration for the progress bar (audio is 85s, video loops at 8s)
-    const a = audioRef.current;
-    const v = videoRef.current;
-    if (a && a.duration) setDuration(a.duration);
-    else if (v) setDuration(v.duration || 0);
-  }, []);
+  const handleVideoLoaded = useCallback((idx: number) => {
+    if (idx === activeTier) {
+      const v = videoRefs.current[idx];
+      if (v) setDuration(v.duration || 0);
+    }
+  }, [activeTier]);
 
-  // Video now loops — this handler is for when the AUDIO track finishes
-  const handleAudioEnded = useCallback(() => {
+  const handleVideoEnded = useCallback(() => {
     stopRaf();
-    const v = videoRef.current;
-    if (v) { v.pause(); v.currentTime = 0; }
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
@@ -2723,13 +2679,8 @@ function SeeTheDifference() {
           style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
       </div>
 
-      {/* Single audio element — src is swapped on tier change */}
-      <audio
-        ref={audioRef}
-        src={TIER_DATA[0].audioSrc}
-        preload="auto"
-        onEnded={handleAudioEnded}
-      />
+      {/* Three video elements — one per tier, each with audio baked in.
+           Only the active tier is visible; others are hidden but preloaded. */}
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
@@ -2799,17 +2750,24 @@ function SeeTheDifference() {
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              <video
-                ref={videoRef}
-                src={DEMO_VIDEO}
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
-                style={{ filter: VIDEO_FILTERS[activeTier] }}
-                playsInline
-                muted
-                loop
-                preload="auto"
-                onLoadedMetadata={handleVideoLoaded}
-              />
+              {TIER_DATA.map((t, idx) => (
+                <video
+                  key={t.id}
+                  ref={(el) => { videoRefs.current[idx] = el; }}
+                  src={t.videoSrc}
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
+                  style={{
+                    filter: VIDEO_FILTERS[idx],
+                    opacity: activeTier === idx ? 1 : 0,
+                    pointerEvents: activeTier === idx ? "auto" : "none",
+                  }}
+                  playsInline
+                  loop
+                  preload={idx === 0 ? "auto" : "metadata"}
+                  onLoadedMetadata={() => handleVideoLoaded(idx)}
+                  onEnded={handleVideoEnded}
+                />
+              ))}
 
               {/* Tier badge top-left */}
               <div className="absolute top-4 left-4 z-20">

@@ -6374,4 +6374,4 @@
 - [ ] Individual product pages for all 10 products (hero, benefits, how-it-works, CTA)
 - [ ] All product page CTAs link to correct studio tools
 - [ ] Navigation audit — all links verified end-to-end
-- [ ] Fix audio not playing on live site (SeeTheDifference section) — no sound on desktop or mobile
+- [x] Fix audio not playing on live site (SeeTheDifference section) — no sound on desktop or mobile
