@@ -108,7 +108,7 @@ export default function EnhancementStudio() {
     try {
       const formData = new FormData();
       formData.append("video", videoFile);
-      const uploadRes = await fetch("/api/upload/video", { method: "POST", body: formData });
+      const uploadRes = await fetch("/api/video/upload", { method: "POST", body: formData });
       if (!uploadRes.ok) throw new Error("Upload failed");
       const { url: videoUrl } = await uploadRes.json();
       const job = await createJobMutation.mutateAsync({ title: videoFile?.name ?? "Enhancement", videoUrl, videoKey: videoUrl, videoDuration, videoSize: videoFile?.size ?? 0, style: selectedStyle });

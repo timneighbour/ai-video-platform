@@ -25,7 +25,7 @@ function getApiKey(): string {
 
 // ─── IMAGE GENERATION ────────────────────────────────────────────────────────
 
-export type GrokImageModel = "grok-imagine-image" | "grok-imagine-image-pro";
+export type GrokImageModel = "grok-imagine-image";
 export type GrokImageSize =
   | "1024x1024"
   | "1024x1792"
@@ -50,14 +50,14 @@ export interface GrokImageResult {
 }
 
 /**
- * Generate an image using Grok Imagine image-pro model.
+ * Generate an image using Grok Imagine image model (Aurora engine).
  * Returns a temporary URL — download to S3 promptly.
  */
 export async function generateGrokImage(
   request: GrokImageRequest
 ): Promise<GrokImageResult[]> {
   const apiKey = getApiKey();
-  const model = request.model ?? "grok-imagine-image-pro";
+  const model = request.model ?? "grok-imagine-image";
 
   console.log(`[GrokImagine] Image generation START — model=${model} prompt="${request.prompt.slice(0, 80)}..."`);
 
@@ -69,7 +69,7 @@ export async function generateGrokImage(
       model,
       prompt: request.prompt,
       n: request.n ?? 1,
-      size: request.size ?? "1024x1024",
+      // Note: xAI grok-imagine-image does NOT support 'size' parameter — omit it
       response_format: request.response_format ?? "url",
     },
     {
