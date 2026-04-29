@@ -2519,14 +2519,14 @@ const TIER_DATA = [
   {
     id: 0, label: "Original",
     desc: "Raw source — no processing applied",
-    videoSrc: "/manus-storage/tier-original_94173942.mp4",
+    videoSrc: "/manus-storage/tier-original-fixed_d48f8ad2.mp4",
     accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
   },
   {
     id: 1, label: "WizSound Enhance",
     desc: "Richer, warmer sound with enhanced presence",
-    videoSrc: "/manus-storage/tier-enhanced_df77668a.mp4",
+    videoSrc: "/manus-storage/tier-enhanced-fixed_40ffc50a.mp4",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
   },
@@ -2723,7 +2723,7 @@ function SeeTheDifference() {
               {TIER_DATA.map((t) => (
                 <button
                   key={t.id}
-                  onClick={() => handleTierSwitch(t.id)}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSwitch(t.id); }}
                   className={`relative px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${
                     activeTier === t.id
                       ? t.id === 2
