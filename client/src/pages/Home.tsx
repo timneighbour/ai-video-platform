@@ -2558,8 +2558,8 @@ function SeeTheDifference() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRefs = useRef<(HTMLAudioElement | null)[]>([null, null, null]);
   const rafRef = useRef<number | null>(null);
+  const crossfadeRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
-
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
 
   useEffect(() => {
@@ -2591,7 +2591,10 @@ function SeeTheDifference() {
   }, []);
 
   // Cleanup on unmount
-  useEffect(() => () => { stopRaf(); }, [stopRaf]);
+  const stopCrossfade = useCallback(() => {
+    if (crossfadeRef.current) { cancelAnimationFrame(crossfadeRef.current); crossfadeRef.current = null; }
+  }, []);
+  useEffect(() => () => { stopRaf(); stopCrossfade(); }, [stopRaf, stopCrossfade]);
 
   // Sync volume to active audio element
   useEffect(() => {
@@ -2629,29 +2632,62 @@ function SeeTheDifference() {
     }
   }, [isPlaying, activeTier, volume, isMuted, tickProgress, stopRaf]);
 
-  // Mode switch: preserve timestamp, keep playing state, no restart
+  // Mode switch: crossfade audio over 300ms, CSS filter already transitions via Tailwind
   const handleTierSwitch = useCallback((id: number) => {
     if (id === activeTier) return;
     const v = videoRef.current;
     const t = v?.currentTime ?? 0;
     const wasPlaying = isPlaying;
+    const targetVol = isMuted ? 0 : volume;
+    const FADE_MS = 300;
+    const START_TS = performance.now();
+    const prevId = activeTier;
 
-    // Mute old, unmute new
-    audioRefs.current.forEach((a, i) => {
-      if (!a) return;
-      a.currentTime = t;
-      if (i === id) {
-        a.muted = false;
-        a.volume = isMuted ? 0 : volume;
-        if (wasPlaying) a.play().catch(() => {});
-      } else {
-        a.muted = true;
-        a.volume = 0;
-      }
-    });
+    // Prepare incoming track at correct position, zero volume, unmuted
+    const incoming = audioRefs.current[id];
+    if (incoming) {
+      incoming.currentTime = t;
+      incoming.muted = false;
+      incoming.volume = 0;
+      if (wasPlaying) incoming.play().catch(() => {});
+    }
 
+    // Switch activeTier immediately so video filter and UI update
     setActiveTier(id);
-  }, [activeTier, isPlaying, volume, isMuted]);
+
+    // Cancel any in-progress crossfade
+    stopCrossfade();
+
+    // Ramp: outgoing fades out, incoming fades in
+    const tick = (now: number) => {
+      const elapsed = now - START_TS;
+      const progress = Math.min(elapsed / FADE_MS, 1);
+      const outVol = targetVol * (1 - progress);
+      const inVol = targetVol * progress;
+
+      const outgoing = audioRefs.current[prevId];
+      if (outgoing) { outgoing.volume = outVol; }
+      if (incoming) { incoming.volume = inVol; }
+
+      if (progress < 1) {
+        crossfadeRef.current = requestAnimationFrame(tick);
+      } else {
+        // Crossfade complete — silence and mute all non-active tracks
+        audioRefs.current.forEach((a, i) => {
+          if (!a) return;
+          if (i === id) {
+            a.volume = targetVol;
+            a.muted = false;
+          } else {
+            a.volume = 0;
+            a.muted = true;
+          }
+        });
+        crossfadeRef.current = null;
+      }
+    };
+    crossfadeRef.current = requestAnimationFrame(tick);
+  }, [activeTier, isPlaying, volume, isMuted, stopCrossfade]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const v = videoRef.current;
