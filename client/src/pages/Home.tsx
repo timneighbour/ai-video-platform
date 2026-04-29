@@ -1793,19 +1793,26 @@ function WizSoundDemo() {
     const savedTime = audio.currentTime; // preserve position
     const wasPlaying = !audio.paused;
     console.log('[WizSound] TIER_SWITCH → tier:', AUDIO_TIERS[i].label, '| savedTime:', savedTime.toFixed(2), '| wasPlaying:', wasPlaying);
-    // Imperatively swap src and reload
-    audio.src = AUDIO_TIERS[i].src;
-    console.log('[WizSound] NEW_SRC:', audio.src);
+    // Imperatively swap src and reload — React has NO src prop on <audio> so this cannot be overwritten
+    const newSrc = AUDIO_TIERS[i].src;
+    console.log('[WizSound] SWITCHING TO:', newSrc);
+    audio.src = newSrc;
     audio.load();
     audio.volume = 1.0;
-    audio.currentTime = savedTime; // restore position after load
-    if (wasPlaying) {
-      audio.play().then(() => {
-        console.log('[WizSound] RESUMED at time:', audio.currentTime.toFixed(2));
-      }).catch((err) => {
-        console.error('[WizSound] PLAY_BLOCKED:', err);
-      });
-    }
+    console.log('[WizSound] CURRENT SRC after set:', audio.src);
+    // Restore position after canplay fires (load() resets currentTime to 0)
+    const onCanPlay = () => {
+      audio.currentTime = savedTime;
+      if (wasPlaying) {
+        audio.play().then(() => {
+          console.log('[WizSound] RESUMED at time:', audio.currentTime.toFixed(2));
+        }).catch((err) => {
+          console.error('[WizSound] PLAY_BLOCKED:', err);
+        });
+      }
+      audio.removeEventListener('canplay', onCanPlay);
+    };
+    audio.addEventListener('canplay', onCanPlay);
     setActiveTier(i);
   };
 
@@ -1828,11 +1835,14 @@ function WizSoundDemo() {
     }
   };
 
-  // Progress tracking — attach once on mount, not per tier
+  // On mount: set initial src imperatively (no React src prop on <audio> to avoid React overwriting it)
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    audio.src = AUDIO_TIERS[0].src;
     audio.volume = 1.0;
+    audio.load();
+    console.log('[WizSound] MOUNT | initial src set to:', audio.src);
     const onTime = () => setProgress((audio.currentTime / (audio.duration || 1)) * 100);
     const onEnded = () => { setIsPlaying(false); setProgress(0); };
     audio.addEventListener("timeupdate", onTime);
@@ -1917,8 +1927,8 @@ function WizSoundDemo() {
 
             {/* Right: Player card */}
             <div className="lg:col-span-3 rounded-2xl p-8 border border-white/[0.06] bg-white/[0.015] backdrop-blur-sm">
-              {/* Single audio element — src swapped imperatively, never remounted */}
-              <audio ref={audioRef} src={AUDIO_TIERS[0].src} preload="auto" />
+              {/* Single audio element — NO src prop: src is set imperatively in useEffect and handleTierSwitch */}
+              <audio ref={audioRef} preload="auto" />
 
               {/* Animated waveform bars — more bars, thinner, premium look */}
               <div className="flex items-end justify-center gap-[3px] h-24 mb-8">
