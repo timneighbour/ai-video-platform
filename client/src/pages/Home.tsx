@@ -2824,7 +2824,7 @@ function SeeTheDifference() {
                     <button
                       className="w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 hover:scale-105"
                       style={{ borderColor: tier.accentColor, background: `rgba(${tier.glowRgb},0.2)`, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.3)` }}
-                      onClick={togglePlay}
+                      onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
                     >
                       <PlaySVG className="w-7 h-7 text-white" />
                     </button>
@@ -2858,7 +2858,7 @@ function SeeTheDifference() {
             <div className="flex items-center gap-4">
               {/* Play/Pause */}
               <button
-                onClick={togglePlay}
+                onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
                 className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-300 flex-shrink-0"
                 style={{
                   background: isPlaying ? `rgba(${tier.glowRgb},0.15)` : "rgba(255,255,255,0.04)",
