@@ -127,7 +127,7 @@ const PRODUCTS_CREATE = PRIMARY_PRODUCTS.map((p) => ({
   name:        p.name,
   tagline:     p.tagline,
   icon:        EMBLEM_MAP[p.id] ?? null,
-  href:        p.studioPage,
+  href:        p.productPage,
   glowColor:   p.glowColor,
   bgGradient:  p.bgGradient,
   borderColor: p.borderColor,

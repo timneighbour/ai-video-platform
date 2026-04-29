@@ -15,7 +15,7 @@ import { getLoginUrl } from "@/const";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
-const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizanimate-animator-DuTWqwZqZNYHzRQeR6w6e7.webp";
+const ENV_IMG = "/manus-storage/wizanimate-studio-bg_db3d45e8.jpg";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const ACCENT = "#7c5cbf";
@@ -225,10 +225,22 @@ export default function KidsVideo() {
       fontFamily: "'Inter', sans-serif", overflow: "hidden",
       position: "relative",
     }}>
-      {/* ── VR Environment: Animation Studio ── */}
-      <div className="env-bg" style={{ opacity: 0.55 }}>
-        <img src={ENV_IMG} alt="" style={{ objectPosition: "center 40%", filter: `brightness(${ambience/100})`, transition: "filter 0.6s ease" }} />
-        <div className="env-bg-overlay" />
+      {/* ── Studio Hero — Pixar Animation Studio ── */}
+      <div style={{position:'relative',width:'100%',height:280,overflow:'hidden',background:'#000',flexShrink:0}}>
+        <img src={ENV_IMG} alt="WizAnimate Animation Studio" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 35%',filter:`brightness(${ambience/100})`,transition:'filter 0.6s ease'}} />
+        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.3)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,0.35) 55%,transparent 100%)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',top:20,left:24,zIndex:20}}>
+          <div style={{fontSize:9,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:'rgba(255,255,255,0.85)',marginBottom:5,textShadow:'0 1px 8px rgba(0,0,0,0.9)'}}>WizAnimate™ · Animation Studio</div>
+          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:36,letterSpacing:3,color:'#ffffff',textShadow:'0 2px 32px rgba(0,0,0,0.95), 0 0 60px rgba(124,92,191,0.3)',lineHeight:1,marginBottom:6}}>ANIMATION DIRECTOR</div>
+          <div style={{fontSize:12,color:'rgba(255,255,255,0.7)',fontWeight:400,letterSpacing:'0.5px'}}>Bring any character to life with AI-powered animation</div>
+        </div>
+        <div style={{position:'absolute',top:20,right:24,zIndex:20,display:'flex',flexDirection:'column',gap:6,alignItems:'flex-end'}}>
+          <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(0,0,0,0.7)',border:'1px solid rgba(124,92,191,0.3)',borderRadius:4,padding:'4px 10px'}}>
+            <div style={{width:6,height:6,borderRadius:'50%',background:'#7c5cbf',boxShadow:'0 0 6px #7c5cbf'}} />
+            <span style={{fontSize:9,fontWeight:700,letterSpacing:'2px',color:'#9b7de0',textTransform:'uppercase'}}>STUDIO READY</span>
+          </div>
+        </div>
       </div>
 
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}

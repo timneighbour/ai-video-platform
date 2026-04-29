@@ -1472,15 +1472,7 @@ export default function MusicVideoAutopilot() {
   }
 
   return (
-    <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#040810'}}>
-      {/* ── Ambient: Cinematic teal glow ── */}
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 60% 45% at 75% 0%, rgba(20,184,166,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 100%, rgba(6,182,212,0.06) 0%, transparent 55%)" }} />
-      {/* ── VR Environment: Music Video Production Set ── */}
-      <div className="env-bg">
-        <img src="/manus-storage/env-wizvideo-film-studio_b80ecab4.jpg" alt="" style={{ filter: `brightness(${ambience/100})`, transition: "filter 0.6s ease" }} />
-        <div className="env-bg-overlay" />
-      </div>
-      <div className="env-ambient env-tint-stage" />
+    <div style={{minHeight:'100vh',background:'#080808',color:'#e0d8cc',fontFamily:"'Montserrat',sans-serif"}}>
       {/* Auth Gate */}
       <AuthGate open={showAuthGate} onClose={() => setShowAuthGate(false)} featureName="create your music video" returnPath="/music-video/create" />
       {/* ===== STORYBOARD GENERATION PROGRESS OVERLAY ===== */}
@@ -1768,12 +1760,12 @@ export default function MusicVideoAutopilot() {
       {/* Production Set Hero — immersive studio view */}
       <div style={{position:'relative',width:'100%',height:340,overflow:'hidden',background:'#000'}}>
         <img
-          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizvideo-set-bg-infcAhpU6TjNMKxBcMDqq4.webp"
-          alt="Music Video Production Set"
-          style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 40%'}}
+          src="/manus-storage/wizvideo-studio-bg_e8790a28.jpg"
+          alt="WizVideo Film Production Studio"
+          style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',objectPosition:'center 30%'}}
         />
-        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.18)',pointerEvents:'none'}} />
-        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(10,10,10,1) 0%,rgba(10,10,10,0.25) 45%,transparent 100%)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.35)',pointerEvents:'none'}} />
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,rgba(8,8,8,1) 0%,rgba(8,8,8,0.4) 50%,transparent 100%)',pointerEvents:'none'}} />
         {/* Title overlay */}
         <div style={{position:'absolute',top:24,left:28,zIndex:20}}>
           <div style={{fontSize:10,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:'rgba(255,255,255,0.9)',marginBottom:6,textShadow:'0 1px 8px rgba(0,0,0,0.9)'}}>WizVideo™ · AI Studio</div>
@@ -1819,8 +1811,8 @@ export default function MusicVideoAutopilot() {
         <style>{`@keyframes filmingBlink{0%,100%{opacity:1}50%{opacity:0.35}}`}</style>
       </div>
 
+       <div style={{background:'#080808'}}>
       <div className="max-w-5xl mx-auto px-4 py-6">
-
         {/* ===== STEP 1: UPLOAD ===== */}
               {/* ── AUDIO UPLOAD BANNER — always visible on upload step ── */}
       {step === "upload" && !audioFile && !sunoGeneratedAudioUrl && (
@@ -4191,6 +4183,7 @@ export default function MusicVideoAutopilot() {
             </Card>
           </div>
         )}
+      </div>
       </div>
       <LandscapeHint />
     </div>

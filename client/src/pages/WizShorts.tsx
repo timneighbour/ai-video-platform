@@ -75,7 +75,7 @@ const FX = "#d946ef";
 const FX_DIM = "rgba(217,70,239,0.15)";
 const FX_BORDER = "rgba(217,70,239,0.35)";
 // ─── Studio environment ───────────────────────────────────────────────────────
-const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizshorts-broadcast-HKpktoXUEoyQmeq2n6G6fw.webp";
+const ENV_IMG = "/manus-storage/wizshorts-studio-bg_b5192727.jpg";
 // Platform accent colours for plat-badge chips and channel-stats
 const PLAT_COLOURS: Record<string, string> = {
   youtube_shorts: "#ff4444",
@@ -304,50 +304,7 @@ export default function WizShorts() {
   }
 
   return (
-    <div className="min-h-screen studio-bg text-white" style={{ backgroundColor: "#07040d" }}>
-
-      {/* ── Creator Energy Environment ── */}
-      {/* Deep dark base + fuchsia radial glow from top-right */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 55% at 80% 0%, rgba(217,70,239,0.18) 0%, transparent 65%), " +
-            "radial-gradient(ellipse 50% 40% at 20% 100%, rgba(168,85,247,0.10) 0%, transparent 60%), " +
-            "linear-gradient(180deg, #07040d 0%, #0d0516 100%)",
-          zIndex: 0,
-        }}
-      />
-
-      {/* Diagonal speed lines — creator / short-form energy */}
-      <div
-        className="fixed inset-0 pointer-events-none overflow-hidden"
-        style={{ zIndex: 1 }}
-      >
-        <svg
-          className="absolute inset-0 w-full h-full opacity-[0.055]"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <defs>
-            <pattern id="speed-lines" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
-              <line x1="0" y1="0" x2="0" y2="120" stroke="#d946ef" strokeWidth="0.8" />
-              <line x1="40" y1="0" x2="40" y2="120" stroke="#d946ef" strokeWidth="0.4" />
-              <line x1="80" y1="0" x2="80" y2="120" stroke="#d946ef" strokeWidth="0.6" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#speed-lines)" />
-        </svg>
-      </div>
-
-      {/* Subtle vignette overlay */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(7,4,13,0.7) 100%)",
-          zIndex: 2,
-        }}
-      />
+    <div style={{minHeight:'100vh',background:'#080808',color:'#e0d8cc',fontFamily:"'Montserrat',sans-serif"}}>
 
       {/* ── Header ── */}
       <div className="studio-header sticky top-0 z-40">
@@ -469,10 +426,11 @@ export default function WizShorts() {
           style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.5s ease" }}
           draggable={false}
         />
-        {/* Gradient overlay */}
+        {/* Gradient overlay — stronger base */}
+        <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.3)" }} />
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.15) 0%, rgba(8,8,8,0.0) 30%, rgba(8,8,8,0.6) 100%)" }}
+          style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.2) 0%, rgba(8,8,8,0.05) 40%, rgba(8,8,8,0.9) 100%)" }}
         />
 
         {/* mon-main — floating creator dashboard panel, centre of viewport */}
@@ -632,15 +590,86 @@ export default function WizShorts() {
         </div>
       </div>
 
-      {/* ── TOPIC BANNER — always visible, prompts user to start ── */}
-      {step === "setup" && !topic && (
-        <div className="flex items-center gap-4 px-6 py-4" style={{ background: "linear-gradient(90deg, rgba(224,92,42,0.14) 0%, rgba(224,92,42,0.07) 100%)", borderBottom: "1px solid rgba(224,92,42,0.3)" }}>
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(224,92,42,0.18)", border: "1px solid rgba(224,92,42,0.4)" }}>🎬</div>
-          <div className="flex-1">
-            <div className="text-sm font-bold mb-0.5" style={{ color: "#e07a50", letterSpacing: "0.5px" }}>WHAT IS YOUR SHORT ABOUT?</div>
-            <div className="text-xs text-zinc-500">Type your topic below in the Hook Builder — WizShorts™ generates scenes, captions, and music automatically</div>
+      {/* ── DIRECTOR'S BRIEF — large hero prompt, always visible in setup ── */}
+      {step === "setup" && (
+        <div style={{ background: "linear-gradient(180deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 100%)", borderBottom: "1px solid rgba(217,70,239,0.18)", padding: "28px 32px 24px" }}>
+          {/* Label row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 3, height: 32, background: `linear-gradient(180deg, ${FX}, #e05c2a)`, borderRadius: 2, flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase" as const, color: FX, marginBottom: 3 }}>DIRECTOR'S BRIEF</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)" }}>What is your Short about? WizShorts™ generates scenes, hooks, captions &amp; music automatically.</div>
+            </div>
           </div>
-          <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(224,92,42,0.15)", border: "1px solid rgba(224,92,42,0.35)", color: "#e07a50" }}>START BELOW ↓</div>
+          {/* Large prompt input */}
+          <div style={{ position: "relative" as const, maxWidth: 920 }}>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && topic.trim()) handleCreateJob(); }}
+              placeholder="e.g. 5 things nobody tells you about starting a YouTube channel..."
+              style={{
+                width: "100%",
+                background: "rgba(255,255,255,0.04)",
+                border: topic.trim() ? `1.5px solid ${FX_BORDER}` : "1.5px solid rgba(255,255,255,0.1)",
+                borderRadius: 14,
+                padding: "16px 180px 16px 20px",
+                fontSize: 16,
+                fontWeight: 500,
+                color: "white",
+                outline: "none",
+                transition: "border-color 0.2s",
+                boxShadow: topic.trim() ? `0 0 0 3px ${FX_DIM}` : "none",
+              }}
+              autoFocus
+            />
+            <button
+              onClick={handleCreateJob}
+              disabled={createJobMutation.isPending || generateScenesMutation.isPending || !topic.trim()}
+              style={{
+                position: "absolute" as const,
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: topic.trim() ? `linear-gradient(90deg, ${FX} 0%, #e05c2a 100%)` : "rgba(255,255,255,0.06)",
+                border: "none",
+                borderRadius: 10,
+                padding: "10px 22px",
+                color: topic.trim() ? "white" : "rgba(255,255,255,0.3)",
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: 1,
+                textTransform: "uppercase" as const,
+                cursor: topic.trim() ? "pointer" : "default",
+                transition: "all 0.2s",
+                whiteSpace: "nowrap" as const,
+              }}
+            >
+              {createJobMutation.isPending || generateScenesMutation.isPending ? "Generating..." : "Create Short →"}
+            </button>
+          </div>
+          {/* Quick-pick topic chips */}
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginTop: 12 }}>
+            {["5 things nobody tells you about YouTube", "How I got my first 1000 subscribers", "AI tools that changed my workflow", "Day in my life as a creator", "Biggest mistakes new YouTubers make"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setTopic(t)}
+                style={{
+                  fontSize: 11,
+                  padding: "5px 13px",
+                  borderRadius: 20,
+                  border: `1px solid ${topic === t ? FX_BORDER : "rgba(255,255,255,0.1)"}`,
+                  background: topic === t ? FX_DIM : "rgba(255,255,255,0.03)",
+                  color: topic === t ? FX : "rgba(255,255,255,0.45)",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

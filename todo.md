@@ -6363,3 +6363,14 @@
 - [x] Add 4 new products: WizScore, WizGenesis, WizPilot, WizSync
 - [x] Add feature bullet list (hover-reveal) per card
 - [x] TypeScript: 0 errors confirmed
+
+## Studio Redesigns — Premium Immersive UI
+- [ ] WizVideo (MusicVideoAutopilot): Replace env-bg with top-of-page 340px hero using new studio bg, dark glass panels, gold/teal accents, HUD overlays
+- [ ] WizAnimate (KidsVideo): Same premium studio redesign pattern with animation studio bg
+- [ ] WizShorts: Same premium studio redesign pattern with YouTube creator studio bg
+
+## Products Navigation System
+- [ ] Products mega-menu in top nav — CREATE/ENHANCE/GROW groups, icons, one-line descriptions
+- [ ] Individual product pages for all 10 products (hero, benefits, how-it-works, CTA)
+- [ ] All product page CTAs link to correct studio tools
+- [ ] Navigation audit — all links verified end-to-end
