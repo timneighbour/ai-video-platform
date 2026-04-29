@@ -2593,6 +2593,14 @@ function SeeTheDifference() {
 
   useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
+  // Mute all videos on mount so the browser can load them without autoplay blocking.
+  // We unmute imperatively in togglePlay() within the user gesture tick.
+  useEffect(() => {
+    videoRefs.current.forEach(v => {
+      if (v) { v.muted = true; v.volume = 0.8; }
+    });
+  }, []);
+
   // Sync volume/mute to all video elements
   useEffect(() => {
     videoRefs.current.forEach(v => {
@@ -2608,9 +2616,9 @@ function SeeTheDifference() {
       stopRaf();
       setIsPlaying(false);
     } else {
-      // The video element carries the audio track — one play() call is all that's needed.
-      // This is identical to how the intro video works and is not blocked by autoplay policy.
-      // Unmute in the same gesture tick — browser allows this
+      // Imperatively set muted=false and volume BEFORE calling play().
+      // We do NOT rely on React's muted prop here — React batches state updates
+      // and would apply them after this handler returns, which is too late.
       v.muted = false;
       v.volume = isMuted ? 0 : volume;
       v.play().catch((err) => console.warn('[WizSound] play blocked:', err));
@@ -2765,7 +2773,6 @@ function SeeTheDifference() {
                     pointerEvents: activeTier === idx ? "auto" : "none",
                   }}
                   playsInline
-                  muted
                   loop
                   preload={idx === 0 ? "auto" : "metadata"}
                   onLoadedMetadata={() => handleVideoLoaded(idx)}
