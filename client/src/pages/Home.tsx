@@ -2542,37 +2542,36 @@ function WizVidEngineSection() {
   );
 }
 
-/// ── See the Difference (Video + Audio Comparison) ────────────────────────────
-// Architecture: ONE video plays continuously; THREE audio elements swap on tier switch.
-// Audio synced to video.currentTime on every switch — no reloads, no resets, no gaps.
-const TIER_DATA = [
+/// ── See the Difference (Cinematic Demo Player) ──────────────────────────────
+// Architecture: ONE self-contained MP4 (30s) with audio + visual baked in.
+// Chapters: 0-10s = Original, 10-20s = Enhanced, 20-30s = Cinematic.
+// Tier buttons seek to the correct chapter timestamp — no src swapping, no audio elements.
+const STD_VIDEO_SRC = "/manus-storage/std-demo-v1_657bfa0e.mp4";
+const STD_CHAPTERS = [
   {
-    id: 0, label: "Original",
-    desc: "Raw source — no processing applied",
-    videoSrc: "/manus-storage/tier-original-fixed_d48f8ad2.mp4",
-    accentColor: "rgba(160,160,170,0.7)", borderColor: "rgba(255,255,255,0.08)",
+    id: 0, label: "Original", time: 0,
+    desc: "Raw AI output — unprocessed audio and flat visuals",
+    accentColor: "rgba(160,160,170,0.75)", borderColor: "rgba(255,255,255,0.08)",
     glowRgb: "160,160,170",
+    audioFeatures: ["Flat, dry, unprocessed audio", "Mono — no stereo width", "Raw AI output"],
+    visualFeatures: ["Original AI output", "Flat, ungraded colour", "Basic resolution"],
   },
   {
-    id: 1, label: "WizSound Enhance",
-    desc: "Richer, warmer sound with enhanced presence",
-    videoSrc: "/manus-storage/tier-enhanced-new_ee0067a3.mp4",
+    id: 1, label: "WizSound Enhance", time: 10,
+    desc: "Richer, warmer sound with enhanced presence and colour",
     accentColor: "rgba(196,164,100,0.85)", borderColor: "rgba(196,164,100,0.2)",
     glowRgb: "196,164,100",
+    audioFeatures: ["Stereo widening + natural reverb", "EQ mastered — broadcast-ready", "Light strings added for warmth"],
+    visualFeatures: ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"],
   },
   {
-    id: 2, label: "WizSound Cinematic",
+    id: 2, label: "WizSound Cinematic", time: 20,
     desc: "Deep bass, spatial immersion — full cinema experience",
-    videoSrc: "/manus-storage/tier-cinematic-new_ee0067a3.mp4",
     accentColor: "rgba(212,175,55,0.95)", borderColor: "rgba(212,175,55,0.3)",
     glowRgb: "212,175,55",
+    audioFeatures: ["Full orchestra — strings, horns, choir", "Deep sub-bass + spatial 3D mastering", "Studio-grade cinematic mix"],
+    visualFeatures: ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"],
   },
-];
-// Visual filter per tier — video stays the same, filter changes to match tier mood
-const VIDEO_FILTERS = [
-  "brightness(0.82) saturate(0.65) contrast(0.88)",
-  "brightness(1.0) saturate(1.2) contrast(1.1)",
-  "brightness(1.06) saturate(1.5) contrast(1.22) sepia(0.14) hue-rotate(-6deg)",
 ];
 
 function SeeTheDifference() {
@@ -2584,12 +2583,7 @@ function SeeTheDifference() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
-  // Single video ref — plays continuously, muted (no audio track).
-  // Three audio refs — only the active tier's audio plays, synced to video.currentTime.
-  // Single video ref — src swapped imperatively on tier switch.
-  // Video contains embedded audio — no separate audio elements needed.
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const savedTimeRef = useRef<number>(0);
   const rafRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
@@ -2605,40 +2599,42 @@ function SeeTheDifference() {
     return () => observer.disconnect();
   }, [trackCtaImpression]);
 
-  const tier = TIER_DATA[activeTier];
-  // RAF-based progress tracking — driven by the single video element
-  const tickProgress = useCallback(() => {
+  // On mount: set src imperatively so React never resets it on re-render
+  useEffect(() => {
     const v = videoRef.current;
-    if (v && v.duration) {
-      setCurrentTime(v.currentTime);
-      setProgress((v.currentTime / v.duration) * 100);
-    }
-    rafRef.current = requestAnimationFrame(tickProgress);
+    if (!v) return;
+    v.src = STD_VIDEO_SRC;
+    v.load();
+    v.volume = 0.8;
+    v.muted = false;
   }, []);
+
+  // Sync volume/mute state to video element
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.volume = isMuted ? 0 : volume;
+    v.muted = isMuted;
+  }, [volume, isMuted]);
 
   const stopRaf = useCallback(() => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
   }, []);
+  useEffect(() => () => stopRaf(), [stopRaf]);
 
-  useEffect(() => () => { stopRaf(); }, [stopRaf]);
-
-  // On mount: set video src imperatively — NEVER use React src prop on this element.
-  // If src is a React prop, setActiveTier() re-renders reset it to TIER_DATA[0] overwriting imperative changes.
-  useEffect(() => {
+  const tickProgress = useCallback(() => {
     const v = videoRef.current;
-    if (!v) return;
-    v.src = TIER_DATA[0].videoSrc;
-    v.load();
-    v.muted = false;
-    v.volume = 0.8;
-    console.log('[STD] MOUNT: src set imperatively to', TIER_DATA[0].videoSrc);
+    if (v && v.duration) {
+      const ct = v.currentTime;
+      setCurrentTime(ct);
+      setProgress((ct / v.duration) * 100);
+      // Auto-update active tier based on playback position
+      if (ct >= 20) setActiveTier(2);
+      else if (ct >= 10) setActiveTier(1);
+      else setActiveTier(0);
+    }
+    rafRef.current = requestAnimationFrame(tickProgress);
   }, []);
-
-  // Sync volume/mute to video element
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v) { v.volume = isMuted ? 0 : volume; v.muted = isMuted; }
-  }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
@@ -2648,47 +2644,39 @@ function SeeTheDifference() {
       stopRaf();
       setIsPlaying(false);
     } else {
-      v.muted = isMuted;
-      v.volume = isMuted ? 0 : volume;
-      v.play().catch(err => console.warn('[STD] VIDEO_BLOCKED:', err));
+      // Play the video — audio is baked in, no separate element needed
+      v.play().catch(err => console.warn('[STD] play blocked:', err));
       rafRef.current = requestAnimationFrame(tickProgress);
       setIsPlaying(true);
       setHasStarted(true);
     }
-  }, [isPlaying, volume, isMuted, tickProgress, stopRaf]);
+  }, [isPlaying, tickProgress, stopRaf]);
 
-  // Tier switch: swap video src imperatively, restore position, resume if playing
-  const handleTierSwitch = useCallback((id: number) => {
-    if (id === activeTier) return;
+  // Tier button: seek to chapter start time
+  const handleTierSeek = useCallback((chapterId: number) => {
+    const chapter = STD_CHAPTERS[chapterId];
     const v = videoRef.current;
-    console.log('[STD] TIER_SWITCH →', TIER_DATA[id].label, '| videoTime:', v?.currentTime.toFixed(2));
-    if (v) savedTimeRef.current = v.currentTime;
-    setActiveTier(id);
     if (!v) return;
-    const wasPlaying = isPlaying;
-    v.pause();
-    v.src = TIER_DATA[id].videoSrc + '?t=' + Date.now();
-    v.load();
-    v.muted = isMuted;
-    v.volume = isMuted ? 0 : volume;
-    const onCanPlay = () => {
-      v.removeEventListener('canplay', onCanPlay);
-      if (v.duration) v.currentTime = Math.min(savedTimeRef.current, v.duration - 0.1);
-      if (wasPlaying) v.play().catch(err => console.warn('[STD] SWITCH_BLOCKED:', err));
-    };
-    v.addEventListener('canplay', onCanPlay);
-  }, [activeTier, isPlaying, volume, isMuted]);
+    setActiveTier(chapterId);
+    v.currentTime = chapter.time;
+    if (!isPlaying) {
+      // Start playing when user clicks a chapter
+      v.play().catch(err => console.warn('[STD] seek-play blocked:', err));
+      rafRef.current = requestAnimationFrame(tickProgress);
+      setIsPlaying(true);
+      setHasStarted(true);
+    }
+  }, [isPlaying, tickProgress]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const newTime = pct * v.duration;
-    v.currentTime = newTime;
+    v.currentTime = pct * v.duration;
     setProgress(pct * 100);
-    setCurrentTime(newTime);
-  }, [activeTier]);
+    setCurrentTime(pct * v.duration);
+  }, []);
 
   const handleVideoLoaded = useCallback(() => {
     const v = videoRef.current;
@@ -2700,6 +2688,7 @@ function SeeTheDifference() {
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
+    setActiveTier(0);
   }, [stopRaf]);
 
   const formatTime = (s: number) => {
@@ -2707,6 +2696,8 @@ function SeeTheDifference() {
     const sec = Math.floor(s % 60);
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
+
+  const tier = STD_CHAPTERS[activeTier];
 
   return (
     <section className="relative bg-[#040404] py-28 px-6">
@@ -2717,7 +2708,6 @@ function SeeTheDifference() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full transition-all duration-700"
           style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
       </div>
-
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
@@ -2738,33 +2728,33 @@ function SeeTheDifference() {
             Original. Enhanced. <span className="metallic-gold">Cinematic.</span>
           </h2>
           <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto">
-            Press play once, then switch between <strong className="text-white/70">Original</strong>, <strong className="text-white/70">Enhanced</strong>, and <strong className="text-white/70">Cinematic</strong> — same track, same moment, instantly transformed.
+            Press play and watch the transformation — or jump directly to any stage to hear and see the difference instantly.
           </p>
         </div>
 
         <div className="reveal">
-          {/* Tier selector */}
+          {/* Chapter selector */}
           <div className="flex items-center justify-center mb-8">
             <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-              {TIER_DATA.map((t) => (
+              {STD_CHAPTERS.map((ch) => (
                 <button
-                  key={t.id}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSwitch(t.id); }}
+                  key={ch.id}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSeek(ch.id); }}
                   className={`relative px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${
-                    activeTier === t.id
-                      ? t.id === 2
+                    activeTier === ch.id
+                      ? ch.id === 2
                         ? "bg-gradient-to-r from-[--color-gold]/15 to-[--color-gold]/5 text-[--color-gold] shadow-[0_0_24px_rgba(212,175,55,0.12)]"
-                        : t.id === 1
+                        : ch.id === 1
                           ? "bg-white/[0.07] text-[--color-gold-dark]"
                           : "bg-white/[0.05] text-white/75"
                       : "text-white/25 hover:text-white/50"
                   }`}
-                  style={activeTier === t.id ? { boxShadow: `0 0 20px rgba(${t.glowRgb},0.08)` } : {}}
+                  style={activeTier === ch.id ? { boxShadow: `0 0 20px rgba(${ch.glowRgb},0.08)` } : {}}
                 >
-                  {t.id === 2 && activeTier === 2 && (
+                  {ch.id === 2 && activeTier === 2 && (
                     <span className="absolute -top-2 -right-1 text-[8px] font-black uppercase tracking-widest text-[--color-gold] bg-[--color-gold]/10 border border-[--color-gold]/20 px-1.5 py-0.5 rounded-full">Best</span>
                   )}
-                  {t.label}
+                  {ch.label}
                 </button>
               ))}
             </div>
@@ -2779,7 +2769,7 @@ function SeeTheDifference() {
             <p className="text-sm text-[--color-silver-dark]/40">{tier.desc}</p>
           </div>
 
-          {/* Single unified video player */}
+          {/* Video player */}
           <div className="relative rounded-2xl overflow-hidden border transition-all duration-700 mb-3"
             style={{ borderColor: tier.borderColor, boxShadow: `0 0 40px rgba(${tier.glowRgb},0.08)` }}>
             {activeTier === 2 && (
@@ -2787,19 +2777,17 @@ function SeeTheDifference() {
                 style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.06), transparent 50%, rgba(212,175,55,0.03))" }} />
             )}
             <div className="relative z-10 aspect-video bg-black">
-              {/* src is set imperatively on mount — no React src prop to prevent React re-renders from resetting it */}
+              {/* Single video — src set imperatively on mount, never via React prop */}
               <video
                 ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
-                style={{ filter: VIDEO_FILTERS[activeTier] }}
+                className="absolute inset-0 w-full h-full object-cover"
                 playsInline
-                loop
                 preload="auto"
                 onLoadedMetadata={handleVideoLoaded}
                 onEnded={handleVideoEnded}
               />
 
-              {/* Tier badge top-left */}
+              {/* Chapter badge top-left */}
               <div className="absolute top-4 left-4 z-20">
                 <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border backdrop-blur-sm transition-all duration-500"
                   style={{
@@ -2835,7 +2823,7 @@ function SeeTheDifference() {
                     >
                       <PlaySVG className="w-7 h-7 text-white" />
                     </button>
-                    <span className="text-xs text-white/70 font-semibold tracking-wide">Press play — then switch tiers to hear &amp; see the difference</span>
+                    <span className="text-xs text-white/70 font-semibold tracking-wide">Press play — or click a tier to jump straight in</span>
                   </div>
                 </div>
               )}
@@ -2844,12 +2832,31 @@ function SeeTheDifference() {
 
           {/* Player controls bar */}
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm p-5 mb-6">
+            {/* Chapter markers on scrubber */}
+            <div className="relative mb-1">
+              <div className="flex justify-between px-0">
+                {STD_CHAPTERS.map((ch) => (
+                  <button
+                    key={ch.id}
+                    onClick={() => handleTierSeek(ch.id)}
+                    className="text-[9px] font-bold uppercase tracking-wider transition-colors duration-300"
+                    style={{ color: activeTier === ch.id ? tier.accentColor : "rgba(255,255,255,0.2)" }}
+                  >
+                    {ch.id === 0 ? "0:00" : ch.id === 1 ? "0:10" : "0:20"}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Scrubber */}
             <div
               className="relative h-2 bg-white/[0.06] rounded-full mb-4 cursor-pointer group"
               onClick={handleScrub}
             >
+              {/* Chapter dividers */}
+              <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: "33.33%" }} />
+              <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: "66.66%" }} />
+              {/* Progress fill */}
               <div
                 className="absolute left-0 top-0 h-full rounded-full transition-all duration-100"
                 style={{ width: `${progress}%`, background: `linear-gradient(90deg, rgba(${tier.glowRgb},0.6), rgba(${tier.glowRgb},1))` }}
@@ -2932,12 +2939,7 @@ function SeeTheDifference() {
                 </div>
               </div>
               <div className="space-y-2.5">
-                {(activeTier === 0
-                  ? ["Flat, dry, unprocessed audio", "Mono — no stereo width", "Raw AI output"]
-                  : activeTier === 1
-                    ? ["Stereo widening + natural reverb", "EQ mastered — broadcast-ready", "Light strings added for warmth"]
-                    : ["Full orchestra — strings, horns, choir", "Deep sub-bass + spatial 3D mastering", "Studio-grade cinematic mix"]
-                ).map((f) => (
+                {tier.audioFeatures.map((f) => (
                   <div key={f} className="flex items-start gap-2">
                     <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: tier.accentColor }} />
                     <span className="text-xs text-white/55">{f}</span>
@@ -2955,12 +2957,7 @@ function SeeTheDifference() {
                 </div>
               </div>
               <div className="space-y-2.5">
-                {(activeTier === 0
-                  ? ["Original AI output", "Flat, ungraded colour", "Basic resolution"]
-                  : activeTier === 1
-                    ? ["Colour correction + sharpening", "Contrast optimisation", "Frame-level enhancement"]
-                    : ["HDR grading + film-level polish", "Cinematic colour science", "4K visual finishing"]
-                ).map((f) => (
+                {tier.visualFeatures.map((f) => (
                   <div key={f} className="flex items-start gap-2">
                     <CheckSVG className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: tier.accentColor }} />
                     <span className="text-xs text-white/55">{f}</span>
@@ -2987,35 +2984,20 @@ function SeeTheDifference() {
 
           {/* CTA — A/B tested */}
           <div className="text-center" ref={ctaSectionRef}>
-            {/* Control: original gold button */}
             {ctaVariant === "control" && (
-              <a
-                href="/subscribe#cinematic"
-                className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm"
-                onClick={trackCtaClick}
-              >
+              <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm" onClick={trackCtaClick}>
                 <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
                 Upgrade to Cinematic Mode
               </a>
             )}
-            {/* Variant B: urgency copy */}
             {ctaVariant === "variant_b" && (
-              <a
-                href="/subscribe#cinematic"
-                className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm"
-                onClick={trackCtaClick}
-              >
+              <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm" onClick={trackCtaClick}>
                 <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
                 Unlock Cinematic Quality — Limited Offer
               </a>
             )}
-            {/* Variant C: social proof copy */}
             {ctaVariant === "variant_c" && (
-              <a
-                href="/subscribe#cinematic"
-                className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm"
-                onClick={trackCtaClick}
-              >
+              <a href="/subscribe#cinematic" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm" onClick={trackCtaClick}>
                 <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
                 Join Creators Going Cinematic
               </a>
@@ -3027,6 +3009,7 @@ function SeeTheDifference() {
     </section>
   );
 }
+
 
 // ── Final CTA ─────────────────────────────────────────────────────────────────
 function FinalCTA() {
