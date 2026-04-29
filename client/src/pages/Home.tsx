@@ -2556,9 +2556,10 @@ function SeeTheDifference() {
   const [currentTime, setCurrentTime] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioRefs = useRef<(HTMLAudioElement | null)[]>([null, null, null]);
+  // Single audio element — src swapped on tier change.
+  // This is the only approach that works on all browsers including mobile Safari.
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
-  const crossfadeRef = useRef<number | null>(null);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
   const { variant: ctaVariant, trackImpression: trackCtaImpression, trackClick: trackCtaClick } = useExperiment("CINEMATIC_CTA");
 
@@ -2575,13 +2576,14 @@ function SeeTheDifference() {
 
   const tier = TIER_DATA[activeTier];
 
-  // RAF-based progress tracking
+  // RAF-based progress tracking — tracks audio time (audio is 85s, video loops at 8s)
   const tickProgress = useCallback(() => {
+    const a = audioRef.current;
     const v = videoRef.current;
-    if (!v) return;
-    if (v.duration) {
-      setCurrentTime(v.currentTime);
-      setProgress((v.currentTime / v.duration) * 100);
+    const src = a && a.duration ? a : v;
+    if (src && src.duration) {
+      setCurrentTime(src.currentTime);
+      setProgress((src.currentTime / src.duration) * 100);
     }
     rafRef.current = requestAnimationFrame(tickProgress);
   }, []);
@@ -2590,125 +2592,94 @@ function SeeTheDifference() {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
   }, []);
 
-  // Cleanup on unmount
-  const stopCrossfade = useCallback(() => {
-    if (crossfadeRef.current) { cancelAnimationFrame(crossfadeRef.current); crossfadeRef.current = null; }
-  }, []);
-  useEffect(() => () => { stopRaf(); stopCrossfade(); }, [stopRaf, stopCrossfade]);
+  useEffect(() => () => { stopRaf(); }, [stopRaf]);
 
-  // Sync volume to active audio element
+  // Sync volume/mute to audio element whenever they change
   useEffect(() => {
-    audioRefs.current.forEach((a, i) => {
-      if (!a) return;
-      a.volume = (i === activeTier && !isMuted) ? volume : 0;
-      // Mute inactive audio elements entirely
-      a.muted = i !== activeTier;
-    });
-  }, [activeTier, volume, isMuted]);
+    const a = audioRef.current;
+    if (!a) return;
+    a.volume = isMuted ? 0 : volume;
+    a.muted = isMuted;
+  }, [volume, isMuted]);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
+    const a = audioRef.current;
     if (!v) return;
     if (isPlaying) {
       v.pause();
-      audioRefs.current.forEach(a => a?.pause());
+      a?.pause();
       stopRaf();
       setIsPlaying(false);
     } else {
-      // Sync all audio to video time
-      const t = v.currentTime;
-      audioRefs.current.forEach((a, i) => {
-        if (!a) return;
-        a.currentTime = t;
-        a.volume = (i === activeTier && !isMuted) ? volume : 0;
-        a.muted = i !== activeTier;
-      });
+      // Sync audio to video time before playing
+      if (a) {
+        a.currentTime = v.currentTime;
+        a.volume = isMuted ? 0 : volume;
+        a.muted = isMuted;
+      }
       v.play().then(() => {
-        audioRefs.current.forEach(a => a?.play().catch(() => {}));
+        a?.play().catch(() => {});
         rafRef.current = requestAnimationFrame(tickProgress);
         setIsPlaying(true);
         setHasStarted(true);
       }).catch(() => {});
     }
-  }, [isPlaying, activeTier, volume, isMuted, tickProgress, stopRaf]);
+  }, [isPlaying, volume, isMuted, tickProgress, stopRaf]);
 
-  // Mode switch: crossfade audio over 300ms, CSS filter already transitions via Tailwind
+  // Mode switch: swap audio src, preserve currentTime, resume if playing
   const handleTierSwitch = useCallback((id: number) => {
     if (id === activeTier) return;
+    const a = audioRef.current;
     const v = videoRef.current;
-    const t = v?.currentTime ?? 0;
+    const savedTime = v?.currentTime ?? 0;
     const wasPlaying = isPlaying;
-    const targetVol = isMuted ? 0 : volume;
-    const FADE_MS = 300;
-    const START_TS = performance.now();
-    const prevId = activeTier;
-
-    // Prepare incoming track at correct position, zero volume, unmuted
-    const incoming = audioRefs.current[id];
-    if (incoming) {
-      incoming.currentTime = t;
-      incoming.muted = false;
-      incoming.volume = 0;
-      if (wasPlaying) incoming.play().catch(() => {});
-    }
-
-    // Switch activeTier immediately so video filter and UI update
+    // Update tier state immediately so UI + video filter update
     setActiveTier(id);
-
-    // Cancel any in-progress crossfade
-    stopCrossfade();
-
-    // Ramp: outgoing fades out, incoming fades in
-    const tick = (now: number) => {
-      const elapsed = now - START_TS;
-      const progress = Math.min(elapsed / FADE_MS, 1);
-      const outVol = targetVol * (1 - progress);
-      const inVol = targetVol * progress;
-
-      const outgoing = audioRefs.current[prevId];
-      if (outgoing) { outgoing.volume = outVol; }
-      if (incoming) { incoming.volume = inVol; }
-
-      if (progress < 1) {
-        crossfadeRef.current = requestAnimationFrame(tick);
-      } else {
-        // Crossfade complete — silence and mute all non-active tracks
-        audioRefs.current.forEach((a, i) => {
-          if (!a) return;
-          if (i === id) {
-            a.volume = targetVol;
-            a.muted = false;
-          } else {
-            a.volume = 0;
-            a.muted = true;
-          }
-        });
-        crossfadeRef.current = null;
+    if (!a) return;
+    // Swap src and reload
+    a.src = TIER_DATA[id].audioSrc;
+    a.load();
+    // Once enough data is loaded, seek to saved position and resume
+    const onCanPlay = () => {
+      a.removeEventListener('canplay', onCanPlay);
+      a.currentTime = savedTime;
+      a.volume = isMuted ? 0 : volume;
+      a.muted = isMuted;
+      if (wasPlaying) {
+        a.play().catch(() => {});
       }
     };
-    crossfadeRef.current = requestAnimationFrame(tick);
-  }, [activeTier, isPlaying, volume, isMuted, stopCrossfade]);
+    a.addEventListener('canplay', onCanPlay);
+  }, [activeTier, isPlaying, volume, isMuted]);
 
   const handleScrub = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const v = videoRef.current;
+    const a = audioRef.current;
     if (!v) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const newTime = pct * (v.duration || 0);
-    v.currentTime = newTime;
-    audioRefs.current.forEach(a => { if (a) a.currentTime = newTime; });
+    // Use audio duration for scrubbing (audio is 85s, video loops)
+    const totalDuration = (a && a.duration) ? a.duration : (v.duration || 0);
+    const newTime = pct * totalDuration;
+    // Video loops so clamp its seek to its own duration
+    if (v.duration) v.currentTime = newTime % v.duration;
+    if (a) a.currentTime = newTime;
     setProgress(pct * 100);
     setCurrentTime(newTime);
   }, []);
 
   const handleVideoLoaded = useCallback(() => {
+    // Use audio duration for the progress bar (audio is 85s, video loops at 8s)
+    const a = audioRef.current;
     const v = videoRef.current;
-    if (v) setDuration(v.duration || 0);
+    if (a && a.duration) setDuration(a.duration);
+    else if (v) setDuration(v.duration || 0);
   }, []);
 
   const handleVideoEnded = useCallback(() => {
     stopRaf();
-    audioRefs.current.forEach(a => a?.pause());
+    audioRef.current?.pause();
     setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
@@ -2730,16 +2701,13 @@ function SeeTheDifference() {
           style={{ background: `radial-gradient(circle, rgba(${tier.glowRgb},0.04) 0%, transparent 70%)` }} />
       </div>
 
-      {/* Hidden audio elements — one per tier */}
-      {TIER_DATA.map((t, i) => (
-        <audio
-          key={t.id}
-          ref={(el) => { audioRefs.current[i] = el; }}
-          src={t.audioSrc}
-          preload="auto"
-          loop
-        />
-      ))}
+      {/* Single audio element — src is swapped on tier change */}
+      <audio
+        ref={audioRef}
+        src={TIER_DATA[0].audioSrc}
+        preload="auto"
+        loop
+      />
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
