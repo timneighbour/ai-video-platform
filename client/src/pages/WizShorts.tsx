@@ -179,6 +179,15 @@ export default function WizShorts() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
 
+  /** Converts raw API/server error messages into user-friendly text */
+  const friendlyError = (err: any, fallback: string): string => {
+    const msg: string = err?.message || err?.data?.message || fallback;
+    if (/capacity|rate.?limit|busy|429/i.test(msg)) return "Our servers are at capacity right now. Please try again in a moment.";
+    if (/auth|401|403|forbidden/i.test(msg)) return "Session expired. Please refresh and try again.";
+    if (/timeout|network|ECONNRESET/i.test(msg)) return "Connection timed out. Please check your internet and try again.";
+    return msg;
+  };
+
   const handleCreateJob = async () => {
     if (!user) { window.location.href = getLoginUrl("/wiz-shorts"); return; }
     if (!topic.trim()) { toast.error("Please describe your video topic"); return; }
@@ -192,7 +201,7 @@ export default function WizShorts() {
       setScenes(scenesResult.scenes);
       setStep("scenes");
     } catch (err: any) {
-      toast.error(err.message || "Failed to create job");
+      toast.error(friendlyError(err, "Failed to create job"));
     }
   };
 
@@ -206,7 +215,7 @@ export default function WizShorts() {
       persistJob(jobId, "rendering");
       startPolling(jobId);
     } catch (err: any) {
-      toast.error(err.message || "Failed to start render");
+      toast.error(friendlyError(err, "Failed to start render"));
     }
   };
 
@@ -1159,17 +1168,20 @@ export default function WizShorts() {
                   </div>
                 ) : renderStatus === "failed" ? (
                   <div className="text-center space-y-6">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center">
-                      <AlertCircle className="w-8 h-8 text-red-400" />
+                    <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                      <AlertCircle className="w-8 h-8 text-amber-400" />
                     </div>
-                    <h2 className="text-xl font-semibold">Build failed</h2>
+                    <div>
+                      <h2 className="text-xl font-semibold mb-2">Rendering unavailable</h2>
+                      <p className="text-sm text-white/50 max-w-xs mx-auto">Our rendering servers are at capacity right now. This usually clears within 30–60 seconds.</p>
+                    </div>
                     <div className="flex gap-3 justify-center">
                       <Button
                         onClick={() => { setRenderStatus("rendering"); startPolling(jobId!); }}
                         className="h-11 px-6 font-bold rounded-xl border-0"
                         style={{ background: `linear-gradient(90deg, ${FX} 0%, #a855f7 100%)`, color: "white" }}
                       >
-                        <Play className="w-4 h-4 mr-2" />Retry
+                        <Play className="w-4 h-4 mr-2" />Try Again
                       </Button>
                       <Button variant="outline" onClick={handleReset} className="h-11 px-6 border-white/20 text-white/70 hover:text-white bg-transparent rounded-xl">Start Over</Button>
                     </div>

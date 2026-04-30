@@ -144,14 +144,18 @@ export class KlingAIClient {
       }
 
       if (httpStatus === 429) {
-        const retryAfter = axiosErr?.response?.headers?.["retry-after"] ?? "unknown";
+        const retryAfterRaw = axiosErr?.response?.headers?.["retry-after"];
+        const retryAfterSec = retryAfterRaw ? parseInt(retryAfterRaw, 10) : null;
         console.error(
           `[Kling] ${new Date().toISOString()} 429 Rate Limited on createTextToVideo. ` +
-          `Retry-After: ${retryAfter}s. Response body:`,
+          `Retry-After: ${retryAfterSec ?? "unknown"}s. Response body:`,
           axiosErr?.response?.data
         );
+        const waitMsg = retryAfterSec && retryAfterSec > 0
+          ? ` Please try again in ${retryAfterSec} seconds.`
+          : " Please try again in a moment.";
         throw new Error(
-          `Rendering is busy right now. Please wait a moment and try again. (Rate limited — Retry-After: ${retryAfter}s)`
+          `Our rendering servers are currently at capacity.${waitMsg}`
         );
       }
 
