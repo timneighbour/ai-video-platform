@@ -961,11 +961,12 @@ function Hero() {
  </a>
  <button
  onClick={() => setDemoOpen(true)}
- className="inline-flex items-center gap-2.5 text-[--color-silver-dark] hover:text-[--color-silver-light] font-medium text-sm transition-colors"
+ className="relative z-10 inline-flex items-center gap-2.5 text-[--color-silver-dark] hover:text-[--color-silver-light] font-medium text-sm transition-colors min-h-[44px] px-1"
+ style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
  >
- <span className="relative w-8 h-8 flex-shrink-0">
- <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 animate-ping" style={{ animationDuration: "2.5s" }} />
- <span className="absolute inset-0 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/5 flex items-center justify-center">
+ <span className="relative w-8 h-8 flex-shrink-0 pointer-events-none">
+ <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 animate-ping pointer-events-none" style={{ animationDuration: "2.5s" }} />
+ <span className="absolute inset-0 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/5 flex items-center justify-center pointer-events-none">
  <PlaySVG className="w-3 h-3 text-[--color-gold] ml-0.5" />
  </span>
  </span>Watch Demo
@@ -1086,8 +1087,7 @@ function HeroDemoSection() {
  </div>
  {/* Video player */}
  <div
- className="relative rounded-2xl overflow-hidden cursor-pointer group reveal"
- onClick={handlePlay}
+ className="relative rounded-2xl overflow-hidden reveal"
  style={{
  border: "1px solid rgba(196,164,100,0.18)",
  boxShadow: "0 0 80px rgba(196,164,100,0.08), 0 40px 80px rgba(0,0,0,0.6)",
@@ -1106,51 +1106,75 @@ function HeroDemoSection() {
  >
  <source src={HERO_DEMO_VIDEO} type="video/mp4" />
  </video>
- {/* Play overlay — shown when paused */}
+ {/* Play overlay — shown when paused. Use a <button> for reliable mobile tap */}
  {!playing && (
- <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 group-hover:bg-black/40">
+ <button
+ onClick={handlePlay}
+ className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 hover:bg-black/40 cursor-pointer"
+ style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation", border: "none", background: "rgba(0,0,0,0.50)" }}
+ aria-label="Play demo video"
+ >
  <div
- className="w-20 h-20 rounded-full flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200"
+ className="w-20 h-20 rounded-full flex items-center justify-center mb-5 hover:scale-110 transition-transform duration-200"
  style={{
  background: "linear-gradient(135deg, oklch(0.78 0.11 75), oklch(0.65 0.14 70))",
  boxShadow: "0 0 50px rgba(196,164,100,0.5)",
+ pointerEvents: "none",
  }}
  >
  <PlaySVG className="w-8 h-8 text-white ml-1" />
  </div>
- <p className="text-white/70 text-sm font-medium tracking-wide">Watch the demo</p>
- <p className="text-white/35 text-xs mt-1">~53 seconds · No sound required</p>
- </div>
+ <p className="text-white/70 text-sm font-medium tracking-wide pointer-events-none">Watch the demo</p>
+ <p className="text-white/35 text-xs mt-1 pointer-events-none">~53 seconds</p>
+ </button>
  )}
- {/* Playing indicator + sound toggle */}
+ {/* Playing indicator — top-left, non-interactive */}
  {playing && (
- <div className="absolute top-4 right-4 flex items-center gap-2">
- <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 pointer-events-none">
+ <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 pointer-events-none">
  <WaveformSVG className="w-4 h-4" color="oklch(0.78 0.11 75)" />
  <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">Playing</span>
  </div>
+ )}
+ {/* Pause button — top-right, always visible when playing */}
+ {playing && (
+ <button
+ onClick={handlePlay}
+ className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors"
+ style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
+ aria-label="Pause video"
+ >
+ <svg className="w-4 h-4 text-white/60" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+ </button>
+ )}
+ </div>
+ </div>
+ {/* Sound toggle — OUTSIDE the video container so it never conflicts with play/pause */}
+ <div className="flex items-center justify-center mt-4 gap-3">
  <button
  onClick={handleToggleMute}
  title={isMuted ? "Enable sound" : "Mute"}
- className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 hover:border-[rgba(196,164,100,0.4)] transition-colors duration-200"
+ className="flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all duration-200 min-h-[44px]"
+ style={{
+ background: isMuted ? "rgba(255,255,255,0.04)" : "rgba(196,164,100,0.10)",
+ borderColor: isMuted ? "rgba(255,255,255,0.10)" : "rgba(196,164,100,0.35)",
+ WebkitTapHighlightColor: "transparent",
+ touchAction: "manipulation",
+ }}
  >
  {isMuted ? (
- <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+ <svg className="w-4 h-4 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
  <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
  </svg>
  ) : (
- <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: 'oklch(0.78 0.11 75)' }}>
+ <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: 'oklch(0.78 0.11 75)' }}>
  <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072M12 6v12m-3.536-9.536a5 5 0 000 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
  </svg>
  )}
- <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: isMuted ? 'rgba(255,255,255,0.4)' : 'oklch(0.78 0.11 75)' }}>
- {isMuted ? 'Sound off' : 'Sound on'}
+ <span className="text-[12px] font-semibold tracking-wide" style={{ color: isMuted ? 'rgba(255,255,255,0.40)' : 'oklch(0.78 0.11 75)' }}>
+ {isMuted ? 'Tap to enable sound' : 'Sound on'}
  </span>
  </button>
- </div>
- )}
- </div>
  </div>
  {/* CTA below video */}
  <div className="text-center mt-8 reveal">
