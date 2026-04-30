@@ -29,6 +29,7 @@ import CreditBalance from "@/components/CreditBalance";
 import StudioAmbientLight from "@/components/StudioAmbientLight";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import EnhancePromptButton from "@/components/EnhancePromptButton";
+import { StarterTemplates } from "@/components/StarterTemplates";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import AuthGate from "@/components/AuthGate";
@@ -537,6 +538,15 @@ export default function TextToVideoCreator() {
               </div>
             </div>
 
+            {/* Starter templates — shown only when prompt is empty */}
+            {!prompt.trim() && (
+              <StarterTemplates
+                studio="wizscript"
+                onSelect={(p) => setPrompt(p)}
+                accentColor="#7c3aed"
+                className="mb-4"
+              />
+            )}
             {/* 4. Script Brief — Director's Console */}
             <div>
               <h3 className="flex items-center gap-2 text-xs font-bold text-white/70 tracking-widest uppercase mb-3">

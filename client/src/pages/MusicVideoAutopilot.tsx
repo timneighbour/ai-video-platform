@@ -92,6 +92,7 @@ import {
   Users,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
+import { StarterTemplates } from "@/components/StarterTemplates";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
@@ -2251,6 +2252,15 @@ export default function MusicVideoAutopilot() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Starter templates — shown only when prompt is empty */}
+                  {!themePrompt.trim() && (
+                    <StarterTemplates
+                      studio="wizvideo"
+                      onSelect={(prompt) => setThemePrompt(prompt)}
+                      accentColor="#b8892a"
+                      className="mb-2"
+                    />
+                  )}
                   <div>
                     <Label className="text-xs font-mono text-white/40 uppercase tracking-widest block mb-2">Theme & Concept *</Label>
                     <Textarea

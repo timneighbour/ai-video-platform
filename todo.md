@@ -6425,3 +6425,24 @@
 - [x] Add back button to QuickStartScreen to return to studio chooser
 - [x] Add trust strip to QuickStartScreen (no card, own content, cancel anytime)
 - [x] Add editable prompt textarea so users can customise before launching
+
+## Starter Templates, Share Panel & Return Triggers
+- [ ] Build StarterTemplates component with 4 templates per studio (prompt + preview + one-click)
+- [ ] Integrate StarterTemplates into WizVideo (MusicVideoAutopilot) setup step
+- [ ] Integrate StarterTemplates into WizShorts setup step
+- [ ] Integrate StarterTemplates into WizScript (TextToVideoCreator) prompt stage
+- [ ] Integrate StarterTemplates into WizAnimate (KidsVideo) brief stage
+- [ ] Enhance PostRenderRetentionScreen share button into full SharePanel (copy link, native share, Twitter/X, watermark badge)
+- [ ] Build ReturnTriggerBanner component for Dashboard (credits waiting, new style, new template)
+- [ ] Wire ReturnTriggerBanner into Dashboard using user credits + project count state
+- [ ] Enhance re-engagement cron job with "new cinematic style" and "new template" message variants
+
+## Growth Features (Starter Templates + Share + Return Triggers) — Apr 30 2026
+- [x] Build StarterTemplates component with 4 templates per studio (pre-filled prompt, preview image, one-click start)
+- [x] Integrate StarterTemplates into MusicVideoAutopilot (WizVideo)
+- [x] Integrate StarterTemplates into WizShorts
+- [x] Integrate StarterTemplates into TextToVideoCreator (WizScript)
+- [x] Integrate StarterTemplates into KidsVideo (WizAnimate)
+- [x] Build SharePanel in PostRenderRetentionScreen (copy link, Twitter/X, WhatsApp, watermark toggle)
+- [x] Build ReturnTriggerBanner component with 6 contextual triggers (credits waiting, cinematic style, new template, try music, upgrade, comeback)
+- [x] Integrate ReturnTriggerBanner into Dashboard for returning users

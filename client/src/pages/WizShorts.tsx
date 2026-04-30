@@ -3,6 +3,7 @@ import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
+import { StarterTemplates } from "@/components/StarterTemplates";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
@@ -619,6 +620,15 @@ export default function WizShorts() {
               <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)" }}>What is your Short about? WizShorts™ generates scenes, hooks, captions &amp; music automatically.</div>
             </div>
           </div>
+          {/* Starter templates — shown only when topic is empty or default */}
+          {(topic === "5 things nobody tells you about starting a YouTube channel" || !topic.trim()) && (
+            <StarterTemplates
+              studio="wizshorts"
+              onSelect={(prompt) => setTopic(prompt)}
+              accentColor="#d946ef"
+              className="mb-4"
+            />
+          )}
           {/* Large prompt input */}
           <div style={{ position: "relative" as const, maxWidth: 920 }}>
             <input

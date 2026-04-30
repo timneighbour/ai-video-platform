@@ -1,5 +1,6 @@
 import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
 import { FuelTheSession } from "@/components/FuelTheSession";
+import { ReturnTriggerBanner } from "@/components/ReturnTriggerBanner";
 /**
  * Dashboard — High-retention creator hub.
  * Shows action cards, continue projects, project grid, insights, upgrade block, inspiration, empty state.
@@ -283,7 +284,16 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ── Create Action Cards ──────────────────────────────────────── */}
+           {/* ── Return Trigger Banner (returning users only) ──────────────────── */}
+        {!isNewUser && !isLowCredits && (
+          <ReturnTriggerBanner
+            creditBalance={creditBalance}
+            totalProjects={totalProjects}
+            isFreePlan={isFreePlan}
+            userName={user?.name ?? undefined}
+          />
+        )}
+        {/* ── Create Action Cards ────────────────────────────────── */}
         <section>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {CREATE_ACTIONS.map((action) => {

@@ -12,6 +12,7 @@ import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { mp } from "@/lib/mixpanel";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { StarterTemplates } from "@/components/StarterTemplates";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
@@ -604,6 +605,15 @@ export default function KidsVideo() {
               </div>
             </div>
 
+            {/* Starter templates — shown when brief is default or short */}
+            {(brief.length < 30 || brief.startsWith("A young girl discovers a magical forest")) && (
+              <StarterTemplates
+                studio="wizanimate"
+                onSelect={(prompt) => setBrief(prompt)}
+                accentColor="#7c5cbf"
+                className="mb-4"
+              />
+            )}
             {/* Director's Brief */}
             <div>
               <SectionLabel label="Director's Brief" />

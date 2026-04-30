@@ -98,6 +98,9 @@ export function PostRenderRetentionScreen({
   const formatInfo = FORMAT_LABELS[aspectRatio] ?? FORMAT_LABELS["16:9"];
   const [isPlaying, setIsPlaying] = useState(false);
   const [showConfetti, setShowConfetti] = useState(true);
+  const [showSharePanel, setShowSharePanel] = useState(false);
+  const [includeWatermark, setIncludeWatermark] = useState(true);
+  const [linkCopied, setLinkCopied] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { isAuthenticated } = useAuth();
   const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
@@ -142,14 +145,32 @@ export function PostRenderRetentionScreen({
   }
 
   function handleShare() {
-    if (navigator.share) {
-      navigator.share({ title: videoTitle || "My WIZ AI video", url: finalVideoUrl })
-        .catch(() => {});
-    } else {
-      navigator.clipboard.writeText(finalVideoUrl);
-      toast.success("Link copied!", { description: "Share your video link." });
-    }
+    setShowSharePanel((v) => !v);
     mp.track("PostRender_Share", { jobId });
+  }
+  function handleCopyLink() {
+    const shareText = includeWatermark
+      ? `${finalVideoUrl}\n\nCreated with Wiz AI — https://wiz-ai.io`
+      : finalVideoUrl;
+    navigator.clipboard.writeText(shareText);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2500);
+    toast.success("Link copied!", { description: "Paste it anywhere to share." });
+    mp.track("PostRender_CopyLink", { jobId, watermark: includeWatermark });
+  }
+  function handleShareTwitter() {
+    const text = encodeURIComponent(
+      `Just created this with Wiz AI ✨${includeWatermark ? " — Created with @WizAI" : ""}\n${finalVideoUrl}`
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+    mp.track("PostRender_ShareTwitter", { jobId });
+  }
+  function handleShareWhatsApp() {
+    const text = encodeURIComponent(
+      `Check out this video I made with Wiz AI! ${finalVideoUrl}${includeWatermark ? " — Created with Wiz AI" : ""}`
+    );
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+    mp.track("PostRender_ShareWhatsApp", { jobId });
   }
 
   return (
@@ -295,12 +316,70 @@ export function PostRenderRetentionScreen({
         <Button
           onClick={handleShare}
           variant="outline"
-          className="border-white/15 text-zinc-300 bg-transparent hover:bg-white/5 h-11 px-4"
+          className={`border-white/15 text-zinc-300 bg-transparent hover:bg-white/5 h-11 px-4 transition-colors ${showSharePanel ? "bg-white/8 border-white/25" : ""}`}
         >
           <Share2 className="w-4 h-4" />
+          <span className="ml-1.5 text-xs hidden sm:inline">Share</span>
         </Button>
       </div>
-
+      {/* ── Share Panel ──────────────────────────────────────────────────────── */}
+      {showSharePanel && (
+        <div className="mb-5 rounded-xl border border-white/10 bg-white/4 overflow-hidden">
+          <div className="px-4 py-3 border-b border-white/8">
+            <p className="text-sm font-semibold text-white mb-0.5">Share your video</p>
+            <p className="text-xs text-zinc-500">Turn your creation into distribution</p>
+          </div>
+          {/* Copy link row */}
+          <div className="px-4 py-3 flex items-center gap-2">
+            <div className="flex-1 bg-black/30 border border-white/8 rounded-lg px-3 py-2 text-xs text-zinc-400 truncate font-mono">
+              {finalVideoUrl.length > 48 ? finalVideoUrl.slice(0, 48) + "…" : finalVideoUrl}
+            </div>
+            <button
+              onClick={handleCopyLink}
+              className="shrink-0 px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+              style={{ background: linkCopied ? "rgba(74,222,128,0.15)" : "rgba(184,137,42,0.15)", color: linkCopied ? "#4ade80" : "#b8892a", border: `1px solid ${linkCopied ? "rgba(74,222,128,0.3)" : "rgba(184,137,42,0.3)"}` }}
+            >
+              {linkCopied ? "✓ Copied!" : "Copy link"}
+            </button>
+          </div>
+          {/* Social share buttons */}
+          <div className="px-4 pb-3 flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleShareTwitter}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#0a0a1a] border border-[#1d9bf0]/30 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors"
+            >
+              <Twitter className="w-3.5 h-3.5" /> Twitter / X
+            </button>
+            <button
+              onClick={handleShareWhatsApp}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#0a1a0a] border border-[#25d366]/30 text-[#25d366] hover:bg-[#25d366]/10 transition-colors"
+            >
+              <Globe className="w-3.5 h-3.5" /> WhatsApp
+            </button>
+            {typeof navigator.share === "function" && (
+              <button
+                onClick={() => { navigator.share({ title: videoTitle || "My Wiz AI video", url: finalVideoUrl }); mp.track("PostRender_NativeShare", { jobId }); }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-zinc-400 hover:bg-white/8 transition-colors"
+              >
+                <Share2 className="w-3.5 h-3.5" /> More
+              </button>
+            )}
+          </div>
+          {/* Watermark toggle */}
+          <div className="px-4 pb-3 flex items-center justify-between border-t border-white/6 pt-3">
+            <div>
+              <p className="text-xs font-medium text-zinc-300">Include “Created with Wiz AI”</p>
+              <p className="text-[10px] text-zinc-600">Adds a credit line to your shared link text</p>
+            </div>
+            <button
+              onClick={() => setIncludeWatermark((v) => !v)}
+              className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${includeWatermark ? "bg-[--color-gold]" : "bg-white/10"}`}
+            >
+              <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${includeWatermark ? "translate-x-4" : "translate-x-0.5"}`} />
+            </button>
+          </div>
+        </div>
+      )}
       {/* ── Upgrade Prompt (free/starter users only) ──────────────────── */}
       {showUpgradePrompt && (
         <div className="mb-5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/10 to-[#1a1a1a] overflow-hidden">
