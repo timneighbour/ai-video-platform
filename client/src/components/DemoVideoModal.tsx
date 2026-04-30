@@ -265,7 +265,7 @@ function CaptionOverlay({ caption, playing }: CaptionOverlayProps) {
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none"
+      className="absolute bottom-[110px] left-0 right-0 z-[35] pointer-events-none"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(10px)",
@@ -274,11 +274,11 @@ function CaptionOverlay({ caption, playing }: CaptionOverlayProps) {
     >
       {/* Dark gradient scrim so text always reads against video */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-40"
-        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 60%, transparent 100%)", pointerEvents: "none" }}
+        className="absolute -bottom-[110px] left-0 right-0 h-[260px]"
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.60) 40%, transparent 100%)", pointerEvents: "none" }}
       />
-      {/* Caption text — bottom-centre */}
-      <div className="relative z-10 px-6 pb-5 pt-2 text-center">
+      {/* Caption text — bottom-centre, above controls */}
+      <div className="relative z-10 px-6 pb-4 pt-2 text-center">
         <p
           className="font-black leading-none tracking-tight"
           style={{

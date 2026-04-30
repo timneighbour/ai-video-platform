@@ -53,6 +53,9 @@ const StarSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
 const GlobeSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 1.5C6.5 4 6 6 6 8s.5 4 2 6.5M8 1.5C9.5 4 10 6 10 8s-.5 4-2 6.5M1.5 8h13" /></svg>
 );
+const ChevronRight = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
+ <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3l5 5-5 5" /></svg>
+);
 const ChevronDownSVG = ({ className = "w-4 h-4", open = false, style }: { className?: string; open?: boolean; style?: React.CSSProperties }) => (
  <svg className={`${className} transition-transform duration-300 ${open ? "rotate-180" : ""}`} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6l5 5 5-5" /></svg>
 );
@@ -959,17 +962,68 @@ function Hero() {
  >Explore the Studios
  <ArrowSVG className="w-4 h-4" />
  </a>
+ {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
  <button
  onClick={() => setDemoOpen(true)}
- className="relative z-10 inline-flex items-center gap-2.5 text-[--color-silver-dark] hover:text-[--color-silver-light] font-medium text-sm transition-colors min-h-[44px] px-1"
- style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
+ className="group relative z-10 inline-flex items-center gap-3 min-h-[52px] px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]"
+ style={{
+ background: "linear-gradient(135deg, rgba(196,164,100,0.14) 0%, rgba(232,201,122,0.08) 100%)",
+ border: "1.5px solid rgba(196,164,100,0.55)",
+ boxShadow: [
+ "0 0 0 3px rgba(196,164,100,0.08)",
+ "0 0 24px rgba(196,164,100,0.30)",
+ "0 0 48px rgba(196,164,100,0.12)",
+ "inset 0 1px 0 rgba(255,255,255,0.12)",
+ ].join(", "),
+ WebkitTapHighlightColor: "transparent",
+ touchAction: "manipulation",
+ }}
+ aria-label="Watch the demo video"
  >
- <span className="relative w-8 h-8 flex-shrink-0 pointer-events-none">
- <span className="absolute inset-0 rounded-full bg-[--color-gold]/10 animate-ping pointer-events-none" style={{ animationDuration: "2.5s" }} />
- <span className="absolute inset-0 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/5 flex items-center justify-center pointer-events-none">
- <PlaySVG className="w-3 h-3 text-[--color-gold] ml-0.5" />
+ {/* Outer pulse ring */}
+ <span
+ className="absolute -inset-[5px] rounded-[18px] pointer-events-none"
+ style={{
+ border: "1px solid rgba(196,164,100,0.35)",
+ animation: "enter-btn-ring-breathe 2.2s ease-in-out infinite",
+ }}
+ />
+ {/* Fast expanding ring */}
+ <span
+ className="absolute -inset-[3px] rounded-[16px] pointer-events-none"
+ style={{
+ border: "1.5px solid rgba(232,201,122,0.5)",
+ animation: "enter-btn-ring-pulse 1.9s ease-out infinite",
+ }}
+ />
+ {/* Play icon with multi-ring glow */}
+ <span className="relative flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+ style={{
+ background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 100%)",
+ boxShadow: "0 0 0 3px rgba(196,164,100,0.20), 0 0 16px rgba(196,164,100,0.55), 0 0 32px rgba(196,164,100,0.25)",
+ }}>
+ <PlaySVG className="w-4 h-4 text-[#0a0a0f] ml-0.5" />
  </span>
- </span>Watch Demo
+ {/* Label */}
+ <span className="flex flex-col items-start leading-none">
+ <span
+ className="text-[0.65rem] font-bold tracking-[0.22em] uppercase mb-0.5"
+ style={{ color: "rgba(196,164,100,0.75)" }}
+ >See it in action</span>
+ <span
+ className="text-[1rem] font-black tracking-tight"
+ style={{
+ background: "linear-gradient(90deg, #e8c97a 0%, #fff 50%, #e8c97a 100%)",
+ backgroundSize: "200% 100%",
+ WebkitBackgroundClip: "text",
+ WebkitTextFillColor: "transparent",
+ backgroundClip: "text",
+ animation: "enter-btn-shimmer 3s linear infinite",
+ }}
+ >Watch the Demo</span>
+ </span>
+ {/* Arrow */}
+ <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "rgba(196,164,100,0.70)" }} />
  </button>
  </div>
 
