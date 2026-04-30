@@ -319,12 +319,16 @@ export default defineConfig({
         // that explicitly imports vendor-react first) to avoid "forwardRef is undefined" errors.
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            // React core — must be first; all UI libs depend on it
-            if (id.includes("react-dom") || id.includes("/react/") || id.includes("scheduler")) return "vendor-react";
-            // Radix UI — keep close to react to avoid forwardRef race, but separate chunk
-            if (id.includes("@radix-ui")) return "vendor-ui";
-            // framer-motion is large (~200kB) — load after first paint
-            if (id.includes("framer-motion") || id.includes("motion")) return "vendor-motion";
+            // React core + Radix UI + framer-motion — all in one chunk to avoid
+            // forwardRef race conditions and service worker cache mismatches
+            if (
+              id.includes("react-dom") ||
+              id.includes("/react/") ||
+              id.includes("scheduler") ||
+              id.includes("@radix-ui") ||
+              id.includes("framer-motion") ||
+              id.includes("/motion/")
+            ) return "vendor-react";
             if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
             if (id.includes("@stripe")) return "vendor-stripe";
             if (id.includes("@trpc") || id.includes("@tanstack")) return "vendor-trpc";
