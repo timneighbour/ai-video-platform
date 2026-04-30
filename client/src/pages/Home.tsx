@@ -927,21 +927,20 @@ function Hero() {
  <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
  </span>
- <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">The AI Creative Studio</span>
+ <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — The AI Creative Studio</span>
  <span className="w-px h-3 bg-[--color-gold]/20" />
- <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">WIZ AI</span>
+ <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">9 Studios. One Platform.</span>
  </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">The AI Creative<br />
- <span className="metallic-gold">Studio.</span>
+ <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">Create. Enhance.<br />
+ <span className="metallic-gold">Produce. Grow.</span>
  </h1>
  {/* Subheadline */}
- <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/70 leading-relaxed max-w-xl mb-4">Music videos. Animation. Original scores. Cinematic visuals.
- Produced to a professional standard — from a single brief.
+ <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/70 leading-relaxed max-w-xl mb-4">The AI creative studio where you create original music, generate cinematic visuals, lock characters, animate, enhance quality, and produce professional videos — in one complete workflow.
  </p>
  <p className="text-[clamp(0.85rem,1.4vw,1rem)] text-[--color-silver]/45 leading-relaxed max-w-xl mb-8">Nine specialised AI studios. One unified production environment.
- Solo production. Studio standard.
+ No editing experience needed. Studio-grade output from day one.
  </p>
 
  {/* CTAs */}
@@ -951,12 +950,12 @@ function Hero() {
  className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
  onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Enter the Studio — Free
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Start Creating — Free
  </a>
  <a
- href="/pricing"
+ href="#products"
  className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
- >See What It Produces
+ >Explore the Studios
  <ArrowSVG className="w-4 h-4" />
  </a>
  <button
@@ -1041,6 +1040,166 @@ function Hero() {
 // ProductGrid replaced by WizProductGrid component
 function ProductGrid() {
  return <WizProductGrid />;
+}
+
+// Workflow Journey — 7-step creative pipeline 
+function WorkflowJourney() {
+ const steps = [
+ {
+ number: "01",
+ verb: "Create",
+ label: "Original Music",
+ desc: "Generate an original song, soundtrack, or beat from a text prompt. Choose genre, mood, tempo, and style.",
+ studio: "WizAudio™",
+ studioHref: "/music-creator",
+ color: "oklch(0.72 0.18 160)",
+ },
+ {
+ number: "02",
+ verb: "Generate",
+ label: "Cinematic Visuals",
+ desc: "Create photorealistic images, album art, and scene backgrounds from a single prompt.",
+ studio: "WizImage™",
+ studioHref: "/wiz-image",
+ color: "oklch(0.78 0.14 70)",
+ },
+ {
+ number: "03",
+ verb: "Lock",
+ label: "Your Characters",
+ desc: "Define your artist or character once. WIZ AI keeps them consistent across every scene and format.",
+ studio: "WizVideo™",
+ studioHref: "/music-video",
+ color: "oklch(0.70 0.18 280)",
+ },
+ {
+ number: "04",
+ verb: "Animate",
+ label: "Every Scene",
+ desc: "Bring characters to life with AI animation — from kids content to cinematic music videos.",
+ studio: "WizAnimate™",
+ studioHref: "/kids-video",
+ color: "oklch(0.68 0.20 340)",
+ },
+ {
+ number: "05",
+ verb: "Enhance",
+ label: "Audio & Visuals",
+ desc: "WizSound™ masters your audio. WizLumina™ grades your visuals. Both automatically applied.",
+ studio: "WizSound™ + WizLumina™",
+ studioHref: "/products/wizsound",
+ color: "oklch(0.72 0.14 70)",
+ },
+ {
+ number: "06",
+ verb: "Produce",
+ label: "Your Final Video",
+ desc: "Preview every scene before you build. Export in HD or 4K with studio-grade finishing.",
+ studio: "WizScript™",
+ studioHref: "/wiz-script",
+ color: "oklch(0.78 0.11 75)",
+ },
+ {
+ number: "07",
+ verb: "Grow",
+ label: "Your Audience",
+ desc: "Optimise and distribute your content across every platform. WizBoost™ handles the rest.",
+ studio: "WizBoost™",
+ studioHref: "/products/wizboost",
+ color: "oklch(0.70 0.18 260)",
+ },
+ ];
+ return (
+ <section className="relative py-28 px-6 overflow-hidden" style={{ background: "linear-gradient(180deg, #030303 0%, #060606 50%, #030303 100%)" }}>
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[400px] rounded-full opacity-[0.04] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="max-w-7xl mx-auto relative z-10">
+ {/* Header */}
+ <div className="text-center mb-20 reveal">
+ <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] mb-6">
+ <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[--color-gold-dark]">The Complete Workflow</span>
+ </div>
+ <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
+ From idea to finished video.<br />
+ <span className="metallic-gold">Seven steps. One platform.</span>
+ </h2>
+ <p className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
+ Every WIZ AI studio is purpose-built for one step in the creative pipeline. Together they form the only end-to-end AI production workflow available to solo creators.
+ </p>
+ </div>
+ {/* Steps grid */}
+ <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+ {steps.slice(0, 4).map((step) => (
+ <a
+ key={step.number}
+ href={step.studioHref}
+ className="reveal group relative rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+ style={{
+ background: "linear-gradient(145deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%)",
+ border: "1px solid rgba(255,255,255,0.07)",
+ }}
+ onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = step.color + "55"; (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${step.color}18`; }}
+ onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+ >
+ <div className="flex items-center justify-between">
+ <span className="text-[10px] font-black tracking-[0.3em] uppercase" style={{ color: step.color }}>STEP {step.number}</span>
+ <ArrowSVG className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 transition-colors" />
+ </div>
+ <div>
+ <div className="text-[clamp(1.4rem,3vw,1.8rem)] font-black text-white leading-tight">{step.verb}</div>
+ <div className="text-sm font-semibold" style={{ color: step.color }}>{step.label}</div>
+ </div>
+ <p className="text-white/40 text-xs leading-relaxed flex-1">{step.desc}</p>
+ <div className="pt-2 border-t border-white/[0.05]">
+ <span className="text-[10px] font-bold tracking-wide uppercase text-white/25">{step.studio}</span>
+ </div>
+ </a>
+ ))}
+ </div>
+ <div className="grid sm:grid-cols-3 gap-5">
+ {steps.slice(4).map((step) => (
+ <a
+ key={step.number}
+ href={step.studioHref}
+ className="reveal group relative rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+ style={{
+ background: "linear-gradient(145deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.01) 100%)",
+ border: "1px solid rgba(255,255,255,0.07)",
+ }}
+ onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = step.color + "55"; (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${step.color}18`; }}
+ onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+ >
+ <div className="flex items-center justify-between">
+ <span className="text-[10px] font-black tracking-[0.3em] uppercase" style={{ color: step.color }}>STEP {step.number}</span>
+ <ArrowSVG className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 transition-colors" />
+ </div>
+ <div>
+ <div className="text-[clamp(1.4rem,3vw,1.8rem)] font-black text-white leading-tight">{step.verb}</div>
+ <div className="text-sm font-semibold" style={{ color: step.color }}>{step.label}</div>
+ </div>
+ <p className="text-white/40 text-xs leading-relaxed flex-1">{step.desc}</p>
+ <div className="pt-2 border-t border-white/[0.05]">
+ <span className="text-[10px] font-bold tracking-wide uppercase text-white/25">{step.studio}</span>
+ </div>
+ </a>
+ ))}
+ </div>
+ {/* Bottom CTA */}
+ <div className="text-center mt-16 reveal">
+ <a
+ href="/onboarding"
+ className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base"
+ >
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
+ Start Your First Project — Free
+ </a>
+ <p className="text-white/25 text-xs mt-4">No credit card required. 2 free Build Credits on sign-up.</p>
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
 }
 
 // Welcome to WIZ AI (Demo Video) 
@@ -2630,9 +2789,10 @@ function SeeTheDifference() {
  {/* Header */}
  <div className="text-center mb-10">
  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/40 tracking-widest uppercase mb-5">
- <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />WizSound™ · WizLumina™ · Cinematic Demo
+ <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />WizSound™ · WizLumina™ · Live Demo
  </div>
- <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">One scene.{" "}
+ <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
+ This is what{" "}
  <span
  className="bg-clip-text text-transparent"
  style={{
@@ -2644,12 +2804,14 @@ function SeeTheDifference() {
  : "linear-gradient(135deg, #a1a1aa, #d4d4d8)",
  transition: "background-image 0.5s ease",
  }}
- >Three transformations.
+ >WIZ AI does to your content.
  </span>
  </h2>
- <p className="text-base text-white/40 max-w-lg mx-auto">
- The same epic landscape — three completely different levels of quality.
- Watch the visual and audio transform from flat and lifeless to cinematic and immersive.
+ <p className="text-base text-white/50 max-w-xl mx-auto leading-relaxed">
+ The same scene. Three completely different levels of quality. Click each tier and watch your content transform — visually and sonically — from raw AI output to cinematic masterpiece.
+ </p>
+ <p className="text-sm text-white/25 mt-3 max-w-md mx-auto">
+ Original → Enhanced → Cinematic. This is what WizSound™ and WizLumina™ do automatically on every project.
  </p>
  </div>
 
@@ -2819,41 +2981,65 @@ function SeeTheDifference() {
 
 // Final CTA 
 function FinalCTA() {
+ const guarantees = [
+ { label: "No credit card to start" },
+ { label: "2 free Build Credits on sign-up" },
+ { label: "Preview every scene before you pay" },
+ { label: "Own your content. No watermark." },
+ { label: "Cancel anytime" },
+ ];
  return (
- <section className="relative bg-[#040404] py-32 px-6">
+ <section className="relative bg-[#040404] py-32 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.28] pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.72 0.14 70), transparent 70%)" }} />
- <div className="relative z-10 max-w-3xl mx-auto text-center reveal">
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-[0.18] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="relative z-10 max-w-4xl mx-auto text-center reveal">
+ {/* Eyebrow */}
  <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />
- <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">No credit card required</span>
+ <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Start Free. Create Anything.</span>
  </div>
- <h2 className="text-[clamp(2.5rem,6vw,4rem)] font-black tracking-tight text-white mb-6 leading-tight">Your next creation<br />
- <span className="metallic-gold">starts here.</span>
+ {/* Headline */}
+ <h2 className="text-[clamp(2.5rem,6vw,4.5rem)] font-black tracking-tight text-white mb-6 leading-tight">
+ You have the idea.<br />
+ <span className="metallic-gold">WIZ AI has the studio.</span>
  </h2>
- <p className="text-[--color-silver-dark]/50 text-lg mb-10 leading-relaxed">Join creators worldwide producing professional audio, video, and animation with WIZ AI. Create free. Pay only when you build your final video.
+ <p className="text-white/50 text-xl mb-4 leading-relaxed max-w-2xl mx-auto">
+ Create original music. Generate cinematic visuals. Animate characters. Produce professional videos. All from a single brief.
  </p>
- {/* Dual CTAs */}
- <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+ <p className="text-white/30 text-base mb-12 max-w-xl mx-auto">
+ No editing experience needed. No crew. No timeline. Just describe what you want and WIZ AI builds it.
+ </p>
+ {/* Primary CTA */}
+ <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
  <a
  href="/onboarding"
- className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
+ className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-12 py-5 rounded-2xl text-lg w-full sm:w-auto justify-center font-bold"
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Create Your First AI Video
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Enter the Studio — Free
  </a>
  <a
- href={WIZAUDIO_STUDIO_PAGE}
- className="btn-secondary inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base w-full sm:w-auto justify-center"
- >
- <img src={WIZSOUND_LOGO} alt="WizSound" aria-hidden="true" className="w-5 h-5 object-contain" />Generate Your First Song
+ href="/pricing"
+ className="btn-secondary inline-flex items-center gap-2.5 px-10 py-5 rounded-2xl text-base w-full sm:w-auto justify-center"
+ >View Pricing
+ <ArrowSVG className="w-4 h-4" />
  </a>
  </div>
- <div className="flex items-center justify-center gap-4 mt-6">
- <a href="/pricing" className="inline-flex items-center gap-2 text-sm text-[--color-silver-dark]/40 hover:text-[--color-silver] transition-colors font-medium">View Pricing <ArrowSVG className="w-4 h-4" />
- </a>
- <span className="w-px h-3 bg-[--color-gold]/10" />
- <span className="text-xs text-[--color-silver-dark]/25">2 free videos included. Cancel anytime.</span>
+ {/* Guarantee strip */}
+ <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-8">
+ {guarantees.map((g) => (
+ <div key={g.label} className="flex items-center gap-2">
+ <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]/50" />
+ <span className="text-xs text-white/30 font-medium">{g.label}</span>
+ </div>
+ ))}
+ </div>
+ {/* Secondary CTAs */}
+ <div className="flex flex-wrap items-center justify-center gap-6 pt-6 border-t border-white/[0.04]">
+ <a href="/music-creator" className="text-sm text-white/30 hover:text-white/60 transition-colors font-medium">Start with Music →</a>
+ <a href="/wiz-image" className="text-sm text-white/30 hover:text-white/60 transition-colors font-medium">Start with Images →</a>
+ <a href="/music-video" className="text-sm text-white/30 hover:text-white/60 transition-colors font-medium">Start with Video →</a>
+ <a href="/kids-video" className="text-sm text-white/30 hover:text-white/60 transition-colors font-medium">Start with Animation →</a>
  </div>
  </div>
  </section>
@@ -3145,18 +3331,21 @@ export default function Home() {
  <Nav />
 
  <main id="main-content">
+ {/* 1. Hero — 5-second positioning */}
  <Hero />
+ {/* 2. Workflow Journey — 7-step pipeline */}
+ <WorkflowJourney />
+ {/* 3. Studios Grid — 9 product cards */}
  <ProductGrid />
- <WelcomeSection />
- <WhyWizAI />
+ {/* 4. Audio Demo — WizSound */}
  <WizSoundDemo />
- <WizLuminaDemo />
- <WizEngines />
+ {/* 5. How It Works — 4-step process */}
  <HowItWorks />
- <Showcase />
- <BuiltFor />
- <FeatureBlock />
+ {/* 6. Cinematic Demo — SeeTheDifference */}
  <SeeTheDifference />
+ {/* 7. Video Showcase — real outputs */}
+ <Showcase />
+ {/* 8. Final CTA */}
  <FinalCTA />
  </main>
  <Footer />

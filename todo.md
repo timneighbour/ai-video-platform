@@ -6375,3 +6375,17 @@
 - [ ] All product page CTAs link to correct studio tools
 - [ ] Navigation audit — all links verified end-to-end
 - [x] Fix audio not playing on live site (SeeTheDifference section) — no sound on desktop or mobile
+
+## Homepage Conversion Upgrade (11/10)
+
+- [ ] Audit current homepage sections and identify all conversion gaps
+- [ ] Rebuild Hero: clear 5-second value prop, "The AI Creative Studio", strong CTAs (Start Creating / Watch Demo / Explore Studios)
+- [ ] Rebuild Workflow section: 7-step visual journey (Create → Generate → Lock → Animate → Enhance → Produce → Grow)
+- [ ] Rebuild Studios section: clean product cards with real output descriptions, no generic icons
+- [ ] Rebuild SeeTheDifference: keep new cinematic video, improve surrounding copy and framing
+- [ ] Rebuild How It Works: simplified 3-step process with clear benefit statements
+- [ ] Rebuild Final CTA: strong conversion close with social proof and urgency
+- [ ] Remove/rename duplicate or confusing sections
+- [ ] Apply dark luxury aesthetic throughout: black, white, warm gold, clean spacing
+- [ ] QA: desktop, tablet, mobile — all buttons and CTAs functional
+- [ ] Save checkpoint after homepage upgrade
