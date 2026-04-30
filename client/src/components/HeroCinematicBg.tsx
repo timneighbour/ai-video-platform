@@ -85,9 +85,25 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
   }, [paused]);
 
   useEffect(() => {
-    if (!videoRef.current) return;
-    if (paused || prefersReducedMotion) { videoRef.current.pause(); }
-    else { videoRef.current.play().catch(() => {}); }
+    const video = videoRef.current;
+    if (!video) return;
+    if (paused || prefersReducedMotion) {
+      video.pause();
+      return;
+    }
+    // iOS Safari: must call play() explicitly after metadata loads
+    const tryPlay = () => {
+      video.play().catch(() => {
+        // iOS may block autoplay — video stays paused, poster shows as fallback
+      });
+    };
+    // If already has metadata (e.g. cached), play immediately
+    if (video.readyState >= 1) {
+      tryPlay();
+    } else {
+      video.addEventListener("loadedmetadata", tryPlay, { once: true });
+      return () => video.removeEventListener("loadedmetadata", tryPlay);
+    }
   }, [paused, prefersReducedMotion, videoReady]);
 
   const handleVideoCanPlay = useCallback(() => {
@@ -293,7 +309,13 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
       {!prefersReducedMotion && (
         <video
           ref={videoRef}
-          autoPlay muted loop playsInline preload="none"
+          autoPlay
+          muted
+          loop
+          playsInline
+          // @ts-ignore — webkit-playsinline required for iOS 9 and below
+          webkit-playsinline="true"
+          preload="metadata"
           onCanPlay={handleVideoCanPlay}
           onTimeUpdate={handleTimeUpdate}
           width={1920}
