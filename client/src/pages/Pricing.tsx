@@ -56,7 +56,7 @@ const SHOWCASE_3 = `${_SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`;
 const SHOWCASE_1_VIDEO = `${_SC}/showcase-cinematic_13667434.mp4`;
 const SHOWCASE_2_VIDEO = `${_SC}/showcase-music-video_19324f13.mp4`;
 const SHOWCASE_3_VIDEO = `${_SC}/showcase-kids_d49d86f8.mp4`;
-const CREATOR_MUSICIANS = "/manus-storage/creator-musicians_cc8c2a51.jpg";
+const CREATOR_MUSICIANS = "/manus-storage/rock-band-concert_b03279f3.jpg";
 const CREATOR_CONTENT = "/manus-storage/creator-content-creators_ae0d5147.jpg";
 const CREATOR_YOUTUBERS = "/manus-storage/creator-youtubers-brands_088b54d8.jpg";
 const CREATOR_ANIMATORS = "/manus-storage/creator-animators_d6999585.jpg";
@@ -468,17 +468,19 @@ export default function Pricing() {
  onClick={() => setBillingCycle("monthly")}
  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
  billingCycle === "monthly"
- ? "bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
+ ? "text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
  : "text-white/40 hover:text-white/70"
  }`}
+ style={billingCycle === "monthly" ? { background: 'linear-gradient(to right, oklch(0.50 0.13 55), oklch(0.72 0.14 70))' } : {}}
  >Monthly</button>
  <button
  onClick={() => setBillingCycle("annual")}
  className={`flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
  billingCycle === "annual"
- ? "bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
+ ? "text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
  : "text-white/40 hover:text-white/70"
  }`}
+ style={billingCycle === "annual" ? { background: 'linear-gradient(to right, oklch(0.50 0.13 55), oklch(0.72 0.14 70))' } : {}}
  >Yearly
  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all duration-300 ${
  billingCycle === "annual" ? "bg-[#0a0a0a]/30 text-[#0a0a0a]" : "bg-[--color-gold]/15 text-[--color-gold]"

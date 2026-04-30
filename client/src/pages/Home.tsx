@@ -1049,6 +1049,7 @@ const HERO_DEMO_POSTER = `/manus-storage/trailer-v2-poster_4a74cc1c.jpg`;
 function HeroDemoSection() {
  const videoRef = useRef<HTMLVideoElement>(null);
  const [playing, setPlaying] = useState(false);
+ const [isMuted, setIsMuted] = useState(true);
  const handlePlay = useCallback(() => {
  const v = videoRef.current;
  if (!v) return;
@@ -1060,6 +1061,14 @@ function HeroDemoSection() {
  setPlaying(false);
  }
  }, []);
+ const handleToggleMute = useCallback((e: React.MouseEvent) => {
+ e.stopPropagation();
+ const v = videoRef.current;
+ if (!v) return;
+ const newMuted = !isMuted;
+ v.muted = newMuted;
+ setIsMuted(newMuted);
+ }, [isMuted]);
  return (
  <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
@@ -1087,10 +1096,10 @@ function HeroDemoSection() {
  <div className="relative aspect-video bg-black">
  <video
  ref={videoRef}
-className="w-full h-full object-cover"
-                poster={HERO_DEMO_POSTER}
-                muted
-                playsInline
+ className="w-full h-full object-cover"
+ poster={HERO_DEMO_POSTER}
+ muted={isMuted}
+ playsInline
                 preload="metadata"
                 onEnded={() => setPlaying(false)}
                 style={{ transform: !playing ? "scale(1.03)" : "scale(1)", transition: "transform 8s ease-in-out", animation: !playing ? "heroDemoBreath 8s ease-in-out infinite alternate" : "none" }}
@@ -1113,13 +1122,32 @@ className="w-full h-full object-cover"
  <p className="text-white/35 text-xs mt-1">~53 seconds · No sound required</p>
  </div>
  )}
- {/* Playing indicator */}
+ {/* Playing indicator + sound toggle */}
  {playing && (
- <div className="absolute top-4 right-4 pointer-events-none">
- <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10">
+ <div className="absolute top-4 right-4 flex items-center gap-2">
+ <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 pointer-events-none">
  <WaveformSVG className="w-4 h-4" color="oklch(0.78 0.11 75)" />
  <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">Playing</span>
  </div>
+ <button
+ onClick={handleToggleMute}
+ title={isMuted ? "Enable sound" : "Mute"}
+ className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 hover:border-[rgba(196,164,100,0.4)] transition-colors duration-200"
+ >
+ {isMuted ? (
+ <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+ <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+ <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+ </svg>
+ ) : (
+ <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: 'oklch(0.78 0.11 75)' }}>
+ <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072M12 6v12m-3.536-9.536a5 5 0 000 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+ </svg>
+ )}
+ <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: isMuted ? 'rgba(255,255,255,0.4)' : 'oklch(0.78 0.11 75)' }}>
+ {isMuted ? 'Sound off' : 'Sound on'}
+ </span>
+ </button>
  </div>
  )}
  </div>
@@ -2008,7 +2036,7 @@ function WhyWizAI() {
  number: "06",
  title: "Every Creative Format",
  subtitle: "Music video. Animation. Score. Image. Shorts.",
- desc: "Ten specialised AI studios cover every format a serious creator needs — from full music videos and character animation to original scores, cinematic images, and short-form content. One ecosystem. Every format.",
+ desc: "Seven specialised AI studios cover every format a serious creator needs — from full music videos and character animation to original scores, cinematic images, and short-form content. One ecosystem. Every format.",
  logo: WIZAI_LOGO,
  img: "/manus-storage/why-wiz-creators_3ebbdae1.png",
  },
@@ -2843,6 +2871,7 @@ const STD_TIERS: {
  audioLabel: string;
  gradient: string;
  glow: string;
+ glowInline: string;
  videoFilter: string;
 }[] = [
  {
@@ -2850,8 +2879,9 @@ const STD_TIERS: {
  label: "Original",
  tagline: "Flat, dull, lifeless — raw AI output",
  audioLabel: "Thin · Narrow · No processing",
- gradient: "from-zinc-500 to-zinc-400",
- glow: "rgba(113,113,122,0.4)",
+ gradient: "from-stone-500 to-stone-400",
+ glow: "rgba(168,162,158,0.35)",
+ glowInline: "rgba(168,162,158,0.35)",
  videoFilter: "none",
  },
  {
@@ -2859,8 +2889,9 @@ const STD_TIERS: {
  label: "Enhanced",
  tagline: "Sharp, vibrant, professional grade",
  audioLabel: "Full · Balanced · Broadcast quality",
- gradient: "from-amber-500 to-yellow-400",
- glow: "rgba(245,158,11,0.5)",
+ gradient: "from-amber-600 to-amber-400",
+ glow: "rgba(217,119,6,0.45)",
+ glowInline: "rgba(217,119,6,0.45)",
  videoFilter: "none",
  },
  {
@@ -2868,9 +2899,10 @@ const STD_TIERS: {
  label: "Cinematic",
  tagline: "Golden light, deep shadows, movie-trailer quality",
  audioLabel: "Deep bass · Wide stereo · Immersive",
- gradient: "from-[--color-gold] to-amber-400",
-glow: "rgba(196,164,100,0.85)",
-  videoFilter: "none",
+ gradient: "from-[#c4a464] to-[#e8d5a0]",
+ glow: "rgba(196,164,100,0.70)",
+ glowInline: "rgba(196,164,100,0.70)",
+ videoFilter: "none",
  },
 ];
 
@@ -3009,10 +3041,10 @@ function SeeTheDifference() {
  style={{
  backgroundImage:
  activeTier === "cinematic"
- ? "linear-gradient(135deg, #f97316, #fbbf24)"
+ ? "linear-gradient(135deg, #c4a464, #e8d5a0)"
  : activeTier === "enhanced"
- ? "linear-gradient(135deg, #f59e0b, #fde68a)"
- : "linear-gradient(135deg, #a1a1aa, #d4d4d8)",
+ ? "linear-gradient(135deg, #d97706, #fbbf24)"
+ : "linear-gradient(135deg, #a8a29e, #d6d3d1)",
  transition: "background-image 0.5s ease",
  }}
  >WIZ AI does to your content.
@@ -3061,7 +3093,7 @@ function SeeTheDifference() {
  <div
  className="fixed inset-0 z-[9999] pointer-events-none"
  style={{
- background: "radial-gradient(ellipse at center, rgba(255,200,80,0.32) 0%, rgba(255,150,30,0.14) 40%, transparent 70%)",
+ background: "radial-gradient(ellipse at center, rgba(196,164,100,0.28) 0%, rgba(196,164,100,0.10) 40%, transparent 70%)",
  animation: "cinematicPeakFlash 0.6s ease-out forwards",
  }}
  />
@@ -3070,10 +3102,10 @@ function SeeTheDifference() {
  {/* Video player */}
  <div
  className={`relative rounded-2xl overflow-hidden border shadow-2xl cursor-pointer group transition-all duration-500 ${
- cinematicFlash ? "scale-[1.012] border-amber-400/40" : "border-white/10"
+ cinematicFlash ? "scale-[1.012] border-[#c4a464]/40" : "border-white/10"
  }`}
  onClick={handlePlayPause}
- style={{ boxShadow: cinematicFlash ? "0 0 100px rgba(255,180,50,0.75), 0 0 160px rgba(255,120,20,0.40)" : `0 0 60px ${activeTierData.glow}` }}
+ style={{ boxShadow: cinematicFlash ? "0 0 100px rgba(196,164,100,0.65), 0 0 160px rgba(196,164,100,0.30)" : `0 0 60px ${activeTierData.glow}` }}
  >
  {/* v5: visual grades are baked into the video — no CSS filter needed */}
  <div className="relative aspect-video bg-black">
@@ -3564,7 +3596,7 @@ function ContinueProjectBanner() {
 
 // Page 
 export default function Home() {
- useSEO({ title: "WIZ AI — The AI Creative Studio", path: "/", description: "WIZ AI is the world's first AI creative studio. Music videos, animation, original scores, and cinematic visuals — produced to a professional standard from a single brief. Ten specialised AI studios. One unified production environment." });
+ useSEO({ title: "WIZ AI — The AI Creative Studio", path: "/", description: "WIZ AI is the world's first AI creative studio. Music videos, animation, original scores, and cinematic visuals — produced to a professional standard from a single brief. Seven specialised AI studios. One unified production environment." });
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (

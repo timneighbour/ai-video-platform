@@ -277,22 +277,30 @@ export default function WizProductGrid() {
             WIZ AI — The Creative Ecosystem
           </p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-3">
-            Explore the Studios
+            The Magnificent 7 Specialised AI Studios
           </h2>
           <p className="text-white/40 text-base max-w-2xl leading-relaxed mx-auto">
-            Ten specialised AI studios. One platform. Every creative discipline covered — from original music to cinematic video, animation, and beyond.
+            Seven specialised AI studios. One platform. Every creative discipline covered — from original music to cinematic video, animation, and beyond.
           </p>
-        </div>       {/* ── Row 1: CREATE (7 tiles) ──────────────────────────────────── */}
+        </div>
+        {/* ── Row 1: CREATE (7 tiles) — 4 top + 3 centred bottom ─────────── */}
         <div className="mb-14 reveal">
           <RowLabel label="Create" count={7} accentColor="#c4a464" />
-          {/* 4 + 3 layout on desktop */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {CREATE_TILES.map((tile) => (
+          {/* Top row: 4 equal tiles */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            {CREATE_TILES.slice(0, 4).map((tile) => (
               <Tile key={tile.name} tile={tile} height={220} />
             ))}
           </div>
+          {/* Bottom row: 3 tiles centred — use a max-w wrapper so they don't stretch full width */}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full" style={{ maxWidth: 'calc(75% + 8px)' }}>
+              {CREATE_TILES.slice(4, 7).map((tile) => (
+                <Tile key={tile.name} tile={tile} height={220} />
+              ))}
+            </div>
+          </div>
         </div>
-
         {/* ── Row 2: ENHANCE (2 tiles) ─────────────────────────────────── */}
         <div className="mb-14 reveal">
           <RowLabel label="Enhance" count={2} accentColor="#d4a843" />

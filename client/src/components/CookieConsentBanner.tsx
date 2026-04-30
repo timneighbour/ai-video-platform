@@ -223,20 +223,21 @@ export default function CookieConsentBanner() {
                 >
                   Reject non-essential
                 </Button>
-                <Button
-                  size="sm"
-                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold text-xs"
+                <button
+                  type="button"
+                  className="flex-1 h-8 px-3 rounded-md text-xs font-semibold text-black transition-opacity hover:opacity-90"
+                  style={{ background: 'oklch(0.72 0.14 70)' }}
                   onClick={handleSavePreferences}
                 >
                   Save preferences
-                </Button>
-                <Button
-                  size="sm"
-                  className="flex-1 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs"
+                </button>
+                <button
+                  type="button"
+                  className="flex-1 h-8 px-3 rounded-md text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
                   onClick={handleAcceptAll}
                 >
                   Accept all
-                </Button>
+                </button>
               </>
             ) : (
               <>
@@ -248,13 +249,14 @@ export default function CookieConsentBanner() {
                 >
                   Reject non-essential
                 </Button>
-                <Button
-                  size="sm"
-                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold text-xs"
+                <button
+                  type="button"
+                  className="flex-1 h-8 px-3 rounded-md text-xs font-semibold text-black transition-opacity hover:opacity-90"
+                  style={{ background: 'oklch(0.72 0.14 70)' }}
                   onClick={handleAcceptAll}
                 >
                   Accept all cookies
-                </Button>
+                </button>
               </>
             )}
           </div>
