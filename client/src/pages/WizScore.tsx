@@ -355,7 +355,7 @@ export default function WizScore() {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
           </div>
           <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#e0d8cc", marginBottom: "12px" }}>WizScore™</h1>
-          <p style={{ color: "rgba(224,216,204,0.45)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start composing AI orchestral scores.</p>
+          <p style={{ color: "rgba(224,216,204,0.85)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start composing AI orchestral scores.</p>
           <a href={getLoginUrl("/wizscore")} style={{ display: "inline-block", padding: "12px 32px", background: "linear-gradient(135deg, #d4a843, #b8892a)", color: "#000", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
         </div>
       </div>
@@ -484,9 +484,9 @@ export default function WizScore() {
           <div style={{width:"42px",height:"42px",borderRadius:"8px",background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px",flexShrink:0}}></div>
           <div style={{flex:1}}>
             <div style={{fontSize:"12px",fontWeight:800,color:"#d4a843",letterSpacing:"1px",marginBottom:"2px"}}>UPLOAD YOUR VIDEO TO BEGIN</div>
-            <div style={{fontSize:"10px",color:"rgba(224,216,204,0.55)"}}>Drop your MP4, MOV, or WebM here — WizScore™ analyses the mood and pacing to compose a perfectly synced original score</div>
+            <div style={{fontSize:"10px",color:"rgba(224,216,204,0.82)"}}>Drop your MP4, MOV, or WebM here — WizScore™ analyses the mood and pacing to compose a perfectly synced original score</div>
           </div>
-          <div style={{fontSize:"9px",fontWeight:700,color:"rgba(212,168,67,0.6)",letterSpacing:"1px",border:"1px solid rgba(212,168,67,0.25)",padding:"6px 14px",borderRadius:"3px",flexShrink:0}}>CLICK OR DROP</div>
+          <div style={{fontSize:"9px",fontWeight:700,color:"rgba(212,168,67,0.95)",letterSpacing:"1px",border:"1px solid rgba(212,168,67,0.25)",padding:"6px 14px",borderRadius:"3px",flexShrink:0}}>CLICK OR DROP</div>
         </div>
       )}
       {videoFile && (
@@ -499,7 +499,7 @@ export default function WizScore() {
         }}>
           <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#6db86d",boxShadow:"0 0 8px #6db86d",animation:"wizLivePulse 1.5s infinite",flexShrink:0}} />
           <div style={{fontSize:"11px",fontWeight:700,color:"#6db86d"}}>VIDEO LOADED — {videoFile.name}</div>
-          <div style={{fontSize:"10px",color:"rgba(224,216,204,0.4)"}}>({(videoFile.size/(1024*1024)).toFixed(1)} MB)</div>
+          <div style={{fontSize:"10px",color:"rgba(224,216,204,0.78)"}}>({(videoFile.size/(1024*1024)).toFixed(1)} MB)</div>
           {isUploadingVideo && <div style={{flex:1,height:"3px",background:"#1a1a1a",borderRadius:"2px",overflow:"hidden"}}><div style={{height:"100%",width:`${uploadProgress}%`,background:"linear-gradient(90deg,#d4a843,#f0c040)",transition:"width 0.3s",borderRadius:"2px"}} /></div>}
           <button onClick={()=>{setVideoFile(null);setVideoUrl("");setVideoKey("");setWizScoreJobId(null);}} style={{marginLeft:"auto",background:"none",border:"none",color:"#555",cursor:"pointer",fontSize:"14px"}}>×</button>
         </div>
@@ -827,7 +827,7 @@ export default function WizScore() {
           <div style={{padding:"16px 0 0"}}>
             <button onClick={() => mp.generationStarted("WizScore", undefined, scoreBrief.trim().length > 0)} style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
                COMPOSE SCORE
-              <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.7}}>Brief → Ensemble → Compose → Upgrade Preview → Render</div>
+              <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.85}}>Brief → Ensemble → Compose → Upgrade Preview → Render</div>
             </button>
           </div>
         </div>

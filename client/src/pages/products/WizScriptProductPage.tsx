@@ -155,7 +155,7 @@ function ScriptPreviewPanel() {
  onClick={() => setActiveStep(i)}
  className="flex-1 py-3 px-4 text-[10px] font-bold tracking-wider uppercase transition-all"
  style={{
- color: activeStep === i ? ACCENT : "rgba(255,255,255,0.3)",
+ color: activeStep === i ? ACCENT : "rgba(255,255,255,0.78)",
  background: activeStep === i ? `${ACCENT}10` : "transparent",
  borderBottom: activeStep === i ? `2px solid ${ACCENT}` : "2px solid transparent",
  }}
@@ -541,7 +541,7 @@ export default function WizScriptProductPage() {
  {/* Footer */}
  <footer className="py-8 px-6 border-t border-white/[0.04]">
  <div className="max-w-6xl mx-auto flex items-center justify-between">
- <img src={WIZAI_LOGO} alt="WIZ AI" className="h-6 w-auto opacity-40" loading="lazy" />
+ <img src={WIZAI_LOGO} alt="WIZ AI" className="h-6 w-auto opacity-80" loading="lazy" />
  <div className="text-[11px] text-white/20">© 2025 WIZ AI. All rights reserved.</div>
  </div>
  </footer>

@@ -1937,7 +1937,7 @@ export default function MusicVideoAutopilot() {
                           className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white resize-none h-20"
                           maxLength={400}
                         />
-                        <p className="text-white/30 text-xs text-right">{sunoPrompt.length}/400</p>
+                        <p className="text-white/70 text-xs text-right">{sunoPrompt.length}/400</p>
                       </div>
                       <div className="space-y-2">
                         <Label className="text-white/70">Music style / genre <span className="text-white/40">(optional)</span></Label>
@@ -2563,7 +2563,7 @@ export default function MusicVideoAutopilot() {
                   <Sparkles className="w-3 h-3" style={{ color: "rgba(201,168,76,0.5)" }} />
                 </div>
                 <div className="p-3 space-y-3">
-                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>Preview all three quality tiers. No download until payment confirmed.</p>
+                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.75)" }}>Preview all three quality tiers. No download until payment confirmed.</p>
                   <div className="space-y-1.5">
                     {[
                       { label: "ORIGINAL", price: "Included", color: "#c9a84c", glow: "rgba(201,168,76,0.2)", active: true },
@@ -2603,13 +2603,13 @@ export default function MusicVideoAutopilot() {
                     </div>
                   </div>
                   <div className="pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div className="text-[8px] font-black tracking-[2.5px] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>Render Quality</div>
+                    <div className="text-[8px] font-black tracking-[2.5px] uppercase mb-2" style={{ color: "rgba(255,255,255,0.75)" }}>Render Quality</div>
                     <div className="grid grid-cols-3 gap-1">
                       {RENDER_QUALITY_TIERS.map((q, i) => (
                         <div key={q.label} className="rounded-[5px] p-1.5 text-center"
                           style={{ background: i === 1 ? "linear-gradient(160deg, rgba(201,168,76,0.18), rgba(0,0,0,0.5))" : "rgba(255,255,255,0.025)", border: i === 1 ? "1px solid rgba(201,168,76,0.4)" : "1px solid rgba(255,255,255,0.05)", boxShadow: i === 1 ? "0 0 12px rgba(201,168,76,0.15)" : "none" }}>
                           <div className="text-[10px] font-bold" style={{ color: i === 1 ? "#fff" : "rgba(255,255,255,0.35)" }}>{q.label}</div>
-                          <div className="text-[8px]" style={{ color: "rgba(255,255,255,0.25)" }}>{q.res}</div>
+                          <div className="text-[8px]" style={{ color: "rgba(255,255,255,0.75)" }}>{q.res}</div>
                           <div className="text-[8px] font-semibold" style={{ color: i === 1 ? "#c9a84c" : "rgba(255,255,255,0.2)" }}>{q.price}</div>
                         </div>
                       ))}
@@ -2623,7 +2623,7 @@ export default function MusicVideoAutopilot() {
                   <Download className="w-3.5 h-3.5" style={{ color: "#c9a84c" }} />
                   <span className="text-[11px] font-bold" style={{ color: "#c9a84c", textShadow: "0 0 10px rgba(201,168,76,0.5)" }}>Create free, pay to build</span>
                 </div>
-                <p className="px-4 py-3 text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="px-4 py-3 text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
                   Building your storyboard is completely free. You only pay when you're ready to build and download your finished video.
                 </p>
               </div>
@@ -3078,7 +3078,7 @@ export default function MusicVideoAutopilot() {
                         ) : (
                           <div className="flex flex-col items-center gap-2">
                             <Film className="w-6 h-6 text-white/30" />
-                            <span className="text-white/30 text-xs">No preview</span>
+                            <span className="text-white/70 text-xs">No preview</span>
                           </div>
                         )}
                       </div>
@@ -3393,7 +3393,7 @@ export default function MusicVideoAutopilot() {
                       {/* Toggle row */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-[--color-silver]" : "text-white/30"}`} />
+                          <Mic className={`w-3.5 h-3.5 ${scene.lipSync ? "text-[--color-silver]" : "text-white/72"}`} />
                           <span className={`text-xs font-medium ${scene.lipSync ? "text-[--color-silver]" : "text-white/40"}`}>
                             Lip Sync
                           </span>
@@ -3808,7 +3808,7 @@ export default function MusicVideoAutopilot() {
                                   <span className={`text-xs font-medium whitespace-nowrap ${
                                     isDone    ? "text-[--color-gold]" :
                                     isCurrent ? "text-white" :
-                                                "text-white/30"
+                                                "text-white/72"
                                   }`}>{stage.label}</span>
                                 </div>
                                 {i < stages.length - 1 && (
@@ -3940,7 +3940,7 @@ export default function MusicVideoAutopilot() {
                             </div>
                             {/* Estimated file size */}
                             {totalScenes > 0 && (
-                              <p className="text-white/30 text-xs mt-1.5 text-right">
+                              <p className="text-white/70 text-xs mt-1.5 text-right">
                                 Est. file size: ~{Math.round(totalScenes * 4.5)}MB
                               </p>
                             )}
@@ -4124,7 +4124,7 @@ export default function MusicVideoAutopilot() {
                                             <Label className="text-xs text-white/50">Visual Prompt</Label>
                                             <span className={`text-xs ${
                                               editFailedPrompt.length > 1800 ? "text-red-400" :
-                                              editFailedPrompt.length > 1400 ? "text-yellow-400" : "text-white/30"
+                                              editFailedPrompt.length > 1400 ? "text-yellow-400" : "text-white/72"
                                             }`}>{editFailedPrompt.length}/2000</span>
                                           </div>
                                           <Textarea
@@ -4140,9 +4140,9 @@ export default function MusicVideoAutopilot() {
                                         {/* Lyrics (optional) */}
                                         <div>
                                           <div className="flex items-center justify-between mb-1">
-                                            <Label className="text-xs text-white/50">Lyrics <span className="text-white/30">(optional)</span></Label>
+                                            <Label className="text-xs text-white/50">Lyrics <span className="text-white/72">(optional)</span></Label>
                                             <span className={`text-xs ${
-                                              editFailedLyrics.length > 900 ? "text-red-400" : "text-white/30"
+                                              editFailedLyrics.length > 900 ? "text-red-400" : "text-white/72"
                                             }`}>{editFailedLyrics.length}/1000</span>
                                           </div>
                                           <Textarea
@@ -4220,7 +4220,7 @@ export default function MusicVideoAutopilot() {
                       </div>
                     )}
 
-                    <p className="text-white/30 text-xs text-center">
+                    <p className="text-white/70 text-xs text-center">
                       Each scene takes 1–3 minutes. You can leave this page — rendering continues in the background.
                     </p>
                   </div>

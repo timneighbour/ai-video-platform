@@ -589,7 +589,7 @@ export default function Pricing() {
  <ul className="space-y-2 mb-5 flex-1">
  {plan.features.map((f) => (
  <li key={f.text} className={`flex items-start gap-2 text-[11px] leading-snug ${
- f.included ? "text-white/65" : "text-white/20"
+ f.included ? "text-white/65" : "text-white/65"
  }`}>
  {f.included ? (
  <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>

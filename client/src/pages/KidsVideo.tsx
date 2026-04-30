@@ -231,7 +231,7 @@ export default function KidsVideo() {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={ACCENT_LIGHT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           </div>
           <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#fff", marginBottom: "12px" }}>WizAnimate™</h1>
-          <p style={{ color: "rgba(255,255,255,0.45)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start creating AI animations.</p>
+          <p style={{ color: "rgba(255,255,255,0.85)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start creating AI animations.</p>
           <a href={getLoginUrl("/kids-video")} style={{ display: "inline-block", padding: "12px 32px", background: `linear-gradient(135deg, ${ACCENT_LIGHT}, ${ACCENT})`, color: "#fff", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
         </div>
       </div>
@@ -343,7 +343,7 @@ export default function KidsVideo() {
           <div style={{width:"40px",height:"40px",borderRadius:"8px",background:"rgba(124,92,191,0.18)",border:"1px solid rgba(124,92,191,0.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px",flexShrink:0}}></div>
           <div style={{flex:1}}>
             <div style={{fontSize:"11px",fontWeight:800,color:ACCENT_LIGHT,letterSpacing:"0.8px",marginBottom:"2px"}}>UPLOAD YOUR AUDIO TRACK TO BEGIN</div>
-            <div style={{fontSize:"9px",color:"rgba(255,255,255,0.4)"}}>MP3, WAV, M4A · WizAnimate™ syncs every scene to your music, extracts lyrics, and animates to the beat</div>
+            <div style={{fontSize:"9px",color:"rgba(255,255,255,0.78)"}}>MP3, WAV, M4A · WizAnimate™ syncs every scene to your music, extracts lyrics, and animates to the beat</div>
           </div>
           <div style={{fontSize:"9px",fontWeight:700,color:"rgba(124,92,191,0.7)",border:"1px solid rgba(124,92,191,0.3)",padding:"5px 12px",borderRadius:"3px",flexShrink:0}}>CLICK OR DROP</div>
         </div>
@@ -518,7 +518,7 @@ export default function KidsVideo() {
 
             {/* Session info */}
             <div style={{ position: "absolute", bottom: "14px", left: "18px" }}>
-              <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "2px", color: "rgba(255,255,255,0.45)", textTransform: "uppercase" }}>Current Session</div>
+              <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "2px", color: "rgba(255,255,255,0.85)", textTransform: "uppercase" }}>Current Session</div>
               <div style={{
                 fontFamily: "'Bebas Neue', sans-serif", fontSize: "18px",
                 fontWeight: 900, color: "#fff", letterSpacing: "1px", marginTop: "2px",
@@ -538,7 +538,7 @@ export default function KidsVideo() {
                 fontWeight: 900, letterSpacing: "5px",
                 color: "rgba(255,255,255,0.18)", textTransform: "uppercase",
               }}>WIZ STUDIOS</div>
-              <div style={{ fontSize: "8px", letterSpacing: "2px", color: "rgba(155,125,224,0.2)", textTransform: "uppercase" }}>
+              <div style={{ fontSize: "8px", letterSpacing: "2px", color: "rgba(155,125,224,0.75)", textTransform: "uppercase" }}>
                 AI Animation Platform
               </div>
             </div>
@@ -733,7 +733,7 @@ export default function KidsVideo() {
                       ) : (
                         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"2px"}}>
                           <div style={{fontSize:"18px",fontWeight:900,color:"rgba(255,255,255,0.8)",fontFamily:"'Bebas Neue',sans-serif"}}>{ch.initial}</div>
-                          <div style={{fontSize:"7px",color:"rgba(255,255,255,0.4)",textAlign:"center",lineHeight:1}}>Upload<br/>Photo</div>
+                          <div style={{fontSize:"7px",color:"rgba(255,255,255,0.78)",textAlign:"center",lineHeight:1}}>Upload<br/>Photo</div>
                         </div>
                       )}
                       <div style={{

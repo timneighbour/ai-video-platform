@@ -590,7 +590,7 @@ export default function WizShorts() {
           className="absolute pointer-events-none"
           style={{ bottom: 14, left: 16 }}
         >
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Session</div>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.78)", textTransform: "uppercase" }}>Session</div>
           <div style={{ fontSize: 17, fontWeight: 900, color: "#fff", letterSpacing: 1, marginTop: 2, fontFamily: "'Bebas Neue', sans-serif" }}>
             {PLATFORMS.find(p => p.id === platform)?.label} Shorts · {duration}s
           </div>
@@ -604,13 +604,13 @@ export default function WizShorts() {
           className="absolute"
           style={{ bottom: 14, right: 16, display: "flex", alignItems: "center", gap: 8 }}
         >
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 1, textTransform: "uppercase" }}>Ambience</span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.75)", letterSpacing: 1, textTransform: "uppercase" }}>Ambience</span>
           <input
             type="range" min={20} max={100} value={ambience}
             onChange={(e) => setAmbience(Number(e.target.value))}
             className="w-20 h-1 accent-fuchsia-500 cursor-pointer"
           />
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>{ambience}%</span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.75)" }}>{ambience}%</span>
         </div>
         {/* EQ Visualiser strip — bottom of hero */}
         <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ padding: "0 16px 4px" }}>
@@ -891,7 +891,7 @@ export default function WizShorts() {
                       style={
                         duration === d
                           ? { borderColor: FX_BORDER, background: FX_DIM, color: FX }
-                          : { borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.4)" }
+                          : { borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.78)" }
                       }
                     >
                       {d}s
@@ -1016,7 +1016,7 @@ export default function WizShorts() {
                     {MOCK_SCENES.map((sc) => (
                       <div key={sc.id} className="flex-shrink-0 w-28 rounded-xl border border-white/10 bg-white/5 overflow-hidden">
                         <div className="relative aspect-[9/16] bg-gradient-to-b from-[#1a0a2e] to-[#07040d] flex items-center justify-center">
-                          <span className="text-white/20 text-xs font-bold">{sc.id}</span>
+                          <span className="text-white/60 text-xs font-bold">{sc.id}</span>
                           {sc.badge && (
                             <span
                               className="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded"
@@ -1142,7 +1142,7 @@ export default function WizShorts() {
                         style={{ width: "85%", background: `linear-gradient(90deg, #a855f7 0%, ${FX} 100%)` }}
                       />
                     </div>
-                    <p className="text-white/30 text-xs">This usually takes 10–30 seconds</p>
+                    <p className="text-white/70 text-xs">This usually takes 10–30 seconds</p>
                   </div>
                 ) : renderStatus === "complete" && finalVideoUrl ? (
                   <div className="text-center space-y-6">
@@ -1361,7 +1361,7 @@ export default function WizShorts() {
                         ? { background: "rgba(34,197,94,0.15)", color: "#4ade80" }
                         : s.status === "progress"
                         ? { background: FX_DIM, color: FX }
-                        : { background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.25)" }
+                        : { background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.75)" }
                     }
                   >
                     {s.status === "done" ? "DONE" : s.status === "progress" ? "IN PROGRESS" : "PENDING"}

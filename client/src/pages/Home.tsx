@@ -372,7 +372,7 @@ function Nav() {
 
  {/* Footer */}
  <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
- <p className="text-[10px] text-white/20 font-medium">Free storyboard on every project</p>
+ <p className="text-[10px] text-white/65 font-semibold tracking-wide"><span className="text-[--color-gold]/80">✦</span> Free storyboard on every project</p>
  <a href="/onboarding" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">Start Creating <ArrowSVG className="w-3 h-3" />
  </a>
  </div>
@@ -468,7 +468,7 @@ function Nav() {
 
  {/* Footer */}
  <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
- <p className="text-[10px] text-white/20">7 engines powering every creation</p>
+ <p className="text-[10px] text-white/65 font-medium tracking-widest uppercase">7 engines powering every creation</p>
  <a href="/#wiz-engines" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">See how they work <ArrowSVG className="w-3 h-3" />
  </a>
  </div>
@@ -611,7 +611,7 @@ function Nav() {
  </div>
  {/* Footer */}
  <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
- <p className="text-[10px] text-white/20 font-medium">Automate your entire creative pipeline</p>
+ <p className="text-[10px] text-white/65 font-semibold tracking-widest uppercase">Automate your entire creative pipeline</p>
  <a href="/products/wizpilot" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">Launch WizPilot <ArrowSVG className="w-3 h-3" />
  </a>
  </div>
@@ -1000,7 +1000,7 @@ function Hero() {
  </div>
 
  {/* Trust strip */}
- <div className="flex flex-wrap items-center gap-6">
+ <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 rounded-2xl" style={{background:"rgba(201,168,76,0.06)",border:"1px solid rgba(201,168,76,0.18)",backdropFilter:"blur(12px)"}}>
  <div className="flex items-center gap-3">
  <div className="flex -space-x-2">
  {WHO_IMAGES.map((src, i) => (
@@ -1008,26 +1008,26 @@ function Hero() {
  ))}
  </div>
  <div>
- <span className="text-[--color-silver-dark]/50 text-[11px] font-medium">AI-powered video creation</span>
+ <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>AI-powered video creation</span>
  </div>
  </div>
- <div className="h-8 w-px bg-[--color-gold]/10 hidden sm:block" />
- <div className="flex items-center gap-5 text-xs">
- <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
- <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
- <span className="text-[--color-silver]/55 font-semibold">No credit card required.</span> 2 free projects included.
+ <div className="h-6 w-px bg-[--color-gold]/25 hidden sm:block" />
+ <div className="flex flex-wrap items-center gap-4 text-xs">
+ <span className="flex items-center gap-1.5 text-white/85">
+ <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+ <span className="text-[--color-gold] font-bold" style={{textShadow:"0 0 10px rgba(201,168,76,0.5)"}}>No credit card required.</span> <span className="text-white/75">2 free projects included.</span>
  </span>
- <span className="w-px h-3 bg-[--color-gold]/10" />
- <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
- <span className="text-[--color-silver]/55 font-semibold">Own your content</span>
+ <span className="w-px h-3 bg-[--color-gold]/25" />
+ <span className="flex items-center gap-1.5 text-white/80">
+ <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>Own your content</span>
  </span>
- <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
- <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
- <span className="text-[--color-silver]/55 font-semibold">No watermark</span>
+ <span className="w-px h-3 bg-[--color-gold]/25 hidden sm:block" />
+ <span className="hidden sm:flex items-center gap-1.5 text-white/80">
+ <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>No watermark</span>
  </span>
- <span className="w-px h-3 bg-[--color-gold]/10 hidden sm:block" />
- <span className="hidden sm:flex items-center gap-1.5 text-[--color-silver-dark]/40">
- <span className="text-[--color-silver]/55 font-semibold">Free storyboard</span> on every project
+ <span className="w-px h-3 bg-[--color-gold]/25 hidden sm:block" />
+ <span className="hidden sm:flex items-center gap-1.5 text-white/80">
+ <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>Free storyboard on every project</span>
  </span>
  </div>
  </div>
@@ -1186,7 +1186,7 @@ function HeroDemoSection() {
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
  Start Creating — Free
  </a>
- <p className="text-white/25 text-xs mt-3">No credit card required. 2 free projects included.</p>
+ <p className="text-white/65 text-xs mt-3"><span className="text-[--color-gold]/90 font-semibold">✓</span> No credit card required · 2 free projects included</p>
  </div>
  </div>
  <div className="luxury-divider absolute bottom-0 left-0 right-0" />
@@ -1372,7 +1372,7 @@ function WorkflowJourney() {
  >
  <div className="flex items-center justify-between">
  <span className="text-[10px] font-black tracking-[0.3em] uppercase" style={{ color: step.color }}>STEP {step.number}</span>
- <ArrowSVG className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 transition-colors" />
+ <ArrowSVG className="w-3.5 h-3.5 text-white/50 group-hover:text-white/80 transition-colors" />
  </div>
  <div>
  <div className="text-[clamp(1.4rem,3vw,1.8rem)] font-black text-white leading-tight">{step.verb}</div>
@@ -1385,7 +1385,7 @@ function WorkflowJourney() {
  )}
  <p className="text-white/40 text-xs leading-relaxed flex-1">{step.desc}</p>
  <div className="pt-2 border-t border-white/[0.05]">
- <span className="text-[10px] font-bold tracking-wide uppercase text-white/25">{step.studio}</span>
+ <span className="text-[10px] font-bold tracking-wide uppercase text-white/70">{step.studio}</span>
  </div>
  </div>
  </a>
@@ -1407,7 +1407,7 @@ function WorkflowJourney() {
  >
  <div className="flex items-center justify-between">
  <span className="text-[10px] font-black tracking-[0.3em] uppercase" style={{ color: step.color }}>STEP {step.number}</span>
- <ArrowSVG className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 transition-colors" />
+ <ArrowSVG className="w-3.5 h-3.5 text-white/50 group-hover:text-white/80 transition-colors" />
  </div>
  <div>
  <div className="text-[clamp(1.4rem,3vw,1.8rem)] font-black text-white leading-tight">{step.verb}</div>
@@ -1421,7 +1421,7 @@ function WorkflowJourney() {
  )}
  <p className="text-white/40 text-xs leading-relaxed flex-1">{step.desc}</p>
  <div className="pt-2 border-t border-white/[0.05]">
- <span className="text-[10px] font-bold tracking-wide uppercase text-white/25">{step.studio}</span>
+ <span className="text-[10px] font-bold tracking-wide uppercase text-white/70">{step.studio}</span>
  </div>
  </a>
  ))}
@@ -1435,7 +1435,7 @@ function WorkflowJourney() {
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
  Start Your First Project — Free
  </a>
- <p className="text-white/25 text-xs mt-4">No credit card required. 2 free Build Credits on sign-up.</p>
+ <p className="text-white/65 text-xs mt-4"><span className="text-[--color-gold]/90 font-semibold">✓</span> No credit card required · 2 free Build Credits on sign-up</p>
  </div>
  </div>
  <div className="luxury-divider absolute bottom-0 left-0 right-0" />
@@ -1934,7 +1934,7 @@ function HowItWorks() {
  }`}>{s.title}</h3>
  </div>
  <p className={`text-sm leading-relaxed transition-colors duration-500 ${
- i === activeStep ? "text-[--color-silver-dark]/65" : "text-[--color-silver-dark]/25"
+ i === activeStep ? "text-[--color-silver-dark]/65" : "text-[--color-silver-dark]/65"
  }`}>{s.desc}</p>
  </div>
  </div>
@@ -1982,7 +1982,7 @@ function HowItWorks() {
  i <= activeStep ? "text-white" : "text-white/40"
  }`}>{s.title}</h3>
  <p className={`text-sm leading-relaxed transition-colors duration-500 ${
- i === activeStep ? "text-[--color-silver-dark]/60" : "text-[--color-silver-dark]/20"
+ i === activeStep ? "text-[--color-silver-dark]/60" : "text-[--color-silver-dark]/60"
  }`}>{s.desc}</p>
  </div>
  {/* Step image (mobile) */}
@@ -2098,7 +2098,7 @@ function WhyWizAI() {
  <div className="p-6 flex flex-col gap-2 flex-1">
  <h3 className="text-base font-bold text-white">{s.title}</h3>
  <p className="text-[--color-gold-dark]/70 text-xs font-semibold tracking-wide uppercase">{s.subtitle}</p>
- <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed mt-1">{s.desc}</p>
+ <p className="text-[--color-silver-dark]/80 text-sm leading-relaxed mt-1">{s.desc}</p>
  </div>
  </div>
  ))}
@@ -2601,7 +2601,7 @@ function UseCases() {
  <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Use cases</p>
  <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">What creators can build with WIZ AI
  </h2>
- <p className="text-[--color-silver-dark]/45 text-base mt-4 max-w-2xl mx-auto">Explore example use cases for musicians, YouTubers, brands and storytellers. Real customer stories will be added once creators begin publishing with WIZ AI.
+ <p className="text-[--color-silver-dark]/85 text-base mt-4 max-w-2xl mx-auto">Explore example use cases for musicians, YouTubers, brands and storytellers. Real customer stories will be added once creators begin publishing with WIZ AI.
  </p>
  </div>
  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -2619,21 +2619,21 @@ function UseCases() {
  ))}
  </div>
  {/* Payment reassurance strip */}
- <div className="mt-14 reveal flex flex-wrap items-center justify-center gap-8 text-xs text-[--color-silver-dark]/35">
+ <div className="mt-14 reveal flex flex-wrap items-center justify-center gap-8 text-xs text-white/70">
  <span className="flex items-center gap-2">
- <ShieldSVG className="w-4 h-4 text-[--color-gold]/40" />Secure payment via Stripe
+ <ShieldSVG className="w-4 h-4 text-[--color-gold]/85" />Secure payment via Stripe
  </span>
  <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
  <span className="flex items-center gap-2">
- <CheckSVG className="w-4 h-4 text-[--color-gold]/40" />No credit card to start creating
+ <CheckSVG className="w-4 h-4 text-[--color-gold]/85" />No credit card to start creating
  </span>
  <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
  <span className="flex items-center gap-2">
- <StarSVG className="w-4 h-4 text-[--color-gold]/40" />Cancel anytime — no lock-in
+ <StarSVG className="w-4 h-4 text-[--color-gold]/85" />Cancel anytime — no lock-in
  </span>
  <span className="w-px h-4 bg-[--color-gold]/10 hidden sm:block" />
  <span className="flex items-center gap-2">
- <GlobeSVG className="w-4 h-4 text-[--color-gold]/40" />Used by creators in 40+ countries
+ <GlobeSVG className="w-4 h-4 text-[--color-gold]/85" />Used by creators in 40+ countries
  </span>
  </div>
  </div>
@@ -2950,7 +2950,7 @@ function WizVidEngineSection() {
  <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-1">{eng.tagline}</p>
  <h3 className="text-base font-bold text-white">{eng.name}{eng.tm}</h3>
  </div>
- <p className="text-[--color-silver-dark]/45 text-xs leading-relaxed flex-1">{eng.desc}</p>
+ <p className="text-[--color-silver-dark]/80 text-xs leading-relaxed flex-1">{eng.desc}</p>
  <span className="inline-flex items-center gap-1 text-xs font-semibold text-[--color-gold-dark] group-hover:text-[--color-gold] transition-colors">Learn more <ArrowSVG className="w-3 h-3" />
  </span>
  </a>
@@ -3327,7 +3327,7 @@ function SeeTheDifference() {
  <p className={`text-sm font-semibold mb-1 ${isActive ? "text-white" : "text-white/40"}`}>
  {tier.label}
  </p>
- <p className="text-xs text-white/25 leading-relaxed">{tier.tagline}</p>
+ <p className="text-xs text-white/70 leading-relaxed">{tier.tagline}</p>
  </button>
  );
  })}

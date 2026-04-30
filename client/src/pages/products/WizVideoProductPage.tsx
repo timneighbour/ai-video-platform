@@ -207,7 +207,7 @@ export default function WizVideoProductPage() {
  ))}
  {/* Take counter */}
  <div className="mt-3 text-center">
- <div className="text-[9px] text-white/30 uppercase tracking-widest">TAKE</div>
+ <div className="text-[9px] text-white/70 uppercase tracking-widest">TAKE</div>
  <div className="text-2xl font-black" style={{ color: ACCENT }}>01</div>
  </div>
  </div>
@@ -247,7 +247,7 @@ export default function WizVideoProductPage() {
  >View pricing <ChevronRight className="w-4 h-4" />
  </NavLink>
  </div>
- <p className="text-[11px] text-white/30 mt-3 tracking-wide">2 free credits on sign-up &middot; No card required</p>
+ <p className="text-[11px] text-white/70 mt-3 tracking-wide">2 free credits on sign-up &middot; No card required</p>
  {/* Trust stats */}
  <div className="flex items-center gap-8">
  {[
@@ -257,7 +257,7 @@ export default function WizVideoProductPage() {
  ].map(s => (
  <div key={s.val} className="text-center">
  <div className="text-2xl font-black" style={{ color: ACCENT }}>{s.val}</div>
- <div className="text-[10px] text-white/30 uppercase tracking-wider mt-0.5">{s.label}</div>
+ <div className="text-[10px] text-white/72 uppercase tracking-wider mt-0.5">{s.label}</div>
  </div>
  ))}
  </div>
@@ -321,7 +321,7 @@ export default function WizVideoProductPage() {
  <img src={stage.img} alt={stage.label} className="w-full h-full object-cover" loading="lazy" />
  </div>
  <div className="text-xs font-bold text-white mb-1">{stage.label}</div>
- <div className="text-[10px] text-white/35 leading-snug">{stage.desc}</div>
+ <div className="text-[10px] text-white/75 leading-snug">{stage.desc}</div>
  </div>
  ))}
  </div>
@@ -487,11 +487,11 @@ export default function WizVideoProductPage() {
  <Film className="w-4 h-4" />Open WizVideo™ Studio
  <ArrowRight className="w-4 h-4" />
  </NavLink>
- <div className="flex items-center justify-center gap-5 mt-5 text-[11px] text-white/30 tracking-wide">
+ <div className="flex items-center justify-center gap-5 mt-5 text-[11px] text-white/70 tracking-wide">
  <span>&#10003; Commercial use included</span>
- <span className="text-white/15">·</span>
+ <span className="text-white/40">·</span>
  <span>&#10003; 4K export</span>
- <span className="text-white/15">·</span>
+ <span className="text-white/40">·</span>
  <span>&#10003; No card to start</span>
  </div>
  </div>
@@ -515,7 +515,7 @@ export default function WizVideoProductPage() {
  {/* Related products */}
  <section className="py-16 px-6 border-t border-white/[0.04]">
  <div className="max-w-6xl mx-auto">
- <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-white/25 mb-6">Part of the WIZ AI Engine</div>
+ <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-white/70 mb-6">Part of the WIZ AI Engine</div>
  <div className="flex flex-wrap gap-3">
  {RELATED.map(r => (
  <NavLink

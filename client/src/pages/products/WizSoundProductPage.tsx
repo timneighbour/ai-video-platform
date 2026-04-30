@@ -481,7 +481,7 @@ export default function WizSoundProductPage() {
  <div className="max-w-5xl mx-auto">
  <div className="text-center mb-10">
  <h2 className="text-2xl font-extrabold text-white mb-2">Part of the WIZ AI Engine</h2>
- <p className="text-white/30 text-sm">Each module works in sequence — explore the full pipeline</p>
+ <p className="text-white/72 text-sm">Each module works in sequence — explore the full pipeline</p>
  </div>
  <div className="flex flex-wrap justify-center gap-3">
  {RELATED.map(r => (

@@ -412,14 +412,14 @@ export default function TextToVideoCreator() {
                     style={{
                       background: isActive ? V_DIM : "transparent",
                       border: isActive ? `1px solid ${V_BORDER}` : "1px solid transparent",
-                      color: isActive ? V_LIGHT : isDone ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.3)",
+                      color: isActive ? V_LIGHT : isDone ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.75)",
                       boxShadow: isActive ? `0 0 15px ${V_GLOW}` : "none",
                     }}
                   >
                     <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
                       style={{
                         background: isDone ? "rgba(74,222,128,0.2)" : isActive ? V_DIM : "rgba(255,255,255,0.1)",
-                        color: isDone ? "#4ade80" : isActive ? V_LIGHT : "rgba(255,255,255,0.4)",
+                        color: isDone ? "#4ade80" : isActive ? V_LIGHT : "rgba(255,255,255,0.78)",
                       }}>
                       {isDone ? <Check className="w-3 h-3" /> : i + 1}
                     </span>
@@ -508,7 +508,7 @@ export default function TextToVideoCreator() {
                     style={{
                       background: duration === d.id ? V_DIM : "rgba(255,255,255,0.05)",
                       borderColor: duration === d.id ? V_BORDER : "rgba(255,255,255,0.10)",
-                      color: duration === d.id ? V_LIGHT : "rgba(255,255,255,0.4)",
+                      color: duration === d.id ? V_LIGHT : "rgba(255,255,255,0.78)",
                     }}>
                     {d.label}<span className="text-[8px] ml-1 opacity-60">{d.credits}cr</span>
                   </button>
@@ -529,7 +529,7 @@ export default function TextToVideoCreator() {
                     style={{
                       background: aspectRatio === r.id ? V_DIM : "rgba(255,255,255,0.05)",
                       borderColor: aspectRatio === r.id ? V_BORDER : "rgba(255,255,255,0.10)",
-                      color: aspectRatio === r.id ? V_LIGHT : "rgba(255,255,255,0.4)",
+                      color: aspectRatio === r.id ? V_LIGHT : "rgba(255,255,255,0.78)",
                     }}>
                     <p className="text-xs font-bold">{r.id}</p>
                     <p className="text-[9px] text-white/30">{r.desc}</p>
@@ -736,7 +736,7 @@ export default function TextToVideoCreator() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full" style={{ background: scene.previewImageUrl ? "#4ade80" : scene.previewLoading ? V_LIGHT : "rgba(255,255,255,0.2)" }} />
-                        <button onClick={() => generatePreviewForScene(scene.id)} className="p-1.5 rounded-lg text-white/30 transition" style={{}} onMouseEnter={(e) => (e.currentTarget.style.color = V_LIGHT)} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}><RefreshCw className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => generatePreviewForScene(scene.id)} className="p-1.5 rounded-lg text-white/30 transition" style={{}} onMouseEnter={(e) => (e.currentTarget.style.color = V_LIGHT)} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}><RefreshCw className="h-3.5 w-3.5" /></button>
                         <button onClick={() => copySceneText(scene)} className="p-1.5 rounded-lg text-white/30 hover:text-white transition"><Copy className="h-3.5 w-3.5" /></button>
                         <button onClick={() => removeScene(scene.id)} className="p-1.5 rounded-lg text-white/30 hover:text-red-400 transition"><Trash2 className="h-3.5 w-3.5" /></button>
                       </div>
@@ -803,7 +803,7 @@ export default function TextToVideoCreator() {
                   className="w-full rounded-2xl border-2 border-dashed py-4 flex items-center justify-center gap-2 text-sm text-white/30 transition"
                   style={{ borderColor: V_BORDER }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = V_LIGHT; e.currentTarget.style.background = V_DIM; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.3)"; e.currentTarget.style.background = "transparent"; }}>
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.75)"; e.currentTarget.style.background = "transparent"; }}>
                   <Plus className="h-4 w-4" /> Add Scene
                 </button>
                 <LowCreditBanner balance={creditBalance} estimatedCost={creditCost} variant="inline" dismissible />
@@ -847,7 +847,7 @@ export default function TextToVideoCreator() {
                   {PROGRESS_STAGES.map((stage, i) => (
                     <div key={i} className="flex items-center gap-3 text-sm">
                       {i < progressStage ? <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" /> : i === progressStage ? <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" style={{ color: V_LIGHT }} /> : <div className="h-4 w-4 rounded-full border border-white/20 flex-shrink-0" />}
-                      <span className={i <= progressStage ? "text-white" : "text-white/25"}>{stage.label}</span>
+                      <span className={i <= progressStage ? "text-white" : "text-white/72"}>{stage.label}</span>
                     </div>
                   ))}
                 </div>
@@ -914,7 +914,7 @@ export default function TextToVideoCreator() {
                     className="flex-1 py-2 text-[10px] font-bold tracking-wider transition-all"
                     style={{
                       background: activeTier === t ? V_DIM : "rgba(255,255,255,0.05)",
-                      color: activeTier === t ? V_LIGHT : "rgba(255,255,255,0.3)",
+                      color: activeTier === t ? V_LIGHT : "rgba(255,255,255,0.75)",
                     }}>
                     {t.toUpperCase()}
                     {t !== "original" && <span className="block text-[8px]" style={{ color: `${V_LIGHT}99` }}>+£{t === "enhanced" ? "2.99" : "4.99"}</span>}
@@ -940,7 +940,7 @@ export default function TextToVideoCreator() {
               <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: V_BORDER }}>
                 {["ORIGINAL", "ENHANCED", "CINEMATIC"].map((t, i) => (
                   <button key={t} className="flex-1 py-2 text-[10px] font-bold tracking-wider transition-all"
-                    style={{ background: i === 0 ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.05)", color: i === 0 ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)" }}>
+                    style={{ background: i === 0 ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.05)", color: i === 0 ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.75)" }}>
                     {t}
                   </button>
                 ))}
@@ -986,7 +986,7 @@ export default function TextToVideoCreator() {
                     }}>
                     <p className="text-sm font-bold" style={{ color: renderQuality === q.id ? V_LIGHT : "rgba(255,255,255,0.6)" }}>{q.label}</p>
                     <p className="text-[9px] text-white/30">{q.sub}</p>
-                    <p className="text-[10px] font-bold mt-1" style={{ color: renderQuality === q.id ? V_LIGHT : "rgba(255,255,255,0.4)" }}>{q.price}</p>
+                    <p className="text-[10px] font-bold mt-1" style={{ color: renderQuality === q.id ? V_LIGHT : "rgba(255,255,255,0.78)" }}>{q.price}</p>
                   </button>
                 ))}
               </div>

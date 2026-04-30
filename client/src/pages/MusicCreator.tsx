@@ -500,7 +500,7 @@ export default function MusicCreator() {
         {/* ON AIR sign */}
         <div className={`absolute top-4 right-6 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-[3px] border transition-all ${isOnAir ? "border-[rgba(255,59,48,0.8)] bg-[rgba(255,20,10,0.18)]" : "border-[rgba(255,59,48,0.3)] bg-[rgba(0,0,0,0.75)]"}`} style={{ boxShadow: isOnAir ? "0 0 20px rgba(255,59,48,0.3)" : "none" }}>
           <div className={`w-2 h-2 rounded-full border transition-all ${isOnAir ? "bg-[#ff3b30] border-[#ff3b30] animate-pulse" : "bg-[rgba(255,59,48,0.2)] border-[rgba(255,59,48,0.35)]"}`} style={{ boxShadow: isOnAir ? "0 0 8px #ff3b30" : "none" }} />
-          <span className={`text-[10px] font-extrabold tracking-[3px] uppercase transition-all ${isOnAir ? "text-[#ff3b30]" : "text-white/20"}`}>ON AIR</span>
+          <span className={`text-[10px] font-extrabold tracking-[3px] uppercase transition-all ${isOnAir ? "text-[#ff3b30]" : "text-white/65"}`}>ON AIR</span>
         </div>
       </div>
 
@@ -1106,7 +1106,7 @@ export default function MusicCreator() {
                         style={{ background: activeKnobs.includes(k) ? "#c9a84c" : "rgba(255,255,255,0.3)" }}
                       />
                     </div>
-                    <span className={`text-[7px] font-semibold text-center leading-tight ${activeKnobs.includes(k) ? "text-[--color-gold]" : "text-white/20"}`}>{k}</span>
+                    <span className={`text-[7px] font-semibold text-center leading-tight ${activeKnobs.includes(k) ? "text-[--color-gold]" : "text-white/65"}`}>{k}</span>
                   </button>
                 ))}
               </div>

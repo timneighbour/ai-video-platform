@@ -221,7 +221,7 @@ export default function LandingStudio() {
             </div>
           )}
 
-          <p className="text-xs text-white/25">No spam. Early access notification only.</p>
+          <p className="text-xs text-white/70">No spam. Early access notification only.</p>
         </div>
       </section>
 

@@ -301,7 +301,7 @@ export default function WizImage() {
             { label: "Resolution", val: renderQuality === "8k" ? "8K" : renderQuality === "4k" ? "4K" : renderQuality === "hd" ? "HD" : "STD", sub: renderQuality === "8k" ? "7680×7680px" : renderQuality === "4k" ? "3840×3840px" : renderQuality === "hd" ? "2048×2048px" : "1024×1024px" },
           ].map((stat) => (
             <div key={stat.label} className="rounded-lg px-3 py-2" style={{ background: "rgba(4,4,14,0.8)", border: "1px solid rgba(99,102,241,0.25)" }}>
-              <div className="text-[9px] uppercase tracking-[1px]" style={{ color: "rgba(255,255,255,0.4)" }}>{stat.label}</div>
+              <div className="text-[9px] uppercase tracking-[1px]" style={{ color: "rgba(255,255,255,0.78)" }}>{stat.label}</div>
               <div className="font-bold" style={{ fontSize: stat.small ? 13 : 16, color: "#d4a843" }}>{stat.val}</div>
               <div className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>{stat.sub}</div>
             </div>
@@ -309,7 +309,7 @@ export default function WizImage() {
         </div>
         {/* Ambient dimmer — bottom-right floating overlay */}
         <div className="absolute flex items-center gap-2.5 rounded-xl px-3.5 py-2" style={{ bottom: 16, right: 20, background: "rgba(4,4,14,0.82)", border: "1px solid rgba(99,102,241,0.25)" }}>
-          <span className="text-[9px] tracking-[1px] uppercase" style={{ color: "rgba(255,255,255,0.4)" }}>☀ Studio Ambience</span>
+          <span className="text-[9px] tracking-[1px] uppercase" style={{ color: "rgba(255,255,255,0.78)" }}>☀ Studio Ambience</span>
           <input
             type="range" min={20} max={100} value={ambience}
             onChange={(e) => setAmbience(Number(e.target.value))}
@@ -550,7 +550,7 @@ export default function WizImage() {
               ))}
               <button
                 className="w-6 h-6 rounded-full border border-dashed flex items-center justify-center text-sm transition-all"
-                style={{ borderColor: A_BORDER, color: "rgba(255,255,255,0.4)" }}
+                style={{ borderColor: A_BORDER, color: "rgba(255,255,255,0.78)" }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = A; e.currentTarget.style.color = A; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = A_BORDER; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
                 onClick={() => toast.info("Custom colour picker coming soon")}

@@ -175,7 +175,7 @@ export default function LandingApp() {
               Create Your First Video — Free
               <ArrowRight className="w-5 h-5" />
             </a>
-            <p className="text-xs text-white/30">No credit card · Free to create · Only pay when you build your final video</p>
+            <p className="text-xs text-white/72">No credit card · Free to create · Only pay when you build your final video</p>
           </div>
 
           {/* Proof points */}
@@ -292,7 +292,7 @@ export default function LandingApp() {
             </div>
             <span className="text-white/60 text-sm font-semibold">WIZ AI</span>
           </div>
-          <div className="flex items-center gap-5 text-xs text-white/30">
+          <div className="flex items-center gap-5 text-xs text-white/72">
             <a href={`${MAIN_APP}/privacy`} className="hover:text-white/60 transition-colors">Privacy</a>
             <a href={`${MAIN_APP}/terms`} className="hover:text-white/60 transition-colors">Terms</a>
             <a href={`${MAIN_APP}/help`} className="hover:text-white/60 transition-colors">Help</a>

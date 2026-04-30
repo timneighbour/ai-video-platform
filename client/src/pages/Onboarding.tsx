@@ -477,7 +477,7 @@ const Onboarding: React.FC = () => {
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
         <div className="mt-12 text-center">
-          <p className="text-white/20 text-xs">
+          <p className="text-white/60 text-xs">
             By continuing, you agree to WIZ AI's{' '}
             <a href="/terms" className="text-white/30 hover:text-[#b8892a]/70 transition-colors font-medium underline underline-offset-2">
               Terms of Service
