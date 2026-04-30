@@ -2598,7 +2598,7 @@ function Showcase() {
  <section id="showcase" className="relative bg-[#040404] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 reveal">
  <div>
@@ -2631,7 +2631,7 @@ function BuiltFor() {
  <section id="built-for" className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="text-center mb-16 reveal">
  <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Who it's for</p>
@@ -2705,7 +2705,7 @@ function FeatureBlock() {
  <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="text-center mb-16 reveal">
  <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">What creators can build with each studio</p>
@@ -2869,8 +2869,8 @@ const STD_TIERS: {
  tagline: "Golden light, deep shadows, movie-trailer quality",
  audioLabel: "Deep bass · Wide stereo · Immersive",
  gradient: "from-[--color-gold] to-amber-400",
- glow: "rgba(196,164,100,0.6)",
- videoFilter: "none",
+glow: "rgba(196,164,100,0.85)",
+  videoFilter: "none",
  },
 ];
 
@@ -3061,7 +3061,7 @@ function SeeTheDifference() {
  <div
  className="fixed inset-0 z-[9999] pointer-events-none"
  style={{
- background: "radial-gradient(ellipse at center, rgba(255,200,80,0.18) 0%, rgba(255,150,30,0.08) 40%, transparent 70%)",
+ background: "radial-gradient(ellipse at center, rgba(255,200,80,0.32) 0%, rgba(255,150,30,0.14) 40%, transparent 70%)",
  animation: "cinematicPeakFlash 0.6s ease-out forwards",
  }}
  />
@@ -3073,7 +3073,7 @@ function SeeTheDifference() {
  cinematicFlash ? "scale-[1.012] border-amber-400/40" : "border-white/10"
  }`}
  onClick={handlePlayPause}
- style={{ boxShadow: cinematicFlash ? "0 0 80px rgba(255,180,50,0.5), 0 0 120px rgba(255,120,20,0.25)" : `0 0 60px ${activeTierData.glow}` }}
+ style={{ boxShadow: cinematicFlash ? "0 0 100px rgba(255,180,50,0.75), 0 0 160px rgba(255,120,20,0.40)" : `0 0 60px ${activeTierData.glow}` }}
  >
  {/* v5: visual grades are baked into the video — no CSS filter needed */}
  <div className="relative aspect-video bg-black">
@@ -3221,7 +3221,7 @@ function FinalCTA() {
  <section className="relative bg-[#040404] py-32 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-[0.18] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-[0.20] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="relative z-10 max-w-4xl mx-auto text-center reveal">
  {/* Eyebrow */}
  <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] mb-8">
@@ -3332,7 +3332,7 @@ function DemoVideoGallery() {
  <section className="relative bg-[#040404] py-28 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.18] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.20] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="relative z-10 max-w-7xl mx-auto">
  {/* Header */}
  <div className="text-center mb-16 reveal">
