@@ -933,14 +933,15 @@ function Hero() {
  </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-6">Create. Enhance.<br />
+ <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-4">Create. Enhance.<br />
  <span className="metallic-gold">Produce. Grow.</span>
  </h1>
- {/* Subheadline */}
- <p className="text-[clamp(1rem,1.8vw,1.2rem)] text-[--color-silver]/70 leading-relaxed max-w-xl mb-4">The AI creative studio where you create original music, generate cinematic visuals, lock characters, animate, enhance quality, and produce professional videos — in one complete workflow.
+ {/* Emotional hook */}
+ <p className="text-[clamp(1.05rem,1.9vw,1.25rem)] font-semibold leading-snug max-w-xl mb-6" style={{ color: "oklch(0.82 0.12 72)" }}>
+ Turn your idea into a cinematic music video in minutes.
  </p>
- <p className="text-[clamp(0.85rem,1.4vw,1rem)] text-[--color-silver]/45 leading-relaxed max-w-xl mb-8">Nine specialised AI studios. One unified production environment.
- No editing experience needed. Studio-grade output from day one.
+ {/* Subheadline */}
+ <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-8">The AI creative studio where you generate original music, create cinematic visuals, animate characters, and produce professional videos — all in one workflow.
  </p>
 
  {/* CTAs */}
@@ -1013,7 +1014,7 @@ function Hero() {
  <div className="flex items-center gap-5 text-xs">
  <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
  <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
- <span className="text-[--color-silver]/55 font-semibold">No credit card</span> to start
+ <span className="text-[--color-silver]/55 font-semibold">No credit card required.</span> 2 free projects included.
  </span>
  <span className="w-px h-3 bg-[--color-gold]/10" />
  <span className="flex items-center gap-1.5 text-[--color-silver-dark]/40">
@@ -1042,6 +1043,102 @@ function ProductGrid() {
  return <WizProductGrid />;
 }
 
+// Hero Demo Section — cinematic product showcase video directly below Hero
+const HERO_DEMO_VIDEO = `/manus-storage/wiz-ai-trailer-v2_b2091d6b.mp4`;
+const HERO_DEMO_POSTER = `/manus-storage/trailer-v2-poster_4a74cc1c.jpg`;
+function HeroDemoSection() {
+ const videoRef = useRef<HTMLVideoElement>(null);
+ const [playing, setPlaying] = useState(false);
+ const handlePlay = useCallback(() => {
+ const v = videoRef.current;
+ if (!v) return;
+ if (v.paused) {
+ v.play().catch(() => {});
+ setPlaying(true);
+ } else {
+ v.pause();
+ setPlaying(false);
+ }
+ }, []);
+ return (
+ <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="max-w-5xl mx-auto relative z-10">
+ {/* Header */}
+ <div className="text-center mb-10 reveal">
+ <h2 className="text-[clamp(1.6rem,4vw,2.8rem)] font-black tracking-tight text-white mb-3 leading-tight">
+ See how WIZ AI turns ideas into full videos in minutes
+ </h2>
+ <p className="text-white/45 text-base max-w-xl mx-auto">
+ No editing. No experience. Just describe your idea.
+ </p>
+ </div>
+ {/* Video player */}
+ <div
+ className="relative rounded-2xl overflow-hidden cursor-pointer group reveal"
+ onClick={handlePlay}
+ style={{
+ border: "1px solid rgba(196,164,100,0.18)",
+ boxShadow: "0 0 80px rgba(196,164,100,0.08), 0 40px 80px rgba(0,0,0,0.6)",
+ }}
+ >
+ <div className="relative aspect-video bg-black">
+ <video
+ ref={videoRef}
+ className="w-full h-full object-cover"
+ poster={HERO_DEMO_POSTER}
+ muted
+ playsInline
+ preload="metadata"
+ onEnded={() => setPlaying(false)}
+ >
+ <source src={HERO_DEMO_VIDEO} type="video/mp4" />
+ </video>
+ {/* Play overlay — shown when paused */}
+ {!playing && (
+ <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 group-hover:bg-black/40">
+ <div
+ className="w-20 h-20 rounded-full flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200"
+ style={{
+ background: "linear-gradient(135deg, oklch(0.78 0.11 75), oklch(0.65 0.14 70))",
+ boxShadow: "0 0 50px rgba(196,164,100,0.5)",
+ }}
+ >
+ <PlaySVG className="w-8 h-8 text-black ml-1" />
+ </div>
+ <p className="text-white/70 text-sm font-medium tracking-wide">Watch the demo</p>
+ <p className="text-white/35 text-xs mt-1">~53 seconds · No sound required</p>
+ </div>
+ )}
+ {/* Playing indicator */}
+ {playing && (
+ <div className="absolute top-4 right-4 pointer-events-none">
+ <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10">
+ <WaveformSVG className="w-4 h-4" color="oklch(0.78 0.11 75)" />
+ <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">Playing</span>
+ </div>
+ </div>
+ )}
+ </div>
+ </div>
+ {/* CTA below video */}
+ <div className="text-center mt-8 reveal">
+ <a
+ href="/onboarding"
+ className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ onClick={() => mp.startCreatingClicked?.("hero-demo")}
+ >
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
+ Start Creating — Free
+ </a>
+ <p className="text-white/25 text-xs mt-3">No credit card required. 2 free projects included.</p>
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
+
 // Workflow Journey — 7-step creative pipeline 
 function WorkflowJourney() {
  const steps = [
@@ -1049,7 +1146,7 @@ function WorkflowJourney() {
  number: "01",
  verb: "Create",
  label: "Original Music",
- desc: "Generate an original song, soundtrack, or beat from a text prompt. Choose genre, mood, tempo, and style.",
+ desc: "Generate a song from a prompt. Any genre, any mood.",
  studio: "WizAudio™",
  studioHref: "/music-creator",
  color: "oklch(0.72 0.18 160)",
@@ -1058,7 +1155,7 @@ function WorkflowJourney() {
  number: "02",
  verb: "Generate",
  label: "Cinematic Visuals",
- desc: "Create photorealistic images, album art, and scene backgrounds from a single prompt.",
+ desc: "Create photorealistic images and scene art from text.",
  studio: "WizImage™",
  studioHref: "/wiz-image",
  color: "oklch(0.78 0.14 70)",
@@ -1067,7 +1164,7 @@ function WorkflowJourney() {
  number: "03",
  verb: "Lock",
  label: "Your Characters",
- desc: "Define your artist or character once. WIZ AI keeps them consistent across every scene and format.",
+ desc: "Define your artist once. Stay consistent every scene.",
  studio: "WizVideo™",
  studioHref: "/music-video",
  color: "oklch(0.70 0.18 280)",
@@ -1076,7 +1173,7 @@ function WorkflowJourney() {
  number: "04",
  verb: "Animate",
  label: "Every Scene",
- desc: "Bring characters to life with AI animation — from kids content to cinematic music videos.",
+ desc: "Bring characters to life with AI animation.",
  studio: "WizAnimate™",
  studioHref: "/kids-video",
  color: "oklch(0.68 0.20 340)",
@@ -1085,7 +1182,7 @@ function WorkflowJourney() {
  number: "05",
  verb: "Enhance",
  label: "Audio & Visuals",
- desc: "WizSound™ masters your audio. WizLumina™ grades your visuals. Both automatically applied.",
+ desc: "WizSound™ masters audio. WizLumina™ grades visuals.",
  studio: "WizSound™ + WizLumina™",
  studioHref: "/products/wizsound",
  color: "oklch(0.72 0.14 70)",
@@ -1094,7 +1191,7 @@ function WorkflowJourney() {
  number: "06",
  verb: "Produce",
  label: "Your Final Video",
- desc: "Preview every scene before you build. Export in HD or 4K with studio-grade finishing.",
+ desc: "Preview every scene. Export HD or 4K.",
  studio: "WizScript™",
  studioHref: "/wiz-script",
  color: "oklch(0.78 0.11 75)",
@@ -1103,7 +1200,7 @@ function WorkflowJourney() {
  number: "07",
  verb: "Grow",
  label: "Your Audience",
- desc: "Optimise and distribute your content across every platform. WizBoost™ handles the rest.",
+ desc: "Optimise and distribute across every platform.",
  studio: "WizBoost™",
  studioHref: "/products/wizboost",
  color: "oklch(0.70 0.18 260)",
@@ -2792,7 +2889,7 @@ function SeeTheDifference() {
  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />WizSound™ · WizLumina™ · Live Demo
  </div>
  <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
- This is what{" "}
+ This is what{" "}
  <span
  className="bg-clip-text text-transparent"
  style={{
@@ -2808,10 +2905,10 @@ function SeeTheDifference() {
  </span>
  </h2>
  <p className="text-base text-white/50 max-w-xl mx-auto leading-relaxed">
- The same scene. Three completely different levels of quality. Click each tier and watch your content transform — visually and sonically — from raw AI output to cinematic masterpiece.
+ One scene. Three completely different levels of quality. The jump between each tier is intentional — not subtle.
  </p>
- <p className="text-sm text-white/25 mt-3 max-w-md mx-auto">
- Original → Enhanced → Cinematic. This is what WizSound™ and WizLumina™ do automatically on every project.
+ <p className="text-sm text-white/30 mt-2 max-w-md mx-auto font-medium">
+ WizSound™ + WizLumina™ apply this transformation automatically on every project.
  </p>
  </div>
 
@@ -2825,7 +2922,7 @@ function SeeTheDifference() {
  onClick={() => switchTier(tier.key)}
  disabled={isSwitching}
  className={`
- relative px-7 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-300
+ relative px-7 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 flex flex-col items-center gap-0.5
  ${isActive
  ? `bg-gradient-to-r ${tier.gradient} text-black shadow-xl`
  : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white"
@@ -2834,7 +2931,12 @@ function SeeTheDifference() {
  `}
  style={isActive ? { boxShadow: `0 0 30px ${tier.glow}` } : {}}
  >
- {tier.label}
+ <span className="font-black text-base leading-none">{tier.label}</span>
+ <span className={`text-[10px] font-medium leading-none mt-0.5 ${
+ isActive ? "text-black/60" : "text-white/30"
+ }`}>
+ {tier.key === "original" ? "Raw AI output" : tier.key === "enhanced" ? "Clean & balanced" : "Cinematic final"}
+ </span>
  </button>
  );
  })}
@@ -3000,11 +3102,15 @@ function FinalCTA() {
  <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">Start Free. Create Anything.</span>
  </div>
  {/* Headline */}
- <h2 className="text-[clamp(2.5rem,6vw,4.5rem)] font-black tracking-tight text-white mb-6 leading-tight">
+ <h2 className="text-[clamp(2.5rem,6vw,4.5rem)] font-black tracking-tight text-white mb-4 leading-tight">
  You have the idea.<br />
  <span className="metallic-gold">WIZ AI has the studio.</span>
  </h2>
- <p className="text-white/50 text-xl mb-4 leading-relaxed max-w-2xl mx-auto">
+ {/* Sub-headline */}
+ <p className="text-[clamp(1.1rem,2vw,1.4rem)] font-semibold mb-6" style={{ color: "oklch(0.82 0.12 72)" }}>
+ Start your first project in under 2 minutes.
+ </p>
+ <p className="text-white/50 text-lg mb-4 leading-relaxed max-w-2xl mx-auto">
  Create original music. Generate cinematic visuals. Animate characters. Produce professional videos. All from a single brief.
  </p>
  <p className="text-white/30 text-base mb-12 max-w-xl mx-auto">
@@ -3022,6 +3128,12 @@ function FinalCTA() {
  href="/pricing"
  className="btn-secondary inline-flex items-center gap-2.5 px-10 py-5 rounded-2xl text-base w-full sm:w-auto justify-center"
  >View Pricing
+ <ArrowSVG className="w-4 h-4" />
+ </a>
+ <a
+ href="/#studios"
+ className="btn-secondary inline-flex items-center gap-2.5 px-10 py-5 rounded-2xl text-base w-full sm:w-auto justify-center"
+ >Explore Studios
  <ArrowSVG className="w-4 h-4" />
  </a>
  </div>
@@ -3333,19 +3445,21 @@ export default function Home() {
  <main id="main-content">
  {/* 1. Hero — 5-second positioning */}
  <Hero />
- {/* 2. Workflow Journey — 7-step pipeline */}
+ {/* 2. Hero Demo — click-to-play product trailer */}
+ <HeroDemoSection />
+ {/* 3. Workflow Journey — 7-step pipeline */}
  <WorkflowJourney />
- {/* 3. Studios Grid — 9 product cards */}
+ {/* 4. Studios Grid — 9 product cards */}
  <ProductGrid />
- {/* 4. Audio Demo — WizSound */}
+ {/* 5. Audio Demo — WizSound */}
  <WizSoundDemo />
- {/* 5. How It Works — 4-step process */}
+ {/* 6. How It Works — 4-step process */}
  <HowItWorks />
- {/* 6. Cinematic Demo — SeeTheDifference */}
+ {/* 7. Cinematic Demo — SeeTheDifference */}
  <SeeTheDifference />
- {/* 7. Video Showcase — real outputs */}
+ {/* 8. Video Showcase — real outputs */}
  <Showcase />
- {/* 8. Final CTA */}
+ {/* 9. Final CTA */}
  <FinalCTA />
  </main>
  <Footer />
