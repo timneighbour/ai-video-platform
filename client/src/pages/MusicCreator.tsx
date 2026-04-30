@@ -737,7 +737,7 @@ export default function MusicCreator() {
                   ))}
                   <div className="p-3 rounded-[6px] border border-[--color-gold]/30 text-center mt-1" style={{ background: "rgba(201,168,76,0.08)" }}>
                     <p className="text-sm text-[--color-gold] mb-2">Love your track? Turn it into a full music video.</p>
-                    <Link href="/music-video" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[6px] text-xs font-bold text-black btn-primary btn-sheen">
+                    <Link href="/music-video" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[6px] text-xs font-bold text-white btn-primary btn-sheen">
                       <Film className="w-3.5 h-3.5" /> Start with WizVideo
                     </Link>
                   </div>
@@ -948,7 +948,7 @@ export default function MusicCreator() {
 
               {/* Preview player */}
               <div className="flex items-center gap-2 rounded-[4px] px-2.5 py-1.5" style={{ background: "#080810" }}>
-                <button className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-black text-[10px]" style={{ background: "#c9a84c" }}>▶</button>
+                <button className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-white text-[10px]" style={{ background: "#c9a84c" }}>▶</button>
                 <div className="flex-1 h-[3px] rounded-[2px] overflow-hidden" style={{ background: "#1a1a1a" }}>
                   <div className="h-full w-[22%] rounded-[2px]" style={{ background: "linear-gradient(90deg, #c9a84c, #f0c040)" }} />
                 </div>

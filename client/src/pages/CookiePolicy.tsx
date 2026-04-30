@@ -175,7 +175,7 @@ export default function CookiePolicy() {
             <div className="mt-4">
               <button
                 onClick={openCookieSettings}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold text-sm transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold text-sm transition-colors"
               >
                 Open Cookie Settings
               </button>

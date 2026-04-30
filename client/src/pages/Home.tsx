@@ -1105,7 +1105,7 @@ className="w-full h-full object-cover"
  boxShadow: "0 0 50px rgba(196,164,100,0.5)",
  }}
  >
- <PlaySVG className="w-8 h-8 text-black ml-1" />
+ <PlaySVG className="w-8 h-8 text-white ml-1" />
  </div>
  <p className="text-white/70 text-sm font-medium tracking-wide">Watch the demo</p>
  <p className="text-white/35 text-xs mt-1">~53 seconds · No sound required</p>
@@ -3026,7 +3026,7 @@ function SeeTheDifference() {
  className={`
  relative px-7 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 flex flex-col items-center gap-0.5
  ${isActive
- ? `bg-gradient-to-r ${tier.gradient} text-black shadow-xl`
+ ? `bg-gradient-to-r ${tier.gradient} text-white shadow-xl`
  : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white"
  }
  disabled:opacity-50 disabled:cursor-not-allowed
@@ -3035,7 +3035,7 @@ function SeeTheDifference() {
  >
  <span className="font-black text-base leading-none">{tier.label}</span>
  <span className={`text-[10px] font-medium leading-none mt-0.5 ${
- isActive ? "text-black/60" : "text-white/30"
+ isActive ? "text-white/70" : "text-white/30"
  }`}>
  {tier.key === "original" ? "Raw AI output" : tier.key === "enhanced" ? "Clean & balanced" : "Cinematic final"}
  </span>
@@ -3087,7 +3087,7 @@ function SeeTheDifference() {
  className={`w-20 h-20 rounded-full flex items-center justify-center bg-gradient-to-br ${activeTierData.gradient} shadow-2xl mb-4 group-hover:scale-110 transition-transform duration-200`}
  style={{ boxShadow: `0 0 40px ${activeTierData.glow}` }}
  >
- <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
+ <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
  <path d="M8 5v14l11-7z" />
  </svg>
  </div>
@@ -3098,7 +3098,7 @@ function SeeTheDifference() {
  {/* Active tier badge */}
  <div className="absolute top-4 left-4 pointer-events-none">
  <div
- className={`px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase bg-gradient-to-r ${activeTierData.gradient} text-black`}
+ className={`px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase bg-gradient-to-r ${activeTierData.gradient} text-white`}
  >
  {activeTierData.label}
  </div>
@@ -3181,7 +3181,7 @@ function SeeTheDifference() {
  </p>
  <a
  href="/wizsound"
- className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all duration-200 shadow-lg"
+ className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all duration-200 shadow-lg"
  style={{ boxShadow: "0 0 30px rgba(249,115,22,0.4)" }}
  >Try WizSound™ Free
  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

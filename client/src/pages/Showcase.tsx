@@ -286,7 +286,7 @@ function LightboxModal({ item, onClose }: { item: ShowcaseItem; onClose: () => v
               <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{item.description}</p>
             </div>
             <Link href="/create">
-              <a className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-105"
+              <a className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-105"
                 style={{ background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 50%, #c4a464 100%)", boxShadow: "0 0 20px rgba(196,164,100,0.3)" }}>
                 <Sparkles className="w-4 h-4" />
                 Create Yours
@@ -363,7 +363,7 @@ function ShowcaseHero({ item, onPlay }: { item: ShowcaseItem; onPlay: () => void
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={onPlay}
-            className="flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm text-black transition-all hover:scale-105"
+            className="flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 50%, #c4a464 100%)", boxShadow: "0 0 24px rgba(196,164,100,0.35)" }}
           >
             <Play className="w-4 h-4" fill="currentColor" />
@@ -563,7 +563,7 @@ export default function ShowcasePage() {
             <a className="hidden sm:block text-zinc-400 hover:text-white text-sm transition-colors">Pricing</a>
           </Link>
           <Link href="/create">
-            <a className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs text-black transition-all hover:scale-105"
+            <a className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs text-white transition-all hover:scale-105"
               style={{ background: "linear-gradient(135deg, #c4a464, #e8c97a)", boxShadow: "0 0 16px rgba(196,164,100,0.25)" }}>
               <Sparkles className="w-3.5 h-3.5" />
               Start Creating
@@ -660,7 +660,7 @@ export default function ShowcasePage() {
           </p>
           <Link href="/create">
             <a
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-base text-black transition-all hover:scale-105"
+              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-base text-white transition-all hover:scale-105"
               style={{
                 background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 50%, #c4a464 100%)",
                 boxShadow: "0 0 32px rgba(196,164,100,0.35)",

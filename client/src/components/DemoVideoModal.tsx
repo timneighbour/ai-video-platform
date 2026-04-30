@@ -753,7 +753,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
               <div className="relative w-20 h-20 sm:w-24 sm:h-24">
                 <span className="absolute inset-0 rounded-full bg-white/20 animate-ping pointer-events-none" />
                 <span className="absolute inset-0 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-all shadow-2xl">
-                  <Play className="w-8 h-8 text-black ml-1" />
+                  <Play className="w-8 h-8 text-white ml-1" />
                 </span>
               </div>
             </button>

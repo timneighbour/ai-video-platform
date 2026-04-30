@@ -1890,7 +1890,7 @@ export default function MusicVideoAutopilot() {
                         onClick={() => setAudioSourceTab("upload")}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                           audioSourceTab === "upload"
-                            ? "bg-[--color-gold] text-black"
+                            ? "bg-[--color-gold] text-white"
                             : "text-white/50 hover:text-white"
                         }`}
                       >
@@ -1901,7 +1901,7 @@ export default function MusicVideoAutopilot() {
                         onClick={() => setAudioSourceTab("generate")}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                           audioSourceTab === "generate"
-                            ? "bg-[--color-gold] text-black"
+                            ? "bg-[--color-gold] text-white"
                             : "text-white/50 hover:text-white"
                         }`}
                       >
@@ -1942,7 +1942,7 @@ export default function MusicVideoAutopilot() {
                       <Button
                         onClick={handleSunoGenerate}
                         disabled={sunoGenerating || !sunoPrompt.trim()}
-                        className="w-full bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold"
+                        className="w-full bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold"
                       >
                         {sunoGenerating ? (
                           <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating song...</>
@@ -2779,7 +2779,7 @@ export default function MusicVideoAutopilot() {
                     </div>
                     {exportFormat === fmt.value && (
                       <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center">
-                        <Check className="w-2 h-2 text-black" />
+                        <Check className="w-2 h-2 text-white" />
                       </div>
                     )}
                   </button>

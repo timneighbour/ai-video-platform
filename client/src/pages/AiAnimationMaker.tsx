@@ -268,7 +268,7 @@ export default function AiAnimationMaker() {
             {isAuthenticated ? (
               <NavLink
                 href={WIZANIMATE_STUDIO_PAGE}
-                className="px-5 py-2.5 bg-[--color-gold] text-black text-sm font-bold rounded-xl hover:brightness-110 transition-all"
+                className="px-5 py-2.5 bg-[--color-gold] text-white text-sm font-bold rounded-xl hover:brightness-110 transition-all"
                 onClick={() => mp.startCreatingClicked("nav_cta")}
               >
                 Start Animating
@@ -276,7 +276,7 @@ export default function AiAnimationMaker() {
             ) : (
               <button
                 onClick={() => handleCTA("nav_cta")}
-                className="px-5 py-2.5 bg-[--color-gold] text-black text-sm font-bold rounded-xl hover:brightness-110 transition-all cursor-pointer"
+                className="px-5 py-2.5 bg-[--color-gold] text-white text-sm font-bold rounded-xl hover:brightness-110 transition-all cursor-pointer"
               >
                 Try Free
               </button>
@@ -316,7 +316,7 @@ export default function AiAnimationMaker() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <button
               onClick={() => handleCTA("hero_primary")}
-              className="px-8 py-4 bg-[--color-gold] text-black font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 shadow-[0_0_30px_rgba(200,168,75,0.3)] cursor-pointer"
+              className="px-8 py-4 bg-[--color-gold] text-white font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 shadow-[0_0_30px_rgba(200,168,75,0.3)] cursor-pointer"
             >
               Start Creating Free →
             </button>
@@ -374,7 +374,7 @@ export default function AiAnimationMaker() {
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 {style.tag && (
-                  <div className="absolute top-3 right-3 px-2.5 py-1 bg-[--color-gold] text-black text-xs font-bold rounded-full">
+                  <div className="absolute top-3 right-3 px-2.5 py-1 bg-[--color-gold] text-white text-xs font-bold rounded-full">
                     {style.tag}
                   </div>
                 )}
@@ -389,7 +389,7 @@ export default function AiAnimationMaker() {
           <div className="text-center mt-10">
             <button
               onClick={() => handleCTA("styles_section_cta")}
-              className="px-8 py-4 bg-[--color-gold] text-black font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 cursor-pointer"
+              className="px-8 py-4 bg-[--color-gold] text-white font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 cursor-pointer"
             >
               Try All Styles Free →
             </button>
@@ -474,7 +474,7 @@ export default function AiAnimationMaker() {
           <div className="text-center mt-12">
             <button
               onClick={() => handleCTA("how_it_works_cta")}
-              className="px-8 py-4 bg-[--color-gold] text-black font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 cursor-pointer"
+              className="px-8 py-4 bg-[--color-gold] text-white font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 cursor-pointer"
             >
               Create Your First Animation →
             </button>
@@ -575,7 +575,7 @@ export default function AiAnimationMaker() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => handleCTA("pricing_section_primary")}
-              className="px-8 py-4 bg-[--color-gold] text-black font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 shadow-[0_0_30px_rgba(200,168,75,0.25)] cursor-pointer"
+              className="px-8 py-4 bg-[--color-gold] text-white font-bold text-base rounded-xl hover:brightness-110 transition-all hover:scale-105 shadow-[0_0_30px_rgba(200,168,75,0.25)] cursor-pointer"
             >
               Start Free →
             </button>
@@ -639,7 +639,7 @@ export default function AiAnimationMaker() {
           </p>
           <button
             onClick={() => handleCTA("final_cta")}
-            className="px-10 py-5 bg-[--color-gold] text-black font-bold text-lg rounded-xl hover:brightness-110 transition-all hover:scale-105 shadow-[0_0_40px_rgba(200,168,75,0.35)] cursor-pointer"
+            className="px-10 py-5 bg-[--color-gold] text-white font-bold text-lg rounded-xl hover:brightness-110 transition-all hover:scale-105 shadow-[0_0_40px_rgba(200,168,75,0.35)] cursor-pointer"
           >
             Create Your First Animation Free →
           </button>

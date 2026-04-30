@@ -185,7 +185,7 @@ function ComparisonSlider({ mode }: { mode: VisualMode }) {
           onMouseDown={onMouseDown}
           onTouchStart={(e) => { setDragging(true); updateSlider(e.touches[0].clientX); }}
         >
-          <GripVertical className="w-4 h-4 text-black/70" />
+          <GripVertical className="w-4 h-4 text-white/70" />
         </div>
       </div>
 

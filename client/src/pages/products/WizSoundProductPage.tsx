@@ -164,7 +164,7 @@ export default function WizSoundProductPage() {
  <NavLink href="/" className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-[--color-silver-dark]/60 hover:text-[--color-silver] transition-colors">Home</NavLink>
  <NavLink
  href={WIZAUDIO_STUDIO_PAGE}
- className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-[--color-gold] text-black hover:bg-[--color-gold-light] transition-all shadow-[0_0_20px_rgba(196,164,100,0.25)]"
+ className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs bg-[--color-gold] text-white hover:bg-[--color-gold-light] transition-all shadow-[0_0_20px_rgba(196,164,100,0.25)]"
  >
  <Sparkles className="w-3.5 h-3.5" />Create Music Now
  </NavLink>

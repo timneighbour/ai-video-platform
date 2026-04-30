@@ -174,7 +174,7 @@ const Onboarding: React.FC = () => {
         {/* ── Step indicator ─────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 mb-8">
           <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#b8892a] to-[#e8c878] flex items-center justify-center text-[10px] font-bold text-black">1</div>
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#b8892a] to-[#e8c878] flex items-center justify-center text-[10px] font-bold text-white">1</div>
             <div className="w-16 h-px bg-gradient-to-r from-[#b8892a]/60 to-white/10" />
             <div className="w-6 h-6 rounded-full border border-white/15 flex items-center justify-center text-[10px] font-medium text-white/30">2</div>
           </div>
@@ -244,7 +244,7 @@ const Onboarding: React.FC = () => {
               <div className="relative z-10 h-full flex flex-col justify-between p-8 sm:p-10" style={{ minHeight: '340px' }}>
                 <div className="flex items-start justify-between">
                   {/* Tag */}
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${options[0].tagColor} text-[10px] font-bold text-black tracking-wide uppercase`}>
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${options[0].tagColor} text-[10px] font-bold text-white tracking-wide uppercase`}>
                     <Zap className="w-2.5 h-2.5" />
                     {options[0].tag}
                   </div>
@@ -275,7 +275,7 @@ const Onboarding: React.FC = () => {
 
                   {/* CTA */}
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-black text-sm font-bold group-hover:shadow-[0_0_30px_rgba(184,137,42,0.5)] transition-all duration-300">
+                    <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-white text-sm font-bold group-hover:shadow-[0_0_30px_rgba(184,137,42,0.5)] transition-all duration-300">
                       <span>Start Creating</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </div>
@@ -319,7 +319,7 @@ const Onboarding: React.FC = () => {
                     {/* Content */}
                     <div className="relative z-10 h-full flex flex-col justify-between p-5" style={{ minHeight: '155px' }}>
                       <div className="flex items-center justify-between">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full bg-gradient-to-r ${option.tagColor} text-[9px] font-bold text-black tracking-wide uppercase`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full bg-gradient-to-r ${option.tagColor} text-[9px] font-bold text-white tracking-wide uppercase`}>
                           {option.tag}
                         </span>
                         <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -376,7 +376,7 @@ const Onboarding: React.FC = () => {
                   {/* Content */}
                   <div className="relative z-10 h-full flex flex-col justify-between p-7" style={{ minHeight: '200px' }}>
                     <div className="flex items-start justify-between">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r ${option.tagColor} text-[10px] font-bold text-black tracking-wide uppercase`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r ${option.tagColor} text-[10px] font-bold text-white tracking-wide uppercase`}>
                         {option.tag}
                       </span>
                       <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">

@@ -85,7 +85,7 @@ function TechnologyPageTemplate({
           </div>
           <a
             href={ctaHref}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-black hover:opacity-90 transition-opacity"
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-white hover:opacity-90 transition-opacity"
           >
             {ctaLabel}
           </a>
@@ -110,7 +110,7 @@ function TechnologyPageTemplate({
             </p>
             <a
               href={ctaHref}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-black bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
             >
               {ctaLabel}
               <ArrowRight size={16} />
@@ -213,7 +213,7 @@ function TechnologyPageTemplate({
             </p>
             <a
               href={ctaHref}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-black bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
             >
               {ctaLabel}
               <ArrowRight size={16} />

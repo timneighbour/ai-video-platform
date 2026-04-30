@@ -166,7 +166,7 @@ export default function EnhancePromptButton({
               type="button"
               size="sm"
               onClick={handleApply}
-              className="h-7 gap-1 text-xs bg-amber-500 hover:bg-amber-400 text-black font-semibold"
+              className="h-7 gap-1 text-xs bg-amber-500 hover:bg-amber-400 text-white font-semibold"
             >
               <ArrowRight className="h-3 w-3" />
               Apply

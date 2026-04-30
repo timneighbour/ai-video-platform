@@ -204,7 +204,7 @@ export default function ShowcaseVideoSection({
           <Link
             href={ctaHref}
             onClick={onCtaClick}
-            className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold-dark] text-black font-bold px-8 py-3.5 rounded-xl transition-all duration-200 text-sm shadow-[0_0_30px_rgba(196,164,100,0.25)] hover:shadow-[0_0_40px_rgba(196,164,100,0.35)]"
+            className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold-dark] text-white font-bold px-8 py-3.5 rounded-xl transition-all duration-200 text-sm shadow-[0_0_30px_rgba(196,164,100,0.25)] hover:shadow-[0_0_40px_rgba(196,164,100,0.35)]"
           >
             <Sparkles className="w-4 h-4" />
             {ctaLabel}

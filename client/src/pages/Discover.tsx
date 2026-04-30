@@ -87,7 +87,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
           {creator.isFeatured && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[--color-gold]/15 text-black text-xs font-bold">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold">
               <Star className="w-3 h-3" /> Featured
             </span>
           )}

@@ -230,7 +230,7 @@ export default function WizPerformerConsentModal({
               Cancel
             </Button>
             <Button
-              className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
               disabled={!allChecked || logConsent.isPending}
               onClick={handleAccept}
             >

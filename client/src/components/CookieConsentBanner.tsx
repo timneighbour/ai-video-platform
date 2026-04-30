@@ -225,7 +225,7 @@ export default function CookieConsentBanner() {
                 </Button>
                 <Button
                   size="sm"
-                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold text-xs"
+                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold text-xs"
                   onClick={handleSavePreferences}
                 >
                   Save preferences
@@ -250,7 +250,7 @@ export default function CookieConsentBanner() {
                 </Button>
                 <Button
                   size="sm"
-                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold text-xs"
+                  className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-white font-semibold text-xs"
                   onClick={handleAcceptAll}
                 >
                   Accept all cookies
