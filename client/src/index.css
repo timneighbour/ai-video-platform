@@ -293,6 +293,17 @@ nav a, nav button {
 }
 
 /* ── Progress bar shimmer animation ── */
+@keyframes cinematicPeakFlash {
+  0%   { opacity: 0; transform: scale(0.95); }
+  15%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+@keyframes heroDemoBreath {
+  0%   { transform: scale(1.00); }
+  100% { transform: scale(1.04); }
+}
+
 @keyframes shimmer {
   0%   { background-position: 200% center; }
   100% { background-position: -200% center; }

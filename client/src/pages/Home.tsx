@@ -938,7 +938,7 @@ function Hero() {
  </h1>
  {/* Emotional hook */}
  <p className="text-[clamp(1.05rem,1.9vw,1.25rem)] font-semibold leading-snug max-w-xl mb-6" style={{ color: "oklch(0.82 0.12 72)" }}>
- Turn your idea into a cinematic music video in minutes.
+ Turn a simple idea into a cinematic music video in minutes.
  </p>
  {/* Subheadline */}
  <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-8">The AI creative studio where you generate original music, create cinematic visuals, animate characters, and produce professional videos — all in one workflow.
@@ -1070,7 +1070,7 @@ function HeroDemoSection() {
  See how WIZ AI turns ideas into full videos in minutes
  </h2>
  <p className="text-white/45 text-base max-w-xl mx-auto">
- No editing. No experience. Just describe your idea.
+ No editing. No experience. Just describe a simple idea.
  </p>
  </div>
  {/* Video player */}
@@ -1085,12 +1085,13 @@ function HeroDemoSection() {
  <div className="relative aspect-video bg-black">
  <video
  ref={videoRef}
- className="w-full h-full object-cover"
- poster={HERO_DEMO_POSTER}
- muted
- playsInline
- preload="metadata"
- onEnded={() => setPlaying(false)}
+className="w-full h-full object-cover"
+                poster={HERO_DEMO_POSTER}
+                muted
+                playsInline
+                preload="metadata"
+                onEnded={() => setPlaying(false)}
+                style={{ transform: !playing ? "scale(1.03)" : "scale(1)", transition: "transform 8s ease-in-out", animation: !playing ? "heroDemoBreath 8s ease-in-out infinite alternate" : "none" }}
  >
  <source src={HERO_DEMO_VIDEO} type="video/mp4" />
  </video>
@@ -1150,6 +1151,13 @@ function WorkflowJourney() {
  studio: "WizAudio™",
  studioHref: "/music-creator",
  color: "oklch(0.72 0.18 160)",
+ preview: (
+ <div className="flex items-end gap-[3px] h-8 px-1">
+ {[3,6,4,8,5,9,4,7,3,6,5,8].map((h, i) => (
+ <div key={i} className="w-[3px] rounded-full" style={{ height: `${h * 3}px`, background: "oklch(0.72 0.18 160)", opacity: 0.7, animation: `pulse ${0.35 + i * 0.04}s ease-in-out infinite alternate`, animationDelay: `${i * 60}ms` }} />
+ ))}
+ </div>
+ ),
  },
  {
  number: "02",
@@ -1159,6 +1167,16 @@ function WorkflowJourney() {
  studio: "WizImage™",
  studioHref: "/wiz-image",
  color: "oklch(0.78 0.14 70)",
+ preview: (
+ <div className="relative w-full h-8 rounded-md overflow-hidden" style={{ background: "linear-gradient(135deg, oklch(0.12 0.02 260), oklch(0.18 0.04 70))" }}>
+ <div className="absolute bottom-0 left-0 right-0 h-3" style={{ background: "linear-gradient(to top, oklch(0.78 0.14 70 / 0.3), transparent)" }} />
+ <div className="absolute top-1 left-2 w-4 h-2 rounded-sm" style={{ background: "oklch(0.78 0.14 70 / 0.25)" }} />
+ <div className="absolute top-1 left-8 w-6 h-2 rounded-sm" style={{ background: "oklch(0.78 0.14 70 / 0.15)" }} />
+ <div className="absolute inset-0 flex items-center justify-center">
+ <span className="text-[8px] font-bold tracking-widest uppercase" style={{ color: "oklch(0.78 0.14 70 / 0.6)" }}>AI IMAGE</span>
+ </div>
+ </div>
+ ),
  },
  {
  number: "03",
@@ -1168,6 +1186,22 @@ function WorkflowJourney() {
  studio: "WizVideo™",
  studioHref: "/music-video",
  color: "oklch(0.70 0.18 280)",
+ preview: (
+ <div className="flex items-center gap-2 h-8">
+ {[1,2,3].map((i) => (
+ <div key={i} className="flex flex-col items-center gap-0.5">
+ <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center" style={{ borderColor: "oklch(0.70 0.18 280 / 0.6)", background: "oklch(0.70 0.18 280 / 0.1)" }}>
+ <div className="w-2 h-2 rounded-full" style={{ background: "oklch(0.70 0.18 280 / 0.7)" }} />
+ </div>
+ <div className="w-3 h-[2px] rounded-full" style={{ background: "oklch(0.70 0.18 280 / 0.4)" }} />
+ </div>
+ ))}
+ <div className="flex items-center gap-0.5 ml-1">
+ <div className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ animation: "pulse 1.5s ease-in-out infinite" }} />
+ <span className="text-[7px] font-bold uppercase tracking-wider" style={{ color: "oklch(0.70 0.18 280 / 0.7)" }}>LOCKED</span>
+ </div>
+ </div>
+ ),
  },
  {
  number: "04",
@@ -1177,6 +1211,15 @@ function WorkflowJourney() {
  studio: "WizAnimate™",
  studioHref: "/kids-video",
  color: "oklch(0.68 0.20 340)",
+ preview: (
+ <div className="flex items-center gap-1 h-8">
+ {[0,1,2,3,4].map((i) => (
+ <div key={i} className="flex-1 h-6 rounded-sm border" style={{ borderColor: "oklch(0.68 0.20 340 / 0.3)", background: "oklch(0.68 0.20 340 / 0.08)", animation: `pulse ${0.5 + i * 0.1}s ease-in-out infinite alternate`, animationDelay: `${i * 80}ms` }}>
+ <div className="w-full h-full rounded-sm" style={{ background: `oklch(0.68 0.20 340 / ${0.05 + i * 0.03})` }} />
+ </div>
+ ))}
+ </div>
+ ),
  },
  {
  number: "05",
@@ -1186,6 +1229,21 @@ function WorkflowJourney() {
  studio: "WizSound™ + WizLumina™",
  studioHref: "/products/wizsound",
  color: "oklch(0.72 0.14 70)",
+ preview: (
+ <div className="flex items-center gap-2 h-8">
+ <div className="flex items-end gap-[2px] h-full">
+ {[2,4,3,6,4,5,3].map((h, i) => (
+ <div key={i} className="w-[2px] rounded-full" style={{ height: `${h * 3}px`, background: "oklch(0.58 0.015 260 / 0.4)" }} />
+ ))}
+ </div>
+ <div className="text-[8px] font-bold" style={{ color: "oklch(0.72 0.14 70 / 0.5)" }}>→</div>
+ <div className="flex items-end gap-[2px] h-full">
+ {[3,7,5,9,7,8,5].map((h, i) => (
+ <div key={i} className="w-[2px] rounded-full" style={{ height: `${h * 3}px`, background: `linear-gradient(to top, oklch(0.72 0.14 70), oklch(0.88 0.07 78))`, animation: `pulse ${0.3 + i * 0.05}s ease-in-out infinite alternate`, animationDelay: `${i * 50}ms` }} />
+ ))}
+ </div>
+ </div>
+ ),
  },
  {
  number: "06",
@@ -1195,6 +1253,18 @@ function WorkflowJourney() {
  studio: "WizScript™",
  studioHref: "/wiz-script",
  color: "oklch(0.78 0.11 75)",
+ preview: (
+ <div className="relative w-full h-8 rounded-md overflow-hidden" style={{ background: "linear-gradient(135deg, oklch(0.08 0.01 260), oklch(0.14 0.03 70))" }}>
+ <div className="absolute inset-0 flex items-center justify-center gap-1">
+ <div className="w-4 h-3 rounded-sm border" style={{ borderColor: "oklch(0.78 0.11 75 / 0.5)", background: "oklch(0.78 0.11 75 / 0.1)" }} />
+ <div className="w-4 h-3 rounded-sm border" style={{ borderColor: "oklch(0.78 0.11 75 / 0.5)", background: "oklch(0.78 0.11 75 / 0.1)" }} />
+ <div className="w-4 h-3 rounded-sm border" style={{ borderColor: "oklch(0.78 0.11 75 / 0.7)", background: "oklch(0.78 0.11 75 / 0.2)" }} />
+ </div>
+ <div className="absolute bottom-0.5 right-1">
+ <span className="text-[7px] font-black tracking-widest" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>4K</span>
+ </div>
+ </div>
+ ),
  },
  {
  number: "07",
@@ -1204,6 +1274,13 @@ function WorkflowJourney() {
  studio: "WizBoost™",
  studioHref: "/products/wizboost",
  color: "oklch(0.70 0.18 260)",
+ preview: (
+ <div className="flex items-end gap-1.5 h-8 px-1">
+ {[2,3,4,5,6,7,8].map((h, i) => (
+ <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${h * 3}px`, background: `oklch(0.70 0.18 260 / ${0.3 + i * 0.08})`, transition: "height 0.5s ease" }} />
+ ))}
+ </div>
+ ),
  },
  ];
  return (
@@ -1246,14 +1323,21 @@ function WorkflowJourney() {
  <div>
  <div className="text-[clamp(1.4rem,3vw,1.8rem)] font-black text-white leading-tight">{step.verb}</div>
  <div className="text-sm font-semibold" style={{ color: step.color }}>{step.label}</div>
+ {/* Mini preview */}
+ {(step as any).preview && (
+ <div className="rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", padding: "6px 8px" }}>
+ {(step as any).preview}
  </div>
+ )}
  <p className="text-white/40 text-xs leading-relaxed flex-1">{step.desc}</p>
  <div className="pt-2 border-t border-white/[0.05]">
  <span className="text-[10px] font-bold tracking-wide uppercase text-white/25">{step.studio}</span>
  </div>
+ </div>
  </a>
  ))}
  </div>
+ {/* Steps grid — bottom row */}
  <div className="grid sm:grid-cols-3 gap-5">
  {steps.slice(4).map((step) => (
  <a
@@ -1275,6 +1359,12 @@ function WorkflowJourney() {
  <div className="text-[clamp(1.4rem,3vw,1.8rem)] font-black text-white leading-tight">{step.verb}</div>
  <div className="text-sm font-semibold" style={{ color: step.color }}>{step.label}</div>
  </div>
+ {/* Mini preview */}
+ {(step as any).preview && (
+ <div className="rounded-lg overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", padding: "6px 8px" }}>
+ {(step as any).preview}
+ </div>
+ )}
  <p className="text-white/40 text-xs leading-relaxed flex-1">{step.desc}</p>
  <div className="pt-2 border-t border-white/[0.05]">
  <span className="text-[10px] font-bold tracking-wide uppercase text-white/25">{step.studio}</span>
@@ -2404,7 +2494,7 @@ function UseCases() {
 
 // Showcase 
 // Showcase card with hover-to-play video preview
-function ShowcaseCard({ item }: { item: { id: number; title: string; category: string; posterUrl: string; description: string; videoUrl?: string | null } }) {
+function ShowcaseCard({ item }: { item: { id: number; title: string; category: string; posterUrl: string; description: string; videoUrl?: string | null; studio?: string } }) {
  const videoRef = useRef<HTMLVideoElement>(null);
  const [isHovering, setIsHovering] = useState(false);
  const [videoReady, setVideoReady] = useState(false);
@@ -2474,8 +2564,13 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
  <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
  <p className="text-[--color-silver-dark]/45 text-sm leading-relaxed">{item.description}</p>
  </div>
- <div className="px-5 pb-5">
- <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors">Start Creating <ArrowSVG className="w-3 h-3" />
+ <div className="px-5 pb-5 flex items-center justify-between">
+ {(item as any).studio && (
+ <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]/50 border border-[--color-gold]/[0.12] px-2 py-0.5 rounded-full">
+ Made with {(item as any).studio}
+ </span>
+ )}
+ <a href="/onboarding" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[--color-gold-dark]/60 hover:text-[--color-gold] transition-colors ml-auto">Start Creating <ArrowSVG className="w-3 h-3" />
  </a>
  </div>
  </div>
@@ -2486,10 +2581,10 @@ function Showcase() {
  const { data: dbItems } = trpc.showcase.list.useQuery();
  const SC = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
  const items = dbItems && dbItems.length > 0 ? dbItems : [
- { id: 30001, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`, videoUrl: `${SC}/showcase-cinematic_13667434.mp4`, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes." },
- { id: 30002, title: "Stage Performance — Music Video Style", category: "Music Video", posterUrl: `${SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`, videoUrl: `${SC}/showcase-music-video_19324f13.mp4`, description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track." },
- { id: 30003, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`, videoUrl: `${SC}/showcase-kids_d49d86f8.mp4`, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt." },
- { id: 30004, title: "Cherry Blossom — Anime Style", category: "Anime", posterUrl: `${SC}/showcase-anime-gdkPWj4zZ3wPdwmswMeaY9.webp`, videoUrl: `${SC}/showcase-anime_36099b49.mp4`, description: "Fluid anime-style visuals with cherry blossom transitions. Generated entirely from a mood and colour palette prompt." },
+ { id: 30001, title: "Midnight City — Cinematic Style", category: "Cinematic AI Video", posterUrl: `${SC}/showcase-cinematic-jTTeeqZXf4L3U5HPJLwD4n.webp`, videoUrl: `${SC}/showcase-cinematic_13667434.mp4`, description: "A lone figure walks rain-soaked streets under warm city lights. Generated from a single text prompt in under three minutes.", studio: "WizScript™" },
+ { id: 30002, title: "Stage Performance — Music Video Style", category: "Music Video", posterUrl: `${SC}/showcase-music-video-6dF3UkNuwxfUVSax7gz7xi.webp`, videoUrl: `${SC}/showcase-music-video_19324f13.mp4`, description: "A full music video with synced visuals, concert lighting, and cinematic effects. Created with WizVideo from an uploaded track.", studio: "WizVideo™" },
+ { id: 30003, title: "Star Quest — Kids Channel Intro", category: "Animation", posterUrl: `${SC}/showcase-kids-fxm6wHeSYgLJUHFdQPtC6r.webp`, videoUrl: `${SC}/showcase-kids_d49d86f8.mp4`, description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.", studio: "WizAnimate™" },
+ { id: 30004, title: "Cherry Blossom — Anime Style", category: "Anime", posterUrl: `${SC}/showcase-anime-gdkPWj4zZ3wPdwmswMeaY9.webp`, videoUrl: `${SC}/showcase-anime_36099b49.mp4`, description: "Fluid anime-style visuals with cherry blossom transitions. Generated entirely from a mood and colour palette prompt.", studio: "WizAnimate™" },
  ];
 
  return (
@@ -2771,6 +2866,7 @@ function SeeTheDifference() {
  const [activeTier, setActiveTier] = useState<StdTier>("original");
  const [isPlaying, setIsPlaying] = useState(false);
  const [isSwitching, setIsSwitching] = useState(false);
+ const [cinematicFlash, setCinematicFlash] = useState(false);
  const videoRef = useRef<HTMLVideoElement>(null);
  const audioRefs = useRef<Record<StdTier, HTMLAudioElement | null>>({
  original: null,
@@ -2818,6 +2914,12 @@ function SeeTheDifference() {
 
  setActiveTier(tier);
  currentAudioRef.current = nextAudio;
+
+ // Peak moment flash when switching to Cinematic
+ if (tier === "cinematic") {
+ setCinematicFlash(true);
+ setTimeout(() => setCinematicFlash(false), 600);
+ }
 
  // Seek video to the baked-in timestamp for this tier
  if (video) {
@@ -2942,11 +3044,24 @@ function SeeTheDifference() {
  })}
  </div>
 
+ {/* Cinematic peak moment flash overlay */}
+ {cinematicFlash && (
+ <div
+ className="fixed inset-0 z-[9999] pointer-events-none"
+ style={{
+ background: "radial-gradient(ellipse at center, rgba(255,200,80,0.18) 0%, rgba(255,150,30,0.08) 40%, transparent 70%)",
+ animation: "cinematicPeakFlash 0.6s ease-out forwards",
+ }}
+ />
+ )}
+
  {/* Video player */}
  <div
- className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl cursor-pointer group"
+ className={`relative rounded-2xl overflow-hidden border shadow-2xl cursor-pointer group transition-all duration-500 ${
+ cinematicFlash ? "scale-[1.012] border-amber-400/40" : "border-white/10"
+ }`}
  onClick={handlePlayPause}
- style={{ boxShadow: `0 0 60px ${activeTierData.glow}` }}
+ style={{ boxShadow: cinematicFlash ? "0 0 80px rgba(255,180,50,0.5), 0 0 120px rgba(255,120,20,0.25)" : `0 0 60px ${activeTierData.glow}` }}
  >
  {/* v5: visual grades are baked into the video — no CSS filter needed */}
  <div className="relative aspect-video bg-black">
@@ -3137,6 +3252,14 @@ function FinalCTA() {
  <ArrowSVG className="w-4 h-4" />
  </a>
  </div>
+ {/* No experience needed callout */}
+ <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/[0.06] bg-white/[0.02] mb-8">
+ <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+ <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" style={{ color: "oklch(0.72 0.14 70)" }} />
+ </svg>
+ <span className="text-sm font-semibold" style={{ color: "oklch(0.82 0.12 72)" }}>No experience needed. No editing. No crew.</span>
+ </div>
+
  {/* Guarantee strip */}
  <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-8">
  {guarantees.map((g) => (
