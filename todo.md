@@ -6460,10 +6460,14 @@
 - [x] TypeScript check, tests (8/8 passing), checkpoint
 
 ## Transcription / Lyrics Bug Fix
-- [ ] Diagnose why lyrics don't appear after audio upload on WizAudio (MusicCreator)
-- [ ] Check transcription tRPC procedure and server-side handler
-- [ ] Check MusicCreator.tsx upload handler — is transcription triggered after upload?
-- [ ] Check WizVideo (MusicVideoAutopilot) transcription flow for same issue
-- [ ] Check WizShorts for any transcription usage
-- [ ] Fix transcription trigger and display in WizAudio
-- [ ] Fix any other affected product apps
+- [x] Diagnose why lyrics don't appear after audio upload on WizAudio (MusicCreator)
+- [x] Check transcription tRPC procedure and server-side handler
+- [x] Check MusicCreator.tsx upload handler — is transcription triggered after upload?
+- [x] Fix transcription trigger and display in WizAudio — added transcribeTrack procedure to suno router, wired auto-call in uploadTrackForCover onSuccess
+
+## Enter Wiz AI Premium Button + SeeTheDifference Fixes (checkpoint c7af3eb1 follow-up)
+- [x] IntroScreen.tsx: premium Enter Wiz AI button with shimmer, glow rings, sparkle particles, animated sound bars
+- [x] IntroScreen.tsx: sound toggle shows animated equaliser bars + 'Tap for Sound' label when muted
+- [x] SeeTheDifference: Original audio normalised from -42 dB to -16 dB (ffmpeg loudnorm)
+- [x] SeeTheDifference: CSS videoFilter per tier (Original: desaturate+lift, Enhanced: none, Cinematic: slight desaturate/contrast reduce)
+- [x] index.css: added enter-btn-shimmer, enter-btn-ring-breathe, enter-btn-ring-pulse, enter-btn-sparkle, enter-btn-sweep, unmute-pulse, sound-bar-1 through sound-bar-5 keyframes

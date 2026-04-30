@@ -14,6 +14,7 @@ import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno, SunoTrack } from "../ai-apis/suno";
 import { storagePut } from "../storage";
+import { transcribeAudio } from "../_core/voiceTranscription";
 import { invokeLLM } from "../_core/llm";
 import { enqueueTrim } from "../trimWorker";
 import {
@@ -677,4 +678,35 @@ Rules:
       tracks: t.tracks ? JSON.parse(t.tracks) : [],
     }));
   }),
+  /**
+   * Transcribe an uploaded audio track to extract lyrics/text.
+   * Called automatically after a user uploads a track in WizAudio.
+   */
+  transcribeTrack: protectedProcedure
+    .input(
+      z.object({
+        /** Public URL of the uploaded audio file */
+        audioUrl: z.string().url(),
+        /** Optional language hint */
+        language: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const result = await transcribeAudio({
+        audioUrl: input.audioUrl,
+        language: input.language,
+        prompt: "Music lyrics and vocals",
+      });
+      if ("error" in result) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.error || "Transcription failed",
+        });
+      }
+      return {
+        text: result.text ?? "",
+        language: result.language ?? "en",
+        segments: result.segments ?? [],
+      };
+    }),
 });

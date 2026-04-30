@@ -301,8 +301,24 @@ export default function MusicCreator() {
     onSuccess: (data) => { setUploadedAudioUrl(data.url); toast.success("Audio uploaded!", { description: uploadedAudioName }); },
     onError: (err) => { toast.error("Upload failed", { description: err.message }); setIsUploadingFile(false); },
   });
+  const transcribeTrackMutation = trpc.suno.transcribeTrack.useMutation({
+    onSuccess: (data) => {
+      if (data.text.trim()) {
+        setLyrics(data.text.trim());
+        toast.success("Lyrics extracted from your track!");
+      }
+    },
+    // Silently ignore transcription errors — not a blocking step
+    onError: () => {},
+  });
   const uploadTrackForCoverMutation = trpc.suno.uploadTrackForCover.useMutation({
-    onSuccess: (data) => { setUploadedAudioUrl(data.url); setIsUploadingFile(false); toast.success("Track uploaded — ready to transform!", { description: uploadedAudioName }); },
+    onSuccess: (data) => {
+      setUploadedAudioUrl(data.url);
+      setIsUploadingFile(false);
+      toast.success("Track uploaded — ready to transform!", { description: uploadedAudioName });
+      // Auto-transcribe to extract lyrics
+      transcribeTrackMutation.mutate({ audioUrl: data.url });
+    },
     onError: (err) => { toast.error("Upload failed", { description: err.message }); setIsUploadingFile(false); },
   });
   const generateCoverMutation = trpc.suno.generateCover.useMutation({

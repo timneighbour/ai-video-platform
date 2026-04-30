@@ -2968,7 +2968,7 @@ function WizVidEngineSection() {
 const STD_VIDEO = "/manus-storage/std_demo_v8_9d379573.mp4";
 
 const STD_AUDIO = {
- original: "/manus-storage/std-v5-audio-original_641c2c62.mp3",
+ original: "/manus-storage/std-v5-audio-original-norm_f6efc71c.mp3",
  enhanced: "/manus-storage/std-v5-audio-enhanced_992b0682.mp3",
  cinematic: "/manus-storage/std-v5-audio-cinematic_005fd7a3.mp3",
 };
@@ -2996,7 +2996,7 @@ const STD_TIERS: {
  gradient: "from-stone-500 to-stone-400",
  glow: "rgba(168,162,158,0.35)",
  glowInline: "rgba(168,162,158,0.35)",
- videoFilter: "none",
+ videoFilter: "saturate(0.55) brightness(1.25) contrast(0.92)",
  },
  {
  key: "enhanced",
@@ -3016,7 +3016,7 @@ const STD_TIERS: {
  gradient: "from-[#c4a464] to-[#e8d5a0]",
  glow: "rgba(196,164,100,0.70)",
  glowInline: "rgba(196,164,100,0.70)",
- videoFilter: "none",
+ videoFilter: "saturate(0.88) contrast(0.93) brightness(0.96)",
  },
 ];
 
@@ -3221,12 +3221,12 @@ function SeeTheDifference() {
  onClick={handlePlayPause}
  style={{ boxShadow: cinematicFlash ? "0 0 100px rgba(196,164,100,0.65), 0 0 160px rgba(196,164,100,0.30)" : `0 0 60px ${activeTierData.glow}` }}
  >
- {/* v5: visual grades are baked into the video — no CSS filter needed */}
+ {/* CSS filter applied per tier to correct baked-in grades */}
  <div className="relative aspect-video bg-black">
  <video
  ref={videoRef}
  className="w-full h-full object-cover"
- style={{ filter: "none" }}
+ style={{ filter: activeTierData.videoFilter, transition: "filter 0.6s ease" }}
  onEnded={handleVideoEnded}
  onPlay={() => setIsPlaying(true)}
  onPause={() => setIsPlaying(false)}

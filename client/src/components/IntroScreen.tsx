@@ -258,23 +258,55 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           paddingRight: "max(env(safe-area-inset-right), 1.5rem)",
         }}
       >
-        {/* Top row — Mute toggle (left) + Skip Intro (right) */}
+        {/* Top row — Sound toggle (left) + Skip Intro (right) */}
         <div className="flex justify-between items-center pointer-events-auto">
-          {/* Mute / Unmute toggle */}
+          {/* Premium Sound toggle with unmute prompt */}
           <button
             onClick={toggleMute}
-            className="flex items-center gap-2 text-white/50 hover:text-white/90 transition-colors text-xs tracking-[0.15em] uppercase font-medium"
             aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+            style={{
+              animation: isMuted ? "unmute-pulse 2s ease-in-out infinite" : "none",
+              background: isMuted
+                ? "rgba(196,164,100,0.12)"
+                : "rgba(196,164,100,0.08)",
+              border: isMuted
+                ? "1px solid rgba(196,164,100,0.55)"
+                : "1px solid rgba(196,164,100,0.25)",
+              boxShadow: isMuted
+                ? "0 0 16px rgba(196,164,100,0.30), inset 0 0 8px rgba(196,164,100,0.08)"
+                : "none",
+            }}
+            className="flex items-center gap-2.5 px-4 py-2 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105"
           >
             {isMuted ? (
               <>
-                <VolumeX className="w-4 h-4" />
-                <span className="hidden sm:inline">Sound Off</span>
+                {/* Animated sound wave bars — gold, pulsing */}
+                <div className="flex items-end gap-[2px] h-4">
+                  {[
+                    { anim: "sound-bar-1 0.6s 0s ease-in-out infinite" },
+                    { anim: "sound-bar-2 0.6s 0.1s ease-in-out infinite" },
+                    { anim: "sound-bar-3 0.6s 0.2s ease-in-out infinite" },
+                    { anim: "sound-bar-4 0.6s 0.3s ease-in-out infinite" },
+                    { anim: "sound-bar-5 0.6s 0.15s ease-in-out infinite" },
+                  ].map((b, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        animation: b.anim,
+                        width: "3px",
+                        borderRadius: "2px",
+                        background: "#c4a464",
+                        minHeight: "4px",
+                      }}
+                    />
+                  ))}
+                </div>
+                <span className="text-[#e8c97a] text-xs tracking-[0.18em] uppercase font-semibold">Tap for Sound</span>
               </>
             ) : (
               <>
                 <Volume2 className="w-4 h-4 text-[#c4a464]" />
-                <span className="hidden sm:inline text-[#c4a464]">Sound On</span>
+                <span className="text-[#c4a464] text-xs tracking-[0.18em] uppercase font-semibold">Sound On</span>
               </>
             )}
           </button>
@@ -282,37 +314,125 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           {/* Skip Intro */}
           <button
             onClick={dismiss}
-            className="text-white/40 hover:text-white/80 transition-colors text-xs tracking-[0.2em] uppercase font-medium"
+            className="text-white/40 hover:text-white/80 transition-colors text-xs tracking-[0.2em] uppercase font-medium px-3 py-2"
             aria-label="Skip intro"
           >
             Skip Intro
           </button>
         </div>
 
-        {/* Bottom row — Enter WIZ AI perfectly centred */}
-        <div className="flex justify-center pointer-events-auto pb-4">
-          <button
-            onClick={dismiss}
-            aria-label="Enter WIZ AI"
-            style={{
-              background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 45%, #c4a464 100%)",
-              backgroundSize: "200% 100%",
-              boxShadow: "0 0 32px rgba(196,164,100,0.45), 0 0 8px rgba(196,164,100,0.25), inset 0 1px 0 rgba(255,255,255,0.25)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              letterSpacing: "0.12em",
-            }}
-            className="group relative flex items-center gap-3 px-10 py-4 rounded-full text-[#0a0a14] font-bold text-sm uppercase tracking-widest transition-all duration-300 hover:scale-105 hover:shadow-[0_0_48px_rgba(196,164,100,0.65)]"
-          >
-            {/* Inner shimmer line */}
-            <span
-              className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        {/* Bottom — Enter WIZ AI ultra-premium button */}
+        <div className="flex flex-col items-center gap-3 pointer-events-auto pb-4">
+          {/* Sparkle particles */}
+          <div className="relative w-0 h-0">
+            {[
+              { left: "-60px", delay: "0s",   dur: "2.2s", size: "5px", color: "#e8c97a" },
+              { left: "-30px", delay: "0.4s", dur: "1.8s", size: "3px", color: "#fff" },
+              { left: "10px",  delay: "0.8s", dur: "2.5s", size: "4px", color: "#c4a464" },
+              { left: "40px",  delay: "0.2s", dur: "2.0s", size: "3px", color: "#e8c97a" },
+              { left: "65px",  delay: "1.1s", dur: "1.9s", size: "5px", color: "#fff" },
+              { left: "-50px", delay: "1.5s", dur: "2.3s", size: "3px", color: "#c4a464" },
+              { left: "20px",  delay: "0.6s", dur: "2.1s", size: "4px", color: "#e8c97a" },
+            ].map((p, i) => (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: p.left,
+                  bottom: "8px",
+                  width: p.size,
+                  height: p.size,
+                  borderRadius: "50%",
+                  background: p.color,
+                  boxShadow: `0 0 6px 2px ${p.color}88`,
+                  animation: `enter-btn-sparkle ${p.dur} ${p.delay} ease-out infinite`,
+                }}
+              />
+            ))}
+          </div>
+
+          {/* The button itself */}
+          <div className="relative">
+            {/* Outer breathing ring */}
+            <div
               style={{
-                background: "linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+                position: "absolute",
+                inset: "-10px",
+                borderRadius: "9999px",
+                border: "1.5px solid rgba(196,164,100,0.5)",
+                animation: "enter-btn-ring-breathe 2.4s ease-in-out infinite",
+                pointerEvents: "none",
               }}
             />
-            <span className="relative">Enter WIZ AI</span>
-            <ChevronRight className="relative w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </button>
+            {/* Fast pulse ring */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "-6px",
+                borderRadius: "9999px",
+                border: "2px solid rgba(232,201,122,0.6)",
+                animation: "enter-btn-ring-pulse 1.8s ease-out infinite",
+                pointerEvents: "none",
+              }}
+            />
+
+            <button
+              onClick={dismiss}
+              aria-label="Enter WIZ AI"
+              style={{
+                background:
+                  "linear-gradient(105deg, #8a6a20 0%, #c4a464 20%, #f0d98a 45%, #e8c97a 55%, #c4a464 75%, #8a6a20 100%)",
+                backgroundSize: "300% 100%",
+                animation: "enter-btn-shimmer 3s linear infinite",
+                boxShadow: [
+                  "0 0 0 1px rgba(255,255,255,0.18)",
+                  "0 0 28px rgba(196,164,100,0.55)",
+                  "0 0 60px rgba(196,164,100,0.28)",
+                  "0 0 90px rgba(196,164,100,0.12)",
+                  "inset 0 1px 0 rgba(255,255,255,0.35)",
+                  "inset 0 -1px 0 rgba(0,0,0,0.20)",
+                ].join(", "),
+                letterSpacing: "0.22em",
+                overflow: "hidden",
+              }}
+              className="group relative flex items-center gap-4 px-12 py-4 rounded-full text-[#0a0a0f] font-black text-base uppercase transition-all duration-200 hover:scale-[1.06] active:scale-[0.98]"
+            >
+              {/* Continuous light sweep */}
+              <span
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  width: "40%",
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)",
+                  animation: "enter-btn-sweep 2.8s ease-in-out infinite",
+                  pointerEvents: "none",
+                }}
+              />
+              {/* Hover inner glow */}
+              <span
+                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, transparent 70%)",
+                }}
+              />
+              <span
+                className="relative"
+                style={{
+                  textShadow:
+                    "0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.15)",
+                }}
+              >
+                Enter WIZ AI
+              </span>
+              <ChevronRight
+                className="relative w-5 h-5 transition-transform duration-200 group-hover:translate-x-1.5"
+                style={{ filter: "drop-shadow(0 0 4px rgba(0,0,0,0.3))" }}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>
