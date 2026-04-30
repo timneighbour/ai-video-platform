@@ -84,7 +84,7 @@ const WIZ_TECHNOLOGY_CORE = [
 ];
 const WIZ_TECHNOLOGY_ADVANCED = [
   { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
-  { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZCREATE_LOGO },
+  { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
   { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
 const WIZ_TECHNOLOGY = [...WIZ_TECHNOLOGY_CORE, ...WIZ_TECHNOLOGY_ADVANCED];
@@ -819,7 +819,7 @@ function Nav() {
                     { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
                     { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZGENESIS_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
                     { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
-                    { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZCREATE_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
+                    { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
                     { name: "WizPerformer", tagline: "Face-Consistent AI Performer", desc: "Your face. Your character. Every scene.", href: "/products/wizperformer", logo: WIZANIMATE_LOGO, img: "/manus-storage/showcase-stage-performance_3379ee75.jpg" },
                   ].map((tool) => (
                     <a

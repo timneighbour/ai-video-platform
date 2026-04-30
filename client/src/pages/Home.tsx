@@ -151,7 +151,7 @@ const WIZ_TECHNOLOGY_CORE = [
 ];
 const WIZ_TECHNOLOGY_ADVANCED = [
  { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
- { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZCREATE_LOGO },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
  // Note: WizScore is also a full product — see PRODUCTS_CREATE above
  { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
@@ -848,7 +848,7 @@ function Nav() {
  { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
  { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZGENESIS_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
 { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
- { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZCREATE_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
  ].map((tool) => (
  <a
  key={tool.name}
@@ -929,7 +929,7 @@ function Hero() {
  </span>
  <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — The AI Creative Studio</span>
  <span className="w-px h-3 bg-[--color-gold]/20" />
- <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">9 Studios. One Platform.</span>
+ <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">10 Studios. One Platform.</span>
  </div>
 
  {/* Headline */}
