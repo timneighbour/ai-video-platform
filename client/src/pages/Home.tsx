@@ -1063,6 +1063,8 @@ function HeroDemoSection() {
  return (
  <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.10] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-5xl mx-auto relative z-10">
  {/* Header */}
  <div className="text-center mb-10 reveal">
@@ -1287,7 +1289,7 @@ function WorkflowJourney() {
  <section className="relative py-28 px-6 overflow-hidden" style={{ background: "linear-gradient(180deg, #030303 0%, #060606 50%, #030303 100%)" }}>
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[400px] rounded-full opacity-[0.04] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.12] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto relative z-10">
  {/* Header */}
  <div className="text-center mb-20 reveal">
@@ -1393,8 +1395,10 @@ function WorkflowJourney() {
 function WelcomeSection() {
  const [demoOpen, setDemoOpen] = useState(false);
  return (
- <section className="relative bg-[#030303] py-28 px-6">
+ <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.09] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-5xl mx-auto">
  <div className="grid lg:grid-cols-2 gap-16 items-center">
  <div className="reveal">
@@ -1527,7 +1531,7 @@ function WizEngines() {
  <div className="luxury-divider absolute top-0 left-0 right-0" />
 
  {/* Ambient glow */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75 / 0.03) 0%, transparent 70%)" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, oklch(0.78 0.11 75 / 0.10) 0%, transparent 70%)" }} />
 
  <div className="max-w-6xl mx-auto relative z-10">
  {/* Section header */}
@@ -2010,8 +2014,10 @@ function WhyWizAI() {
  },
  ];
  return (
- <section className="relative bg-[#030303] py-28 px-6">
+ <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] rounded-full opacity-[0.09] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="mb-16 reveal">
  <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">WIZ AI — The Standard</p>
@@ -2166,12 +2172,12 @@ function WizSoundDemo() {
  }, []); // ← empty deps: attach once, never re-attach
 
  return (
- <section className="relative py-32 px-6" style={{ background: "linear-gradient(180deg, #030303 0%, #0a0a0f 50%, #030303 100%)" }}>
+ <section className="relative py-32 px-6" style={{ background: "linear-gradient(180deg, #030303 0%, #060604 50%, #030303 100%)" }}>
  <div className="luxury-divider absolute top-0 left-0 right-0" />
 
  {/* Subtle ambient glow behind the section */}
  <div className="absolute inset-0 overflow-hidden pointer-events-none">
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03]" style={{ background: `radial-gradient(circle, ${tier.colorActive} 0%, transparent 70%)`, transition: "all 0.8s ease" }} />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[700px] rounded-full opacity-[0.12]" style={{ background: `radial-gradient(circle, ${tier.colorActive} 0%, transparent 70%)`, transition: "all 0.8s ease" }} />
  </div>
 
  <div className="max-w-5xl mx-auto relative z-10">
@@ -2350,12 +2356,13 @@ function WizLuminaDemo() {
  window.removeEventListener("touchend", onUp);
  };
  }, [handleMove]);
-
  return (
- <section className="relative bg-[#040404] py-28 px-6">
+ <section className="relative bg-[#040404] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
- <div className="max-w-5xl mx-auto">
- <div className="text-center mb-16 reveal">
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.10] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="max-w-5xl mx-auto relative z-10">
+ <div className="text-center mb-14 reveal">
  <div className="flex items-center justify-center mb-5">
  <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(196,164,100,0.4)]" loading="lazy" />
  </div>
@@ -2459,10 +2466,10 @@ function UseCases() {
  {useCases.map((uc) => (
  <div key={uc.title} className={`reveal rounded-2xl p-6 flex flex-col gap-4 border ${uc.borderColor} bg-gradient-to-b ${uc.color} backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-lg`}>
  <span className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
- {uc.icon === "music" && <WaveformSVG className="w-5 h-5 text-violet-400" />}
- {uc.icon === "film" && <PlaySVG className="w-5 h-5 text-blue-400" />}
- {uc.icon === "brand" && <StarSVG className="w-5 h-5 text-amber-400" />}
- {uc.icon === "story" && <ArrowSVG className="w-5 h-5 text-emerald-400" />}
+ {uc.icon === "music" && <WaveformSVG className="w-5 h-5 text-[--color-gold]" />}
+ {uc.icon === "film" && <PlaySVG className="w-5 h-5 text-[--color-gold]" />}
+ {uc.icon === "brand" && <StarSVG className="w-5 h-5 text-[--color-gold]" />}
+ {uc.icon === "story" && <ArrowSVG className="w-5 h-5 text-[--color-gold]" />}
  </span>
  <h3 className="text-white font-bold text-lg">{uc.title}</h3>
  <p className="text-[--color-silver]/55 text-sm leading-relaxed flex-1">{uc.desc}</p>
@@ -2588,8 +2595,10 @@ function Showcase() {
  ];
 
  return (
- <section id="showcase" className="relative bg-[#040404] py-28 px-6">
+ <section id="showcase" className="relative bg-[#040404] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 reveal">
  <div>
@@ -2619,8 +2628,10 @@ function BuiltFor() {
  { title: "YouTubers & Brands", desc: "Produce professional video content at scale — intros, explainers, and branded visuals, all AI-generated.", cta: "Start Creating", href: "/onboarding", logo: WIZCREATE_LOGO, img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/creator-youtuber-premium-gqHtiaHLuP258LeYjwzB7S.webp" },
  ];
  return (
- <section id="built-for" className="relative bg-[#030303] py-28 px-6">
+ <section id="built-for" className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="text-center mb-16 reveal">
  <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Who it's for</p>
@@ -2689,14 +2700,15 @@ function FeatureBlock() {
  gradient: "from-[#0d0d0d] to-[#080808]",
  borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
- ];
-
+  ];
  return (
- <section className="relative bg-[#030303] py-28 px-6">
+ <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+ {/* Ambient gold glow */}
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.08] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
  <div className="max-w-7xl mx-auto">
  <div className="text-center mb-16 reveal">
- <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">Purpose-built studios</p>
+ <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">What creators can build with each studio</p>
  <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white">Each studio is built for its format
  </h2>
  <p className="text-[--color-silver-dark]/50 text-base max-w-2xl mx-auto mt-4">Not a general tool. Every WIZ AI studio is purpose-engineered for one creative format — so the output is always right.

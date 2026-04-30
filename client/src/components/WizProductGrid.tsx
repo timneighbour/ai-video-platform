@@ -47,19 +47,19 @@ const CREATE_TILES: StudioTile[] = [
     benefit: "Original music from a single prompt",
     href: getProduct("wizsound")?.productPage ?? "/products/wizsound",
     image: APP_WIZSOUND,
-    glowColor: "rgba(52,211,153,0.30)",
-    borderHover: "rgba(52,211,153,0.55)",
-  },
-  {
-    name: "WizImage™",
+    glowColor: "rgba(196,164,100,0.30)",
+ borderHover: "rgba(196,164,100,0.55)",
+ },
+ {
+ name: "WizImage™",
     benefit: "Photorealistic visuals in seconds",
     href: getProduct("wizimage")?.productPage ?? "/products/wizimage",
     image: APP_WIZIMAGE,
-    glowColor: "rgba(245,158,11,0.30)",
-    borderHover: "rgba(245,158,11,0.55)",
-  },
-  {
-    name: "WizVideo™",
+    glowColor: "rgba(196,164,100,0.30)",
+ borderHover: "rgba(196,164,100,0.55)",
+ },
+ {
+ name: "WizVideo™",
     benefit: "Full music videos from your track",
     href: getProduct("wizvideo")?.productPage ?? "/music-video",
     image: APP_WIZVIDEO,
@@ -106,11 +106,11 @@ const ENHANCE_TILES: StudioTile[] = [
     benefit: "Studio-grade audio mastering & enhancement",
     href: "/products/wizsound",
     image: HERO_WIZSOUND,
-    glowColor: "rgba(52,211,153,0.30)",
-    borderHover: "rgba(52,211,153,0.55)",
-  },
-  {
-    name: "WizLumina™",
+    glowColor: "rgba(196,164,100,0.30)",
+ borderHover: "rgba(196,164,100,0.55)",
+ },
+ {
+ name: "WizLumina™",
     benefit: "Cinematic colour grading & visual polish",
     href: "/products/wizlumina",
     image: HERO_WIZLUMINA,
@@ -254,10 +254,10 @@ export default function WizProductGrid() {
       {/* Atmospheric depth */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: [
-          "radial-gradient(ellipse 60% 40% at 20% 30%, rgba(196,164,100,0.025) 0%, transparent 70%)",
-          "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(196,164,100,0.018) 0%, transparent 70%)",
-          "radial-gradient(ellipse 80% 50% at 50% 80%, rgba(196,164,100,0.020) 0%, transparent 70%)",
-          "radial-gradient(ellipse 40% 30% at 50% 50%, rgba(196,164,100,0.035) 0%, transparent 70%)",
+ "radial-gradient(ellipse 60% 40% at 20% 30%, rgba(196,164,100,0.06) 0%, transparent 70%)",
+ "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(196,164,100,0.05) 0%, transparent 70%)",
+ "radial-gradient(ellipse 80% 50% at 50% 80%, rgba(196,164,100,0.05) 0%, transparent 70%)",
+ "radial-gradient(ellipse 40% 30% at 50% 50%, rgba(196,164,100,0.08) 0%, transparent 70%)",
         ].join(", "),
       }} />
 
@@ -284,7 +284,7 @@ export default function WizProductGrid() {
           </p>
         </div>       {/* ── Row 1: CREATE (7 tiles) ──────────────────────────────────── */}
         <div className="mb-14 reveal">
-          <RowLabel label="Create" count={7} accentColor="#34d399" />
+          <RowLabel label="Create" count={7} accentColor="#c4a464" />
           {/* 4 + 3 layout on desktop */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {CREATE_TILES.map((tile) => (
