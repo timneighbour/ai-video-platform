@@ -47,6 +47,50 @@ export interface SunoTaskStatus {
   tracks?: SunoTrack[];
   errorMessage?: string;
 }
+/** Request for upload-cover: transform an uploaded track into a new style */
+export interface SunoUploadCoverRequest {
+  /** Public URL of the audio file to cover (max 8 min; max 1 min for V4_5ALL) */
+  uploadUrl: string;
+  /** Custom mode: requires style + title (+ prompt if not instrumental) */
+  customMode: boolean;
+  instrumental: boolean;
+  /** Model: V4, V4_5, V4_5PLUS, V4_5ALL, V5, V5_5 */
+  model?: string;
+  /** Lyrics / description (custom mode: exact lyrics; non-custom: description) */
+  prompt?: string;
+  /** Music style/genre (custom mode only) */
+  style?: string;
+  /** Track title (custom mode only) */
+  title?: string;
+  /** Tags to exclude */
+  negativeTags?: string;
+  /** 0.0-1.0 — how much the style influences the output (default 0.7) */
+  styleWeight?: number;
+  /** 0.0-1.0 — how much the original audio influences the output (default 0.5) */
+  audioWeight?: number;
+  callBackUrl?: string;
+}
+
+/** Request for upload-extend: continue an uploaded track with AI */
+export interface SunoUploadExtendRequest {
+  /** Public URL of the audio file to extend */
+  uploadUrl: string;
+  customMode: boolean;
+  instrumental: boolean;
+  model?: string;
+  prompt?: string;
+  style?: string;
+  title?: string;
+  callBackUrl?: string;
+}
+
+/** Response from the Suno file upload API */
+export interface SunoFileUploadResponse {
+  fileId: string;
+  fileUrl: string;
+  downloadUrl: string;
+}
+
 
 export class SunoClient {
   private apiKey: string;
@@ -199,8 +243,112 @@ export class SunoClient {
     );
     return response.data?.data?.credits ?? 0;
   }
-}
 
+  /**
+   * Upload a file (stream) to Suno's file hosting and get a public URL.
+   * The returned fileUrl can be passed to uploadCover / uploadExtend.
+   */
+  async uploadFile(fileBuffer: Buffer, mimeType: string, fileName: string): Promise<SunoFileUploadResponse> {
+    // Use URL-based upload to avoid form-data dependency issues
+    // First, we upload to S3 and then pass the S3 URL to Suno's URL upload endpoint
+    // This method accepts a pre-uploaded URL from S3
+    throw new Error("uploadFile: use uploadFileFromUrl instead — pass the S3 URL directly");
+  }
+
+  /**
+   * Upload a file to Suno via a public URL (S3 or CDN).
+   * This is the preferred method — upload to S3 first, then pass the URL here.
+   */
+  async uploadFileFromUrl(fileUrl: string, fileName: string): Promise<SunoFileUploadResponse> {
+    const response = await withRetry(() =>
+      axios.post<{
+        success: boolean;
+        code: number;
+        msg: string;
+        data: { fileId: string; fileUrl: string; downloadUrl: string };
+      }>(
+        "https://sunoapiorg.redpandaai.co/api/file-url-upload",
+        { fileUrl, uploadPath: "audio", fileName },
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          timeout: 120000,
+        }
+      )
+    );
+    if (!response.data.success) {
+      throw new Error(`Suno file upload failed: ${response.data.msg}`);
+    }
+    return response.data.data;
+  }
+
+  /**
+   * Submit an upload-cover task: transform an existing track into a new style.
+   * Returns the task ID (same polling endpoint as generate).
+   */
+  async uploadCover(req: SunoUploadCoverRequest): Promise<string> {
+    const body: Record<string, unknown> = {
+      uploadUrl: req.uploadUrl,
+      customMode: req.customMode,
+      instrumental: req.instrumental,
+      model: req.model ?? "V4_5",
+    };
+    if (req.callBackUrl) body.callBackUrl = req.callBackUrl;
+    if (req.prompt) body.prompt = req.prompt;
+    if (req.customMode) {
+      if (req.style) body.style = req.style;
+      if (req.title) body.title = req.title;
+    }
+    if (req.negativeTags) body.negativeTags = req.negativeTags;
+    if (req.styleWeight !== undefined) body.styleWeight = req.styleWeight;
+    if (req.audioWeight !== undefined) body.audioWeight = req.audioWeight;
+
+    const response = await withRetry(() =>
+      axios.post<{ code: number; msg: string; data: { taskId: string } }>(
+        `${SUNO_API_BASE}/api/v1/generate/upload-cover`,
+        body,
+        { headers: this.getHeaders(), timeout: 30000 }
+      )
+    );
+    const data = response.data;
+    if (data.code !== 200) throw new Error(`Suno upload-cover error: ${data.msg}`);
+    if (!data.data?.taskId) throw new Error("Suno upload-cover: no taskId returned");
+    return data.data.taskId;
+  }
+
+  /**
+   * Submit an upload-extend task: extend an existing track with AI continuation.
+   * Returns the task ID.
+   */
+  async uploadExtend(req: SunoUploadExtendRequest): Promise<string> {
+    const body: Record<string, unknown> = {
+      uploadUrl: req.uploadUrl,
+      customMode: req.customMode,
+      instrumental: req.instrumental,
+      model: req.model ?? "V4_5",
+    };
+    if (req.callBackUrl) body.callBackUrl = req.callBackUrl;
+    if (req.prompt) body.prompt = req.prompt;
+    if (req.customMode) {
+      if (req.style) body.style = req.style;
+      if (req.title) body.title = req.title;
+    }
+
+    const response = await withRetry(() =>
+      axios.post<{ code: number; msg: string; data: { taskId: string } }>(
+        `${SUNO_API_BASE}/api/v1/generate/upload-extend`,
+        body,
+        { headers: this.getHeaders(), timeout: 30000 }
+      )
+    );
+    const data = response.data;
+    if (data.code !== 200) throw new Error(`Suno upload-extend error: ${data.msg}`);
+    if (!data.data?.taskId) throw new Error("Suno upload-extend: no taskId returned");
+    return data.data.taskId;
+  }
+}
 export function initSuno(): SunoClient {
   const apiKey = process.env.SUNO_API_KEY;
   if (!apiKey) {

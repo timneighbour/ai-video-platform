@@ -6446,3 +6446,15 @@
 - [x] Build SharePanel in PostRenderRetentionScreen (copy link, Twitter/X, WhatsApp, watermark toggle)
 - [x] Build ReturnTriggerBanner component with 6 contextual triggers (credits waiting, cinematic style, new template, try music, upgrade, comeback)
 - [x] Integrate ReturnTriggerBanner into Dashboard for returning users
+
+## WizAudio Upgrade (Track Upload + Cover/Variation)
+- [x] Research Suno API latest capabilities (upload track, cover, variations)
+- [x] Audit current WizAudio page and backend router
+- [x] Backend: add track upload endpoint (accept MP3/WAV/M4A, store to S3)
+- [x] Backend: add cover/variation generation endpoint using Suno API
+- [x] Backend: wire uploaded track URL into Suno cover generation
+- [x] Frontend: redesign WizAudio page — 3 clear modes: Generate, Upload & Cover, Variations
+- [x] Frontend: upload track drop zone with file name display and clear/remove button
+- [x] Frontend: cover controls (style strength + melody retain sliders)
+- [x] Frontend: premium dark studio aesthetic with clear CTAs and colour-coded buttons
+- [x] TypeScript check, tests (8/8 passing), checkpoint

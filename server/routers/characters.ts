@@ -8,7 +8,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { videoCharacters, videoCharacterPhotos, musicVideoJobs } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
 
@@ -515,6 +515,35 @@ For forbidden items, include clothing that would conflict with their outfit (e.g
         .where(eq(videoCharacters.id, input.characterId));
 
       return { success: true, method: "llm", data: parsed };
+    }),
+
+  /**
+   * listLockedCharacters — returns all locked characters for the current user.
+   * Used by WizShorts (and other studios) to let the user pick a character
+   * to lock into a job. Only returns characters that are isLocked=true.
+   */
+  listLockedCharacters: protectedProcedure
+    .query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const chars = await db
+        .select({
+          id: videoCharacters.id,
+          name: videoCharacters.name,
+          role: videoCharacters.role,
+          lockedDescription: videoCharacters.lockedDescription,
+          masterPortraitUrl: videoCharacters.masterPortraitUrl,
+          previewImageUrl: videoCharacters.previewImageUrl,
+          characterPrompt: videoCharacters.characterPrompt,
+          isLocked: videoCharacters.isLocked,
+          lockedAt: videoCharacters.lockedAt,
+        })
+        .from(videoCharacters)
+        .where(and(eq(videoCharacters.userId, ctx.user.id), eq(videoCharacters.isLocked, true)))
+        .orderBy(desc(videoCharacters.lockedAt));
+
+      return chars;
     }),
 
   // Delete a character and all its photos

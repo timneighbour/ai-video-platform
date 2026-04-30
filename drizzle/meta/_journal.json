@@ -449,6 +449,20 @@
       "when": 1776815061716,
       "tag": "0063_wizsync_preview",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "5",
+      "when": 1777581891639,
+      "tag": "0064_stiff_spencer_smythe",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "5",
+      "when": 1777582590291,
+      "tag": "0065_majestic_redwing",
+      "breakpoints": true
     }
   ]
 }

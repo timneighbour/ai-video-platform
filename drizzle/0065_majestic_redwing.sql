@@ -1,0 +1,2 @@
+ALTER TABLE `suno_music_tasks` MODIFY COLUMN `generationMode` enum('score','song','suno','cover','extend') DEFAULT 'suno';--> statement-breakpoint
+ALTER TABLE `suno_music_tasks` ADD `uploadedTrackUrl` text;

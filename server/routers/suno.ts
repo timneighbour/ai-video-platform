@@ -13,6 +13,7 @@ import { getDb } from "../db";
 import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno, SunoTrack } from "../ai-apis/suno";
+import { storagePut } from "../storage";
 import { invokeLLM } from "../_core/llm";
 import { enqueueTrim } from "../trimWorker";
 import {
@@ -23,7 +24,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type GenerationMode = "score" | "song" | "suno";
+type GenerationMode = "score" | "song" | "suno" | "cover" | "extend";
 type Provider = "suno" | "elevenlabs_sfx" | "elevenlabs_music";
 
 /**
@@ -521,6 +522,138 @@ Rules:
         .where(and(eq(sunoMusicTasks.id, input.id), eq(sunoMusicTasks.userId, ctx.user.id)));
 
       return { success: true };
+    }),
+
+  /**
+   * Upload a user's audio track to S3 and return the public URL.
+   * The URL is then passed to generateCover or generateExtend.
+   */
+  uploadTrackForCover: protectedProcedure
+    .input(
+      z.object({
+        bytes: z.array(z.number()),
+        mimeType: z.string(),
+        filename: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const buffer = Buffer.from(input.bytes);
+      const ext = input.filename.split(".").pop() || "mp3";
+      const key = `wizsound-uploads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { url } = await storagePut(key, buffer, input.mimeType);
+      return { url, key };
+    }),
+
+  /**
+   * Generate a cover/transformation of an uploaded track.
+   * The user's track is preserved as the melodic base; the style is transformed.
+   */
+  generateCover: protectedProcedure
+    .input(
+      z.object({
+        /** Public S3 URL of the user's uploaded track */
+        uploadedTrackUrl: z.string().url(),
+        /** Style description (non-custom) or exact lyrics (custom) */
+        prompt: z.string().min(1).max(400).optional(),
+        /** Music style/genre (custom mode) */
+        style: z.string().max(200).optional(),
+        /** Track title (custom mode) */
+        title: z.string().max(80).optional(),
+        instrumental: z.boolean().default(false),
+        /** 0.0-1.0: how strongly to apply the new style (default 0.7) */
+        styleWeight: z.number().min(0).max(1).default(0.7),
+        /** 0.0-1.0: how much to preserve the original audio (default 0.5) */
+        audioWeight: z.number().min(0).max(1).default(0.5),
+        model: z.enum(["V4", "V4_5", "V4_5PLUS", "V4_5ALL", "V5", "V5_5"]).default("V4_5"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const suno = initSuno();
+      const customMode = !!(input.style && input.title);
+
+      const sunoTaskId = await suno.uploadCover({
+        uploadUrl: input.uploadedTrackUrl,
+        customMode,
+        instrumental: input.instrumental,
+        model: input.model,
+        prompt: input.prompt,
+        style: input.style,
+        title: input.title,
+        styleWeight: input.styleWeight,
+        audioWeight: input.audioWeight,
+      });
+
+      const [task] = await db
+        .insert(sunoMusicTasks)
+        .values({
+          userId: ctx.user.id,
+          taskId: sunoTaskId,
+          title: input.title ?? "Cover Track",
+          prompt: input.prompt ?? "",
+          style: input.style ?? "",
+          instrumental: input.instrumental,
+          status: "pending",
+          provider: "suno",
+          generationMode: "cover",
+          uploadedTrackUrl: input.uploadedTrackUrl,
+        })
+        .$returningId();
+
+      return { id: task.id, status: "pending" as const };
+    }),
+
+  /**
+   * Extend an uploaded track with AI continuation.
+   */
+  generateExtend: protectedProcedure
+    .input(
+      z.object({
+        /** Public S3 URL of the user's uploaded track */
+        uploadedTrackUrl: z.string().url(),
+        prompt: z.string().min(1).max(400).optional(),
+        style: z.string().max(200).optional(),
+        title: z.string().max(80).optional(),
+        instrumental: z.boolean().default(false),
+        model: z.enum(["V4", "V4_5", "V4_5PLUS", "V4_5ALL", "V5", "V5_5"]).default("V4_5"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const suno = initSuno();
+      const customMode = !!(input.style && input.title);
+
+      const sunoTaskId = await suno.uploadExtend({
+        uploadUrl: input.uploadedTrackUrl,
+        customMode,
+        instrumental: input.instrumental,
+        model: input.model,
+        prompt: input.prompt,
+        style: input.style,
+        title: input.title,
+      });
+
+      const [task] = await db
+        .insert(sunoMusicTasks)
+        .values({
+          userId: ctx.user.id,
+          taskId: sunoTaskId,
+          title: input.title ?? "Extended Track",
+          prompt: input.prompt ?? "",
+          style: input.style ?? "",
+          instrumental: input.instrumental,
+          status: "pending",
+          provider: "suno",
+          generationMode: "extend",
+          uploadedTrackUrl: input.uploadedTrackUrl,
+        })
+        .$returningId();
+
+      return { id: task.id, status: "pending" as const };
     }),
 
   /**

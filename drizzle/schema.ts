@@ -417,7 +417,9 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   /** Generation provider: suno (default), elevenlabs_sfx (≤30s exact), elevenlabs_music (30s–5min) */
   provider: mysqlEnum("provider", ["suno", "elevenlabs_sfx", "elevenlabs_music"]).default("suno"),
   /** Generation mode chosen by user */
-  generationMode: mysqlEnum("generationMode", ["score", "song", "suno"]).default("suno"),
+  generationMode: mysqlEnum("generationMode", ["score", "song", "suno", "cover", "extend"]).default("suno"),
+  /** URL of the user's uploaded track (used for cover/extend modes) */
+  uploadedTrackUrl: text("uploadedTrackUrl"),
   /** Two tracks are returned per task - stored as JSON array */
   tracks: longtext("tracks"), // JSON: Array<{ audioUrl, imageUrl, title, tags, duration }>
   errorMessage: text("errorMessage"),
@@ -780,6 +782,10 @@ export const wizShortsJobs = mysqlTable("wizShortsJobs", {
   videoKey: varchar("videoKey", { length: 512 }),
   status: mysqlEnum("wizShortsStatus", ["pending", "generating_scenes", "rendering", "assembling", "complete", "failed"]).default("pending").notNull(),
   errorMessage: text("errorMessage"),
+  /** Character Lock: FK to characters table (nullable — no lock if null) */
+  characterId: int("characterId"),
+  /** Whether to enforce character lock for this job */
+  characterLockEnabled: boolean("characterLockEnabled").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
@@ -805,6 +811,8 @@ export const wizShortsScenes = mysqlTable("wizShortsScenes", {
   videoKey: varchar("videoKey", { length: 512 }),
   status: mysqlEnum("wizShortSceneStatus", ["pending", "generating", "completed", "failed"]).default("pending").notNull(),
   errorMessage: text("errorMessage"),
+  /** Character Lock: preview image generated via Flux PuLID for face-consistent storyboard */
+  previewImageUrl: varchar("previewImageUrl", { length: 1024 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

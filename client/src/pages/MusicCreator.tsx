@@ -78,6 +78,7 @@ const DURATION_OPTIONS = [
 type AudioTier = "original" | "enhanced" | "cinematic";
 type RenderQuality = "hd" | "4k" | "8k";
 type GenerationMode = "score" | "song" | "suno";
+type StudioMode = "generate" | "cover" | "extend";
 
 /* ── Animated EQ Bars (console rail) ─────────────────────────────────────── */
 function ConsoleEQDisplay({ isActive }: { isActive: boolean }) {
@@ -274,11 +275,14 @@ export default function MusicCreator() {
   const [renderQuality, setRenderQuality] = useState<RenderQuality>("hd");
   const [ambience, setAmbience] = useState(72);
   const [activeKnobs, setActiveKnobs] = useState<string[]>(["Energy", "Space"]);
-  const [mode, setMode] = useState<"generate" | "upload">("generate");
+  const [studioMode, setStudioMode] = useState<StudioMode>("generate");
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
   const [uploadedAudioName, setUploadedAudioName] = useState<string>("");
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [coverStyleWeight, setCoverStyleWeight] = useState(0.7);
+  const [coverAudioWeight, setCoverAudioWeight] = useState(0.5);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Generation state ──
   const [taskId, setTaskId] = useState<number | null>(null);
@@ -297,6 +301,18 @@ export default function MusicCreator() {
     onSuccess: (data) => { setUploadedAudioUrl(data.url); toast.success("Audio uploaded!", { description: uploadedAudioName }); },
     onError: (err) => { toast.error("Upload failed", { description: err.message }); setIsUploadingFile(false); },
   });
+  const uploadTrackForCoverMutation = trpc.suno.uploadTrackForCover.useMutation({
+    onSuccess: (data) => { setUploadedAudioUrl(data.url); setIsUploadingFile(false); toast.success("Track uploaded — ready to transform!", { description: uploadedAudioName }); },
+    onError: (err) => { toast.error("Upload failed", { description: err.message }); setIsUploadingFile(false); },
+  });
+  const generateCoverMutation = trpc.suno.generateCover.useMutation({
+    onSuccess: (data) => { setTaskId(data.id); setStatus("pending"); setIsGenerating(true); },
+    onError: (err) => { setError(err.message); setIsGenerating(false); setStatus("failed"); mp.generationFailed("WizAudio", "api_error"); },
+  });
+  const generateExtendMutation = trpc.suno.generateExtend.useMutation({
+    onSuccess: (data) => { setTaskId(data.id); setStatus("pending"); setIsGenerating(true); },
+    onError: (err) => { setError(err.message); setIsGenerating(false); setStatus("failed"); mp.generationFailed("WizAudio", "api_error"); },
+  });
 
   const handleFileUpload = async (file: File) => {
     if (!file.type.match(/audio\/(mpeg|wav|mp4|x-m4a|ogg|webm)/)) { toast.error("Invalid file type"); return; }
@@ -308,6 +324,43 @@ export default function MusicCreator() {
     const mimeType = file.type.includes("wav") ? "audio/wav" : file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
     uploadAudioMutation.mutate({ bytes, mimeType, filename: file.name });
     setIsUploadingFile(false);
+  };
+  const handleCoverFileUpload = async (file: File) => {
+    if (!file.type.match(/audio\/(mpeg|wav|mp4|x-m4a|ogg|webm)/)) { toast.error("Invalid file type. Use MP3, WAV, M4A, or OGG."); return; }
+    if (file.size > 50 * 1024 * 1024) { toast.error("File too large", { description: "Maximum 50MB." }); return; }
+    setIsUploadingFile(true);
+    setUploadedAudioName(file.name);
+    setUploadedAudioUrl(null);
+    const arrayBuffer = await file.arrayBuffer();
+    const bytes = Array.from(new Uint8Array(arrayBuffer));
+    const mimeType = file.type.includes("wav") ? "audio/wav" : file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+    uploadTrackForCoverMutation.mutate({ bytes, mimeType, filename: file.name });
+  };
+  const handleCoverGenerate = () => {
+    if (!uploadedAudioUrl) { toast.error("Please upload a track first."); return; }
+    mp.generationStarted("WizAudio", undefined, true);
+    setError(null); setGeneratedTracks([]); setTaskId(null); setStatus("idle");
+    const styleStr = buildStyleString();
+    const isInstrumental = selectedVocal === "Instrumental Only";
+    if (studioMode === "cover") {
+      generateCoverMutation.mutate({
+        uploadedTrackUrl: uploadedAudioUrl,
+        prompt: prompt.trim() || undefined,
+        style: styleStr || undefined,
+        title: title.trim() || undefined,
+        instrumental: isInstrumental,
+        styleWeight: coverStyleWeight,
+        audioWeight: coverAudioWeight,
+      });
+    } else {
+      generateExtendMutation.mutate({
+        uploadedTrackUrl: uploadedAudioUrl,
+        prompt: prompt.trim() || undefined,
+        style: styleStr || undefined,
+        title: title.trim() || undefined,
+        instrumental: isInstrumental,
+      });
+    }
   };
 
   const generateLyricsMutation = trpc.suno.generateLyrics.useMutation({
@@ -365,7 +418,7 @@ export default function MusicCreator() {
   const toggleGenre = (g: string) => setSelectedGenres((prev) => prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g].slice(0, 3));
   const toggleMood = (m: string) => setSelectedMoods((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m].slice(0, 3));
   const toggleKnob = (k: string) => setActiveKnobs((prev) => prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]);
-  const canGenerate = prompt.trim().length > 0 && !isGenerating;
+  const canGenerate = studioMode === "generate" ? (prompt.trim().length > 0 && !isGenerating) : (uploadedAudioUrl !== null && !isGenerating);
 
   // ── Auth gate ──
   if (!authLoading && !user) {
@@ -521,6 +574,97 @@ export default function MusicCreator() {
 
             {/* ── LEFT: Channel Area ── */}
             <div className="overflow-y-auto p-3.5 flex flex-col gap-3" style={{ borderRight: "1px solid rgba(201,168,76,0.08)" }}>
+
+            {/* ── STUDIO MODE SWITCHER ── */}
+            <div className="rounded-[8px] overflow-hidden border-2 border-[--color-gold]/20" style={{ background: "linear-gradient(135deg, #0e0b14, #0a0810)" }}>
+              <div className="px-4 pt-3.5 pb-1.5">
+                <div className="text-[9px] font-bold tracking-[3px] uppercase text-[--color-gold]/40 mb-2.5">Studio Mode — Choose Your Workflow</div>
+                <div className="flex gap-2">
+                  {([
+                    { id: "generate" as StudioMode, icon: "✦", label: "Generate", sub: "Create from scratch", color: "#c9a84c" },
+                    { id: "cover"    as StudioMode, icon: "⟳", label: "Cover & Transform", sub: "Upload your track, change the style", color: "#4da6ff" },
+                    { id: "extend"   as StudioMode, icon: "⇥", label: "Extend & Continue", sub: "Upload your track, AI continues it", color: "#30d158" },
+                  ]).map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => { setStudioMode(m.id); if (m.id !== "generate") setUploadedAudioUrl(null); }}
+                      className={`flex-1 flex flex-col gap-1 p-3 rounded-[6px] border transition-all text-left ${
+                        studioMode === m.id
+                          ? "border-[--color-gold]/40 bg-[--color-gold]/8"
+                          : "border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/4"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[16px] leading-none" style={{ color: studioMode === m.id ? m.color : "rgba(255,255,255,0.3)" }}>{m.icon}</span>
+                        <span className={`text-[11px] font-bold tracking-[0.3px] ${ studioMode === m.id ? "text-white" : "text-white/40" }`}>{m.label}</span>
+                        {studioMode === m.id && <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: m.color, boxShadow: `0 0 6px ${m.color}` }} />}
+                      </div>
+                      <span className={`text-[9px] leading-[1.3] ${ studioMode === m.id ? "text-white/50" : "text-white/18" }`}>{m.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Upload zone — visible for cover and extend modes */}
+              {studioMode !== "generate" && (
+                <div className="mx-4 mb-3.5 mt-2">
+                  <input ref={coverFileInputRef} type="file" accept="audio/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverFileUpload(f); e.target.value = ""; }} />
+                  {!uploadedAudioUrl ? (
+                    <div
+                      className="border-2 border-dashed rounded-[6px] p-5 text-center cursor-pointer transition-all hover:border-[--color-gold]/40 hover:bg-[--color-gold]/4"
+                      style={{ borderColor: "rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.25)" }}
+                      onClick={() => coverFileInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCoverFileUpload(f); }}
+                    >
+                      {isUploadingFile ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <Loader2 className="w-6 h-6 text-[--color-gold] animate-spin" />
+                          <span className="text-[11px] text-white/50">Uploading {uploadedAudioName}…</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <UploadCloud className="w-7 h-7 text-[--color-gold]/50" />
+                          <div>
+                            <div className="text-[13px] font-semibold text-white/70">Drop your track here</div>
+                            <div className="text-[10px] text-white/30 mt-0.5">MP3, WAV, M4A, OGG · Max 50MB</div>
+                          </div>
+                          <div className="px-4 py-1.5 rounded-[4px] border border-[--color-gold]/25 text-[11px] font-semibold text-[--color-gold]/70 mt-1" style={{ background: "rgba(201,168,76,0.08)" }}>Browse files</div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 rounded-[6px] border border-green-500/25" style={{ background: "rgba(48,209,88,0.06)" }}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(48,209,88,0.15)" }}>
+                        <Check className="w-4 h-4 text-green-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-semibold text-green-400 truncate">{uploadedAudioName}</div>
+                        <div className="text-[10px] text-white/35 mt-0.5">Track uploaded — ready to {studioMode === "cover" ? "transform" : "extend"}</div>
+                      </div>
+                      <button onClick={() => { setUploadedAudioUrl(null); setUploadedAudioName(""); }} className="text-white/25 hover:text-red-400 transition-colors flex-shrink-0">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                  {/* Cover-specific controls */}
+                  {studioMode === "cover" && uploadedAudioUrl && (
+                    <div className="mt-2.5 flex flex-col gap-2 p-3 rounded-[6px] border border-white/7" style={{ background: "rgba(0,0,0,0.2)" }}>
+                      <div className="text-[9px] font-bold tracking-[2px] uppercase text-white/25">Cover Controls</div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-white/35 w-24">Style strength</span>
+                        <input type="range" min={0} max={1} step={0.05} value={coverStyleWeight} onChange={(e) => setCoverStyleWeight(Number(e.target.value))} className="flex-1 h-1 cursor-pointer" style={{ WebkitAppearance: "none", appearance: "none", background: `linear-gradient(to right, #4da6ff ${coverStyleWeight * 100}%, rgba(255,255,255,0.08) ${coverStyleWeight * 100}%)`, borderRadius: 2, outline: "none" }} />
+                        <span className="text-[10px] font-semibold text-[#4da6ff] w-8 text-right">{Math.round(coverStyleWeight * 100)}%</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-white/35 w-24">Melody retain</span>
+                        <input type="range" min={0} max={1} step={0.05} value={coverAudioWeight} onChange={(e) => setCoverAudioWeight(Number(e.target.value))} className="flex-1 h-1 cursor-pointer" style={{ WebkitAppearance: "none", appearance: "none", background: `linear-gradient(to right, #30d158 ${coverAudioWeight * 100}%, rgba(255,255,255,0.08) ${coverAudioWeight * 100}%)`, borderRadius: 2, outline: "none" }} />
+                        <span className="text-[10px] font-semibold text-[#30d158] w-8 text-right">{Math.round(coverAudioWeight * 100)}%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Engine Selector */}
             <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0b0910" }}>
@@ -986,17 +1130,39 @@ export default function MusicCreator() {
               />
             </div>
 
-            {/* Generate Song Button */}
+            {/* Generate / Cover / Extend Button */}
             <button
-              onClick={handleGenerate}
+              onClick={studioMode === "generate" ? handleGenerate : handleCoverGenerate}
               disabled={!canGenerate}
               className="w-full rounded-xl font-extrabold text-sm tracking-[2px] uppercase transition-all hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed btn-primary btn-sheen"
-              style={{ padding: "14px", background: "linear-gradient(135deg, #d4a843, #a07820)", boxShadow: "0 4px 24px rgba(212,168,67,0.35), 0 0 0 1px rgba(201,168,76,0.2)" }}
+              style={{
+                padding: "14px",
+                background: studioMode === "cover"
+                  ? "linear-gradient(135deg, #1a6abf, #0d4a8a)"
+                  : studioMode === "extend"
+                  ? "linear-gradient(135deg, #1a7a3a, #0d5a28)"
+                  : "linear-gradient(135deg, #d4a843, #a07820)",
+                boxShadow: studioMode === "cover"
+                  ? "0 4px 24px rgba(77,166,255,0.3), 0 0 0 1px rgba(77,166,255,0.2)"
+                  : studioMode === "extend"
+                  ? "0 4px 24px rgba(48,209,88,0.3), 0 0 0 1px rgba(48,209,88,0.2)"
+                  : "0 4px 24px rgba(212,168,67,0.35), 0 0 0 1px rgba(201,168,76,0.2)",
+              }}
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   {status === "trimming" ? "Trimming…" : "Generating…"}
+                </span>
+              ) : studioMode === "cover" ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="text-lg">⟳</span>
+                  <span>Transform Track</span>
+                </span>
+              ) : studioMode === "extend" ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="text-lg">↦</span>
+                  <span>Extend Track</span>
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
