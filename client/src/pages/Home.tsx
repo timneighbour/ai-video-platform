@@ -2809,9 +2809,9 @@ function WizVidEngineSection() {
 
 /// See the Difference (Cinematic Demo Player) 
 
-// v6 — baked-in grades: each phase is a different visual grade rendered into the video
+// v7 — intensified grades: near-greyscale Original, unchanged Enhanced, stronger Cinematic with drop moment
 // The video plays continuously; tier buttons jump to the correct timestamp
-const STD_VIDEO = "/manus-storage/std_demo_v6_1f8808a9.mp4";
+const STD_VIDEO = "/manus-storage/std_demo_v7_8f840af2.mp4";
 
 const STD_AUDIO = {
  original: "/manus-storage/std-v5-audio-original_641c2c62.mp3",
