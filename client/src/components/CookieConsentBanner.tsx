@@ -218,7 +218,7 @@ export default function CookieConsentBanner() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-white/10 text-[#a1a1aa] hover:text-white hover:border-white/20 bg-transparent text-xs"
+                  className="flex-1 border-white/25 text-white/80 hover:text-white hover:border-white/40 bg-white/5 hover:bg-white/10 text-xs"
                   onClick={handleRejectAll}
                 >
                   Reject non-essential
@@ -243,7 +243,7 @@ export default function CookieConsentBanner() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 border-white/10 text-[#a1a1aa] hover:text-white hover:border-white/20 bg-transparent text-xs"
+                  className="flex-1 border-white/25 text-white/80 hover:text-white hover:border-white/40 bg-white/5 hover:bg-white/10 text-xs"
                   onClick={handleRejectAll}
                 >
                   Reject non-essential

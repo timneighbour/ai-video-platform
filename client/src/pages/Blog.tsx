@@ -121,7 +121,7 @@ export default function Blog() {
                         {tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mb-3">
                             {tags.slice(0, 3).map(tag => (
-                              <Badge key={tag} variant="secondary" className="text-xs bg-[--color-gold]/10 text-[--color-gold] border-[--color-gold]/20 hover:bg-[--color-gold]/20">
+                              <Badge key={tag} variant="secondary" className="text-xs bg-[--color-gold]/10 text-[--color-gold] border-[--color-gold]/20 hover:bg-[--color-gold]/80">
                                 {tag}
                               </Badge>
                             ))}

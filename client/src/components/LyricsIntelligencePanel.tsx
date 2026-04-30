@@ -295,7 +295,7 @@ export default function LyricsIntelligencePanel({
                                 />
                               </div>
                               <div className="flex gap-2">
-                                <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white" onClick={() => handleSaveEdit(index)}>
+                                <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white" onClick={() => handleSaveEdit(index)}>
                                   <Check className="w-3 h-3 mr-1" /> Save
                                 </Button>
                                 <Button size="sm" variant="outline" className="border-zinc-700 text-zinc-300 bg-transparent" onClick={handleCancelEdit}>

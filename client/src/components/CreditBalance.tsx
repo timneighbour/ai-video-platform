@@ -41,7 +41,7 @@ function GoToCredits({ isEmpty, label }: { isEmpty: boolean; label?: string }) {
         "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors cursor-pointer",
         isEmpty
           ? "bg-red-600 border-red-500 text-white hover:bg-red-500"
-          : "bg-[--color-gold]/20 border-violet-500/40 text-violet-300 hover:bg-[--color-gold]/20/30 hover:border-[--color-gold]/40"
+          : "bg-[--color-gold]/20 border-violet-500/40 text-violet-300 hover:bg-[--color-gold]/80/30 hover:border-[--color-gold]/40"
       )}
     >
       <Plus className="w-3 h-3" />
@@ -113,7 +113,7 @@ export default function CreditBalance({
               "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors",
               isEmpty
                 ? "bg-red-600 border-red-500 text-white hover:bg-red-500"
-                : "bg-[--color-gold]/20 border-violet-500/40 text-violet-300 hover:bg-[--color-gold]/20/30 hover:border-[--color-gold]/40"
+                : "bg-[--color-gold]/20 border-violet-500/40 text-violet-300 hover:bg-[--color-gold]/80/30 hover:border-[--color-gold]/40"
             )}
           >
             <Plus className="w-3 h-3" />

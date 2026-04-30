@@ -61,7 +61,7 @@ export default function InsufficientCreditsModal({
           {/* Primary: Get Credits */}
           <Link href="/credits">
             <Button
-              className="w-full bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-semibold gap-2"
+              className="w-full bg-[--color-gold] hover:bg-[--color-gold]/80 text-white font-semibold gap-2"
               onClick={onClose}
             >
               <Zap className="w-4 h-4" />

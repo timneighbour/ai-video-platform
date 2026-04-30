@@ -2171,7 +2171,7 @@ export default function MusicVideoAutopilot() {
                                     <Button
                                       size="sm"
                                       onClick={() => setIsEditingLyrics(false)}
-                                      className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
+                                      className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
                                     >
                                       <Check className="w-3 h-3 mr-1" />
                                       Save
@@ -3231,7 +3231,7 @@ export default function MusicVideoAutopilot() {
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs h-7"
+                            className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-xs h-7"
                             onClick={() => handleSaveEdit(scene.id)}
                             disabled={updateScene.isPending || !editPrompt.trim()}
                           >
@@ -4119,7 +4119,7 @@ export default function MusicVideoAutopilot() {
                                           </Button>
                                           <Button
                                             size="sm"
-                                            className="h-7 px-3 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
+                                            className="h-7 px-3 text-xs bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
                                             disabled={!editFailedPrompt.trim() || updateScenePromptMutation.isPending || isRetrying}
                                             onClick={async () => {
                                               if (!jobId || !editFailedPrompt.trim()) return;

@@ -131,7 +131,7 @@ export default function BlogPost() {
                 <ArrowLeft className="w-3.5 h-3.5" /> Blog
               </Link>
               <Link href={WIZVIDEO_STUDIO_PAGE}>
-                <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm h-8">
+                <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-sm h-8">
                   Create Video
                 </Button>
               </Link>
@@ -200,7 +200,7 @@ export default function BlogPost() {
             <h3 className="text-lg font-bold text-white mb-2">Ready to create your first AI video?</h3>
             <p className="text-white/50 text-sm mb-4">Free to create. Only pay when you build your final video.</p>
             <Link href={WIZVIDEO_STUDIO_PAGE}>
-              <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
+              <Button className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white">
                 Create Your First Video <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>

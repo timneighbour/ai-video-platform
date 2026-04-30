@@ -73,7 +73,7 @@ export function LowCreditBanner({
         title: "text-[--color-gold]",
         body: "text-[--color-gold]/70",
         badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
-        btn: "bg-[--color-gold] hover:bg-[--color-gold]/20 text-black font-semibold",
+        btn: "bg-[--color-gold] hover:bg-[--color-gold]/80 text-black font-semibold",
         btnSecondary: "text-[--color-gold] hover:text-[--color-gold]",
       };
 

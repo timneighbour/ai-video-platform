@@ -103,7 +103,7 @@ export default function HabitLoopPanel({ className = "" }: HabitLoopPanelProps) 
       {/* Primary CTA */}
       <a
         href="/onboarding"
-        className="w-full inline-flex items-center justify-center bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm font-semibold h-9 rounded-lg transition-colors"
+        className="w-full inline-flex items-center justify-center bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-sm font-semibold h-9 rounded-lg transition-colors"
       >
         <Sparkles className="w-3.5 h-3.5 mr-1.5" />
         Start a new video

@@ -219,7 +219,7 @@ export default function Credits() {
                   disabled={loading === pack.id}
                   className={`w-full font-semibold ${
                     pack.popular
-                      ? "bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
+                      ? "bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
                       : "bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700"
                   }`}
                 >

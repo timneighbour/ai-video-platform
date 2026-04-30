@@ -139,7 +139,7 @@ export default function RenderSuccess() {
             </p>
             <Button
               onClick={() => navigate(`/music-video/create?job_id=${sourceJobId}&render_started=true`)}
-              className="bg-[--color-gold] hover:bg-[--color-gold]/20 w-full"
+              className="bg-[--color-gold] hover:bg-[--color-gold]/80 w-full"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
               Go to Render Progress Now

@@ -63,7 +63,7 @@ export default function LandingUK() {
           <span className="hidden sm:block text-xs text-white/40 font-mono">United Kingdom</span>
           <a
             href={`${MAIN_APP}/music-video/create`}
-            className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors"
+            className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors"
           >
             Start Creating
           </a>

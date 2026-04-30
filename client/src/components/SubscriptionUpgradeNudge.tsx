@@ -83,7 +83,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
         <Link href="/pricing">
           <Button
             size="sm"
-            className="h-7 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs px-3 gap-1.5"
+            className="h-7 bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-xs px-3 gap-1.5"
           >
             <Sparkles className="h-3 w-3" />
             See Creator Plan

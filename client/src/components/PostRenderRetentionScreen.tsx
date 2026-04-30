@@ -316,7 +316,7 @@ export function PostRenderRetentionScreen({
           <a
             href="/pricing"
             onClick={() => mp.track("PostRender_UpgradeClick", { jobId, currentPlan: subData?.plan ?? "free" })}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs font-semibold transition-colors"
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-xs font-semibold transition-colors"
           >
             Upgrade
             <ChevronRight className="w-3 h-3" />
@@ -574,7 +574,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
               <Button
                 type="submit"
                 disabled={submitFeature.isPending}
-                className="flex-1 h-8 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
+                className="flex-1 h-8 text-xs bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
               >
                 {submitFeature.isPending ? "Submitting..." : "Submit for review"}
               </Button>

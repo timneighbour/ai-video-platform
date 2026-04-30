@@ -160,7 +160,7 @@ export default function RenderHistory() {
                 <p className="text-xs text-muted-foreground">{jobs.length} video{jobs.length !== 1 ? "s" : ""}</p>
               </div>
             </div>
-            <Button asChild size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
+            <Button asChild size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white">
               <Link href={WIZVIDEO_STUDIO_PAGE}><Sparkles className="w-3.5 h-3.5 mr-1.5" />New Video</Link>
             </Button>
           </div>
@@ -200,7 +200,7 @@ export default function RenderHistory() {
               <p className="text-zinc-300 font-medium mb-1">No videos yet</p>
               <p className="text-zinc-500 text-sm">Create your first AI music video to see it here</p>
             </div>
-            <Button asChild className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
+            <Button asChild className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white">
               <Link href={WIZVIDEO_STUDIO_PAGE}><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
             </Button>
           </div>
@@ -316,7 +316,7 @@ export default function RenderHistory() {
                         {(job.status === "draft" || job.status === "storyboard_ready" || job.status === "rendering") && (
                           <Button
                             size="sm"
-                            className="h-7 px-2 text-xs bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
+                            className="h-7 px-2 text-xs bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
                             asChild
                           >
                             <Link href={`${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}>
@@ -521,7 +521,7 @@ export default function RenderHistory() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-border text-foreground hover:bg-accent">
+            <AlertDialogCancel className="border-border text-foreground hover:bg-white/10">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

@@ -108,7 +108,7 @@ export default function WatchPage() {
             </div>
           </Link>
           <Link href="/create">
-            <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
+            <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white">
               Create Your Own
             </Button>
           </Link>
@@ -177,7 +177,7 @@ export default function WatchPage() {
                 <p className="text-white/60 text-sm">Upload any song and WIZ AI generates a full cinematic music video in minutes.</p>
               </div>
               <Link href="/">
-                <Button className="w-full bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-semibold">
+                <Button className="w-full bg-[--color-gold] hover:bg-[--color-gold]/80 text-white font-semibold">
                   Try WIZ AI Free
                 </Button>
               </Link>

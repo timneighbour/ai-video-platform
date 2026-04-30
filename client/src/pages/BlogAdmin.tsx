@@ -82,7 +82,7 @@ export default function BlogAdmin() {
           </div>
           <Button
             onClick={() => setCreating(true)}
-            className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white gap-2"
+            className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white gap-2"
           >
             <Plus className="w-4 h-4" />
             New Post
@@ -164,7 +164,7 @@ export default function BlogAdmin() {
                     })
                   }
                   disabled={!form.title || !form.content || createPost.isPending}
-                  className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white"
+                  className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
                 >
                   {createPost.isPending ? "Saving…" : "Save Draft"}
                 </Button>

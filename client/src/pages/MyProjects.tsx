@@ -176,7 +176,7 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
           ) : (
             <Button
               size="sm"
-              className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-xs h-8"
+              className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-xs h-8"
               onClick={() => window.location.href = `/music-video/create?jobId=${job.id}`}
             >
               <Edit3 className="w-3 h-3 mr-1" />
@@ -260,7 +260,7 @@ export default function MyProjects() {
           </div>
           <a
             href="/music-video"
-            className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm px-4 py-2 rounded-xl font-semibold transition-colors"
+            className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-sm px-4 py-2 rounded-xl font-semibold transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Project
@@ -284,7 +284,7 @@ export default function MyProjects() {
             </p>
             <a
               href="/music-video"
-              className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white text-sm px-5 py-2.5 rounded-xl font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-sm px-5 py-2.5 rounded-xl font-semibold transition-colors"
             >
               <Sparkles className="w-4 h-4" />
               Create Your First Video

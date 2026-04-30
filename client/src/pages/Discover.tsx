@@ -186,7 +186,7 @@ function EmptyState({ category }: { category: string }) {
           : `No ${CREATOR_TYPE_LABELS[category] ?? category} creators featured yet.`}
       </p>
       <Link href={WIZVIDEO_STUDIO_PAGE}>
-        <Button className="mt-6 bg-[--color-gold] hover:bg-[--color-gold]/20 text-white">
+        <Button className="mt-6 bg-[--color-gold] hover:bg-[--color-gold]/80 text-white">
           Create a video &amp; get featured
         </Button>
       </Link>
@@ -242,7 +242,7 @@ export default function Discover() {
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link href={WIZVIDEO_STUDIO_PAGE}>
-              <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-6">
+              <Button className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white px-6">
                 Start Creating
               </Button>
             </Link>
@@ -391,7 +391,7 @@ export default function Discover() {
             </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link href={WIZVIDEO_STUDIO_PAGE}>
-                <Button className="bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-8 py-3 text-base">
+                <Button className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white px-8 py-3 text-base">
                   Create Your Video
                 </Button>
               </Link>

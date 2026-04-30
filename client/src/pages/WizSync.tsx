@@ -601,7 +601,7 @@ export default function WizSyncPage() {
         </div>
         <h1 className="text-2xl font-bold text-white text-center">WizSync™ requires an account</h1>
         <p className="text-zinc-400 text-center max-w-sm">Sign in to analyse audio, detect voices, and assign characters to your music videos.</p>
-        <NavLink href={getLoginUrl("/wizsync")} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[--color-gold] hover:bg-[--color-gold]/20 text-white font-semibold transition-colors">
+        <NavLink href={getLoginUrl("/wizsync")} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[--color-gold] hover:bg-[--color-gold]/80 text-white font-semibold transition-colors">
           Sign in to continue <ArrowRight className="w-4 h-4" />
         </NavLink>
       </div>

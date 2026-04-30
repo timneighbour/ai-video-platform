@@ -22,7 +22,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href="/"
-            className="inline-flex items-center justify-center bg-[--color-gold] hover:bg-[--color-gold]/20 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+            className="inline-flex items-center justify-center bg-[--color-gold] hover:bg-[--color-gold]/80 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
           >
             <Home className="w-4 h-4 mr-2" />
             Go Home
