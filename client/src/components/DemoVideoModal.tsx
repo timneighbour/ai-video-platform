@@ -613,8 +613,16 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   }, [duration]);
 
   const handleFullscreen = useCallback(() => {
+    // iOS Safari: use webkitEnterFullscreen on the video element directly
+    const videoEl = videoRef.current;
+    if (videoEl && (videoEl as any).webkitEnterFullscreen) {
+      (videoEl as any).webkitEnterFullscreen();
+      return;
+    }
+    // Standard fullscreen API (desktop + Android Chrome)
     const el = document.getElementById("wizai-demo-container");
     if (el?.requestFullscreen) el.requestFullscreen();
+    else if ((el as any)?.webkitRequestFullscreen) (el as any).webkitRequestFullscreen();
   }, []);
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;

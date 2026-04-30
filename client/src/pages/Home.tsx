@@ -2211,13 +2211,13 @@ function WizSoundDemo() {
  src={WIZSOUND_STUDIO_BG}
  alt=""
  aria-hidden="true"
- className="w-full h-full object-cover object-center"
- style={{ opacity: 0.35 }}
+className="w-full h-full object-cover object-center"
+                 style={{ opacity: 0.55 }}
  />
  {/* Dark gradient overlay — heavier at top/bottom, lighter in centre */}
- <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #020202 0%, rgba(2,2,2,0.55) 30%, rgba(2,2,2,0.55) 70%, #020202 100%)" }} />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(2,2,2,0.85) 0%, rgba(2,2,2,0.30) 25%, rgba(2,2,2,0.30) 75%, rgba(2,2,2,0.85) 100%)" }} />
  {/* Horizontal vignette */}
- <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #020202 0%, transparent 20%, transparent 80%, #020202 100%)" }} />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(2,2,2,0.7) 0%, transparent 15%, transparent 85%, rgba(2,2,2,0.7) 100%)" }} />
  </div>
 
  {/* Animated ambient glow that changes per tier */}

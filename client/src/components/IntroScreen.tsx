@@ -21,8 +21,9 @@ const VIDEO_URL =
   "/manus-storage/WizAIIntroVidMAIN_a2651b4e.mp4";
 // No poster — we show a pure black screen while the video buffers to avoid any image flash on iOS Safari
 
-// iOS Safari needs significantly more time to buffer — use 12 s
-const LOAD_TIMEOUT_MS = 12000;
+// iOS Safari needs significantly more time to buffer
+// If video doesn't fire canplay in 8s, show it anyway (readyState check) or dismiss
+const LOAD_TIMEOUT_MS = 8000;
 
 // Session key to remember mute preference
 const MUTE_SESSION_KEY = "wizai_intro_muted";
@@ -79,14 +80,31 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
     }, 600);
   }, [onComplete]);
 
-  // ── Load-timeout fallback (12 s — iOS needs more time) ───────────────────
+  // ── Load-timeout fallback — iOS needs more time ─────────────────────────
   useEffect(() => {
+    // Poll every 500ms: if video has enough data (readyState >= 2), show it
+    // even if canplay event hasn't fired (iOS Safari quirk)
+    const pollInterval = setInterval(() => {
+      const video = videoRef.current;
+      if (!video || videoReady) { clearInterval(pollInterval); return; }
+      if (video.readyState >= 2) {
+        setVideoReady(true);
+        clearInterval(pollInterval);
+        if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+        video.play().catch(() => setShowPlayHint(true));
+      }
+    }, 500);
+
     loadTimerRef.current = setTimeout(() => {
+      clearInterval(pollInterval);
       if (!videoReady) {
+        // On iOS Low Power Mode or strict autoplay block — just dismiss gracefully
         dismiss();
       }
     }, LOAD_TIMEOUT_MS);
+
     return () => {
+      clearInterval(pollInterval);
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
     };
   }, [videoReady, dismiss]);

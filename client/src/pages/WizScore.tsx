@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 import StudioAmbientLight from "@/components/StudioAmbientLight";
 import AnimatedEqualiser from "@/components/AnimatedEqualiser";
+import { LandscapeHint } from "@/components/LandscapeHint";
 const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizscore-scoring-gp2y6naC4cVHcYGuJy8fJK.webp";
 
 const STAGES = [
@@ -963,6 +964,7 @@ export default function WizScore() {
         </div>
         <div style={{fontSize:"9px",color:"#333"}}>WizAI — The world's first AI virtual scoring studio</div>
       </div>
+      <LandscapeHint />
     </div>
   );
 }
