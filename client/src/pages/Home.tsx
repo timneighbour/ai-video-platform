@@ -2809,9 +2809,9 @@ function WizVidEngineSection() {
 
 /// See the Difference (Cinematic Demo Player) 
 
-// v7 — intensified grades: near-greyscale Original, unchanged Enhanced, stronger Cinematic with drop moment
-// The video plays continuously; tier buttons jump to the correct timestamp
-const STD_VIDEO = "/manus-storage/std_demo_v7_8f840af2.mp4";
+// v8 — final: intensified grades + product context overlay ("Created with Wiz AI") in last 2.5s,
+// camera push-in at cinematic drop, increased light bloom on cinematic grade
+const STD_VIDEO = "/manus-storage/std_demo_v8_9d379573.mp4";
 
 const STD_AUDIO = {
  original: "/manus-storage/std-v5-audio-original_641c2c62.mp3",
