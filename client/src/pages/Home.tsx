@@ -2199,104 +2199,177 @@ function WizSoundDemo() {
  return () => { audio.removeEventListener("timeupdate", onTime); audio.removeEventListener("ended", onEnded); };
  }, []); // ← empty deps: attach once, never re-attach
 
+ const WIZSOUND_STUDIO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizsound-studio-bg-jpRL2azT3XJX72b7G3vTKy.webp";
+
  return (
- <section className="relative py-32 px-6" style={{ background: "linear-gradient(180deg, #030303 0%, #060604 50%, #030303 100%)" }}>
- <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <section className="relative overflow-hidden" style={{ background: "#020202" }}>
+ <div className="luxury-divider absolute top-0 left-0 right-0 z-10" />
 
- {/* Subtle ambient glow behind the section */}
- <div className="absolute inset-0 overflow-hidden pointer-events-none">
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[700px] rounded-full opacity-[0.12]" style={{ background: `radial-gradient(circle, ${tier.colorActive} 0%, transparent 70%)`, transition: "all 0.8s ease" }} />
+ {/* Full-bleed studio background with deep overlay */}
+ <div className="absolute inset-0 z-0">
+ <img
+ src={WIZSOUND_STUDIO_BG}
+ alt=""
+ aria-hidden="true"
+ className="w-full h-full object-cover object-center"
+ style={{ opacity: 0.35 }}
+ />
+ {/* Dark gradient overlay — heavier at top/bottom, lighter in centre */}
+ <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #020202 0%, rgba(2,2,2,0.55) 30%, rgba(2,2,2,0.55) 70%, #020202 100%)" }} />
+ {/* Horizontal vignette */}
+ <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, #020202 0%, transparent 20%, transparent 80%, #020202 100%)" }} />
  </div>
 
- <div className="max-w-5xl mx-auto relative z-10">
- {/* Header with WizSound branding */}
+ {/* Animated ambient glow that changes per tier */}
+ <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+ <div
+ className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full"
+ style={{
+ background: `radial-gradient(ellipse, ${tier.colorActive} 0%, transparent 65%)`,
+ opacity: activeTier === 0 ? 0.06 : activeTier === 1 ? 0.10 : 0.15,
+ transition: "all 0.9s ease",
+ }}
+ />
+ </div>
+
+ <div className="relative z-10 py-28 px-6">
+ <div className="max-w-5xl mx-auto">
+
+ {/* Header */}
  <div className="text-center mb-16 reveal">
- <div className="inline-flex items-center gap-3 mb-6 px-5 py-2.5 rounded-full border border-[--color-gold]/10 bg-[--color-gold]/[0.03]">
- <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-8 w-auto" loading="lazy" />
- <span className="text-xs font-bold uppercase tracking-[0.2em] text-[--color-gold]/60">WizSound™ — The Mastering Suite</span>
+ {/* WizSound badge */}
+ <div className="inline-flex items-center gap-3 mb-7 px-5 py-2.5 rounded-full" style={{ border: "1px solid rgba(212,175,55,0.18)", background: "rgba(212,175,55,0.05)", backdropFilter: "blur(12px)" }}>
+ <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-7 w-auto" loading="lazy" />
+ <span className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: "rgba(212,175,55,0.75)" }}>WizSound™ — The Mastering Suite</span>
  </div>
- <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">Hear the difference.
+ <h2 className="text-[clamp(2.4rem,5.5vw,4rem)] font-black tracking-tight text-white mb-5 leading-[1.05]">
+ Hear the difference.
  </h2>
- <p className="text-[--color-silver-dark]/50 text-base max-w-lg mx-auto leading-relaxed">Raw AI audio is flat and unfinished. WizSound™ mastering applies spatial depth, frequency balance, and cinematic width — automatically. Switch between tiers and hear what studio-grade sounds like.
+ <p className="text-white/45 text-base max-w-xl mx-auto leading-relaxed">
+ Raw AI audio is flat and unfinished. WizSound™ mastering applies spatial depth, frequency balance, and cinematic width — automatically.
  </p>
  </div>
 
  <div className="reveal">
- {/* Tier selector — premium pill style */}
- <div className="flex items-center justify-center mb-12">
- <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm">
- {AUDIO_TIERS.map((t, i) => (
+ {/* Tier selector — large glowing pills */}
+ <div className="flex items-center justify-center mb-10">
+ <div
+ className="inline-flex items-center gap-2 p-2 rounded-2xl"
+ style={{ border: "1px solid rgba(255,255,255,0.07)", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(20px)" }}
+ >
+ {AUDIO_TIERS.map((t, i) => {
+ const isActive = activeTier === i;
+ const pillBg = isActive
+ ? i === 2
+ ? "linear-gradient(135deg, rgba(212,175,55,0.25), rgba(212,175,55,0.10))"
+ : i === 1
+ ? "linear-gradient(135deg, rgba(196,170,100,0.18), rgba(196,170,100,0.07))"
+ : "rgba(255,255,255,0.07)"
+ : "transparent";
+ const pillBorder = isActive
+ ? i === 2 ? "rgba(212,175,55,0.45)" : i === 1 ? "rgba(196,170,100,0.30)" : "rgba(255,255,255,0.15)"
+ : "transparent";
+ const pillGlow = isActive && i === 2 ? "0 0 40px rgba(212,175,55,0.20), 0 0 80px rgba(212,175,55,0.08)" : "none";
+ return (
  <button
  key={t.id}
  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSwitch(i); }}
- className={`relative px-7 py-3 rounded-xl text-sm font-bold transition-all duration-400 ${
- activeTier === i
- ? i === 2
- ? "bg-gradient-to-r from-[--color-gold]/15 to-[--color-gold]/5 text-[--color-gold] shadow-[0_0_30px_rgba(212,175,55,0.08)]"
- : i === 1
- ? "bg-white/[0.06] text-[--color-gold-dark]"
- : "bg-white/[0.04] text-white/70"
- : "text-white/25 hover:text-white/45"
- }`}
+ className="relative px-8 py-3.5 rounded-xl text-sm font-bold transition-all duration-400"
+ style={{
+ background: pillBg,
+ border: `1px solid ${pillBorder}`,
+ boxShadow: pillGlow,
+ color: isActive ? (i === 0 ? "rgba(255,255,255,0.85)" : "rgba(212,175,55,0.95)") : "rgba(255,255,255,0.28)",
+ }}
  >
- {i === 2 && activeTier === 2 && (
- <img src={WIZSOUND_LOGO} alt="" className="absolute -top-2 -right-2 w-4 h-4 opacity-60" />
+ {i === 2 && isActive && (
+ <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.35)", color: "rgba(212,175,55,0.9)" }}>Best</span>
  )}
  {t.label}
  </button>
- ))}
+ );
+ })}
  </div>
  </div>
 
- {/* Main player area — two columns on desktop */}
- <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 max-w-4xl mx-auto">
+ {/* Main content — feature card + player side by side */}
+ <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 max-w-4xl mx-auto">
 
- {/* Left: Feature card */}
- <div className="lg:col-span-2 rounded-2xl p-6 border transition-all duration-500" style={{ borderColor: tier.ringColor, background: `linear-gradient(135deg, rgba(255,255,255,0.02), ${tier.glowColor})` }}>
- <div className="flex items-center gap-2.5 mb-4">
- {activeTier === 2 && <img src={WIZSOUND_LOGO} alt="WizSound" className="w-5 h-5" />}
- <span className="text-xs font-bold uppercase tracking-[0.15em]" style={{ color: tier.colorActive }}>{tier.tagline}</span>
+ {/* Left: Feature spec card */}
+ <div
+ className="lg:col-span-2 rounded-2xl p-7 transition-all duration-600"
+ style={{
+ border: `1px solid ${tier.ringColor}`,
+ background: `linear-gradient(160deg, rgba(10,8,5,0.92), ${tier.glowColor})`,
+ backdropFilter: "blur(20px)",
+ boxShadow: activeTier === 2 ? `0 0 60px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.10)` : "none",
+ }}
+ >
+ <div className="flex items-center gap-3 mb-6">
+ {activeTier === 2 && <img src={WIZSOUND_LOGO} alt="WizSound" className="w-6 h-6 drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]" />}
+ <div>
+ <span className="text-[11px] font-black uppercase tracking-[0.18em] block" style={{ color: tier.colorActive }}>{tier.tagline}</span>
+ {activeTier === 2 && <span className="text-[9px] text-[--color-gold]/50 font-bold uppercase tracking-widest">Studio Grade</span>}
  </div>
- <ul className="space-y-3">
+ </div>
+ <ul className="space-y-3.5">
  {tier.features.map((f, fi) => (
- <li key={fi} className="flex items-center gap-2.5 text-sm">
- <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: tier.colorActive, boxShadow: activeTier === 2 ? `0 0 6px ${tier.color}` : "none" }} />
- <span className="text-white/60">{f}</span>
+ <li key={fi} className="flex items-center gap-3 text-sm">
+ <span
+ className="w-2 h-2 rounded-full flex-shrink-0"
+ style={{
+ background: tier.colorActive,
+ boxShadow: activeTier === 2 ? `0 0 10px ${tier.color}, 0 0 20px ${tier.color}` : "none",
+ }}
+ />
+ <span className="text-white/65 font-medium">{f}</span>
  </li>
  ))}
  </ul>
  {activeTier === 2 && (
- <div className="mt-5 pt-4 border-t border-[--color-gold]/10">
- <span className="text-[10px] font-bold uppercase tracking-widest text-[--color-gold]/50">Recommended</span>
+ <div className="mt-6 pt-5 border-t" style={{ borderColor: "rgba(212,175,55,0.12)" }}>
+ <div className="flex items-center gap-2">
+ <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+ <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[--color-gold]/60">Recommended for all projects</span>
+ </div>
  </div>
  )}
  </div>
 
  {/* Right: Player card */}
- <div className="lg:col-span-3 rounded-2xl p-8 border border-white/[0.06] bg-white/[0.015] backdrop-blur-sm">
- {/* Single audio element — NO src prop: src is set imperatively in useEffect and handleTierSwitch */}
+ <div
+ className="lg:col-span-3 rounded-2xl p-8 transition-all duration-600"
+ style={{
+ border: "1px solid rgba(255,255,255,0.07)",
+ background: "rgba(5,4,3,0.85)",
+ backdropFilter: "blur(24px)",
+ boxShadow: "0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)",
+ }}
+ >
  <audio ref={audioRef} preload="auto" />
 
- {/* Animated waveform bars — more bars, thinner, premium look */}
- <div className="flex items-end justify-center gap-[3px] h-24 mb-8">
- {tier.bars.map((h, i) => (
+ {/* Waveform visualiser */}
+ <div className="flex items-end justify-center gap-[3px] h-20 mb-7">
+ {tier.bars.map((h, bi) => (
  <div
- key={i}
+ key={bi}
  className="rounded-full transition-all duration-500"
  style={{
- width: "4px",
+ width: "3px",
  height: `${h * 100}%`,
  background: `linear-gradient(180deg, ${tier.colorActive}, ${tier.color})`,
- boxShadow: activeTier === 2 ? `0 0 10px ${tier.color}` : "none",
- opacity: isPlaying ? (0.5 + h * 0.5) : (0.2 + h * 0.35),
- animation: isPlaying ? `pulse ${0.35 + (i % 5) * 0.08}s ease-in-out infinite alternate` : "none",
+ boxShadow: activeTier === 2 && isPlaying ? `0 0 8px ${tier.color}` : "none",
+ opacity: isPlaying ? (0.55 + h * 0.45) : (0.15 + h * 0.30),
+ animation: isPlaying ? `pulse ${0.30 + (bi % 5) * 0.09}s ease-in-out infinite alternate` : "none",
  }}
  />
  ))}
  </div>
 
- {/* Progress bar */}
- <div className="relative h-1 bg-white/[0.04] rounded-full mb-8 overflow-hidden cursor-pointer group"
+ {/* Progress track */}
+ <div
+ className="relative h-[3px] rounded-full mb-7 overflow-visible cursor-pointer group"
+ style={{ background: "rgba(255,255,255,0.05)" }}
  onClick={(e) => {
  if (!audioRef.current) return;
  const rect = e.currentTarget.getBoundingClientRect();
@@ -2306,37 +2379,47 @@ function WizSoundDemo() {
  >
  <div
  className="absolute left-0 top-0 h-full rounded-full transition-all duration-100"
- style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${tier.color}, ${tier.colorActive})` }}
+ style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${tier.color}, ${tier.colorActive})`, boxShadow: `0 0 8px ${tier.color}` }}
  />
- {/* Playhead dot */}
- <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" style={{ left: `calc(${progress}% - 6px)`, background: tier.colorActive, boxShadow: `0 0 8px ${tier.color}` }} />
+ <div
+ className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border-2"
+ style={{ left: `calc(${progress}% - 7px)`, background: tier.colorActive, borderColor: "rgba(0,0,0,0.6)", boxShadow: `0 0 12px ${tier.color}` }}
+ />
  </div>
 
- {/* Controls row */}
+ {/* Controls */}
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-4">
  <button
  onClick={togglePlay}
- className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 border"
+ className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300"
  style={{
- background: isPlaying ? `linear-gradient(135deg, ${tier.colorActive}, rgba(0,0,0,0.6))` : "rgba(255,255,255,0.04)",
- borderColor: isPlaying ? tier.colorActive : "rgba(255,255,255,0.08)",
- boxShadow: isPlaying ? `0 0 24px ${tier.color}` : "none",
+ background: isPlaying
+ ? `linear-gradient(135deg, ${tier.colorActive}, rgba(0,0,0,0.5))`
+ : "rgba(255,255,255,0.05)",
+ border: `1.5px solid ${isPlaying ? tier.colorActive : "rgba(255,255,255,0.10)"}`,
+ boxShadow: isPlaying ? `0 0 30px ${tier.color}, 0 0 60px ${tier.color}` : "0 4px 20px rgba(0,0,0,0.4)",
  }}
  >
- {isPlaying ? <PauseSVG className="w-4 h-4 text-white" /> : <PlaySVG className="w-4 h-4 text-white/80" />}
+ {isPlaying ? <PauseSVG className="w-5 h-5 text-white" /> : <PlaySVG className="w-5 h-5 text-white/80" />}
  </button>
  <div>
- <div className="flex items-center gap-2">
- <h3 className="text-sm font-bold text-white">{tier.label}</h3>
+ <div className="flex items-center gap-2.5 mb-0.5">
+ <h3 className="text-base font-bold text-white">{tier.label}</h3>
  {activeTier === 2 && (
- <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-[--color-gold]/20 bg-[--color-gold]/[0.06] text-[--color-gold]">Studio</span>
+ <span
+ className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full"
+ style={{ background: "rgba(212,175,55,0.10)", border: "1px solid rgba(212,175,55,0.25)", color: "rgba(212,175,55,0.9)" }}
+ >Studio</span>
  )}
  </div>
- <p className="text-white/30 text-xs mt-0.5">{tier.desc}</p>
+ <p className="text-white/30 text-xs">{tier.desc}</p>
  </div>
  </div>
- <WaveformSVG className="w-5 h-5" color={tier.colorActive} />
+ <div className="flex flex-col items-center gap-1">
+ <WaveformSVG className="w-6 h-6" color={tier.colorActive} />
+ {isPlaying && <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: tier.colorActive }}>Live</span>}
+ </div>
  </div>
  </div>
  </div>
@@ -2344,14 +2427,20 @@ function WizSoundDemo() {
  {/* CTA */}
  <div className="text-center mt-14 flex flex-wrap items-center justify-center gap-4">
  <a href="/dashboard" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold">
- <img src={WIZSOUND_LOGO} alt="WizSound" aria-hidden="true" className="w-5 h-5 object-contain" />Start Creating
+ <img src={WIZSOUND_LOGO} alt="WizSound" aria-hidden="true" className="w-5 h-5 object-contain" />
+ Start Creating
  </a>
- <a href="/products/wizsound" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-semibold border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[--color-gold-dark] hover:bg-[--color-gold]/[0.07] hover:text-[--color-gold] transition-all">Find Out More
- <ArrowSVG className="w-4 h-4" />
+ <a href="/products/wizsound" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-semibold transition-all" style={{ border: "1px solid rgba(212,175,55,0.15)", background: "rgba(212,175,55,0.04)", color: "rgba(212,175,55,0.75)" }}
+ onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(212,175,55,0.10)"; (e.currentTarget as HTMLAnchorElement).style.color = "rgba(212,175,55,1)"; }}
+ onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(212,175,55,0.04)"; (e.currentTarget as HTMLAnchorElement).style.color = "rgba(212,175,55,0.75)"; }}
+ >
+ Find Out More <ArrowSVG className="w-4 h-4" />
  </a>
  </div>
  </div>
  </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0 z-10" />
  </section>
  );
 }
