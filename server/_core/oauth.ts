@@ -96,6 +96,8 @@ export function registerOAuthRoutes(app: Express) {
 
       // Extract post-login returnPath from state if present.
       // State may be a JSON payload { redirectUri, returnPath } or a legacy base64 string.
+      // New users (first sign-up) are always sent to /onboarding regardless of returnPath,
+      // unless the returnPath is a specific studio/product page (not just "/" or "/dashboard").
       let postLoginPath = "/";
       try {
         const decoded = Buffer.from(state, "base64").toString("utf8");
@@ -105,6 +107,10 @@ export function registerOAuthRoutes(app: Express) {
         }
       } catch {
         // Legacy state format — just redirect to home
+      }
+      // New users: redirect to /onboarding unless they were heading to a specific studio/product
+      if (isNewUser && (postLoginPath === "/" || postLoginPath === "/dashboard")) {
+        postLoginPath = "/onboarding";
       }
       res.redirect(302, postLoginPath);
     } catch (error) {

@@ -196,6 +196,10 @@ export default function Dashboard() {
   const hasProjects = totalProjects > 0;
   const recentProjects = recentJobsData?.slice(0, 6) ?? [];
   const continueProjects = recentJobsData?.filter((j: any) => j.status !== "completed" && j.status !== "failed").slice(0, 3) ?? [];
+  const isNewUser = !hasProjects && recentJobsData !== undefined;
+  const isFreePlan = !subData?.plan || subData.plan === "free";
+  const isLowCredits = creditData !== undefined && creditBalance < 10 && creditBalance >= 0;
+  const isEmptyCredits = creditData !== undefined && creditBalance === 0;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -229,15 +233,55 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-12">
 
-        {/* ── Welcome ──────────────────────────────────────────────────── */}
+        {/* ── Welcome ────────────────────────────────────────────────────── */}
         <div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-            <span className="bg-gradient-to-r from-[#e8c878] via-[#f2dfa0] to-[#b8892a] bg-clip-text text-transparent">Welcome to your Studio</span>
+            <span className="bg-gradient-to-r from-[#e8c878] via-[#f2dfa0] to-[#b8892a] bg-clip-text text-transparent">
+              {isNewUser ? `Welcome${user?.name ? `, ${user.name.split(" ")[0]}` : ""}` : "Welcome back"}{!isNewUser && user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+            </span>
           </h1>
           <p className="text-zinc-400 mt-2 text-base">
-            What do you want to create today{user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Your creative workspace — everything in one place.
+            {isNewUser
+              ? "Your studio is ready. Choose a creation type below to get started — your first storyboard is completely free."
+              : `What do you want to create today${user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Your creative workspace — everything in one place.`
+            }
           </p>
         </div>
+
+        {/* ── First-time welcome banner ─────────────────────────────────────── */}
+        {isNewUser && (
+          <div className="rounded-2xl border border-[--color-gold]/20 bg-gradient-to-r from-[#b8892a]/[0.06] to-transparent p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl border border-[--color-gold]/25 bg-[--color-gold]/[0.08] flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-[--color-gold]" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white mb-1">You have {creditBalance > 0 ? creditBalance : 30} free Build Credits</p>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Storyboard generation is always free. Credits are only used when you click <span className="text-white font-medium">Build</span> to render your final video. A standard 60-second video costs 30 credits.
+              </p>
+            </div>
+            <div className="flex-shrink-0 flex flex-col gap-2">
+              <a href={WIZVIDEO_STUDIO_PAGE} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-xs font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
+                <Sparkles className="w-3.5 h-3.5" /> Start your first video
+              </a>
+              <a href="/pricing" className="text-[10px] text-zinc-500 hover:text-[--color-gold] text-center transition-colors">See what each plan unlocks →</a>
+            </div>
+          </div>
+        )}
+
+        {/* ── Low-credit warning ───────────────────────────────────────────────────── */}
+        {!isNewUser && isLowCredits && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] px-5 py-4 flex items-center gap-4">
+            <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-white">{isEmptyCredits ? "You\'re out of Build Credits" : `Only ${creditBalance} Build Credits remaining`}</p>
+              <p className="text-xs text-zinc-400 mt-0.5">{isEmptyCredits ? "Top up to continue building videos." : "Top up now so you don\'t get interrupted mid-project."}</p>
+            </div>
+            <a href="/credits" className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold hover:bg-amber-500/25 transition-all">
+              <Zap className="w-3 h-3" /> Top up credits
+            </a>
+          </div>
+        )}
 
         {/* ── Create Action Cards ──────────────────────────────────────── */}
         <section>
@@ -598,8 +642,7 @@ export default function Dashboard() {
 
         {/* ── Fuel the Session ─────────────────────────────────────── */}
         <FuelTheSession />
-
-        {/* ── Your next video could be even better ─────────────────────── */}
+        {/* ── Your next video could be even better ────────────────────────────────── */}
         {hasProjects && (
           <section className="text-center py-8 border-t border-white/8">
             <p className="text-zinc-400 text-sm mb-4">Your next video could be even better.</p>
@@ -612,9 +655,33 @@ export default function Dashboard() {
           </section>
         )}
 
+        {/* ── Post-first-project upgrade nudge ───────────────────────────────── */}
+        {hasProjects && isFreePlan && (
+          <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="flex-1">
+              <p className="text-xs font-bold tracking-widest uppercase text-[--color-gold]/70 mb-2">Ready to go further?</p>
+              <h3 className="text-lg font-bold text-white mb-1">Unlock unlimited builds & priority rendering</h3>
+              <p className="text-sm text-zinc-400">Upgrade to a plan for monthly credits, priority queue, 4K exports, and WizLumina™ + WizSound™ cinematic upgrades.</p>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 mt-3">
+                {['No credit card required to try', 'Cancel anytime', 'You own all your content'].map((t) => (
+                  <span key={t} className="text-xs text-zinc-500 flex items-center gap-1.5">
+                    <span className="text-[--color-gold]/60">✓</span> {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex-shrink-0 flex flex-col gap-2">
+              <a href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-sm font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
+                <Crown className="w-4 h-4" /> See plans
+              </a>
+              <a href="/credits" className="text-xs text-zinc-500 hover:text-[--color-gold] text-center transition-colors">Just need more credits? →</a>
+            </div>
+          </section>
+        )}
+
       </main>
 
-      {/* ── Delete Confirmation Dialog ─────────────────────────────── */}
+      {/* ── Delete Confirmation Dialog───────────────────────────── */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
           <AlertDialogHeader>

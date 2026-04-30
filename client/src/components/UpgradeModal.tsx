@@ -107,6 +107,14 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
               Maybe later
             </button>
           </div>
+          {/* Trust strip */}
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4">
+            {['No credit card required to try', 'Cancel anytime', 'You own your content'].map((t) => (
+              <span key={t} className="text-[10px] text-white/25 flex items-center gap-1">
+                <span className="text-[--color-gold]/40">✓</span> {t}
+              </span>
+            ))}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

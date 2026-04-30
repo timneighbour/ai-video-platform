@@ -303,24 +303,33 @@ export function PostRenderRetentionScreen({
 
       {/* ── Upgrade Prompt (free/starter users only) ──────────────────── */}
       {showUpgradePrompt && (
-        <div className="mb-5 px-4 py-3.5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-[#1a1a1a] flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center shrink-0">
-              <Crown className="w-4 h-4 text-[--color-gold]" />
+        <div className="mb-5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/10 to-[#1a1a1a] overflow-hidden">
+          <div className="px-4 py-3.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center shrink-0">
+                <Crown className="w-4 h-4 text-[--color-gold]" />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold">Loved this? Unlock more every month</p>
+                <p className="text-zinc-400 text-xs mt-0.5">Monthly credits, 4K exports, WizLumina™ + WizSound™ cinematic upgrades</p>
+              </div>
             </div>
-            <div>
-              <p className="text-white text-sm font-semibold">Get more Build Credits every month</p>
-              <p className="text-zinc-400 text-xs mt-0.5">Basic £19/mo · 5 Build Credits · HD quality · no watermark</p>
-            </div>
+            <a
+              href="/pricing"
+              onClick={() => mp.track("PostRender_UpgradeClick", { jobId, currentPlan: subData?.plan ?? "free" })}
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-xs font-semibold transition-colors"
+            >
+              See plans
+              <ChevronRight className="w-3 h-3" />
+            </a>
           </div>
-          <a
-            href="/pricing"
-            onClick={() => mp.track("PostRender_UpgradeClick", { jobId, currentPlan: subData?.plan ?? "free" })}
-            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold] hover:bg-[--color-gold]/80 text-white text-xs font-semibold transition-colors"
-          >
-            Upgrade
-            <ChevronRight className="w-3 h-3" />
-          </a>
+          <div className="px-4 pb-3 flex flex-wrap gap-x-5 gap-y-1">
+            {['No credit card required to try', 'Cancel anytime', 'You own all your content', 'Secure checkout via Stripe'].map((t) => (
+              <span key={t} className="text-[10px] text-zinc-600 flex items-center gap-1">
+                <span className="text-[--color-gold]/50">✓</span> {t}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 

@@ -409,6 +409,7 @@ export default function Pricing() {
  { icon: <Check className="w-3.5 h-3.5" />, text: "No credit card to start" },
  { icon: <Check className="w-3.5 h-3.5" />, text: "Cancel anytime" },
  { icon: <Check className="w-3.5 h-3.5" />, text: "Secure checkout via Stripe" },
+ { icon: <Check className="w-3.5 h-3.5" />, text: "You own your content" },
  { icon: <Globe className="w-3.5 h-3.5" />, text: "40+ countries supported" },
  ].map((pill) => (
  <span key={pill.text} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-xs text-white/50">

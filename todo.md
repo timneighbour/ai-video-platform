@@ -6389,3 +6389,18 @@
 - [ ] Apply dark luxury aesthetic throughout: black, white, warm gold, clean spacing
 - [ ] QA: desktop, tablet, mobile — all buttons and CTAs functional
 - [ ] Save checkpoint after homepage upgrade
+
+## Conversion & Onboarding Audit (April 2026)
+
+- [x] Fix post-signup redirect: new users land on /onboarding after OAuth (server-side isNewUser → returnPath=/onboarding)
+- [x] Fix Credits page: unauthenticated redirect to getLoginUrl() not "/"
+- [x] Add new-user welcome banner to Dashboard (first-time only, shows credits, what to do first)
+- [x] Add credit explainer section to Onboarding page (30 free credits, what they do, when to upgrade)
+- [x] Add trust strip to Onboarding page (no card, own content, cancel anytime, secure)
+- [x] Add "How it works" step strip to Onboarding page (3 steps: choose studio → describe → build)
+- [x] Add soft upgrade prompt component (UpgradeNudge) for post-first-project and credit-limit moments
+- [x] Add low-credit warning banner to Dashboard when credits < 10
+- [x] Add upgrade nudge to Dashboard for free/starter users with 0 projects
+- [x] Add trust footer strip to Dashboard (no card, own content, cancel anytime)
+- [x] Fix Dashboard empty state: add "You have 30 free credits" message and credit explainer
+- [x] Ensure all "Start Creating" CTAs on homepage pass returnPath to getLoginUrl when user is logged out

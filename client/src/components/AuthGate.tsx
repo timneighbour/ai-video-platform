@@ -100,6 +100,13 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
           <p className="text-center text-[--color-silver-dark]/30 text-xs mt-4">
             Free to create · Only pay to build · No card required
           </p>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+            {['Cancel anytime', 'You own your content', 'Secure checkout via Stripe'].map((t) => (
+              <span key={t} className="text-[10px] text-[--color-silver-dark]/20 flex items-center gap-1">
+                <span className="text-[--color-gold]/30">✓</span> {t}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

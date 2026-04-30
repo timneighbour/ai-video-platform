@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { getLoginUrl } from "@/const";
 import { mp } from "@/lib/mixpanel";
 import {
   Zap,
@@ -102,8 +103,8 @@ export default function Credits() {
   const [loading, setLoading] = useState<PackId | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) setLocation("/");
-  }, [isAuthenticated, setLocation]);
+    if (!isAuthenticated) window.location.href = getLoginUrl("/credits");
+  }, [isAuthenticated]);
 
   // Check for success/cancel query params
   useEffect(() => {

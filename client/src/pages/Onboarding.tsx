@@ -410,6 +410,53 @@ const Onboarding: React.FC = () => {
           </div>
         </div>
 
+        {/* ── How It Works ──────────────────────────────────────────────── */}
+        <div className="w-full max-w-3xl mt-16 mb-4">
+          <p className="text-center text-[11px] font-bold tracking-[0.25em] uppercase text-[#b8892a]/60 mb-8">How it works</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { step: '01', title: 'Choose a studio', desc: 'Pick the creation type that matches your project — video, music, animation, or image.' },
+              { step: '02', title: 'Describe your vision', desc: 'Upload your audio or type a prompt. WIZ AI builds a full storyboard — completely free.' },
+              { step: '03', title: 'Build & download', desc: 'Happy with the preview? Hit Build. Credits are only used when you render the final video.' },
+            ].map((item) => (
+              <div key={item.step} className="flex flex-col items-center text-center gap-3">
+                <div className="w-10 h-10 rounded-full border border-[#b8892a]/30 bg-[#b8892a]/[0.06] flex items-center justify-center text-[#b8892a] text-sm font-bold">{item.step}</div>
+                <p className="text-sm font-semibold text-white/80">{item.title}</p>
+                <p className="text-xs text-white/35 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Credit explainer ──────────────────────────────────────────────── */}
+        <div className="w-full max-w-3xl mt-12 rounded-2xl border border-[#b8892a]/15 bg-[#b8892a]/[0.04] px-8 py-7">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl border border-[#b8892a]/25 bg-[#b8892a]/[0.08] flex items-center justify-center">
+              <Zap className="w-5 h-5 text-[#b8892a]" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white mb-1">You have 30 free Build Credits</p>
+              <p className="text-xs text-white/40 leading-relaxed">Storyboard generation is always free — preview your full video before spending a single credit. Credits are only used when you click <span className="text-white/60 font-medium">Build</span> to render the final video. A standard 60-second video costs 30 credits.</p>
+            </div>
+            <a href="/pricing" className="flex-shrink-0 text-xs font-semibold text-[#b8892a] hover:text-[#e8c878] transition-colors whitespace-nowrap">See all plans →</a>
+          </div>
+        </div>
+
+        {/* ── Trust strip ───────────────────────────────────────────────────── */}
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-10 mb-4">
+          {[
+            { icon: '🔒', text: 'No credit card to start' },
+            { icon: '✓', text: 'You own your content' },
+            { icon: '↩', text: 'Cancel anytime' },
+            { icon: '🛡', text: 'Secure checkout via Stripe' },
+          ].map((item) => (
+            <div key={item.text} className="flex items-center gap-2 text-[11px] text-white/30 font-medium">
+              <span className="text-[#b8892a]/60 text-xs">{item.icon}</span>
+              {item.text}
+            </div>
+          ))}
+        </div>
+
         {/* ── Footer ─────────────────────────────────────────────────────── */}
         <div className="mt-12 text-center">
           <p className="text-white/20 text-xs">
