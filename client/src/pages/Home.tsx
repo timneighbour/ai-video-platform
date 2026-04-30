@@ -2809,9 +2809,9 @@ function WizVidEngineSection() {
 
 /// See the Difference (Cinematic Demo Player) 
 
-// v5 — baked-in grades: each phase is a different visual grade rendered into the video
+// v6 — baked-in grades: each phase is a different visual grade rendered into the video
 // The video plays continuously; tier buttons jump to the correct timestamp
-const STD_VIDEO = "/manus-storage/std-demo-v5_8c505272.mp4";
+const STD_VIDEO = "/manus-storage/std_demo_v6_1f8808a9.mp4";
 
 const STD_AUDIO = {
  original: "/manus-storage/std-v5-audio-original_641c2c62.mp3",
