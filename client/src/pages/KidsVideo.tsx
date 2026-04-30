@@ -357,7 +357,19 @@ export default function KidsVideo() {
       )}
 
       {/* ── 2-Column Layout ─────────────────────────────────────────────────── */}
-      <div style={{
+      <style>{`
+        @media (max-width: 768px) {
+          .kidsvideo-layout {
+            grid-template-columns: 1fr !important;
+            overflow: visible !important;
+          }
+          .kidsvideo-layout > * {
+            max-height: none !important;
+            overflow: visible !important;
+          }
+        }
+      `}</style>
+      <div className="kidsvideo-layout" style={{
         position: "relative", zIndex: 1,
         display: "grid", gridTemplateColumns: "1fr 340px",
         flex: 1, overflow: "hidden",

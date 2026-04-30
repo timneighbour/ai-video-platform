@@ -506,7 +506,19 @@ export default function WizScore() {
       )}
 
       {/* ── 3-Column Layout ── */}
-      <div style={{display:"grid",gridTemplateColumns:"320px 1fr 300px",flex:1,overflow:"hidden",borderTop:"1px solid #1e1e1e"}}>
+      <style>{`
+        @media (max-width: 768px) {
+          .wizscore-layout {
+            grid-template-columns: 1fr !important;
+            overflow: visible !important;
+          }
+          .wizscore-layout > * {
+            max-height: none !important;
+            overflow: visible !important;
+          }
+        }
+      `}</style>
+      <div className="wizscore-layout" style={{display:"grid",gridTemplateColumns:"320px 1fr 300px",flex:1,overflow:"hidden",borderTop:"1px solid #1e1e1e"}}>
 
         {/* ── LEFT PANEL ── */}
         <div style={{background:"#0f0f0f",borderRight:"1px solid #1e1e1e",overflowY:"auto",padding:"16px"}}>

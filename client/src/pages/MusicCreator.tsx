@@ -463,7 +463,7 @@ export default function MusicCreator() {
       </header>
 
       {/* ── LIVE ROOM WINDOW ── */}
-      <div className="relative w-full overflow-hidden" style={{ height: 280, background: "#000" }}>
+      <div className="relative w-full overflow-hidden" style={{ height: "clamp(160px, 40vw, 280px)", background: "#000" }}>
         <img src={ENV_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "center 30%", filter: `brightness(${ambience / 100})`, transition: "filter 0.6s ease" }} />
         {/* Ambient overlay */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(0,0,0,0.28)" }} />
@@ -508,7 +508,7 @@ export default function MusicCreator() {
         <div className="flex flex-col" style={{ background: "#13111a", borderTop: "2px solid rgba(201,168,76,0.18)", minHeight: "calc(100vh - 332px)" }}>
 
           {/* Console Rail */}
-          <div className="flex items-center px-4 gap-3 flex-shrink-0" style={{ height: 82, background: "#0b0910", borderBottom: "1px solid rgba(201,168,76,0.10)" }}>
+          <div className="hidden md:flex items-center px-4 gap-3 flex-shrink-0" style={{ height: 82, background: "#0b0910", borderBottom: "1px solid rgba(201,168,76,0.10)" }}>
             {/* Left: brand + ambient knob */}
             <div className="flex flex-col gap-1.5 flex-shrink-0">
               <div className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/15">SSL 9000 — Master Bus · WizSound™</div>
@@ -570,7 +570,7 @@ export default function MusicCreator() {
         </div>
 
         {/* Console Body */}
-          <div className="grid flex-1 overflow-hidden" style={{ gridTemplateColumns: "1fr 300px", background: "#0f0d15" }}>
+          <div className="flex flex-col md:grid flex-1 overflow-hidden" style={{ gridTemplateColumns: "1fr 300px", background: "#0f0d15" }}>
 
             {/* ── LEFT: Channel Area ── */}
             <div className="overflow-y-auto p-3.5 flex flex-col gap-3" style={{ borderRight: "1px solid rgba(201,168,76,0.08)" }}>
@@ -587,7 +587,7 @@ export default function MusicCreator() {
                 <span className="text-[8px] tracking-[1.5px] uppercase" style={{ color: "rgba(255,255,255,0.2)" }}>Choose Your Workflow</span>
               </div>
               {/* Mode cards */}
-              <div className="flex gap-0 p-3">
+              <div className="flex flex-col xs:flex-row gap-0 p-3">
                 {([
                   { id: "generate" as StudioMode, icon: "✦", badge: "CREATE", label: "Generate", sub: "Create from scratch", color: "#f0c040", glow: "rgba(240,192,64,0.55)", badgeColor: "rgba(240,192,64,0.22)", badgeText: "#f0c040" },
                   { id: "cover"    as StudioMode, icon: "⟳", badge: "UPLOAD", label: "Cover & Transform", sub: "Upload your track, change the style", color: "#4da6ff", glow: "rgba(77,166,255,0.50)", badgeColor: "rgba(77,166,255,0.22)", badgeText: "#4da6ff" },
@@ -716,7 +716,7 @@ export default function MusicCreator() {
                 <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.06), transparent)" }} />
                 <span className="text-[7px] tracking-[1.5px] uppercase px-2 py-0.5 rounded-[3px]" style={{ background: "rgba(48,209,88,0.1)", color: "rgba(48,209,88,0.7)", border: "1px solid rgba(48,209,88,0.15)" }}>● LIVE</span>
               </div>
-              <div className="flex gap-0 p-3">
+              <div className="flex flex-col xs:flex-row gap-0 p-3">
                 {([
                   { value: "score" as GenerationMode, icon: "FX",  label: "Sound FX",       desc: "Cinematic effects & ambience",                color: "#f0c040", glow: "rgba(240,192,64,0.55)",  tag: "EFFECTS"  },
                   { value: "song"  as GenerationMode, icon: "PRO", label: "Precision Audio", desc: "Full production, any length",                 color: "#c084fc", glow: "rgba(192,132,252,0.50)", tag: "STUDIO"   },
@@ -1004,7 +1004,7 @@ export default function MusicCreator() {
           </div>
 
           {/* ── RIGHT: Master Section ── */}
-          <div className="flex flex-col gap-3 overflow-y-auto p-3.5" style={{ background: "#09080e" }}>
+          <div className="flex flex-col gap-3 overflow-y-auto p-3.5 md:max-h-none" style={{ background: "#09080e" }}>
             <div className="text-[9px] font-bold tracking-[3px] uppercase text-white/16 text-center pb-2.5 border-b border-white/7">Master Bus · WizSound™</div>
 
             {/* ── LIVE ROOM WINDOW ── */}

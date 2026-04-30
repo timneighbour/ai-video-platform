@@ -492,7 +492,7 @@ export default function WizShorts() {
             <span style={{ color: "#555" }}>{PLATFORMS.find(p => p.id === platform)?.label} Shorts · 9:16</span>
           </div>
           {/* Stats grid */}
-          <div style={{ padding: "5px 8px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
+          <div style={{ padding: "5px 8px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))", gap: 4 }}>
             {[
               { label: "SUBSCRIBERS", val: "124.7K", sub: "▲ +2.1K this week", color: "#ff6666" },
               { label: "TOTAL VIEWS",  val: "8.4M",   sub: "Last 28 days",      color: "#d4a843" },
@@ -506,7 +506,7 @@ export default function WizShorts() {
             ))}
           </div>
           {/* Live / next upload row */}
-          <div style={{ padding: "0 8px 5px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+          <div style={{ padding: "0 8px 5px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: 4 }}>
             <div style={{ background: "#0d0d0d", borderRadius: 2, padding: "4px 6px", display: "flex", alignItems: "center", gap: 5 }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff4444", animation: "wizLivePulse 1s infinite" }} />
               <div>
@@ -546,7 +546,7 @@ export default function WizShorts() {
           }}
         >
           <div style={{ fontSize: 10, fontWeight: 800, color: "#fff", marginBottom: 6, letterSpacing: "0.5px" }}>@TimCreates</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "4px 12px" }}>
             {[
               { val: "124.7K", lbl: "YT Subs",     color: "#ff6666" },
               { val: "89.2K",  lbl: "TikTok",      color: "#ccc" },

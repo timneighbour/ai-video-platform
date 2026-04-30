@@ -349,7 +349,19 @@ export default function WizImage() {
       )}
 
       {/* ── Main Layout: Left Panel | Centre Canvas | Right Panel ── */}
-      <div className="relative z-10 max-w-[1440px] mx-auto" style={{ display: "grid", gridTemplateColumns: "340px 1fr 300px", minHeight: "calc(100vh - 64px)" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .wizimage-layout {
+            grid-template-columns: 1fr !important;
+            min-height: auto !important;
+          }
+          .wizimage-layout aside {
+            position: static !important;
+            max-height: none !important;
+          }
+        }
+      `}</style>
+      <div className="relative z-10 max-w-[1440px] mx-auto wizimage-layout" style={{ display: "grid", gridTemplateColumns: "340px 1fr 300px", minHeight: "calc(100vh - 64px)" }}>
 
         {/* ── LEFT PANEL ── */}
         <aside className="overflow-y-auto p-4 flex flex-col gap-4" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64, background: "rgba(4,4,14,0.75)", backdropFilter: "blur(12px)", borderRight: `1px solid ${A_BORDER}` }}>

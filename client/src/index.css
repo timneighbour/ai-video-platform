@@ -5,6 +5,7 @@
 @custom-variant dark (&.dark, .dark &);
 
 @theme inline {
+  --breakpoint-xs: 380px;
   --font-sans: 'Open Sans', system-ui, sans-serif;
   --font-display: 'Sora', system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
