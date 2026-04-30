@@ -242,13 +242,12 @@ function CaptionOverlay({ caption, playing }: CaptionOverlayProps) {
   useEffect(() => {
     if (caption && playing) {
       if (caption !== displayed) {
-        // Fade out then in for new caption
         setVisible(false);
         if (timerRef.current) clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => {
           setDisplayed(caption);
           setVisible(true);
-        }, 200);
+        }, 180);
       } else {
         setVisible(true);
       }
@@ -266,36 +265,46 @@ function CaptionOverlay({ caption, playing }: CaptionOverlayProps) {
 
   return (
     <div
-      className="absolute top-14 left-0 right-0 z-20 flex justify-center px-4 pointer-events-none"
+      className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(-6px)",
-        transition: "opacity 0.3s ease, transform 0.3s ease",
+        transform: visible ? "translateY(0)" : "translateY(10px)",
+        transition: "opacity 0.35s ease, transform 0.35s ease",
       }}
     >
+      {/* Dark gradient scrim so text always reads against video */}
       <div
-        className="max-w-xl w-full text-center rounded-xl px-5 py-3"
-        style={{
-          background: "rgba(0,0,0,0.72)",
-          backdropFilter: "blur(12px)",
-          border: `1px solid ${accent}30`,
-          boxShadow: `0 4px 24px rgba(0,0,0,0.6), 0 0 20px ${accent}15`,
-        }}
-      >
+        className="absolute bottom-0 left-0 right-0 h-40"
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 60%, transparent 100%)", pointerEvents: "none" }}
+      />
+      {/* Caption text — bottom-centre */}
+      <div className="relative z-10 px-6 pb-5 pt-2 text-center">
         <p
-          className="text-sm sm:text-base font-bold leading-tight tracking-wide"
+          className="font-black leading-none tracking-tight"
           style={{
-            background: `linear-gradient(90deg, ${accent}, ${accent}cc)`,
+            fontSize: "clamp(1.35rem, 3.5vw, 2.1rem)",
+            background: `linear-gradient(90deg, ${accent} 0%, #fff 50%, ${accent} 100%)`,
+            backgroundSize: "200% 100%",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
             textShadow: "none",
+            filter: `drop-shadow(0 0 18px ${accent}99)`,
+            letterSpacing: "-0.01em",
           }}
         >
           {displayed.headline}
         </p>
         {displayed.sub && (
-          <p className="text-[0.7rem] sm:text-xs text-white/65 mt-1 leading-relaxed font-medium">
+          <p
+            className="mt-2 font-semibold tracking-widest uppercase"
+            style={{
+              fontSize: "clamp(0.62rem, 1.4vw, 0.82rem)",
+              color: "rgba(255,255,255,0.82)",
+              textShadow: `0 0 12px ${accent}66`,
+              letterSpacing: "0.18em",
+            }}
+          >
             {displayed.sub}
           </p>
         )}
